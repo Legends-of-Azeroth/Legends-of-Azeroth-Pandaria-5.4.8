@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -24,6 +24,8 @@
 #include <functional>
 #include <mutex>
 #include <vector>
+
+class MySQLConnection;
 
 /*! Transactions, high level class. */
 class TC_DATABASE_API TransactionBase
@@ -68,36 +70,15 @@ public:
 };
 
 /*! Low level class*/
-class TC_DATABASE_API TransactionTask : public SQLOperation
-{
-    template <class T> friend class DatabaseWorkerPool;
-    friend class DatabaseWorker;
-    friend class TransactionCallback;
-
-    public:
-        TransactionTask(std::shared_ptr<TransactionBase> trans) : m_trans(trans) { }
-        ~TransactionTask() { }
-
-    protected:
-        bool Execute() override;
-        int TryExecute();
-        void CleanupOnFailure();
-
-        std::shared_ptr<TransactionBase> m_trans;
-        static std::mutex _deadlockLock;
-};
-
-class TC_DATABASE_API TransactionWithResultTask : public TransactionTask
+class TC_DATABASE_API TransactionTask
 {
 public:
-    TransactionWithResultTask(std::shared_ptr<TransactionBase> trans) : TransactionTask(trans) { }
+    static bool Execute(MySQLConnection* conn, std::shared_ptr<TransactionBase> trans);
 
-    TransactionFuture GetFuture() { return m_result.get_future(); }
+private:
+    static int TryExecute(MySQLConnection* conn, std::shared_ptr<TransactionBase> trans);
 
-protected:
-    bool Execute() override;
-
-    TransactionPromise m_result;
+    static std::mutex _deadlockLock;
 };
 
 class TC_DATABASE_API TransactionCallback

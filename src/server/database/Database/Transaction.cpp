@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -69,9 +69,9 @@ void TransactionBase::Cleanup()
     _cleanedUp = true;
 }
 
-bool TransactionTask::Execute()
+bool TransactionTask::Execute(MySQLConnection* conn, std::shared_ptr<TransactionBase> trans)
 {
-    int errorCode = TryExecute();
+    int errorCode = TryExecute(conn, trans);
     if (!errorCode)
         return true;
 
@@ -90,7 +90,7 @@ bool TransactionTask::Execute()
 
         for (uint32 loopDuration = 0, startMSTime = getMSTime(); loopDuration <= DEADLOCK_MAX_RETRY_TIME_MS; loopDuration = GetMSTimeDiffToNow(startMSTime))
         {
-            if (!TryExecute())
+            if (!TryExecute(conn, trans))
                 return true;
 
             TC_LOG_WARN("sql.sql", "Deadlocked SQL Transaction, retrying. Loop timer: %u ms, Thread Id: %s", loopDuration, threadId.c_str());
@@ -100,61 +100,14 @@ bool TransactionTask::Execute()
     }
 
     // Clean up now.
-    CleanupOnFailure();
+    trans->Cleanup();
 
     return false;
 }
 
-int TransactionTask::TryExecute()
+int TransactionTask::TryExecute(MySQLConnection* conn, std::shared_ptr<TransactionBase> trans)
 {
-    return m_conn->ExecuteTransaction(m_trans);
-}
-
-void TransactionTask::CleanupOnFailure()
-{
-    m_trans->Cleanup();
-}
-
-bool TransactionWithResultTask::Execute()
-{
-    int errorCode = TryExecute();
-    if (!errorCode)
-    {
-        m_result.set_value(true);
-        return true;
-    }
-
-    if (errorCode == ER_LOCK_DEADLOCK)
-    {
-        std::string threadId = []()
-        {
-            // wrapped in lambda to fix false positive analysis warning C26115
-            std::ostringstream threadIdStream;
-            threadIdStream << std::this_thread::get_id();
-            return threadIdStream.str();
-        }();
-
-        // Make sure only 1 async thread retries a transaction so they don't keep dead-locking each other
-        std::lock_guard<std::mutex> lock(_deadlockLock);
-        for (uint32 loopDuration = 0, startMSTime = getMSTime(); loopDuration <= DEADLOCK_MAX_RETRY_TIME_MS; loopDuration = GetMSTimeDiffToNow(startMSTime))
-        {
-            if (!TryExecute())
-            {
-                m_result.set_value(true);
-                return true;
-            }
-
-            TC_LOG_WARN("sql.sql", "Deadlocked SQL Transaction, retrying. Loop timer: %u ms, Thread Id: %s", loopDuration, threadId.c_str());
-        }
-
-        TC_LOG_ERROR("sql.sql", "Fatal deadlocked SQL Transaction, it will not be retried anymore. Thread Id: %s", threadId.c_str());
-    }
-
-    // Clean up now.
-    CleanupOnFailure();
-    m_result.set_value(false);
-
-    return false;
+    return conn->ExecuteTransaction(trans);
 }
 
 bool TransactionCallback::InvokeIfReady()
