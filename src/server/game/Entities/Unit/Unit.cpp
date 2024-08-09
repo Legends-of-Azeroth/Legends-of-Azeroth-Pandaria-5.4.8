@@ -1,4 +1,4 @@
-/*
+﻿/*
 * This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
@@ -13817,6 +13817,16 @@ void Unit::RemoveFromWorld()
             {
                 TC_LOG_FATAL("entities.unit", "Unit %u is in controlled list of %u when removed from world", GetEntry(), owner->GetEntry());
                 ASSERT(false);
+            }
+        }
+
+        if (GetTypeId() == TYPEID_PLAYER)
+        {
+            while (!m_summons.empty())
+            {
+                auto summon = m_summons.front();
+                m_summons.pop_front();
+                summon->UnSummon();
             }
         }
 

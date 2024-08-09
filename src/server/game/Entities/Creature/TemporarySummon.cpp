@@ -323,7 +323,7 @@ void TempSummon::UnSummon(uint32 msTime)
     }
 
     //ASSERT(!IsPet());
-    if (IsPet())
+    if (IsPet() && !ToPet()->IsTemporary())
     {
         ToPet()->Remove(PET_REMOVE_DISMISS, PET_REMOVE_FLAG_RESET_CURRENT);
         ASSERT(!IsInWorld());
@@ -333,6 +333,9 @@ void TempSummon::UnSummon(uint32 msTime)
     Unit* owner = GetSummoner();
     if (owner && owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
         owner->ToCreature()->AI()->SummonedCreatureDespawn(this);
+
+    if (IsAIEnabled)
+        AI()->Unsummoned();
 
     AddObjectToRemoveList();
 }
@@ -429,14 +432,18 @@ void Minion::RemoveFromWorld()
 
 bool Minion::IsGuardianPet() const
 {
-    return IsPet() || (m_Properties && m_Properties->Category == SUMMON_CATEGORY_PET);
+    if (IsPet())
+        return !ToPet()->IsTemporary();
+
+    return m_Properties && m_Properties->Category == SUMMON_CATEGORY_PET;
 }
 
 Guardian::Guardian(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject) : Minion(properties, owner, isWorldObject), m_bonusSpellDamage(0)
 {
     memset(m_statFromOwner, 0, sizeof(float)*MAX_STATS);
     m_unitTypeMask |= UNIT_MASK_GUARDIAN;
-    if (properties && properties->Type == SUMMON_TYPE_PET)
+    if (properties && (properties->Category == SUMMON_CATEGORY_PET ||
+        (properties->Type == SUMMON_TYPE_PET && properties->Category != SUMMON_CATEGORY_ALLY)))
     {
         m_unitTypeMask |= UNIT_MASK_CONTROLABLE_GUARDIAN;
         InitCharmInfo();

@@ -570,15 +570,7 @@ void Pet::Update(uint32 diff)
                     m_duration -= diff;
                 else
                 {
-                    if (getPetType() != SUMMON_PET)
-                    {
-                        Remove(PET_REMOVE_DISMISS);
-                    }
-                    else
-                    {
-                       Remove(PET_REMOVE_DISMISS, PET_REMOVE_FLAG_RESET_CURRENT); 
-                    }
-                    
+                    Remove(PET_REMOVE_DISMISS);
                     return;
                 }
             }
@@ -591,7 +583,10 @@ void Pet::Update(uint32 diff)
 
 void Pet::Remove(PetRemoveMode mode, int32 flags)
 {
-    GetOwner()->RemovePet(mode, flags);
+    if (IsTemporary())
+        UnSummon();
+    else
+        GetOwner()->RemovePet(mode, flags);
 }
 
 bool Pet::IsAutoCastEnabled(uint32 spellId) const

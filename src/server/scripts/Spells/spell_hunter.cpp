@@ -338,6 +338,7 @@ class spell_hunt_stampede : public SpellScript
         pet->SetDuration(20 * IN_MILLISECONDS);
         if (GetExplTargetUnit()->GetCharmerOrOwnerPlayerOrPlayerItself() || pet->GetMap()->IsBattlegroundOrArena())
             pet->CastSpell(pet, SPELL_HUNTER_STAMPEDE_DAMAGE_REDUCTION, true);
+        pet->SetFullHealth();
     }
 
     void Register() override
