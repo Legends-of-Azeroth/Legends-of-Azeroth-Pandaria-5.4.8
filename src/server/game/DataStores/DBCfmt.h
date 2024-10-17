@@ -1,4 +1,4 @@
-/*
+﻿/*
 * This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
@@ -150,7 +150,7 @@ const std::string CustomSpellDifficultyfmt = "ppppp";
 const std::string CustomSpellDifficultyIndex = "id";
 char const SpellDurationfmt[] = "niii";
 char const SpellEffectEntryfmt[] =            "niifiiiffiiiiiifiifiiiiixiiiix";
-const std::string CustomSpellEffectEntryfmt = "pappppppppapppapppppppppappppp";
+const std::string CustomSpellEffectEntryfmt = "papppppppppapppappppppppappppp";
 const std::string CustomSpellEffectEntryIndex = "Id";
 char const SpellEntryfmt[] =            "nssxxixxiiiiiiiiiiiiiiiii";
 const std::string CustomSpellEntryfmt = "paaaaaaaaapapppapppaapaapa";
