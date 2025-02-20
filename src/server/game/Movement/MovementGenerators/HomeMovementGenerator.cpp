@@ -38,6 +38,9 @@ void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner)
         owner->ApplyInstanceAuraIfNeeded();
         owner->AI()->JustReachedHome();
     }
+
+    if (!owner->HasSwimmingFlagOutOfCombat())
+        owner->RemoveUnitFlag(UNIT_FLAG_CAN_SWIM);
 }
 
 void HomeMovementGenerator<Creature>::DoReset(Creature*) { }

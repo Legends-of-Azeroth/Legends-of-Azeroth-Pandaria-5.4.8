@@ -283,7 +283,11 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool CanEnterWater() const override;
         bool CanFly()  const override { return GetMovementTemplate().IsFlightAllowed() || IsFlying(); }
         bool CanHover() const { return GetMovementTemplate().Ground == CreatureGroundMovementType::Hover || IsHovering(); } 
-
+        [[nodiscard]] bool HasSwimmingFlagOutOfCombat() const
+        {
+            return !_isMissingSwimmingFlagOutOfCombat;
+        }
+        void RefreshSwimmingFlag(bool recheck = false);
         // Used to dynamically change allowed path generator and movement flags behavior during scripts.
         // Can be used to allow ground-only creatures to temporarily fly, restrict flying creatures to the ground etc.
         void OverrideInhabitType(InhabitTypeValues inhabitType) {  } // todo remove in future 
@@ -603,6 +607,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool m_regenMana = true;
         bool m_AI_locked;
         bool m_hasNormalLootMode = true;
+        bool _isMissingSwimmingFlagOutOfCombat;
 
         SpellSchoolMask m_meleeDamageSchoolMask;
         uint32 m_originalEntry;
