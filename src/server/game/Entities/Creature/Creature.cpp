@@ -2581,8 +2581,7 @@ bool Creature::CanEnterWater() const
     if (CanSwim())
         return true;
 
-    //return GetMovementTemplate().IsSwimAllowed(); todo
-    return false;
+    return GetMovementTemplate().IsSwimAllowed();
 }
 
 void Creature::AllLootRemovedFromCorpse()
