@@ -1923,9 +1923,9 @@ void AuraEffect::HandlePhaseGroup(AuraApplication const* aurApp, uint8 mode, boo
 
     Unit* target = aurApp->GetTarget();
 
-    std::set<uint32> const& phases = GetPhasesForGroup(GetMiscValueB());
-    for (auto phase : phases)
-        target->SetPhased(phase, false, apply);
+    std::vector<uint32> const* phasesInGroup = sDBCManager.GetPhasesForGroup(GetMiscValueB());
+    for (uint32 phaseId : *phasesInGroup)
+        target->SetPhased(phaseId, false, apply);
 
     // call functions which may have additional effects after chainging state of unit
     // phase auras normally not expected at BG but anyway better check
@@ -6717,7 +6717,7 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) con
         return;
 
     if (target->GetPowerType() != powerType)
-        if (m_spellInfo->Id != 105530 || GetPowerIndexByClass(powerType, target->GetClass()) == MAX_POWERS) // Mana Void (Yor'sahj the Unsleeping)
+        if (m_spellInfo->Id != 105530 || sDBCManager.GetPowerIndexByClass(powerType, target->GetClass()) == MAX_POWERS) // Mana Void (Yor'sahj the Unsleeping)
             return;
 
     if (target->HasUnitState(UNIT_STATE_ISOLATED) || target->IsImmunedToDamage(GetSpellInfo()))

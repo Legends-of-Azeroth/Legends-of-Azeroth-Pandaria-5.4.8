@@ -13713,7 +13713,7 @@ uint32 Unit::GetPowerIndex(uint32 powerType) const
             }
         }
     }
-    return GetPowerIndexByClass(powerType, classId);
+    return sDBCManager.GetPowerIndexByClass(static_cast<Powers>(powerType), classId);
 }
 
 int32 Unit::GetCreatePowers(Powers power) const

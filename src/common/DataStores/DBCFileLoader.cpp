@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -19,19 +19,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "Common.h"
 #include "DBCFileLoader.h"
 #include "Errors.h"
 
-DBCFileLoader::DBCFileLoader() : fieldsOffset(NULL), data(NULL), stringTable(NULL) { }
+DBCFileLoader::DBCFileLoader() : recordSize(0), recordCount(0), fieldCount(0), stringSize(0), fieldsOffset(nullptr), data(nullptr), stringTable(nullptr) { }
 
-bool DBCFileLoader::Load(const char* filename, const char* fmt)
+bool DBCFileLoader::Load(char const* filename, char const* fmt)
 {
     uint32 header;
     if (data)
     {
         delete [] data;
-        data = NULL;
+        data = nullptr;
     }
 
     FILE* f = fopen(filename, "rb");
@@ -43,7 +42,6 @@ bool DBCFileLoader::Load(const char* filename, const char* fmt)
         fclose(f);
         return false;
     }
-
 
     EndianConvert(header);
 
@@ -112,20 +110,18 @@ bool DBCFileLoader::Load(const char* filename, const char* fmt)
 
 DBCFileLoader::~DBCFileLoader()
 {
-    if (data)
-        delete [] data;
+    delete[] data;
 
-    if (fieldsOffset)
-        delete [] fieldsOffset;
+    delete[] fieldsOffset;
 }
 
 DBCFileLoader::Record DBCFileLoader::getRecord(size_t id)
 {
-    assert(data);
+    ASSERT(data);
     return Record(*this, data + id * recordSize);
 }
 
-uint32 DBCFileLoader::GetFormatRecordSize(const char* format, int32* index_pos)
+uint32 DBCFileLoader::GetFormatRecordSize(char const* format, int32* index_pos)
 {
     uint32 recordsize = 0;
     int32 i = -1;
@@ -140,9 +136,6 @@ uint32 DBCFileLoader::GetFormatRecordSize(const char* format, int32* index_pos)
                 recordsize += sizeof(uint32);
                 break;
             case FT_STRING:
-                recordsize += sizeof(DbcStr);
-                break;
-            case FT_STRING_NOT_LOCALIZED:
                 recordsize += sizeof(char*);
                 break;
             case FT_SORT:
@@ -155,11 +148,14 @@ uint32 DBCFileLoader::GetFormatRecordSize(const char* format, int32* index_pos)
             case FT_BYTE:
                 recordsize += sizeof(uint8);
                 break;
+            case FT_LONG:
+                recordsize += sizeof(uint64);
+                break;                
             case FT_NA:
             case FT_NA_BYTE:
                 break;
             default:
-                ASSERT(false && "Unknown field format character in DBCfmt.h");
+                ABORT_MSG("Unknown field format character in DBCfmt.h");
                 break;
         }
     }
@@ -170,7 +166,7 @@ uint32 DBCFileLoader::GetFormatRecordSize(const char* format, int32* index_pos)
     return recordsize;
 }
 
-char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**& indexTable, uint32 sqlRecordCount, uint32 sqlHighestIndex, char*& sqlDataTable)
+char* DBCFileLoader::AutoProduceData(char const* format, uint32& records, char**& indexTable)
 {
     /*
     format STRING, NA, FLOAT, NA, INT <=>
@@ -185,7 +181,7 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
 
     typedef char* ptr;
     if (strlen(format) != fieldCount)
-        return NULL;
+        return nullptr;
 
     //get struct size and index pos
     int32 i;
@@ -202,10 +198,6 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
                 maxi = ind;
         }
 
-        // If higher index avalible from sql - use it instead of dbcs
-        if (sqlHighestIndex > maxi)
-            maxi = sqlHighestIndex;
-
         ++maxi;
         records = maxi;
         indexTable = new ptr[maxi];
@@ -213,14 +205,11 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
     }
     else
     {
-        records = recordCount + sqlRecordCount;
-        indexTable = new ptr[recordCount + sqlRecordCount];
+        records = recordCount;
+        indexTable = new ptr[recordCount];
     }
 
-    size_t totalSize = (recordCount + sqlRecordCount) * recordsize;
-
-    char* dataTable = new char[totalSize];
-    memset(dataTable, 0, totalSize);
+    char* dataTable = new char[recordCount * recordsize];
 
     uint32 offset = 0;
 
@@ -249,31 +238,31 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
                     offset += sizeof(uint8);
                     break;
                 case FT_STRING:
-                    offset += sizeof(DbcStr);
-                    break;
-                case FT_STRING_NOT_LOCALIZED:
-                    *((char**)(&dataTable[offset])) = nullptr;   // will be replaces non-empty or "" strings in AutoProduceStrings
+                    *((char**)(&dataTable[offset])) = nullptr;   // will replace non-empty or "" strings in AutoProduceStrings
                     offset += sizeof(char*);
+                    break;
+                case FT_LONG:
+                    *((uint64*)(&dataTable[offset])) = getRecord(y).getUInt64(x);
+                    offset += sizeof(uint64);
+                    break;                    
                 case FT_NA:
                 case FT_NA_BYTE:
                 case FT_SORT:
                     break;
                 default:
-                    ASSERT(false && "Unknown field format character in DBCfmt.h");
+                    ABORT_MSG("Unknown field format character in DBCfmt.h");
                     break;
             }
         }
     }
 
-    sqlDataTable = dataTable + offset;
-
     return dataTable;
 }
 
-char* DBCFileLoader::AutoProduceStrings(char const* format, char* dataTable, LocaleConstant locale)
+char* DBCFileLoader::AutoProduceStrings(char const* format, char* dataTable)
 {
     if (strlen(format) != fieldCount)
-        return NULL;
+        return nullptr;
 
     char* stringPool = new char[stringSize];
     memcpy(stringPool, stringTable, stringSize);
@@ -298,26 +287,22 @@ char* DBCFileLoader::AutoProduceStrings(char const* format, char* dataTable, Loc
                     break;
                 case FT_STRING:
                 {
-                    DbcStr* strings = (DbcStr*)(&dataTable[offset]);
-                    char const* st = getRecord(y).getString(x);
-                    strings->m_impl[locale] = stringPool+(st-(const char*)stringTable);
-                    offset += sizeof(DbcStr);
+                    // fill only not filled entries
+                    char** slot = (char**)(&dataTable[offset]);
+                    if (!*slot || !**slot)
+                    {
+                        const char * st = getRecord(y).getString(x);
+                        *slot = stringPool + (st - (char const*)stringTable);
+                    }
+                    offset += sizeof(char*);
                     break;
-                 }
-                 case FT_STRING_NOT_LOCALIZED:
-                 {
-                     char** db2str = (char**)(&dataTable[offset]);
-                     char const* st = getRecord(y).getString(x);
-                     *db2str = stringPool + (st - (char const*)stringTable);
-                     offset += sizeof(char*);
-                     break;
                  }
                  case FT_NA:
                  case FT_NA_BYTE:
                  case FT_SORT:
                      break;
                  default:
-                     ASSERT(false && "Unknown field format character in DBCfmt.h");
+                     ABORT_MSG("Unknown field format character in DBCfmt.h");
                      break;
             }
         }

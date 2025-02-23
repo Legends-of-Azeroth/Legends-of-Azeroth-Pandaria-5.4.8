@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -240,7 +240,7 @@ void CharacterBooster::_SendMail(CharacterDatabaseTransaction trans, PreparedIte
     if (!mailTemplateEntry) // should never happen
         return;
 
-    uint32 mailId = _PrepareMail(trans, mailTemplateEntry->subject[GetSession()->GetSessionDbcLocale()], mailTemplateEntry->content[GetSession()->GetSessionDbcLocale()]);
+    uint32 mailId = _PrepareMail(trans, mailTemplateEntry->subject, mailTemplateEntry->content);
     CharacterDatabasePreparedStatement* stmt = NULL;
 
     for (auto&& itr : items)
@@ -273,7 +273,7 @@ void CharacterBooster::_PrepareInventory(CharacterDatabaseTransaction trans) con
     if (!mailTemplateEntry) // should never happen
         return;
 
-    uint32 mailId = _PrepareMail(trans, mailTemplateEntry->subject[GetSession()->GetSessionDbcLocale()], mailTemplateEntry->content[GetSession()->GetSessionDbcLocale()]);
+    uint32 mailId = _PrepareMail(trans, mailTemplateEntry->subject, mailTemplateEntry->content);
 
     uint32 itemCount = 0;
     do
@@ -281,7 +281,7 @@ void CharacterBooster::_PrepareInventory(CharacterDatabaseTransaction trans) con
         if (itemCount > 11)
         {
             itemCount = 0;
-            mailId = _PrepareMail(trans, mailTemplateEntry->subject[GetSession()->GetSessionDbcLocale()], mailTemplateEntry->content[GetSession()->GetSessionDbcLocale()]);
+            mailId = _PrepareMail(trans, mailTemplateEntry->subject, mailTemplateEntry->content);
         }
 
         uint32 itemGuid = (*result)[0].GetUInt32();

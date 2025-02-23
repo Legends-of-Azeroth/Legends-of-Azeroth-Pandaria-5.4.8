@@ -1,5 +1,5 @@
 ﻿/*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -234,13 +234,13 @@ std::string Transmogrification::GetItemLink(Item* item, WorldSession* session) c
         {
             const ItemRandomSuffixEntry* itemRandEntry = sItemRandomSuffixStore.LookupEntry(-item->GetItemRandomPropertyId());
             if (itemRandEntry)
-                suffix = itemRandEntry->nameSuffix[loc_idx];
+                suffix = itemRandEntry->nameSuffix;
         }
         else
         {
             const ItemRandomPropertiesEntry* itemRandEntry = sItemRandomPropertiesStore.LookupEntry(item->GetItemRandomPropertyId());
             if (itemRandEntry)
-                suffix = itemRandEntry->nameSuffix[loc_idx];
+                suffix = itemRandEntry->nameSuffix;
         }
         if (suffix)
         {
