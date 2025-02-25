@@ -3681,10 +3681,18 @@ bool Unit::isInBackInMap(Unit const* target, float distance, float arc) const
 
 bool Unit::isInAccessiblePlaceFor(Creature const* c) const
 {
-    if (IsInWater())
-        return c->CanSwim();
+    const ZLiquidStatus& liquidStatus = GetLiquidStatus();
+    bool isInWater = (liquidStatus & MAP_LIQUID_STATUS_IN_CONTACT) != 0;
+
+    // In water or jumping in water
+    if (isInWater || (liquidStatus == LIQUID_MAP_ABOVE_WATER && (IsFalling() || (ToPlayer() && ToPlayer()->IsFalling()))))
+    {
+        return c->CanEnterWater();
+    }
     else
+    {
         return c->CanWalk() || c->CanFly();
+    }
 }
 
 bool Unit::IsInWater() const
@@ -11742,6 +11750,8 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
                 creature->GetFormation()->MemberEngagingTarget(creature, enemy);
         }
 
+        creature->RefreshSwimmingFlag();
+
         if (!(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_MOUNTED_COMBAT))
             Dismount();
     }
@@ -16668,6 +16678,10 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
                 break;
         }
     }
+
+    if (Creature* creature = ToCreature())
+        creature->RefreshSwimmingFlag();
+
     if (GetTypeId() == TYPEID_UNIT)
         TC_LOG_DEBUG("crash", "Unit::SetCharmedBy2, GUID: " UI64FMTD ", entry: %u, charmer: " UI64FMTD ", type: %u, aura: %u", GetGUID().GetRawValue(), GetEntry(), GetCharmerGUID().GetRawValue(), type, aurApp ? aurApp->GetBase()->GetId() : 0);
     return true;
@@ -19419,14 +19433,17 @@ bool Unit::SetSwim(bool enable)
         return false;
 
     if (enable)
+    {
         AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-    else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-
-    if (enable)
+        SetUnitFlag(UNIT_FLAG_CAN_SWIM);
         Movement::PacketSender(this, SMSG_SPLINE_MOVE_START_SWIM, NULL_OPCODE).Send();
+    }
     else
+    {
+        RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+        RemoveUnitFlag(UNIT_FLAG_CAN_SWIM);
         Movement::PacketSender(this, SMSG_SPLINE_MOVE_STOP_SWIM, NULL_OPCODE).Send();
+    }
 
     return true;
 }

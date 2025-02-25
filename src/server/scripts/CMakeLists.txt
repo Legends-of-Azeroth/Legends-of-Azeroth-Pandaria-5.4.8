@@ -120,6 +120,14 @@ target_link_libraries(scripts
   PUBLIC
     game)
 
+if(USE_MODULES)
+	add_dependencies(scripts modules)
+	target_link_libraries(scripts
+		PRIVATE
+		modules)
+    target_compile_definitions(scripts PRIVATE USE_MODULES)
+endif()
+
 if (ELUNA)
   add_dependencies(scripts lua)
   target_link_libraries(scripts

@@ -86,3 +86,8 @@ add_subdirectory(dep)
 
 # add core sources
 add_subdirectory(src)
+
+if (USE_MODULES)
+	# add core modules
+	add_subdirectory(modules)
+endif()

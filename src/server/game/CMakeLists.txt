@@ -306,6 +306,10 @@ target_link_libraries(game
     zlib
 )
 
+if(USE_MODULES)
+    target_compile_definitions(game PRIVATE USE_MODULES)
+endif()
+
 if (ELUNA)
   add_dependencies(game lua)
   target_link_libraries(game
