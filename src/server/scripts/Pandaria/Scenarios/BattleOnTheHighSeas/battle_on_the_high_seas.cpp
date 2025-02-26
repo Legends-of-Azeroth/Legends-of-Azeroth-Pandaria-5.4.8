@@ -103,7 +103,7 @@ struct npc_high_seas_cannoneer : public customCreatureAI
         DoCast(me, SPELL_CANNONEERS_TORCH);
 
         scheduler
-            .Schedule(Milliseconds(7000), Milliseconds(10000), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(7000), Milliseconds(10000), [this](TaskContext context)
         {
             std::list<Player*> targets;
             GetPlayerListInGrid(targets, me, 60.0f);
@@ -217,7 +217,7 @@ struct npc_high_seas_swashbuckler : public customCreatureAI
         events.ScheduleEvent(EVENT_SWASHBUCKLING, 4.5 * IN_MILLISECONDS);
 
         scheduler
-            .Schedule(Milliseconds(7000), Milliseconds(10000), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(7000), Milliseconds(10000), [this](TaskContext context)
         {
             std::list<Player*> targets;
             GetPlayerListInGrid(targets, me, 60.0f);
@@ -337,7 +337,7 @@ struct npc_high_seas_cannon_exploder : public ScriptedAI
 
         uint32 miscDelay = urand(1000, 2500);
         scheduler
-            .Schedule(Milliseconds(miscDelay), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(miscDelay), [this](TaskContext context)
         {
             DoCast(me, SPELL_CANNON_MISC_EFF);
             context.Repeat(Seconds(4));
@@ -546,7 +546,7 @@ struct npc_high_seas_horde_captain : public customCreatureAI
                 break;
             case ACTION_EXPLOSIVE_SHIP:
                 scheduler
-                    .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(1000), [this](TaskContext context)
                 {
                     if (calculationCount)
                     {
@@ -1007,7 +1007,7 @@ struct npc_high_seas_admiral_hodgson : public customCreatureAI
         Talk(TALK_INTRO);
 
         scheduler
-            .Schedule(Seconds(7), [this](TaskContext /*context*/)
+            .Schedule(Seconds(7), [this](TaskContext context)
         {
             Talk(TALK_SPECIAL_2); // just yell sometimes this for nothing
             context.Repeat(Seconds(8), Seconds(12));
@@ -1026,7 +1026,7 @@ struct npc_high_seas_admiral_hodgson : public customCreatureAI
         events.ScheduleEvent(EVENT_SHOT, 10 * IN_MILLISECONDS);
 
         scheduler
-            .Schedule(Milliseconds(4000), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(4000), [this](TaskContext context)
         {
             std::list<Player*> targets;
             GetPlayerListInGrid(targets, me, 60.0f);

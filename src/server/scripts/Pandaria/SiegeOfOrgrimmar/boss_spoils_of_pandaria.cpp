@@ -632,7 +632,7 @@ class boss_spoils_of_pandaria : public CreatureScript
                 _JustEngagedWith();
 
                 scheduler
-                    .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(1000), [this](TaskContext context)
                 {
                     timerValue--;
 
@@ -2217,7 +2217,7 @@ struct npc_spoils_spark_of_life : public ScriptedAI
         DoCast(me, SPELL_PULSE);
 
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(1000), [this](TaskContext context)
         {
             me->GetClosePoint(x, y, z, 3.0f, 15.0f, frand(0.0f, 2 * M_PI));
             me->GetMotionMaster()->MovePoint(0, x, y, z);
@@ -2389,7 +2389,7 @@ struct npc_spoils_stone_statue_warlord : public ScriptedAI
                 me->GetMotionMaster()->MovePoint(0, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() - 10.0f);
 
                 scheduler
-                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
                 {
                     if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
@@ -2401,7 +2401,7 @@ struct npc_spoils_stone_statue_warlord : public ScriptedAI
             else
             {
                 scheduler
-                    .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(1000), [this](TaskContext context)
                 {
                     if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);

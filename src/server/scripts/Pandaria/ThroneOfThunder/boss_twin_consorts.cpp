@@ -1529,7 +1529,7 @@ struct npc_ice_comet : public ScriptedAI
             DoCast(suen, SPELL_ICE_COMET_FACE_SUEN);
 
         // Areatrigger have some issue with low duration and LoS
-        scheduler.Schedule(Milliseconds(500), [this](TaskContext /*context*/)
+        scheduler.Schedule(Milliseconds(500), [this](TaskContext context)
         {
             std::list<Player*> pList;
             GetPlayerListInGrid(pList, me, 10.0f);
@@ -1576,7 +1576,7 @@ struct npc_lurker_in_the_night : public ScriptedAI
 
         scheduler
             .SetValidator([this] { return me->HasAura(SPELL_INVIS); })
-            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(1000), [this](TaskContext context)
         {
             DoCast(me, SPELL_DARKNESS);
 

@@ -623,7 +623,7 @@ struct npc_borer_drill : public ScriptedAI
         DoCast(me, SPELL_BORER_DRILL_MAIN_AT, true);
 
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(1000), [this](TaskContext context)
         {
             if (Unit* target = ObjectAccessor::GetUnit(*me, ownerGUID))
             {

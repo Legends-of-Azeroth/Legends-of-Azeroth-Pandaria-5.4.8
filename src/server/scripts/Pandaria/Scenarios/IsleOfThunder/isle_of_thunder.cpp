@@ -632,7 +632,7 @@ struct npc_shaolmara_vereesa_windrunner : public ScriptedAI
                         // Wait
                         scheduler
                             .SetValidator([this] { return !thirdStep; })
-                            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+                            .Schedule(Milliseconds(1000), [this](TaskContext context)
                         {
                             if (me->FindNearestCreature(NPC_ZEBTULA_STONESHIELD, 150.0f, true) || me->FindNearestCreature(NPC_ZANDALARI_BARRICADE_A, 150.0f, true) || me->FindNearestCreature(NPC_ZEBTULA_SPEARANGER, 150.0f, true))
                             {
@@ -903,7 +903,7 @@ struct npc_arcanital_marakah : public customCreatureAI
 
         scheduler
             .SetValidator([this] { return !secondStep; })
-            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(1000), [this](TaskContext context)
         {
             if (me->FindNearestCreature(NPC_SHAOL_MARA_BEASTCALLER, 150.0f, true) || me->FindNearestCreature(NPC_SHAOL_MARA_RAPTOR, 150.0f, true))
             {
@@ -1595,7 +1595,7 @@ struct npc_zebtula_scout_captain_elsia : public ScriptedAI
                         // Wait
                         scheduler
                             .SetValidator([this] { return !thirdStep; })
-                            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+                            .Schedule(Milliseconds(1000), [this](TaskContext context)
                         {
                             if (me->FindNearestCreature(NPC_ZEBTULA_STONESHIELD, 30.0f, true) || me->FindNearestCreature(NPC_ZANDALARI_BARRICADE_A, 30.0f, true) || me->FindNearestCreature(NPC_ZEBTULA_SPEARANGER, 30.0f, true))
                             {
@@ -1725,7 +1725,7 @@ struct npc_arcanital_tulachek : public customCreatureAI
 
         scheduler
             .SetValidator([this] { return !secondStep; })
-            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(1000), [this](TaskContext context)
         {
             std::list<Creature*> beastsList;
             GetCreatureListWithEntryInGrid(beastsList, me, NPC_SHAOL_MARA_BEASTCALLER, 150.0f);
@@ -2076,7 +2076,7 @@ struct npc_teardown_lorthemar_therone : public ScriptedAI
 
         scheduler
             .SetValidator([this] { return me->GetInstanceScript() && me->GetInstanceScript()->GetData(STEP_EXPLOSIVE) != DONE; })
-            .Schedule(Milliseconds(30000), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(30000), [this](TaskContext context)
         {
             Talk(TALK_INTRO);
 
@@ -2118,7 +2118,7 @@ struct npc_wargod_alchukla : public customCreatureAI
             Talk(TALK_INTRO);
 
             scheduler
-                .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+                .Schedule(Milliseconds(1000), [this](TaskContext context)
             {
                 if (Unit* target = ObjectAccessor::GetUnit(*me, getAnyEnemyGUID()))
                     DoCast(target, SPELL_ALCHUKLA_LIGHTNING_BALL);
@@ -2455,7 +2455,7 @@ struct npc_shanze_electrocutioner : public customCreatureAI
 
         scheduler
             .SetValidator([this] { return !me->GetVictim(); })
-            .Schedule(Seconds(2), [this](TaskContext /*context*/)
+            .Schedule(Seconds(2), [this](TaskContext context)
         {
             DoCast(me, SPELL_LIGHTNING_CHARGE);
             context.Repeat(Seconds(6));
@@ -2509,7 +2509,7 @@ struct npc_in_sky_lightning_strike_dummy : public customCreatureAI
 
         scheduler
             .SetValidator([this] { return !me->GetVictim(); })
-            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(500), [this](TaskContext context)
         {
             DoCast(me, SPELL_LIGHTNING_BLAST);
             context.Repeat(Seconds(1));
@@ -2983,7 +2983,7 @@ struct npc_zandalari_pterrorwing_to_skies : public customCreatureAI
         });
 
         scheduler
-            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(500), [this](TaskContext context)
         {
             if (Creature* thunderWing = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_THUNDERWING) : ObjectGuid::Empty))
                 me->GetMotionMaster()->MoveFollow(thunderWing, frand(5.0f, 8.0f), me->GetAngle(thunderWing));
@@ -3012,7 +3012,7 @@ struct npc_zandlari_beastcaller_to_skies : public customCreatureAI
         DoCast(me, SPELL_JUMP_OVERRIDE_TECH, true);
 
         scheduler
-            .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(1500), [this](TaskContext context)
         {
             if (Player* target = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                 DoCast(target, SPELL_THROW);
@@ -4057,7 +4057,7 @@ struct npc_stormsea_landing_sentry_beam_bunny : public ScriptedAI
             targetGUID = summoner->ToCreature()->AI()->GetGUID();
 
         scheduler
-            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(500), [this](TaskContext context)
         {
             if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
             {
@@ -4895,7 +4895,7 @@ struct npc_shanbu_nalak : public customCreatureAI
             });
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                     DoCast(target, SPELL_ELECTRICAL_STORM);
@@ -5466,7 +5466,7 @@ struct npc_thunder_forge_bunny : public ScriptedAI
 
             // Periodic Energize
             scheduler
-                .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+                .Schedule(Milliseconds(1000), [this](TaskContext context)
             {
                 DoCast(me, SPELL_THUNDER_FORGE_CHARGE, true);
 
@@ -5484,7 +5484,7 @@ struct npc_thunder_forge_bunny : public ScriptedAI
             // Waves Controller
             scheduler
                 .SetValidator([this] { return me->GetInstanceScript() && me->GetInstanceScript()->GetData(STEP_CHARGING) == IN_PROGRESS; })
-                .Schedule(Milliseconds(8500), [this](TaskContext /*context*/)
+                .Schedule(Milliseconds(8500), [this](TaskContext context)
             {
                 // additional check
                 if (Creature* vulkon = me->FindNearestCreature(NPC_FORGEMASTER_VULKON, 200.0f, true))
@@ -5516,7 +5516,7 @@ struct npc_thunder_forge_bunny : public ScriptedAI
             // Extra Help
             scheduler
                 .SetValidator([this] { return me->GetInstanceScript() && (me->GetInstanceScript()->GetData(STEP_CHARGING) == IN_PROGRESS || me->GetInstanceScript()->GetData(STEP_CHARGING) == SPECIAL); })
-                .Schedule(Milliseconds(25000), [this](TaskContext /*context*/)
+                .Schedule(Milliseconds(25000), [this](TaskContext context)
             {
                 Talk(TALK_INTRO);
 
@@ -5749,7 +5749,7 @@ struct npc_thunder_forge_second_bunny : public ScriptedAI
         {
             // Periodic Energize
             scheduler
-                .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+                .Schedule(Milliseconds(1000), [this](TaskContext context)
             {
                 DoCast(me, SPELL_THUNDER_FORGE_CHARGE, true);
 
@@ -5767,7 +5767,7 @@ struct npc_thunder_forge_second_bunny : public ScriptedAI
             // Waves Controller
             scheduler
                 .SetValidator([this] { return me->GetInstanceScript() && me->GetInstanceScript()->GetData(STEP_FILTH_FOUND) != DONE; })
-                .Schedule(Milliseconds(3000), [this](TaskContext /*context*/)
+                .Schedule(Milliseconds(3000), [this](TaskContext context)
             {
                 // Summon Waves here
                 for (uint8 i = 0; i < 2; i++)
@@ -6009,7 +6009,7 @@ struct npc_thunder_forge_celestial_blacksmith : public ScriptedAI
         me->PrepareChanneledCast(me->GetOrientation());
 
         scheduler
-            .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(1500), [this](TaskContext context)
         {
             if (hasBegun)
             {

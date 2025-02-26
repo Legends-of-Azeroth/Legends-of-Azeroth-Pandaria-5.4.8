@@ -818,7 +818,7 @@ struct npc_electric_conduit : public ScriptedAI
 
                 scheduler
                     .SetValidator([this] { return !isDisabled; })
-                    .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(500), [this](TaskContext context)
                 {
                     if (Creature* leiShen = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_LEI_SHEN) : ObjectGuid::Empty))
                     {
@@ -996,7 +996,7 @@ struct npc_ball_lightning : public ScriptedAI
 
         scheduler
             .SetValidator([this] { return !me->HasUnitState(UNIT_STATE_CASTING); })
-            .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(1500), [this](TaskContext context)
         {
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankSpecTargetSelector()))
                 DoCast(target, SPELL_BALL_LIGHTNING_JUMP);
@@ -1046,7 +1046,7 @@ struct npc_unharnessed_power : public ScriptedAI
 
         scheduler
             .SetValidator([this] { return IsHeroic(); })
-            .Schedule(Seconds(15), [this](TaskContext /*context*/)
+            .Schedule(Seconds(15), [this](TaskContext context)
         {
             DoCast(me, SPELL_AMPLIFIER);
 
@@ -1098,7 +1098,7 @@ struct npc_diffused_lightning : public ScriptedAI
 
         scheduler
             .SetValidator([this] { return !me->HasUnitState(UNIT_STATE_CASTING); })
-            .Schedule(Seconds(3), Seconds(9), [this](TaskContext /*context*/)
+            .Schedule(Seconds(3), Seconds(9), [this](TaskContext context)
         {
             if (Unit* target = me->GetVictim())
                 DoCast(target, invdiffusedLightningType.find(me->GetEntry())->second);

@@ -587,7 +587,7 @@ class npc_living_fluid : public CreatureScript
 
                         scheduler
                             .SetValidator([this] { return instance && instance->GetBossState(DATA_PRIMORDIUS) == IN_PROGRESS; })
-                            .Schedule(Seconds(1), [this](TaskContext /*context*/)
+                            .Schedule(Seconds(1), [this](TaskContext context)
                         {
                             if (Creature* primordius = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_PRIMORDIUS) : ObjectGuid::Empty))
                                 me->GetMotionMaster()->MoveFollow(primordius, 0.0f, me->GetAngle(primordius));

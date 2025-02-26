@@ -213,7 +213,7 @@ struct npc_secret_ing_sungshin_iron_paw : public ScriptedAI
                     }
 
                     scheduler
-                        .Schedule(Milliseconds(4000), [this](TaskContext /*context*/)
+                        .Schedule(Milliseconds(4000), [this](TaskContext context)
                     {
                         if (GetData(TYPE_QUEUE_PLACE)) // check queue not full
                             if (Creature* sholar = me->SummonCreature(NPC_SHOLAR, scholarPath[0], TEMPSUMMON_MANUAL_DESPAWN))

@@ -875,7 +875,7 @@ struct npc_soo_siegecrafter_helper : public ScriptedAI
                 me->SetInCombatWithZone();
 
                 scheduler
-                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
+                    .Schedule(Seconds(2), [this](TaskContext context)
                 {
                     if (instance && instance->IsWipe(100.0f, me))
                     {
@@ -2001,7 +2001,7 @@ struct npc_soo_laser_target_bunny : public ScriptedAI
         });
 
         scheduler
-            .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(2000), [this](TaskContext context)
         {
             if (stopMovement || byOvercharged)
                 return;

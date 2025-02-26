@@ -1272,7 +1272,7 @@ struct npc_dagger_in_dark_spring_saurok_slayer : public customCreatureAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(1000), 2, [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(1000), 2, [this](TaskContext context)
                 {
                     std::list<Creature*> sourcerers;
                     GetCreatureListWithEntryInGrid(sourcerers, me, NPC_DARKHATCHED_SORCERER, 35.0f);

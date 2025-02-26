@@ -445,7 +445,7 @@ class boss_paragon_of_the_klaxxi : public CreatureScript
 
                 // simulated delay (should solve issue with missing killruk at first initialize)
                 scheduler
-                    .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(2000), [this](TaskContext context)
                 {
                     if (instance && instance->GetData(DATA_PARAGON_PRE_EVENT) != DONE)
                     {
@@ -832,7 +832,7 @@ struct soo_paragon_typeAI : public ScriptedAI
 
         scheduler
             .SetValidator([this] { return me->GetEntry() == NPC_KILRUK_THE_WIND_REAVER || me->GetEntry() == NPC_IYYOKUK_THE_LUCID; })
-            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(1000), [this](TaskContext context)
         {
             // flight simulate
             me->SetAnimTier(AnimTier::Fly);
@@ -2336,7 +2336,7 @@ struct npc_blood : public ScriptedAI
         me->PrepareChanneledCast(me->GetOrientation());
 
         scheduler
-            .Schedule(Seconds(2), [this](TaskContext /*context*/)
+            .Schedule(Seconds(2), [this](TaskContext context)
         {
             if (!targetGUID) // if not found (but nvm, this shouldn`t execute)
                 targetGUID = getLowestKlaxxiGUID();
@@ -2414,7 +2414,7 @@ struct npc_paragon_amber_parasite : public ScriptedAI
         DoCast(me, SPELL_GENETIC_MODIFICATION);
 
         scheduler
-            .Schedule(Seconds(1), Seconds(4), [this](TaskContext /*context*/)
+            .Schedule(Seconds(1), Seconds(4), [this](TaskContext context)
         {
             if (!me->HasUnitState(UNIT_STATE_CASTING))
                 DoCast(me, SPELL_FEED);

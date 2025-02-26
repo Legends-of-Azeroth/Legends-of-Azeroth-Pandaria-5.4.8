@@ -971,7 +971,7 @@ class boss_durumu : public CreatureScript
 
                         scheduler
                             .SetValidator([this] { return ori <= 9 * M_PI / 4; })
-                            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
+                            .Schedule(Milliseconds(500), [this](TaskContext context)
                         {
                             x = me->GetPositionX(), y = me->GetPositionY();
 
@@ -1053,7 +1053,7 @@ struct npc_durumu_fog : public ScriptedAI
 
                 scheduler
                     .SetValidator([this] { return activate && me->GetEntry() != NPC_YELLOW_FOG; })
-                    .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(500), [this](TaskContext context)
                 {
                     DoCast(me, me->GetEntry() == NPC_BLUE_FOG ? SPELL_ICY_GRASP : SPELL_CAUSTIC_SPIKE);
 

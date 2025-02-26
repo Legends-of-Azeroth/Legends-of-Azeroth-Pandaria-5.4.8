@@ -176,7 +176,7 @@ class boss_garalon : public CreatureScript
             void ScheduleTasks() override
             {
                 scheduler
-                    .Schedule(Seconds(8), [this](TaskContext /*context*/)
+                    .Schedule(Seconds(8), [this](TaskContext context)
                     {
                         ObjectGuid targetGUID = ObjectGuid::Empty;
                         if (Unit* target = me->GetVictim())
@@ -199,7 +199,7 @@ class boss_garalon : public CreatureScript
                     });
 
                 if (me->GetMap()->IsHeroic())
-                    scheduler.Schedule(Seconds(35), [this](TaskContext /*context*/)
+                    scheduler.Schedule(Seconds(35), [this](TaskContext context)
                     {
                         if (!me->HasAura(SPELL_DAMAGED))
                         {

@@ -460,7 +460,7 @@ class boss_sha_of_pride : public CreatureScript
                     DoCast(me, SPELL_SHA_VORTEX_INTRO, true);
 
                     scheduler
-                        .Schedule(Seconds(1), [this](TaskContext /*context*/)
+                        .Schedule(Seconds(1), [this](TaskContext context)
                     {
                         if (!me->FindNearestCreature(NPC_LINGERING_CORRUPTION, 100.0f, true))
                         {
@@ -479,7 +479,7 @@ class boss_sha_of_pride : public CreatureScript
                             hasNorushenSpawned = true;
 
                             scheduler
-                                .Schedule(Seconds(4), [this](TaskContext /*context*/)
+                                .Schedule(Seconds(4), [this](TaskContext context)
                             {
                                 Talk(SAY_SHA_OF_PRIDE_INTRO_1);
                             });

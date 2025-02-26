@@ -821,7 +821,7 @@ struct npc_jump_to_boss_platform : public ScriptedAI
     void Reset() override
     {
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext /*context*/)
+            .Schedule(Seconds(1), [this](TaskContext context)
         {
             DoCast(me, SPELL_JUMP_TO_PLATFORM_AT, true);
             context.Repeat(Minutes(10));
@@ -897,7 +897,7 @@ struct npc_jikun_feed : public ScriptedAI
             jiKun->AI()->JustSummoned(me);
 
         scheduler
-            .Schedule(Milliseconds(200), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(200), [this](TaskContext context)
         {
             std::list<Player*> pList;
             GetPlayerListInGrid(pList, me, 3.0f);
@@ -979,7 +979,7 @@ struct npc_pool_of_feed_effect : public ScriptedAI
         // Not found selector for this in sniffs - only one not existed spell.
         scheduler
             .SetValidator([this] { return me->GetInstanceScript() && me->GetInstanceScript()->GetBossState(DATA_JI_KUN) == IN_PROGRESS; })
-            .Schedule(Milliseconds(200), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(200), [this](TaskContext context)
         {
             std::list<Player*> pList;
             GetPlayerListInGrid(pList, me, 10.0f);
@@ -1019,7 +1019,7 @@ struct npc_pool_of_feed_hatchling_effect : public ScriptedAI
         // Same
         scheduler
             .SetValidator([this] { return me->GetInstanceScript() && me->GetInstanceScript()->GetBossState(DATA_JI_KUN) == IN_PROGRESS; })
-            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(500), [this](TaskContext context)
         {
             std::list<Creature*> hatchlingList;
             GetCreatureListWithEntryInGrid(hatchlingList, me, NPC_JIKUN_HATCHLING, 10.0f);
@@ -1081,7 +1081,7 @@ struct npc_nest_guardian : public ScriptedAI
         // Periodic AOE at evade
         scheduler
             .SetValidator([this] { return me->HasUnitState(UNIT_STATE_CASTING); })
-            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(1000), [this](TaskContext context)
         {
             DoCast(me, SPELL_GUARDIAN_SCREECH);
             context.Repeat(Milliseconds(2000));
@@ -1147,7 +1147,7 @@ struct npc_jikun_golden_egg : public ScriptedAI
 
         scheduler
             .SetValidator([this] { return me->HasAura(SPELL_GENTLE_YET_FIRM); })
-            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(500), [this](TaskContext context)
         {
             DoCast(me, SPELL_DROPPED);
             context.Repeat(Milliseconds(500));

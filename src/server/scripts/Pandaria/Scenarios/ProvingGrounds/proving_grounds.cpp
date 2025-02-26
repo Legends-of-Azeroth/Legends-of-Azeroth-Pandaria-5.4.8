@@ -265,7 +265,7 @@ struct npc_proving_grounds_illusionary_guardian : public provingGroundsAI
     void JustEngagedWith(Unit* who) override
     {
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext /*context*/)
+            .Schedule(Seconds(1), [this](TaskContext context)
         {
             me->PrepareChanneledCast(frand(0.0f, 2 * M_PI), SPELL_DEFEND);
             context.Repeat(Seconds(15));
@@ -286,7 +286,7 @@ struct npc_proving_grounds_illusionary_amber_weaver : public provingGroundsAI
     void JustEngagedWith(Unit* who) override
     {
         scheduler
-            .Schedule(Seconds(2), [this](TaskContext /*context*/)
+            .Schedule(Seconds(2), [this](TaskContext context)
         {
             if (Player* target = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
             {
@@ -312,7 +312,7 @@ struct npc_proving_grounds_illusionary_mystic : public provingGroundsAI
     void JustEngagedWith(Unit* who) override
     {
         scheduler
-            .Schedule(Seconds(7), [this](TaskContext /*context*/)
+            .Schedule(Seconds(7), [this](TaskContext context)
         {
             if (Creature* target = ObjectAccessor::GetCreature(*me, getLowestFriendlyGUID()))
                 DoCast(target, SPELL_HEAL_ILLUSION);
@@ -366,7 +366,7 @@ struct npc_proving_grounds_illusionary_banana_tosser : public provingGroundsAI
     void JustEngagedWith(Unit* who) override
     {
         scheduler
-            .Schedule(Seconds(2), [this](TaskContext /*context*/)
+            .Schedule(Seconds(2), [this](TaskContext context)
         {
             if (hasReached && !me->HasAura(SPELL_BANANASTORM)) // use this on reach first destination
                 DoCast(me, SPELL_BANANASTORM);
@@ -397,7 +397,7 @@ struct npc_proving_grounds_illusionary_banshe : public provingGroundsAI
     void JustEngagedWith(Unit* who) override
     {
         scheduler
-            .Schedule(Seconds(2), [this](TaskContext /*context*/)
+            .Schedule(Seconds(2), [this](TaskContext context)
         {
             if (hasReached) // use this on reach first destination
             {
@@ -458,7 +458,7 @@ struct npc_proving_grounds_illusionary_forager : public provingGroundsAI
     void JustEngagedWith(Unit* who) override
     {
         scheduler
-            .Schedule(Seconds(3), Seconds(7), [this](TaskContext /*context*/)
+            .Schedule(Seconds(3), Seconds(7), [this](TaskContext context)
         {
             if (Unit* target = me->GetVictim())
                 DoCast(target, SPELL_CHOMP);
@@ -496,7 +496,7 @@ struct npc_proving_grounds_illusionary_flamecaller : public provingGroundsAI
         });
 
         scheduler
-            .Schedule(Seconds(5), [this](TaskContext /*context*/)
+            .Schedule(Seconds(5), [this](TaskContext context)
         {
             if (Unit* target = me->GetVictim())
                 DoCast(target, SPELL_PYROBLAST);
@@ -524,7 +524,7 @@ struct npc_proving_grounds_illusionary_wind_guard : public provingGroundsAI
     void JustEngagedWith(Unit* who) override
     {
         scheduler
-            .Schedule(Seconds(5), [this](TaskContext /*context*/)
+            .Schedule(Seconds(5), [this](TaskContext context)
         {
             if (Unit* target = me->GetVictim())
             {
@@ -532,7 +532,7 @@ struct npc_proving_grounds_illusionary_wind_guard : public provingGroundsAI
                 me->PrepareChanneledCast(me->GetAngle(target), SPELL_WING_BLAST);
 
                 scheduler
-                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
+                    .Schedule(Seconds(1), [this](TaskContext context)
                 {
                     me->RemoveChanneledCast(targetGUID);
                 });
@@ -561,7 +561,7 @@ struct npc_proving_grounds_illusionary_ambusher : public provingGroundsAI
     void JustEngagedWith(Unit* who) override
     {
         scheduler
-            .Schedule(Seconds(3), [this](TaskContext /*context*/)
+            .Schedule(Seconds(3), [this](TaskContext context)
         {
             DoCast(me, SPELL_FAN_OF_BANANAS);
             context.Repeat(Seconds(2), Seconds(4));
@@ -587,7 +587,7 @@ struct npc_proving_grounds_illusionary_conqueror : public provingGroundsAI
     void JustEngagedWith(Unit* who) override
     {
         scheduler
-            .Schedule(Seconds(5), [this](TaskContext /*context*/)
+            .Schedule(Seconds(5), [this](TaskContext context)
         {
             if (Unit* target = me->GetVictim())
             {
@@ -605,7 +605,7 @@ struct npc_proving_grounds_illusionary_conqueror : public provingGroundsAI
         });
 
         scheduler
-            .Schedule(Seconds(10), [this](TaskContext /*context*/)
+            .Schedule(Seconds(10), [this](TaskContext context)
         {
             DoCast(me, SPELL_ENRAGE);
             context.Repeat(Seconds(50));
@@ -631,7 +631,7 @@ struct npc_proving_grounds_illusionary_hive_singer : public provingGroundsAI
     void JustEngagedWith(Unit* who) override
     {
         scheduler
-            .Schedule(Seconds(2), [this](TaskContext /*context*/)
+            .Schedule(Seconds(2), [this](TaskContext context)
         {
             HandleInterruptMySpell();
             DoCast(me, SPELL_SONIC_BLAST);
@@ -674,7 +674,7 @@ struct npc_proving_grounds_illusionary_flamecaller_healer : public provingGround
         });
 
         scheduler
-            .Schedule(Seconds(5), [this](TaskContext /*context*/)
+            .Schedule(Seconds(5), [this](TaskContext context)
         {
             if (allowCast)
             {
@@ -742,7 +742,7 @@ struct npc_proving_grounds_illusionary_aqualyte : public provingGroundsAI
     void JustEngagedWith(Unit* who) override
     {
         scheduler
-            .Schedule(Seconds(2), [this](TaskContext /*context*/)
+            .Schedule(Seconds(2), [this](TaskContext context)
         {
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, false))
                 DoCast(target, SPELL_AQUA_BOMB);
@@ -779,7 +779,7 @@ struct npc_proving_grounds_illusionary_tunneler : public provingGroundsAI
     void JustEngagedWith(Unit* who) override
     {
         scheduler
-            .Schedule(Seconds(2), [this](TaskContext /*context*/)
+            .Schedule(Seconds(2), [this](TaskContext context)
         {
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, [=](Unit const* conditionTarget) { return conditionTarget && !conditionTarget->ToPlayer(); })) // no target player for this
                 DoCast(target, SPELL_BURROW);
@@ -816,7 +816,7 @@ struct npc_proving_grounds_illusionary_conqueror_healer : public provingGroundsA
     void JustEngagedWith(Unit* who) override
     {
         scheduler
-            .Schedule(Seconds(8), [this](TaskContext /*context*/)
+            .Schedule(Seconds(8), [this](TaskContext context)
         {
             // Send Oto use shield wall not depend of CD or not
             if (Creature* oto = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_OTO_THE_PROTECTOR) : ObjectGuid::Empty))
@@ -1626,7 +1626,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                 waveId = 0;
                 currentTimer = 20 * IN_MILLISECONDS;
                 scheduler
-                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext context)
                 {
                     if (!illusionGUIDs.empty()) // fail trial
                     {
@@ -1709,7 +1709,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                 waveId = 0;
                 currentTimer = 25 * IN_MILLISECONDS;
                 scheduler
-                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext context)
                 {
                     if (!illusionGUIDs.empty()) // fail trial
                     {
@@ -1791,7 +1791,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                 waveId = 0;
                 currentTimer = 30 * IN_MILLISECONDS;
                 scheduler
-                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext context)
                 {
                     if (!illusionGUIDs.empty()) // fail trial
                     {
@@ -1930,7 +1930,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                 waveId = 0;
                 currentTimer = 30 * IN_MILLISECONDS;
                 scheduler
-                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext context)
                 {
                     if (++waveId > 5) // complete trial
                     {
@@ -2018,7 +2018,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                 waveId = 0;
                 currentTimer = 40 * IN_MILLISECONDS;
                 scheduler
-                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext context)
                 {
                     if (++waveId > 8) // complete trial
                     {
@@ -2116,7 +2116,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                 waveId = 0;
                 currentTimer = 40 * IN_MILLISECONDS;
                 scheduler
-                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext context)
                 {
                     if (++waveId > 10) // complete trial
                     {
@@ -2327,7 +2327,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                 waveId = 0;
                 currentTimer = 25 * IN_MILLISECONDS;
                 scheduler
-                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext context)
                 {
                     if (++waveId > 5) // complete trial
                     {
@@ -2429,7 +2429,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                 waveId = 0;
                 currentTimer = 35 * IN_MILLISECONDS;
                 scheduler
-                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext context)
                 {
                     if (++waveId > 8) // complete trial
                     {
@@ -2547,7 +2547,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                 waveId = 0;
                 currentTimer = 35 * IN_MILLISECONDS;
                 scheduler
-                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext context)
                 {
                     if (++waveId > 10) // complete trial
                     {
@@ -2680,7 +2680,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                 waveId = 0;
                 currentTimer = 30 * IN_MILLISECONDS;
                 scheduler
-                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext context)
                 {
                     if (!illusionGUIDs.empty()) // fail trial
                     {
@@ -2780,7 +2780,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                 waveId = 0;
                 currentTimer = 40 * IN_MILLISECONDS;
                 scheduler
-                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext context)
                 {
                     endlessWaveId++;
 
@@ -2978,7 +2978,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                 waveId = 0;
                 currentTimer = 60 * IN_MILLISECONDS; // static timer for endless here
                 scheduler
-                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(10 * IN_MILLISECONDS), [this](TaskContext context)
                 {
                     endlessWaveId++;
 
@@ -3160,7 +3160,7 @@ struct npc_proving_grounds_sikari_the_mistweaver : public customCreatureAI
     void JustEngagedWith(Unit* who) override
     {
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext /*context*/)
+            .Schedule(Seconds(1), [this](TaskContext context)
         {
             if (!me->HasUnitState(UNIT_STATE_CASTING))
             {
@@ -3177,7 +3177,7 @@ struct npc_proving_grounds_sikari_the_mistweaver : public customCreatureAI
         });
 
         scheduler
-            .Schedule(Seconds(6), [this](TaskContext /*context*/)
+            .Schedule(Seconds(6), [this](TaskContext context)
         {
             DoCast(me, SPELL_RENEWING_MIST, true);
             context.Repeat(Seconds(16));

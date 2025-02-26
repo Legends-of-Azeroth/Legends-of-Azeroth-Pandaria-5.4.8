@@ -322,7 +322,7 @@ class boss_galakras : public CreatureScript
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(1000), [this](TaskContext context)
                 {
                     // in case: sometimes galakras could move in air instead fly
                     me->SetAnimTier(AnimTier::Fly);
@@ -363,7 +363,7 @@ class boss_galakras : public CreatureScript
                 scheduler.CancelAll();
 
                 scheduler
-                    .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(1000), [this](TaskContext context)
                 {
                     pos = me->GetRandomPoint({ galakrasFlyPoint.GetPositionX(), galakrasFlyPoint.GetPositionY(), galakrasFlyPoint.GetPositionZ(), galakrasFlyPoint.GetOrientation() }, 80.0f);
                     me->GetMotionMaster()->MovePoint(0, pos.GetPositionX(), pos.GetPositionY(), galakrasFlyPoint.GetPositionZ());
@@ -951,7 +951,7 @@ struct npc_master_cannoneer_dagryn : public ScriptedAI
         events.ScheduleEvent(EVENT_MUZZLE_SPRAY, 10 * IN_MILLISECONDS);
 
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(1000), [this](TaskContext context)
         {
             if (me->GetExactDist2d(&dagrynCenterPos) > 25.0f)
             {
@@ -1127,7 +1127,7 @@ struct npc_lieutenant_krugruk : public ScriptedAI
 
         // Summon Proto Drakes Each 15s
         scheduler
-            .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(2000), [this](TaskContext context)
         {
             if (++dragonsCount > 10)
                 return;
@@ -1914,7 +1914,7 @@ struct npc_galakras_dragonmaw_proto_drake : public ScriptedAI
                 galakras->AI()->JustSummoned(me);
 
             scheduler
-                .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+                .Schedule(Milliseconds(1000), [this](TaskContext context)
             {
                 pos = me->GetRandomPoint({ galakrasFlyPoint.GetPositionX(), galakrasFlyPoint.GetPositionY(), galakrasFlyPoint.GetPositionZ(), galakrasFlyPoint.GetOrientation() }, 30.0f);
                 me->GetMotionMaster()->MovePoint(0, pos.GetPositionX(), pos.GetPositionY(), 81.55f, 0.0f);
@@ -2021,7 +2021,7 @@ struct npc_galakras_korkron_demolisher : public ScriptedAI
             me->GetMotionMaster()->MovePoint(0, demolisherMovePos);
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
             {
                 me->SetFacingTo(assaultTowers[towerIndex].GetOrientation());
                 me->CastSpell(assaultTowers[towerIndex].GetPositionX(), assaultTowers[towerIndex].GetPositionY(), assaultTowers[towerIndex].GetPositionZ(), SPELL_BOMBARD, false);

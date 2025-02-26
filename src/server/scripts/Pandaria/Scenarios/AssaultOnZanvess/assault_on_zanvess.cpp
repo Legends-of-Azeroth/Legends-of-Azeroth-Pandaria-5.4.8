@@ -586,7 +586,7 @@ struct npc_zanvess_scorpid_relocator : public zanvess_klaxxi_typeAI
         });
 
         scheduler
-            .Schedule(Seconds(3), [this](TaskContext /*context*/)
+            .Schedule(Seconds(3), [this](TaskContext context)
         {
             Position pos = me->GetRandomPoint(spawnPos, 10.0f);
             me->GetMotionMaster()->MovePoint(0, pos);

@@ -411,7 +411,7 @@ class boss_megaera : public CreatureScript
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(1000), [this](TaskContext context)
                 {
                     if (instance && instance->IsWipe(170.0f, me))
                         EnterEvadeMode();

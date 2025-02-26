@@ -596,7 +596,7 @@ class boss_rook_stonetoe : public CreatureScript
 
 
                             scheduler
-                                .Schedule(Seconds(2), [this](TaskContext /*context*/)
+                                .Schedule(Seconds(2), [this](TaskContext context)
                             {
                                 if (me->HasAura(SPELL_MISSERY_SORROW_GLOOM) && !isAnyEmbodiedAlive())
                                 {
@@ -1018,7 +1018,7 @@ class boss_he_softfoot : public CreatureScript
                                 anguish->CastSpell(anguish, SPELL_MARK_OF_ANGUISH, false);
 
                             scheduler
-                                .Schedule(Seconds(1), [this](TaskContext /*context*/)
+                                .Schedule(Seconds(1), [this](TaskContext context)
                             {
                                 if (me->HasAura(SPELL_MARK_OF_ANGUISH_VISUAL) && !me->FindNearestCreature(NPC_EMBODIED_ANGUISH, 300.0f, true))
                                 {
@@ -1379,7 +1379,7 @@ class boss_sun_tenderheart : public CreatureScript
                                 despair->GetMotionMaster()->MoveJump(x, y, 418.1f, 15.0f, 15.0f, EVENT_JUMP);
 
                             scheduler
-                                .Schedule(Seconds(1), [this](TaskContext /*context*/)
+                                .Schedule(Seconds(1), [this](TaskContext context)
                             {
                                 if (!me->FindNearestCreature(NPC_EMBODIED_DESPAIR, 300.0f, true) && !me->FindNearestCreature(NPC_EMBODIED_DESPERATION, 300.0f, true) && me->HasAura(SPELL_DARK_MEDITATION_VISUAL))
                                 {

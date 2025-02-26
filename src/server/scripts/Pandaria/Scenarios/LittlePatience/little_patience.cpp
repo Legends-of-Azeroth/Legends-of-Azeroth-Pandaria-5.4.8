@@ -270,7 +270,7 @@ struct npc_little_patience_king_varian_wrynn : public ScriptedAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
                 {
                     // Any Assault
                     uint32 idx = urand(TYPE_GNOME, TYPE_PANDAREN);
@@ -322,7 +322,7 @@ struct npc_little_patience_king_varian_wrynn : public ScriptedAI
 
                 // Just Periodic Announce
                 scheduler
-                    .Schedule(Milliseconds(45 * IN_MILLISECONDS), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(45 * IN_MILLISECONDS), [this](TaskContext context)
                 {
                     Talk(Trinity::Containers::SelectRandomContainerElement(customAnnouce));
                     context.Repeat(Seconds(20));
@@ -459,7 +459,7 @@ struct npc_little_patience_faction_leader : public customCreatureAI
         constructionProgress = 0;
 
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext /*context*/)
+            .Schedule(Seconds(1), [this](TaskContext context)
         {
             // 20 per second & 45 if this camp has buff
             if (!me->HasAura(SPELL_TERRIFIED))

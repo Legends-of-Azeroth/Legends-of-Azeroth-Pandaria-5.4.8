@@ -1487,7 +1487,7 @@ class npc_garajal : public CreatureScript
                 }
 
                 scheduler
-                    .Schedule(Milliseconds(5000), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(5000), [this](TaskContext context)
                 {
                     if (HasAnyBehind())
                         allowAchiev = false;

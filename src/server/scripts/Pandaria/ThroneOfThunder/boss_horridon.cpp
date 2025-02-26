@@ -572,7 +572,7 @@ class boss_horridon : public CreatureScript
 
                         scheduler
                             .SetValidator([this] { return instance && instance->GetBossState(DATA_HORRIDON) == IN_PROGRESS; })
-                            .Schedule(Milliseconds(5300), [this](TaskContext /*context*/)
+                            .Schedule(Milliseconds(5300), [this](TaskContext context)
                         {
                             if (me->HasAura(SPELL_CHARGE_SWIPE))
                             {
@@ -753,7 +753,7 @@ class boss_horridon : public CreatureScript
                             // In case hunter fake death or smth else
                             scheduler
                                 .SetValidator([this] { return instance && instance->GetBossState(DATA_HORRIDON) == IN_PROGRESS; })
-                                .Schedule(Milliseconds(8000), [this](TaskContext /*context*/)
+                                .Schedule(Milliseconds(8000), [this](TaskContext context)
                             {
                                 if (me->HasAura(SPELL_CHARGE_SWIPE))
                                 {

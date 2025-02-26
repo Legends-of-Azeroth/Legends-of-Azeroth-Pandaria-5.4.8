@@ -861,7 +861,7 @@ class npc_embodied_terror : public CreatureScript
 
                 scheduler
                     .SetValidator([this] { return !died && instance && instance->GetBossState(DATA_TSULONG) == IN_PROGRESS; })
-                    .Schedule(Seconds(3), Seconds(6), [this](TaskContext /*context*/)
+                    .Schedule(Seconds(3), Seconds(6), [this](TaskContext context)
                 {
                     DoCast(me, SPELL_TERRORIZE, true);
                     DoCast(me, SPELL_TERRORIZE_TSULONG, true);

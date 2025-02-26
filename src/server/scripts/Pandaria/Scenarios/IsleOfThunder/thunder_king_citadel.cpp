@@ -78,7 +78,7 @@ struct npc_lightning_pillar_master : public ScriptedAI
     void InitializeAI() override
     {
         scheduler
-            .Schedule(Milliseconds(urand(500,5000)), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(urand(500,5000)), [this](TaskContext context)
         {
             DoCast(me, SPELL_LIGHTNING_SURGE);
             context.Repeat(Milliseconds(urand(6000, 10000)));
@@ -101,7 +101,7 @@ struct npc_stone_sentinel : public ScriptedAI
     void InitializeAI() override
     {
         scheduler
-            .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(1500), [this](TaskContext context)
         {
             if (Player* itr = me->FindNearestPlayer(20.0f))
             {
@@ -177,7 +177,7 @@ struct npc_thunder_king_treasure_stasis_rune : public ScriptedAI
         hasTriggered = false;
 
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext /*context*/)
+            .Schedule(Seconds(1), [this](TaskContext context)
         {
             if (me->FindNearestPlayer(1.5f) && !hasTriggered)
                 DoCast(me, SPELL_RUNE_TRAP, true);
@@ -215,7 +215,7 @@ struct npc_thunder_king_treasure_speed_rune : public ScriptedAI
         me->SetDisplayFromModel(0);
 
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext /*context*/)
+            .Schedule(Seconds(1), [this](TaskContext context)
         {
             if (Player* target = me->FindNearestPlayer(1.0f))
                 if (!target->HasAura(SPELL_SPEED))
@@ -284,7 +284,7 @@ struct npc_thunder_king_treasure_sentry_beam_bunny : public ScriptedAI
             targetGUID = summoner->ToCreature()->AI()->GetGUID();
 
         scheduler
-            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(500), [this](TaskContext context)
         {
             if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
             {

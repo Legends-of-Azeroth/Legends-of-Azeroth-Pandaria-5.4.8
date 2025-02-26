@@ -556,7 +556,7 @@ struct npc_focused_lightning : public ScriptedAI
         DoCast(me, SPELL_FOCUSED_LIGHTNING_VISUAL, true);
 
         scheduler
-            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(500), [this](TaskContext context)
         {
             if (me->GetObjectScale() >= 1.0f)
                 return;
@@ -568,7 +568,7 @@ struct npc_focused_lightning : public ScriptedAI
 
         scheduler
             .SetValidator([this] { return instance && instance->GetBossState(DATA_JINROKH) == IN_PROGRESS; })
-            .Schedule(Milliseconds(3000), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(3000), [this](TaskContext context)
         {
 
             DoCast(me, SPELL_FOCUSED_LIGHTNING_AOE, true);
@@ -592,7 +592,7 @@ struct npc_focused_lightning : public ScriptedAI
         });
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
         damage = 0;
     }
@@ -612,7 +612,7 @@ struct npc_lightning_fissure : public ScriptedAI
     TaskScheduler scheduler;
     InstanceScript* instance;
 
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(Unit* /*summoner*/) override
     {
         instance = me->GetInstanceScript();
         me->SetDisplayFromModel(1);
@@ -620,7 +620,7 @@ struct npc_lightning_fissure : public ScriptedAI
 
         scheduler
             .SetValidator([this] { return instance && instance->GetBossState(DATA_JINROKH) == IN_PROGRESS; })
-            .Schedule(Milliseconds(200), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(200), [this](TaskContext context)
         {
             std::list<Player*> pList;
             GetPlayerListInGrid(pList, me, 50.0f);

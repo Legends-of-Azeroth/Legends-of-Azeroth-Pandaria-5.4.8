@@ -904,7 +904,7 @@ struct npc_ragefire_ruined_earth : public ScriptedAI
     {
         // Triggering Spell not exist
         scheduler
-            .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(1500), [this](TaskContext context)
         {
             DoCast(me, SPELL_RUINED_EARTH_EFF);
             context.Repeat(Seconds(1));
@@ -1403,7 +1403,7 @@ struct npc_ragefire_poison_bolt_totem : public ScriptedAI
     void Reset() override
     {
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(1000), [this](TaskContext context)
         {
             DoCast(me, SPELL_POISON_BOLT);
             context.Repeat(Milliseconds(2500));

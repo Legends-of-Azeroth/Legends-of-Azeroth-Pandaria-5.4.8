@@ -403,7 +403,7 @@ struct npc_black_harvest_essence_of_order : public customCreatureAI
 
                 scheduler
                     .SetValidator([this] { return dist <= 40.0f; })
-                    .Schedule(Milliseconds(250), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(250), [this](TaskContext context)
                 {
                     GetPositionWithDistInOrientation(me, dist, faceOri, x, y);
                     me->CastSpell(x, y, me->GetPositionZ(), SPELL_SPELLFLAME_EFF, true);

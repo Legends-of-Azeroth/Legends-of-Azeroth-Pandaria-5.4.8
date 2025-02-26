@@ -944,7 +944,7 @@ struct npc_dark_shamans_toxic_tornado : public ScriptedAI
             haromm->AI()->JustSummoned(me);
 
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext /*context*/)
+            .Schedule(Seconds(1), [this](TaskContext context)
         {
             GenerateMovement();
             context.Repeat(Milliseconds(me->GetSplineDuration()));
@@ -1014,7 +1014,7 @@ struct npc_dark_shamans_ashen_elemental : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
 
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(1000), [this](TaskContext context)
         {
             for (auto&& itr : me->GetInstanceScript()->instance->GetPlayers())
             {

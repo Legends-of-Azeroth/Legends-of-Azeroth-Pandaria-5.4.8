@@ -522,7 +522,7 @@ class npc_anima_orb : public CreatureScript
                     combatValue = 1;
 
                     scheduler
-                        .Schedule(Seconds(1), [this](TaskContext /*context*/)
+                        .Schedule(Seconds(1), [this](TaskContext context)
                     {
                         if (instance && instance->IsWipe(75.0f, me))
                         {
@@ -841,7 +841,7 @@ struct npc_crimson_wake : public ScriptedAI
 
         scheduler
             .SetValidator([this] { return instance && instance->GetBossState(DATA_DARK_ANIMUS) == IN_PROGRESS; })
-            .Schedule(Seconds(1), [this](TaskContext /*context*/)
+            .Schedule(Seconds(1), [this](TaskContext context)
         {
             if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
             {
@@ -856,7 +856,7 @@ struct npc_crimson_wake : public ScriptedAI
 
         scheduler
             .SetValidator([this] { return instance && instance->GetBossState(DATA_DARK_ANIMUS) == IN_PROGRESS; })
-            .Schedule(Seconds(9), [this](TaskContext /*context*/)
+            .Schedule(Seconds(9), [this](TaskContext context)
         {
             DoCast(me, SPELL_CRIMSON_WAKE_SLOW);
             context.Repeat(Seconds(8));

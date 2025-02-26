@@ -667,7 +667,7 @@ struct npc_nazgrim_korkron_ironblade : public ScriptedAI
             return;
 
         scheduler
-            .Schedule(Milliseconds(1), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(1), [this](TaskContext context)
         {
             std::vector<uint32> emoteType = { EMOTE_ONESHOT_LAUGH, EMOTE_ONESHOT_TALK, EMOTE_ONESHOT_ROAR, EMOTE_ONESHOT_CHEER };
             me->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(emoteType));
@@ -681,7 +681,7 @@ struct npc_nazgrim_korkron_ironblade : public ScriptedAI
         scheduler.CancelAll();
         uint32 timer = me->GetDBTableGUIDLow() ? 1 * IN_MILLISECONDS : urand(5 * IN_MILLISECONDS, 10 * IN_MILLISECONDS);
         scheduler
-            .Schedule(Milliseconds(timer), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(timer), [this](TaskContext context)
         {
             if (!me->HasAura(SPELL_IRON_STORM))
                 DoCast(me, SPELL_IRON_STORM);
@@ -1174,7 +1174,7 @@ struct npc_nazgrim_ravager : public ScriptedAI
         DoCast(me, SPELL_RAVAGER_AURA, true);
 
         scheduler
-            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(500), [this](TaskContext context)
         {
             if (!hasLaunch)
             {

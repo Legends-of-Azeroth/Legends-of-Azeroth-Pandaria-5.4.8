@@ -975,7 +975,7 @@ struct npc_manifestation_of_corruption : public ScriptedAI
 
             // Cone Eff to Summoner
             scheduler
-                .Schedule(Seconds(4), [this](TaskContext /*context*/)
+                .Schedule(Seconds(4), [this](TaskContext context)
             {
                 if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
                 {
@@ -1002,7 +1002,7 @@ struct npc_manifestation_of_corruption : public ScriptedAI
             DoZoneInCombat(me, 200.0f);
 
             scheduler
-                .Schedule(Seconds(3), Seconds(6), [this](TaskContext /*context*/)
+                .Schedule(Seconds(3), Seconds(6), [this](TaskContext context)
             {
                 DoCast(me, SPELL_BURST_OF_ANGER, true);
                 context.Repeat(Seconds(9), Seconds(12));
@@ -1095,7 +1095,7 @@ struct npc_essence_of_corruption : public ScriptedAI
 
             // Expel Corruption to Summoner
             scheduler
-                .Schedule(Seconds(2), [this](TaskContext /*context*/)
+                .Schedule(Seconds(2), [this](TaskContext context)
             {
                 if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
                     me->PrepareChanneledCast(me->GetAngle(target), SPELL_EXPEL_CORRUPTION_REALM);
@@ -1112,7 +1112,7 @@ struct npc_essence_of_corruption : public ScriptedAI
 
             // Expel Corruption to Summoner
             scheduler
-                .Schedule(Seconds(2), [this](TaskContext /*context*/)
+                .Schedule(Seconds(2), [this](TaskContext context)
             {
                 if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
                     me->PrepareChanneledCast(me->GetAngle(amalgam), SPELL_EXPEL_CORRUPTION);
