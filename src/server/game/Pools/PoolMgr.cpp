@@ -162,7 +162,7 @@ void PoolGroup<T>::AddEntry(PoolObject& poolitem, uint32 maxentries)
 
 // Method to add a quest id to the proper list. Both equal and explicit chanced objects are stored in the same list due to us reusing them in bulk.
 template<>
-void PoolGroup<Quest>::AddEntry(PoolObject& poolitem, uint32 maxentries)
+void PoolGroup<Quest>::AddEntry(PoolObject& poolitem, uint32 /*maxentries*/)
 {
     EqualChanced.push_back(poolitem);
 }

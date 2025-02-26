@@ -548,10 +548,10 @@ class Battleground
         virtual void RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool SendPacket);
                                                             // can be extended in in BG subclass
         // Returns Conquest points award for loser
-        virtual uint32 GetRBGLoserReward(uint32 team) const { return 0; }
+        virtual uint32 GetRBGLoserReward(uint32 /*team*/) const { return 0; }
 
         // To create player score before player enter the arena
-        virtual void OnInvite(Player* player, GroupQueueInfo const* ginfo) { }
+        virtual void OnInvite(Player* /*player*/, GroupQueueInfo const* /*ginfo*/) { }
 
         void HandleTriggerBuff(ObjectGuid go_guid);
         void SetHoliday(bool is_holiday);

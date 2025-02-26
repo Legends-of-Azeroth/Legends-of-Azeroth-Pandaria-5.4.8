@@ -808,7 +808,7 @@ class spell_warl_dark_bargain_on_absorb : public AuraScript
 {
     PrepareAuraScript(spell_warl_dark_bargain_on_absorb);
 
-    void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+    void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
     {
         PreventDefaultAction();
         int32 damage = dmgInfo.GetDamage();
@@ -1070,7 +1070,7 @@ class spell_warl_life_tap : public SpellScript
         return SPELL_CAST_OK;
     }
 
-    void CalculateEnergize(SpellEffIndex effIndex)
+    void CalculateEnergize(SpellEffIndex /*effIndex*/)
     {
         int32 mana = CalculatePct(GetCaster()->GetMaxHealth(), GetEffectValue());
         SetEffectValue(mana);
@@ -1262,7 +1262,7 @@ class spell_warl_haunt : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_haunt_AuraScript);
 
-            void HandleDispel(DispelInfo* dispelInfo)
+            void HandleDispel(DispelInfo* /*dispelInfo*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->CastSpell(caster, 145159, true);
@@ -1302,7 +1302,7 @@ class spell_warl_blood_horror: public SpellScript
 {
     PrepareSpellScript(spell_warl_blood_horror);
 
-    enum { HEALTH_COST_PCT = 5 };
+    float HEALTH_COST_PCT = 5.0f;
 
     SpellCastResult CheckSpec()
     {
@@ -2193,7 +2193,7 @@ class spell_warl_metamorphosis : public AuraScript
 {
     PrepareAuraScript(spell_warl_metamorphosis);
 
-    void HandleApply(AuraEffect const* aurEff, AuraEffectHandleModes)
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes)
     {
         Unit* caster = GetCaster();
 
@@ -2208,7 +2208,7 @@ class spell_warl_metamorphosis : public AuraScript
         });
     }
 
-    void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes)
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes)
     {
         Unit* caster = GetCaster();
         if (AuraEffect const* mastery = caster->GetAuraEffect(SPELL_WARLOCK_MASTERY_MASTER_DEMONOLOGIST, EFFECT_0))
@@ -3004,7 +3004,7 @@ class spell_warl_glyph_of_demon_hunting : public AuraScript
         }
     }
 
-    void HandleRemove(AuraEffect const* eff, AuraEffectHandleModes)
+    void HandleRemove(AuraEffect const* /*eff*/, AuraEffectHandleModes)
     {
         if (Player* warlock = GetUnitOwner()->ToPlayer())
         {
@@ -3151,7 +3151,7 @@ class spell_warl_demonic_circle_teleport : public AuraScript
 {
     PrepareAuraScript(spell_warl_demonic_circle_teleport);
 
-    void HandleTeleport(AuraEffect const* aurEff, AuraEffectHandleModes)
+    void HandleTeleport(AuraEffect const* /*aurEff*/, AuraEffectHandleModes)
     {
         if (Player* player = GetTarget()->ToPlayer())
         {
@@ -3796,7 +3796,7 @@ struct npc_demonic_gateway : public ScriptedAI
 
     void InitializeAI() override
     {
-        scheduler.Schedule(Milliseconds(200), [=](TaskContext ctx)
+        scheduler.Schedule(Milliseconds(200), [this](TaskContext ctx)
         {
             if (Unit* warlock = me->GetOwner())
                 if (warlock->HasAura(SPELL_WARLOCK_GLYPH_OF_GATEWAY_ATTUNEMENT))
@@ -3922,7 +3922,7 @@ class spell_warl_glyph_of_siphon_life : public AuraScript
 {
     PrepareAuraScript(spell_warl_glyph_of_siphon_life);
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo& /*eventInfo*/)
     {
         GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_WARLOCK_SIPHON_LIFE, true);
     }
@@ -4140,7 +4140,7 @@ class spell_warl_shadow_shield_aura : public AuraScript
         GetUnitOwner()->RemoveAurasDueToSpell(stack3);
     }
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo& /*eventInfo*/)
     {
         duringDropStacks = true;
         uint32 oldStacks = GetAura()->GetStackAmount();

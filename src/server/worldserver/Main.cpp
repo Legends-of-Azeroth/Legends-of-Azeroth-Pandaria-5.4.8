@@ -26,9 +26,7 @@
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
-#include "DatabaseWorkerPool.h"
 #include "Implementation/LoginDatabase.h"
-#include "Implementation/CharacterDatabase.h"
 #include "Implementation/WorldDatabase.h"
 
 #include "AppenderDB.h"
@@ -37,7 +35,6 @@
 #include "BattlegroundMgr.h"
 #include "BigNumber.h"
 #include "CliRunnable.h"
-#include "DeadlineTimer.h"
 #include "GitRevision.h"
 #include "IoContext.h"
 #include "InstanceSaveMgr.h"
@@ -61,7 +58,6 @@
 
 #include <boost/dll/runtime_symbol_info.hpp>
 #include <boost/asio/signal_set.hpp>
-#include <boost/dll/runtime_symbol_info.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/program_options.hpp>
 
@@ -276,7 +272,8 @@ AsyncAcceptor* StartRaSocketAcceptor(boost::asio::any_io_executor ioContext)
     uint16 raPort = uint16(sConfigMgr->GetIntDefault("Ra.Port", 3443));
     std::string raListener = sConfigMgr->GetStringDefault("Ra.IP", "0.0.0.0");
 
-    AsyncAcceptor* acceptor = new AsyncAcceptor(ioContext, raListener, raPort);
+    // memory leak from main
+    auto* acceptor = new AsyncAcceptor(ioContext, raListener, raPort);
     if (!acceptor->Bind())
     {
         TC_LOG_ERROR("server.worldserver", "Failed to bind RA socket acceptor");

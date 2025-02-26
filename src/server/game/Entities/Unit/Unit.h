@@ -1982,11 +1982,11 @@ public:
     int32 GetCreatePowers(Powers power) const;
     float GetPosStat(Stats stat) const
     {
-        return GetFloatValue(UNIT_FIELD_STAT_POS_BUFF + stat);
+        return GetFloatValue((uint16)UNIT_FIELD_STAT_POS_BUFF + (uint16)stat);
     }
     float GetNegStat(Stats stat) const
     {
-        return GetFloatValue(UNIT_FIELD_STAT_NEG_BUFF + stat);
+        return GetFloatValue((uint16)UNIT_FIELD_STAT_NEG_BUFF + (uint16)stat);
     }
     float GetCreateStat(Stats stat) const
     {

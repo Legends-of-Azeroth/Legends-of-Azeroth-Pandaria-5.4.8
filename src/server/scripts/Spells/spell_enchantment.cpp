@@ -32,7 +32,7 @@ class spell_ench_dancing_steel : public AuraScript
         return GetOwner()->GetTypeId() == TYPEID_PLAYER;
     }
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
         Player* owner = GetUnitOwner()->ToPlayer();
@@ -67,7 +67,7 @@ class spell_ench_windsong : public AuraScript
         return GetOwner()->GetTypeId() == TYPEID_PLAYER;
     }
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
         Player* owner = GetUnitOwner()->ToPlayer();
@@ -95,7 +95,7 @@ class spell_ench_jade_spirit_passive : public AuraScript
         SPELL_SPIRIT_OF_CONQUEST    = 142535,
     };
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo& /*eventInfo*/)
     {
         uint32 spell = GetId() == SPELL_JADE_SPIRIT_PASSIVE ? SPELL_JADE_SPIRIT : SPELL_SPIRIT_OF_CONQUEST;
         GetUnitOwner()->CastSpell(GetUnitOwner(), spell, true);

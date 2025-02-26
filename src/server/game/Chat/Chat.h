@@ -163,13 +163,13 @@ class ChatHandler
 //! Okay, class for some asynchronus command handling.
 struct ChatCommandHolder : public std::enable_shared_from_this<ChatCommandHolder>
 {
-    ChatCommandHolder(ChatHandler* handler) : m_handler(handler) { }
+    explicit ChatCommandHolder(ChatHandler* handler) : m_handler(handler) { }
 
     ChatHandler& GetHandler() { return *m_handler; }
-    virtual void FinishCommand(bool success) { }
+    virtual void FinishCommand(bool /*success*/) { }
 
 protected:
-    ChatCommandHolder() { }
+    ChatCommandHolder() = default;
 
     std::unique_ptr<ChatHandler> m_handler;
 };
@@ -189,9 +189,8 @@ struct CliCommandHolder : public ChatCommandHolder
     CommandFinished* m_commandFinished;
 
     CliCommandHolder(void* callbackArg, char const* command, Print* zprint, CommandFinished* commandFinished)
-        : m_callbackArg(callbackArg), m_print(zprint), m_commandFinished(commandFinished), m_shared(false)
+        : m_callbackArg(callbackArg), m_command(command), m_print(zprint), m_shared(false), m_commandFinished(commandFinished)
     {
-        m_command = command;
     }
 
     void Delay(ChatHandler* handler)
@@ -200,7 +199,7 @@ struct CliCommandHolder : public ChatCommandHolder
         m_handler.reset(handler);
     }
 
-    void FinishCommand(bool success);
+    void FinishCommand(bool success) override;
 };
 
 class CliHandler : public ChatHandler
@@ -208,7 +207,7 @@ class CliHandler : public ChatHandler
     public:
         typedef void Print(void*, char const*);
         explicit CliHandler(CliCommandHolder* holder) :
-            m_callbackArg(holder->m_callbackArg), m_print(holder->m_print), m_holder(holder), m_hptr((ChatCommandHolder*)holder) { }
+            m_callbackArg(holder->m_callbackArg), m_print(holder->m_print), m_hptr((ChatCommandHolder*)holder), m_holder(holder) { }
 
         // overwrite functions
         const char *GetTrinityString(int32 entry) const;

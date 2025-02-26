@@ -408,7 +408,7 @@ class AccountAchievementMgr final : public PlayerAchievementMgrBase
 {
     friend class PlayerAchievementMgr;
     public:
-        AccountAchievementMgr(WorldSession* session)
+        AccountAchievementMgr()
             : PlayerAchievementMgrBase(AchievementType::Account) { }
 
         void SetCurrentPlayer(Player* player) { m_owner = player; }
@@ -424,7 +424,7 @@ class AccountAchievementMgr final : public PlayerAchievementMgrBase
 class GuildAchievementMgr final : public AchievementMgr
 {
     public:
-        GuildAchievementMgr(Guild* guild)
+        explicit GuildAchievementMgr(Guild* guild)
             : AchievementMgr(AchievementType::Guild), m_owner(guild) { }
 
         void SendPacket(WorldPacket* data) const override;
@@ -451,8 +451,8 @@ class GuildAchievementMgr final : public AchievementMgr
 
 class AchievementGlobalMgr
 {
-        AchievementGlobalMgr() { }
-        ~AchievementGlobalMgr() { }
+        AchievementGlobalMgr() = default;
+        ~AchievementGlobalMgr() = default;
 
     public:
         static AchievementGlobalMgr* instance()
@@ -499,8 +499,8 @@ class AchievementGlobalMgr
 
         AchievementEntryList const* GetAchievementByReferencedId(uint32 id) const
         {
-            AchievementListByReferencedId::const_iterator itr = m_achievementListByReferencedId.find(id);
-            return itr != m_achievementListByReferencedId.end() ? &itr->second : NULL;
+            auto itr = m_achievementListByReferencedId.find(id);
+            return itr != m_achievementListByReferencedId.end() ? &itr->second : nullptr;
         }
 
         ModifierTreeNode const* GetCriteriaModifierTree(uint32 id) const
@@ -517,20 +517,20 @@ class AchievementGlobalMgr
 
         AchievementReward const* GetAchievementReward(AchievementEntry const* achievement) const
         {
-            AchievementRewards::const_iterator iter = m_achievementRewards.find(achievement->ID);
-            return iter != m_achievementRewards.end() ? &iter->second : NULL;
+            auto iter = m_achievementRewards.find(achievement->ID);
+            return iter != m_achievementRewards.end() ? &iter->second : nullptr;
         }
 
         AchievementRewardLocale const* GetAchievementRewardLocale(AchievementEntry const* achievement) const
         {
-            AchievementRewardLocales::const_iterator iter = m_achievementRewardLocales.find(achievement->ID);
-            return iter != m_achievementRewardLocales.end() ? &iter->second : NULL;
+            auto iter = m_achievementRewardLocales.find(achievement->ID);
+            return iter != m_achievementRewardLocales.end() ? &iter->second : nullptr;
         }
 
         AchievementCriteriaDataSet const* GetCriteriaDataSet(CriteriaEntry const* achievementCriteria) const
         {
-            AchievementCriteriaDataMap::const_iterator iter = m_criteriaDataMap.find(achievementCriteria->ID);
-            return iter != m_criteriaDataMap.end() ? &iter->second : NULL;
+            auto iter = m_criteriaDataMap.find(achievementCriteria->ID);
+            return iter != m_criteriaDataMap.end() ? &iter->second : nullptr;
         }
 
         AchievementEntry const* GetAchievementEntryByCriteriaTree(CriteriaTreeEntry const* criteria) const
@@ -539,12 +539,12 @@ class AchievementGlobalMgr
             {
                 if (!criteria->Parent || criteria->Parent == criteria->ID)
                 {
-                    AchievementEntryByCriteriaTree::const_iterator iter = m_achievementEntryByCriteriaTree.find(criteria->ID);
-                    return iter != m_achievementEntryByCriteriaTree.end() ? iter->second : NULL;
+                    auto iter = m_achievementEntryByCriteriaTree.find(criteria->ID);
+                    return iter != m_achievementEntryByCriteriaTree.end() ? iter->second : nullptr;
                 }
                 criteria = sCriteriaTreeStore.LookupEntry(criteria->Parent);
             }
-            return NULL;
+            return nullptr;
         }
 
         CriteriaTreeNode const* GetCriteriaTree(uint32 treeId) const
@@ -569,7 +569,7 @@ class AchievementGlobalMgr
             m_allCompletedAchievements.insert(achievement->ID);
         }
 
-        bool IsGroupCriteriaType(AchievementCriteriaTypes type) const
+        static bool IsGroupCriteriaType(AchievementCriteriaTypes type)
         {
             switch (type)
             {

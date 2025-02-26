@@ -124,13 +124,13 @@ class spell_deadmines_off_line : public SpellScriptLoader
         {
             PrepareAuraScript(spell_deadmines_off_line_AuraScript);
 
-            void OnAuraEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnAuraEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Creature* m_caster = GetOwner()->ToCreature())
                     m_caster->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void OnAuraEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnAuraEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Creature* m_caster = GetOwner()->ToCreature())
                     m_caster->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);

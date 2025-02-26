@@ -24,19 +24,13 @@
 #include "WorldSession.h"
 #include "CryptoHash.h"
 
-AccountMgr::AccountMgr() { }
-
-AccountMgr::~AccountMgr()
-{
-}
-
 AccountMgr* AccountMgr::instance()
 {
     static AccountMgr instance;
     return &instance;
 }
 
-AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password, std::string email /*= ""*/, uint32 bnetAccountId /*= 0*/, uint8 bnetIndex /*= 0*/)
+AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password, std::string email /*= ""*/, uint32 /*bnetAccountId*/ /*= 0*/, uint8 /*bnetIndex*/ /*= 0*/)
 {
     if (utf8length(username) > MAX_ACCOUNT_STR)
         return AccountOpResult::AOR_NAME_TOO_LONG;                           // username's too long
@@ -441,23 +435,6 @@ AccountOpResult Battlenet::AccountMgr::ChangePassword(uint32 accountId, std::str
     return AccountOpResult::AOR_OK;
 }
 
-bool Battlenet::AccountMgr::CheckPassword(uint32 accountId, std::string password)
-{
-    std::string username;
-
-    if (!GetName(accountId, username))
-        return false;
-
-    Utf8ToUpperOnlyLatin(username);
-    Utf8ToUpperOnlyLatin(password);
-
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHECK_PASSWORD);
-    stmt->setUInt32(0, accountId);
-    stmt->setString(1, CalculateShaPassHash(username, password));
-
-    return LoginDatabase.Query(stmt) != nullptr;
-}
-
 AccountOpResult Battlenet::AccountMgr::LinkWithGameAccount(std::string const& email, std::string const& gameAccountName)
 {
     /*uint32 bnetAccountId = GetId(email);
@@ -517,16 +494,6 @@ bool Battlenet::AccountMgr::GetName(uint32 accountId, std::string& name)
     }
 
     return false;
-}
-
-uint32 Battlenet::AccountMgr::GetIdByGameAccount(uint32 gameAccountId)
-{
-    /*PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_ID_BY_GAME_ACCOUNT);
-    stmt->setUInt32(0, gameAccountId);
-    if (PreparedQueryResult result = LoginDatabase.Query(stmt))
-    return (*result)[0].GetUInt32();*/
-
-    return 0;
 }
 
 uint8 Battlenet::AccountMgr::GetMaxIndex(uint32 accountId)

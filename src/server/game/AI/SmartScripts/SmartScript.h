@@ -109,7 +109,7 @@ class SmartScript
             if (c && c->GetAIName() != "SmartAI" && c->GetAIName() != "SmartVehicleAI")
                 smart = false;
 
-            if (!me || me->GetAIName() != "SmartAI" && me->GetAIName() != "SmartVehicleAI")
+            if (!me || (me->GetAIName() != "SmartAI" && me->GetAIName() != "SmartVehicleAI"))
                 smart = false;
 
             if (!smart)

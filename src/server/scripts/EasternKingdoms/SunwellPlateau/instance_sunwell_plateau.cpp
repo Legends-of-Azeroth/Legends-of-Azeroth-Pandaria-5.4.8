@@ -289,7 +289,7 @@ class instance_sunwell_plateau : public InstanceMapScript
                     SaveToDB();
             }
 
-            void Update(uint32 diff) override
+            void Update(uint32 /*diff*/) override
             {
                 if (GetData(DATA_FELMYST_EVENT) != DONE)
                     for (auto&& ref : instance->GetPlayers())

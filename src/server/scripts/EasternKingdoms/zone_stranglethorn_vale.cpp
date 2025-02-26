@@ -148,7 +148,7 @@ struct npc_stranglethorn_emerine : public ScriptedAI
             return;
 
         scheduler
-            .Schedule(Milliseconds(500), [this](TaskContext context)
+            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
         {
             me->RemoveAurasDueToSpell(SPELL_GEN_QUEST_INVISIBILITY_1); // not phasing quest yet
         });
@@ -196,7 +196,7 @@ class npc_stranglethorn_priestess_hurala : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
         {
             player->PlayerTalkClass->ClearMenus();
 

@@ -166,7 +166,7 @@ class ScriptObject
 
     protected:
 
-        ScriptObject(char const* name);
+        explicit ScriptObject(char const* name);
         virtual ~ScriptObject();
 
     private:
@@ -178,9 +178,7 @@ template<class TObject> class UpdatableScript
 {
     protected:
 
-        UpdatableScript()
-        {
-        }
+        UpdatableScript() = default;
 
     public:
 
@@ -191,22 +189,22 @@ class SpellScriptLoader : public ScriptObject
 {
     protected:
 
-        SpellScriptLoader(const char* name);
+        explicit SpellScriptLoader(const char* name);
 
     public:
 
         // Should return a fully valid SpellScript pointer.
-        virtual SpellScript* GetSpellScript() const { return NULL; }
+        virtual SpellScript* GetSpellScript() const { return nullptr; }
 
         // Should return a fully valid AuraScript pointer.
-        virtual AuraScript* GetAuraScript() const { return NULL; }
+        virtual AuraScript* GetAuraScript() const { return nullptr; }
 };
 
 class ServerScript : public ScriptObject
 {
     protected:
 
-        ServerScript(const char* name);
+        explicit ServerScript(const char* name);
 
     public:
 
@@ -240,7 +238,7 @@ class WorldScript : public ScriptObject
 {
     protected:
 
-        WorldScript(const char* name);
+        explicit WorldScript(const char* name);
 
     public:
 
@@ -279,7 +277,7 @@ class FormulaScript : public ScriptObject
 {
     protected:
 
-        FormulaScript(const char* name);
+        explicit FormulaScript(const char* name);
 
     public:
 
@@ -311,7 +309,7 @@ template<class TMap> class MapScript : public UpdatableScript<TMap>
 
     protected:
 
-        MapScript(uint32 mapId)
+        explicit MapScript(uint32 mapId)
             : _mapEntry(sMapStore.LookupEntry(mapId))
         {
             if (!_mapEntry)
@@ -372,7 +370,7 @@ class ItemScript : public ScriptObject
 {
     protected:
 
-        ItemScript(const char* name);
+        explicit ItemScript(const char* name);
 
     public:
 
@@ -402,7 +400,7 @@ class UnitScript : public ScriptObject
 {
     protected:
 
-        UnitScript(const char* name, bool addToScripts = true);
+        explicit UnitScript(const char* name, bool addToScripts = true);
 
     public:
         // Called when a unit deals healing to another unit
@@ -425,7 +423,7 @@ class CreatureScript : public ScriptObject
 {
     protected:
 
-        CreatureScript(const char* name);
+        explicit CreatureScript(const char* name);
 
     public:
 
@@ -464,7 +462,7 @@ class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
 {
     protected:
 
-        GameObjectScript(const char* name);
+        explicit GameObjectScript(const char* name);
 
     public:
 
@@ -512,7 +510,7 @@ class AreaTriggerScript : public ScriptObject
 {
     protected:
 
-        AreaTriggerScript(const char* name);
+        explicit AreaTriggerScript(const char* name);
 
     public:
 
@@ -520,26 +518,26 @@ class AreaTriggerScript : public ScriptObject
         virtual bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/) { return false; }
 
         // Called when the area trigger is left by a player.
-        virtual bool OnExit(Player* player, AreaTriggerEntry const* trigger) { return false; }
+        virtual bool OnExit(Player* /*player*/, AreaTriggerEntry const* /*trigger*/) { return false; }
 };
 
 class SpellAreaTriggerScript : public ScriptObject
 {
     protected:
 
-        SpellAreaTriggerScript(const char* name);
+        explicit SpellAreaTriggerScript(const char* name);
 
     public:
 
         // Called when the area trigger is created
-        virtual IAreaTrigger* GetInterface() const { return NULL; }
+        virtual IAreaTrigger* GetInterface() const { return nullptr; }
 };
 
 class BattlegroundScript : public ScriptObject
 {
     protected:
 
-        BattlegroundScript(const char* name);
+        explicit BattlegroundScript(const char* name);
 
     public:
 
@@ -551,7 +549,7 @@ class OutdoorPvPScript : public ScriptObject
 {
     protected:
 
-        OutdoorPvPScript(const char* name);
+        explicit OutdoorPvPScript(const char* name);
 
     public:
 
@@ -563,7 +561,7 @@ class CommandScript : public ScriptObject
 {
     protected:
 
-        CommandScript(const char* name);
+        explicit CommandScript(const char* name);
 
     public:
 
@@ -575,7 +573,7 @@ class WeatherScript : public ScriptObject, public UpdatableScript<Weather>
 {
     protected:
 
-        WeatherScript(const char* name);
+        explicit WeatherScript(const char* name);
 
     public:
 
@@ -587,7 +585,7 @@ class AuctionHouseScript : public ScriptObject
 {
     protected:
 
-        AuctionHouseScript(const char* name);
+        explicit AuctionHouseScript(const char* name);
 
     public:
 
@@ -608,7 +606,7 @@ class ConditionScript : public ScriptObject
 {
     protected:
 
-        ConditionScript(const char* name);
+        explicit ConditionScript(const char* name);
 
     public:
 
@@ -620,7 +618,7 @@ class VehicleScript : public ScriptObject
 {
     protected:
 
-        VehicleScript(const char* name);
+        explicit VehicleScript(const char* name);
 
     public:
 
@@ -652,19 +650,19 @@ class DynamicObjectScript : public ScriptObject, public UpdatableScript<DynamicO
 {
     protected:
 
-        DynamicObjectScript(const char* name);
+        explicit DynamicObjectScript(const char* name);
 };
 
 class TransportScript : public ScriptObject, public UpdatableScript<Transport>
 {
     protected:
 
-        TransportScript(const char* name);
+        explicit TransportScript(const char* name);
 
     public:
 
         // Called when the transport is first created, before being added to map.
-        virtual void OnCreate(Transport* transport) { }
+        virtual void OnCreate(Transport* /*transport*/) { }
 
         // Called when a player boards the transport.
         virtual void OnAddPassenger(Transport* /*transport*/, Player* /*player*/) { }
@@ -683,7 +681,7 @@ class AchievementCriteriaScript : public ScriptObject
 {
     protected:
 
-        AchievementCriteriaScript(const char* name);
+        explicit AchievementCriteriaScript(const char* name);
 
     public:
 
@@ -695,7 +693,7 @@ class PlayerScript : public UnitScript
 {
     protected:
 
-        PlayerScript(const char* name);
+        explicit PlayerScript(const char* name);
 
     public:
 
@@ -809,7 +807,7 @@ class GuildScript : public ScriptObject
 {
     protected:
 
-        GuildScript(const char* name);
+        explicit GuildScript(const char* name);
 
     public:
 
@@ -850,7 +848,7 @@ class GroupScript : public ScriptObject
 {
     protected:
 
-        GroupScript(const char* name);
+        explicit GroupScript(const char* name);
 
     public:
 
@@ -874,7 +872,7 @@ class SceneScript : public ScriptObject
 {
     protected:
 
-        SceneScript(const char* name);
+        explicit SceneScript(const char* name);
 
     public:
 
@@ -895,7 +893,7 @@ class QuestScript : public ScriptObject
 {
     protected:
 
-        QuestScript(const char* name);
+        explicit QuestScript(const char* name);
 
     public:
 
@@ -909,7 +907,7 @@ class QuestScript : public ScriptObject
 class GameEventScript : public ScriptObject
 {
     protected:
-        GameEventScript(const char* name);
+        explicit GameEventScript(const char* name);
 
     public:
 
@@ -938,10 +936,10 @@ class GameEventScript : public ScriptObject
 
         // Called periodically if GetUpdateInterval is overriden and returns non-zero values.
         // Refer to GetUpdateInterval comment to read notes on when OnUpdate is called.
-        virtual void OnUpdate(uint32 diff) { }
+        virtual void OnUpdate(uint32 /*diff*/) { }
 
         // Called when WorldStates need to be sent to a player, the implementation should append state-value uint32 pairs to the packet if necessary.
-        virtual void FillWorldStates(Player* player, WorldStateBuilder& builder) { }
+        virtual void FillWorldStates(Player* /*player*/, WorldStateBuilder& /*builder*/) { }
 };
 
 // following hooks can be used anywhere and are not db bounded
@@ -949,7 +947,7 @@ class GlobalScript : public ScriptObject
 {
 protected:
 
-    GlobalScript(const char* name);
+    explicit GlobalScript(const char* name);
 
 public:
 

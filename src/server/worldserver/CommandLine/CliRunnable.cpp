@@ -61,7 +61,7 @@ namespace Trinity::Impl::Readline
 
     char* command_finder(const char* text, int state)
     {
-        static int idx, len;
+        static std::size_t idx, len;
         const char* ret;
         std::vector<ChatCommand> const& cmd = ChatHandler::getCommandTable();
 

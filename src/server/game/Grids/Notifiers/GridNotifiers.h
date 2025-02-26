@@ -604,8 +604,6 @@ namespace Trinity
                 if (go->GetGOInfo()->spellFocus.focusId != i_focusId)
                     return false;
 
-                float dist = (float)((go->GetGOInfo()->spellFocus.dist)/2);
-
                 return go->IsInMap(i_unit) && go->InSamePhase(i_unit) && go->IsInDist(i_unit, go->GetGOInfo()->spellFocus.dist);
             }
         private:
@@ -876,7 +874,7 @@ namespace Trinity
     {
         public:
             AnyUnitHavingBuffInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, uint32 spellid, bool isfriendly)
-                : i_obj(obj), i_funit(funit), i_range(range), i_spellid(spellid), i_friendly(isfriendly) {}
+                : i_obj(obj), i_funit(funit), i_range(range), i_friendly(isfriendly), i_spellid(spellid) {}
             bool operator()(Unit* u)
             {
                 if (u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range) && i_funit->IsFriendlyTo(u) == i_friendly && u->HasAura(i_spellid, i_obj->GetGUID()))
