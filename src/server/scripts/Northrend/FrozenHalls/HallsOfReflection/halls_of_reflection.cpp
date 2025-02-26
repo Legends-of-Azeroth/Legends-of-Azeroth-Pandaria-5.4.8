@@ -1993,13 +1993,13 @@ struct npc_queldelar_weapon : public customCreatureAI
         init.Launch();
 
         scheduler
-            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
         {
             me->StopMoving();
             me->GetMotionMaster()->MovePoint(0, quelDelarCombatReachPos);
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 me->SetHomePosition(*me);
                 Talk(SAY_QUELDELAR_COMBAT_REACH);

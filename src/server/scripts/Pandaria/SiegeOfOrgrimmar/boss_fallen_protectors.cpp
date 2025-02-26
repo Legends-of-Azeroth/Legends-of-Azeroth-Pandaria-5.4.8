@@ -316,7 +316,7 @@ class boss_rook_stonetoe : public CreatureScript
                 _Reset();
 
                 scheduler
-                    .Schedule(Seconds(1), [this](TaskContext context)
+                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                 });
@@ -596,7 +596,7 @@ class boss_rook_stonetoe : public CreatureScript
 
 
                             scheduler
-                                .Schedule(Seconds(2), [this](TaskContext context)
+                                .Schedule(Seconds(2), [this](TaskContext /*context*/)
                             {
                                 if (me->HasAura(SPELL_MISSERY_SORROW_GLOOM) && !isAnyEmbodiedAlive())
                                 {
@@ -733,7 +733,7 @@ class boss_he_softfoot : public CreatureScript
                 _Reset();
 
                 scheduler
-                    .Schedule(Seconds(1), [this](TaskContext context)
+                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                 });
@@ -1018,7 +1018,7 @@ class boss_he_softfoot : public CreatureScript
                                 anguish->CastSpell(anguish, SPELL_MARK_OF_ANGUISH, false);
 
                             scheduler
-                                .Schedule(Seconds(1), [this](TaskContext context)
+                                .Schedule(Seconds(1), [this](TaskContext /*context*/)
                             {
                                 if (me->HasAura(SPELL_MARK_OF_ANGUISH_VISUAL) && !me->FindNearestCreature(NPC_EMBODIED_ANGUISH, 300.0f, true))
                                 {
@@ -1095,7 +1095,7 @@ class boss_sun_tenderheart : public CreatureScript
                 _Reset();
 
                 scheduler
-                    .Schedule(Seconds(1), [this](TaskContext context)
+                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                 });
@@ -1379,7 +1379,7 @@ class boss_sun_tenderheart : public CreatureScript
                                 despair->GetMotionMaster()->MoveJump(x, y, 418.1f, 15.0f, 15.0f, EVENT_JUMP);
 
                             scheduler
-                                .Schedule(Seconds(1), [this](TaskContext context)
+                                .Schedule(Seconds(1), [this](TaskContext /*context*/)
                             {
                                 if (!me->FindNearestCreature(NPC_EMBODIED_DESPAIR, 300.0f, true) && !me->FindNearestCreature(NPC_EMBODIED_DESPERATION, 300.0f, true) && me->HasAura(SPELL_DARK_MEDITATION_VISUAL))
                                 {
@@ -1462,7 +1462,7 @@ struct npc_embodied_misery : public ScriptedAI
 
         // On Heroic they share health.
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext context)
+            .Schedule(Seconds(1), [this](TaskContext /*context*/)
         {
             if (summonerEntry == NPC_ROOK_STONETOE)
                 DoCast(me, SPELL_SHARED_TORMENT);
@@ -1572,7 +1572,7 @@ struct npc_embodied_sorrow : public ScriptedAI
 
         // On Heroic they share health.
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext context)
+            .Schedule(Seconds(1), [this](TaskContext /*context*/)
         {
             if (summonerEntry == NPC_ROOK_STONETOE)
                 DoCast(me, SPELL_SHARED_TORMENT);
@@ -1681,7 +1681,7 @@ struct npc_embodied_gloom : public ScriptedAI
 
         // On Heroic they share health.
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext context)
+            .Schedule(Seconds(1), [this](TaskContext /*context*/)
         {
             if (summonerEntry == NPC_ROOK_STONETOE)
                 DoCast(me, SPELL_SHARED_TORMENT);
@@ -1849,7 +1849,7 @@ struct npc_embodied_anguish : public ScriptedAI
             DoCast(me, SPELL_SHADOW_WEAKNESS_TRANSFER, true);
 
             scheduler
-                .Schedule(Milliseconds(500), [this](TaskContext context)
+                .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
             {
                 DoCast(me, SPELL_MARK_OF_ANGUISH, true);
             });
@@ -2086,7 +2086,7 @@ struct npc_golden_lotus_trigger : public ScriptedAI
         me->SetDisplayFromModel(1);
 
         scheduler
-            .Schedule(Milliseconds(2500), [this](TaskContext context)
+            .Schedule(Milliseconds(2500), [this](TaskContext /*context*/)
         {
             if (Creature* embodiedSpirit = me->SummonCreature(goldenLotusCorrupedType.find(me->GetEntry())->second, *me, TEMPSUMMON_MANUAL_DESPAWN))
                 embodiedSpirit->CastSpell(me, VEHICLE_SPELL_RIDE_HARDCODED, true);

@@ -1430,7 +1430,7 @@ struct npc_townlong_gunpowder_cask : public ScriptedAI
         summonerGUID = summoner->GetGUID();
 
         scheduler
-            .Schedule(Milliseconds(3000), [this](TaskContext context)
+            .Schedule(Milliseconds(3000), [this](TaskContext /*context*/)
         {
             if (Player* owner = ObjectAccessor::GetPlayer(*me, summonerGUID))
             {

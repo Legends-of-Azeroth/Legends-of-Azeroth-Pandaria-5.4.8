@@ -15,7 +15,6 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Common.h"
 #include "GroupMgr.h"
 #include "InstanceSaveMgr.h"
 #include "World.h"

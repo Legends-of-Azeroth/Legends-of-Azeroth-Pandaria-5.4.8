@@ -2111,7 +2111,7 @@ struct npc_waterspout_trigger : public ScriptedAI
             {
                 me->RemoveAurasDueToSpell(SPELL_WATERSPOUT_AURA);
 
-                scheduler.Schedule(Milliseconds(500), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(500), [this](TaskContext /*context*/)
                 {
                     if (!me->HasAura(SPELL_WATERSPOUT_BACK_TRIGGERED))
                         if (Player* itr = me->FindNearestPlayer(7.15f))
@@ -2578,7 +2578,7 @@ struct npc_roaming_fog : public customCreatureAI
 
         scheduler
             .SetValidator([this] { return !me->IsInCombat(); })
-            .Schedule(Seconds(3), [this](TaskContext context)
+            .Schedule(Seconds(3), [this](TaskContext /*context*/)
         {
             Position position = me->GetRandomPoint(CenterDurumu, 40.0f);
             me->GetMotionMaster()->MovePoint(0, position);

@@ -223,7 +223,7 @@ class boss_jinrokh : public CreatureScript
                 inStorm = false;
 
                 scheduler
-                    .Schedule(Seconds(2), [this](TaskContext context)
+                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                 });
@@ -409,7 +409,7 @@ class boss_jinrokh : public CreatureScript
 
                 DoCastBossSpell(me, SPELL_LIGHTNING_STORM, false, 3000);
 
-                scheduler.Schedule(Milliseconds(18000), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(18000), [this](TaskContext /*context*/)
                 {
                     if (me->IsAlive() && instance && instance->GetBossState(DATA_JINROKH) == IN_PROGRESS)
                     {
@@ -471,7 +471,7 @@ class boss_jinrokh : public CreatureScript
                                 me->PrepareChanneledCast(me->GetAngle(target));
                             }
 
-                            scheduler.Schedule(Milliseconds(1500), [this](TaskContext context)
+                            scheduler.Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
                             {
                                 if (me->IsAlive() && instance && instance->GetBossState(DATA_JINROKH) == IN_PROGRESS)
                                     me->RemoveChanneledCast(targetGUID);
@@ -556,7 +556,7 @@ struct npc_focused_lightning : public ScriptedAI
         DoCast(me, SPELL_FOCUSED_LIGHTNING_VISUAL, true);
 
         scheduler
-            .Schedule(Milliseconds(500), [this](TaskContext context)
+            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
         {
             if (me->GetObjectScale() >= 1.0f)
                 return;
@@ -568,7 +568,7 @@ struct npc_focused_lightning : public ScriptedAI
 
         scheduler
             .SetValidator([this] { return instance && instance->GetBossState(DATA_JINROKH) == IN_PROGRESS; })
-            .Schedule(Milliseconds(3000), [this](TaskContext context)
+            .Schedule(Milliseconds(3000), [this](TaskContext /*context*/)
         {
 
             DoCast(me, SPELL_FOCUSED_LIGHTNING_AOE, true);
@@ -620,7 +620,7 @@ struct npc_lightning_fissure : public ScriptedAI
 
         scheduler
             .SetValidator([this] { return instance && instance->GetBossState(DATA_JINROKH) == IN_PROGRESS; })
-            .Schedule(Milliseconds(200), [this](TaskContext context)
+            .Schedule(Milliseconds(200), [this](TaskContext /*context*/)
         {
             std::list<Player*> pList;
             GetPlayerListInGrid(pList, me, 50.0f);

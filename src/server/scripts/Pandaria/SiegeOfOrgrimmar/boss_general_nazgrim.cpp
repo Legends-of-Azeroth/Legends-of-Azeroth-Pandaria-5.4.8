@@ -221,7 +221,7 @@ class boss_general_nazgrim : public CreatureScript
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
                 scheduler
-                    .Schedule(Seconds(1), [this](TaskContext context)
+                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                 });
@@ -508,7 +508,7 @@ class boss_general_nazgrim : public CreatureScript
 
                           // In case: 1 time it was happened...
                             scheduler
-                                .Schedule(Milliseconds(4000), [this](TaskContext context)
+                                .Schedule(Milliseconds(4000), [this](TaskContext /*context*/)
                             {
                                 if (me->HasReactState(REACT_PASSIVE))
                                     me->RemoveChanneledCast(targetGUID);
@@ -525,7 +525,7 @@ class boss_general_nazgrim : public CreatureScript
 
                             // In case: 1 time it was happened...
                             scheduler
-                                .Schedule(Milliseconds(4000), [this](TaskContext context)
+                                .Schedule(Milliseconds(4000), [this](TaskContext /*context*/)
                             {
                                 if (me->HasReactState(REACT_PASSIVE))
                                     me->RemoveChanneledCast(targetGUID);
@@ -667,7 +667,7 @@ struct npc_nazgrim_korkron_ironblade : public ScriptedAI
             return;
 
         scheduler
-            .Schedule(Milliseconds(1), [this](TaskContext context)
+            .Schedule(Milliseconds(1), [this](TaskContext /*context*/)
         {
             std::vector<uint32> emoteType = { EMOTE_ONESHOT_LAUGH, EMOTE_ONESHOT_TALK, EMOTE_ONESHOT_ROAR, EMOTE_ONESHOT_CHEER };
             me->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(emoteType));
@@ -681,7 +681,7 @@ struct npc_nazgrim_korkron_ironblade : public ScriptedAI
         scheduler.CancelAll();
         uint32 timer = me->GetDBTableGUIDLow() ? 1 * IN_MILLISECONDS : urand(5 * IN_MILLISECONDS, 10 * IN_MILLISECONDS);
         scheduler
-            .Schedule(Milliseconds(timer), [this](TaskContext context)
+            .Schedule(Milliseconds(timer), [this](TaskContext /*context*/)
         {
             if (!me->HasAura(SPELL_IRON_STORM))
                 DoCast(me, SPELL_IRON_STORM);
@@ -1142,7 +1142,7 @@ struct npc_nazgrim_heroic_shockwave : public ScriptedAI
         me->DespawnOrUnsummon(4.5 * IN_MILLISECONDS);
 
         scheduler
-            .Schedule(Milliseconds(500), [this](TaskContext context)
+            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
         {
             if (Creature* nazgrim = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_GENERAL_NAZGRIM) : ObjectGuid::Empty))
             {
@@ -1174,7 +1174,7 @@ struct npc_nazgrim_ravager : public ScriptedAI
         DoCast(me, SPELL_RAVAGER_AURA, true);
 
         scheduler
-            .Schedule(Milliseconds(500), [this](TaskContext context)
+            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
         {
             if (!hasLaunch)
             {

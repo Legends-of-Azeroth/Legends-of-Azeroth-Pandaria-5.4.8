@@ -236,7 +236,7 @@ class boss_immerseus : public CreatureScript
                 _Reset();
 
                 scheduler
-                    .Schedule(Seconds(1), [this](TaskContext context)
+                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
                 {
                     if (me->GetInstanceScript() && me->GetInstanceScript()->GetData(DATA_AQUEOUS_DEFENDERS_FALLEN) == DONE)
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
@@ -642,7 +642,7 @@ class boss_immerseus : public CreatureScript
                                     targetGUID = target->GetGUID();
                                 
                                 scheduler  // Should wait a few seconds on the postision before casting spell 
-                                    .Schedule(Milliseconds(2000), [this](TaskContext context)
+                                    .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
                                 {
                                     DoCast(me, SPELL_SWIRL_SPRAY, true);
                                 });
@@ -659,7 +659,7 @@ class boss_immerseus : public CreatureScript
                                 }
 
                                 scheduler
-                                    .Schedule(Milliseconds(13500), [this](TaskContext context)
+                                    .Schedule(Milliseconds(13500), [this](TaskContext /*context*/)
                                 {
                                     me->RemoveChanneledCast(targetGUID);
                                 });
@@ -770,7 +770,7 @@ struct npc_swirl_immerseus : public ScriptedAI
                 DoCast(me, SPELL_SWIRL_SPRAY_AT);
             
                 scheduler
-                    .Schedule(Milliseconds(100), [this](TaskContext context)
+                    .Schedule(Milliseconds(100), [this](TaskContext /*context*/)
                 {
                     me->GetMotionMaster()->MovePoint(0, x + frand(-5.0f, 5.0f), y + frand(-10.0f, 10.0f), me->GetPositionZ());
                     context.Repeat(Milliseconds(me->GetSplineDuration()));
@@ -852,7 +852,7 @@ struct npc_sha_puddle_immerseus : public ScriptedAI
         summonerGUID = summoner->GetGUID();
 
         scheduler
-            .Schedule(Seconds(2), [this](TaskContext context)
+            .Schedule(Seconds(2), [this](TaskContext /*context*/)
         {
             if (Creature* Immerseus = ObjectAccessor::GetCreature(*me, summonerGUID))
             {
@@ -924,7 +924,7 @@ struct npc_contaminated_puddle_immerseus : public ScriptedAI
         summonerGUID = summoner->GetGUID();
 
         scheduler
-            .Schedule(Seconds(2), [this](TaskContext context)
+            .Schedule(Seconds(2), [this](TaskContext /*context*/)
         {
             if (Creature* Immerseus = ObjectAccessor::GetCreature(*me, summonerGUID))
             {
@@ -965,7 +965,7 @@ struct npc_tears_of_the_vale : public ScriptedAI
             immerseus->AI()->JustSummoned(me);
 
         scheduler
-            .Schedule(Seconds(3), Seconds(8), [this](TaskContext context)
+            .Schedule(Seconds(3), Seconds(8), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_CRY_CRY_CRY);
             context.Repeat(Seconds(8), Seconds(14));

@@ -28,7 +28,6 @@
 #include "Opcodes.h"
 #include "UpdateMask.h"
 #include "Util.h"
-#include "AccountMgr.h"
 #include "ServiceMgr.h"
 
 //void called when player click on auctioneer npc

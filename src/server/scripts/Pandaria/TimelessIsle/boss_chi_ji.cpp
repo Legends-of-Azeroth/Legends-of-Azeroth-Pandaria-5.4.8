@@ -363,7 +363,7 @@ struct npc_child_of_chi_ji : public ScriptedAI
         me->setActive(true);
 
         scheduler
-            .Schedule(Milliseconds(500), [this](TaskContext context)
+            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_BLAZING_NOVA);
 

@@ -380,7 +380,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                         hasAchievTimerActive = true;
 
                         scheduler
-                            .Schedule(Seconds(10), [this](TaskContext context)
+                            .Schedule(Seconds(10), [this](TaskContext /*context*/)
                         {
                             dragonsSlain = 0;
                             hasAchievTimerActive = false;

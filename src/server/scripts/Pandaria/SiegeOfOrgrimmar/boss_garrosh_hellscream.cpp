@@ -486,7 +486,7 @@ class boss_garrosh_hellscream : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_STRIKE_2, 0);
 
                 scheduler
-                    .Schedule(Seconds(1), [this](TaskContext context)
+                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
                 {
                     if (instance && instance->GetData(DATA_GARROSH_HELLSCREAM_PREVE_EVENT) == DONE)
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
@@ -854,7 +854,7 @@ class boss_garrosh_hellscream : public CreatureScript
                         me->SetAIAnimKitId(ANIM_AI_KIT_AROUND_HEART_TALK);
 
                         scheduler
-                            .Schedule(Seconds(5), [this](TaskContext context)
+                            .Schedule(Seconds(5), [this](TaskContext /*context*/)
                         {
                             me->SetAIAnimKitId(0);
                             DoCast(me, SPELL_THROW_AXE_AT_HEART);
@@ -862,7 +862,7 @@ class boss_garrosh_hellscream : public CreatureScript
                         });
 
                         scheduler
-                            .Schedule(Seconds(7), [this](TaskContext context)
+                            .Schedule(Seconds(7), [this](TaskContext /*context*/)
                         {
                             DoCast(me, SPELL_VISUAL_FLEE_SECOND_PHASE, true);
                             me->SetAIAnimKitId(ANIM_AI_KIT_TRANSITION);
@@ -876,7 +876,7 @@ class boss_garrosh_hellscream : public CreatureScript
                         me->SetAIAnimKitId(ANIM_AI_KIT_AROUND_HEART_TALK);
 
                         scheduler
-                            .Schedule(Seconds(5), [this](TaskContext context)
+                            .Schedule(Seconds(5), [this](TaskContext /*context*/)
                         {
                             DoCast(me, SPELL_REALM_OF_YSHAARJ_REMOVE);
                             me->SetAIAnimKitId(0);
@@ -884,7 +884,7 @@ class boss_garrosh_hellscream : public CreatureScript
                         });
 
                         scheduler
-                            .Schedule(Seconds(7), [this](TaskContext context)
+                            .Schedule(Seconds(7), [this](TaskContext /*context*/)
                         {
                             DoCast(me, SPELL_VISUAL_FLEE_THIRD_PHASE, true);
                             me->SetAIAnimKitId(ANIM_AI_KIT_TRANSITION);
@@ -1029,7 +1029,7 @@ class boss_garrosh_hellscream : public CreatureScript
                                 itr->PrepareChanneledCast(itr->GetOrientation());
 
                             scheduler
-                                .Schedule(Milliseconds(2750), [this](TaskContext context)
+                                .Schedule(Milliseconds(2750), [this](TaskContext /*context*/)
                             {
                                 me->SetPower(POWER_ENERGY, 0);
                                 me->RemoveAurasDueToSpell(SPELL_WHIRLWIND_EMPOWERED);
@@ -1042,7 +1042,7 @@ class boss_garrosh_hellscream : public CreatureScript
                                 me->NearTeleportTo(myworldGarrosh.GetPositionX(), myworldGarrosh.GetPositionY(), myworldGarrosh.GetPositionZ(), myworldGarrosh.GetOrientation());
 
                                 scheduler
-                                    .Schedule(Milliseconds(17250), [this](TaskContext context)
+                                    .Schedule(Milliseconds(17250), [this](TaskContext /*context*/)
                                 {
                                     lastPhaseTriggered = true;
                                     RealmEvents.ScheduleEvent(EVENT_EVADE_CHECK, 1 * IN_MILLISECONDS);
@@ -1144,7 +1144,7 @@ class boss_garrosh_hellscream : public CreatureScript
                                 me->NearTeleportTo(RealmWorldEGarroshPos[realmId].GetPositionX(), RealmWorldEGarroshPos[realmId].GetPositionY(), RealmWorldEGarroshPos[realmId].GetPositionZ(), RealmWorldEGarroshPos[realmId].GetOrientation());
 
                                 scheduler
-                                    .Schedule(Seconds(1), [this](TaskContext context)
+                                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
                                 {
                                     if (Creature* nearHeart = me->FindNearestCreature(NPC_HEART_OF_YSHAARJ_REALM, 100.0f, true))
                                         nearHeart->AI()->DoAction(0);
@@ -1154,7 +1154,7 @@ class boss_garrosh_hellscream : public CreatureScript
                                 });
 
                                 scheduler
-                                    .Schedule(Seconds(2), [this](TaskContext context)
+                                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
                                 {
                                     DoCast(me, SPELL_SHAARJS_PROTECTION, true);
                                     me->SetAIAnimKitId(ANIM_AI_KIT_TRANSITION);
@@ -1385,7 +1385,7 @@ struct soo_garrosh_guards_typeAI : public ScriptedAI
         }
 
         scheduler
-            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
         {
             if (!hasAffectCombat && me->GetEntry() != NPC_SIEGE_ENGINEER)
             {
@@ -1401,7 +1401,7 @@ struct soo_garrosh_guards_typeAI : public ScriptedAI
                 init.Launch();
 
                 scheduler
-                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     if (!hasAffectCombat)
                     {
@@ -1951,7 +1951,7 @@ struct npc_garrosh_unstable_iron_star : public ScriptedAI
         me->PrepareChanneledCast(me->GetOrientation());
 
         scheduler
-            .Schedule(Milliseconds(2000), [this](TaskContext context)
+            .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
         {
             allowExplosive = true;
             DoCast(me, SPELL_IRON_STAR_FIXATE_SELECTOR);
@@ -1965,7 +1965,7 @@ struct npc_garrosh_unstable_iron_star : public ScriptedAI
             me->PrepareChanneledCast(me->GetOrientation());
 
             scheduler
-                .Schedule(Milliseconds(500), [this](TaskContext context)
+                .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
             {
                 if (me->HasAura(SPELL_UNSTABLE_IRON_STAR_AT))
                     DoCast(me, SPELL_IRON_STAR_FIXATE_SELECTOR);

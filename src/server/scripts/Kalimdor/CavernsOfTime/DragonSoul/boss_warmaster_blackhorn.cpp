@@ -1133,7 +1133,7 @@ class npc_warmaster_blackhorn_skyfire_harpoon_gun: public CreatureScript
             {
                 events.Update(diff);
 
-                if (uint32 eventId = events.ExecuteEvent())
+                if (events.ExecuteEvent())
                 {
                     ReleaseAssaultDrake(drakeEntry);
                     //DoCast(me, SPELL_RELOADING);
@@ -1719,7 +1719,7 @@ class spell_warmaster_blackhorn_twilight_barrage_dmg : public SpellScriptLoader
                     {
                         if (SpellInfo const* spellInfo = GetSpellInfo())
                         {
-                            int32 bp0 = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+                            int32 bp0 = spellInfo->Effects[EFFECT_0].BasePoints;
                             bp0 *= 1.5f;
                             GetCaster()->CastCustomSpell(pShip, SPELL_TWILIGHT_BARRAGE_DMG_2, &bp0, NULL, NULL, true);
                         }

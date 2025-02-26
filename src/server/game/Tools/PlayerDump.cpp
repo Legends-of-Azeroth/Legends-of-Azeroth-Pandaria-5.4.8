@@ -18,7 +18,6 @@
 #include "Common.h"
 #include "PlayerDump.h"
 #include "DatabaseEnv.h"
-#include "UpdateFields.h"
 #include "ObjectMgr.h"
 #include "AccountMgr.h"
 #include "World.h"

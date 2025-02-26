@@ -318,7 +318,7 @@ struct npc_siege_of_orgrimmar_ooze_controller : public customCreatureAI
         hasTriggered = false;
 
         scheduler
-            .Schedule(Milliseconds(1500), [this](TaskContext context)
+            .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
         {
             if (instance && instance->GetBossState(DATA_IMMERSEUS) == DONE)
                 return;
@@ -1044,7 +1044,7 @@ struct npc_lingering_corruption : public customCreatureAI
         me->SetSpeed(MOVE_RUN, 0.9f);
 
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext context)
+            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
         {
             pos = me->GetRandomPoint({ me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY(), me->GetHomePosition().GetPositionZ(), me->GetHomePosition().GetOrientation() }, 5.5f);
             me->GetMotionMaster()->MovePoint(0, pos);
@@ -1100,7 +1100,7 @@ struct npc_siege_of_orgrimmar_portal_to_galakras : public customCreatureAI
         me->SetVisible(false);
 
         scheduler
-            .Schedule(Milliseconds(1500), [this](TaskContext context)
+            .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
         {
             if (me->GetInstanceScript() && me->GetInstanceScript()->GetData(DATA_SHA_OF_PRIDE_PAST_EVENT) == DONE)
                 me->SetVisible(true);
@@ -1761,7 +1761,7 @@ struct npc_siege_of_orgrimmar_blind_blademaster : public customCreatureAI
         events.ScheduleEvent(EVENT_BLIND_CLEAVE, 8 * IN_MILLISECONDS);
 
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext context)
+            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
         {
             if (me->GetInstanceScript() && me->GetInstanceScript()->IsWipe((me, 40.0f)))
             {
@@ -1871,7 +1871,7 @@ struct npc_siege_of_orgrimmar_poison_bolt_totem : public customCreatureAI
     void Reset() override
     {
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext context)
+            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_POISON_BOLT);
             context.Repeat(Milliseconds(2600));
@@ -2228,7 +2228,7 @@ struct npc_siege_of_orgrimmar_resistance_totem : public customCreatureAI
         else // wait players
         {
             scheduler
-                .Schedule(Seconds(2), [this](TaskContext context)
+                .Schedule(Seconds(2), [this](TaskContext /*context*/)
             {
                 if (Player* target = me->FindNearestPlayer(100.0f))
                 {
@@ -4777,7 +4777,7 @@ struct npc_siege_of_orgrimmar_dancing_flame : public customCreatureAI
     void Reset() override
     {
         scheduler
-            .Schedule(Seconds(1), Seconds(3), [this](TaskContext context)
+            .Schedule(Seconds(1), Seconds(3), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_DANCING_FLAMES);
             context.Repeat(Seconds(1), Seconds(3));
@@ -4822,7 +4822,7 @@ struct npc_siege_of_orgrimmar_korkron_prisoners : public ScriptedAI
     void Reset() override
     {
         scheduler
-            .Schedule(Seconds(1), Seconds(3), [this](TaskContext context)
+            .Schedule(Seconds(1), Seconds(3), [this](TaskContext /*context*/)
         {
             me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK_UNARMED);
             context.Repeat(Seconds(2), Seconds(5));

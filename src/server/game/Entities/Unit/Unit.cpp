@@ -4341,7 +4341,7 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit*
 
             bool stealCharge = aura->GetSpellInfo()->AttributesEx7 & SPELL_ATTR7_DISPEL_CHARGES;
             // Cast duration to unsigned to prevent permanent aura's such as Righteous Fury being permanently added to caster
-            int32 dur = std::min(2 * MINUTE * IN_MILLISECONDS, aura->GetDuration());
+            int32 dur = static_cast<int32>(std::min(2 * MINUTE * IN_MILLISECONDS, (uint32)aura->GetDuration()));
 
             // Find the same or similar aura on caster that shouldn't be overridden
             Aura* oldAura = stealer->GetAura(aura->GetId(), aura->GetCasterGUID());

@@ -356,7 +356,7 @@ class npc_zanvess_korkron_gunship : public CreatureScript
                                 pInit.Launch();
 
                                 scheduler
-                                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                                 {
                                     me->StopMoving();
                                     me->GetMotionMaster()->MovePoint(1, MoveToBattle[4]);
@@ -575,7 +575,7 @@ struct npc_zanvess_scorpid_relocator : public zanvess_klaxxi_typeAI
         spawnPos = { me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation() };
 
         scheduler
-            .Schedule(Seconds(2), [this](TaskContext context)
+            .Schedule(Seconds(2), [this](TaskContext /*context*/)
         {
             if (TempSummon* sonicTower = me->SummonCreature(NPC_SONIC_CONTROL_TOWER, *me, TEMPSUMMON_MANUAL_DESPAWN))
             {
@@ -586,7 +586,7 @@ struct npc_zanvess_scorpid_relocator : public zanvess_klaxxi_typeAI
         });
 
         scheduler
-            .Schedule(Seconds(3), [this](TaskContext context)
+            .Schedule(Seconds(3), [this](TaskContext /*context*/)
         {
             Position pos = me->GetRandomPoint(spawnPos, 10.0f);
             me->GetMotionMaster()->MovePoint(0, pos);
@@ -1231,7 +1231,7 @@ struct npc_zanvess_strafing_ran_trigger : public ScriptedAI
     void Reset() override
     {
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext context)
+            .Schedule(Seconds(1), [this](TaskContext /*context*/)
         {
             if (Unit* summoner = ObjectAccessor::GetUnit(*me, summonerGUID))
                 summoner->CastSpell(me, SPELL_STRAFING_RAN_MISSLE, true);

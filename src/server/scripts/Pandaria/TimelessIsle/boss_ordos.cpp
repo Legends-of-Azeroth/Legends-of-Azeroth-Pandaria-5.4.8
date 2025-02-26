@@ -86,7 +86,7 @@ class boss_ordos : public CreatureScript
                 me->SetReactState(REACT_AGGRESSIVE);
 
                 scheduler
-                    .Schedule(Seconds(1), [this](TaskContext context)
+                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                 });

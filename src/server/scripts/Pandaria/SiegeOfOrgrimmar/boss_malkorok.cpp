@@ -169,7 +169,7 @@ class boss_malkorok : public CreatureScript
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
                 scheduler
-                    .Schedule(Seconds(1), [this](TaskContext context)
+                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                 });
@@ -243,7 +243,7 @@ class boss_malkorok : public CreatureScript
                         break;
                     case ACTION_ARCING_SMASH_CANCEL:
                         scheduler
-                            .Schedule(Milliseconds(2000), [this](TaskContext context)
+                            .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
                         {
                             // Imploding Energy
                             HandleInitializeImplodingEnergy();
@@ -252,7 +252,7 @@ class boss_malkorok : public CreatureScript
                         break;
                     case ACTION_YSHAARJ_CLEAR:
                         scheduler
-                            .Schedule(Milliseconds(500), [this](TaskContext context)
+                            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
                         {
                             HandleClearArcingTriggers();
                         });

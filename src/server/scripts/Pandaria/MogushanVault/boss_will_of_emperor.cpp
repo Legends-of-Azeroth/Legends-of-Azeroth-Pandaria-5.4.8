@@ -1293,7 +1293,7 @@ class npc_woe_titan_spark : public CreatureScript
                     canExplode = true;
                 });
 
-                scheduler.Schedule(Milliseconds(500), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(500), [this](TaskContext /*context*/)
                 {
                     // No any way - this should work like movement areaTrigger
                     if (canExplode)

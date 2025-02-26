@@ -2531,6 +2531,7 @@ void Player::ResetAllPowers()
         case POWER_RUNIC_POWER:
             SetPower(mainPower, 0);
             break;
+        default: break;
     }
 
     // Alternative powers
@@ -17811,6 +17812,7 @@ void Player::KilledMonsterCredit(uint32 entry, ObjectGuid guid /*= 0*/, uint32 c
             case RAID_DIFFICULTY_25MAN_HEROIC:
                 count = urand(9, 11);
                 break;
+            default: break;
         }
     }
 

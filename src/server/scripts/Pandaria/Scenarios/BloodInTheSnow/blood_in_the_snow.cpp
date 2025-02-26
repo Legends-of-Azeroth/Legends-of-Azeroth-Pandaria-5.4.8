@@ -98,53 +98,53 @@ struct npc_bloodsnow_varian_wrynn : public ScriptedAI
                 me->SetFacingTo(Position::NormalizeOrientation(me->GetOrientation() - M_PI / 2));
 
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN) : ObjectGuid::Empty))
                         moira->AI()->Talk(TALK_INTRO);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 8500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 8500), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_1);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 4700), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 4700), [this](TaskContext /*context*/)
                 {
                     if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN) : ObjectGuid::Empty))
                         moira->AI()->Talk(TALK_SPECIAL_1);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 5900), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 5900), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_2);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3500), [this](TaskContext /*context*/)
                 {
                     if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN) : ObjectGuid::Empty))
                         moira->AI()->Talk(TALK_SPECIAL_2);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 8000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 8000), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_3);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 6250), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 6250), [this](TaskContext /*context*/)
                 {
                     if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN) : ObjectGuid::Empty))
                         moira->AI()->Talk(TALK_SPECIAL_3);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 7000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 7000), [this](TaskContext /*context*/)
                 {
                     if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN) : ObjectGuid::Empty))
                         me->SetFacingToObject(moira);
@@ -153,14 +153,14 @@ struct npc_bloodsnow_varian_wrynn : public ScriptedAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 6480), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 6480), [this](TaskContext /*context*/)
                 {
                     if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN) : ObjectGuid::Empty))
                         moira->AI()->Talk(TALK_SPECIAL_4);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 9300), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 9300), [this](TaskContext /*context*/)
                 {
                     if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN) : ObjectGuid::Empty))
                     {
@@ -170,20 +170,20 @@ struct npc_bloodsnow_varian_wrynn : public ScriptedAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 7450), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 7450), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_5);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3800), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3800), [this](TaskContext /*context*/)
                 {
                     if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN) : ObjectGuid::Empty))
                         moira->AI()->Talk(TALK_SPECIAL_6);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 1500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 1500), [this](TaskContext /*context*/)
                 {
                     // Moira Move forward
                     if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN) : ObjectGuid::Empty))
@@ -208,33 +208,33 @@ struct npc_bloodsnow_varian_wrynn : public ScriptedAI
 
                     delay = me->GetSplineDuration();
                     scheduler
-                        .Schedule(Milliseconds(delay), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                     {
                         Talk(TALK_SPECIAL_6);
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 4000), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 4000), [this](TaskContext /*context*/)
                     {
                         if (Creature* newMoira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN + 1) : ObjectGuid::Empty))
                             newMoira->AI()->Talk(TALK_SPECIAL_8);
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 6700), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 6700), [this](TaskContext /*context*/)
                     {
                         Talk(TALK_SPECIAL_7);
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 7000), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 7000), [this](TaskContext /*context*/)
                     {
                         if (Creature* newMoira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN + 1) : ObjectGuid::Empty))
                             newMoira->AI()->Talk(TALK_SPECIAL_9);
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 7600), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 7600), [this](TaskContext /*context*/)
                     {
                         Talk(TALK_SPECIAL_8);
                     });
@@ -273,7 +273,7 @@ struct npc_bloodsnow_mountainer_grimbolt : public ScriptedAI
             hasTriggered = true;
             delay = 2500;
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 if (me->GetInstanceScript())
                     me->GetInstanceScript()->SetData(DATA_MOUNTAINEERS, DONE);
@@ -282,7 +282,7 @@ struct npc_bloodsnow_mountainer_grimbolt : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 6000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_1);
             });
@@ -306,7 +306,7 @@ struct npc_bloodsnow_roasting_spit : public ScriptedAI
     {
          // Init delay
         scheduler
-            .Schedule(Milliseconds(2000), [this](TaskContext context)
+            .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
         {
             if (Creature* stonebeard = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SCOUT_STONEBEARD) : ObjectGuid::Empty))
                 stonebeard->CastSpell(me, VEHICLE_SPELL_RIDE_HARDCODED, true);
@@ -354,25 +354,25 @@ struct npc_bloodsnow_scout_stonebeard : public ScriptedAI
 
             delay = 2480;
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 Talk(TALK_INTRO);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 8700), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 8700), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_1);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 8550), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 8550), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_2);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 8470), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 8470), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_3);
             });
@@ -539,7 +539,7 @@ struct npc_bloodsnow_frostmane_snowstalker : public customCreatureAI
         events.Reset();
 
         scheduler
-            .Schedule(Milliseconds(2000), [this](TaskContext context)
+            .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
         {
             if (Creature* mauler = me->FindNearestCreature(NPC_FROSTMANE_MAULER, 8.0f))
                 DoCast(mauler, VEHICLE_SPELL_RIDE_HARDCODED);
@@ -899,7 +899,7 @@ struct npc_bloodsnow_hekima_the_wise : public customCreatureAI
             me->SetVisible(true);
 
             scheduler
-                .Schedule(Milliseconds(9600), [this](TaskContext context)
+                .Schedule(Milliseconds(9600), [this](TaskContext /*context*/)
             {
                 Talk(TALK_INTRO);
             });
@@ -1106,7 +1106,7 @@ struct npc_bloodsnow_scout_boldbrew : public customCreatureAI
     void Reset() override
     {
         scheduler
-            .Schedule(Milliseconds(2000), [this](TaskContext context)
+            .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
         {
             std::list<Creature*> prisonersList;
             GetCreatureListWithEntryInGrid(prisonersList, me, NPC_FROSTMANE_FLESH_EATER, 20.0f);
@@ -1136,19 +1136,19 @@ struct npc_bloodsnow_scout_boldbrew : public customCreatureAI
 
             delay = 1900;
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 Talk(TALK_INTRO);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 3800), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 3800), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_1);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 6150), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 6150), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_2);
             });
@@ -1182,7 +1182,7 @@ struct npc_bloodsnow_scout_forgefellow : public customCreatureAI
             return;
 
         scheduler
-            .Schedule(Milliseconds(2000), [this](TaskContext context)
+            .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
         {
             std::list<Creature*> prisonersList;
             GetCreatureListWithEntryInGrid(prisonersList, me, NPC_FROSTMANE_FLESH_EATER, 30.0f);
@@ -1212,19 +1212,19 @@ struct npc_bloodsnow_scout_forgefellow : public customCreatureAI
 
             delay = 3700;
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 Talk(TALK_INTRO);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 6500), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 6500), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_1);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 9700), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 9700), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_2);
             });

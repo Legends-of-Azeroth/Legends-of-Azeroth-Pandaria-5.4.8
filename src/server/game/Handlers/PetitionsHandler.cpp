@@ -16,7 +16,6 @@
 */
 
 #include "Common.h"
-#include "Language.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "World.h"
@@ -25,7 +24,6 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "Guild.h"
-#include "ArenaTeam.h"
 #include "GossipDef.h"
 #include "SocialMgr.h"
 #include "ScriptMgr.h"

@@ -365,7 +365,7 @@ class boss_durumu : public CreatureScript
                 achievementFogsEntry = { SPELL_SUMMON_GREEN_FOG_BEAST, SPELL_SUMMON_ORANGE_FOG_BEAST, SPELL_SUMMON_PURPLE_FOG_BEAST };
 
                 scheduler
-                    .Schedule(Seconds(2), [this](TaskContext context)
+                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                 });
@@ -971,7 +971,7 @@ class boss_durumu : public CreatureScript
 
                         scheduler
                             .SetValidator([this] { return ori <= 9 * M_PI / 4; })
-                            .Schedule(Milliseconds(500), [this](TaskContext context)
+                            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
                         {
                             x = me->GetPositionX(), y = me->GetPositionY();
 
@@ -1053,7 +1053,7 @@ struct npc_durumu_fog : public ScriptedAI
 
                 scheduler
                     .SetValidator([this] { return activate && me->GetEntry() != NPC_YELLOW_FOG; })
-                    .Schedule(Milliseconds(500), [this](TaskContext context)
+                    .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
                 {
                     DoCast(me, me->GetEntry() == NPC_BLUE_FOG ? SPELL_ICY_GRASP : SPELL_CAUSTIC_SPIKE);
 

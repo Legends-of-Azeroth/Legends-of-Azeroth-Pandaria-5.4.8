@@ -643,7 +643,7 @@ struct quelingBaseAI : public ScriptedAI
 
                         scheduler
                             .SetValidator([this] { return instance && instance->GetBossState(DATA_IRON_QON) == IN_PROGRESS; })
-                            .Schedule(Milliseconds(me->GetSplineDuration() + 1 * IN_MILLISECONDS), [this](TaskContext context)
+                            .Schedule(Milliseconds(me->GetSplineDuration() + 1 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                         {
                             // Prevent gain energy while in this
                             if (!me->HasAura(SPELL_MOLTEN_OVERLOAD))
@@ -744,7 +744,7 @@ struct quelingBaseAI : public ScriptedAI
             // Reset each 10s
             scheduler
                 .SetValidator([this] { return instance && instance->GetBossState(DATA_IRON_QON) == IN_PROGRESS; })
-                .Schedule(Seconds(8), [this](TaskContext context)
+                .Schedule(Seconds(8), [this](TaskContext /*context*/)
             {
                 inferno = true;
             });
@@ -816,7 +816,7 @@ class npc_roshak : public CreatureScript
 
                 scheduler
                     .SetValidator([this] { return instance && instance->GetBossState(DATA_IRON_QON) == IN_PROGRESS; })
-                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     me->StopMoving();
                     me->OverrideInhabitType(INHABIT_GROUND);
@@ -830,7 +830,7 @@ class npc_roshak : public CreatureScript
 
                 scheduler
                     .SetValidator([this] { return instance && instance->GetBossState(DATA_IRON_QON) == IN_PROGRESS; })
-                    .Schedule(Milliseconds(me->GetSplineDuration() + 1 * IN_MILLISECONDS), [this](TaskContext context)
+                    .Schedule(Milliseconds(me->GetSplineDuration() + 1 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                 {
                     // Prevent gain energy while in this
                     if (!me->HasAura(SPELL_MOLTEN_OVERLOAD))
@@ -954,7 +954,7 @@ class npc_quetzal : public CreatureScript
                             uint32 delay = me->GetSplineDuration();
 
                             scheduler
-                                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                             {
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, CasterSpecTargetSelector()))
                                     me->SetFacingTo(me->GetAngle(target));
@@ -967,7 +967,7 @@ class npc_quetzal : public CreatureScript
 
                             // Back to fly path
                             scheduler
-                                .Schedule(Milliseconds(delay += 1000), [this](TaskContext context)
+                                .Schedule(Milliseconds(delay += 1000), [this](TaskContext /*context*/)
                             {
                                 me->StopMoving();
                                 Movement::MoveSplineInit init(me);
@@ -1015,7 +1015,7 @@ class npc_quetzal : public CreatureScript
 
                             scheduler
                                 .SetValidator([this] { return instance && instance->GetBossState(DATA_IRON_QON) == IN_PROGRESS; })
-                                .Schedule(Milliseconds(20000), [this](TaskContext context)
+                                .Schedule(Milliseconds(20000), [this](TaskContext /*context*/)
                             {
                                 hasInStorm = false;
                                 me->RemoveChanneledCast(targetGUID);
@@ -1136,7 +1136,7 @@ class npc_damren : public CreatureScript
 
                             scheduler
                                 .SetValidator([this] { return instance && instance->GetBossState(DATA_IRON_QON) == IN_PROGRESS; })
-                                .Schedule(Milliseconds(7500), [this](TaskContext context)
+                                .Schedule(Milliseconds(7500), [this](TaskContext /*context*/)
                             {
                                 me->RemoveChanneledCast(targetGUID);
                             });
@@ -1214,7 +1214,7 @@ class npc_iron_qons_spear : public CreatureScript
 
                         scheduler
                             .SetValidator([this] { return instance && instance->GetBossState(DATA_IRON_QON) == IN_PROGRESS && dist < 100.0f; })
-                            .Schedule(Milliseconds(300), [this](TaskContext context)
+                            .Schedule(Milliseconds(300), [this](TaskContext /*context*/)
                         {
                             modOri += M_PI / 3;
 
@@ -1279,7 +1279,7 @@ struct npc_rushing_wind : public ScriptedAI
 
                 scheduler
                     .SetValidator([this] { return instance && instance->GetBossState(DATA_IRON_QON) == IN_PROGRESS; })
-                    .Schedule(Milliseconds(200), [this](TaskContext context)
+                    .Schedule(Milliseconds(200), [this](TaskContext /*context*/)
                 {
                     Movement::MoveSplineInit init(me);
                     init.MoveTo(ironQonCenter.GetPositionX() + frand(-60.0f, 60.0f), ironQonCenter.GetPositionY() + frand(-33.0f, 33.0f), me->GetPositionZ());
@@ -1313,7 +1313,7 @@ struct npc_rushing_wind : public ScriptedAI
 
                 scheduler
                     .SetValidator([this] { return instance && instance->GetBossState(DATA_IRON_QON) == IN_PROGRESS; })
-                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     me->StopMoving();
                     DoCast(me, SPELL_RUSHING_WINDS_ADDITIONAL);
@@ -1343,7 +1343,7 @@ struct npc_rushing_wind : public ScriptedAI
         {
             scheduler
                 .SetValidator([this] { return instance && instance->GetBossState(DATA_IRON_QON) == IN_PROGRESS; })
-                .Schedule(Milliseconds(200), [this](TaskContext context)
+                .Schedule(Milliseconds(200), [this](TaskContext /*context*/)
             {
                 if (me->GetVehicleKit() && me->GetVehicleKit()->GetPassenger(0))
                 {

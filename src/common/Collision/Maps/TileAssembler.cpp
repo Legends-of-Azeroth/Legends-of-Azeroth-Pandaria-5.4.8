@@ -23,7 +23,6 @@
 #include <set>
 #include <iomanip>
 #include <sstream>
-#include <iomanip>
 #include <boost/filesystem.hpp>
 
 using G3D::Vector3;

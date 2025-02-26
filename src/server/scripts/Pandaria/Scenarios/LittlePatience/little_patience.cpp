@@ -246,7 +246,7 @@ struct npc_little_patience_king_varian_wrynn : public ScriptedAI
 
                 delay = me->GetSplineDuration();
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_INTRO);
 
@@ -255,14 +255,14 @@ struct npc_little_patience_king_varian_wrynn : public ScriptedAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 5600), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 5600), [this](TaskContext /*context*/)
                 {
                     if (Creature* chiJi = ObjectAccessor::GetCreature(*me, me->GetInstanceId() ? me->GetInstanceScript()->GetGuidData(NPC_CHI_JI) : ObjectGuid::Empty))
                         chiJi->AI()->Talk(TALK_INTRO);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 15000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 15000), [this](TaskContext /*context*/)
                 {
                     // Spawn faction leaders
                     for (auto&& itr : invFactionLeadersType)
@@ -270,7 +270,7 @@ struct npc_little_patience_king_varian_wrynn : public ScriptedAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
                 {
                     // Any Assault
                     uint32 idx = urand(TYPE_GNOME, TYPE_PANDAREN);
@@ -282,39 +282,39 @@ struct npc_little_patience_king_varian_wrynn : public ScriptedAI
 
                 // Dialogue with Tyrande
                 scheduler
-                    .Schedule(Milliseconds(delay += 1 * MINUTE * IN_MILLISECONDS), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 1 * MINUTE * IN_MILLISECONDS), [this](TaskContext /*context*/)
                 {
                     if (Creature* tyrande = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TYRANDE_WHISPERWIND) : ObjectGuid::Empty))
                         tyrande->AI()->Talk(TALK_INTRO);
 
                     scheduler
-                        .Schedule(Milliseconds(9500), [this](TaskContext context)
+                        .Schedule(Milliseconds(9500), [this](TaskContext /*context*/)
                     {
                         Talk(TALK_SPECIAL_2);
                     });
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 1 * MINUTE * IN_MILLISECONDS), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 1 * MINUTE * IN_MILLISECONDS), [this](TaskContext /*context*/)
                 {
                     if (Creature* tyrande = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TYRANDE_WHISPERWIND) : ObjectGuid::Empty))
                         tyrande->AI()->Talk(TALK_SPECIAL_1);
 
                     scheduler
-                        .Schedule(Milliseconds(9500), [this](TaskContext context)
+                        .Schedule(Milliseconds(9500), [this](TaskContext /*context*/)
                     {
                         Talk(TALK_SPECIAL_6);
                     });
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 1 * MINUTE * IN_MILLISECONDS), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 1 * MINUTE * IN_MILLISECONDS), [this](TaskContext /*context*/)
                 {
                     if (Creature* tyrande = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TYRANDE_WHISPERWIND) : ObjectGuid::Empty))
                         tyrande->AI()->Talk(TALK_SPECIAL_2);
 
                     scheduler
-                        .Schedule(Milliseconds(9500), [this](TaskContext context)
+                        .Schedule(Milliseconds(9500), [this](TaskContext /*context*/)
                     {
                         Talk(TALK_SPECIAL_8);
                     });
@@ -322,7 +322,7 @@ struct npc_little_patience_king_varian_wrynn : public ScriptedAI
 
                 // Just Periodic Announce
                 scheduler
-                    .Schedule(Milliseconds(45 * IN_MILLISECONDS), [this](TaskContext context)
+                    .Schedule(Milliseconds(45 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                 {
                     Talk(Trinity::Containers::SelectRandomContainerElement(customAnnouce));
                     context.Repeat(Seconds(20));
@@ -334,33 +334,33 @@ struct npc_little_patience_king_varian_wrynn : public ScriptedAI
 
                 delay = 6 * IN_MILLISECONDS;
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     if (Creature* scargash = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_COMMANDER_SCARGASH) : ObjectGuid::Empty))
                         scargash->AI()->Talk(TALK_INTRO);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 6500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 6500), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_10);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3500), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_11);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 10000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 10000), [this](TaskContext /*context*/)
                 {
                     if (Creature* scargash = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_COMMANDER_SCARGASH) : ObjectGuid::Empty))
                         scargash->AI()->Talk(TALK_SPECIAL_1);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 6000), [this](TaskContext /*context*/)
                 {
                     // Attack!
                     if (me->GetInstanceScript())
@@ -373,51 +373,51 @@ struct npc_little_patience_king_varian_wrynn : public ScriptedAI
                 
                 delay = me->GetSplineDuration();
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_12);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 7000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 7000), [this](TaskContext /*context*/)
                 {
                     if (Creature* tyrande = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TYRANDE_WHISPERWIND + 1) : ObjectGuid::Empty))
                         tyrande->AI()->Talk(TALK_SPECIAL_3);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 6100), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 6100), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_13);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 8200), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 8200), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_14);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_15);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 7000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 7000), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_16);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 14000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 14000), [this](TaskContext /*context*/)
                 {
                     if (Creature* tyrande = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TYRANDE_WHISPERWIND + 1) : ObjectGuid::Empty))
                         tyrande->AI()->Talk(TALK_SPECIAL_4);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 8500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 8500), [this](TaskContext /*context*/)
                 {
                     if (Creature* chiJi = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_CHI_JI + 1) : ObjectGuid::Empty))
                     {
@@ -427,7 +427,7 @@ struct npc_little_patience_king_varian_wrynn : public ScriptedAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 7300), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 7300), [this](TaskContext /*context*/)
                 {
                     if (Creature* chiJi = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_CHI_JI + 1) : ObjectGuid::Empty))
                         chiJi->AI()->Talk(TALK_SPECIAL_2);
@@ -459,7 +459,7 @@ struct npc_little_patience_faction_leader : public customCreatureAI
         constructionProgress = 0;
 
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext context)
+            .Schedule(Seconds(1), [this](TaskContext /*context*/)
         {
             // 20 per second & 45 if this camp has buff
             if (!me->HasAura(SPELL_TERRIFIED))

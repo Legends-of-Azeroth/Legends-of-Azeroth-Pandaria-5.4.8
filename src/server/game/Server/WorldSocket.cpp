@@ -25,15 +25,12 @@
 #include "IPLocation.h"
 #include "Opcodes.h"
 #include "PacketLog.h"
-#include "Random.h"
-//#include "RBAC.h"
 #include "Realm.h"
 #include "ScriptMgr.h"
 #include "World.h"
 #include "WorldSession.h"
 #include <memory>
 #include <zlib.h>
-//#include "ServerPktHeader.h"
 
 #pragma pack(push, 1)
 

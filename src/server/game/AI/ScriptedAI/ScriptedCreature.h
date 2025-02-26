@@ -163,8 +163,7 @@ struct ScriptedAI : public CreatureAI
     virtual void UpdateAI(uint32 diff) override;
 
     // Called when AI is temporarily replaced or put back when possess is applied or removed
-    void OnPossess(bool /*apply*/)
-    { }
+    virtual void OnPossess(bool /*apply*/) { }
 
     // *************
     // Variables

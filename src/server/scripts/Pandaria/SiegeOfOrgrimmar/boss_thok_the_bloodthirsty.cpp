@@ -239,7 +239,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                     thirdCage->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
                 scheduler
-                    .Schedule(Seconds(1), [this](TaskContext context)
+                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                 });
@@ -250,7 +250,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                 hasInitialize = true;
 
                 scheduler
-                    .Schedule(Milliseconds(1500), [this](TaskContext context)
+                    .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
                 {
                     if (instance && instance->GetData(DATA_THOK_BLOODTHIRSTY_PRE_EVENT) == DONE)
                     {
@@ -434,7 +434,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                         berserkerEvents.ScheduleEvent(EVENT_SHOCK_BLAST, 9 * IN_MILLISECONDS);
 
                         scheduler
-                            .Schedule(Milliseconds(3000), [this](TaskContext context)
+                            .Schedule(Milliseconds(3000), [this](TaskContext /*context*/)
                         {
                             me->SetAutoattackOverrideSpell(SPELL_DUMMY_NUKE, 0);
                             me->SetSpeed(MOVE_RUN, IsHeroic() ? 0.28f : 0.25f);
@@ -516,7 +516,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                         me->ClearUnitState(UNIT_STATE_CASTING);
 
                         scheduler
-                            .Schedule(Seconds(3), [this](TaskContext context) // blizzlike
+                            .Schedule(Seconds(3), [this](TaskContext /*context*/) // blizzlike
                         {
                             if (!me->HasAura(SPELL_BLOOD_FRENZY) && canEat)
                                 DoCast(me, SPELL_BLOOD_FRENZY);
@@ -580,7 +580,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                         instance->DoCastSpellOnPlayers(SPELL_SHOCK_BLAST);
 
                     scheduler
-                        .Schedule(Milliseconds(1000), [this](TaskContext context)
+                        .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
                     {
                         DoZoneInCombat(me, 200.0f);
                         me->StopMoving();
@@ -1009,7 +1009,7 @@ struct helpers_baseAI : public ScriptedAI
 
             // Pull
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration() + 1000), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration() + 1000), [this](TaskContext /*context*/)
             {
                 if (me->GetEntry() == NPC_AKOLIK)
                     Talk(TALK_SPECIAL_1);
@@ -1204,7 +1204,7 @@ struct npc_thok_captive_cave_bat : public ScriptedAI
             me->GetMotionMaster()->MovePoint(0, x, y, me->GetPositionZ(), me->GetOrientation());
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration() + urand(500, 1000)), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration() + urand(500, 1000)), [this](TaskContext /*context*/)
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
                 me->SetInCombatWithZone();
@@ -1277,7 +1277,7 @@ struct npc_thok_starved_yeti : public ScriptedAI
                 me->GetMotionMaster()->MovePoint(0, x, y, me->GetPositionZ(), me->GetOrientation());
 
                 scheduler
-                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     me->GetMotionMaster()->MoveJump(thokBloodthristyRelocate[1], 25.0f, 25.0f, EVENT_JUMP);
                 });
@@ -1314,7 +1314,7 @@ struct npc_thok_starved_yeti : public ScriptedAI
             me->SetInCombatWithZone();
 
             scheduler
-                .Schedule(Seconds(1), [this](TaskContext context)
+                .Schedule(Seconds(1), [this](TaskContext /*context*/)
             {
                 DoCast(me, SPELL_WRECKING_BALL);
             });
@@ -1328,7 +1328,7 @@ struct npc_thok_starved_yeti : public ScriptedAI
             DoCast(me, SPELL_WRECKING_BALL_BREAK);
 
             scheduler
-                .Schedule(Milliseconds(16000), [this](TaskContext context)
+                .Schedule(Milliseconds(16000), [this](TaskContext /*context*/)
             {
                 DoCast(me, SPELL_WRECKING_BALL);
             });
@@ -1370,7 +1370,7 @@ struct npc_thok_monstrous_gastropod : public ScriptedAI
             init.Launch();
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 DoCast(me, SPELL_MEGA_SNAIL_BOSS_MORPH);
             });

@@ -239,14 +239,14 @@ class boss_erudax : public CreatureScript
 
                                 ObjectGuid bindingGUID = target->GetGUID();
                                 scheduler
-                                    .Schedule(Milliseconds(500), [this, bindingGUID](TaskContext context)
+                                    .Schedule(Milliseconds(500), [this, bindingGUID](TaskContext /*context*/)
                                 {
                                     if (Unit* tempTarget = ObjectAccessor::GetUnit(*me, bindingGUID))
                                         DoCast(tempTarget, SPELL_BINDING_SHADOWS);
                                 });
 
                                 scheduler
-                                    .Schedule(Milliseconds(2500), [this](TaskContext context)
+                                    .Schedule(Milliseconds(2500), [this](TaskContext /*context*/)
                                 {
                                     me->RemoveChanneledCast(targetGUID);
                                 });
@@ -260,14 +260,14 @@ class boss_erudax : public CreatureScript
 
                                 ObjectGuid bindingGUID = target->GetGUID();
                                 scheduler
-                                    .Schedule(Milliseconds(500), [this, bindingGUID](TaskContext context)
+                                    .Schedule(Milliseconds(500), [this, bindingGUID](TaskContext /*context*/)
                                 {
                                     if (Unit* tempTarget = ObjectAccessor::GetUnit(*me, bindingGUID))
                                         DoCast(tempTarget, SPELL_BINDING_SHADOWS);
                                 });
 
                                 scheduler
-                                    .Schedule(Milliseconds(2500), [this](TaskContext context)
+                                    .Schedule(Milliseconds(2500), [this](TaskContext /*context*/)
                                 {
                                     me->RemoveChanneledCast(targetGUID);
                                 });
@@ -315,7 +315,7 @@ struct npc_erudax_faceless_corruptor : public ScriptedAI
     TaskScheduler scheduler;
     EventMap events;
 
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(Unit* /*summoner*/) override
     {
         me->SetInCombatWithZone();
         me->SetReactState(REACT_PASSIVE);
@@ -324,7 +324,7 @@ struct npc_erudax_faceless_corruptor : public ScriptedAI
         me->GetMotionMaster()->MovePoint(0, eggsSpawnPath[me->GetEntry() == NPC_FACELESS_CORRUPTOR_H ? 0 : 1]);
 
         scheduler
-            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
         {
             me->GetMap()->SetWorldState(WORLDSTATE_BREAK_THE_EGGS, 0);
             DoCast(me, SPELL_TWILIGHT_CORRUPTION);

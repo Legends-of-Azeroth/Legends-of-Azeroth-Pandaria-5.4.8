@@ -254,7 +254,7 @@ struct npc_altairus_twister : public ScriptedAI
     TaskScheduler scheduler;
     float x, y;
 
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(Unit* /*summoner*/) override
     {
         me->OverrideInhabitType(INHABIT_AIR);
         me->SetAnimTier(AnimTier::Fly);

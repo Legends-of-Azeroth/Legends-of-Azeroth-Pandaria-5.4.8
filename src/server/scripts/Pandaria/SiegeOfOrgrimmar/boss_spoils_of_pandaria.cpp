@@ -518,25 +518,25 @@ class boss_spoils_of_pandaria : public CreatureScript
 
                         uint32 delay = 3000;
                         scheduler
-                            .Schedule(Milliseconds(delay), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_INTRO_1);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 8400), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 8400), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_INTRO_2);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 3700), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 3700), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_INTRO_3);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 6700), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 6700), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_INTRO);
 
@@ -566,7 +566,7 @@ class boss_spoils_of_pandaria : public CreatureScript
                             me->SetInCombatWithZone();
 
                             scheduler
-                                .Schedule(Milliseconds(5000), [this](TaskContext context)
+                                .Schedule(Milliseconds(5000), [this](TaskContext /*context*/)
                             {
                                 systemActivate = 1; // init region check and damage around spoils
                             });
@@ -632,7 +632,7 @@ class boss_spoils_of_pandaria : public CreatureScript
                 _JustEngagedWith();
 
                 scheduler
-                    .Schedule(Milliseconds(1000), [this](TaskContext context)
+                    .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
                 {
                     timerValue--;
 
@@ -1773,18 +1773,18 @@ struct npc_spoils_lift_hook : public ScriptedAI
         clicker->CastSpell(me, VEHICLE_SPELL_RIDE_HARDCODED, true);
 
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext context)
+            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
         {
             me->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), -261.14f);
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 GetPositionWithDistInOrientation(me, 15.0f, oriDiff, x, y);
                 me->GetMotionMaster()->MovePoint(0, x, y, -261.14f);
 
                 scheduler
-                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     if (me->GetVehicleKit())
                         me->GetVehicleKit()->RemoveAllPassengers();
@@ -1795,12 +1795,12 @@ struct npc_spoils_lift_hook : public ScriptedAI
                     me->GetMotionMaster()->MovePoint(0, me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY(), -261.14f);
 
                     scheduler
-                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                     {
                         me->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetHomePosition().GetPositionZ());
 
                         scheduler
-                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                         {
                             clickerGUID = ObjectGuid::Empty;
                             hasPassenger = false;
@@ -2134,7 +2134,7 @@ struct npc_spoils_nameless_windwalker_spirit : public ScriptedAI
             me->PrepareChanneledCast(me->GetOrientation());
 
             scheduler
-                .Schedule(Milliseconds(500), [this](TaskContext context)
+                .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
             {
                 DoCast(me, SPELL_MASS_PARALYSIS);
                 me->RemoveChanneledCast(targetGUID);
@@ -2217,7 +2217,7 @@ struct npc_spoils_spark_of_life : public ScriptedAI
         DoCast(me, SPELL_PULSE);
 
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext context)
+            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
         {
             me->GetClosePoint(x, y, z, 3.0f, 15.0f, frand(0.0f, 2 * M_PI));
             me->GetMotionMaster()->MovePoint(0, x, y, z);
@@ -2329,12 +2329,12 @@ struct npc_spoils_zarthik_swarmer : public ScriptedAI
     void Reset() override
     {
         scheduler
-            .Schedule(Milliseconds(1500), [this](TaskContext context)
+            .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
         {
             me->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() - 10.0f);
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 me->OverrideInhabitType(INHABIT_GROUND);
                 me->UpdateMovementFlags();
@@ -2382,14 +2382,14 @@ struct npc_spoils_stone_statue_warlord : public ScriptedAI
     void Reset() override
     {
         scheduler
-            .Schedule(Milliseconds(1500), [this](TaskContext context)
+            .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
         {
             if (Unit* target = ObjectAccessor::GetUnit(*me, ownerGUID))
             {
                 me->GetMotionMaster()->MovePoint(0, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() - 10.0f);
 
                 scheduler
-                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
@@ -2401,7 +2401,7 @@ struct npc_spoils_stone_statue_warlord : public ScriptedAI
             else
             {
                 scheduler
-                    .Schedule(Milliseconds(1000), [this](TaskContext context)
+                    .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
                 {
                     if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
@@ -2441,7 +2441,7 @@ struct npc_spoils_unstable_spark : public ScriptedAI
         hasTriggered = false;
 
         scheduler
-            .Schedule(Milliseconds(500), [this](TaskContext context)
+            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_SUPERNOVA);
         });
@@ -2452,7 +2452,7 @@ struct npc_spoils_unstable_spark : public ScriptedAI
         if (spell->Id == SPELL_BLADE_OF_THE_HUNDRED_STEPS_EFF)
         {
             scheduler
-                .Schedule(Milliseconds(2000), [this](TaskContext context)
+                .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
             {
                 if (!hasTriggered)
                     DoCast(me, SPELL_SUPERNOVA);

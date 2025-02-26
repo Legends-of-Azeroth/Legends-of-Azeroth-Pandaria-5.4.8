@@ -403,7 +403,7 @@ struct npc_feralas_horde_poacher : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
     {
         if (me->GetHealthPct() < 30.0f)
         {
@@ -560,7 +560,7 @@ struct npc_feralas_mountain_giant : public CreatureAI
             hasCredit = true;
 
             scheduler
-                .Schedule(Seconds(3), [this](TaskContext context)
+                .Schedule(Seconds(3), [this](TaskContext /*context*/)
             {
                 // Move away!
                 Position pos = me->GetNearPosition(10.0f, frand(0.0f, 2 * M_PI));

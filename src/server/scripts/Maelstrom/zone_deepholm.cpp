@@ -165,7 +165,7 @@ struct npc_deepholm_wyvern_ride : public CreatureAI
             init.Launch();
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, targetGUID))
                 {
@@ -184,7 +184,7 @@ struct npc_deepholm_wyvern_ride : public CreatureAI
             me->SetSpeed(MOVE_FLIGHT, 2.6f);
 
             scheduler
-                .Schedule(Milliseconds(4000), [this](TaskContext context)
+                .Schedule(Milliseconds(4000), [this](TaskContext /*context*/)
             {
                 if (Creature* aggra = me->SummonCreature(NPC_AGGRA, *me, TEMPSUMMON_MANUAL_DESPAWN))
                 {
@@ -202,7 +202,7 @@ struct npc_deepholm_wyvern_ride : public CreatureAI
                 init.Launch();
 
                 scheduler
-                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     if (Player* target = ObjectAccessor::GetPlayer(*me, targetGUID))
                         target->ExitVehicle();
@@ -242,25 +242,25 @@ struct npc_maelstorm_aggra : public CreatureAI
         {
             delay = 3200;
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 Talk(TALK_INTRO);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 10000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 10000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_1);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 10500), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 10500), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_2);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 8500), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 8500), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_3);
             });
@@ -269,37 +269,37 @@ struct npc_maelstorm_aggra : public CreatureAI
         {
             delay = 1250;
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_4);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 3900), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 3900), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_5);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 6000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_6);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 14400), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 14400), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_7);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 14600), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 14600), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_8);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 9800), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 9800), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_9);
             });

@@ -1036,7 +1036,7 @@ struct npc_wrathion_suen_celestial : public ScriptedAI
             summoner->ToPlayer()->KilledMonsterCredit(NPC_XUEN_CREDIT);
 
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext context)
+            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
         {
             Talk(TALK_INTRO);
             me->SetWalk(true);
@@ -1044,19 +1044,19 @@ struct npc_wrathion_suen_celestial : public ScriptedAI
 
             delay = me->GetSplineDuration() + 2500;
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_1);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 3000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 3000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_2);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 4000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 4000), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_XUEN_CELESTIAL, 50.0f, true))
@@ -1064,13 +1064,13 @@ struct npc_wrathion_suen_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 14000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 14000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_3);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 3800), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 3800), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_XUEN_CELESTIAL, 50.0f, true))
@@ -1078,13 +1078,13 @@ struct npc_wrathion_suen_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 5800), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 5800), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_4);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 5200), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 5200), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_XUEN_CELESTIAL, 50.0f, true))
@@ -1092,13 +1092,13 @@ struct npc_wrathion_suen_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 4600), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 4600), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_5);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 4000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 4000), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_XUEN_CELESTIAL, 50.0f, true))
@@ -1106,13 +1106,13 @@ struct npc_wrathion_suen_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 3200), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 3200), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_6);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 4100), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 4100), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_XUEN_CELESTIAL, 50.0f, true))
@@ -1120,7 +1120,7 @@ struct npc_wrathion_suen_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 14500), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 14500), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_XUEN_CELESTIAL, 50.0f, true))
@@ -1128,7 +1128,7 @@ struct npc_wrathion_suen_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 11000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 11000), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_XUEN_CELESTIAL, 50.0f, true))
@@ -1157,7 +1157,7 @@ struct npc_wrathion_suen_celestial : public ScriptedAI
         {
             delay = 2 * IN_MILLISECONDS;
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_XUEN_CELESTIAL, 50.0f, true))
@@ -1165,13 +1165,13 @@ struct npc_wrathion_suen_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 9400), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 9400), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_7);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 6000), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_XUEN_CELESTIAL, 50.0f, true))
@@ -1179,13 +1179,13 @@ struct npc_wrathion_suen_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 5400), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 5400), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_8);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 5600), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 5600), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_XUEN_CELESTIAL, 50.0f, true))
@@ -1193,24 +1193,24 @@ struct npc_wrathion_suen_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 10000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 10000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_9);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MovePoint(0, xuenStartChall);
 
                 scheduler
-                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_10);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(me->GetSplineDuration() + 4500), [this](TaskContext context)
+                    .Schedule(Milliseconds(me->GetSplineDuration() + 4500), [this](TaskContext /*context*/)
                 {
                     if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                         target->CastSpell(target, SPELL_SUMMON_WRATHION_XUEN_CHALLENGE, true);
@@ -1247,7 +1247,7 @@ struct npc_wrathion_chiji_celestial : public ScriptedAI
             summoner->ToPlayer()->KilledMonsterCredit(NPC_CHIJI_CREDIT);
 
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext context)
+            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
         {
             Talk(TALK_INTRO);
 
@@ -1260,19 +1260,19 @@ struct npc_wrathion_chiji_celestial : public ScriptedAI
 
             delay = me->GetSplineDuration() + 2500;
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_1);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 3200), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 3200), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_2);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 5400), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 5400), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_CHI_JI_CELESTIAL, 50.0f, true))
@@ -1280,7 +1280,7 @@ struct npc_wrathion_chiji_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 11000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 11000), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_CHI_JI_CELESTIAL, 50.0f, true))
@@ -1288,13 +1288,13 @@ struct npc_wrathion_chiji_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 8000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 8000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_3);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 5250), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 5250), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_CHI_JI_CELESTIAL, 50.0f, true))
@@ -1302,13 +1302,13 @@ struct npc_wrathion_chiji_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 6200), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 6200), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_4);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 4400), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 4400), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_CHI_JI_CELESTIAL, 50.0f, true))
@@ -1316,26 +1316,26 @@ struct npc_wrathion_chiji_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 2800), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 2800), [this](TaskContext /*context*/)
             {
                 me->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
                 Talk(TALK_SPECIAL_5);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 8500), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 8500), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_6);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 10300), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 10300), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_7);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 12500), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 12500), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_CHI_JI_CELESTIAL, 50.0f, true))
@@ -1343,7 +1343,7 @@ struct npc_wrathion_chiji_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 11000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 11000), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_CHI_JI_CELESTIAL, 50.0f, true))
@@ -1351,7 +1351,7 @@ struct npc_wrathion_chiji_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 5700), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 5700), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_CHI_JI_CELESTIAL, 50.0f, true))
@@ -1359,13 +1359,13 @@ struct npc_wrathion_chiji_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 9600), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 9600), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_8);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 5200), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 5200), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_CHI_JI_CELESTIAL, 50.0f, true))
@@ -1411,31 +1411,31 @@ struct npc_wrathion_niuzao_celestial : public ScriptedAI
             summoner->ToPlayer()->KilledMonsterCredit(NPC_NIUZAO_CREDIT);
 
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext context)
+            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
         {
             Talk(TALK_INTRO);
         });
 
         scheduler
-            .Schedule(Milliseconds(3500), [this](TaskContext context)
+            .Schedule(Milliseconds(3500), [this](TaskContext /*context*/)
         {
             me->GetMotionMaster()->MovePoint(0, niuzaoWrathion);
 
             delay = me->GetSplineDuration() + 2500;
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_1);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 4700), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 4700), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_2);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 5300), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 5300), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_NIUZAO_CELESTIAL, 50.0f, true))
@@ -1443,7 +1443,7 @@ struct npc_wrathion_niuzao_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 7300), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 7300), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_NIUZAO_CELESTIAL, 50.0f, true))
@@ -1451,13 +1451,13 @@ struct npc_wrathion_niuzao_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 7200), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 7200), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_3);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 5400), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 5400), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_NIUZAO_CELESTIAL, 50.0f, true))
@@ -1465,7 +1465,7 @@ struct npc_wrathion_niuzao_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 9700), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 9700), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_NIUZAO_CELESTIAL, 50.0f, true))
@@ -1473,7 +1473,7 @@ struct npc_wrathion_niuzao_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 11000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 11000), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_NIUZAO_CELESTIAL, 50.0f, true))
@@ -1481,13 +1481,13 @@ struct npc_wrathion_niuzao_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 9400), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 9400), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_4);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 6500), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 6500), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_NIUZAO_CELESTIAL, 50.0f, true))
@@ -1495,13 +1495,13 @@ struct npc_wrathion_niuzao_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_5);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 2700), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 2700), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_NIUZAO_CELESTIAL, 50.0f, true))
@@ -1509,7 +1509,7 @@ struct npc_wrathion_niuzao_celestial : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 8600), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 8600), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, ownerGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_NIUZAO_CELESTIAL, 50.0f, true))
@@ -1639,7 +1639,7 @@ struct npc_wrathion_xuen_challenge : public customCreatureAI
         if (victim->GetTypeId() == TYPEID_PLAYER)
         {
             scheduler
-                .Schedule(Milliseconds(1000), [this](TaskContext context)
+                .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
             {
                 if (Player* target = ObjectAccessor::GetPlayer(*me, targetGUID))
                     if (Creature* tiger = me->FindNearestCreature(NPC_WHITE_TIGER_TEMPLE, 200.0f, true))
@@ -1660,7 +1660,7 @@ struct npc_wrathion_xuen_challenge : public customCreatureAI
                 me->PrepareChanneledCast(me->GetAngle(target), SPELL_CRUMBLING_ARC);
 
             scheduler
-                .Schedule(Milliseconds(3500), [this](TaskContext context)
+                .Schedule(Milliseconds(3500), [this](TaskContext /*context*/)
             {
                 me->RemoveChanneledCast(targetGUID);
             });
@@ -1773,13 +1773,13 @@ struct npc_neltharions_tear : public ScriptedAI
 
             uint32 delay = urand(30 * IN_MILLISECONDS, 35 * IN_MILLISECONDS);
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 DoCast(me, SPELL_NELTHRAIONS_TEAR_BEAM, true);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
             {
                 me->SetHealth(me->GetMaxHealth());
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
@@ -1849,25 +1849,25 @@ struct npc_wrathion_cloak_achieve : public ScriptedAI
         delay = 4.5 * IN_MILLISECONDS;
 
         scheduler
-            .Schedule(Milliseconds(delay), [this](TaskContext context)
+            .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
         {
             Talk(TALK_SPECIAL_1);
 
             delay = 0;
             scheduler
-                .Schedule(Milliseconds(delay += 7400), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 7400), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_2);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 6600), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 6600), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_3);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 6100), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 6100), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_4);
 
@@ -1882,7 +1882,7 @@ struct npc_wrathion_cloak_achieve : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 12100), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 12100), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_5);
                 DoCast(me, SPELL_CLOACK_CREATION_STATE, true);
@@ -1900,7 +1900,7 @@ struct npc_wrathion_cloak_achieve : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 6000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_6);
 
@@ -1916,7 +1916,7 @@ struct npc_wrathion_cloak_achieve : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 6000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_7);
 
@@ -1932,7 +1932,7 @@ struct npc_wrathion_cloak_achieve : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 6000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_8);
 
@@ -1948,14 +1948,14 @@ struct npc_wrathion_cloak_achieve : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_9);
                 DoCast(me, SPELL_CLOACK_CELESTIAL_SPHERE, true);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 7500), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 7500), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_10);
                 me->RemoveAurasDueToSpell(SPELL_CLOACK_CELESTIAL_SPHERE);
@@ -1970,7 +1970,7 @@ struct npc_wrathion_cloak_achieve : public ScriptedAI
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
         {
             // Path
             Movement::MoveSplineInit init(me);
@@ -2084,7 +2084,7 @@ struct npc_willy_wilder : public ScriptedAI
         me->SetFaction(35); // by default
 
         scheduler
-            .Schedule(Milliseconds(3000), [this](TaskContext context)
+            .Schedule(Milliseconds(3000), [this](TaskContext /*context*/)
         {
             Movement::MoveSplineInit init(me);
             for (auto&& itr : willyPath)
@@ -2094,7 +2094,7 @@ struct npc_willy_wilder : public ScriptedAI
             init.Launch();
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 me->HandleEmoteCommand(EMOTE_ONESHOT_CHEER);
                 me->SetHomePosition(*me);

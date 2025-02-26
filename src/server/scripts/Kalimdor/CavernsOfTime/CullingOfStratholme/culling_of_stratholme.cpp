@@ -1389,7 +1389,7 @@ class npc_cos_zombie : public CreatureScript
                 instance = me->GetInstanceScript();
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (!UpdateVictim())
                     return;

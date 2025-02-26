@@ -216,7 +216,7 @@ class boss_dark_animus : public CreatureScript
 
                     scheduler
                         .SetValidator([this] { return instance && instance->GetBossState(DATA_DARK_ANIMUS) == IN_PROGRESS; })
-                        .Schedule(Seconds(2), [this](TaskContext context)
+                        .Schedule(Seconds(2), [this](TaskContext /*context*/)
                     {
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         me->SetReactState(REACT_AGGRESSIVE);
@@ -522,7 +522,7 @@ class npc_anima_orb : public CreatureScript
                     combatValue = 1;
 
                     scheduler
-                        .Schedule(Seconds(1), [this](TaskContext context)
+                        .Schedule(Seconds(1), [this](TaskContext /*context*/)
                     {
                         if (instance && instance->IsWipe(75.0f, me))
                         {
@@ -674,7 +674,7 @@ struct golemsBaseAI : public ScriptedAI
 
             scheduler
                 .SetValidator([this] { return instance && instance->GetBossState(DATA_DARK_ANIMUS) == IN_PROGRESS; })
-                .Schedule(Seconds(2), [this](TaskContext context)
+                .Schedule(Seconds(2), [this](TaskContext /*context*/)
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PACIFIED);
                 me->SetReactState(REACT_AGGRESSIVE);
@@ -841,7 +841,7 @@ struct npc_crimson_wake : public ScriptedAI
 
         scheduler
             .SetValidator([this] { return instance && instance->GetBossState(DATA_DARK_ANIMUS) == IN_PROGRESS; })
-            .Schedule(Seconds(1), [this](TaskContext context)
+            .Schedule(Seconds(1), [this](TaskContext /*context*/)
         {
             if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
             {
@@ -856,7 +856,7 @@ struct npc_crimson_wake : public ScriptedAI
 
         scheduler
             .SetValidator([this] { return instance && instance->GetBossState(DATA_DARK_ANIMUS) == IN_PROGRESS; })
-            .Schedule(Seconds(9), [this](TaskContext context)
+            .Schedule(Seconds(9), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_CRIMSON_WAKE_SLOW);
             context.Repeat(Seconds(8));

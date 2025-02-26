@@ -230,7 +230,7 @@ class boss_morchok: public CreatureScript
                 return 0;
             }
 
-            void SetData(uint32 type, uint32 data) override
+            void SetData(uint32 type, uint32 /*data*/) override
             {
                 if (type == DATA_ALLOW_ACHIEV)
                     me->GetMap()->SetWorldState(WORLDSTATE_DONT_STAND_SO_CLOSE_TO_ME, 0);

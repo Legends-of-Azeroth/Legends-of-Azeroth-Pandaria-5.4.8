@@ -186,7 +186,7 @@ class boss_ra_den : public CreatureScript
                 if (instance && instance->GetData(DATA_RA_DEN_EVENT) == DONE)
                 {
                     scheduler
-                        .Schedule(Seconds(2), [this](TaskContext context)
+                        .Schedule(Seconds(2), [this](TaskContext /*context*/)
                     {
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                     });
@@ -823,7 +823,7 @@ struct npc_sanguine_horror : public ScriptedAI
         SetCombatMovement(false);
         volleyAvailable = false;
 
-        scheduler.Schedule(Milliseconds(2000), [this](TaskContext context)
+        scheduler.Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
         {
             volleyAvailable = true;
         });

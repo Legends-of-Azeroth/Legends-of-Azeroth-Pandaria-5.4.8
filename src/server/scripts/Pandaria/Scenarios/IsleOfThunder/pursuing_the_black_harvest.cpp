@@ -208,7 +208,7 @@ class npc_black_harvest_akama : public CreatureScript
                     init.Launch();
 
                     scheduler
-                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                     {
                         me->DespawnOrUnsummon();
                     });
@@ -224,7 +224,7 @@ class npc_black_harvest_akama : public CreatureScript
                             me->GetMotionMaster()->MovePoint(0, target->GetPositionX() + frand(-2.5, 2.5f), target->GetPositionY() + frand(-2.0f, 2.0f), target->GetPositionZ());
 
                         scheduler
-                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                         {
                             if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                                 DoCast(target, SPELL_SAP, true);
@@ -232,7 +232,7 @@ class npc_black_harvest_akama : public CreatureScript
                             delay = 4 * IN_MILLISECONDS;
 
                             scheduler
-                                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                             {
                                 if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                                     me->SetFacingToObject(target);
@@ -242,13 +242,13 @@ class npc_black_harvest_akama : public CreatureScript
                             });
 
                             scheduler
-                                .Schedule(Milliseconds(delay += 4 * IN_MILLISECONDS), [this](TaskContext context)
+                                .Schedule(Milliseconds(delay += 4 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                             {
                                 Talk(TALK_SPECIAL_1);
                             });
 
                             scheduler
-                                .Schedule(Milliseconds(delay += 5 * IN_MILLISECONDS), [this](TaskContext context)
+                                .Schedule(Milliseconds(delay += 5 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                             {
                                 if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                                     target->CastSpell(target, SPELL_TRUSTED_BY_ASHTONGUE, true);
@@ -262,7 +262,7 @@ class npc_black_harvest_akama : public CreatureScript
                         Talk(TALK_SPECIAL_2);
 
                         scheduler
-                            .Schedule(Milliseconds(8200), [this](TaskContext context)
+                            .Schedule(Milliseconds(8200), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_3);
 
@@ -277,7 +277,7 @@ class npc_black_harvest_akama : public CreatureScript
                             init.Launch();
 
                             scheduler
-                                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                             {
                                 me->StopMoving();
 
@@ -291,7 +291,7 @@ class npc_black_harvest_akama : public CreatureScript
                                 }
 
                                 scheduler
-                                    .Schedule(Milliseconds(6500), [this](TaskContext context)
+                                    .Schedule(Milliseconds(6500), [this](TaskContext /*context*/)
                                 {
                                     // Move to Sanctum Inner
                                     Movement::MoveSplineInit init(me);
@@ -306,13 +306,13 @@ class npc_black_harvest_akama : public CreatureScript
                                     delay = 0;
 
                                     scheduler
-                                        .Schedule(Milliseconds((int32)(0.3f * me->GetSplineDuration())), [this](TaskContext context)
+                                        .Schedule(Milliseconds((int32)(0.3f * me->GetSplineDuration())), [this](TaskContext /*context*/)
                                     {
                                         Talk(TALK_SPECIAL_5);
                                     });
 
                                     scheduler
-                                        .Schedule(Milliseconds(delay += me->GetSplineDuration()), [this](TaskContext context)
+                                        .Schedule(Milliseconds(delay += me->GetSplineDuration()), [this](TaskContext /*context*/)
                                     {
                                         if (instance)
                                             instance->SetData(STEP_FOLLOW_AKAMA, DONE);
@@ -321,7 +321,7 @@ class npc_black_harvest_akama : public CreatureScript
                                     });
 
                                     scheduler
-                                        .Schedule(Milliseconds(delay += 6800), [this](TaskContext context)
+                                        .Schedule(Milliseconds(delay += 6800), [this](TaskContext /*context*/)
                                     {
                                         Talk(TALK_SPECIAL_7);
                                     });
@@ -403,7 +403,7 @@ struct npc_black_harvest_essence_of_order : public customCreatureAI
 
                 scheduler
                     .SetValidator([this] { return dist <= 40.0f; })
-                    .Schedule(Milliseconds(250), [this](TaskContext context)
+                    .Schedule(Milliseconds(250), [this](TaskContext /*context*/)
                 {
                     GetPositionWithDistInOrientation(me, dist, faceOri, x, y);
                     me->CastSpell(x, y, me->GetPositionZ(), SPELL_SPELLFLAME_EFF, true);
@@ -887,20 +887,20 @@ struct npc_black_harvest_kanrethad_ebonlocke : public customCreatureAI
         delay = me->GetSplineDuration();
 
         scheduler
-            .Schedule(Milliseconds(delay), [this](TaskContext context)
+            .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
         {
             Talk(TALK_INTRO);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 6 * IN_MILLISECONDS), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 6 * IN_MILLISECONDS), [this](TaskContext /*context*/)
         {
             Talk(TALK_SPECIAL_1);
             me->GetMotionMaster()->MovePoint(0, kanrethadPath[1]);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 9800), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 9800), [this](TaskContext /*context*/)
         {
             Talk(TALK_SPECIAL_2);
             
@@ -909,7 +909,7 @@ struct npc_black_harvest_kanrethad_ebonlocke : public customCreatureAI
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 1500), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 1500), [this](TaskContext /*context*/)
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         });
@@ -948,7 +948,7 @@ struct npc_black_harvest_kanrethad_ebonlocke : public customCreatureAI
                 DoCast(target, SPELL_DEMONIC_GRASP);
 
             scheduler
-                .Schedule(Milliseconds(4500), [this](TaskContext context)
+                .Schedule(Milliseconds(4500), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_6);
 
@@ -975,13 +975,13 @@ struct npc_black_harvest_kanrethad_ebonlocke : public customCreatureAI
         delay = 0;
 
         scheduler
-            .Schedule(Milliseconds(delay += 10500), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 10500), [this](TaskContext /*context*/)
         {
             Talk(TALK_SPECIAL_3);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 4000), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 4000), [this](TaskContext /*context*/)
         {
             // Start call demon here
             if (Creature* gateWay = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_DEMONIC_GATEWAY) : ObjectGuid::Empty))
@@ -989,13 +989,13 @@ struct npc_black_harvest_kanrethad_ebonlocke : public customCreatureAI
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 1500), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 1500), [this](TaskContext /*context*/)
         {
             Talk(TALK_SPECIAL_4);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 15000), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 15000), [this](TaskContext /*context*/)
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
 
@@ -1120,44 +1120,44 @@ struct npc_black_harvest_black_temple_top_credit : public ScriptedAI
         uint32 delay = 0;
 
         scheduler
-            .Schedule(Milliseconds(delay += 500), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 500), [this](TaskContext /*context*/)
         {
             if (Unit* owner = ObjectAccessor::GetUnit(*me, summonerGUID))
                 owner->CastSpell(owner, SPELL_FEEL_ENERGY_SPIN, true);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_FEEL_ENERGY_GREEN_LIGHT);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_FEEL_ENERGY_GOLDEN_ORB);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 2500), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 2500), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_FEEL_ENERGY_GREEN_BALL);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_FEEL_ENERGY_BIG_BALL);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 3000), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 3000), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_FEEL_ENERGY_EXPLOSION);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
         {
             if (Unit* owner = ObjectAccessor::GetUnit(*me, summonerGUID))
                 owner->ExitVehicle();
@@ -1205,14 +1205,14 @@ struct npc_black_harvest_demonic_soulwell : public customCreatureAI
             uint32 delay = 0;
 
             scheduler
-                .Schedule(Milliseconds(delay += 4500), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 4500), [this](TaskContext /*context*/)
             {
                 if (Creature* gates = ObjectAccessor::GetCreature(*me, summonGUID))
                     gates->CastSpell(gates, SPELL_DEMONIC_GATEWAY_EFF, true);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 6000), [this](TaskContext /*context*/)
             {
                 me->SummonCreature(NPC_KANRETHAD_EBONLOCKE, DemonicGatewayPos, TEMPSUMMON_MANUAL_DESPAWN);
             });
@@ -1260,14 +1260,14 @@ struct npc_black_harvest_jubeka_shadowbreaker : public ScriptedAI
                 me->GetMotionMaster()->MovePoint(0, kanrethad->GetPositionX() + frand(-5.0f, 5.0f), kanrethad->GetPositionY() + frand(-5.0f, 5.0f), kanrethad->GetPositionZ());
 
             scheduler
-                .Schedule(Milliseconds(2000), [this](TaskContext context)
+                .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
             {
                 if (Creature* kanrethad = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_KANRETHAD_EBONLOCKE) : ObjectGuid::Empty))
                     kanrethad->AI()->Talk(TALK_SPECIAL_7);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay+=me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(delay+=me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 Talk(TALK_INTRO);
 
@@ -1279,7 +1279,7 @@ struct npc_black_harvest_jubeka_shadowbreaker : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 2500), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 2500), [this](TaskContext /*context*/)
             {
                 Talk(TALK_INTRO);
 
@@ -1288,7 +1288,7 @@ struct npc_black_harvest_jubeka_shadowbreaker : public ScriptedAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 4000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 4000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_1);
 

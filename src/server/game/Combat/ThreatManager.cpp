@@ -23,7 +23,6 @@
 #include "Player.h"
 #include "ObjectAccessor.h"
 #include "UnitEvents.h"
-#include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
 

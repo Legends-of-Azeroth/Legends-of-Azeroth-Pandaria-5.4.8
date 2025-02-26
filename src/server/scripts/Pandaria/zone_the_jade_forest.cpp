@@ -3766,7 +3766,7 @@ struct npc_lorewalker_cho_peering_into_past : public customCreatureAI
         delay = 1000;
 
         scheduler
-            .Schedule(Milliseconds(delay), [this](TaskContext context)
+            .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
         {
             Talk(TALK_INTRO);
             me->SetWalk(true);
@@ -3774,13 +3774,13 @@ struct npc_lorewalker_cho_peering_into_past : public customCreatureAI
 
             delay = me->GetSplineDuration();
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 DoCast(me, SPELL_GREAT_BLACK_TURTLE);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 3000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 3000), [this](TaskContext /*context*/)
             {
                 me->StopMoving();
 
@@ -3794,14 +3794,14 @@ struct npc_lorewalker_cho_peering_into_past : public customCreatureAI
                 init.Launch();
 
                 scheduler
-                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     // We are Reach this!
                     me->RemoveAurasDueToSpell(SPELL_GREAT_BLACK_TURTLE);
                     delay = 1550;
 
                     scheduler
-                        .Schedule(Milliseconds(delay), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                     {
                         if (Player* owner = ObjectAccessor::GetPlayer(*me, summonerGUID))
                             me->SetFacingToObject(owner);
@@ -3810,7 +3810,7 @@ struct npc_lorewalker_cho_peering_into_past : public customCreatureAI
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 5500), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 5500), [this](TaskContext /*context*/)
                     {
                         // Walk to stone
                         me->SetWalk(true);
@@ -3818,7 +3818,7 @@ struct npc_lorewalker_cho_peering_into_past : public customCreatureAI
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 13400), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 13400), [this](TaskContext /*context*/)
                     {
                         if (Player* owner = ObjectAccessor::GetPlayer(*me, summonerGUID))
                             me->SetFacingToObject(owner);
@@ -3827,14 +3827,14 @@ struct npc_lorewalker_cho_peering_into_past : public customCreatureAI
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
                     {
                         // Walk to center
                         me->GetMotionMaster()->MovePoint(0, peeringCenterPoint);
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
                     {
                         if (Player* owner = ObjectAccessor::GetPlayer(*me, summonerGUID))
                             me->SetFacingToObject(owner);
@@ -3843,7 +3843,7 @@ struct npc_lorewalker_cho_peering_into_past : public customCreatureAI
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 10000), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 10000), [this](TaskContext /*context*/)
                     {
                         if (Player* owner = ObjectAccessor::GetPlayer(*me, summonerGUID))
                             owner->KilledMonsterCredit(NPC_CHO_ESCORT_BUNNY);
@@ -3854,13 +3854,13 @@ struct npc_lorewalker_cho_peering_into_past : public customCreatureAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 4400), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 4400), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_1);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 8560), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 8560), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_2);
             });
@@ -3963,19 +3963,19 @@ struct npc_prince_anduin_decision : public customCreatureAI
             summoner->ToPlayer()->KilledMonsterCredit(NPC_PRINCE_ANDUIN_CREDIT);
 
         scheduler
-            .Schedule(Milliseconds(delay), [this](TaskContext context)
+            .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
         {
             Talk(TALK_INTRO);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 3820), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 3820), [this](TaskContext /*context*/)
         {
             Talk(TALK_SPECIAL_1);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 7000), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 7000), [this](TaskContext /*context*/)
         {
             // Summon Sally & Kearlen
             if (Player* target = ObjectAccessor::GetPlayer(*me, summonerGUID))
@@ -3990,13 +3990,13 @@ struct npc_prince_anduin_decision : public customCreatureAI
             delay = 2000;
 
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_2);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 1500), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 1500), [this](TaskContext /*context*/)
             {
                 // Mind controll to Sally
                 if (Creature* sally = ObjectAccessor::GetCreature(*me, getCreatureGuidByPlayer(NPC_SULLY)))
@@ -4008,14 +4008,14 @@ struct npc_prince_anduin_decision : public customCreatureAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 3900), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 3900), [this](TaskContext /*context*/)
             {
                 if (Creature* sally = ObjectAccessor::GetCreature(*me, getCreatureGuidByPlayer(NPC_SULLY)))
                     sally->AI()->Talk(TALK_SPECIAL_2);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 7000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 7000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_3);
                 me->InterruptNonMeleeSpells(false, SPELL_MIND_CONTROL);
@@ -4023,7 +4023,7 @@ struct npc_prince_anduin_decision : public customCreatureAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 1800), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 1800), [this](TaskContext /*context*/)
             {
                 // Move out with pandarens
                 Movement::MoveSplineInit init(me);
@@ -4035,7 +4035,7 @@ struct npc_prince_anduin_decision : public customCreatureAI
                 me->DespawnOrUnsummon(me->GetSplineDuration());
 
                 scheduler
-                    .Schedule(Milliseconds(1000), [this](TaskContext context)
+                    .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
                 {
                     if (Creature* ren = ObjectAccessor::GetCreature(*me, getCreatureGuidByPlayer(NPC_REN_WHITEPAW)))
                     {
@@ -4050,7 +4050,7 @@ struct npc_prince_anduin_decision : public customCreatureAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(2000), [this](TaskContext context)
+                    .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
                 {
                     if (Creature* lina = ObjectAccessor::GetCreature(*me, getCreatureGuidByPlayer(NPC_LINA_WHITEPAW)))
                     {
@@ -4120,13 +4120,13 @@ struct npc_prince_anduin_decision_helpers : public customCreatureAI
             {
                 delay = me->GetSplineDuration();
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_INTRO);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3300), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3300), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_1);
 
@@ -4144,7 +4144,7 @@ struct npc_prince_anduin_decision_helpers : public customCreatureAI
         {
             delay = 4300;
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 if (Creature* kaerlean = ObjectAccessor::GetCreature(*me, getCreatureGuidByPlayer(NPC_KAERLEN)))
                 {
@@ -4154,14 +4154,14 @@ struct npc_prince_anduin_decision_helpers : public customCreatureAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 2800), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 2800), [this](TaskContext /*context*/)
             {
                 me->RemoveAurasDueToSpell(SPELL_MIND_CONTROL);
                 Talk(TALK_SPECIAL_3);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 3450), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 3450), [this](TaskContext /*context*/)
             {
                 if (Creature* kaerlean = ObjectAccessor::GetCreature(*me, getCreatureGuidByPlayer(NPC_KAERLEN)))
                 {
@@ -4171,20 +4171,20 @@ struct npc_prince_anduin_decision_helpers : public customCreatureAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 4800), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 4800), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_4);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
             {
                 if (Creature* kaerlean = ObjectAccessor::GetCreature(*me, getCreatureGuidByPlayer(NPC_KAERLEN)))
                     kaerlean->AI()->Talk(TALK_SPECIAL_2);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 2600), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 2600), [this](TaskContext /*context*/)
             {
                 if (Creature* kaerlean = ObjectAccessor::GetCreature(*me, getCreatureGuidByPlayer(NPC_KAERLEN)))
                 {
@@ -4194,7 +4194,7 @@ struct npc_prince_anduin_decision_helpers : public customCreatureAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 2500), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 2500), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_5);
                 me->GetMotionMaster()->MovePoint(0, me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY(), me->GetHomePosition().GetPositionZ());
@@ -4622,7 +4622,7 @@ struct npc_jade_forest_alliance_barricade : public customCreatureAI
             }
 
             scheduler
-                .Schedule(Seconds(15), [this](TaskContext context)
+                .Schedule(Seconds(15), [this](TaskContext /*context*/)
             {
                 for (auto&& itr : barricadeGUIDS)
                     if (GameObject* go = ObjectAccessor::GetGameObject(*me, itr))
@@ -4770,13 +4770,13 @@ struct npc_jade_forest_instant_message_camera_bunny : public ScriptedAI
 
         uint32 delay = 2;
         scheduler
-            .Schedule(Seconds(delay), [this](TaskContext context)
+            .Schedule(Seconds(delay), [this](TaskContext /*context*/)
         {
             me->GetMotionMaster()->MovePoint(0, cameraMove);
         });
 
         scheduler
-            .Schedule(Seconds(delay += 8), [this](TaskContext context)
+            .Schedule(Seconds(delay += 8), [this](TaskContext /*context*/)
         {
             Movement::MoveSplineInit init(me);
             for (auto itr : camerMovePath)
@@ -4789,7 +4789,7 @@ struct npc_jade_forest_instant_message_camera_bunny : public ScriptedAI
         });
 
         scheduler
-            .Schedule(Seconds(delay += 10), [this](TaskContext context)
+            .Schedule(Seconds(delay += 10), [this](TaskContext /*context*/)
         {
             if (Unit* passenger = ObjectAccessor::GetUnit(*me, summonerGUID))
                 passenger->ExitVehicle();

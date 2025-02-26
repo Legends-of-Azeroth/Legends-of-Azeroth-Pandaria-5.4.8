@@ -478,7 +478,7 @@ class boss_lei_shen : public CreatureScript
                         
                         scheduler
                             .SetValidator([this] { return instance && instance->GetBossState(DATA_LEI_SHEN) == IN_PROGRESS; })
-                            .Schedule(Milliseconds(3000), [this](TaskContext context)
+                            .Schedule(Milliseconds(3000), [this](TaskContext /*context*/)
                         {
                             phaseId = me->HealthBelowPct(30) ? PHASE_LORD_OF_THUNDER : PHASE_DEFAULT;
                             me->RemoveChanneledCast(targetGUID);
@@ -552,7 +552,7 @@ class boss_lei_shen : public CreatureScript
                     // Should`ve triggered from displace, but wrong synch (knockback before teleport)
                     scheduler
                         .SetValidator([this] { return instance && instance->GetBossState(DATA_LEI_SHEN) == IN_PROGRESS; })
-                        .Schedule(Seconds(1), [this](TaskContext context)
+                        .Schedule(Seconds(1), [this](TaskContext /*context*/)
                     {
                         DoCast(me, SPELL_SUPERCHARGE_CONDUITS_KNOCKBACK, true);
 
@@ -704,7 +704,7 @@ class boss_lei_shen : public CreatureScript
 
                             scheduler
                                 .SetValidator([this] { return instance && instance->GetBossState(DATA_LEI_SHEN) == IN_PROGRESS; })
-                                .Schedule(Milliseconds(4500), [this](TaskContext context)
+                                .Schedule(Milliseconds(4500), [this](TaskContext /*context*/)
                             {
                                 me->RemoveChanneledCast(targetGUID);
                             });
@@ -818,7 +818,7 @@ struct npc_electric_conduit : public ScriptedAI
 
                 scheduler
                     .SetValidator([this] { return !isDisabled; })
-                    .Schedule(Milliseconds(500), [this](TaskContext context)
+                    .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
                 {
                     if (Creature* leiShen = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_LEI_SHEN) : ObjectGuid::Empty))
                     {
@@ -987,7 +987,7 @@ struct npc_ball_lightning : public ScriptedAI
             leiShen->AI()->JustSummoned(me);
 
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext context)
+            .Schedule(Seconds(1), [this](TaskContext /*context*/)
         {
             me->SetInCombatWithZone();
             me->AttackStop();
@@ -996,7 +996,7 @@ struct npc_ball_lightning : public ScriptedAI
 
         scheduler
             .SetValidator([this] { return !me->HasUnitState(UNIT_STATE_CASTING); })
-            .Schedule(Milliseconds(1500), [this](TaskContext context)
+            .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
         {
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankSpecTargetSelector()))
                 DoCast(target, SPELL_BALL_LIGHTNING_JUMP);
@@ -1046,7 +1046,7 @@ struct npc_unharnessed_power : public ScriptedAI
 
         scheduler
             .SetValidator([this] { return IsHeroic(); })
-            .Schedule(Seconds(15), [this](TaskContext context)
+            .Schedule(Seconds(15), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_AMPLIFIER);
 
@@ -1091,14 +1091,14 @@ struct npc_diffused_lightning : public ScriptedAI
             leiShen->AI()->JustSummoned(me);
 
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext context)
+            .Schedule(Seconds(1), [this](TaskContext /*context*/)
         {
             me->SetInCombatWithZone();
         });
 
         scheduler
             .SetValidator([this] { return !me->HasUnitState(UNIT_STATE_CASTING); })
-            .Schedule(Seconds(3), Seconds(9), [this](TaskContext context)
+            .Schedule(Seconds(3), Seconds(9), [this](TaskContext /*context*/)
         {
             if (Unit* target = me->GetVictim())
                 DoCast(target, invdiffusedLightningType.find(me->GetEntry())->second);

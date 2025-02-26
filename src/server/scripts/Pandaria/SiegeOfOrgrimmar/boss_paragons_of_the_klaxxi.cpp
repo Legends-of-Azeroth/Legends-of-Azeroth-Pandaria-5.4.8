@@ -445,7 +445,7 @@ class boss_paragon_of_the_klaxxi : public CreatureScript
 
                 // simulated delay (should solve issue with missing killruk at first initialize)
                 scheduler
-                    .Schedule(Milliseconds(2000), [this](TaskContext context)
+                    .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
                 {
                     if (instance && instance->GetData(DATA_PARAGON_PRE_EVENT) != DONE)
                     {
@@ -488,56 +488,56 @@ class boss_paragon_of_the_klaxxi : public CreatureScript
 
                         uint32 delay = 4800;
                         scheduler
-                            .Schedule(Milliseconds(delay), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                         {
                             if (Creature* rikkal = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_RIKKAL_THE_DISSECTOR) : ObjectGuid::Empty))
                                 rikkal->AI()->Talk(TALK_PARAGON_INTRO);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 6900), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 6900), [this](TaskContext /*context*/)
                         {
                             if (Creature* iyokkuk = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_IYYOKUK_THE_LUCID) : ObjectGuid::Empty))
                                 iyokkuk->AI()->Talk(TALK_PARAGON_INTRO);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 6000), [this](TaskContext /*context*/)
                         {
                             if (Creature* xaril = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_XARIL_THE_POISONED_MIND) : ObjectGuid::Empty))
                                 xaril->AI()->Talk(TALK_PARAGON_INTRO);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 7400), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 7400), [this](TaskContext /*context*/)
                         {
                             if (Creature* kaztik = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_KAZTIK_THE_MANIPULATOR) : ObjectGuid::Empty))
                                 kaztik->AI()->Talk(TALK_PARAGON_INTRO);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 6000), [this](TaskContext /*context*/)
                         {
                             if (Creature* korven = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_KORVEN_THE_PRIME) : ObjectGuid::Empty))
                                 korven->AI()->Talk(TALK_PARAGON_INTRO);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 10700), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 10700), [this](TaskContext /*context*/)
                         {
                             if (Creature* karoz = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_KAROZ_THE_LOCUST) : ObjectGuid::Empty))
                                 karoz->AI()->Talk(TALK_PARAGON_INTRO);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 7160), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 7160), [this](TaskContext /*context*/)
                         {
                             if (Creature* skeer = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SKEER_THE_BLOODSEEKER) : ObjectGuid::Empty))
                                 skeer->AI()->Talk(TALK_PARAGON_INTRO);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 6800), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 6800), [this](TaskContext /*context*/)
                         {
                             if (Creature* hisek = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_HISEK_THE_SWARMKEEPER) : ObjectGuid::Empty))
                                 hisek->AI()->Talk(TALK_PARAGON_INTRO);
@@ -832,7 +832,7 @@ struct soo_paragon_typeAI : public ScriptedAI
 
         scheduler
             .SetValidator([this] { return me->GetEntry() == NPC_KILRUK_THE_WIND_REAVER || me->GetEntry() == NPC_IYYOKUK_THE_LUCID; })
-            .Schedule(Milliseconds(1000), [this](TaskContext context)
+            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
         {
             // flight simulate
             me->SetAnimTier(AnimTier::Fly);
@@ -1260,18 +1260,18 @@ struct boss_kilruk_the_wind_reaver : public soo_paragon_typeAI
                         me->GetMotionMaster()->MovePoint(0, x, y, me->GetPositionZ() + 10.0f);
 
                         scheduler
-                            .Schedule(Milliseconds(me->GetSplineDuration() + 1000), [this](TaskContext context)
+                            .Schedule(Milliseconds(me->GetSplineDuration() + 1000), [this](TaskContext /*context*/)
                         {
                             DoCast(me, SPELL_DEATH_FROM_ABOVE_JUMP_EFF);
 
                             scheduler
-                                .Schedule(Milliseconds(500), [this](TaskContext context)
+                                .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
                             {
                                 DoCast(me, SPELL_REAVE_EFF);
                             });
 
                             scheduler
-                                .Schedule(Milliseconds(1200), [this](TaskContext context)
+                                .Schedule(Milliseconds(1200), [this](TaskContext /*context*/)
                             {
                                 me->OverrideInhabitType(INHABIT_GROUND);
                                 me->UpdateMovementFlags();
@@ -1296,18 +1296,18 @@ struct boss_kilruk_the_wind_reaver : public soo_paragon_typeAI
                         me->GetMotionMaster()->MovePoint(0, x, y, me->GetPositionZ() + 25.0f);
 
                         scheduler
-                            .Schedule(Milliseconds(me->GetSplineDuration() + 1000), [this](TaskContext context)
+                            .Schedule(Milliseconds(me->GetSplineDuration() + 1000), [this](TaskContext /*context*/)
                         {
                             DoCast(me, SPELL_DEATH_FROM_ABOVE_JUMP_EFF);
 
                             scheduler
-                                .Schedule(Milliseconds(800), [this](TaskContext context)
+                                .Schedule(Milliseconds(800), [this](TaskContext /*context*/)
                             {
                                 DoCast(me, SPELL_REAVE_EFF);
                             });
 
                             scheduler
-                                .Schedule(Milliseconds(1200), [this](TaskContext context)
+                                .Schedule(Milliseconds(1200), [this](TaskContext /*context*/)
                             {
                                 me->OverrideInhabitType(INHABIT_GROUND);
                                 me->UpdateMovementFlags();
@@ -2287,7 +2287,7 @@ struct npc_soo_paragon_hungry_kunchong : public ScriptedAI
                     me->PrepareChanneledCast(me->GetAngle(vict), SPELL_SWIPE);
 
                     scheduler
-                        .Schedule(Milliseconds(3500), [this](TaskContext context)
+                        .Schedule(Milliseconds(3500), [this](TaskContext /*context*/)
                     {
                         me->RemoveChanneledCast(targetGUID);
                     });
@@ -2336,7 +2336,7 @@ struct npc_blood : public ScriptedAI
         me->PrepareChanneledCast(me->GetOrientation());
 
         scheduler
-            .Schedule(Seconds(2), [this](TaskContext context)
+            .Schedule(Seconds(2), [this](TaskContext /*context*/)
         {
             if (!targetGUID) // if not found (but nvm, this shouldn`t execute)
                 targetGUID = getLowestKlaxxiGUID();
@@ -2414,7 +2414,7 @@ struct npc_paragon_amber_parasite : public ScriptedAI
         DoCast(me, SPELL_GENETIC_MODIFICATION);
 
         scheduler
-            .Schedule(Seconds(1), Seconds(4), [this](TaskContext context)
+            .Schedule(Seconds(1), Seconds(4), [this](TaskContext /*context*/)
         {
             if (!me->HasUnitState(UNIT_STATE_CASTING))
                 DoCast(me, SPELL_FEED);

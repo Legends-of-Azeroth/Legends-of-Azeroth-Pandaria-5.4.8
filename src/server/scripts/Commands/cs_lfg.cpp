@@ -182,7 +182,7 @@ public:
         return true;
     }
 
-    static bool HandleLfgBugCommand(ChatHandler* handler, char const* args)
+    static bool HandleLfgBugCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->GetSession()->GetPlayer();
 

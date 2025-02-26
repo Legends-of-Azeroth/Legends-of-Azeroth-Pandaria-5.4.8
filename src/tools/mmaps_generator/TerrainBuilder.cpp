@@ -22,12 +22,9 @@
 #include "MapBuilder.h"
 #include "MapDefines.h"
 #include "VMapManager2.h"
-#include "MapDefines.h"
 #include "MapTree.h"
 #include "ModelInstance.h"
 #include <vector>
-
-#include "SharedDefines.h"
 
 // ******************************************
 // Map file format defines

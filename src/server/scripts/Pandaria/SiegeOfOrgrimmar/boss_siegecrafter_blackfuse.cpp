@@ -315,7 +315,7 @@ class boss_siegecrafter_blackfuse : public CreatureScript
 
                 // Init delay
                 scheduler
-                    .Schedule(Milliseconds(1500), [this](TaskContext context)
+                    .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
                 {
                     if (Creature* siegecrafterVehicle = me->SummonCreature(NPC_SIEGECRAFTER_BLACKFUSE_1, *me, TEMPSUMMON_MANUAL_DESPAWN))
                     {
@@ -428,7 +428,7 @@ class boss_siegecrafter_blackfuse : public CreatureScript
                 if (actionId == ACTION_OVERCHARGE_WEAPON)
                 {
                     scheduler
-                        .Schedule(Milliseconds(500), [this](TaskContext context)
+                        .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
                     {
                         if (Creature* target = ObjectAccessor::GetCreature(*me, getOverchargeWeaponGUID()))
                             DoCast(target, SPELL_OVERCHARGE_WEAPON);
@@ -676,7 +676,7 @@ struct npc_automated_shredder : public ScriptedAI
                     me->ClearUnitState(UNIT_STATE_CASTING);
 
                     scheduler
-                        .Schedule(Milliseconds(5200), [this](TaskContext context)
+                        .Schedule(Milliseconds(5200), [this](TaskContext /*context*/)
                     {
                         inAir = true;
                         // Movement Type
@@ -690,17 +690,17 @@ struct npc_automated_shredder : public ScriptedAI
                         me->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 20.0f);
 
                         scheduler
-                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                         {
                             me->CastSpell(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() - 20.0f, SPELL_DEATH_FROM_ABOVE_MISSLE, false);
 
                             scheduler
-                                .Schedule(Milliseconds(1300), [this](TaskContext context)
+                                .Schedule(Milliseconds(1300), [this](TaskContext /*context*/)
                             {
                                 me->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() - 20.0f, 15.0f, 15.0f);
 
                                 scheduler
-                                    .Schedule(Milliseconds(me->GetSplineDuration() + 650), [this](TaskContext context)
+                                    .Schedule(Milliseconds(me->GetSplineDuration() + 650), [this](TaskContext /*context*/)
                                 {
                                     me->OverrideInhabitType(INHABIT_GROUND);
                                     me->UpdateMovementFlags();
@@ -763,7 +763,7 @@ struct npc_siegecrafter_sawblade : public ScriptedAI
             case TYPE_LAUNCH_SAWBLADE:
                 // Sawblade Shouldn`t pull to magnet in time when it was launch. should have a delay
                 scheduler
-                    .Schedule(Seconds(2), [this](TaskContext context)
+                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
                 {
                     hasLaunched = 1;
                 });
@@ -875,7 +875,7 @@ struct npc_soo_siegecrafter_helper : public ScriptedAI
                 me->SetInCombatWithZone();
 
                 scheduler
-                    .Schedule(Seconds(2), [this](TaskContext context)
+                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
                 {
                     if (instance && instance->IsWipe(100.0f, me))
                     {
@@ -1323,7 +1323,7 @@ struct npc_soo_activated_weapons : public ScriptedAI
 
             // Init Delay
             scheduler
-                .Schedule(Milliseconds(1500), [this](TaskContext context)
+                .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
             {
                 uint8 mineCount = Is25ManRaid() ? 8 : 3;
 
@@ -1652,7 +1652,7 @@ struct npc_soo_activated_weapons_type : public ScriptedAI
                 allowDetonate = false;
 
                 scheduler
-                    .Schedule(Seconds(1), [this](TaskContext context)
+                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
                 {
                     DoCast(me, SPELL_CRAWLER_MINE_SELECTOR);
                     me->PrepareChanneledCast(me->GetOrientation());
@@ -1940,7 +1940,7 @@ struct npc_soo_laser_target_bunny : public ScriptedAI
         }
 
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext context)
+            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
         {
             if (Player* owner = ObjectAccessor::GetPlayer(*me, targetGUID))
             {
@@ -1989,7 +1989,7 @@ struct npc_soo_laser_target_bunny : public ScriptedAI
                     init.SetVelocity(mod);
 
                     scheduler
-                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                     {
                         stopMovement = true;
                         me->RemoveAllAuras();
@@ -2001,7 +2001,7 @@ struct npc_soo_laser_target_bunny : public ScriptedAI
         });
 
         scheduler
-            .Schedule(Milliseconds(2000), [this](TaskContext context)
+            .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
         {
             if (stopMovement || byOvercharged)
                 return;
@@ -2038,7 +2038,7 @@ struct npc_soo_laser_target_bunny : public ScriptedAI
 
         // not remove trigger until areatrigger not expire
         scheduler
-            .Schedule(Seconds(16), [this](TaskContext context)
+            .Schedule(Seconds(16), [this](TaskContext /*context*/)
         {
             if (byOvercharged)
                 return;
@@ -2148,7 +2148,7 @@ struct npc_soo_shockwave_missle : public ScriptedAI
     {
         // Required: visible for first inner circle
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext context)
+            .Schedule(Seconds(1), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_SHOCKWAVE_INNER_CIRCLE);
         });

@@ -436,7 +436,7 @@ class boss_norushen : public CreatureScript
                 init.Launch();
 
                 scheduler
-                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     me->SetFacingTo(Position::NormalizeOrientation(me->GetOrientation() - M_PI));
                     me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -968,21 +968,21 @@ struct npc_manifestation_of_corruption : public ScriptedAI
             DoCast(me, SPELL_FOUL_LINK_TRIGGER, true);
 
             scheduler
-                .Schedule(Milliseconds(1000), [this](TaskContext context)
+                .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
             {
                 me->RemoveAurasDueToSpell(SPELL_MANIFEST_SPAWN_VIS);
             });
 
             // Cone Eff to Summoner
             scheduler
-                .Schedule(Seconds(4), [this](TaskContext context)
+                .Schedule(Seconds(4), [this](TaskContext /*context*/)
             {
                 if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
                 {
                     me->PrepareChanneledCast(me->GetAngle(target), SPELL_TEAR_REALITY);
 
                     scheduler
-                        .Schedule(Milliseconds(3500), [this](TaskContext context)
+                        .Schedule(Milliseconds(3500), [this](TaskContext /*context*/)
                     {
                         me->RemoveChanneledCast(targetGUID);
                     });
@@ -1002,7 +1002,7 @@ struct npc_manifestation_of_corruption : public ScriptedAI
             DoZoneInCombat(me, 200.0f);
 
             scheduler
-                .Schedule(Seconds(3), Seconds(6), [this](TaskContext context)
+                .Schedule(Seconds(3), Seconds(6), [this](TaskContext /*context*/)
             {
                 DoCast(me, SPELL_BURST_OF_ANGER, true);
                 context.Repeat(Seconds(9), Seconds(12));
@@ -1095,7 +1095,7 @@ struct npc_essence_of_corruption : public ScriptedAI
 
             // Expel Corruption to Summoner
             scheduler
-                .Schedule(Seconds(2), [this](TaskContext context)
+                .Schedule(Seconds(2), [this](TaskContext /*context*/)
             {
                 if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
                     me->PrepareChanneledCast(me->GetAngle(target), SPELL_EXPEL_CORRUPTION_REALM);
@@ -1112,7 +1112,7 @@ struct npc_essence_of_corruption : public ScriptedAI
 
             // Expel Corruption to Summoner
             scheduler
-                .Schedule(Seconds(2), [this](TaskContext context)
+                .Schedule(Seconds(2), [this](TaskContext /*context*/)
             {
                 if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
                     me->PrepareChanneledCast(me->GetAngle(amalgam), SPELL_EXPEL_CORRUPTION);
@@ -1461,7 +1461,7 @@ struct npc_titanic_corruption : public ScriptedAI
                         me->PrepareChanneledCast(me->GetAngle(target), SPELL_TITANIC_SMASH);
 
                     scheduler
-                        .Schedule(Milliseconds(2500), [this](TaskContext context)
+                        .Schedule(Milliseconds(2500), [this](TaskContext /*context*/)
                     {
                         me->RemoveChanneledCast(targetGUID);
                     });
@@ -1504,7 +1504,7 @@ struct npc_blind_hatred : public ScriptedAI
         me->SetSpeed(MOVE_WALK, 0.72f);
 
         scheduler
-            .Schedule(Seconds(3), [this](TaskContext context)
+            .Schedule(Seconds(3), [this](TaskContext /*context*/)
         {
             hasMoving = 1;
 
