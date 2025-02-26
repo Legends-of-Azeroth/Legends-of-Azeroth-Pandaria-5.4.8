@@ -1453,7 +1453,7 @@ class spell_unleashed_flame_selector : public SpellScript
                 std::list<Player*> pList;
                 GetPlayerListInGrid(pList, itr, 9.2f);
 
-                unleashedDict.insert(std::pair<uint32, WorldObject*>(pList.size(), itr));
+                unleashedDict.emplace((uint32)pList.size(), itr);
             }
 
             auto key = std::max_element(unleashedDict.begin(), unleashedDict.end(), unleashedDict.value_comp());

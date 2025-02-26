@@ -273,7 +273,7 @@ const std::map<uint32, float> invMazeType =
     { SPELL_WHOLE_ROOM_SLICE_TEN,   7.5f    },
     { SPELL_WHOLE_ROOM_SLICE_ELEVEN, 8.25f  },
     { SPELL_WHOLE_ROOM_SLICE_TWELVE, 9.0f   },
-    { SPELL_WHOLE_ROOM_SLICE_THIRTEEN, 9.75 },
+    { SPELL_WHOLE_ROOM_SLICE_THIRTEEN, 9.75f }
 };
 
 const std::map<uint32, std::array<uint32, 2>> invAchievFogsType =

@@ -276,9 +276,9 @@ void BattlegroundSM::ProcessCartTicks()
 
                     if (player->IsWithinDistInMap(cart, 22.0f) )
                     {
-                        auto itr2 = m_playerTicks[i].find(itr.first);
+                        auto itr2 = m_playerTicks[i].find(itr.first.GetCounter());
                         if (itr2 == m_playerTicks[i].end())
-                            itr2 = m_playerTicks[i].insert({ itr.first, 0 }).first;
+                            itr2 = m_playerTicks[i].insert({ itr.first.GetCounter(), 0 }).first;
 
                         ++itr2->second;
                     }
