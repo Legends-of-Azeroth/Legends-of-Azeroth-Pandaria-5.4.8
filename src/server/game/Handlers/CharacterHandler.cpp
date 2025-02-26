@@ -898,9 +898,9 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin&
 
 void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
 {
-    TC_LOG_INFO("general", "WORLD: Recvd CMSG_LOAD_SCREEN");
-    uint32 mapID = recvPacket.read<uint32>();
-    bool loading = recvPacket.ReadBit();
+    TC_LOG_INFO("general", "WORLD: Recvd CMSG_LOAD_SCREEN %u", recvPacket.GetOpcode());
+    //uint32 mapID = recvPacket.read<uint32>();
+    //bool loading = recvPacket.ReadBit();
 }
 
 void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
@@ -1315,7 +1315,7 @@ void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket& recvData)
     _player->GetReputationMgr().SetInactive(FactionIndex, Status);
 }
 
-void WorldSession::HandleRequestForcedReactionsOpcode(WorldPacket& recvData)
+void WorldSession::HandleRequestForcedReactionsOpcode(WorldPacket& /*recvData*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_REQUEST_FORCED_REACTIONS");
 
@@ -1701,7 +1701,7 @@ void WorldSession::HandleRemoveGlyph(WorldPacket& recvData)
 
     if (uint32 glyph = _player->GetGlyph(_player->GetActiveSpec(), slot))
     {
-        if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyph))
+        if (sGlyphPropertiesStore.LookupEntry(glyph))
         {
             _player->SetGlyph(slot, 0);
             _player->SendTalentsInfoData();

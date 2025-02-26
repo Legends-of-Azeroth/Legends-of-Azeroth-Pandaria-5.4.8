@@ -263,6 +263,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             msg = recvData.ReadString(textLength);
             ignoreChecks = true;
             break;
+
+        default: break;
     }
 
     if (!ignoreChecks)
@@ -816,7 +818,7 @@ namespace Trinity
             EmoteChatBuilder(Player const& player, uint32 text_emote, uint32 emote_num, Unit const* target)
                 : i_player(player), i_text_emote(text_emote), i_emote_num(emote_num), i_target(target) { }
 
-            void operator()(WorldPacket& data, LocaleConstant loc_idx)
+            void operator()(WorldPacket& data, LocaleConstant /*loc_idx*/)
             {
                 ObjectGuid PlayerGuid = i_player.GetGUID();
                 ObjectGuid TargetGuid = i_target ? i_target->GetGUID() : ObjectGuid::Empty;

@@ -113,7 +113,7 @@ union DevToolSettings
 
         char const* GetName() const { return ""/* "Name" */; }
         char const* GetParams() const { return ""/* "[ParamName:type | OtherOptionVariant:'token to use this variant' | YetAnotherOptionParam = DefaultValue] [...] ..." */; }
-        bool Setup(ChatHandler* handler, char const* args)
+        bool Setup(ChatHandler* handler, char const* /*args*/)
         {
             ReportSelectedTool(handler, GetName(), GetParams());
 
@@ -122,7 +122,7 @@ union DevToolSettings
             // Fill parameters from tokenized args here
             return true;
         }
-        bool Execute(Player* player, Unit* target, float x, float y, float z, float o)
+        bool Execute(Player* /*player*/, Unit* /*target*/, float /*x*/, float /*y*/, float /*z*/, float /*o*/)
         {
             // Do stuff when player clicks on the ground with 30012 spell
             return true;
@@ -150,7 +150,7 @@ union DevToolSettings
             Walk    = walk && (*walk == '1' || *walk == 't');
             return true;
         }
-        bool Execute(Player* player, Unit* target, float x, float y, float z, float o)
+        bool Execute(Player* /*player*/, Unit* target, float x, float y, float z, float /*o*/)
         {
             target->SetWalk(Walk);
             if (Speed)
@@ -180,7 +180,7 @@ union DevToolSettings
             PointID = pointID ? atoi(pointID) : 0;
             return true;
         }
-        bool Execute(Player* player, Unit* target, float x, float y, float z, float o)
+        bool Execute(Player* /*player*/, Unit* target, float x, float y, float z, float /*o*/)
         {
             target->GetMotionMaster()->MoveJump(x, y, z, SpeedXY, SpeedZ, PointID);
             return true;
@@ -190,13 +190,13 @@ union DevToolSettings
     {
         char const* GetName() const { return "Facing"; }
         char const* GetParams() const { return ""; }
-        bool Setup(ChatHandler* handler, char const* args)
+        bool Setup(ChatHandler* handler, char const* /*args*/)
         {
             ReportSelectedTool(handler, GetName(), GetParams());
 
             return true;
         }
-        bool Execute(Player* player, Unit* target, float x, float y, float z, float o)
+        bool Execute(Player* /*player*/, Unit* target, float x, float y, float /*z*/, float /*o*/)
         {
             target->SetFacingTo(target->GetAngle(x, y));
             return true;
@@ -217,7 +217,7 @@ union DevToolSettings
             char* orientation = strtok((char*)args, " ");
             char* orientationFloat = strtok(nullptr, " ");
 
-            if (orientation && (*orientation >= '0' && *orientation <= '9' || *orientation == '-' || *orientation == '+'))
+            if (orientation && ((*orientation >= '0' && *orientation <= '9') || *orientation == '-' || *orientation == '+'))
             {
                 OrientationDegrees = atoi(orientation);
                 OrientationOption = OrientationOptions::None;
@@ -234,7 +234,7 @@ union DevToolSettings
             OrientationRadians = orientationFloat ? (float)atof(orientationFloat) : 0.0f;
             return true;
         }
-        bool Execute(Player* player, Unit* target, float x, float y, float z, float o)
+        bool Execute(Player* /*player*/, Unit* target, float x, float y, float z, float o)
         {
             switch (OrientationOption)
             {
@@ -256,13 +256,13 @@ union DevToolSettings
     {
         char const* GetName() const { return "OutputXY"; }
         char const* GetParams() const { return ""; }
-        bool Setup(ChatHandler* handler, char const* args)
+        bool Setup(ChatHandler* handler, char const* /*args*/)
         {
             ReportSelectedTool(handler, GetName(), GetParams());
 
             return true;
         }
-        bool Execute(Player* player, Unit* target, float x, float y, float z, float o)
+        bool Execute(Player* player, Unit* /*target*/, float x, float y, float /*z*/, float /*o*/)
         {
             ChatHandler(player).PSendSysMessage("|cFFFFCCCC%f|rf, |cFFCCFFCC%f|rf", x, y);
             return true;
@@ -272,13 +272,13 @@ union DevToolSettings
     {
         char const* GetName() const { return "OutputXYZ"; }
         char const* GetParams() const { return ""; }
-        bool Setup(ChatHandler* handler, char const* args)
+        bool Setup(ChatHandler* handler, char const* /*args*/)
         {
             ReportSelectedTool(handler, GetName(), GetParams());
 
             return true;
         }
-        bool Execute(Player* player, Unit* target, float x, float y, float z, float o)
+        bool Execute(Player* player, Unit* /*target*/, float x, float y, float z, float o)
         {
             ChatHandler(player).PSendSysMessage("|cFFFFCCCC%f|rf, |cFFCCFFCC%f|rf, |cFFCCCCFF%f|rf", x, y, z);
             return true;
@@ -327,7 +327,7 @@ union DevToolSettings
             Relative = *args == '1' || *args == 't';
             return true;
         }
-        bool Execute(Player* player, Unit* target, float x, float y, float z, float o)
+        bool Execute(Player* player, Unit* target, float x, float y, float /*z*/, float /*o*/)
         {
             float angle = Position::NormalizeOrientation(Relative ? target->GetRelativeAngle(x, y) : target->GetAngle(x, y));
             if (Relative && angle > M_PI)
@@ -345,13 +345,13 @@ union DevToolSettings
     {
         char const* GetName() const { return "FindNearestGO"; }
         char const* GetParams() const { return ""; }
-        bool Setup(ChatHandler* handler, char const* args)
+        bool Setup(ChatHandler* handler, char const* /*args*/)
         {
             ReportSelectedTool(handler, GetName(), GetParams());
 
             return true;
         }
-        bool Execute(Player* player, Unit* target, float x, float y, float z, float o)
+        bool Execute(Player* player, Unit* /*target*/, float x, float y, float z, float /*o*/)
         {
             GameObject* result = nullptr;
             float dist = MAX_VISIBILITY_DISTANCE;
@@ -378,6 +378,8 @@ union DevToolSettings
                     case GO_STATE_ACTIVE: state = "GO_STATE_ACTIVE"; break;
                     case GO_STATE_READY: state = "GO_STATE_READY"; break;
                     case GO_STATE_ACTIVE_ALTERNATIVE: state = "GO_STATE_ACTIVE_ALTERNATIVE"; break;
+
+                    default: break;
                 }
                 switch (result->getLootState())
                 {
@@ -385,6 +387,8 @@ union DevToolSettings
                     case GO_READY: loot = "GO_READY"; break;
                     case GO_ACTIVATED: loot = "GO_ACTIVATED"; break;
                     case GO_JUST_DEACTIVATED: loot = "GO_JUST_DEACTIVATED"; break;
+
+                    default: break;
                 }
 
                 ChatHandler(player).PSendSysMessage("GUID: |cFFFFFFFF%u|r\nID: |cFFFFFFFF%u|r\nName: |cFFFFFFFF%s|r\nGOState: |cFFFFFFFF%s|r\nLootState: |cFFFFFFFF%s|r\n|cFFFFCCCC%f|rf, |cFFCCFFCC%f|rf, |cFFCCCCFF%f|rf, |cFFCCCCCC%f|rf",
@@ -431,7 +435,7 @@ union DevToolSettings
                 {
                     handler->PSendSysMessage("Spawning creature ID |cFFFFFFFF%u|r - |cFFFFFFFF%s|r", id, temp->Name.c_str());
                     ID = id;
-                    if (orientation && (*orientation >= '0' && *orientation <= '9' || *orientation == '-' || *orientation == '+'))
+                    if (orientation && ((*orientation >= '0' && *orientation <= '9') || *orientation == '-' || *orientation == '+'))
                     {
                         OrientationDegrees = atoi(orientation);
                         OrientationOption = OrientationOptions::None;
@@ -522,7 +526,7 @@ union DevToolSettings
                 {
                     handler->PSendSysMessage("Spawning gameobject ID |cFFFFFFFF%u|r - |cFFFFFFFF%s|r", id, temp->name.c_str());
                     ID = id;
-                    if (orientation && (*orientation >= '0' && *orientation <= '9' || *orientation == '-' || *orientation == '+'))
+                    if (orientation && ((*orientation >= '0' && *orientation <= '9') || *orientation == '-' || *orientation == '+'))
                     {
                         OrientationDegrees = atoi(orientation);
                         OrientationOption = OrientationOptions::None;
@@ -645,7 +649,7 @@ union DevToolSettings
             auto func = [guids, playerGUID, target, x, y, z, continuous, useStraightPath, forceDest, straightLine]()
             {
                 Player* player = ObjectAccessor::GetPlayer(*target, playerGUID);
-                if (!player || continuous && guids->find(target->GetGUID()) == guids->end())
+                if (!player || (continuous && guids->find(target->GetGUID()) == guids->end()))
                     return true;
                 // path
                 PathGenerator path(target);

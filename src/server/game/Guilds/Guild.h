@@ -363,8 +363,8 @@ private:
         Member(uint32 guildId, ObjectGuid guid, uint8 rankId):
             m_guildId(guildId),
             m_guid(guid),
-            m_rankId(rankId),
-            m_logoutTime(::time(nullptr))
+            m_logoutTime(::time(nullptr)),
+            m_rankId(rankId)
         {
             memset(m_bankWithdraw, 0, (GUILD_BANK_MAX_TABS + 1) * sizeof(int32));
         }

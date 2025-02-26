@@ -435,7 +435,7 @@ AccountOpResult Battlenet::AccountMgr::ChangePassword(uint32 accountId, std::str
     return AccountOpResult::AOR_OK;
 }
 
-AccountOpResult Battlenet::AccountMgr::LinkWithGameAccount(std::string const& email, std::string const& gameAccountName)
+AccountOpResult Battlenet::AccountMgr::LinkWithGameAccount(std::string const& /*email*/, std::string const& /*gameAccountName*/)
 {
     /*uint32 bnetAccountId = GetId(email);
     if (!bnetAccountId)
@@ -456,7 +456,7 @@ AccountOpResult Battlenet::AccountMgr::LinkWithGameAccount(std::string const& em
     return AccountOpResult::AOR_OK;
 }
 
-AccountOpResult Battlenet::AccountMgr::UnlinkGameAccount(std::string const& gameAccountName)
+AccountOpResult Battlenet::AccountMgr::UnlinkGameAccount(std::string const& /*gameAccountName*/)
 {
     /*uint32 gameAccountId = GameAccountMgr::GetId(gameAccountName);
     if (!gameAccountId)
@@ -496,7 +496,7 @@ bool Battlenet::AccountMgr::GetName(uint32 accountId, std::string& name)
     return false;
 }
 
-uint8 Battlenet::AccountMgr::GetMaxIndex(uint32 accountId)
+uint8 Battlenet::AccountMgr::GetMaxIndex(uint32 /*accountId*/)
 {
     /*PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_MAX_ACCOUNT_INDEX);
     stmt->setUInt32(0, accountId);

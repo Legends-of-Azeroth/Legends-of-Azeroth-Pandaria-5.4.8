@@ -1689,7 +1689,7 @@ class spell_hunt_camouflage : public AuraScript
 {
     PrepareAuraScript(spell_hunt_camouflage);
 
-    void HandleRemove(AuraEffect const* eff, AuraEffectHandleModes)
+    void HandleRemove(AuraEffect const* /*eff*/, AuraEffectHandleModes)
     {
         Unit* target = GetTarget();
         Player* hunter = target->ToPlayer();
@@ -2136,7 +2136,7 @@ class spell_hunt_lynx_rush_dot : public AuraScript
 {
     PrepareAuraScript(spell_hunt_lynx_rush_dot);
 
-    void CalculateAmount(AuraEffect const* eff, float& amount, bool&)
+    void CalculateAmount(AuraEffect const* /*eff*/, float& amount, bool&)
     {
         if (Unit* pet = GetCaster())
             if (Unit* hunter = pet->GetOwner())

@@ -726,7 +726,7 @@ void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
             attachments << tok[0] << ":" << tok[4];
         }
 
-        uint32 guid = 0;
+        uint32 guid;
         Tokenizer tok2(m->body, ':');
         if (tok.size() == 5)
         {
@@ -915,7 +915,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
         mailData << uint64(mail->COD);
         mailData.WriteString(mail->subject);
         mailData << uint32(mail->stationery);
-        mailData << float(float(mail->expire_time - time(NULL)) / DAY);
+        mailData << float(float(mail->expire_time - time(nullptr)) / (float)DAY);
         mailData << uint64(mail->money);
         mailData << uint32(mail->checked);
 

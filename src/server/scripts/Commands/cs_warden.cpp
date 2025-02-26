@@ -50,14 +50,14 @@ public:
         return commandTable;
     }
 
-    static bool HandleWardenReloadCommand(ChatHandler* handler, char const* args)
+    static bool HandleWardenReloadCommand(ChatHandler* handler, char const* /*args*/)
     {
         sWardenCheckMgr->LoadWardenChecks(true);
         handler->PSendSysMessage("Warden checks successfully reloaded");
         return true;
     }
 
-    static Warden* GetWardenHelper(ChatHandler* handler, char const* args, bool checkBusy = true)
+    static Warden* GetWardenHelper(ChatHandler* handler, char const* /*args*/, bool checkBusy = true)
     {
         Player* target = handler->getSelectedPlayer();
         if (!target)
@@ -355,7 +355,7 @@ public:
         return false;
     }
 
-    static bool HandleWardenListCommand(ChatHandler* handler, char const* args)
+    static bool HandleWardenListCommand(ChatHandler* handler, char const* /*args*/)
     {
         std::map<std::string, std::list<std::string>> output;
         for (auto&& session : sWorld->GetAllSessions())

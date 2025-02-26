@@ -2170,8 +2170,8 @@ public:
         else
         {
             accId = sObjectMgr->GetPlayerAccountIdByGUID(charId);
-
-            if (session = sWorld->FindSession(accId))
+            session = sWorld->FindSession(accId);
+            if (session)
                 target = session->GetPlayer();
         }
 
@@ -2299,8 +2299,8 @@ public:
         else
         {
             accId = sObjectMgr->GetPlayerAccountIdByGUID(charId);
-
-            if (session = sWorld->FindSession(accId))
+            session = sWorld->FindSession(accId);
+            if (session)
                 target = session->GetPlayer();
         }
 
@@ -3536,7 +3536,7 @@ public:
         return true;
     }
 
-    static bool HandleBattlegroundStartCommand(ChatHandler* handler, char const* args)
+    static bool HandleBattlegroundStartCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->GetSession()->GetPlayer();
         Battleground* bg = player->GetBattleground();
@@ -3548,8 +3548,8 @@ public:
 
         uint32 maxTime = bg->IsArena() ? ARENA_COUNTDOWN_MAX : BATTLEGROUND_COUNTDOWN_MAX;
         for (auto&& itr : bg->GetPlayers())
-            if (Player* player = ObjectAccessor::FindPlayer(itr.first))
-                player->SendStartTimer(0, maxTime, TIMER_PVP);
+            if (Player* player2 = ObjectAccessor::FindPlayer(itr.first))
+                player2->SendStartTimer(0, maxTime, TIMER_PVP);
 
         return true;
     }
@@ -3599,7 +3599,7 @@ public:
         }
         return false;
     }
-    static bool HandleVisibilityGetCommand(ChatHandler* handler, char const* args)
+    static bool HandleVisibilityGetCommand(ChatHandler* handler, char const* /*args*/)
     {
         if (Creature* target = GetSelectedCreature(handler))
         {
@@ -3622,7 +3622,7 @@ public:
         }
         return false;
     }
-    static bool HandleVisibilityGetGOCommand(ChatHandler* handler, char const* args)
+    static bool HandleVisibilityGetGOCommand(ChatHandler* handler, char const* /*args*/)
     {
         if (GameObject* target = GetSelectedGO(handler))
         {
@@ -3779,7 +3779,7 @@ public:
         }
         return false;
     }
-    static bool HandleVisibilityReloadCommand(ChatHandler* handler, char const* args)
+    static bool HandleVisibilityReloadCommand(ChatHandler* handler, char const* /*args*/)
     {
         if (Creature* target = GetSelectedCreature(handler))
         {
@@ -3806,7 +3806,7 @@ public:
         }
         return false;
     }
-    static bool HandleVisibilityReloadGOCommand(ChatHandler* handler, char const* args)
+    static bool HandleVisibilityReloadGOCommand(ChatHandler* handler, char const* /*args*/)
     {
         if (GameObject* target = GetSelectedGO(handler))
         {
@@ -3833,7 +3833,7 @@ public:
         }
         return false;
     }
-    static bool HandleVisibilityReloadAllCommand(ChatHandler* handler, char const* args)
+    static bool HandleVisibilityReloadAllCommand(ChatHandler* handler, char const* /*args*/)
     {
         std::map<CustomVisibility::Type, std::set<uint32>> objects;
 
@@ -3886,7 +3886,7 @@ public:
 
         return true;
     }
-    static bool HandleVisibilityStatsCommand(ChatHandler* handler, char const* args)
+    static bool HandleVisibilityStatsCommand(ChatHandler* handler, char const* /*args*/)
     {
         static std::map<CustomVisibility::Importance, std::string> importanceNames =
         {
@@ -3927,7 +3927,7 @@ public:
 
         return true;
     }
-    static bool HandleVisibilityUpdateCommand(ChatHandler* handler, char const* args)
+    static bool HandleVisibilityUpdateCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* target = handler->getSelectedPlayer();
         if (!target)
@@ -4268,13 +4268,13 @@ public:
 
         Player* pl = handler->GetSession()->GetPlayer();
         Player* plTarget = handler->getSelectedPlayer();
-        if (!plTarget)
+        if (!plTarget) {
             plTarget = pl;
 
             plTarget->DestroyItemCount(itemId, -count, true, false);
             handler->PSendSysMessage(LANG_REMOVEITEM, itemId, -count, handler->GetNameLink(plTarget).c_str());
             return true;
-
+        }
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId);
         if (!proto)
         {
@@ -4294,7 +4294,7 @@ public:
         return true;
     }
 
-    static bool HandleCheckLadderCommand(ChatHandler* handler, char const* args)
+    static bool HandleCheckLadderCommand(ChatHandler* handler, char const* /*args*/)
     {
         std::string dir = sConfigMgr->GetStringDefault("LogsDir", ".");
         std::ofstream out{ dir + "/laddercheck.log" };

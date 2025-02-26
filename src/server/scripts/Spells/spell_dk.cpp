@@ -2101,7 +2101,7 @@ class spell_dk_death_siphon : public SpellScript
     {
         int32 damage = GetHitDamage();
         if (Player* target = GetHitUnit()->GetAffectingPlayer())
-            if (Player* caster = GetCaster()->GetAffectingPlayer())
+            if (GetCaster()->GetAffectingPlayer())
                 damage /= (1.0f + target->GetFloatValue(PLAYER_FIELD_MOD_RESILIENCE_PERCENT) / 100.0f);
 
         if (int32 heal = CalculatePct(damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints))
