@@ -15,14 +15,11 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "AccountMgr.h"
 #include "AchievementMgr.h"
-#include "ArenaTeam.h"
 #include "AreaTrigger.h"
 #include "Chat.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "DB2Enums.h"
 #include "DB2Structure.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
@@ -42,7 +39,6 @@
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
-#include "Spell.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "Transport.h"
@@ -51,10 +47,8 @@
 #include "Vehicle.h"
 #include "WaypointManager.h"
 #include "World.h"
-#include "Battleground.h"
 #include "Util.h"
 #include "DBCStructure.h"
-#include "Realm.h"
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;

@@ -22,7 +22,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "DatabaseEnv.h"
 #include "CellImpl.h"
 #include "Chat.h"
 #include "ChannelMgr.h"
@@ -34,10 +33,8 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "SpellAuras.h"
-#include "SpellAuraEffects.h"
 #include "Util.h"
 #include "ScriptMgr.h"
-#include "AccountMgr.h"
 #include "WordFilterMgr.h"
 #ifdef ELUNA
 #include "HookMgr.h"

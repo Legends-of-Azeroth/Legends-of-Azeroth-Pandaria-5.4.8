@@ -225,7 +225,7 @@ struct npc_darkheart_urtharges_the_destroyer : public customCreatureAI
         summons.Summon(summon);
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(TALK_INTRO);
         events.ScheduleEvent(EVENT_RUPTURE_LINE, 5 * IN_MILLISECONDS);

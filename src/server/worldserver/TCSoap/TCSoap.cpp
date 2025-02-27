@@ -16,9 +16,7 @@
 */
 
 #include "TCSoap.h"
-#include "soapH.h"
 #include "soapStub.h"
-//#include "Realm.h"
 #include "World.h"
 #include "AccountMgr.h"
 #include "Log.h"

@@ -19,7 +19,6 @@
 #include "Map.h"
 #include "Creature.h"
 #include "DisableMgr.h"
-#include "GameObject.h"
 #include "Transport.h"
 #include "MapDefines.h"
 #include "MMapFactory.h"

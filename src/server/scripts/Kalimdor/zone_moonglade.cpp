@@ -17,13 +17,10 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "Player.h"
 #include "SpellInfo.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "Cell.h"
 #include "CellImpl.h"
 
 /*####

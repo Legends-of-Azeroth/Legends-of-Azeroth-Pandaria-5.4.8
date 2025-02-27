@@ -15,13 +15,11 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Common.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Vehicle.h"
 #include "Unit.h"
 #include "Util.h"
-#include "WorldPacket.h"
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
 #include "ZoneScript.h"

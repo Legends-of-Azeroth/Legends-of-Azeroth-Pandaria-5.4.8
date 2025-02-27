@@ -19,8 +19,6 @@
 #include "Opcodes.h"
 #include "WorldSession.h"
 #include "WorldPacket.h"
-#include "Config.h"
-#include "BattlePayMgr.h"
 #include "Realm.h"
 
 #define PLAYABLE_RACES_COUNT 15

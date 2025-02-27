@@ -127,36 +127,6 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
     return AccountOpResult::AOR_OK;
 }
 
-AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword)
-{
-    // Check if accounts exists
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_ID);
-    stmt->setUInt32(0, accountId);
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
-
-    if (!result)
-        return AccountOpResult::AOR_NAME_NOT_EXIST;
-
-    if (utf8length(newUsername) > MAX_ACCOUNT_STR)
-        return AccountOpResult::AOR_NAME_TOO_LONG;
-
-    if (utf8length(newPassword) > MAX_ACCOUNT_STR)
-        return AccountOpResult::AOR_PASS_TOO_LONG;
-
-    normalizeString(newUsername);
-    normalizeString(newPassword);
-
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_USERNAME);
-
-    stmt->setString(0, newUsername);
-    stmt->setString(1, CalculateShaPassHash(newUsername, newPassword));
-    stmt->setUInt32(2, accountId);
-
-    LoginDatabase.Execute(stmt);
-
-    return AccountOpResult::AOR_OK;
-}
-
 AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPassword)
 {
     std::string username;

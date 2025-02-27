@@ -15,11 +15,6 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ScriptMgr.h"
-#include "Channel.h"
-#include "Guild.h"
-#include "Group.h"
-
 // Reserved for custom scripts
 void AddSC_chat_log()
 {

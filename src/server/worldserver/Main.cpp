@@ -27,7 +27,6 @@
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
 #include "Implementation/LoginDatabase.h"
-#include "Implementation/WorldDatabase.h"
 
 #include "AppenderDB.h"
 #include "AsyncAcceptor.h"

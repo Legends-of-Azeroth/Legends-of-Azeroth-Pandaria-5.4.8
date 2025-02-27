@@ -18,11 +18,9 @@
 #include "Chat.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "Chat.h"
 #include "AchievementMgr.h"
 #include "GuildMgr.h"
 #include "ReputationMgr.h"
-#include "ArenaTeam.h"
 #include "QuestDef.h"
 #include "RatedPvp.h"
 

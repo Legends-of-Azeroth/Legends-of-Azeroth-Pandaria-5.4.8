@@ -34,7 +34,6 @@
 #include "BattlegroundMgr.h"
 #include "Battleground.h"
 #include "ScriptMgr.h"
-#include "CreatureAI.h"
 #include "SpellInfo.h"
 
 #ifdef ELUNA

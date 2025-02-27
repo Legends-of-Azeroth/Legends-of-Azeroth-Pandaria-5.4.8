@@ -24,13 +24,11 @@
 #include "Pet.h"
 #include "Formulas.h"
 #include "SpellAuras.h"
-#include "SpellAuraEffects.h"
 #include "CreatureAI.h"
 #include "Unit.h"
 #include "Util.h"
 #include "Group.h"
 #include "Opcodes.h"
-#include "WorldSession.h"
 #include "Spell.h"
 #include "SpellHistory.h"
 

@@ -25,7 +25,6 @@
 #include "Object.h"
 #include "Player.h"
 #include "Util.h"
-#include "WorldSession.h"
 #include "Chat.h"
 
 // Achievements

@@ -1,21 +1,14 @@
 ﻿#include "Vehicle.h"
 #include "ScriptPCH.h"
-#include "Common.h"
 #include "Chat.h"
 #include "Group.h"
 #include "Player.h"
 #include "DisableMgr.h"
 #include "ChannelMgr.h"
 #include "Config.h"
-#include "Language.h"
-#include "World.h"
 #include "ScriptedGossip.h"
-#include "DatabaseEnv.h"
-#include <sstream>
 
 #include "ScriptPCH.h"
-#include "Chat.h"
-#include "Player.h"
 
 enum NPC_TELEPORT
 {

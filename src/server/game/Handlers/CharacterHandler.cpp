@@ -15,7 +15,6 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "AccountMgr.h"
 #include "ArenaTeam.h"
 #include "Battleground.h"
 #include "BattlePayMgr.h"
@@ -36,12 +35,10 @@
 #include "Pet.h"
 #include "PlayerDump.h"
 #include "Player.h"
-#include "Realm.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SharedDefines.h"
 #include "SocialMgr.h"
-#include "SystemConfig.h"
 #include "UpdateMask.h"
 #include "Util.h"
 #include "QueryHolder.h"

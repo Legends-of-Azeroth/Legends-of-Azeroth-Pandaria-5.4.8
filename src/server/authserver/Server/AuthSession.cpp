@@ -16,7 +16,6 @@
 */
 
 #include "AuthSession.h"
-#include "AES.h"
 #include "AuthCodes.h"
 #include "Config.h"
 #include "CryptoGenerics.h"
@@ -27,10 +26,8 @@
 #include "IPLocation.h"
 #include "Log.h"
 #include "RealmList.h"
-//#include "SecretMgr.h"
 #include "Threading/Threading.h"
 #include "Timer.h"
-#include "TOTP.h"
 #include "Util.h"
 #include <boost/lexical_cast.hpp>
 #include <openssl/crypto.h>

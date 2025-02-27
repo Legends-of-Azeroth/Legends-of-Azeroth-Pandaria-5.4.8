@@ -429,8 +429,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         bool IsChallengeDungeon() const { return i_spawnMode == DUNGEON_DIFFICULTY_CHALLENGE || GetId() == 1148; } // proving grounds too has model of challenge conditions
         bool IsRaid() const { return i_mapEntry && i_mapEntry->IsRaid(); }
         bool IsRaidOrHeroicDungeon() const { return IsRaid() || (IsNonRaidDungeon() && i_spawnMode == DUNGEON_DIFFICULTY_HEROIC); }
-        bool IsHeroic() const { return (IsRaid() && (i_spawnMode == RAID_DIFFICULTY_10MAN_HEROIC || i_spawnMode == RAID_DIFFICULTY_25MAN_HEROIC) ||
-            IsNonRaidDungeon() && (i_spawnMode == DUNGEON_DIFFICULTY_HEROIC || IsChallengeDungeon()) || IsScenario() && i_spawnMode == SCENARIO_DIFFICULTY_HEROIC); } // Heroic Raids, Dungeons, Scenarios.
+        bool IsHeroic() const { return ((IsRaid() && (i_spawnMode == RAID_DIFFICULTY_10MAN_HEROIC || i_spawnMode == RAID_DIFFICULTY_25MAN_HEROIC)) ||
+            (IsNonRaidDungeon() && (i_spawnMode == DUNGEON_DIFFICULTY_HEROIC || IsChallengeDungeon())) || (IsScenario() && i_spawnMode == SCENARIO_DIFFICULTY_HEROIC)); } // Heroic Raids, Dungeons, Scenarios.
         bool Is25ManRaid() const { return IsRaid() && (i_spawnMode == RAID_DIFFICULTY_25MAN_NORMAL || i_spawnMode == RAID_DIFFICULTY_25MAN_HEROIC || 
             i_spawnMode == RAID_DIFFICULTY_25MAN_LFR); }   // Raids 25 man Normal, Heroic and LFR.
         bool Is40ManRaid() const { return IsRaid() && i_spawnMode == RAID_DIFFICULTY_40MAN; } // 40 man Raid.

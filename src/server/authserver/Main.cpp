@@ -26,7 +26,6 @@
 #include "AppenderDB.h"
 #include "AuthSocketMgr.h"
 #include "Banner.h"
-#include "Common.h"
 #include "Configuration/Config.h"
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
@@ -37,7 +36,6 @@
 #include "ProcessPriority.h"
 #include "RealmList.h"
 #include "SignalHandler.h"
-#include "SystemConfig.h"
 #include "Util.h"
 
 #include <boost/asio/signal_set.hpp>
@@ -46,7 +44,6 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/asio/thread_pool.hpp>
 #include <boost/asio/co_spawn.hpp>
-#include <boost/asio/coroutine.hpp>
 #include <boost/asio/awaitable.hpp>
 #include <boost/asio/detached.hpp>
 #include <boost/asio/use_awaitable.hpp>

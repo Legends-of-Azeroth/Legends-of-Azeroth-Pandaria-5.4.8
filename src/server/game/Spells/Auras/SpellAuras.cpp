@@ -25,7 +25,6 @@
 #include "Unit.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
-#include "DynamicObject.h"
 #include "ObjectAccessor.h"
 #include "Util.h"
 #include "GridNotifiers.h"

@@ -26,7 +26,6 @@
 #include "WorldPacket.h"
 #include "Language.h"
 #include "MapManager.h"
-#include "Language.h"
 
 enum
 {

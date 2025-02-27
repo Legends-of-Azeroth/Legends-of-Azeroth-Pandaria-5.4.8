@@ -22,7 +22,6 @@
 #include "Log.h"
 #include "Language.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 #include "Chat.h"
 #include "World.h"
 #include "Player.h"

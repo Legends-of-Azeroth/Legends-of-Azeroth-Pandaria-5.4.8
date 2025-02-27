@@ -20,8 +20,6 @@
 #include "Player.h"
 #include "Group.h"
 #include "CreatureTextMgr.h"
-#include "LFGMgr.h"
-#include "CreatureTextMgr.h"
 
 enum Yells
 {

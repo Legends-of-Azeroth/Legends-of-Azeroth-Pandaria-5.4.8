@@ -28,7 +28,6 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "the_eye.h"
 
 enum Spells
 {

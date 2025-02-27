@@ -32,7 +32,6 @@
 #include "AuctionHouseMgr.h"
 #include "Chat.h"
 #include "WordFilterMgr.h"
-#include "Realm.h"
 
 void WorldSession::HandleSendMail(WorldPacket& recvData)
 {

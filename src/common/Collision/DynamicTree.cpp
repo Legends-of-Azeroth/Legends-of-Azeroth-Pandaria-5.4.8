@@ -31,10 +31,6 @@
 #include <G3D/Ray.h>
 #include <G3D/Vector3.h>
 
-#include <G3D/AABox.h>
-#include <G3D/Ray.h>
-#include <G3D/Vector3.h>
-
 using VMAP::ModelInstance;
 
 namespace {

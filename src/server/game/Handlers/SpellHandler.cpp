@@ -28,12 +28,9 @@
 #include "Totem.h"
 #include "TemporarySummon.h"
 #include "SpellAuras.h"
-#include "CreatureAI.h"
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
-#include "SpellAuraEffects.h"
 #include "Player.h"
-#include "DBCStores.h"
 #include "InstanceScript.h"
 #include "Battleground.h"
 

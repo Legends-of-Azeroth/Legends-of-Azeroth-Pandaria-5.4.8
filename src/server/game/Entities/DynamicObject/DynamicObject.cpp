@@ -15,15 +15,12 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Common.h"
 #include "UpdateMask.h"
 #include "Opcodes.h"
 #include "World.h"
 #include "ObjectAccessor.h"
-#include "DatabaseEnv.h"
 #include "GridNotifiers.h"
 #include "CellImpl.h"
-#include "GridNotifiersImpl.h"
 #include "ScriptMgr.h"
 #include "Group.h"
 #include "GroupMgr.h"

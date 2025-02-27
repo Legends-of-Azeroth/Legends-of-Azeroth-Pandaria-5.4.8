@@ -21,7 +21,6 @@
 #include "GameObject.h"
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 #include "Chat.h"
 
 // Achievements

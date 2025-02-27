@@ -23,7 +23,6 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "PassiveAI.h"
-#include "PetAI.h"
 
 enum PriestSpells
 {

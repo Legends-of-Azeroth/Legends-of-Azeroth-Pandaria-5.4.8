@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
 #include "SpellScript.h"
 #pragma execution_character_set("UTF-8")
 

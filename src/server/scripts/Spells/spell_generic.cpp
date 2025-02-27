@@ -27,7 +27,6 @@
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "InstanceScript.h"
 #include "LFGMgr.h"

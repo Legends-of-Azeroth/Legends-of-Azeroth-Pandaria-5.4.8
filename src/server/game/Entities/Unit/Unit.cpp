@@ -64,7 +64,6 @@
 #include "WorldPacket.h"
 #include "MovementStructures.h"
 #include "MovementPacketBuilder.h"
-#include "WorldSession.h"
 #include "BattlePetMgr.h"
 #include "SpellHistory.h"
 #include "AreaTrigger.h"
@@ -12179,6 +12178,7 @@ float Unit::GetBasePowerRegen(Powers power) const
             return 10.0f;
         case POWER_BURNING_EMBERS:
             return 0.5f;
+        default: break;
     }
     return 0.0f;
 }

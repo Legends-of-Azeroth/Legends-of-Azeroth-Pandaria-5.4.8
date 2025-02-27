@@ -27,7 +27,6 @@ EndScriptData */
 #include "serpent_shrine.h"
 #include "Spell.h"
 #include "Player.h"
-#include "WorldSession.h"
 
 enum LadyVashj
 {

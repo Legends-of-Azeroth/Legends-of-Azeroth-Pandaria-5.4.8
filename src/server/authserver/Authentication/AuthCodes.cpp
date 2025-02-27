@@ -17,7 +17,6 @@
 
 #include "AuthCodes.h"
 #include "RealmList.h"
-#include <cstddef>
 
 namespace AuthHelper
 {

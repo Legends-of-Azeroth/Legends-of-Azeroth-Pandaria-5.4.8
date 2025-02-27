@@ -826,7 +826,7 @@ class boss_hagara_the_stormbinder: public CreatureScript
                                 events.ScheduleEvent(EVENT_STORM_PILLARS, 5000);
                             break;
                         case EVENT_STORM_PILLARS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCastAOE(SPELL_STORM_PILLARS, true);
                             events.ScheduleEvent(EVENT_STORM_PILLARS, urand(5000, 10000));
                             break;

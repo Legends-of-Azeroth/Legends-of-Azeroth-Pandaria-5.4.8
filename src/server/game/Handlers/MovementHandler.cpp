@@ -21,7 +21,6 @@
 #include "WorldSession.h"
 #include "Opcodes.h"
 #include "Log.h"
-#include "Corpse.h"
 #include "Player.h"
 #include "SpellAuras.h"
 #include "MapManager.h"
@@ -32,9 +31,6 @@
 #include "ObjectMgr.h"
 #include "MovementStructures.h"
 #include "BattlePetMgr.h"
-#include <boost/accumulators/statistics/variance.hpp>
-#include <boost/accumulators/accumulators.hpp>
-#include <boost/accumulators/statistics.hpp>
 
 #define MOVEMENT_PACKET_TIME_DELAY 0
 

@@ -15,13 +15,6 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ScriptMgr.h"
-#include "Chat.h"
-#include "ObjectMgr.h"
-#include "AnticheatMgr.h"
-#include "WardenCheckMgr.h"
-#include "CreatureTextMgr.h"
-
 void AddSC_anticheat_commandscript()
 {
 }
