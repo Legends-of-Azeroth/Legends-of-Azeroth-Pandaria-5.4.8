@@ -19,7 +19,6 @@
 #include "ScriptedCreature.h"
 #include "hyjal.h"
 #include "hyjal_trash.h"
-#include "hyjalAI.h"
 
 enum Spells
 {

@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ObjectMgr.h"
-#include "ScriptMgr.h"
 #include "timeless_isle.h"
 
 #define BOSS_NIUZAO 0

@@ -19,7 +19,6 @@
 #include "ObjectMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
 #include "Group.h"
 
 enum eSpells

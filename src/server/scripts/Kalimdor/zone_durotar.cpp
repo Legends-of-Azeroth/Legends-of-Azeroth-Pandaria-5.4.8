@@ -20,7 +20,6 @@
 #include "ScriptedGossip.h"
 #include "Vehicle.h"
 #include "ObjectMgr.h"
-#include "ScriptedEscortAI.h"
 #include "CombatAI.h"
 #include "PassiveAI.h"
 #include "Player.h"

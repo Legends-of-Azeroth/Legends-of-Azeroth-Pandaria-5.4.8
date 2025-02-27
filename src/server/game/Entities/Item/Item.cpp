@@ -27,8 +27,6 @@
 #include "ConditionMgr.h"
 #include "Player.h"
 #include "Opcodes.h"
-#include "WorldSession.h"
-#include "DatabaseEnv.h"
 
 void AddItemsSetItem(Player* player, Item* item)
 {

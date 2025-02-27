@@ -20,7 +20,6 @@
 #include "ScriptedCreature.h"
 #include "terrace_of_endless_spring.h"
 #include "InstanceScript.h"
-#include <numeric>
 
 enum eShaOfFearSpells
 {

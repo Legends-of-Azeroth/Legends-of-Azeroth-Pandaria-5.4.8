@@ -27,7 +27,6 @@
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "CreatureTextMgr.h"
 #include "MoveSplineInit.h"
 #include "Unit.h"

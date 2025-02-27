@@ -27,7 +27,6 @@
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "CreatureTextMgr.h"
 #include "Unit.h"
 #include "Player.h"
@@ -36,7 +35,6 @@
 #include "Map.h"
 #include "VehicleDefines.h"
 #include "SpellInfo.h"
-#include <utility>
 #include "throne_of_thunder.h"
 
 enum Yells

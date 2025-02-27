@@ -20,7 +20,6 @@
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "firelands.h"
 #include "PassiveAI.h"
 

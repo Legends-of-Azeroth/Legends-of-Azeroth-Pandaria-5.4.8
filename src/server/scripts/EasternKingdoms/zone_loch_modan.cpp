@@ -25,11 +25,6 @@ EndScriptData */
 /* ContentData
 EndContentData */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "Player.h"
-
 void AddSC_loch_modan()
 {
 }
