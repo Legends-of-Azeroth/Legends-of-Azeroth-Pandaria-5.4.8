@@ -471,7 +471,7 @@ struct npc_fallen_pool_tender : public customCreatureAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(TALK_INTRO);
-        events.ScheduleEvent(EVENT_BUBLE_SHIELD, urand(1.5 * IN_MILLISECONDS, 2 * IN_MILLISECONDS));
+        events.ScheduleEvent(EVENT_BUBLE_SHIELD, urand(static_cast<uint32>(1.5 * (double)IN_MILLISECONDS), 2 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_CORRUPTED_WATER, 10 * IN_MILLISECONDS);
     }
 
@@ -4036,8 +4036,8 @@ struct npc_klaxxi_srathik_amber_master : public customCreatureAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        events.ScheduleEvent(EVENT_AMBER_BLAST, 1.5 * IN_MILLISECONDS);
-        events.ScheduleEvent(EVENT_RESONATING_AMBER, 8.5 * IN_MILLISECONDS);
+        events.ScheduleEvent(EVENT_AMBER_BLAST, static_cast<uint32>(1.5 * (double)IN_MILLISECONDS));
+        events.ScheduleEvent(EVENT_RESONATING_AMBER, static_cast<uint32>(8.5 * (double)IN_MILLISECONDS));
     }
 
     void JustSummoned(Creature* summon) override
@@ -4064,7 +4064,7 @@ struct npc_klaxxi_srathik_amber_master : public customCreatureAI
 
         while (uint32 eventId = events.ExecuteEvent())
         {
-            ExecuteTargetEvent(SPELL_AMBER_BLAST, urand(3.1 * IN_MILLISECONDS, 3.5 * IN_MILLISECONDS), EVENT_AMBER_BLAST, eventId, PRIORITY_NOT_VICTIM);
+            ExecuteTargetEvent(SPELL_AMBER_BLAST, urand(static_cast<uint32>(3.1 * (double)IN_MILLISECONDS), static_cast<uint32>(3.5 * (double)IN_MILLISECONDS)), EVENT_AMBER_BLAST, eventId, PRIORITY_NOT_VICTIM);
             ExecuteTargetEvent(SPELL_RESONATING_AMBER_SELECTOR, urand(18 * IN_MILLISECONDS, 26 * IN_MILLISECONDS), EVENT_RESONATING_AMBER, eventId);
             break;
         }
@@ -4123,7 +4123,7 @@ struct npc_klaxxi_kovok : public customCreatureAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        events.ScheduleEvent(EVENT_MIGHTY_CLEAVE, 3.5 * IN_MILLISECONDS);
+        events.ScheduleEvent(EVENT_MIGHTY_CLEAVE, static_cast<uint32>(3.5 * (double)IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_GROUND_SLAM, 10 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_POISON_BLAST, 13 * IN_MILLISECONDS);
     }
@@ -4163,7 +4163,7 @@ struct npc_klaxxi_grand_master_alchemist_kixen : public customCreatureAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        events.ScheduleEvent(EVENT_ALCHEMICAL_MASTERY, 2.5 * IN_MILLISECONDS);
+        events.ScheduleEvent(EVENT_ALCHEMICAL_MASTERY, static_cast<uint32>(2.5f * (float)IN_MILLISECONDS));
     }
 
     void UpdateAI(uint32 diff) override

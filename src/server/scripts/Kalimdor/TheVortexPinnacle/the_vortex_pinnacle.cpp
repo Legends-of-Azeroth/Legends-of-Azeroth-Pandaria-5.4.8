@@ -222,7 +222,7 @@ class npc_vortex_pinnacle_slipsteam : public CreatureScript
                 DoCast(me, SPELL_SLIPSTREAM_AURA);
             }
 
-            void UpdateAI(uint32 diff) override { }
+            void UpdateAI(uint32 /*diff*/) override { }
      };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -749,7 +749,7 @@ struct npc_lurking_tempest : public ScriptedAI
                 case EVENT_LIGHTNING_BOLT:
                 {
                     DoCast(me->GetVictim(), SPELL_LIGHTNING_BOLT);
-                    events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 1.6 * IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_LIGHTNING_BOLT, static_cast<uint32>(1.6 * IN_MILLISECONDS));
                     break;
                 }
                 case EVENT_LURK:
@@ -789,7 +789,7 @@ private:
             return false;
         }
 
-        list.remove_if([=](Player* target) { return target->isInFront(me, 2.5f); });
+        list.remove_if([this](Player* target) { return target->isInFront(me, 2.5f); });
         return list.empty();
     }
 };
@@ -1050,20 +1050,26 @@ class npc_temple_adept : public CreatureScript
                             events.ScheduleEvent(EVENT_DESPERATE_SPEED, urand(20000, 30000));
                             break;
                         case EVENT_GREATER_HEAL:
-                            if (_target = me->FindNearestCreature(NPC_EXECUTOR_OF_THE_CALIPH, 30.0f))
+                        {
+                            if (_target = me->FindNearestCreature(NPC_EXECUTOR_OF_THE_CALIPH, 30.0f)) {
                                 if (_target->GetHealthPct() < 50)
                                     DoCast(_target, SPELL_GREATER_HEAL);
-                            else if (_target = me->FindNearestCreature(NPC_MINISTER_OF_AIR, 30.0f))
+                            }
+                            else if (_target = me->FindNearestCreature(NPC_MINISTER_OF_AIR, 30.0f)) {
                                 if (_target->GetHealthPct() < 50)
                                     DoCast(_target, SPELL_GREATER_HEAL);
-                            else if (_target = me->FindNearestCreature(NPC_SERVANT_OF_ASAAD, 30.0f))
+                            }
+                            else if (_target = me->FindNearestCreature(NPC_SERVANT_OF_ASAAD, 30.0f)) {
                                 if (_target->GetHealthPct() < 50)
                                     DoCast(_target, SPELL_GREATER_HEAL);
-                            else if (_target = me->FindNearestCreature(NPC_TEMPEST_ADEPT, 30.0f))
+                            }
+                            else if (_target = me->FindNearestCreature(NPC_TEMPEST_ADEPT, 30.0f)) {
                                 if (_target->GetHealthPct() < 50)
                                     DoCast(_target, SPELL_GREATER_HEAL);
+                            }
                             events.ScheduleEvent(EVENT_GREATER_HEAL, urand(5000, 6000));
                             break;
+                        }
                     }
                 }
             }

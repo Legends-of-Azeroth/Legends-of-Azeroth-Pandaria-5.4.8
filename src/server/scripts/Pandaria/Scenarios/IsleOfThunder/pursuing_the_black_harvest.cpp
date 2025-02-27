@@ -562,8 +562,8 @@ struct npc_black_harvest_unbound_bonemender : public demon_baseAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        events.ScheduleEvent(EVENT_DARK_MENDING, 9.5 * IN_MILLISECONDS);
-        events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(1.5 * IN_MILLISECONDS, 2.5 * IN_MILLISECONDS));
+        events.ScheduleEvent(EVENT_DARK_MENDING, static_cast<uint32>(9.5 * IN_MILLISECONDS));
+        events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(static_cast<uint32>(1.5 * IN_MILLISECONDS), static_cast<uint32>(2.5 * IN_MILLISECONDS)));
     }
 
     ObjectGuid GetLowestFriendGUID() override

@@ -1090,7 +1090,7 @@ class npc_empyreal_focus : public CreatureScript
                             }
                         }        
 
-                        if (Creature* elegon = instance->instance->GetCreature(instance->GetGuidData(NPC_ELEGON)))
+                        if (instance->instance->GetCreature(instance->GetGuidData(NPC_ELEGON)))
                         {
                             if (Creature* empyrealfocus = instance->instance->GetCreature(empyrealFocus[0]))
                             {
@@ -2074,7 +2074,6 @@ class spell_total_annihilation : public SpellScript
                 return;
 
             caster->CastSpell(caster, SPELL_DESTABILIZING_ENERGIES, true);
-            uint8 diffic = caster->GetMap()->GetDifficulty();
 
             // In heroic we should handle cast this spell
             caster->CastSpell(caster, SPELL_TOTAL_ANNIHILATION_EFF, true);
