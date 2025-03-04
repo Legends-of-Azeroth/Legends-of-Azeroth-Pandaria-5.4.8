@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -1868,7 +1868,7 @@ bool Item::IsEyeOfTheBlackPrinceAllowed() const
             if (IsPvPItem())
                 return false;
             if (auto entry = sItemNameDescriptionStore.LookupEntry(GetEntry()))
-                if (entry && strcmp(entry->Description[LOCALE_enUS], "Raid Finder") == 0)   // SoO LFR
+                if (entry && strcmp(entry->Description, "Raid Finder") == 0)   // SoO LFR
                     return false;
             return true;
     }

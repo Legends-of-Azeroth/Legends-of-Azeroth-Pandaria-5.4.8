@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -346,7 +346,7 @@ class Battleground
 
         /* Battleground */
         // Get methods:
-        char const* GetName(LocaleConstant locale = DEFAULT_LOCALE) const { return sBattlemasterListStore.LookupEntry(m_TypeID)->name[locale]; }
+        char const* GetName(LocaleConstant locale = DEFAULT_LOCALE) const { return sBattlemasterListStore.LookupEntry(m_TypeID)->name; }
         ObjectGuid GetGUID() { return m_Guid; }
         BattlegroundTypeId GetTypeID(bool GetRandom = false) const { return GetRandom ? m_RandomTypeID : m_TypeID; }
         BattlegroundBracketId GetBracketId() const { return m_BracketId; }

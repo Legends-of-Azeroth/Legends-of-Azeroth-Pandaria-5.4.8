@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -37,7 +37,7 @@ uint32 ScenarioMgr::GetScenarioIdForMap(uint32 map)
     for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
     {
         if (auto dungeon = sLFGDungeonStore.LookupEntry(i))
-            if (dungeon->map == map)
+            if (dungeon->MapID == map)
                 return dungeon->scenario;
     }
     return 0;

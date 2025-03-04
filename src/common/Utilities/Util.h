@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -120,15 +120,6 @@ template <class T>
 inline T RoundToInterval(T& num, T floor, T ceil)
 {
     return num = std::min(std::max(num, floor), ceil);
-}
-
-// UTF8 handling
-bool Utf8toWStr(const std::string& utf8str, std::wstring& wstr);
-// in wsize==max size of buffer, out wsize==real string size
-bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize);
-inline bool Utf8toWStr(const std::string& utf8str, wchar_t* wstr, size_t& wsize)
-{
-    return Utf8toWStr(utf8str.c_str(), utf8str.size(), wstr, wsize);
 }
 
 bool WStrToUtf8(std::wstring wstr, std::string& utf8str);

@@ -913,8 +913,11 @@ bool GameObject::LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap)
 
     if (data->phaseGroup)
     {
-        for (auto ph : GetPhasesForGroup(data->phaseGroup))
-            SetPhased(ph, false, true);
+        std::vector<uint32> const* phasesInGroup = sDBCManager.GetPhasesForGroup(data->phaseGroup);
+        for (uint32 phaseId : *phasesInGroup)
+            SetPhased(phaseId, false, true);
+        //for (auto ph : sDBCManager.GetPhasesForGroup(data->phaseGroup))
+            //SetPhased(ph, false, true);
     }
 
     if (data->spawntimesecs >= 0)

@@ -639,7 +639,7 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
     SetDisplayId(creature->GetDisplayId());
 
     if (CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->family))
-        SetName(cFamily->Name[sObjectMgr->GetDBCLocaleIndex()]);
+        SetName(cFamily->Name);
     else
         SetName(creature->GetNameForLocaleIdx(sObjectMgr->GetDBCLocaleIndex()));
 
@@ -652,7 +652,7 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
         return false;
 
     if (CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->family))
-        SetName(cFamily->Name[sObjectMgr->GetDBCLocaleIndex()]);
+        SetName(cFamily->Name);
 
     Relocate(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), owner->GetOrientation());
 
@@ -817,7 +817,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         case HUNTER_PET:
         {
             SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, uint32(sObjectMgr->GetXPForLevel(petlevel)*PET_XP_FACTOR));
-            if (GetOwner()->HasSpell(53253) && !HasAura(53397)) // 53397 
+            if (GetOwner()->HasSpell(53253) && !HasAura(53397)) // 53397
                 CastSpell(this, 53397, true);
             break;
         }
@@ -1422,7 +1422,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* onlinePet /*= NULL*/)
 
         uint32 spell = fields[0].GetUInt32();
 
-        if (!GetTalentSpellCost(spell))
+        if (!sDBCManager.GetTalentSpellCost(spell))
             continue;
 
         if (need_execute)
@@ -1671,22 +1671,24 @@ void Pet::SetSpecialization(uint16 spec)
 
 void Pet::LearnSpecializationSpells(bool learn, bool clearActionBar)
 {
-    auto const* spells = dbc::GetSpecializetionSpells(GetSpecializationId());
-    if (!spells)
-        return;
-    for (auto&& spell : *spells)
+    if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDBCManager.GetSpecializationSpells(GetSpecializationId()))
     {
-        if (learn)
+        for (size_t j = 0; j < specSpells->size(); ++j)
         {
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell);
-            if (!spellInfo || spellInfo->SpellLevel > GetLevel())
-                continue;
+            SpecializationSpellsEntry const* specSpell = specSpells->at(j);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(specSpell->SpellID);
+            if (learn)
+            {
+                if (!spellInfo || spellInfo->SpellLevel > GetLevel())
+                    continue;
 
-            LearnSpell(spell);
+                LearnSpell(specSpell->SpellID);
+            }
+            else
+                UnlearnSpell(specSpell->SpellID, false, clearActionBar);
         }
-        else
-            UnlearnSpell(spell, false, clearActionBar);
     }
+
 }
 
 void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)

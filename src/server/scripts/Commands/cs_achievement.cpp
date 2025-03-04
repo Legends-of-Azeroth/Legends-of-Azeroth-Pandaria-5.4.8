@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -164,7 +164,7 @@ public:
             for (auto&& tree : *list)
             {
                 uint32 achievement = tree->Achievement ? tree->Achievement->ID : 0;
-                char const* name = tree->Achievement ? tree->Achievement->Name[handler->GetSessionDbcLocale()] : "not found";
+                char const* name = tree->Achievement ? tree->Achievement->Name : "not found";
                 handler->PSendSysMessage("CriteriaTree: %u (Achievement: %s (%u))", tree->Entry->ID, name, achievement);
                 PrintCriteriaTree(handler, tree);
             }

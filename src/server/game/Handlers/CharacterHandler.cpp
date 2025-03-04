@@ -1037,7 +1037,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     {
         data << uint32(hotfix[i].Timestamp);
         data << uint32(hotfix[i].Entry);
-        data << uint32(hotfix[i].Type);
+        data << uint32(hotfix[i].TableHash);
     }
 
     SendPacket(&data);
@@ -2710,7 +2710,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 do
                 {
                     uint32 skillId = (*result)[0].GetUInt16();
-                    auto info = GetSkillRaceClassInfo(skillId, race, playerClass);
+                    auto info = sDBCManager.GetSkillRaceClassInfo(skillId, race, playerClass);
                     if (!info)
                     {
                         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_SKILL);
@@ -2761,12 +2761,12 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)
         return;
     }
 
-    std::string const* name = GetRandomCharacterName(race, gender);
-    WorldPacket data(SMSG_RANDOMIZE_CHAR_NAME, 1 + name->size());
+    std::string name = sDBCManager.GetRandomCharacterName(race, gender);
+    WorldPacket data(SMSG_RANDOMIZE_CHAR_NAME, 1 + name.size());
     data.WriteBit(true); // result
-    data.WriteBits(name->size(), 6);
+    data.WriteBits(name.size(), 6);
     data.FlushBits();
-    data.WriteString(*name);
+    data.WriteString(name);
     SendPacket(&data);
 }
 
