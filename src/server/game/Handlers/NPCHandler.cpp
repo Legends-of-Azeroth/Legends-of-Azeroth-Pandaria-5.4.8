@@ -29,6 +29,7 @@
 #include "UpdateMask.h"
 #include "ObjectAccessor.h"
 #include "Creature.h"
+#include "CreatureAI.h"
 #include "Pet.h"
 #include "ReputationMgr.h"
 #include "BattlegroundMgr.h"
