@@ -1,0 +1,40 @@
+name: Clang
+
+on:
+  push:
+    paths-ignore:
+      - 'sql/**'    
+  pull_request:
+    paths-ignore:
+      - 'sql/**'
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    if: ${{ !github.event.pull_request.draft }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Dependencies
+      run: |
+        sudo apt-get update && sudo apt-get install -yq libboost-all-dev clang-15 libreadline-dev libbz2-dev
+        sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-15 100 
+        sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 100
+    - name: Setup
+      run: |
+        mkdir bin
+        cd bin
+        cmake ../ -DTOOLS=1 -DELUNA=0 -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DCMAKE_INSTALL_PREFIX=check_install
+        cd ..
+    - name: Build
+      run: |
+        cd bin
+        make -j 4 -k && make install
+    #- name: Check executables
+    #  run: |
+    #    cd bin/check_install/bin
+    #    ./authserver --version
+    #    ./worldserver --version

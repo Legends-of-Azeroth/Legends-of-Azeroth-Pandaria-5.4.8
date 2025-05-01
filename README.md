@@ -7,11 +7,10 @@ Client exe files" https://mega.nz/file/xUJDkIDA#I3TMdPymMw8ISNwIUgSaXLl5oHJHYFxA
 ## Requirements
 + Platform: Linux, Windows or Mac
 + AMD64 or AArch64 CPU architecture
-+ Processor with SSE2(AMD64 CPU architecture) support
 + MySQL = 5.7 / 8.0-8.1
 + CMake ≥ 3.27.2 
 + OpenSSL = 1.1.1 / 3.0-3.1.1 (3.2.0 not supported) (MySQL >= 8.0.33)
-+ Boost ≥ 1.85.0_msvc 14.3 x64
++ Boost ≥ 1.85.0_msvc 14.3 x64 / 1.81 above Linux
 + Windows SDK version 10.0.22621
 + MS Visual Studio (Community) ≥ 16.4 (2019) (Desktop) (Not previews) 
 + GCC >= 13.0, Clang >= 12.0 
