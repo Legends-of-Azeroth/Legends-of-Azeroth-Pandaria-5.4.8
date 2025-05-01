@@ -1,0 +1,68 @@
+name: macOS arm64
+
+on:
+  push:
+    paths-ignore:
+      - 'sql/**'     
+  pull_request:
+    paths-ignore:
+      - 'sql/**' 
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+jobs:
+  build:
+    runs-on: macos-14
+    if: ${{ !github.event.pull_request.draft }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set reusable strings
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Install/Update requirements
+      env:
+        HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
+      run: |
+        brew update
+        brew uninstall openssl@1.1
+        brew install mysql openssl readline cmake boost coreutils ninja
+        brew config
+
+    - name: Check some deps
+      run: |
+        mysql --version
+        openssl version
+        
+    - name: Print CPU info
+      run: |
+         echo "Cores: $(nproc), Arch: $(uname -p)"
+        
+    - name: Configure CMake
+      run: >
+        cmake -GNinja -B ${{ steps.strings.outputs.build-output-dir }}
+        -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DELUNA=0 -DCMAKE_INSTALL_PREFIX=check_install
+        -S ${{ github.workspace }}       
+
+    - name: Build
+      run: |
+        cd ${{ steps.strings.outputs.build-output-dir }}
+        ninja
+        ninja install
+      
+    # - name: Unit tests
+    #   run: |
+    #     cd ${{ steps.strings.outputs.build-output-dir }}
+    #     ninja test
+      
+    - name: Check binaries
+      run: |
+        cd ${{ github.workspace }}/check_install/bin
+        ./authserver --version
+        ./worldserver --version
