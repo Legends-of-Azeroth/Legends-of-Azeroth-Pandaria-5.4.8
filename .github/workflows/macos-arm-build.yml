@@ -32,7 +32,7 @@ jobs:
       run: |
         brew update
         brew uninstall openssl@1.1
-        brew install mysql openssl readline cmake boost@1.85 coreutils ninja
+        brew install mysql openssl readline cmake boost coreutils ninja
         brew config
 
     - name: Check some deps
@@ -47,7 +47,7 @@ jobs:
     - name: Configure CMake
       run: >
         cmake -GNinja -B ${{ steps.strings.outputs.build-output-dir }} 
-        -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DELUNA=0 -DCMAKE_INSTALL_PREFIX=check_install -DBOOST_ROOT=/opt/homebrew/opt/boost@1.85 -DBoost_INCLUDE_DIRS=/opt/homebrew/opt/boost@1.85/include -DBoost_LIBRARY_DIRS=/opt/homebrew/opt/boost@1.85/lib
+        -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DELUNA=0 -DCMAKE_INSTALL_PREFIX=check_install
         -S ${{ github.workspace }}       
 
     - name: Build
