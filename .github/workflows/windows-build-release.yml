@@ -87,7 +87,7 @@ jobs:
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
-        path: ${{ env.BUILD_DIR }}/build/bin/RelWithDebInfo/
+        path: ${{github.workspace}}/build/bin/RelWithDebInfo/
         name: PandariaMasterWin64VS2022
         # Set a custom retention for artifacts
         #retention-days: 7
