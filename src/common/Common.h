@@ -19,7 +19,7 @@
 #define TRINITYCORE_COMMON_H
 
 #include "Define.h"
-
+#include <array>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -125,29 +125,19 @@ TC_COMMON_API LocaleConstant GetLocaleByName(const std::string& name);
 
 typedef std::vector<std::string> StringVector;
 
-#if defined(__GNUC__)
-#pragma pack(1)
-#else
 #pragma pack(push, 1)
-#endif
 
-struct DbcStr
+struct LocalizedString
 {
-    char const* operator[](size_t i) const
+    constexpr char const* operator[](LocaleConstant locale) const
     {
-        if (i >= TOTAL_LOCALES || !m_impl[i])
-            return "";
-        return m_impl[i];
+        return Str[locale];
     }
 
-    char const* m_impl[TOTAL_LOCALES];
+    std::array<char const*, TOTAL_LOCALES> Str;
 };
 
-#if defined(__GNUC__)
-#pragma pack()
-#else
 #pragma pack(pop)
-#endif
 
 // we always use stdlibc++ std::max/std::min, undefine some not C++ standard defines (Win API and some other platforms)
 #ifdef max

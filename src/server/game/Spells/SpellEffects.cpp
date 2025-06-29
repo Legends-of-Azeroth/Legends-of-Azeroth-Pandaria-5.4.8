@@ -1446,7 +1446,7 @@ void Spell::EffectPowerBurn(SpellEffIndex effIndex)
         return;
 
     if (unitTarget->GetPowerType() != powerType)
-        if (m_spellInfo->Id != 108222 || GetPowerIndexByClass(powerType, unitTarget->GetClass()) == MAX_POWERS) // Mana Void (Cobalt Globule)
+        if (m_spellInfo->Id != 108222 || sDBCManager.GetPowerIndexByClass(powerType, unitTarget->GetClass()) == MAX_POWERS) // Mana Void (Cobalt Globule)
             return;
 
     // burn x% of target's mana, up to maximum of 2x% of caster's mana (Mana Burn)
@@ -1765,7 +1765,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
             bool cooking = false;
             auto bounds = sSpellMgr->GetSkillLineAbilityMapBounds(m_spellInfo->Id);
             for (auto itr = bounds.first; itr != bounds.second; ++itr)
-                if (itr->second->skillId == SKILL_COOKING || (itr->second->skillId >= SKILL_WAY_OF_THE_GRILL && itr->second->skillId <= SKILL_WAY_OF_THE_BREW))
+                if (itr->second->SkillLine == SKILL_COOKING || (itr->second->SkillLine >= SKILL_WAY_OF_THE_GRILL && itr->second->SkillLine <= SKILL_WAY_OF_THE_BREW))
                     cooking = true;
 
             if (cooking)
@@ -3083,16 +3083,16 @@ void Spell::EffectLearnSkill(SpellEffIndex effIndex)
 
     uint32 skillid = m_spellInfo->Effects[effIndex].MiscValue;
 
-    auto entry = GetSkillRaceClassInfo(skillid, unitTarget->GetRace(), unitTarget->GetClass());
+    auto entry = sDBCManager.GetSkillRaceClassInfo(skillid, unitTarget->GetRace(), unitTarget->GetClass());
     if (!entry)
     {
         TC_LOG_ERROR("spells", "Spell::EffectLearnSkill skill (%u) not found in SkillRaceClassInfo.dbc", skillid);
         return;
     }
-    auto skillTier = sSkillTiersStore.LookupEntry(entry->SkillTierId);
+    auto skillTier = sSkillTiersStore.LookupEntry(entry->SkillTierID);
     if (!skillTier)
     {
-        TC_LOG_ERROR("spells", "Spell::EffectLearnSkill skill tier (%u) not found for skill %u", entry->SkillTierId, skillid);
+        TC_LOG_ERROR("spells", "Spell::EffectLearnSkill skill tier (%u) not found for skill %u", entry->SkillTierID, skillid);
         return;
     }
 

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -87,10 +87,19 @@ static bool ActAsMainPet(Unit const* summon, Unit const* mainpet, uint32 spellId
         if (act != ACT_DISABLED && act != ACT_PASSIVE && act != ACT_ENABLED)
             return true;
 
-        auto const* spells = dbc::GetSpecializetionSpells(summon->ToPet()->GetSpecializationId());
-        if (!spells)
+        std::vector<SpecializationSpellsEntry const*> const* specSpells = sDBCManager.GetSpecializationSpells(summon->ToPet()->GetSpecializationId());
+        if (specSpells->size() == 0)
             return false;
-        return std::find(spells->begin(), spells->end(), spellId) != spells->end(); // Only spec spells
+
+        for (size_t j = 0; j < specSpells->size(); ++j)
+        {
+            SpecializationSpellsEntry const* specSpell = specSpells->at(j);
+            if (specSpell)
+                return true;
+        }
+
+        return false;
+        // return std::find(specSpells->begin(), specSpells->end(), spellId) != specSpells->end(); // Only spec spells
     }
 
     if (act != ACT_DISABLED && act != ACT_PASSIVE && act != ACT_ENABLED)

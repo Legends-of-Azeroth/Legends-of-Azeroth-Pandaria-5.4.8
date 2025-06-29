@@ -1975,7 +1975,7 @@ void ObjectMgr::LoadCreatures()
     for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
         if (sMapStore.LookupEntry(i))
             for (int k = 0; k < MAX_DIFFICULTY; ++k)
-                if (GetMapDifficultyData(i, Difficulty(k)))
+                if (sDBCManager.GetMapDifficultyData(i, Difficulty(k)))
                     spawnMasks[i] |= (1 << k);
 
     _creatureDataStore.rehash(result->GetRowCount());
@@ -2110,7 +2110,7 @@ void ObjectMgr::LoadCreatures()
             data.phaseMask = 1;
         }
 
-        if (data.phaseGroup && GetPhasesForGroup(data.phaseGroup).empty())
+        if (data.phaseGroup && sDBCManager.GetPhasesForGroup(data.phaseGroup)->empty())
         {
             TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u Entry: %u) with non-existing `phasegroup` (%u) set, `phasegroup` set to 0", spawnId, data.id, data.phaseGroup);
             data.phaseGroup = 0;
@@ -2345,7 +2345,7 @@ void ObjectMgr::LoadGameobjects()
     for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
         if (sMapStore.LookupEntry(i))
             for (int k = 0; k < MAX_DIFFICULTY; ++k)
-                if (GetMapDifficultyData(i, Difficulty(k)))
+                if (sDBCManager.GetMapDifficultyData(i, Difficulty(k)))
                     spawnMasks[i] |= (1 << k);
 
     _gameObjectDataStore.rehash(result->GetRowCount());
@@ -2469,7 +2469,7 @@ void ObjectMgr::LoadGameobjects()
             data.phaseMask = 1;
         }
 
-        if (data.phaseGroup && GetPhasesForGroup(data.phaseGroup).empty())
+        if (data.phaseGroup && sDBCManager.GetPhasesForGroup(data.phaseGroup)->empty())
         {
             TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) with non-existing `phasegroup` (%u) set, `phasegroup` set to 0", guid, data.id, data.phaseGroup);
             data.phaseGroup = 0;
@@ -3191,10 +3191,10 @@ void ObjectMgr::LoadItemTemplates()
 
         for (int j = 0; j < MAX_OUTFIT_ITEMS; ++j)
         {
-            if (entry->ItemId[j] <= 0)
+            if (entry->ItemID[j] <= 0)
                 continue;
 
-            uint32 item_id = entry->ItemId[j];
+            uint32 item_id = entry->ItemID[j];
 
             if (!GetItemTemplate(item_id))
                 notFoundOutfit.insert(item_id);
@@ -3521,15 +3521,15 @@ void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint3
 
         for (uint32 gender = 0; gender < GENDER_NONE; ++gender)
         {
-            if (CharStartOutfitEntry const* entry = GetCharStartOutfitEntry(race_, class_, gender))
+            if (CharStartOutfitEntry const* entry = sDBCManager.GetCharStartOutfitEntry(race_, class_, gender))
             {
                 bool found = false;
                 for (uint8 x = 0; x < MAX_OUTFIT_ITEMS; ++x)
                 {
-                    if (entry->ItemId[x] > 0 && uint32(entry->ItemId[x]) == itemId)
+                    if (entry->ItemID[x] > 0 && uint32(entry->ItemID[x]) == itemId)
                     {
                         found = true;
-                        const_cast<CharStartOutfitEntry*>(entry)->ItemId[x] = 0;
+                        const_cast<CharStartOutfitEntry*>(entry)->ItemID[x] = 0;
                         break;
                     }
                 }
@@ -3756,7 +3756,7 @@ void ObjectMgr::LoadPlayerInfo()
                         {
                             if (classMask == 0 || ((1 << (classIndex - 1)) & classMask))
                             {
-                                if (!GetSkillRaceClassInfo(skill, raceIndex, classIndex))
+                                if (!sDBCManager.GetSkillRaceClassInfo(skill, raceIndex, classIndex))
                                     continue;
 
                                 if (auto& info = _playerInfo[raceIndex][classIndex])
@@ -3795,7 +3795,7 @@ void ObjectMgr::LoadPlayerInfo()
                         {
                             if (PlayerInfo* info = _playerInfo[raceIndex][classIndex])
                             {
-                                info->skills.push_back(entry->Id);
+                                info->skills.push_back(entry->ID);
                                 ++count;
                             }
                         }
@@ -4818,7 +4818,7 @@ void ObjectMgr::LoadQuests()
                 qinfo->_rewardSpell = 0;                        // no spell reward will display for this quest
             }
 
-            else if (GetTalentSpellCost(qinfo->_rewardSpell))
+            else if (sDBCManager.GetTalentSpellCost(qinfo->_rewardSpell))
             {
                 TC_LOG_ERROR("sql.sql", "Quest %u has `RewardSpell` = %u but spell %u is talent, quest will not have a spell reward.",
                     qinfo->GetQuestId(), qinfo->_rewardSpell, qinfo->_rewardSpell);
@@ -5690,7 +5690,7 @@ void ObjectMgr::LoadInstanceEncounters()
 
         if (lastEncounterDungeon && !sLFGMgr->GetLFGDungeonEntry(lastEncounterDungeon))
         {
-            TC_LOG_ERROR("sql.sql", "Table `instance_encounters` has an encounter %u (%s) marked as final for invalid dungeon id %u, skipped!", entry, dungeonEncounter->encounterName.m_impl[0], lastEncounterDungeon);
+            TC_LOG_ERROR("sql.sql", "Table `instance_encounters` has an encounter %u (%s) marked as final for invalid dungeon id %u, skipped!", entry, dungeonEncounter->encounterName, lastEncounterDungeon);
             continue;
         }
 
@@ -5699,7 +5699,7 @@ void ObjectMgr::LoadInstanceEncounters()
         {
             if (itr != dungeonLastBosses.end())
             {
-                TC_LOG_ERROR("sql.sql", "Table `instance_encounters` specified encounter %u (%s) as last encounter but %u (%s) is already marked as one, skipped!", entry, dungeonEncounter->encounterName.m_impl[0], itr->second->id, itr->second->encounterName.m_impl[0]);
+                TC_LOG_ERROR("sql.sql", "Table `instance_encounters` specified encounter %u (%s) as last encounter but %u (%s) is already marked as one, skipped!", entry, dungeonEncounter->encounterName, itr->second->id, itr->second->encounterName);
                 continue;
             }
 
@@ -5713,7 +5713,7 @@ void ObjectMgr::LoadInstanceEncounters()
                 CreatureTemplate const* creatureInfo = GetCreatureTemplate(creditEntry);
                 if (!creatureInfo)
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `instance_encounters` has an invalid creature (entry %u) linked to the encounter %u (%s), skipped!", creditEntry, entry, dungeonEncounter->encounterName.m_impl[0]);
+                    TC_LOG_ERROR("sql.sql", "Table `instance_encounters` has an invalid creature (entry %u) linked to the encounter %u (%s), skipped!", creditEntry, entry, dungeonEncounter->encounterName);
                     continue;
                 }
                 const_cast<CreatureTemplate*>(creatureInfo)->flags_extra |= CREATURE_FLAG_EXTRA_DUNGEON_BOSS;
@@ -5722,12 +5722,12 @@ void ObjectMgr::LoadInstanceEncounters()
             case ENCOUNTER_CREDIT_CAST_SPELL:
                 if (!sSpellMgr->GetSpellInfo(creditEntry))
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `instance_encounters` has an invalid spell (entry %u) linked to the encounter %u (%s), skipped!", creditEntry, entry, dungeonEncounter->encounterName.m_impl[0]);
+                    TC_LOG_ERROR("sql.sql", "Table `instance_encounters` has an invalid spell (entry %u) linked to the encounter %u (%s), skipped!", creditEntry, entry, dungeonEncounter->encounterName);
                     continue;
                 }
                 break;
             default:
-                TC_LOG_ERROR("sql.sql", "Table `instance_encounters` has an invalid credit type (%u) for encounter %u (%s), skipped!", creditType, entry, dungeonEncounter->encounterName.m_impl[0]);
+                TC_LOG_ERROR("sql.sql", "Table `instance_encounters` has an invalid credit type (%u) for encounter %u (%s), skipped!", creditType, entry, dungeonEncounter->encounterName);
                 continue;
         }
 
@@ -5735,7 +5735,7 @@ void ObjectMgr::LoadInstanceEncounters()
         {
             for (uint32 i = 0; i < MAX_DIFFICULTY; ++i)
             {
-                if (GetMapDifficultyData(dungeonEncounter->mapId, Difficulty(i)))
+                if (sDBCManager.GetMapDifficultyData(dungeonEncounter->mapId, Difficulty(i)))
                 {
                     DungeonEncounterList& encounters = _dungeonEncounterStore[MAKE_PAIR32(dungeonEncounter->mapId, i)];
                     encounters.push_back(new DungeonEncounter(dungeonEncounter, EncounterCreditType(creditType), creditEntry, lastEncounterDungeon));
@@ -7445,7 +7445,7 @@ std::string ObjectMgr::GeneratePetName(uint32 entry)
         if (!cinfo)
             return std::string();
 
-        char const* petname = GetPetName(cinfo->family, sWorld->GetDefaultDbcLocale());
+        char const* petname = sDBCManager.GetPetName(cinfo->family, sWorld->GetDefaultDbcLocale());
         if (petname)
             return std::string(petname);
         else
@@ -7702,7 +7702,7 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
             continue;
         }
 
-        if (factionEntry->team == 0)
+        if (factionEntry->ParentFactionID == 0)
         {
             TC_LOG_ERROR("sql.sql", "Faction (faction.dbc) %u in `reputation_spillover_template` does not belong to any team, skipping", factionId);
             continue;
@@ -8771,7 +8771,7 @@ QuestPOIData const* ObjectMgr::GetQuestPOIData(uint32 questId)
 
 SkillRangeType GetSkillRangeType(SkillLineEntry const* pSkill, bool racial)
 {
-    switch (pSkill->categoryId)
+    switch (pSkill->CategoryID)
     {
         case SKILL_CATEGORY_LANGUAGES:
             return SKILL_RANGE_LANGUAGE;
@@ -8779,14 +8779,14 @@ SkillRangeType GetSkillRangeType(SkillLineEntry const* pSkill, bool racial)
             return SKILL_RANGE_LEVEL;
         case SKILL_CATEGORY_ARMOR:
         case SKILL_CATEGORY_CLASS:
-            if (pSkill->id != SKILL_LOCKPICKING)
+            if (pSkill->ID != SKILL_LOCKPICKING)
                 return SKILL_RANGE_MONO;
             else
                 return SKILL_RANGE_LEVEL;
         case SKILL_CATEGORY_SECONDARY:
         case SKILL_CATEGORY_PROFESSION:
             // not set skills for professions and racial abilities
-            if (IsProfessionSkill(pSkill->id))
+            if (IsProfessionSkill(pSkill->ID))
                 return SKILL_RANGE_RANK;
             else if (racial)
                 return SKILL_RANGE_NONE;
@@ -9048,7 +9048,7 @@ void ObjectMgr::AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, 
         return;
     }
 
-    if (GetTalentSpellCost(spell))
+    if (sDBCManager.GetTalentSpellCost(spell))
     {
         TC_LOG_ERROR("sql.sql", "Table `npc_trainer` contains an entry (Entry: %u) for a non-existing spell (Spell: %u) which is a talent, ignoring", entry, spell);
         return;
@@ -9951,9 +9951,9 @@ void ObjectMgr::LoadHotfixData()
     {
         Field* fields = result->Fetch();
 
-        HotfixInfo info;
+        HotfixNotify info;
         info.Entry = fields[0].GetUInt32();
-        info.Type = fields[1].GetUInt32();
+        info.TableHash = fields[1].GetUInt32();
         info.Timestamp = fields[2].GetUInt64();
         _hotfixData.push_back(info);
 
@@ -9968,46 +9968,11 @@ time_t ObjectMgr::GetHotfixDate(uint32 entry, uint32 type) const
 {
     time_t ret = 0;
     for (HotfixData::const_iterator itr = _hotfixData.begin(); itr != _hotfixData.end(); ++itr)
-        if (itr->Entry == entry && itr->Type == type)
+        if (itr->Entry == entry && itr->TableHash == type)
             if (itr->Timestamp > ret)
                 ret = itr->Timestamp;
 
-    return ret ? ret : time(NULL);
-}
-
-void ObjectMgr::LoadMissingKeyChains()
-{
-    uint32 oldMSTime = getMSTime();
-
-    QueryResult result = WorldDatabase.Query("SELECT keyId, k1, k2, k3, k4, k5, k6, k7, k8, "
-                                                     "k9, k10, k11, k12, k13, k14, k15, k16, "
-                                                     "k17, k18, k19, k20, k21, k22, k23, k24, "
-                                                     "k25, k26, k27, k28, k29, k30, k31, k32 "
-                                                     "FROM keychain_db2 ORDER BY keyId DESC");
-
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 KeyChain entries. DB table `keychain_db2` is empty.");
-        return;
-    }
-
-    uint32 count = 0;
-
-    do
-    {
-        Field* fields = result->Fetch();
-        uint32 id = fields[0].GetUInt32();
-
-        KeyChainEntry* kce = sKeyChainStore.CreateEntry(id, true);
-        kce->Id = id;
-        for (uint32 i = 0; i < KEYCHAIN_SIZE; ++i)
-            kce->Key[i] = fields[1 + i].GetUInt8();
-
-        ++count;
-    }
-    while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u KeyChain entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    return ret ? ret : time(nullptr);
 }
 
 void ObjectMgr::LoadFactionChangeSpells()
@@ -10989,8 +10954,8 @@ CreatureDifficultyInfo const* ObjectMgr::SelectDifficultyInfo(Map const* map, ui
 {
     Difficulty difficulty = map->GetDifficulty();
     if (map->IsBattleground())
-        if (auto newBracket = GetBattlegroundBracketByLevel(map->GetId(), ((BattlegroundMap*)map)->GetBG()->GetMinLevel()))
-            difficulty = Difficulty(newBracket->bracketId + MAX_DIFFICULTY);
+        if (auto newBracket = sDBCManager.GetBattlegroundBracketByLevel(map->GetId(), ((BattlegroundMap*)map)->GetBG()->GetMinLevel()))
+            difficulty = Difficulty(newBracket->RangeIndex + MAX_DIFFICULTY);
 
     auto difficultyInfo = GetCreatureDifficultyInfo(difficulty, entry);
     if (difficultyInfo)

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -136,7 +136,7 @@ public:
         std::string tNameLink = handler->GetNameLink(target);
 
         char titleNameStr[80];
-        snprintf(titleNameStr, 80, titleInfo->name[handler->GetSessionDbcLocale()], target->GetName().c_str());
+        snprintf(titleNameStr, 80, titleInfo->name, target->GetName().c_str());
 
         target->SetTitle(titleInfo);
         handler->PSendSysMessage(LANG_TITLE_ADD_RES, id, titleNameStr, tNameLink.c_str());
@@ -184,7 +184,7 @@ public:
         std::string tNameLink = handler->GetNameLink(target);
 
         char titleNameStr[80];
-        snprintf(titleNameStr, 80, titleInfo->name[handler->GetSessionDbcLocale()], target->GetName().c_str());
+        snprintf(titleNameStr, 80, titleInfo->name, target->GetName().c_str());
 
         handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, id, titleNameStr, tNameLink.c_str());
 

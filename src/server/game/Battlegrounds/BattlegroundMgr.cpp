@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -1026,7 +1026,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds(bool reload /*= false*/)
         data.StartMaxDist = dist * dist;
 
         data.scriptId = sObjectMgr->GetScriptId(fields[11].GetCString());
-        data.BattlegroundName = bl->name[DEFAULT_LOCALE];
+        data.BattlegroundName = bl->name;
         data.MapID = bl->mapid[0];
 
         if (data.MaxPlayersPerTeam == 0 || data.MinPlayersPerTeam > data.MaxPlayersPerTeam)
@@ -1144,7 +1144,7 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid 
     if (it == bgDataStore.end())
         return;
 
-    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(it->second.m_Battlegrounds.begin()->second->GetMapId(), player->GetLevel());
+    PvPDifficultyEntry const* bracketEntry = sDBCManager.GetBattlegroundBracketByLevel(it->second.m_Battlegrounds.begin()->second->GetMapId(), player->GetLevel());
     if (!bracketEntry)
         return;
 
@@ -1157,12 +1157,12 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid 
     data->Initialize(SMSG_BATTLEFIELD_LIST);
     *data << uint32(winnerConquest)
           << uint32(loserHonor)
-          << uint8(bracketEntry->minLevel)
+          << uint8(bracketEntry->MinLevel)
           << uint32(winnerConquest)
           << uint32(winnerHonor)
           << uint32(bgTypeId)
           << uint32(winnerHonor)
-          << uint8(bracketEntry->maxLevel)
+          << uint8(bracketEntry->MaxLevel)
           << uint32(loserHonor);
 
     data->WriteBit(guid[0]);

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -162,7 +162,7 @@ void KillRewarder::RewardXP(Player* player, float rate)
         xp *= diff > int32(sWorld->getIntConfig(CONFIG_XP_KILL_LEVEL_DIFFERENCE)) ? 0 : sWorld->getRate(RATE_XP_KILL, player);
 
         // 4.2.3. Calculate expansion penalty
-        if (_victim->GetTypeId() == TYPEID_UNIT && player->GetLevel() >= GetMaxLevelForExpansion(_victim->ToCreature()->GetCreatureTemplate()->expansion))
+        if (_victim->GetTypeId() == TYPEID_UNIT && player->GetLevel() >= sDBCManager.GetMaxLevelForExpansion(_victim->ToCreature()->GetCreatureTemplate()->expansion))
             xp = CalculatePct(xp, 10); // Players get only 10% xp for killing creatures of lower expansion levels than himself
 
         // 4.2.4. Give XP to player.

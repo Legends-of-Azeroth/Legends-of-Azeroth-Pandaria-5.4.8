@@ -1601,26 +1601,26 @@ bool PlayerbotAI::canDispel(SpellInfo const* spellInfo, uint32 dispelType)
     if (spellInfo->Dispel != dispelType)
         return false;
 
-    if (!spellInfo->SpellName[0])
+    if (!spellInfo->SpellName)
     {
         return true;
     }
 
     for (std::string& wl : dispel_whitelist)
     {
-        if (caseInsensitiveEqual(spellInfo->SpellName[0], wl) == 0)
+        if (caseInsensitiveEqual(spellInfo->SpellName, wl) == 0)
         {
             return false;
         }
     }
 
-    return !spellInfo->SpellName[0] || (caseInsensitiveEqual(spellInfo->SpellName[0], "demon skin") &&
-        caseInsensitiveEqual(spellInfo->SpellName[0], "mage armor") &&
-        caseInsensitiveEqual(spellInfo->SpellName[0], "frost armor") &&
-        caseInsensitiveEqual(spellInfo->SpellName[0], "wavering will") &&
-        caseInsensitiveEqual(spellInfo->SpellName[0], "chilled") &&
-        caseInsensitiveEqual(spellInfo->SpellName[0], "mana tap") &&
-        caseInsensitiveEqual(spellInfo->SpellName[0], "ice armor"));
+    return !spellInfo->SpellName || (caseInsensitiveEqual(spellInfo->SpellName, "demon skin") &&
+        caseInsensitiveEqual(spellInfo->SpellName, "mage armor") &&
+        caseInsensitiveEqual(spellInfo->SpellName, "frost armor") &&
+        caseInsensitiveEqual(spellInfo->SpellName, "wavering will") &&
+        caseInsensitiveEqual(spellInfo->SpellName, "chilled") &&
+        caseInsensitiveEqual(spellInfo->SpellName, "mana tap") &&
+        caseInsensitiveEqual(spellInfo->SpellName, "ice armor"));
 }
 
 bool PlayerbotAI::HasAuraToDispel(Unit* target, uint32 dispelType)
@@ -1689,7 +1689,7 @@ bool PlayerbotAI::HasAura(std::string const name, Unit* unit, bool maxStack, boo
                 continue;
 
             // Check if the aura name matches
-            std::string_view const auraName = spellInfo->SpellName[0];
+            std::string_view const auraName = spellInfo->SpellName;
             if (auraName.empty() || auraName.length() != wnamepart.length() || !Utf8FitTo(std::string(auraName), wnamepart))
                 continue;
 
@@ -1787,7 +1787,7 @@ Aura* PlayerbotAI::GetAura(std::string const name, Unit* unit, bool checkIsOwner
         for (AuraEffect const* aurEff : auras)
         {
             SpellInfo const* spellInfo = aurEff->GetSpellInfo();
-            std::string const& auraName = spellInfo->SpellName[0];
+            std::string const& auraName = spellInfo->SpellName;
 
             // Directly skip if name mismatch (both length and content)
             if (auraName.empty() || auraName.length() != wnamepart.length() || !Utf8FitTo(auraName, wnamepart))

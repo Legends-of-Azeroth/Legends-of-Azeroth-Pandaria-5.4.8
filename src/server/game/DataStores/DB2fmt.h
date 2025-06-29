@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -32,9 +32,9 @@ char const ItemToBattlePetfmt[] = "ii";
 
 char const BroadcastTextfmt[] ="nxssxxxxxxixx";
 char const Itemfmt[] ="niiiiiii";
-char const ItemCurrencyCostfmt[]="xn";
+char const ItemCurrencyCostfmt[]="in";
 char const ItemSparsefmt[]="niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiifiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisssssiiiiiiiiiiiiiiiiiiiiiifiiifii";
-char const ItemExtendedCostEntryfmt[]="nxxiiiiiiiiiiiixiiiiiiiiiiiiiii";
+char const ItemExtendedCostEntryfmt[]="niiiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 char const ItemUpgradeEntryfmt[] = "niiiii";
 char const ItemItemToMountSpellEntryfmt[] = "ni";
 char const KeyChainfmt[] = "nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";

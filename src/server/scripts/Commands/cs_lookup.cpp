@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -107,9 +107,9 @@ public:
                 bool match = false;
                 for (int32 i = 0; i < TOTAL_LOCALES; ++i)
                 {
-                    if (*areaEntry->area_name[i])
+                    if (*areaEntry->area_name)
                     {
-                        name = areaEntry->area_name[i];
+                        name = areaEntry->area_name;
                         if (!Utf8FitTo(name, wNamePart))
                             continue;
 
@@ -311,7 +311,7 @@ public:
                 bool match = false;
                 for (int32 i = 0; i < TOTAL_LOCALES; ++i)
                 {
-                    if (*factionEntry->name[i])
+                    if (*factionEntry->name)
                     {
                         name = factionEntry->name[i];
                         if (!Utf8FitTo(name, wNamePart))
@@ -504,9 +504,9 @@ public:
                 bool match = false;
                 for (int32 i = 0; i < TOTAL_LOCALES; ++i)
                 {
-                    if (*set->name[i])
+                    if (*set->name)
                     {
-                        name = set->name[i];
+                        name = set->name;
                         if (!Utf8FitTo(name, wNamePart))
                             continue;
 
@@ -778,9 +778,9 @@ public:
                 bool match = false;
                 for (int32 i = 0; i < TOTAL_LOCALES; ++i)
                 {
-                    if (*skillInfo->name[i])
+                    if (*skillInfo->DisplayName)
                     {
-                        name = skillInfo->name[i];
+                        name = skillInfo->DisplayName;
                         if (!Utf8FitTo(name, wNamePart))
                             continue;
 
@@ -859,9 +859,9 @@ public:
                 bool match = false;
                 for (int32 i = 0; i < TOTAL_LOCALES; ++i)
                 {
-                    if (*spellInfo->SpellName[i])
+                    if (*spellInfo->SpellName)
                     {
-                        name = spellInfo->SpellName[i];
+                        name = spellInfo->SpellName;
                         if (!Utf8FitTo(name, wNamePart))
                             continue;
 
@@ -884,7 +884,7 @@ public:
 
                 SpellInfo const* learnSpellInfo = sSpellMgr->GetSpellInfo(spellInfo->Effects[0].TriggerSpell);
 
-                uint32 talentCost = GetTalentSpellCost(id);
+                uint32 talentCost = sDBCManager.GetTalentSpellCost(id);
 
                 bool talent = (talentCost > 0);
                 bool passive = spellInfo->IsPassive();
@@ -944,7 +944,7 @@ public:
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(id))
         {
             int locale = handler->GetSessionDbcLocale();
-            std::string name = spellInfo->SpellName[locale];
+            std::string name = spellInfo->SpellName;
             if (name.empty())
             {
                 handler->SendSysMessage(LANG_COMMAND_NOSPELLFOUND);
@@ -956,7 +956,7 @@ public:
 
                 SpellInfo const* learnSpellInfo = sSpellMgr->GetSpellInfo(spellInfo->Effects[0].TriggerSpell);
 
-                uint32 talentCost = GetTalentSpellCost(id);
+                uint32 talentCost = sDBCManager.GetTalentSpellCost(id);
 
                 bool talent = (talentCost > 0);
                 bool passive = spellInfo->IsPassive();
@@ -1029,9 +1029,9 @@ public:
                 bool match = false;
                 for (int32 i = 0; i < TOTAL_LOCALES; ++i)
                 {
-                    if (*nodeEntry->name[i])
+                    if (*nodeEntry->name)
                     {
-                        name = nodeEntry->name[i];
+                        name = nodeEntry->name;
                         if (!Utf8FitTo(name, wNamePart))
                             continue;
 
@@ -1159,9 +1159,9 @@ public:
                 bool match = false;
                 for (int32 i = 0; i < TOTAL_LOCALES; ++i)
                 {
-                    if (*titleInfo->name[i])
+                    if (*titleInfo->name)
                     {
-                        name = titleInfo->name[i];
+                        name = titleInfo->name;
                         if (!Utf8FitTo(name, wNamePart))
                             continue;
 
@@ -1229,9 +1229,9 @@ public:
                 bool match = false;
                 for (int32 i = 0; i < TOTAL_LOCALES; ++i)
                 {
-                    if (*mapInfo->name[i])
+                    if (*mapInfo->name)
                     {
-                        name = mapInfo->name[i];
+                        name = mapInfo->name;
                         if (!Utf8FitTo(name, wNamePart))
                             continue;
 

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -775,14 +775,14 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
                 {
                     ItemRandomSuffixEntry const* itemRandSuffix = sItemRandomSuffixStore.LookupEntry(-propRefID);
                     if (itemRandSuffix)
-                        suffix = const_cast<char *>(itemRandSuffix->nameSuffix[player->GetSession()->GetSessionDbcLocale()]);
+                        suffix = const_cast<char *>(itemRandSuffix->nameSuffix);
 
                 }
                 else
                 {
                     ItemRandomPropertiesEntry const* itemRandProp = sItemRandomPropertiesStore.LookupEntry(propRefID);
                     if (itemRandProp)
-                        suffix = const_cast<char *>(itemRandProp->nameSuffix[player->GetSession()->GetSessionDbcLocale()]);
+                        suffix = const_cast<char *>(itemRandProp->nameSuffix);
                 }
 
                 // dbc local name

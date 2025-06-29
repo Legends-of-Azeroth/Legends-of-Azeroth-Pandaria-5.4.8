@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -1708,7 +1708,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter->first);
                     for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                     {
-                        if (skillIter->second->skillId == achievementCriteria->Entry->Asset.SkillLine)
+                        if (skillIter->second->SkillLine == achievementCriteria->Entry->Asset.SkillLine)
                             spellCount++;
                     }
                 }
@@ -1733,7 +1733,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 {
                     SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter->first);
                     for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
-                        if (skillIter->second->skillId == achievementCriteria->Entry->Asset.SkillLine)
+                        if (skillIter->second->SkillLine == achievementCriteria->Entry->Asset.SkillLine)
                             spellCount++;
                 }
                 SetCriteriaProgress(achievementCriteria, spellCount, referencePlayer);

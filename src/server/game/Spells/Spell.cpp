@@ -3586,7 +3586,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
             {
                 auto bounds = sSpellMgr->GetSkillLineAbilityMapBounds(m_spellInfo->Id);
                 for (auto it = bounds.first; it != bounds.second; ++it)
-                    if (it->second->skillId == SKILL_HERBALISM)
+                    if (it->second->SkillLine == SKILL_HERBALISM)
                         m_caster->RemoveAurasByType(SPELL_AURA_MOUNTED);
             }
         }
