@@ -746,7 +746,9 @@ void WorldSession::SendPetList(ObjectGuid guid, uint8 first, uint8 last)
             else
             {
                 CreatureModel const* model2 = cInfo->GetModelByIdx(1);
-                modelId = model2->CreatureDisplayID;
+                if (model2)
+                    modelId = model2->CreatureDisplayID;
+                // if model2 is also nullptr, leave modelId as 0; client can handle missing display ID.
             }
         }
 
