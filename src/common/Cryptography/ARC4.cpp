@@ -26,7 +26,6 @@ Trinity::Crypto::ARC4::ARC4() : _ctx(EVP_CIPHER_CTX_new())
     EVP_CIPHER const* _cipher = EVP_rc4();
 #endif
 
-    EVP_CIPHER_CTX_init(_ctx);
     int result = EVP_EncryptInit_ex(_ctx, _cipher, nullptr, nullptr, nullptr);
     ASSERT(result == 1);
 }
