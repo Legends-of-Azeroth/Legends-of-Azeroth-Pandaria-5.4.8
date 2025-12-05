@@ -1,5 +1,5 @@
 /*
-* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
+* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
+#include "CombatAI.h"
 #include "Vehicle.h"
 
 class AreaTrigger_at_mandori : public AreaTriggerScript
@@ -27,33 +28,39 @@ class AreaTrigger_at_mandori : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
+           // Verificar se o jogador está na área correta (Mandori Village)
            if (player->GetPositionX() < 710.0f)
-               return true;
+               return false;
 
+           // Verificar se o jogador tem a quest ativa
            if (player->GetQuestStatus(29792) != QUEST_STATUS_INCOMPLETE)
-               return true;
+               return false;
 
-           ObjectGuid playerGuid = player->GetGUID();
+           uint64 playerGuid = player->GetGUID();
 
+            // Summonar os NPCs (Aysa, Ji, Jojo)
             auto const aysa = player->SummonCreature(59986, 698.04f, 3601.79f, 142.82f, 3.254830f, TEMPSUMMON_MANUAL_DESPAWN, 0); // Aysa
             auto const ji   = player->SummonCreature(59988, 698.06f, 3599.34f, 142.62f, 2.668790f, TEMPSUMMON_MANUAL_DESPAWN, 0); // Ji
             auto const jojo = player->SummonCreature(59989, 702.78f, 3603.58f, 142.01f, 3.433610f, TEMPSUMMON_MANUAL_DESPAWN, 0); // Jojo
 
             if (!aysa || !ji || !jojo)
-                return true;
+                return false;
 
+            // Configurar os NPCs para serem visíveis apenas para o jogador
             aysa->SetExplicitSeerGuid(playerGuid);
             ji->SetExplicitSeerGuid(playerGuid);
             jojo->SetExplicitSeerGuid(playerGuid);
 
+            // Passar o GUID do jogador para os AIs (isso também cria os portões)
             aysa->AI()->SetGUID(playerGuid);
             ji->AI()->SetGUID(playerGuid);
             jojo->AI()->SetGUID(playerGuid);
 
+            // Remover auras de fase se necessário
             player->RemoveAurasDueToSpell(59073);
             player->RemoveAurasDueToSpell(59074);
 
-            return true;
+            return false;
         }
 };
 
@@ -79,10 +86,10 @@ class npc_mandori_escort : public CreatureScript
             uint8  IntroState;
             uint8  doorEventState;
 
-            ObjectGuid playerGuid;
+            uint64 playerGuid;
 
-            ObjectGuid mandoriDoorGuid;
-            ObjectGuid peiwuDoorGuid;
+            uint64 mandoriDoorGuid;
+            uint64 peiwuDoorGuid;
 
             void Reset() override
             {
@@ -92,30 +99,39 @@ class npc_mandori_escort : public CreatureScript
                 IntroState      = 0;
                 doorEventState  = 0;
 
-                playerGuid = ObjectGuid::Empty;
-                mandoriDoorGuid = ObjectGuid::Empty;
-                peiwuDoorGuid = ObjectGuid::Empty;
+                playerGuid      = 0;
+                mandoriDoorGuid = 0;
+                peiwuDoorGuid   = 0;
 
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*type*/) override
+            void SetGUID(uint64 guid, int32 /*type*/) override
             {
                 playerGuid = guid;
 
+                // Apenas Aysa cria os portões
                 if (!Is(NPC_AYSA))
                     return;
 
-                if (GameObject* mandoriDoor = me->SummonGameObject(211294, 695.26f, 3600.99f, 142.38f, 3.04f, { }, 0))
+                // Criar o portão de Mandori Village se ainda não existe
+                if (!mandoriDoorGuid)
                 {
-                    mandoriDoor->SetExplicitSeerGuid(playerGuid);
-                    mandoriDoorGuid = mandoriDoor->GetGUID();
+                    if (GameObject* mandoriDoor = me->SummonGameObject(211294, 695.26f, 3600.99f, 142.38f, 3.04f, { }, 0))
+                    {
+                        mandoriDoor->SetExplicitSeerGuid(playerGuid);
+                        mandoriDoorGuid = mandoriDoor->GetGUID();
+                    }
                 }
 
-                if (GameObject* peiwuDoor = me->SummonGameObject(211298, 566.52f, 3583.46f, 92.16f, 3.14f, { }, 0))
+                // Criar o portão de Pei-Wu Forest se ainda não existe
+                if (!peiwuDoorGuid)
                 {
-                    peiwuDoor->SetExplicitSeerGuid(playerGuid);
-                    peiwuDoorGuid = peiwuDoor->GetGUID();
+                    if (GameObject* peiwuDoor = me->SummonGameObject(211298, 566.52f, 3583.46f, 92.16f, 3.14f, { }, 0))
+                    {
+                        peiwuDoor->SetExplicitSeerGuid(playerGuid);
+                        peiwuDoorGuid = peiwuDoor->GetGUID();
+                    }
                 }
             }
 
@@ -287,16 +303,16 @@ class npc_ji_forest_escort : public CreatureScript
         {
             npc_ji_forest_escortAI(Creature* creature) : npc_escortAI(creature) { }
 
-            ObjectGuid playerGuid;
+            uint64 playerGuid;
             uint32 IntroTimer;
 
             void Reset() override
             {
-                playerGuid = ObjectGuid::Empty;
+                playerGuid      = 0;
                 IntroTimer      = 2000;
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*type*/) override
+            void SetGUID(uint64 guid, int32 /*type*/) override
             {
                 Talk(0);
                 playerGuid = guid;
@@ -416,7 +432,7 @@ public:
     {
         boss_vordrakaAI(Creature* creature) : ScriptedAI(creature) { }
 
-        ObjectGuid summonerGUID;
+        uint64 summonerGUID;
         bool summonedAllies;
         EventMap _events;
 
@@ -439,7 +455,7 @@ public:
             _events.ScheduleEvent(SPELL_DEEP_SEA_RUPTURE, 12500);
         }
 
-        void SetGUID(ObjectGuid guid, int32 /*type*/) override
+        void SetGUID(uint64 guid, int32 /*type*/) override
         {
             summonerGUID = guid;
         }
@@ -493,7 +509,8 @@ public:
 
                 for (int i = 0; i < 3; ++i)
                 {
-                    Position pos = me->GetRandomNearPosition(20.f);
+                    Position pos;
+                    me->GetRandomNearPosition(pos, 20.f);
                     if (Creature* const summon = me->SummonCreature(NPC_DEEPSCALE_AGGRESSOR, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
                         if (Player * const player = Unit::GetPlayer(*me, summonerGUID))
                             summon->AI()->AttackStart(player);
@@ -601,9 +618,9 @@ public:
     {
         npc_aysa_gunship_crash_escortAI(Creature* creature) : npc_escortAI(creature) { }
 
-        ObjectGuid playerGuid;
-        ObjectGuid jiGuid;
-        ObjectGuid fireGuid;
+        uint64 playerGuid;
+        uint64 jiGuid;
+        uint64 fireGuid;
 
         uint32 IntroTimer;
         uint32 discussTimer;
@@ -614,9 +631,9 @@ public:
 
         void Reset() override
         {
-            playerGuid = ObjectGuid::Empty;
-            jiGuid = ObjectGuid::Empty;
-            fireGuid = ObjectGuid::Empty;
+            playerGuid      = 0;
+            jiGuid          = 0;
+            fireGuid        = 0;
 
             IntroTimer      = 100;
             discussTimer    = 0;
@@ -626,7 +643,7 @@ public:
             events.Reset();
         }
 
-        void SetGUID(ObjectGuid guid, int32 /*type*/) override
+        void SetGUID(uint64 guid, int32 /*type*/) override
         {
             playerGuid = guid;
 
@@ -847,6 +864,9 @@ class npc_ji_end_event : public CreatureScript
 
             void UpdatePower()
             {
+                if (actualPower >= 700)
+                    return;
+
                 actualPower = (actualPower + healerCount <= 700) ? actualPower + healerCount: 700;
 
                 std::list<Player*> playerList;
@@ -871,13 +891,19 @@ class npc_ji_end_event : public CreatureScript
                                     player->RemoveAurasDueToSpell(SPELL_SHEN_HEALING);
 
                                 player->KilledMonsterCredit(NPC_SHEN_HEAL_CREDIT);
+                                player->AreaExploredOrEventHappens(QUEST_HEALING_SHEN);
                             }
                         }
                     }
                 }
 
                 if (actualPower >= 700)
-                    Reset();
+                {
+                    // Stop events but don't reset - quest is complete
+                    _events.CancelEvent(EVENT_UPDATE_POWER);
+                    _events.CancelEvent(EVENT_SUMMON_ENNEMY);
+                    _events.CancelEvent(EVENT_SUMMON_HEALER);
+                }
             }
 
             void SummonEnnemy()
@@ -887,7 +913,10 @@ class npc_ji_end_event : public CreatureScript
                 float posJumpY = frand(3949.0f, 3962.0f);
 
                 if (Creature* ennemy = me->SummonCreature(NPC_ENNEMY, ennemiesPositions[pos].GetPositionX(), ennemiesPositions[pos].GetPositionY(), ennemiesPositions[pos].GetPositionZ(), TEMPSUMMON_CORPSE_DESPAWN))
+                {
+                    ennemy->SetReactState(REACT_AGGRESSIVE);
                     ennemy->GetMotionMaster()->MoveJump(posJumpX, posJumpY, me->GetMap()->GetHeight(me->GetPhaseMask(), posJumpX, posJumpY, 100.0f), 20.0f, 20.0f);
+                }
             }
 
             void SummonHealer()
@@ -958,22 +987,27 @@ class npc_ji_end_event : public CreatureScript
                     }
                     case EVENT_UPDATE_POWER:
                         UpdatePower();
-                        _events.ScheduleEvent(EVENT_UPDATE_POWER, UPDATE_POWER_TIMER);
+                        if (actualPower < 700)
+                            _events.ScheduleEvent(EVENT_UPDATE_POWER, UPDATE_POWER_TIMER);
                         break;
                     case EVENT_SUMMON_ENNEMY:
-                        if (ennemiesCount < (healerCount / 2))
+                        if (actualPower < 700)
                         {
-                            SummonEnnemy();
-                            _events.ScheduleEvent(EVENT_SUMMON_ENNEMY, 5000);
+                            if (ennemiesCount < (healerCount / 2))
+                            {
+                                SummonEnnemy();
+                                _events.ScheduleEvent(EVENT_SUMMON_ENNEMY, 5000);
+                            }
+                            else
+                                _events.ScheduleEvent(EVENT_SUMMON_ENNEMY, 7500);
                         }
-                        else
-                            _events.ScheduleEvent(EVENT_SUMMON_ENNEMY, 7500);
                         break;
                     case EVENT_SUMMON_HEALER:
-                        if (healerCount < MAX_HEALER_COUNT)
+                        if (actualPower < 700 && healerCount < MAX_HEALER_COUNT)
                             SummonHealer();
 
-                        _events.ScheduleEvent(EVENT_SUMMON_HEALER, 12500);
+                        if (actualPower < 700)
+                            _events.ScheduleEvent(EVENT_SUMMON_HEALER, 12500);
                         break;
                 }
             }
@@ -1000,7 +1034,7 @@ class npc_shen_healer : public CreatureScript
                 me->CastSpell(me, me->GetEntry() == NPC_HEALER_A ? SPELL_HEALER_A: SPELL_HEALER_H, true);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/) override
             {
                 return;
             }
@@ -1009,6 +1043,75 @@ class npc_shen_healer : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_shen_healerAI(creature);
+        }
+};
+
+class npc_shen_enemy : public CreatureScript
+{
+    public:
+        npc_shen_enemy() : CreatureScript("npc_shen_enemy") { }
+
+        struct npc_shen_enemyAI : public ScriptedAI
+        {
+            npc_shen_enemyAI(Creature* creature) : ScriptedAI(creature) 
+            {
+                attackHealerTimer = 2000;
+            }
+
+            uint32 attackHealerTimer;
+
+            void Reset() override
+            {
+                me->SetReactState(REACT_AGGRESSIVE);
+                attackHealerTimer = 2000;
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                {
+                    if (attackHealerTimer <= diff)
+                    {
+                        // Find nearest healer and attack it
+                        Creature* healer = nullptr;
+                        float minDist = 50.0f;
+
+                        std::list<Creature*> healers;
+                        GetCreatureListWithEntryInGrid(healers, me, NPC_HEALER_A, 50.0f);
+                        GetCreatureListWithEntryInGrid(healers, me, NPC_HEALER_H, 50.0f);
+
+                        for (auto h : healers)
+                        {
+                            if (h->IsAlive())
+                            {
+                                float dist = me->GetDistance(h);
+                                if (dist < minDist)
+                                {
+                                    minDist = dist;
+                                    healer = h;
+                                }
+                            }
+                        }
+
+                        if (healer)
+                        {
+                            AttackStart(healer);
+                            me->AddThreat(healer, 1000.0f);
+                        }
+
+                        attackHealerTimer = 3000;
+                    }
+                    else
+                        attackHealerTimer -= diff;
+                }
+                else
+                    DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_shen_enemyAI(creature);
         }
 };
 
@@ -1036,7 +1139,7 @@ class npc_shang_xi_choose_faction : public CreatureScript
             else if (player->GetRace() == RACE_PANDAREN_HORDE)
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_ORGRI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
 
-            player->PlayerTalkClass->SendGossipMenu(1, creature->GetGUID());
+            SendGossipMenuFor(player, 1, creature->GetGUID());
             return true;
         }
 
@@ -1049,9 +1152,215 @@ class npc_shang_xi_choose_faction : public CreatureScript
             else if (action == GOSSIP_ACTION_INFO_DEF + 3)
                 player->TeleportTo(1, 1577.30f, -4453.64f, 15.68f, 1.84f);
 
-            player->PlayerTalkClass->SendCloseGossip();
+            CloseGossipMenuFor(player);
             return true;
         }
+};
+
+// PlayerScript para garantir que NPCs e portões apareçam mesmo sem AreaTrigger
+class player_script_bidden_to_greatness : public PlayerScript
+{
+private:
+    std::map<uint64, uint32> checkTimers;
+
+public:
+    player_script_bidden_to_greatness() : PlayerScript("player_script_bidden_to_greatness") { }
+
+    void OnUpdate(Player* player, uint32 diff) override
+    {
+        uint64 playerGuid = player->GetGUID();
+        
+        // Verificar apenas a cada 2 segundos para não sobrecarregar
+        if (checkTimers.find(playerGuid) == checkTimers.end())
+            checkTimers[playerGuid] = 0;
+        
+        checkTimers[playerGuid] += diff;
+        if (checkTimers[playerGuid] < 2000)
+            return;
+        
+        checkTimers[playerGuid] = 0;
+
+        // Verificar se está no mapa correto (Wandering Isle = 860)
+        if (player->GetMapId() != 860)
+            return;
+
+        // Verificar se tem a quest ativa
+        if (player->GetQuestStatus(29792) != QUEST_STATUS_INCOMPLETE)
+            return;
+
+        // Verificar se está próximo da área de Mandori Village
+        if (player->GetPositionX() < 710.0f || player->GetPositionX() > 750.0f)
+            return;
+        if (player->GetPositionY() < 3590.0f || player->GetPositionY() > 3615.0f)
+            return;
+
+        // Verificar se os NPCs já foram invocados (evitar múltiplas invocações)
+        std::list<Creature*> creatures;
+        player->GetCreatureListWithEntryInGrid(creatures, 59986, 50.0f); // Aysa
+        if (!creatures.empty())
+            return;
+
+        // Invocar os NPCs
+        auto const aysa = player->SummonCreature(59986, 698.04f, 3601.79f, 142.82f, 3.254830f, TEMPSUMMON_MANUAL_DESPAWN, 0);
+        auto const ji   = player->SummonCreature(59988, 698.06f, 3599.34f, 142.62f, 2.668790f, TEMPSUMMON_MANUAL_DESPAWN, 0);
+        auto const jojo = player->SummonCreature(59989, 702.78f, 3603.58f, 142.01f, 3.433610f, TEMPSUMMON_MANUAL_DESPAWN, 0);
+
+        if (aysa && ji && jojo)
+        {
+            aysa->SetExplicitSeerGuid(playerGuid);
+            ji->SetExplicitSeerGuid(playerGuid);
+            jojo->SetExplicitSeerGuid(playerGuid);
+
+            aysa->AI()->SetGUID(playerGuid);
+            ji->AI()->SetGUID(playerGuid);
+            jojo->AI()->SetGUID(playerGuid);
+
+            player->RemoveAurasDueToSpell(59073);
+            player->RemoveAurasDueToSpell(59074);
+        }
+    }
+
+    void OnLogout(Player* player) override
+    {
+        checkTimers.erase(player->GetGUID());
+    }
+};
+
+// Two By Sea Quest (29793) - Cannon System
+enum TwoBySea
+{
+    QUEST_TWO_BY_SEA           = 29793,
+    NPC_CANNON                 = 56000,  // Entry do canhão (ajustar conforme DB)
+    NPC_HORDE_SHIP_TARGET      = 56001,  // Alvos dos navios Horda
+    NPC_ALLIANCE_SHIP_TARGET   = 56002,  // Alvos dos navios Aliança
+    SPELL_CANNON_FIRE          = 104855, // Spell para atirar do canhão
+    SPELL_CANNON_DAMAGE        = 104856, // Spell de dano do canhão
+    SPELL_RIDE_CANNON          = 46598,  // Spell para entrar no canhão
+};
+
+class npc_two_by_sea_cannon : public CreatureScript
+{
+public:
+    npc_two_by_sea_cannon() : CreatureScript("npc_two_by_sea_cannon") { }
+
+    struct npc_two_by_sea_cannonAI : public VehicleAI
+    {
+        npc_two_by_sea_cannonAI(Creature* creature) : VehicleAI(creature) { }
+
+        void Reset()
+        {
+            VehicleAI::Reset();
+            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            me->SetReactState(REACT_PASSIVE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+        }
+
+        void OnSpellClick(Unit* clicker, bool& result) override
+        {
+            Player* player = clicker->ToPlayer();
+            if (!player)
+            {
+                result = false;
+                return;
+            }
+
+            // Verificar se o jogador tem a quest
+            if (player->GetQuestStatus(QUEST_TWO_BY_SEA) != QUEST_STATUS_INCOMPLETE)
+            {
+                result = false;
+                return;
+            }
+
+            // Entrar no veículo (canhão)
+            if (!player->IsOnVehicle(me))
+            {
+                player->EnterVehicle(me, 0);
+                result = true;
+            }
+            else
+            {
+                // Se já está no veículo, permitir sair
+                player->ExitVehicle();
+                result = true;
+            }
+        }
+
+        void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+        {
+            if (Player* player = passenger->ToPlayer())
+            {
+                if (apply)
+                {
+                    // O spell de atirar deve ser dado automaticamente pelo veículo
+                    // Não precisamos fazer nada aqui, o cliente já gerencia isso
+                }
+                else
+                {
+                    // Limpar quando sair
+                    player->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
+                }
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_two_by_sea_cannonAI(creature);
+    }
+};
+
+// Spell para atirar do canhão - detecta quando o jogador atira e dá crédito
+class spell_two_by_sea_cannon_fire : public SpellScriptLoader
+{
+public:
+    spell_two_by_sea_cannon_fire() : SpellScriptLoader("spell_two_by_sea_cannon_fire") { }
+
+    class spell_two_by_sea_cannon_fire_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_two_by_sea_cannon_fire_SpellScript);
+
+        void HandleHit(SpellEffIndex /*effIndex*/)
+        {
+            Unit* caster = GetCaster();
+            if (!caster || !caster->ToPlayer())
+                return;
+
+            Player* player = caster->ToPlayer();
+            
+            // Verificar se está em um veículo (canhão)
+            if (!player->IsOnVehicle())
+                return;
+
+            // Verificar se tem a quest
+            if (player->GetQuestStatus(QUEST_TWO_BY_SEA) != QUEST_STATUS_INCOMPLETE)
+                return;
+
+            // Obter alvo do spell
+            Unit* target = GetHitUnit();
+            if (!target)
+                return;
+
+            // Verificar se é um alvo válido (navio Horda ou Aliança)
+            if (target->GetEntry() == NPC_HORDE_SHIP_TARGET || target->GetEntry() == NPC_ALLIANCE_SHIP_TARGET)
+            {
+                // Dar crédito de quest
+                player->KilledMonsterCredit(target->GetEntry());
+                
+                // Efeito visual de explosão
+                target->CastSpell(target, 5, true);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_two_by_sea_cannon_fire_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_two_by_sea_cannon_fire_SpellScript();
+    }
 };
 
 void AddSC_wandering_island_south()
@@ -1067,5 +1376,9 @@ void AddSC_wandering_island_south()
     //new npc_aysa_gunship_crash_escort();
     new npc_ji_end_event();
     new npc_shen_healer();
+    new npc_shen_enemy();
     new npc_shang_xi_choose_faction();
+    new player_script_bidden_to_greatness();
+    new npc_two_by_sea_cannon();
+    new spell_two_by_sea_cannon_fire();
 }
