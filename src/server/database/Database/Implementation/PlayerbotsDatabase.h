@@ -15,6 +15,7 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef PLAYERBOTS
 #ifndef _PlayerbotsDatabase_H
 #define _PlayerbotsDatabase_H
 
@@ -93,4 +94,5 @@ public:
     void DoPrepareStatements() override;
 };
 
+#endif
 #endif
