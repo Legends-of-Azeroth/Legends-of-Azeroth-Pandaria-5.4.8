@@ -55,7 +55,7 @@ endif()
 
 if( PLAYERBOTS )
   message("* Build with Playerbots   : Yes (default)")
-  add_definitions(-DPLAYBOTS)
+  add_definitions(-DPLAYERBOTS)
 else()
   message("* Build with Playerbots   : No")
 endif()
