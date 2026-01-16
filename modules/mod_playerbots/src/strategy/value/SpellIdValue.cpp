@@ -1,3 +1,20 @@
+/*
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "SpellIdValue.h"
 
 #include "Playerbots.h"
@@ -19,7 +36,7 @@ uint32 SpellIdValue::Calculate()
     uint32 extractedSpellId = handler.extractSpellId(namepart);
     if (extractedSpellId)
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(extractedSpellId))
-            namepart = spellInfo->SpellName[0];
+            namepart = spellInfo->SpellName;
 
     std::wstring wnamepart;
     if (!Utf8toWStr(namepart, wnamepart))
@@ -60,7 +77,7 @@ uint32 SpellIdValue::Calculate()
             }
         }*/
 
-        char const* spellName = spellInfo->SpellName[loc];
+        char const* spellName = spellInfo->SpellName;
         if (!useByItem && (tolower(spellName[0]) != firstSymbol || strlen(spellName) != spellLength ||
             !Utf8FitTo(spellName, wnamepart)))
             continue;
@@ -84,7 +101,7 @@ uint32 SpellIdValue::Calculate()
             if (spellInfo->Effects[0].Effect == SPELL_EFFECT_LEARN_SPELL)
                 continue;
 
-            char const* spellName = spellInfo->SpellName[loc];
+            char const* spellName = spellInfo->SpellName;
             if (tolower(spellName[0]) != firstSymbol || strlen(spellName) != spellLength ||
                 !Utf8FitTo(spellName, wnamepart))
                 continue;
@@ -105,7 +122,7 @@ uint32 SpellIdValue::Calculate()
         if (!pSpellInfo)
             continue;
 
-        std::string spellName = pSpellInfo->Rank[0];
+        std::string spellName = pSpellInfo->Rank;
 
         // For atoi, the input string has to start with a digit, so lets search for the first digit
         size_t i = 0;

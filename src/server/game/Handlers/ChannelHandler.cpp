@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -70,8 +70,8 @@ void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
                 if (channelName.find("|") != std::string::npos || channelName.size() >= 100 || !utf8::is_valid(channelName.begin(), channelName.end()))
                 {
                     char cityName[200];
-                    if (!sscanf(channelName.c_str(), channel->pattern[GetSessionDbcLocale()], cityName) &&
-                        !sscanf(channelName.c_str(), channel->pattern[sWorld->getIntConfig(CONFIG_CHANNEL_CONSTANT_LOCALE)], cityName) ||
+                    if (!sscanf(channelName.c_str(), channel->pattern, cityName) &&
+                        !sscanf(channelName.c_str(), channel->pattern, cityName) ||
                         strcmp(sObjectMgr->GetTrinityString(LANG_CHANNEL_CITY, GetSessionDbcLocale()), cityName))
                         return;
                 }
@@ -82,15 +82,15 @@ void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
                 if (channelName.find("|") != std::string::npos || channelName.size() >= 100 || !utf8::is_valid(channelName.begin(), channelName.end()))
                 {
                     char zoneName[200];
-                    if (!sscanf(channelName.c_str(), channel->pattern[GetSessionDbcLocale()], zoneName) &&
-                        !sscanf(channelName.c_str(), channel->pattern[sWorld->getIntConfig(CONFIG_CHANNEL_CONSTANT_LOCALE)], zoneName) ||
-                        strcmp(zone->area_name[GetSessionDbcLocale()], zoneName))
+                    if (!sscanf(channelName.c_str(), channel->pattern, zoneName) &&
+                        !sscanf(channelName.c_str(), channel->pattern, zoneName) ||
+                        strcmp(zone->area_name, zoneName))
                         return;
                 }
-                currentNameExt = zone->area_name[sWorld->getIntConfig(CONFIG_CHANNEL_CONSTANT_LOCALE)];
+                currentNameExt = zone->area_name;
             }
 
-            snprintf(new_channel_name_buf, 200, channel->pattern[sWorld->getIntConfig(CONFIG_CHANNEL_CONSTANT_LOCALE)], currentNameExt);
+            snprintf(new_channel_name_buf, 200, channel->pattern, currentNameExt);
             channelName = new_channel_name_buf;
         }
         else
@@ -107,18 +107,18 @@ void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
             {
                 if (ChatChannelsEntry const* channel = sChatChannelsStore.LookupEntry(id))
                 {
-                    if (channel->name[locale] && *channel->name[locale])
+                    if (channel->name && *channel->name)
                     {
-                        std::string dbcName = channel->name[locale];
+                        std::string dbcName = channel->name;
                         std::wstring dbcNameUpper;
                         if (converted && Utf8toWStr(dbcName, dbcNameUpper) ? wstrToUpper(dbcNameUpper), !channelNameUpper.compare(dbcNameUpper) : !channelName.compare(dbcName))
                         {
                             if (GetSessionDbLocaleIndex() == LOCALE_ruRU)
-                                ChatHandler(this).PSendSysMessage("|cFFFF0000Вы пытаетесь создать пользовательский канал чата с зарезервированным названием. Для входа в желаемый канал используйте команду \"/войти %s\".|r", channel->name[GetSessionDbcLocale()]);
+                                ChatHandler(this).PSendSysMessage("|cFFFF0000Вы пытаетесь создать пользовательский канал чата с зарезервированным названием. Для входа в желаемый канал используйте команду \"/войти %s\".|r", channel->name);
                             else if (channel->flags & CHANNEL_DBC_FLAG_LFG)
-                                ChatHandler(this).PSendSysMessage("|cFFFF0000You are trying to create a custom chat channel with a reserved name. Please use \"/join %s\" command to enter the desired channel. If you are using a patch, that translates the name of the channel to \"%s\", be aware that it is no longer required and can be deleted, but if you're still using it, the command you want to use is \"/join %s\".|r", channel->name[GetSessionDbcLocale()], channel->name[LOCALE_ruRU], channel->name[LOCALE_ruRU]);
+                                ChatHandler(this).PSendSysMessage("|cFFFF0000You are trying to create a custom chat channel with a reserved name. Please use \"/join %s\" command to enter the desired channel. If you are using a patch, that translates the name of the channel to \"%s\", be aware that it is no longer required and can be deleted, but if you're still using it, the command you want to use is \"/join %s\".|r", channel->name, channel->name, channel->name);
                             else
-                                ChatHandler(this).PSendSysMessage("|cFFFF0000You are trying to create a custom chat channel with a reserved name. Please use \"/join %s\" command to enter the desired channel.|r", channel->name[GetSessionDbcLocale()]);
+                                ChatHandler(this).PSendSysMessage("|cFFFF0000You are trying to create a custom chat channel with a reserved name. Please use \"/join %s\" command to enter the desired channel.|r", channel->name);
 
                             return;
                         }

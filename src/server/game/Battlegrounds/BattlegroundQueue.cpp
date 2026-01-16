@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -308,8 +308,8 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
                 uint32 MinPlayers = bg->GetMinPlayersPerTeam();
                 uint32 qHorde = 0;
                 uint32 qAlliance = 0;
-                uint32 q_min_level = bracketEntry->minLevel;
-                uint32 q_max_level = bracketEntry->maxLevel;
+                uint32 q_min_level = bracketEntry->MinLevel;
+                uint32 q_max_level = bracketEntry->MaxLevel;
                 GroupsQueueType::const_iterator itr;
                 for (itr = m_QueuedGroups[bracketId][BG_QUEUE_NORMAL_ALLIANCE].begin(); itr != m_QueuedGroups[bracketId][BG_QUEUE_NORMAL_ALLIANCE].end(); ++itr)
                     if (!(*itr)->IsInvitedToBGInstanceGUID)
@@ -917,7 +917,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
         return;
     }
 
-    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketById(bgTemplate->GetMapId(), bracket_id);
+    PvPDifficultyEntry const* bracketEntry = sDBCManager.GetBattlegroundBracketById(bgTemplate->GetMapId(), bracket_id);
     if (!bracketEntry)
     {
         TC_LOG_ERROR("bg.battleground", "Battleground: Update: bg bracket entry not found for map %u bracket id %u", bgTemplate->GetMapId(), bracket_id);
@@ -1442,7 +1442,7 @@ void SoloQueue::DoMatchmaking(GroupQueueInfo* ginfo, uint32 extraDiff, bool stro
         return;
 
     Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AA);
-    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketById(bg->GetMapId(), bracketId);
+    PvPDifficultyEntry const* bracketEntry = sDBCManager.GetBattlegroundBracketById(bg->GetMapId(), bracketId);
     if (!bracketEntry)
     {
         TC_LOG_ERROR("server", "SoloQueue::DoMatchmaking: bg bracket entry not found for map %u bracket id %u", bg->GetMapId(), bracketId);
@@ -1817,11 +1817,11 @@ BattlegroundBracketId SoloQueue::GetSoloQueueBracketId()
     if (!bg)
         return BG_BRACKET_ID_FIRST;
 
-    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), DEFAULT_MAX_LEVEL);
+    PvPDifficultyEntry const* bracketEntry = sDBCManager.GetBattlegroundBracketByLevel(bg->GetMapId(), DEFAULT_MAX_LEVEL);
     if (!bracketEntry)
         return BG_BRACKET_ID_FIRST;
 
-    return BattlegroundBracketId(bracketEntry->bracketId);
+    return BattlegroundBracketId(bracketEntry->RangeIndex);
 }
 
 /*********************************************************/

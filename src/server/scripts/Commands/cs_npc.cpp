@@ -1184,8 +1184,10 @@ public:
 
         creature->ClearPhases();
 
-        for (uint32 id : GetPhasesForGroup(phaseGroupId))
-            creature->SetPhased(id, false, true); // don't send update here for multiple phases, only send it once after adding all phases
+        // don't send update here for multiple phases, only send it once after adding all phases
+        std::vector<uint32> const* phasesInGroup = sDBCManager.GetPhasesForGroup(phaseGroupId);
+        for (uint32 phaseId : *phasesInGroup)
+            creature->SetPhased(phaseId, false, true);
 
         creature->UpdateObjectVisibility();
 

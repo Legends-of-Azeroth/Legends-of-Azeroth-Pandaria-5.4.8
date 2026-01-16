@@ -18,7 +18,7 @@
 #ifndef TRINITY_DBCSFRM_H
 #define TRINITY_DBCSFRM_H
 
-// x - skip<uint32>, X - skip<uint8>, s - char*, S - char*, f - float, i - uint32, b - uint8, d - index (not included)
+// x - skip<uint32>, X - skip<uint8>, s - char*, f - float, i - uint32, b - uint8, d - index (not included)
 // n - index (included), l - bool, p - field present in sql dbc, a - field absent in sql dbc
 
 char const Achievementfmt[] =            "niiisxiixixxiii";
@@ -37,16 +37,16 @@ char const BannedAddOnsfmt[] = "nxxxxxxxxxx";
 char const BarberShopStyleEntryfmt[] = "nixxxiii";
 char const BattlemasterListEntryfmt[] = "niiiiiiiiiiiiiiiiixsiiiixxxxxx";
 char const CharStartOutfitEntryfmt[] = "dbbbXiiiiiiiiiiiiiiiiiiiiiiiixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxii";
+char const CharSectionsEntryfmt[] = "diiixxxiii";
 char const CharTitlesEntryfmt[] = "nisxix";
 char const ChatChannelsEntryfmt[] = "nixss";
 char const ChrClassesEntryfmt[] = "nixsxxxixiiiixxxxx";
 char const ChrRacesEntryfmt[] = "nxixiixixxxxixsxxxxxxxxxxxxxxxxxxxxx";
 char const ChrClassesXPowerTypesfmt[] = "nii";
-char const CharSectionsEntryfmt[] = "diiixxxiii";
-char const CinematicCameraEntryfmt[] = "nSiffff";
+char const CinematicCameraEntryfmt[] = "nsiffff";
 char const CinematicSequencesEntryfmt[] = "nxiiiiiiii";
 char const CreatureDisplayInfofmt[] = "nixifxxxxxxxxxxxxxxx";
-char const CreatureModelDatafmt[] = "niSxfxxxxxxxxxxffxxxxxxxxxxxxxxxxx";
+char const CreatureModelDatafmt[] = "nisxfxxxxxxxxxxffxxxxxxxxxxxxxxxxx";
 char const CreatureFamilyfmt[] = "nfifiiiiixsx";
 char const CreatureImmunitiesfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 char const CreatureSpellDatafmt[] = "niiiixxxx";
@@ -61,6 +61,7 @@ char const DurabilityCostsfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 char const DurabilityQualityfmt[] = "nf";
 char const EmotesEntryfmt[] = "nxxiiixx";
 char const EmotesTextEntryfmt[] = "nxixxxxxxxxxxxxxxxx";
+char const EmotesTextSoundEntryfmt[] = "niiii";
 char const FactionEntryfmt[] = "niiiiiiiiiiiiiiiiiiffixsxixx";
 char const FactionTemplateEntryfmt[] = "niiiiiiiiiiiii";
 char const GameObjectDisplayInfofmt[] = "nsxxxxxxxxxxffffffxxx";
@@ -120,6 +121,8 @@ char const MovieEntryfmt[] = "nxxxx";
 char const MountCapabilityfmt[] = "niiiiiii";
 char const MountTypefmt[] = "niiiiiiiiiiiiiiiiiiiiiiii";
 char const NameGenfmt[] = "dsii";
+char const NamesProfanityEntryfmt[] = "dsi";
+char const NamesReservedEntryfmt[] = "ds"; // dsi in 4.3.4
 char const NumTalentsAtLevelfmt[] = "df";
 char const PlayerConditionEntryfmt[] = "nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxiiiiiiiiiixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 char const OverrideSpellDatafmt[] = "niiiiiiiiiixx";

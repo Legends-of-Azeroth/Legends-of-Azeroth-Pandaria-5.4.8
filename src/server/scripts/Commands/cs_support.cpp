@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -402,13 +402,13 @@ public:
 
                 if (auto skill = sSkillLineStore.LookupEntry(skillId))
                 {
-                    if (!player->HasSkill(skill->id))
+                    if (!player->HasSkill(skill->ID))
                     {
-                        player->SetSkill(skill->id, player->GetSkillStep(skill->id), skillValue, skillValue);
-                        handler->PSendSysMessage("Skill %u (value: %u) added to player %s (guid: %u).", skill->id, skillValue, handler->GetNameLink(player).c_str(), guid.GetCounter());
+                        player->SetSkill(skill->ID, player->GetSkillStep(skill->ID), skillValue, skillValue);
+                        handler->PSendSysMessage("Skill %u (value: %u) added to player %s (guid: %u).", skill->ID, skillValue, handler->GetNameLink(player).c_str(), guid.GetCounter());
                     }
                     else
-                        handler->PSendSysMessage("Player %s (guid: %u) already has skill %u.", handler->GetNameLink(player).c_str(),guid.GetCounter(), skill->id);
+                        handler->PSendSysMessage("Player %s (guid: %u) already has skill %u.", handler->GetNameLink(player).c_str(),guid.GetCounter(), skill->ID);
                 }
                 else
                     handler->PSendSysMessage("Error. Skill %u not found.", skillId);
@@ -440,20 +440,20 @@ public:
                 {
                     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SKILL_BOOST);
                     stmt->setUInt32(0, guid.GetCounter());
-                    stmt->setUInt32(1, skill->id);
+                    stmt->setUInt32(1, skill->ID);
                     if (!CharacterDatabase.Query(stmt))
                     {
                         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SKILLS);
                         stmt->setUInt32(0, guid.GetCounter());
-                        stmt->setUInt32(1, skill->id);
+                        stmt->setUInt32(1, skill->ID);
                         stmt->setUInt32(2, skillValue);
                         stmt->setUInt32(3, skillValue);
                         trans->Append(stmt);
 
-                        handler->PSendSysMessage("Skill %u (value: %u) added to player %s (guid: %u).", skill->id, skillValue, name.c_str(), guid.GetCounter());
+                        handler->PSendSysMessage("Skill %u (value: %u) added to player %s (guid: %u).", skill->ID, skillValue, name.c_str(), guid.GetCounter());
                     }
                     else
-                        handler->PSendSysMessage("Player %s (guid: %u) already has skill %u.", name.c_str(), guid.GetCounter(), skill->id);
+                        handler->PSendSysMessage("Player %s (guid: %u) already has skill %u.", name.c_str(), guid.GetCounter(), skill->ID);
                 }
                 else
                     handler->PSendSysMessage("Error. Skill %u not found.", skillId);
@@ -488,10 +488,10 @@ public:
             {
                 if (auto skill = sSkillLineStore.LookupEntry(atoi(skillId)))
                 {
-                    if (player->HasSkill(skill->id))
-                        handler->PSendSysMessage("Player %s (guid: %u) has skill %u.", handler->GetNameLink(player).c_str(), guid.GetCounter(), skill->id);
+                    if (player->HasSkill(skill->ID))
+                        handler->PSendSysMessage("Player %s (guid: %u) has skill %u.", handler->GetNameLink(player).c_str(), guid.GetCounter(), skill->ID);
                     else
-                        handler->PSendSysMessage("Player %s (guid: %u) hasn't skill %u.", handler->GetNameLink(player).c_str(), guid.GetCounter(), skill->id);
+                        handler->PSendSysMessage("Player %s (guid: %u) hasn't skill %u.", handler->GetNameLink(player).c_str(), guid.GetCounter(), skill->ID);
                 }
                 else
                     handler->PSendSysMessage("Error. Skill %u not found.", atoi(skillId));
@@ -505,11 +505,11 @@ public:
                 {
                     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SKILL_BOOST);
                     stmt->setUInt32(0, guid.GetCounter());
-                    stmt->setUInt32(1, skill->id);
+                    stmt->setUInt32(1, skill->ID);
                     if (CharacterDatabase.Query(stmt))
-                        handler->PSendSysMessage("Player %s (guid: %u) has skill %u.", name.c_str(), guid.GetCounter(), skill->id);
+                        handler->PSendSysMessage("Player %s (guid: %u) has skill %u.", name.c_str(), guid.GetCounter(), skill->ID);
                     else
-                        handler->PSendSysMessage("Player %s (guid: %u) hasn't skill %u.", name.c_str(), guid.GetCounter(), skill->id);
+                        handler->PSendSysMessage("Player %s (guid: %u) hasn't skill %u.", name.c_str(), guid.GetCounter(), skill->ID);
                 }
                 else
                     handler->PSendSysMessage("Error. Skill %u not found.", atoi(skillId));
@@ -543,13 +543,13 @@ public:
             {
                 if (auto skill = sSkillLineStore.LookupEntry(atoi(skillId)))
                 {
-                    if (player->HasSkill(skill->id))
+                    if (player->HasSkill(skill->ID))
                     {
-                        player->SetSkill(skill->id, 0, 0, 0);
-                        handler->PSendSysMessage("Skill %u removed from player %s (guid: %u).", skill->id, handler->GetNameLink(player).c_str(), guid.GetCounter());
+                        player->SetSkill(skill->ID, 0, 0, 0);
+                        handler->PSendSysMessage("Skill %u removed from player %s (guid: %u).", skill->ID, handler->GetNameLink(player).c_str(), guid.GetCounter());
                     }
                     else
-                        handler->PSendSysMessage("Player %s (guid %u) did not has skill %u.", handler->GetNameLink(player).c_str(), guid.GetCounter(), skill->id);
+                        handler->PSendSysMessage("Player %s (guid %u) did not has skill %u.", handler->GetNameLink(player).c_str(), guid.GetCounter(), skill->ID);
                 }
                 else
                     handler->PSendSysMessage("Error. Skill %u not found.", atoi(skillId));
@@ -565,18 +565,18 @@ public:
                 {
                     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SKILL_BOOST);
                     stmt->setUInt32(0, guid.GetCounter());
-                    stmt->setUInt32(1, skill->id);
+                    stmt->setUInt32(1, skill->ID);
                     if (CharacterDatabase.Query(stmt))
                     {
                         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SKILL_BY_SKILL);
                         stmt->setUInt32(0, guid.GetCounter());
-                        stmt->setUInt32(1, skill->id);
+                        stmt->setUInt32(1, skill->ID);
                         trans->Append(stmt);
 
-                        handler->PSendSysMessage("Skill %u added removed from player %s (guid: %u).", skill->id, name.c_str(), guid.GetCounter());
+                        handler->PSendSysMessage("Skill %u added removed from player %s (guid: %u).", skill->ID, name.c_str(), guid.GetCounter());
                     }
                     else
-                        handler->PSendSysMessage("Player %s (guid %u) did not know skill %u.", name.c_str(), guid.GetCounter(), skill->id);
+                        handler->PSendSysMessage("Player %s (guid %u) did not know skill %u.", name.c_str(), guid.GetCounter(), skill->ID);
                 }
                 else
                     handler->PSendSysMessage("Error. Skill %u not found.", atoi(skillId));
@@ -2757,13 +2757,13 @@ public:
             {
                 if (auto&& skill = sSkillLineStore.LookupEntry(i))
                 {
-                    std::string skillName = skill->name[LOCALE_enUS];
-                    std::string desc = skill->description[LOCALE_enUS];
-                    if ((skill->categoryId == 9 && !desc.empty()) || skill->categoryId == 11)
+                    std::string skillName = skill->DisplayName;
+                    std::string desc = skill->Description;
+                    if ((skill->CategoryID == 9 && !desc.empty()) || skill->CategoryID == 11)
                     {
-                        if (player->HasSkill(skill->id))
+                        if (player->HasSkill(skill->ID))
                         {
-                            handler->PSendSysMessage("%s - %u (value %u)", skillName.c_str(), skill->id, player->GetSkillValue(skill->id));
+                            handler->PSendSysMessage("%s - %u (value %u)", skillName.c_str(), skill->ID, player->GetSkillValue(skill->ID));
                             found = true;
                         }
                     }
@@ -2785,10 +2785,10 @@ public:
                     uint32 value = fields[1].GetUInt32();
                     if (auto&& skill = sSkillLineStore.LookupEntry(skillId))
                     {
-                        std::string skillName = skill->name[LOCALE_enUS];
-                        std::string desc = skill->description[LOCALE_enUS];
-                        if ((skill->categoryId == 9 && !desc.empty()) || skill->categoryId == 11)
-                            handler->PSendSysMessage("%s - %u (value %u)", skillName.c_str(), skill->id, value);
+                        std::string skillName = skill->DisplayName;
+                        std::string desc = skill->Description;
+                        if ((skill->CategoryID == 9 && !desc.empty()) || skill->CategoryID == 11)
+                            handler->PSendSysMessage("%s - %u (value %u)", skillName.c_str(), skill->ID, value);
                     }
                 } while (skillResult->NextRow());
             }

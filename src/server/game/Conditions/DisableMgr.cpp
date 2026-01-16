@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -131,35 +131,35 @@ void LoadDisables()
                             isFlagInvalid = true;
                         break;
                     case MAP_INSTANCE:
-                        if (flags & DUNGEON_STATUSFLAG_HEROIC && !GetMapDifficultyData(entry, DUNGEON_DIFFICULTY_HEROIC))
+                        if (flags & DUNGEON_STATUSFLAG_HEROIC && !sDBCManager.GetMapDifficultyData(entry, DUNGEON_DIFFICULTY_HEROIC))
                             flags -= DUNGEON_STATUSFLAG_HEROIC;
-                        if (flags & DUNGEON_STATUSFLAG_CHALLENGE && !GetMapDifficultyData(entry, DUNGEON_DIFFICULTY_CHALLENGE))
+                        if (flags & DUNGEON_STATUSFLAG_CHALLENGE && !sDBCManager.GetMapDifficultyData(entry, DUNGEON_DIFFICULTY_CHALLENGE))
                             flags -= DUNGEON_STATUSFLAG_CHALLENGE;
                         if (!flags)
                             isFlagInvalid = true;
                         break;
                     case MAP_RAID:
-                        if (flags & RAID_STATUSFLAG_10MAN_NORMAL && !GetMapDifficultyData(entry, RAID_DIFFICULTY_10MAN_NORMAL))
+                        if (flags & RAID_STATUSFLAG_10MAN_NORMAL && !sDBCManager.GetMapDifficultyData(entry, RAID_DIFFICULTY_10MAN_NORMAL))
                             flags -= RAID_STATUSFLAG_10MAN_NORMAL;
-                        if (flags & RAID_STATUSFLAG_25MAN_NORMAL && !GetMapDifficultyData(entry, RAID_DIFFICULTY_25MAN_NORMAL))
+                        if (flags & RAID_STATUSFLAG_25MAN_NORMAL && !sDBCManager.GetMapDifficultyData(entry, RAID_DIFFICULTY_25MAN_NORMAL))
                             flags -= RAID_STATUSFLAG_25MAN_NORMAL;
-                        if (flags & RAID_STATUSFLAG_10MAN_HEROIC && !GetMapDifficultyData(entry, RAID_DIFFICULTY_10MAN_HEROIC))
+                        if (flags & RAID_STATUSFLAG_10MAN_HEROIC && !sDBCManager.GetMapDifficultyData(entry, RAID_DIFFICULTY_10MAN_HEROIC))
                             flags -= RAID_STATUSFLAG_10MAN_HEROIC;
-                        if (flags & RAID_STATUSFLAG_25MAN_HEROIC && !GetMapDifficultyData(entry, RAID_DIFFICULTY_25MAN_HEROIC))
+                        if (flags & RAID_STATUSFLAG_25MAN_HEROIC && !sDBCManager.GetMapDifficultyData(entry, RAID_DIFFICULTY_25MAN_HEROIC))
                             flags -= RAID_STATUSFLAG_25MAN_HEROIC;
-                        if (flags & RAID_STATUSFLAG_1025MAN_FLEX && !GetMapDifficultyData(entry, RAID_DIFFICULTY_1025MAN_FLEX))
+                        if (flags & RAID_STATUSFLAG_1025MAN_FLEX && !sDBCManager.GetMapDifficultyData(entry, RAID_DIFFICULTY_1025MAN_FLEX))
                             flags -= RAID_STATUSFLAG_1025MAN_FLEX;
-                        if (flags & RAID_STATUSFLAG_25MAN_LFR && !GetMapDifficultyData(entry, RAID_DIFFICULTY_25MAN_LFR))
+                        if (flags & RAID_STATUSFLAG_25MAN_LFR && !sDBCManager.GetMapDifficultyData(entry, RAID_DIFFICULTY_25MAN_LFR))
                             flags -= RAID_STATUSFLAG_25MAN_LFR;
-                        if (flags & RAID_STATUSFLAG_40MAN && !GetMapDifficultyData(entry, RAID_DIFFICULTY_40MAN))
+                        if (flags & RAID_STATUSFLAG_40MAN && !sDBCManager.GetMapDifficultyData(entry, RAID_DIFFICULTY_40MAN))
                             flags -= RAID_STATUSFLAG_40MAN;
                         if (!flags)
                             isFlagInvalid = true;
                         break;
                     case MAP_SCENARIO:
-                        if (flags & SCENARIO_STATUSFLAG_NORMAL && !GetMapDifficultyData(entry, SCENARIO_DIFFICULTY_NORMAL))
+                        if (flags & SCENARIO_STATUSFLAG_NORMAL && !sDBCManager.GetMapDifficultyData(entry, SCENARIO_DIFFICULTY_NORMAL))
                             flags -= SCENARIO_STATUSFLAG_NORMAL;
-                        if (flags & SCENARIO_STATUSFLAG_HEROIC && !GetMapDifficultyData(entry, SCENARIO_DIFFICULTY_HEROIC))
+                        if (flags & SCENARIO_STATUSFLAG_HEROIC && !sDBCManager.GetMapDifficultyData(entry, SCENARIO_DIFFICULTY_HEROIC))
                             flags -= SCENARIO_STATUSFLAG_HEROIC;
                         break;
                     case MAP_BATTLEGROUND:
@@ -384,7 +384,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
                 {
                     uint8 disabledModes = itr->second.flags;
                     Difficulty targetDifficulty = player->GetDifficulty(mapEntry->IsRaid());
-                    GetDownscaledMapDifficultyData(entry, targetDifficulty);
+                    sDBCManager.GetDownscaledMapDifficultyData(entry, targetDifficulty);
                     if (flags) // Used in LFGMgr::InitializeLockedDungeons
                         targetDifficulty = Difficulty(flags);
                     switch (targetDifficulty)

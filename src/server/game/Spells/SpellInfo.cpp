@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -1032,7 +1032,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty, uint32 tar
     SpellCooldownsId = spellEntry->SpellCooldownsId;
     SpellEquippedItemsId = spellEntry->SpellEquippedItemsId;
     SpellInterruptsId = spellEntry->SpellInterruptsId;
-    SpellLevelsId = spellEntry->SpellLevelsId;
+    SpellLevelsId = spellEntry->LevelsID;
     SpellReagentsId = spellEntry->SpellReagentsId;
     SpellShapeshiftId = spellEntry->SpellShapeshiftId;
     SpellTargetRestrictionsId = targetRestrictionsId;
@@ -1114,9 +1114,9 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty, uint32 tar
 
     // SpellLevelsEntry
     SpellLevelsEntry const* _levels = GetSpellLevels();
-    MaxLevel = _levels ? _levels->maxLevel : 0;
-    BaseLevel = _levels ? _levels->baseLevel : 0;
-    SpellLevel = _levels ? _levels->spellLevel : 0;
+    MaxLevel = _levels ? _levels->MaxLevel : 0;
+    BaseLevel = _levels ? _levels->BaseLevel : 0;
+    SpellLevel = _levels ? _levels->SpellLevel : 0;
 
     dbc::FillSpellPowers(Id, SpellPowers);
 
@@ -1153,11 +1153,11 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty, uint32 tar
         if (!specializationInfo)
             continue;
 
-        if (specializationInfo->SpellId == Id)
-            SpecializationIdList.push_back(specializationInfo->SpecializationId);
+        if (specializationInfo->SpellID == Id)
+            SpecializationIdList.push_back(specializationInfo->SpecID);
 
         if (specializationInfo->RemovesSpellId == Id)
-            OverrideSpellList.push_back(specializationInfo->SpellId);
+            OverrideSpellList.push_back(specializationInfo->SpellID);
     }
 
     ChainEntry = NULL;
@@ -1223,7 +1223,7 @@ bool SpellInfo::IsLootCrafting() const
     bool jewecrafting = false;
     auto bounds = sSpellMgr->GetSkillLineAbilityMapBounds(Id);
     for (auto it = bounds.first; it != bounds.second; ++it)
-        if (it->second->skillId == SKILL_JEWELCRAFTING)
+        if (it->second->SkillLine == SKILL_JEWELCRAFTING)
             jewecrafting = true;
 
     // different random cards from Inscription (121==Virtuoso Inking Set category) r without explicit item
@@ -1293,10 +1293,10 @@ bool SpellInfo::IsAbilityLearnedWithProfession() const
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
     {
         SkillLineAbilityEntry const* pAbility = _spell_idx->second;
-        if (!pAbility || pAbility->learnOnGetSkill != ABILITY_LEARNED_ON_GET_PROFESSION_SKILL)
+        if (!pAbility || pAbility->AcquireMethod != ABILITY_LEARNED_ON_GET_PROFESSION_SKILL)
             continue;
 
-        if (pAbility->req_skill_value > 0)
+        if (pAbility->MinSkillLineRank > 0)
             return true;
     }
 
@@ -1314,7 +1314,7 @@ bool SpellInfo::IsAbilityOfSkillType(uint32 skillType) const
         return true;
 
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
-        if (_spell_idx->second->skillId == uint32(skillType))
+        if (_spell_idx->second->SkillLine == uint32(skillType))
             return true;
 
     return false;
@@ -1608,7 +1608,7 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
 {
     // talents that learn spells can have stance requirements that need ignore
     // (this requirement only for client-side stance show in talent description)
-    if (GetTalentSpellCost(Id) > 0 &&
+    if (sDBCManager.GetTalentSpellCost(Id) > 0 &&
         (Effects[0].Effect == SPELL_EFFECT_LEARN_SPELL || Effects[1].Effect == SPELL_EFFECT_LEARN_SPELL || Effects[2].Effect == SPELL_EFFECT_LEARN_SPELL))
         return SPELL_CAST_OK;
 
@@ -1688,7 +1688,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     // continent limitation (virtual continent)
     if (AttributesEx4 & SPELL_ATTR4_CAST_ONLY_IN_OUTLAND)
     {
-        uint32 v_map = GetVirtualMapForMapAndZone(map_id, zone_id);
+        uint32 v_map = sDBCManager.GetVirtualMapForMapAndZone(map_id, zone_id);
         MapEntry const* mapEntry = sMapStore.LookupEntry(v_map);
         if (!mapEntry || mapEntry->addon < 1 || !mapEntry->IsContinent())
             return SPELL_FAILED_INCORRECT_AREA;

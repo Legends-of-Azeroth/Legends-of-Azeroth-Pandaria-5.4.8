@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -616,12 +616,12 @@ class spell_common_unlearn_talent : public SpellScript
         TalentEntry const* talent = sTalentStore.LookupEntry(GetSpell()->m_glyphIndex);
         if (player && talent)
         {
-            switch (talent->SpellId)
+            switch (talent->SpellID)
             {
                 case 137619: // Marked for Death
                     if (player->GetComboTarget())
                     {
-                        player->GetComboTarget()->RemoveAurasDueToSpell(talent->SpellId);
+                        player->GetComboTarget()->RemoveAurasDueToSpell(talent->SpellID);
                         player->ClearComboPoints();
                     }
                     break;

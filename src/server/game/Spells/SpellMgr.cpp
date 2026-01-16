@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -35,20 +35,20 @@
 bool IsPrimaryProfessionSkill(uint32 skill)
 {
     SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);
-    return pSkill && pSkill->categoryId == SKILL_CATEGORY_PROFESSION;
+    return pSkill && pSkill->CategoryID == SKILL_CATEGORY_PROFESSION;
 }
 
 bool IsWeaponSkill(uint32 skill)
 {
     SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);
-    return pSkill && pSkill->categoryId == SKILL_CATEGORY_WEAPON;
+    return pSkill && pSkill->CategoryID == SKILL_CATEGORY_WEAPON;
 }
 
 bool IsPartOfSkillLine(uint32 skillId, uint32 spellId)
 {
     SkillLineAbilityMapBounds skillBounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellId);
     for (SkillLineAbilityMap::const_iterator itr = skillBounds.first; itr != skillBounds.second; ++itr)
-        if (itr->second->skillId == skillId)
+        if (itr->second->SkillLine == skillId)
             return true;
 
     return false;
@@ -97,7 +97,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         case SPELLFAMILY_WARLOCK:
         {
             // Curses/etc
-            if ((spellproto->SpellFamilyFlags[0] & 0x408000 || spellproto->SpellFamilyFlags[1] & 0x200) && 
+            if ((spellproto->SpellFamilyFlags[0] & 0x408000 || spellproto->SpellFamilyFlags[1] & 0x200) &&
                 !(spellproto->SpellFamilyFlags[3] & 0x04000000)) // except AoE
                 return DIMINISHING_LIMITONLY;
             // Sin and Punishment (Priest spell, don't ask)
@@ -1380,15 +1380,15 @@ void SpellMgr::LoadSpellLearnSkills()
                 else
                     dbcNode.value = 1;
 
-                auto entry = GetSkillRaceClassInfo(dbcNode.skill, 0, 0);
+                auto entry = sDBCManager.GetSkillRaceClassInfo(dbcNode.skill, 0, 0);
                 if (entry)
                 {
-                    auto skillTier = sSkillTiersStore.LookupEntry(entry->SkillTierId);
+                    auto skillTier = sSkillTiersStore.LookupEntry(entry->SkillTierID);
                     if (skillTier)
                         dbcNode.maxvalue = skillTier->MaxSkillValue[dbcNode.step - 1];
                     else
                     {
-                        TC_LOG_ERROR("server.loading", "SpellMgr::LoadSpellLearnSkills skill tier (%u) not found for skill %u", entry->SkillTierId, dbcNode.skill);
+                        TC_LOG_ERROR("server.loading", "SpellMgr::LoadSpellLearnSkills skill tier (%u) not found for skill %u", entry->SkillTierID, dbcNode.skill);
                         dbcNode.maxvalue = dbcNode.step * 75;
                     }
                 }
@@ -1398,7 +1398,7 @@ void SpellMgr::LoadSpellLearnSkills()
                     dbcNode.maxvalue = dbcNode.step * 75;
                 }
 
-                mSpellLearnSkills[spell] = dbcNode;
+                mSpellLearnSkills[entry->ID] = dbcNode;
                 ++dbc_count;
                 break;
             }
@@ -1446,7 +1446,7 @@ void SpellMgr::LoadSpellLearnSpells()
             continue;
         }
 
-        if (GetTalentSpellCost(node.spell))
+        if (sDBCManager.GetTalentSpellCost(node.spell))
         {
             TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_learn_spell` attempt learning talent spell %u, skipped", spell_id, node.spell);
             continue;
@@ -1484,7 +1484,7 @@ void SpellMgr::LoadSpellLearnSpells()
                 // talent or passive spells or skill-step spells auto-casted and not need dependent learning,
                 // pet teaching spells must not be dependent learning (casted)
                 // other required explicit dependent learning
-                dbc_node.autoLearned = entry->Effects[i].TargetA.GetTarget() == TARGET_UNIT_PET || GetTalentSpellCost(spell) > 0 || entry->IsPassive() || entry->HasEffect(SPELL_EFFECT_SKILL_STEP);
+                dbc_node.autoLearned = entry->Effects[i].TargetA.GetTarget() == TARGET_UNIT_PET || sDBCManager.GetTalentSpellCost(spell) > 0 || entry->IsPassive() || entry->HasEffect(SPELL_EFFECT_SKILL_STEP);
 
                 SpellLearnSpellMapBounds db_node_bounds = dbSpellLearnSpells.equal_range(spell);
 
@@ -2121,7 +2121,7 @@ void SpellMgr::LoadSkillLineAbilityMap()
         if (!SkillInfo)
             continue;
 
-        mSkillLineAbilityMap.insert(SkillLineAbilityMap::value_type(SkillInfo->spellId, SkillInfo));
+        mSkillLineAbilityMap.insert(SkillLineAbilityMap::value_type(SkillInfo->Spell, SkillInfo));
         ++count;
     }
 
@@ -2137,7 +2137,7 @@ void SpellMgr::LoadSkillLineAbilityMap()
         {
             for (uint32 c = CLASS_WARRIOR; c < MAX_CLASSES; ++c)
             {
-                if (it->second->classmask & (1 << (c - 1)))
+                if (it->second->ClassMask & (1 << (c - 1)))
                 {
                     mGlyphSpells[c].push_back(entry->EffectSpellId);
                     found = true;
@@ -2369,17 +2369,17 @@ void SpellMgr::LoadPetSpellMap()
                 if (!skillId)
                     continue;
 
-                if (skillLine->skillId != skillId)
+                if (skillLine->SkillLine != skillId)
                     continue;
 
-                if (skillLine->learnOnGetSkill != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL)
+                if (skillLine->AcquireMethod != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL)
                     continue;
 
-                SpellInfo const* spell = GetSpellInfo(skillLine->spellId);
+                SpellInfo const* spell = GetSpellInfo(skillLine->Spell);
                 if (!spell) // not exist or triggered or talent
                     continue;
 
-                if (skillLine->skillId == SKILL_PET_GHOUL && spell->AttributesEx4 & SPELL_ATTR4_UNK15) // It is spell triggered from main ability and it hasn't to display in action bar.
+                if (skillLine->SkillLine == SKILL_PET_GHOUL && spell->AttributesEx4 & SPELL_ATTR4_UNK15) // It is spell triggered from main ability and it hasn't to display in action bar.
                     continue;
 
                 PetLevelupSpellSet& spellSet = mPetSpellMap[creatureFamily->ID];
@@ -2649,10 +2649,10 @@ void SpellMgr::LoadSpellInfoStore()
 
         for (auto&& map : mSpellInfoMap)
         {
-            if (SpellInfo* spellInfo = map[talentInfo->SpellId])
-                spellInfo->TalentId = talentInfo->SpellId;
+            if (SpellInfo* spellInfo = map[talentInfo->SpellID])
+                spellInfo->TalentId = talentInfo->SpellID;
             if (SpellInfo* spellInfo = map[talentInfo->ReplacesSpell])
-                spellInfo->OverrideSpellList.push_back(talentInfo->SpellId);
+                spellInfo->OverrideSpellList.push_back(talentInfo->SpellID);
         }
     }
 
@@ -2742,7 +2742,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                     case SPELL_AURA_MOD_CONFUSE:
                     case SPELL_AURA_MOD_CHARM:
                     case SPELL_AURA_AOE_CHARM:
-                    case SPELL_AURA_MOD_FEAR: 
+                    case SPELL_AURA_MOD_FEAR:
                     case SPELL_AURA_MOD_FEAR_2:
                     case SPELL_AURA_MOD_STUN:
                         spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
@@ -2964,7 +2964,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                 case 8349:   // Fire Nova
                 case 50622:  // Bladestorm
                 case 95738:  // Bladestorm Off-Hand
-                case 44949:  // Whirlwind Off-Hand. 
+                case 44949:  // Whirlwind Off-Hand.
                 case 32375:  // Mass Dispel (Allies)
                 case 32592:  // Mass Dispel (Enemies)
                 case 39897:  // Mass Dispel (Enemies) (Mechanic)
@@ -3509,7 +3509,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 case 72508:
                 case 72509:
                 case 72510:
-                    // SPELL_MALLEABLE_GOO missiles - Spell-id's are picked from spellwork_cs 
+                    // SPELL_MALLEABLE_GOO missiles - Spell-id's are picked from spellwork_cs
                     // They can crit with base crit chance since they are not casted directly by Professor Prutricide, thus not ignoring it
                 case 70853:
                 case 72458:
@@ -3934,7 +3934,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                     spellInfo->AttributesEx3 = SPELL_ATTR3_ONLY_TARGET_PLAYERS;
                     break;
                 case 89268: // Throw Food Targeting
-                case 89740: 
+                case 89740:
                 case 90561:
                 case 90562:
                 case 90582:
@@ -3955,7 +3955,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 //
                 // BLACKROCK CAVERNS SPELLS
                 //
-                // Rom'ogg Bonecrusher 
+                // Rom'ogg Bonecrusher
                 case 75272: // Quake
                     spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(23);
                     spellInfo->Effects[1].RadiusEntry = sSpellRadiusStore.LookupEntry(23);
@@ -4592,7 +4592,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                     break;
                 case 91849: // Grip of Death
                     spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(12);
-                    spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER; 
+                    spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
                     spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
                     break;
                 case 92048: // Shadow Infusion
@@ -5638,7 +5638,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                     spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                     spellInfo->Effects[EFFECT_0].TargetB = 0;
                     break;
-                case 103905: // Molten Fury 
+                case 103905: // Molten Fury
                     spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                     spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_UNTARGETABLE;
                     spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
@@ -6000,7 +6000,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                     spellInfo->Effects[EFFECT_0].TargetB = 0;
                     spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ANY;
                     spellInfo->Effects[EFFECT_1].TargetB = 0;
-                    break;    
+                    break;
                 case 105830: // Time Zone aura (debuff)
                     spellInfo->Effects[EFFECT_1].Effect = 0;
                     spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
@@ -6030,7 +6030,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 case 106028:
                 case 106027:
                 case 106457:
-                case 106464: 
+                case 106464:
                 case 106029:
                     spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1); // 10 secs
                     spellInfo->AttributesEx3 |= SPELL_ATTR3_ONLY_TARGET_PLAYERS;
@@ -6761,7 +6761,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 case 124777: // Poison Bomb
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                     break;
-                case 133042: // Fixate 
+                case 133042: // Fixate
                     spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                     break;
                 case 126841: // Klaxxi Resonance
@@ -6791,7 +6791,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                     spellInfo->Effects[2].MiscValueB = 0;
                     spellInfo->Effects[2].TargetA = TARGET_UNIT_CASTER;
                     spellInfo->Effects[2].TargetB = 0;*/
-                    break;     
+                    break;
                 case 119414: // Breath of Fear
                     spellInfo->Effects[2].Effect = 0;
                     break;
@@ -7151,7 +7151,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                     spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CONE_ENEMY_110;
                     spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_CONE_ENEMY_110;
                     break;
-                case 139202: // Blue Ray Tracking 
+                case 139202: // Blue Ray Tracking
                 case 139204: // Infared Tracking
                     spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                     spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ANY;
@@ -7434,7 +7434,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 case 143505: // Point Blank Shot
                     spellInfo->Effects[EFFECT_0].TargetB = 0;
                     break;
-                case 143974: // Shield Bash 
+                case 143974: // Shield Bash
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                     spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(5); // 0 to 40
                     break;
@@ -7672,7 +7672,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                     spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_CASTER;
                     break;
                 case 116023: // Sparring
-                case 123332: // Crackling Jade Lightning Chi Proc Driver 
+                case 123332: // Crackling Jade Lightning Chi Proc Driver
                     spellInfo->AuraInterruptFlags[0] &= ~AURA_INTERRUPT_FLAG_CAST;
                     break;
                 case 108212: // Burst of Speed
@@ -7690,7 +7690,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                     spellInfo->Effects[EFFECT_2].SpellClassMask = flag128(0, 0, 0x10000000, 0);
                     spellInfo->Effects[EFFECT_2].BasePoints = 50;
                     break;
-                case 128988: // Protection of the Celestials 
+                case 128988: // Protection of the Celestials
                 case 138728: // Change of Tactics
                     spellInfo->CastTimeEntry = nullptr;
                     spellInfo->CastTimeMax = 0;
@@ -7806,7 +7806,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 case 108503: // Grimoire of Sacrifice
                 case 117667: // Legacy of the Emperor (single target)
                 case 118253: // Serpent Sting
-                case 120699: // Lynx Rush 
+                case 120699: // Lynx Rush
                     spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13);
                     spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                     break;
@@ -8066,7 +8066,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 case 100117: // AFD Royale - Drop
                     spellInfo->AuraInterruptFlags[0] |= AURA_INTERRUPT_FLAG_LANDING;
                     break;
-                case 88343: // 
+                case 88343: //
                     spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(4);
                     spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(1);
                     break;

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -15,20 +15,20 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "LootMgr.h"
+#include "Containers.h"
+#include "Group.h"
+#include "Guild.h"
 #include "Log.h"
+#include "LootLockoutMap.h"
+#include "LootMgr.h"
 #include "ObjectMgr.h"
-#include "World.h"
-#include "Util.h"
+#include "Player.h"
+#include "Random.h"
 #include "SharedDefines.h"
 #include "SpellMgr.h"
 #include "SpellInfo.h"
-#include "Group.h"
-#include "Player.h"
-#include "Containers.h"
-#include "LootLockoutMap.h"
-#include "Guild.h"
-#include "Random.h"
+#include "Util.h"
+#include "World.h"
 
 static Rates const qualityToRate[MAX_ITEM_QUALITY] =
 {
@@ -853,7 +853,7 @@ bool Loot::CanItemBeLooted(Player* player, LootStoreItem const& item, uint32& mi
                             return true;
                         case 528: // Normal Thunderforged
                             if (auto entry = sItemNameDescriptionStore.LookupEntry(itemTemplate->ItemId))
-                                if (strcmp(entry->Description[LOCALE_enUS], "Thunderforged") == 0)
+                                if (strcmp(entry->Description, "Thunderforged") == 0) // TODO change compare mode
                                     return true;
                             return false;
                     }
@@ -864,7 +864,7 @@ bool Loot::CanItemBeLooted(Player* player, LootStoreItem const& item, uint32& mi
                     {
                         case 528: // LFR
                             if (auto entry = sItemNameDescriptionStore.LookupEntry(itemTemplate->ItemId))
-                                if (strcmp(entry->Description[LOCALE_enUS], "Raid Finder") == 0)
+                                if (strcmp(entry->Description, "Raid Finder") == 0) // TODO change compare mode
                                     return roll_chance_i(50);
                             return false;
                         case 553: // Normal
@@ -2746,10 +2746,10 @@ void PersonalLoot::Reward(Player* player)
         {
             auto entry = sItemNameDescriptionStore.LookupEntry(item);
             // Flexible items must not drop not in flexible difficulty
-            if (entry && strcmp(entry->Description[LOCALE_enUS], "Flexible") == 0 && !isFlexDifficulty)
+            if (entry && strcmp(entry->Description, "Flexible") == 0 && !isFlexDifficulty) // TODO change compare mode
                 continue;
             // Non flexible items must not drop in flexible difficulty
-            if (entry && strcmp(entry->Description[LOCALE_enUS], "Flexible") != 0 && isFlexDifficulty)
+            if (entry && strcmp(entry->Description, "Flexible") != 0 && isFlexDifficulty) // TODO change compare mode
                 continue;
 
             if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item))
@@ -2817,10 +2817,10 @@ void BonusLoot::Fill(BonusLootTemplate const* lootTemplate, Difficulty difficult
             {
                 auto entry = sItemNameDescriptionStore.LookupEntry(itemId);
                 // Flexible items must not drop not in flexible difficulty
-                if (entry && strcmp(entry->Description[LOCALE_enUS], "Flexible") == 0 && difficulty != RAID_DIFFICULTY_1025MAN_FLEX)
+                if (entry && strcmp(entry->Description, "Flexible") == 0 && difficulty != RAID_DIFFICULTY_1025MAN_FLEX) // TODO change compare mode
                     continue;
                 // Non flexible items must not drop in flexible difficulty
-                if (entry && strcmp(entry->Description[LOCALE_enUS], "Flexible") != 0 && difficulty == RAID_DIFFICULTY_1025MAN_FLEX)
+                if (entry && strcmp(entry->Description, "Flexible") != 0 && difficulty == RAID_DIFFICULTY_1025MAN_FLEX) // TODO change compare mode
                     continue;
 
                 if (ItemTemplate const* item = sObjectMgr->GetItemTemplate(itemId))

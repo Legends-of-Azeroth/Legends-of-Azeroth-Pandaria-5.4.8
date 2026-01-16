@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -61,7 +61,7 @@ public:
     virtual bool ValidateName(char* buffer, const char* context);
 
 protected:
-    std::string FormatName(uint8 index, ItemLocale const* locale, DbcStr const* suffixStrings) const;
+    std::string FormatName(uint8 index, ItemLocale const* locale, char const* suffixStrings) const;
 
     ItemTemplate const* _item;
     int32 _data[10];

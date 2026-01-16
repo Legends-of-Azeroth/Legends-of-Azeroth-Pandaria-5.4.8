@@ -389,7 +389,7 @@ public:
         float zoneX = object->GetPositionX();
         float zoneY = object->GetPositionY();
 
-        Map2ZoneCoordinates(zoneX, zoneY, zoneId);
+        sDBCManager.Map2ZoneCoordinates(zoneX, zoneY, zoneId);
 
         Map const* map = object->GetMap();
         float groundZ = map->GetHeight(object->GetPhaseMask(), object->GetPositionX(), object->GetPositionY(), MAX_HEIGHT);
@@ -434,9 +434,9 @@ public:
         }
 
         handler->PSendSysMessage(LANG_MAP_POSITION,
-            mapId, (mapEntry ? mapEntry->name[handler->GetSessionDbcLocale()] : "<unknown>"),
-            zoneId, (zoneEntry ? zoneEntry->area_name[handler->GetSessionDbcLocale()] : "<unknown>"),
-            areaId, (areaEntry ? areaEntry->area_name[handler->GetSessionDbcLocale()] : "<unknown>"),
+            mapId, (mapEntry ? mapEntry->name : "<unknown>"),
+            zoneId, (zoneEntry ? zoneEntry->area_name : "<unknown>"),
+            areaId, (areaEntry ? areaEntry->area_name : "<unknown>"),
             object->GetPhaseMask(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation(),
             cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
@@ -1666,7 +1666,7 @@ public:
 
         if (!target->GetSkillValue(skill))
         {
-            handler->PSendSysMessage(LANG_SET_SKILL_ERROR, tNameLink.c_str(), skill, skillLine->name[handler->GetSessionDbcLocale()]);
+            handler->PSendSysMessage(LANG_SET_SKILL_ERROR, tNameLink.c_str(), skill, skillLine->DisplayName);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -1677,7 +1677,7 @@ public:
             return false;
 
         target->SetSkill(skill, target->GetSkillStep(skill), level, max);
-        handler->PSendSysMessage(LANG_SET_SKILL, skill, skillLine->name[handler->GetSessionDbcLocale()], tNameLink.c_str(), level, max);
+        handler->PSendSysMessage(LANG_SET_SKILL, skill, skillLine->DisplayName, tNameLink.c_str(), level, max);
 
         return true;
     }
@@ -2022,8 +2022,8 @@ public:
             handler->PSendSysMessage(LANG_PINFO_CHR_LEVEL_HIGH, level);
 
         // Output XI. LANG_PINFO_CHR_RACE
-        raceStr  = GetRaceName(raceid, locale);
-        classStr = GetClassName(classid, locale);
+        raceStr = sDBCManager.GetRaceName(raceid, locale);
+        classStr = sDBCManager.GetClassName(classid, locale);
         handler->PSendSysMessage(LANG_PINFO_CHR_RACE, (gender == 0 ? handler->GetTrinityString(LANG_CHARACTER_GENDER_MALE) : handler->GetTrinityString(LANG_CHARACTER_GENDER_FEMALE)), raceStr.c_str(), classStr.c_str());
 
         // Output XII. LANG_PINFO_CHR_ALIVE
@@ -2052,7 +2052,7 @@ public:
         }
 
         if (target)
-            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map ? map->name[handler->GetSessionDbcLocale()] : "<Unknown>", (!zoneName.empty() ? zoneName.c_str() : "<Unknown>"), (!areaName.empty() ? areaName.c_str() : "<Unknown>"));
+            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map ? map->name : "<Unknown>", (!zoneName.empty() ? zoneName.c_str() : "<Unknown>"), (!areaName.empty() ? areaName.c_str() : "<Unknown>"));
 
         // Output XVII. - XVIX. if they are not empty
         if (!guildName.empty())
@@ -3605,8 +3605,8 @@ public:
                 {
                     char const* areaName = "???";
                     if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(target->GetCustomVisibilityZoneID()))
-                        if (zone->area_name[handler->GetSessionDbcLocale()])
-                            areaName = zone->area_name[handler->GetSessionDbcLocale()];
+                        if (zone->area_name)
+                            areaName = zone->area_name;
                     handler->PSendSysMessage("%u - %s: %.2f yards (%s)", target->GetEntry(), target->GetNameForLocaleIdx((LocaleConstant)handler->GetSessionDbLocaleIndex()).c_str(), target->GetCustomVisibilityDistance(), areaName);
                 }
                 else
@@ -3628,8 +3628,8 @@ public:
                 {
                     char const* areaName = "???";
                     if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(target->GetCustomVisibilityZoneID()))
-                        if (zone->area_name[handler->GetSessionDbcLocale()])
-                            areaName = zone->area_name[handler->GetSessionDbcLocale()];
+                        if (zone->area_name)
+                            areaName = zone->area_name;
                     handler->PSendSysMessage("%u - %s: %.2f yards (%s)", target->GetEntry(), target->GetNameForLocaleIdx((LocaleConstant)handler->GetSessionDbLocaleIndex()).c_str(), target->GetCustomVisibilityDistance(), areaName);
                 }
                 else
@@ -3653,13 +3653,13 @@ public:
 
             std::stringstream ss;
             if (Map* map = target->FindMap())
-                if (char const* name = map->GetEntry()->name[handler->GetSessionDbcLocale()])
+                if (char const* name = map->GetEntry()->name)
                     ss << name << " - ";
             if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(zoneId))
-                if (char const* name = zone->area_name[handler->GetSessionDbcLocale()])
+                if (char const* name = zone->area_name)
                     ss << name << " - ";
             if (AreaTableEntry const* area = zoneId == areaId ? nullptr : sAreaTableStore.LookupEntry(areaId))
-                if (char const* name = area->area_name[handler->GetSessionDbcLocale()])
+                if (char const* name = area->area_name)
                     ss << name << " - ";
             if (CreatureTemplate const* info = sObjectMgr->GetCreatureTemplate(entry))
                 ss << info->Name;
@@ -3720,13 +3720,13 @@ public:
 
             std::stringstream ss;
             if (Map* map = target->FindMap())
-                if (char const* name = map->GetEntry()->name[handler->GetSessionDbcLocale()])
+                if (char const* name = map->GetEntry()->name)
                     ss << name << " - ";
             if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(zoneId))
-                if (char const* name = zone->area_name[handler->GetSessionDbcLocale()])
+                if (char const* name = zone->area_name)
                     ss << name << " - ";
             if (AreaTableEntry const* area = zoneId == areaId ? nullptr : sAreaTableStore.LookupEntry(areaId))
-                if (char const* name = area->area_name[handler->GetSessionDbcLocale()])
+                if (char const* name = area->area_name)
                     ss << name << " - ";
             if (GameObjectTemplate const* info = sObjectMgr->GetGameObjectTemplate(entry))
                 ss << info->name;

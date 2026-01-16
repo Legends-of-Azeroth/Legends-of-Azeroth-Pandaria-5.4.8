@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -21,8 +21,10 @@
 #include "Define.h"
 #include "Utilities/ByteConverter.h"
 #include <cassert>
+#include <list>
+#include <string>
 
-class DB2FileLoader
+class TC_SHARED_API DB2FileLoader
 {
     public:
     DB2FileLoader();
@@ -62,9 +64,9 @@ class DB2FileLoader
         }
 
     private:
-        Record(DB2FileLoader &file_, unsigned char *offset_): offset(offset_), file(file_) {}
+        Record(DB2FileLoader& file_, unsigned char* offset_): offset(offset_), file(file_) {}
         unsigned char *offset;
-        DB2FileLoader &file;
+        DB2FileLoader& file;
 
         friend class DB2FileLoader;
     };
@@ -75,13 +77,14 @@ class DB2FileLoader
 
     uint32 GetNumRows() const { return recordCount;}
     uint32 GetCols() const { return fieldCount; }
-    uint32 GetOffset(size_t id) const { return (fieldsOffset != NULL && id < fieldCount) ? fieldsOffset[id] : 0; }
+    uint32 GetOffset(size_t id) const { return (fieldsOffset != nullptr && id < fieldCount) ? fieldsOffset[id] : 0; }
     uint32 GetHash() const { return tableHash; }
-    bool IsLoaded() const { return (data != NULL); }
-    char* AutoProduceData(const char* fmt, uint32& count, char**& indexTable);
-    char* AutoProduceStrings(const char* fmt, char* dataTable, uint32 locale);
-    static uint32 GetFormatRecordSize(const char * format, int32 * index_pos = NULL);
-    static uint32 GetFormatStringsFields(const char * format);
+    bool IsLoaded() const { return (data != nullptr); }
+    char* AutoProduceData(char const* fmt, uint32& count, char**& indexTable);
+    char* AutoProduceStringsArrayHolders(char const* fmt, char* dataTable);
+    char* AutoProduceStrings(char const* fmt, char* dataTable, uint32 locale);
+    static uint32 GetFormatRecordSize(char const* format, int32* index_pos = nullptr);
+    static uint32 GetFormatStringFieldCount(const char* format);
 private:
 
     uint32 recordSize;
@@ -101,6 +104,19 @@ private:
     int maxIndex;        // WDB2 (index table)
     int locale;          // WDB2
     int unk5;            // WDB2
+};
+
+class DB2DatabaseLoader
+{
+public:
+    explicit DB2DatabaseLoader(std::string const& storageName) : _storageName(storageName) { }
+
+    char* Load(const char* format, int32 preparedStatement, uint32& records, char**& indexTable, char*& stringHolders, std::vector<char*>& stringPool);
+    void LoadStrings(const char* format, int32 preparedStatement, uint32 locale, char**& indexTable, std::vector<char*>& stringPool);
+    static char* AddLocaleString(LocalizedString* holder, uint32 locale, std::string const& value);
+
+private:
+    std::string _storageName;
 };
 
 #endif
