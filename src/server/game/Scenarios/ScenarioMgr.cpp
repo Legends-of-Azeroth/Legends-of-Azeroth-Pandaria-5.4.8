@@ -37,7 +37,7 @@ uint32 ScenarioMgr::GetScenarioIdForMap(uint32 map)
     for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
     {
         if (auto dungeon = sLFGDungeonStore.LookupEntry(i))
-            if (dungeon->map == map)
+            if (dungeon->map == (int32)map)
                 return dungeon->scenario;
     }
     return 0;

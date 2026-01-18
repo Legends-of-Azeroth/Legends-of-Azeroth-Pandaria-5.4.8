@@ -25,12 +25,11 @@
 #include "Player.h"
 #include "ServiceBoost.h"
 #include "BattlePetMgr.h"
-#include "Realm.h"
 
 #pragma execution_character_set("UTF-8")
 
 
-BattlePayMgr::BattlePayMgr() : m_enabled(false), m_currency(BATTLE_PAY_CURRENCY_BETA)
+BattlePayMgr::BattlePayMgr() : m_currency(BATTLE_PAY_CURRENCY_BETA), m_enabled(false)
 {
     m_purchase = new PurchaseInfo();
 }

@@ -887,7 +887,7 @@ class spell_yorsahj_the_unsleeping_deep_corruption : public SpellScriptLoader
         {
             PrepareAuraScript(spell_yorsahj_the_unsleeping_deep_corruption_AuraScript);
 
-            void HandlePeriodicTick(AuraEffect const* aurEff)
+            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 if (!GetCaster() || !GetUnitOwner())
                     return;

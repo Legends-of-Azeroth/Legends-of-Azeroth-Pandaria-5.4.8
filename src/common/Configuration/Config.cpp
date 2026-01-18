@@ -22,7 +22,6 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <algorithm>
 #include <cstdlib>
-#include <memory>
 #include <mutex>
 
 namespace bpt = boost::property_tree;

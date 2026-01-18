@@ -7,10 +7,7 @@
 #include "WorldObjectMethods.h"
 #include "Includes.h"
 
-#include "Creature.h"
-#include "GameObject.h"
 #include "ObjectAccessor.h"
-#include "Player.h"
 
 namespace LuaWorldObject
 {

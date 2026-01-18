@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
 #include "Vehicle.h"
 #include "CombatAI.h"
 
@@ -2311,7 +2310,7 @@ struct npc_groundbreaker_brojai : public customCreatureAI
         me->GetMotionMaster()->MovePoint(0, x, y, me->GetPositionZ());
 
         scheduler
-            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
         {
             Talk(TALK_INTRO);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_PC);
@@ -2412,20 +2411,20 @@ struct npc_krasarang_wilds_sunwalker_dezco_reclaimer : public ScriptedAI
 
         uint32 delay = 3500;
         scheduler
-            .Schedule(Milliseconds(delay), [this](TaskContext context)
+            .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
         {
             Talk(TALK_SPECIAL_1);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 5100), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 5100), [this](TaskContext /*context*/)
         {
             if (Creature* lorekeeper = ObjectAccessor::GetCreature(*me, lorekeeperGUID))
                 lorekeeper->AI()->Talk(TALK_SPECIAL_1);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 4000), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 4000), [this](TaskContext /*context*/)
         {
             if (Creature* lorekeeper = ObjectAccessor::GetCreature(*me, lorekeeperGUID))
                 lorekeeper->AI()->Talk(TALK_SPECIAL_2);

@@ -16,8 +16,6 @@
 */
 
 #include "ScriptPCH.h"
-#include "ScriptedEscortAI.h"
-#include "blackrock_depths.h"
 #include "Player.h"
 #include "Group.h"
 #include "SpellInfo.h"
@@ -27,7 +25,6 @@
 #include "ObjectMgr.h"
 #include "World.h"
 #include "CreatureTextMgr.h"
-#include "LFGMgr.h"
 
 enum Spells
 {

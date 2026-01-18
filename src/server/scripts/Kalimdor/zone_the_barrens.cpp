@@ -720,7 +720,7 @@ class npc_razormane_pillager : public CreatureScript
                 me->SetFaction(109);
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (me->GetEntry() == NPC_RAZORMANE_PILLAGER_SUMMONED)
                 {
@@ -792,7 +792,7 @@ class AreaTrigger_at_groldom_farm : public AreaTriggerScript
     public:
         AreaTrigger_at_groldom_farm() : AreaTriggerScript("AreaTrigger_at_groldom_farm") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
             if (player->HasAura(SPELL_DRAGING_A_RAZORMANE) && player->GetQuestStatus(QUEST_DRAG_IT_OUT_OF_THEM) == QUEST_STATUS_INCOMPLETE)
             {
@@ -851,13 +851,13 @@ struct npc_barrent_wounded_defender : public CreatureAI
                 questReceiver->KilledMonsterCredit(me->GetEntry());
 
             scheduler
-                .Schedule(Seconds(2), [this](TaskContext context)
+                .Schedule(Seconds(2), [this](TaskContext /*context*/)
             {
                 Talk(TALK_HEALED);
             });
 
             scheduler
-                .Schedule(Seconds(4), [this](TaskContext context)
+                .Schedule(Seconds(4), [this](TaskContext /*context*/)
             {
                 // Move away!
                 Position pos = me->GetNearPosition(15.0f, frand(0.0f, 2 * M_PI));

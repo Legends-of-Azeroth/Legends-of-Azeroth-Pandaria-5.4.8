@@ -28,6 +28,8 @@
 #include "Opcodes.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+
+#include <memory>
 #include "Player.h"
 #include "Vehicle.h"
 #include "ObjectMgr.h"
@@ -97,7 +99,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
         return true;
 
     //lets process all packets for non-in-the-world player
-    return (player->IsInWorld() == false);
+    return !player->IsInWorld();
 }
 
 /// WorldSession constructor
@@ -122,6 +124,7 @@ WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, Account
     m_sessionDbLocaleIndex(locale),
     m_latency(0),
     m_clientTimeDelay(0),
+    m_flags(flags),
     m_TutorialsChanged(false),
     _filterAddonMessages(false),
     recruiterId(recruiter),
@@ -140,7 +143,7 @@ WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, Account
 
     // At current time it will never be removed from container, so pointer must be valid all of the session life time.
 
-    _achievementMgr.reset(new AccountAchievementMgr(this));
+    _achievementMgr = std::make_unique<AccountAchievementMgr>();
 }
 
 /// WorldSession destructor

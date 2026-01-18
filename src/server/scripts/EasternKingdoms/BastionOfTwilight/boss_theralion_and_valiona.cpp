@@ -1078,7 +1078,7 @@ class npc_twilight_rift : public CreatureScript
             InstanceScript* instance;
             Unit* sentry;
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 me->SetPosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+5.0f, me->GetOrientation());
                 DoCast(me, SPELL_TWILIGHT_RIFT);
@@ -1107,7 +1107,7 @@ class npc_collapsing_twilight_portal : public CreatureScript
     public:
         npc_collapsing_twilight_portal() : CreatureScript("npc_collapsing_twilight_portal") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+        bool OnGossipHello(Player* player, Creature* /*creature*/) override
         {
             player->RemoveAurasDueToSpell(SPELL_TWILIGHT_PROTECTION_BUFF);
             player->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_AURA_1);

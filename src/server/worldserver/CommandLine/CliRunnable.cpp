@@ -19,14 +19,12 @@
 /// @{
 /// \file
 
-#include "Common.h"
 #include "Errors.h"
 #include "World.h"
 #include "Configuration/Config.h"
 
 #include "CliRunnable.h"
 #include "Chat.h"
-#include "Log.h"
 #include "Util.h"
 
 
@@ -61,7 +59,7 @@ namespace Trinity::Impl::Readline
 
     char* command_finder(const char* text, int state)
     {
-        static int idx, len;
+        static std::size_t idx, len;
         const char* ret;
         std::vector<ChatCommand> const& cmd = ChatHandler::getCommandTable();
 

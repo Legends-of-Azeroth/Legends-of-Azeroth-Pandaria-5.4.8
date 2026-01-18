@@ -162,7 +162,7 @@ void PoolGroup<T>::AddEntry(PoolObject& poolitem, uint32 maxentries)
 
 // Method to add a quest id to the proper list. Both equal and explicit chanced objects are stored in the same list due to us reusing them in bulk.
 template<>
-void PoolGroup<Quest>::AddEntry(PoolObject& poolitem, uint32 maxentries)
+void PoolGroup<Quest>::AddEntry(PoolObject& poolitem, uint32 /*maxentries*/)
 {
     EqualChanced.push_back(poolitem);
 }
@@ -541,8 +541,7 @@ void PoolMgr::LoadFromDB()
                 PoolGroup<Creature>& cregroup = mPoolCreatureGroups[pool_id];
                 cregroup.SetPoolId(pool_id);
                 cregroup.AddEntry(plObject, pPoolTemplate->MaxLimit);
-                SearchPair p(guid, pool_id);
-                mCreatureSearchMap.insert(p);
+                mCreatureSearchMap.emplace(guid, pool_id);
 
                 ++count;
             }
@@ -619,8 +618,7 @@ void PoolMgr::LoadFromDB()
                 PoolGroup<GameObject>& gogroup = mPoolGameobjectGroups[pool_id];
                 gogroup.SetPoolId(pool_id);
                 gogroup.AddEntry(plObject, pPoolTemplate->MaxLimit);
-                SearchPair p(guid, pool_id);
-                mGameobjectSearchMap.insert(p);
+                mGameobjectSearchMap.emplace(guid, pool_id);
 
                 ++count;
             }
@@ -685,8 +683,7 @@ void PoolMgr::LoadFromDB()
                 PoolGroup<Pool>& plgroup = mPoolPoolGroups[mother_pool_id];
                 plgroup.SetPoolId(mother_pool_id);
                 plgroup.AddEntry(plObject, pPoolTemplateMother->MaxLimit);
-                SearchPair p(child_pool_id, mother_pool_id);
-                mPoolSearchMap.insert(p);
+                mPoolSearchMap.emplace(child_pool_id, mother_pool_id);
 
                 ++count;
             }

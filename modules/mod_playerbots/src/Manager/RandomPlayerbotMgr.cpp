@@ -736,7 +736,9 @@ uint32 RandomPlayerbotMgr::SetEventValue(uint32 bot, std::string const event, ui
         stmt = PlayerbotsDatabase.GetPreparedStatement(PLAYERBOTS_INS_RANDOM_BOTS);
         stmt->setUInt32(0, 0);
         stmt->setUInt64(1, bot);
+
         auto time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
         stmt->setInt64(2, time);
         stmt->setUInt32(3, validIn);
         stmt->setString(4, event);

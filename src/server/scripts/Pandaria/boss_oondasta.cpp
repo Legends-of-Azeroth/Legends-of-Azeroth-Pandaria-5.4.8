@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ObjectMgr.h"
-#include "ScriptMgr.h"
 
 enum OondastaSpellData
 {
@@ -88,7 +87,7 @@ class boss_oondasta : public CreatureScript
                 spiritFireCount = 0;
 
                 scheduler
-                    .Schedule(Seconds(1), [this](TaskContext context)
+                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                     me->SummonCreature(NPC_DOHAMAN_THE_BEAST_LORD, DohamanSummPos, TEMPSUMMON_MANUAL_DESPAWN);
@@ -100,7 +99,7 @@ class boss_oondasta : public CreatureScript
                 if (Creature* dohaman = me->FindNearestCreature(NPC_DOHAMAN_THE_BEAST_LORD, 150.0f, true))
                     dohaman->AI()->Talk(TALK_INTRO);
 
-                scheduler.Schedule(Seconds(7), [this](TaskContext context)
+                scheduler.Schedule(Seconds(7), [this](TaskContext /*context*/)
                 {
                     if (Creature* dohaman = me->FindNearestCreature(NPC_DOHAMAN_THE_BEAST_LORD, 150.0f, true))
                         dohaman->AI()->Talk(TALK_DEATH);

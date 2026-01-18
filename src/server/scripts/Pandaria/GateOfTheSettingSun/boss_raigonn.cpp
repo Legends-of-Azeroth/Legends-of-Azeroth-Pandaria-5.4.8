@@ -218,7 +218,7 @@ class boss_raigonn : public CreatureScript
 
                         // client-side issue
                         scheduler
-                            .Schedule(Milliseconds(500), [this](TaskContext context)
+                            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
                         {
                             if (Creature* wPoint = instance->instance->GetCreature(instance->GetGuidData(NPC_WEAK_SPOT)))
                                 me->CastSpell(wPoint->GetPositionX(), wPoint->GetPositionY(), wPoint->GetPositionZ(), SPELL_BATTERING_HEADBUTT, true);

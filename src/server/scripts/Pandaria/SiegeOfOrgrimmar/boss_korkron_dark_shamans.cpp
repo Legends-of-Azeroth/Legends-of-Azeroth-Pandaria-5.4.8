@@ -171,14 +171,14 @@ class boss_earthbreaker_haromm : public CreatureScript
                 }
 
                 scheduler
-                    .Schedule(Milliseconds(1500), [this](TaskContext context)
+                    .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
                 {
                     if (Creature* wolf = me->SummonCreature(invWolfType.find(me->GetEntry())->second[0], *me, TEMPSUMMON_MANUAL_DESPAWN))
                         me->CastSpell(wolf, VEHICLE_SPELL_RIDE_HARDCODED, true);
                 });
 
                 scheduler
-                    .Schedule(Seconds(2), [this](TaskContext context)
+                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                 });
@@ -197,7 +197,7 @@ class boss_earthbreaker_haromm : public CreatureScript
                 Talk(TALK_AGGRO);
 
                 scheduler
-                    .Schedule(Milliseconds(3000), [this](TaskContext context)
+                    .Schedule(Milliseconds(3000), [this](TaskContext /*context*/)
                 {
                     if (Creature* kardris = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_WAVEBINDER_KARDIS)))
                         kardris->AI()->Talk(TALK_AGGRO);
@@ -512,14 +512,14 @@ class boss_wavebinder_kardris : public CreatureScript
                 atEvade = false;
 
                 scheduler
-                    .Schedule(Milliseconds(1500), [this](TaskContext context)
+                    .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
                 {
                     if (Creature* wolf = me->SummonCreature(invWolfType.find(me->GetEntry())->second[0], *me, TEMPSUMMON_MANUAL_DESPAWN))
                         me->CastSpell(wolf, VEHICLE_SPELL_RIDE_HARDCODED, true);
                 });
 
                 scheduler
-                    .Schedule(Seconds(2), [this](TaskContext context)
+                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                 });
@@ -616,7 +616,7 @@ class boss_wavebinder_kardris : public CreatureScript
                 if (actionId == ACTION_REMOVE_GEYSER)
                 {
                     scheduler
-                        .Schedule(Milliseconds(500), [this](TaskContext context)
+                        .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
                     {
                         me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
                         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
@@ -724,7 +724,7 @@ class boss_wavebinder_kardris : public CreatureScript
                             // In case if it was not cast success (NE malf, vanish etc. - abuse)
                             uint32 checkTimer = IsHeroic() ? 2500 : 3500;
                             scheduler
-                                .Schedule(Milliseconds(checkTimer), [this](TaskContext context)
+                                .Schedule(Milliseconds(checkTimer), [this](TaskContext /*context*/)
                             {
                                 if (!GetData(TYPE_GEYSER_CAST_SUCCESS))
                                     DoAction(ACTION_REMOVE_GEYSER);
@@ -914,7 +914,7 @@ struct npc_dark_shamans_toxic_storm : public ScriptedAI
         DoCast(me, SPELL_TOXIC_STORM_AURA);
 
         scheduler
-            .Schedule(Seconds(11), [this](TaskContext context)
+            .Schedule(Seconds(11), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_TOXIC_STORM_VORTEX);
         });
@@ -986,7 +986,7 @@ struct npc_dark_shamans_falling_ash : public ScriptedAI
         me->SetAnimTier(AnimTier::Hover);
 
         scheduler
-            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_FALLING_ASH_EFF);
             me->DespawnOrUnsummon(1000);
@@ -1048,7 +1048,7 @@ struct npc_dark_shamans_iron_tomb : public ScriptedAI
     void Reset() override
     {
         scheduler
-            .Schedule(Milliseconds(500), [this](TaskContext context)
+            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_IRON_TOMB_EFF);
         });

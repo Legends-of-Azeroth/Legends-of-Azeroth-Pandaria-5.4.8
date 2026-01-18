@@ -29,12 +29,12 @@
 #include "UpdateMask.h"
 #include "ObjectAccessor.h"
 #include "Creature.h"
+#include "CreatureAI.h"
 #include "Pet.h"
 #include "ReputationMgr.h"
 #include "BattlegroundMgr.h"
 #include "Battleground.h"
 #include "ScriptMgr.h"
-#include "CreatureAI.h"
 #include "SpellInfo.h"
 
 #ifdef ELUNA

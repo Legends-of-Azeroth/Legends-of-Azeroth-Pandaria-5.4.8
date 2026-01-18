@@ -51,7 +51,7 @@ class Grid
         /** destructor to clean up its resources. This includes unloading the
         grid if it has not been unload.
         */
-        ~Grid() { }
+        ~Grid() = default;
 
         /** an object of interested enters the grid
          */

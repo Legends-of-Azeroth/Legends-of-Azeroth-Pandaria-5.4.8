@@ -1142,7 +1142,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (!UpdateVictim())
                 return;
@@ -1216,7 +1216,7 @@ struct npc_bloodfang_lurker : public ScriptedAI
         who->SetInCombatWith(me);
     }
 
-    void DamageTaken(Unit* attacker, uint32 &damage) override
+    void DamageTaken(Unit* attacker, uint32 &/*damage*/) override
     {
         if (me->HasReactState(REACT_PASSIVE))
             StartAttack(attacker);
@@ -1228,7 +1228,7 @@ struct npc_bloodfang_lurker : public ScriptedAI
             StartAttack(caster);
     }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 /*diff*/) override
     {
         if (!UpdateVictim())
             return;
@@ -1260,9 +1260,8 @@ class spell_attack_lurker : public SpellScript
 
         if (Creature* target = caster->FindNearestCreature(NPC_BLOODFANG_LURKER, 30.0f))
         {
-            float x,y,z,o;
+            float x,y,z;
             target->GetContactPoint(caster, x, y, z, CONTACT_DISTANCE);
-            o = caster->GetOrientation();
             float speedXY, speedZ;
             speedZ = 10.0f;
             speedXY = caster->GetExactDist2d(x, y) * 30.0f / speedZ;
@@ -1435,18 +1434,16 @@ public:
 
         void WaypointReached(uint32 i) override
         {
-            Player* player = GetPlayerForEscort();
-
             switch(i)
             {
                 case 1:
                 {
-                    if (Unit* passenger = me->GetVehicleKit()->GetPassenger(0))
+                    if (me->GetVehicleKit()->GetPassenger(0))
                     {
                         if (Vehicle* vehicle = me->GetVehicleKit())
                             if (Unit* passenger = vehicle->GetPassenger(0))
                                 if (Player* player = passenger->ToPlayer())
-                                    player->SetClientControl(me, 0);
+                                    player->SetClientControl(me, false);
                     }
                     break;
                 }
@@ -1456,8 +1453,8 @@ public:
                     {
                         if (Creature* aranas = passenger->FindNearestCreature(NPC_KRENNAN_ARANAS, 50.0f))
                             if (Vehicle* vehicle = me->GetVehicleKit())
-                                if (Unit* passenger = vehicle->GetPassenger(0))
-                                    if (Player* player = passenger->ToPlayer())
+                                if (Unit* passenger2 = vehicle->GetPassenger(0))
+                                    if (passenger2->ToPlayer())
                                         aranas->AI()->Talk(TEXT_KRENNAN_ARANAS);
 
                         me->GetMotionMaster()->MoveJump(-1673.04f, 1344.91f, 15.1353f, 25.0f, 15.0f);
@@ -1475,16 +1472,18 @@ public:
                     {
                         if (Unit* passenger = vehicle->GetPassenger(0))
                         {
-                            if (Player* player = passenger->ToPlayer())
+                            if (passenger->ToPlayer())
                             {
                                 std::list<Creature*> guards;
                                 me->GetCreatureListWithEntryInGrid(guards, NPC_GILNEAS_CITY_GUARD, 90.0f);
 
                                 if (!guards.empty())
-                                    for (std::list<Creature*>::const_iterator itr = guards.begin(); itr != guards.end(); ++itr)
-                                        if ((*itr)->IsAlive())
-                                            if (Creature* worgen = (*itr)->FindNearestCreature(NPC_BLOODFANG_RIPPER, 90.0f))
-                                                (*itr)->CastSpell(worgen, SPELL_GUARD_SHOOT, false);
+                                    for (auto & guard : guards) {
+                                        if (guard->IsAlive()) {
+                                            if (Creature *worgen = guard->FindNearestCreature(NPC_BLOODFANG_RIPPER, 90.0f))
+                                                guard->CastSpell(worgen, SPELL_GUARD_SHOOT, false);
+                                        }
+                                    }
                             }
                         }
                     }
@@ -1512,13 +1511,13 @@ public:
                 }
                 case 44:
                 {
-                    if (Unit* passenger = me->GetVehicleKit()->GetPassenger(0))
+                    if (me->GetVehicleKit()->GetPassenger(0))
                     {
                         if (Vehicle* vehicle = me->GetVehicleKit())
                         {
                             if (Unit* passenger = vehicle->GetPassenger(0))
                                 if (Player* player = passenger->ToPlayer())
-                                    player->SetClientControl(me, 1);
+                                    player->SetClientControl(me, true);
 
                             if (Unit* passenger = vehicle->GetPassenger(1))
                                 if (Creature* aranas = passenger->ToCreature())
@@ -1542,7 +1541,7 @@ public:
 
             if (_playerSeated)
             {
-                player->SetClientControl(me, 0);
+                player->SetClientControl(me, false);
                 _playerSeated = false;
             }
         }
@@ -1551,7 +1550,7 @@ public:
 
 struct npc_saved_aranas : public ScriptedAI
 {
-    npc_saved_aranas(Creature* creature) : ScriptedAI(creature)
+    explicit npc_saved_aranas(Creature* creature) : ScriptedAI(creature)
     {
         me->SetReactState(REACT_PASSIVE);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -1583,8 +1582,14 @@ class npc_gilneas_children : public CreatureScript
 
         struct creature_script : public ScriptedAI
         {
-            creature_script(Creature* creature, uint32 spellId, uint8 playerSayId) : ScriptedAI(creature), _spellId(spellId), _playerSayId(playerSayId) { }
+            creature_script(Creature* creature, uint32 spellId, uint8 playerSayId)
+                : ScriptedAI(creature)
+                , _spellId(spellId)
+                , _playerSayId(playerSayId)
+                , activated(false)
+            {
 
+            }
             EventMap events;
             ObjectGuid playerGUID;
             uint32 _spellId;
@@ -1611,10 +1616,12 @@ class npc_gilneas_children : public CreatureScript
                         activated = true;
                         BroadcastText const* bct = sObjectMgr->GetBroadcastText(PlayerText[_playerSayId]);
                         LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
-                        std::string baseText = "";
+                        std::string baseText;
                         if (bct)
+                        {
                             baseText = bct->GetText(loc_idx, player->GetGender());
                             player->Say(baseText, LANG_UNIVERSAL);
+                        }
                         player->KilledMonsterCredit(me->GetEntry(), ObjectGuid::Empty);
                         me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                         events.ScheduleEvent(EVENT_TALK_TO_PLAYER, 3s + 500ms);
@@ -1682,6 +1689,7 @@ class npc_gilneas_children : public CreatureScript
                             me->HandleEmoteCommand(EMOTE_ONESHOT_CRY);
                             events.ScheduleEvent(EVENT_CRY, randtime(1s, 1s + 500ms));
                             break;
+                        default: break;
                     }
                 }
             }
@@ -1691,15 +1699,15 @@ class npc_gilneas_children : public CreatureScript
 class npc_wahl : public CreatureScript
 {
 public:
-    npc_wahl(const char* ScriptName) : CreatureScript(ScriptName) { }
+    explicit npc_wahl(const char* ScriptName) : CreatureScript(ScriptName) { }
 
     struct npc_wahlAI : public npc_escortAI
     {
-        npc_wahlAI(Creature* creature) : npc_escortAI(creature)
+        explicit npc_wahlAI(Creature* creature) : npc_escortAI(creature)
         {
             creature->SetReactState(REACT_PASSIVE);
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC || UNIT_FLAG_IMMUNE_TO_NPC);
+            creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
         }
 
         void DoAction(int32 const action) override
@@ -1724,7 +1732,7 @@ public:
                         Talk(YELL_DONT_MESS);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC || UNIT_FLAG_IMMUNE_TO_NPC);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
 
                         me->m_Events.AddLambdaEventAtOffset([this, summoner]()
                         {
@@ -1748,11 +1756,11 @@ public:
 class npc_lucius_the_cruel : public CreatureScript
 {
 public:
-    npc_lucius_the_cruel(const char* ScriptName) : CreatureScript(ScriptName) { }
+    explicit npc_lucius_the_cruel(const char* ScriptName) : CreatureScript(ScriptName) { }
 
     struct npc_lucius_the_cruelAI : public ScriptedAI
     {
-        npc_lucius_the_cruelAI(Creature* creature) : ScriptedAI(creature)
+        explicit npc_lucius_the_cruelAI(Creature* creature) : ScriptedAI(creature)
         {
             SetCombatMovement(false);
             Catch = false;
@@ -1763,7 +1771,7 @@ public:
             uiSummonTimer = 1500;
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC || UNIT_FLAG_IMMUNE_TO_NPC);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
         }
 
         ObjectGuid uiPlayerGUID;
@@ -1829,7 +1837,7 @@ public:
                     Catch = false;
                     uiCatchTimer = 1000;
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC || UNIT_FLAG_IMMUNE_TO_NPC);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                     me->SetReactState(REACT_AGGRESSIVE);
 
                     if (Player* player = Unit::GetPlayer(*me, uiPlayerGUID))
@@ -1887,7 +1895,7 @@ public:
 
 struct npc_chance_the_cat : public ScriptedAI
 {
-    npc_chance_the_cat(Creature* creature) : ScriptedAI(creature)
+    explicit npc_chance_the_cat(Creature* creature) : ScriptedAI(creature)
     {
         Despawn = false;
         uiDespawnTimer = 500;
@@ -1935,7 +1943,7 @@ struct npc_chance_the_cat : public ScriptedAI
 class npc_mountain_horse : public CreatureScript
 {
 public:
-    npc_mountain_horse(const char* ScriptName) : CreatureScript(ScriptName) { }
+    explicit npc_mountain_horse(const char* ScriptName) : CreatureScript(ScriptName) { }
 
     bool OnGossipHello(Player* player, Creature* creature) override
     {
@@ -1951,7 +1959,7 @@ public:
 
     struct npc_mountain_horseAI : public ScriptedAI
     {
-        npc_mountain_horseAI(Creature* creature) : ScriptedAI(creature) { }
+        explicit npc_mountain_horseAI(Creature* creature) : ScriptedAI(creature) { }
 
         EventMap events;
 
@@ -1961,7 +1969,7 @@ public:
                 me->GetMotionMaster()->MoveRandom(8.0f);
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             switch (spell->Id)
             {
@@ -1988,7 +1996,7 @@ public:
             }
         }
 
-        void OnCharmed(bool apply) override { }
+        void OnCharmed(bool /*apply*/) override { }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -1999,7 +2007,7 @@ public:
 
 struct npc_mountain_horse_summoned : public ScriptedAI
 {
-    npc_mountain_horse_summoned(Creature* creature) : ScriptedAI(creature) { }
+    explicit npc_mountain_horse_summoned(Creature* creature) : ScriptedAI(creature) { }
 
     EventMap events;
 
@@ -2024,7 +2032,7 @@ struct npc_mountain_horse_summoned : public ScriptedAI
             {
                 case EVENT_CHECK_LORNA:
                 {
-                    if (Creature* lornaCrowley = me->FindNearestCreature(NPC_LORNA_CROWLEY_2, 8.0f, true))
+                    if (me->FindNearestCreature(NPC_LORNA_CROWLEY_2, 8.0f, true))
                     {
                         if (Unit* owner = me->GetCharmerOrOwner())
                         {
@@ -2083,9 +2091,9 @@ class spell_gilneas_test_telescope : public SpellScript
 class npc_stagecoach_carriage_exodus : public CreatureScript
 {
 public:
-    npc_stagecoach_carriage_exodus(const char* ScriptName) : CreatureScript(ScriptName) { }
+    explicit npc_stagecoach_carriage_exodus(const char* ScriptName) : CreatureScript(ScriptName) { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* /*creature*/) override
     {
         if (player->GetQuestStatus(QUEST_ENTRY_EXODUS) == QUEST_STATUS_COMPLETE)
         {
@@ -2102,7 +2110,7 @@ public:
 
     struct npc_stagecoach_carriage_exodusAI : public ScriptedAI
     {
-        npc_stagecoach_carriage_exodusAI(Creature* creature) : ScriptedAI(creature)
+        explicit npc_stagecoach_carriage_exodusAI(Creature* creature) : ScriptedAI(creature)
         {
             events.ScheduleEvent(EVENT_BOARD_HARNESS_OWNER, 1ms);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
@@ -2114,30 +2122,22 @@ public:
         {
             events.Update(diff);
 
-            while (uint32 eventId = events.ExecuteEvent())
+            uint32 eventId = events.ExecuteEvent();
+            if (eventId == EVENT_BOARD_HARNESS_OWNER)
             {
-                switch (eventId)
+                if (Unit* harness = me->GetVehicleCreatureBase())
                 {
-                    case EVENT_BOARD_HARNESS_OWNER:
+                    if (Unit* harnessOwner = harness->ToTempSummon()->GetSummoner())
                     {
-                        if (Unit* harness = me->GetVehicleCreatureBase())
+                        if (harnessOwner->IsAlive() && harnessOwner->IsInWorld())
                         {
-                            if (Unit* harnessOwner = harness->ToTempSummon()->GetSummoner())
-                            {
-                                if (harnessOwner->IsAlive() && harnessOwner->IsInWorld())
-                                {
-                                    harnessOwner->EnterVehicle(me, 1);
-                                    events.CancelEvent(EVENT_BOARD_HARNESS_OWNER);
-                                    break;
-                                }
-                            }
+                            harnessOwner->EnterVehicle(me, 1);
+                            events.CancelEvent(EVENT_BOARD_HARNESS_OWNER);
+                            return;
                         }
-                        events.CancelEvent(EVENT_BOARD_HARNESS_OWNER);
-                        break;
                     }
-                    default:
-                        break;
                 }
+                events.CancelEvent(EVENT_BOARD_HARNESS_OWNER);
             }
         }
     };
@@ -2151,15 +2151,15 @@ public:
 class npc_stagecoach_harness : public CreatureScript
 {
 public:
-    npc_stagecoach_harness(const char* ScriptName) : CreatureScript(ScriptName) { }
+    explicit npc_stagecoach_harness(const char* ScriptName) : CreatureScript(ScriptName) { }
 
     struct npc_stagecoach_harnessAI : public npc_escortAI
     {
         npc_stagecoach_harnessAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void OnCharmed(bool apply) override { }
+        void OnCharmed(bool /*apply*/) override { }
 
-        void IsSummonedBy(Unit* owner) override
+        void IsSummonedBy(Unit* /*owner*/) override
         {
             DoAction(ACTION_START_WP);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
@@ -2167,22 +2167,16 @@ public:
 
         void DoAction(int32 action) override
         {
-            switch (action)
+            if (action == ACTION_START_WP)
             {
-                case ACTION_START_WP:
-                {
-                    Start(false, true, ObjectGuid::Empty, NULL, false, false, true);
-                    SetDespawnAtEnd(true);
+                Start(false, true, ObjectGuid::Empty, nullptr, false, false, true);
+                SetDespawnAtEnd(true);
 
-                    if (GameObject* gate = me->FindNearestGameObject(GO_FIRST_GATE, 80.0f))
-                        gate->UseDoorOrButton(0, false, me);
+                if (GameObject* gate = me->FindNearestGameObject(GO_FIRST_GATE, 80.0f))
+                    gate->UseDoorOrButton(0, false, me);
 
-                    me->SetWalk(false);
-                    me->SetSpeed(MOVE_RUN, 1.34f, true);
-                    break;
-                }
-                default:
-                    break;
+                me->SetWalk(false);
+                me->SetSpeed(MOVE_RUN, 1.34f, true);
             }
         }
 
@@ -2231,25 +2225,21 @@ public:
 
 struct npc_koroth_the_hillbreaker : public ScriptedAI
 {
-    npc_koroth_the_hillbreaker(Creature* creature) : ScriptedAI(creature) { }
+    explicit npc_koroth_the_hillbreaker(Creature* creature) : ScriptedAI(creature) { }
 
     EventMap m_events;
 
     void DoAction(int32 const action) override
     {
-        switch (action)
-        {
-            case ACTION_START_KOROTH_EVENT:
-                Talk(SAY_KOROTH_THE_HILLBREAKER_1);
-				me->GetMotionMaster()->MoveSplinePath(KorothPath[0], KorothPathLenght, false, true, 0.f, false, false);
-                //TalkWithDelay(me->GetSplineDuration(), SAY_KOROTH_THE_HILLBREAKER_2);
-                m_events.ScheduleEvent(EVENT_KOROTH_THE_HILLBREAKER_2, me->GetSplineDuration());
+        if (action == ACTION_START_KOROTH_EVENT) {
+            Talk(SAY_KOROTH_THE_HILLBREAKER_1);
+            me->GetMotionMaster()->MoveSplinePath(KorothPath[0], KorothPathLenght, false, true, 0.f, false, false);
+            //TalkWithDelay(me->GetSplineDuration(), SAY_KOROTH_THE_HILLBREAKER_2);
+            m_events.ScheduleEvent(EVENT_KOROTH_THE_HILLBREAKER_2, me->GetSplineDuration());
 
-                me->m_Events.AddLambdaEventAtOffset([this]()
-                {
-                    me->GetMotionMaster()->MoveTargetedHome();
-                }, me->GetSplineDuration() + 3500);
-                break;
+            me->m_Events.AddLambdaEventAtOffset([this]() {
+                me->GetMotionMaster()->MoveTargetedHome();
+            }, me->GetSplineDuration() + 3500);
         }
     }
 
@@ -2258,17 +2248,10 @@ struct npc_koroth_the_hillbreaker : public ScriptedAI
         
        m_events.Update(diff);
 
-        while (uint32 eventId = m_events.ExecuteEvent())
+        uint32 eventId = m_events.ExecuteEvent();
+        if (eventId == EVENT_KOROTH_THE_HILLBREAKER_2)
         {
-            switch (eventId)
-            {
-                case EVENT_KOROTH_THE_HILLBREAKER_2:
-                {
-                    Talk(SAY_KOROTH_THE_HILLBREAKER_2);
-                    break;
-                }
-
-            }
+            Talk(SAY_KOROTH_THE_HILLBREAKER_2);
         }
 
         if (!UpdateVictim())
@@ -2281,11 +2264,11 @@ struct npc_koroth_the_hillbreaker : public ScriptedAI
 class go_koroth_banner : public GameObjectScript
 {
 public:
-    go_koroth_banner(const char* ScriptName) : GameObjectScript(ScriptName) { }
+    explicit go_koroth_banner(const char* ScriptName) : GameObjectScript(ScriptName) { }
 
     struct go_koroth_bannerAI : public GameObjectAI
     {
-        go_koroth_bannerAI(GameObject* go) : GameObjectAI(go) { }
+        explicit go_koroth_bannerAI(GameObject* go) : GameObjectAI(go) { }
 
         void OnStateChanged(uint32 state, Unit* /*unit*/) override
         {

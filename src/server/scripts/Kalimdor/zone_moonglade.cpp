@@ -17,13 +17,10 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "Player.h"
 #include "SpellInfo.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "Cell.h"
 #include "CellImpl.h"
 
 /*####
@@ -178,7 +175,7 @@ class npc_bunthen_plainswind : public CreatureScript
     public:
         npc_bunthen_plainswind() : CreatureScript("npc_bunthen_plainswind") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
         {
             player->PlayerTalkClass->ClearMenus();
 
@@ -193,7 +190,7 @@ class npc_bunthen_plainswind : public CreatureScript
 
         bool OnGossipHello(Player* player, Creature* creature) override
         {
-            if (player->GetClass() == CLASS_DRUID && (creature->GetEntry() == 11798 && player->GetTeam() == HORDE || creature->GetEntry() == 11800 && player->GetTeam() != HORDE))
+            if (player->GetClass() == CLASS_DRUID && ((creature->GetEntry() == 11798 && player->GetTeam() == HORDE) || (creature->GetEntry() == 11800 && player->GetTeam() != HORDE)))
                 player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
             player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());

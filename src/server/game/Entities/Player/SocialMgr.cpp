@@ -24,7 +24,6 @@
 #include "ObjectMgr.h"
 #include "World.h"
 #include "Util.h"
-#include "AccountMgr.h"
 #include "WorldSession.h"
 
 PlayerSocial::PlayerSocial(): m_playerGUID()

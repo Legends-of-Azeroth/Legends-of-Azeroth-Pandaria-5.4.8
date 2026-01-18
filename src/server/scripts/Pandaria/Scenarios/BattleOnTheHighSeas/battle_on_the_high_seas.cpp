@@ -125,7 +125,7 @@ struct npc_high_seas_cannoneer : public customCreatureAI
                         targeting->SetDuration(5 * IN_MILLISECONDS);
 
                     scheduler
-                        .Schedule(Milliseconds(4000), [this](TaskContext context)
+                        .Schedule(Milliseconds(4000), [this](TaskContext /*context*/)
                     {
                         me->CastSpell(x, y, z, SPELL_BOMBS_AWAY, true);
                     });
@@ -149,7 +149,7 @@ struct npc_high_seas_cannoneer : public customCreatureAI
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PACIFIED);
 
             scheduler
-                .Schedule(Milliseconds(1000), [this](TaskContext context)
+                .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
             {
                 std::list<Creature*> transportCannons;
                 GetCreatureListWithEntryInGrid(transportCannons, me, NPC_TRANSPORT_CANNON_A_H_1, 80.0f);
@@ -165,7 +165,7 @@ struct npc_high_seas_cannoneer : public customCreatureAI
                     DoCast(transportCannon, SPELL_RIDE_VEHICLE);
 
                 scheduler
-                    .Schedule(Milliseconds(2000), [this](TaskContext context)
+                    .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
                 {
                     if (Unit* vBase = me->GetVehicleBase())
                     {
@@ -239,7 +239,7 @@ struct npc_high_seas_swashbuckler : public customCreatureAI
                         targeting->SetDuration(5 * IN_MILLISECONDS);
 
                     scheduler
-                        .Schedule(Milliseconds(4000), [this](TaskContext context)
+                        .Schedule(Milliseconds(4000), [this](TaskContext /*context*/)
                     {
                         me->CastSpell(x, y, z, SPELL_BOMBS_AWAY, true);
                     });
@@ -269,7 +269,7 @@ struct npc_high_seas_swashbuckler : public customCreatureAI
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PACIFIED);
 
             scheduler
-                .Schedule(Milliseconds(1000), [this](TaskContext context)
+                .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
             {
                 std::list<Creature*> transportCannons;
                 GetCreatureListWithEntryInGrid(transportCannons, me, NPC_TRANSPORT_CANNON_A_H_1, 80.0f);
@@ -285,7 +285,7 @@ struct npc_high_seas_swashbuckler : public customCreatureAI
                     DoCast(transportCannon, SPELL_RIDE_VEHICLE);
 
                 scheduler
-                    .Schedule(Milliseconds(2000), [this](TaskContext context)
+                    .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
                 {
                     if (Unit* vBase = me->GetVehicleBase())
                     {
@@ -450,7 +450,7 @@ struct npc_high_seas_transport_cannon : public ScriptedAI
         clicker->CastSpell(me, SPELL_RIDE_VEHICLE, true);
 
         scheduler
-            .Schedule(Milliseconds(2000), [this](TaskContext context)
+            .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
         {
             if (Unit* oldClicker = ObjectAccessor::GetUnit(*me, clickerGUID))
             {
@@ -477,7 +477,7 @@ struct npc_high_seas_transport_cannon : public ScriptedAI
         });
 
         scheduler
-            .Schedule(Milliseconds(3000), [this](TaskContext context)
+            .Schedule(Milliseconds(3000), [this](TaskContext /*context*/)
         {
             hasClicked = false;
         });
@@ -533,13 +533,13 @@ struct npc_high_seas_horde_captain : public customCreatureAI
             case ACTION_START_INTRO:
                 delay = 9000;
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_INTRO);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 12000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 12000), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_1);
                 });
@@ -562,7 +562,7 @@ struct npc_high_seas_horde_captain : public customCreatureAI
                             me->GetInstanceScript()->SetData(DATA_SMITHEREENS, DONE);
 
                         scheduler
-                            .Schedule(Milliseconds(2500), [this](TaskContext context)
+                            .Schedule(Milliseconds(2500), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_18);
                         });
@@ -694,7 +694,7 @@ struct npc_high_seas_zip : public ScriptedAI
     void Reset() override
     {
         scheduler
-            .Schedule(Milliseconds(1500), [this](TaskContext context)
+            .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
         {
             Movement::MoveSplineInit init(me);
 
@@ -704,7 +704,7 @@ struct npc_high_seas_zip : public ScriptedAI
             init.Launch();
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 if (Unit* passenger = ObjectAccessor::GetUnit(*me, summonerGUID))
                 {
@@ -749,7 +749,7 @@ struct npc_high_seas_zip_back : public ScriptedAI
     void Reset() override
     {
         scheduler
-            .Schedule(Milliseconds(1500), [this](TaskContext context)
+            .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
         {
             Movement::MoveSplineInit init(me);
 
@@ -759,7 +759,7 @@ struct npc_high_seas_zip_back : public ScriptedAI
             init.Launch();
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 if (Unit* passenger = ObjectAccessor::GetUnit(*me, summonerGUID))
                 {
@@ -820,7 +820,7 @@ struct npc_high_seas_fuse : public ScriptedAI
         DoCast(me, SPELL_FUSE_VISUAL);
 
         scheduler
-            .Schedule(Milliseconds(500), [this](TaskContext context)
+            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
         {
             if (Creature* lieutenant = ObjectAccessor::GetCreature(*me, summonerGUID))
             {
@@ -832,7 +832,7 @@ struct npc_high_seas_fuse : public ScriptedAI
                     me->GetMotionMaster()->MovePoint(0, *barrel);
 
                     scheduler
-                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                     {
                         if (Creature* oldBarrel = ObjectAccessor::GetCreature(*me, barrelGUID))
                         {
@@ -1045,7 +1045,7 @@ struct npc_high_seas_admiral_hodgson : public customCreatureAI
                         targeting->SetDuration(5 * IN_MILLISECONDS);
 
                     scheduler
-                        .Schedule(Milliseconds(4000), [this](TaskContext context)
+                        .Schedule(Milliseconds(4000), [this](TaskContext /*context*/)
                     {
                         me->CastSpell(x, y, z, SPELL_BOMBS_AWAY, true);
                     });
@@ -1130,7 +1130,7 @@ struct npc_high_seas_net_climber : public ScriptedAI
         me->SetDisplayFromModel(1);
 
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext context)
+            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
         {
             Movement::MoveSplineInit init(me);
 
@@ -1138,7 +1138,7 @@ struct npc_high_seas_net_climber : public ScriptedAI
             init.Launch();
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 if (Unit* passenger = ObjectAccessor::GetUnit(*me, summonerGUID))
                     passenger->ExitVehicle();

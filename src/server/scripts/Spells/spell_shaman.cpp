@@ -32,7 +32,6 @@
 #include "Battleground.h"
 #include "spell_common.h"
 #include "PassiveAI.h"
-#include "TotemAI.h"
 #include "Pet.h"
 #include "Random.h"
 
@@ -1416,7 +1415,7 @@ class spell_sha_conductivity : public AuraScript
             if (aura->GetMaxDuration() < 40 * IN_MILLISECONDS)
             {
                 int32 add = eff->GetAmplitude() * 2;
-                int32 maxDuration = std::min(aura->GetMaxDuration() + add, 40 * IN_MILLISECONDS);
+                int32 maxDuration = static_cast<int32>(std::min((uint32)aura->GetMaxDuration() + add, 40 * IN_MILLISECONDS));
                 aura->SetMaxDuration(maxDuration);
                 aura->SetDuration(aura->GetDuration() + add);
             }

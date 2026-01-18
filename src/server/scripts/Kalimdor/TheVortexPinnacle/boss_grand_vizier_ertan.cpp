@@ -214,7 +214,7 @@ struct npc_ertan_vortex : public ScriptedAI
     TaskScheduler scheduler;
     float x, y, dist, prevX, prevY;
 
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(Unit* /*summoner*/) override
     {
         x = 0.0f; y = 0.0f;
         SetCombatMovement(false);
@@ -244,7 +244,7 @@ struct npc_ertan_vortex : public ScriptedAI
 
                 me->GetMotionMaster()->MovePoint(0, prevX, prevY, me->GetPositionZ(), 0.0f);
                 scheduler
-                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     me->StopMoving();
                     SetHandleCycleMovement();

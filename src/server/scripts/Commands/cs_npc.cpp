@@ -1635,10 +1635,6 @@ public:
 
         Tokenizer tok{ args, ' ' };
         uint32 count = std::strtoul(tok[0], nullptr, 10);
-        uint32 mod = 11;
-        if (tok.size() == 2)
-            mod = std::strtoul(tok[1], nullptr, 10);
-
         if (!count || count < 10)
         {
             handler->PSendSysMessage("Incorrect value.");

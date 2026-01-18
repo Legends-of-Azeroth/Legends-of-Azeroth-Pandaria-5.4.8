@@ -19,7 +19,6 @@
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
 #include "CreatureAI.h"
 #include "MoveSplineInit.h"
 #include "SpellScript.h"
@@ -225,7 +224,7 @@ struct npc_darkheart_urtharges_the_destroyer : public customCreatureAI
         summons.Summon(summon);
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(TALK_INTRO);
         events.ScheduleEvent(EVENT_RUPTURE_LINE, 5 * IN_MILLISECONDS);
@@ -316,7 +315,7 @@ class npc_darkheart_grizzle_gearslip : public CreatureScript
             {
                 me->GetMotionMaster()->MovePoint(0, gearslipPath[1]);
 
-                scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_3);
 
@@ -336,12 +335,12 @@ class npc_darkheart_grizzle_gearslip : public CreatureScript
                             me->GetInstanceScript()->SetData(STEP_TALK_WITH_LEADER, DONE);
                     
                         delay = 0;
-                        scheduler.Schedule(Milliseconds(delay += 5500), [this](TaskContext context)
+                        scheduler.Schedule(Milliseconds(delay += 5500), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_1);
                         });
                     
-                        scheduler.Schedule(Milliseconds(delay += 8000), [this](TaskContext context)
+                        scheduler.Schedule(Milliseconds(delay += 8000), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_2);
                         });
@@ -351,7 +350,7 @@ class npc_darkheart_grizzle_gearslip : public CreatureScript
                         Talk(TALK_SPECIAL_4);
 
                         scheduler.
-                            Schedule(Milliseconds(delay+=6800), [this](TaskContext context)
+                            Schedule(Milliseconds(delay+=6800), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_5);
 
@@ -360,7 +359,7 @@ class npc_darkheart_grizzle_gearslip : public CreatureScript
                         });
 
                         scheduler.
-                            Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                            Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
                         {
                             if (Creature* malkorok = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MALKOROK) : ObjectGuid::Empty))
                                 malkorok->AI()->DoAction(ACTION_START_INTRO);
@@ -371,7 +370,7 @@ class npc_darkheart_grizzle_gearslip : public CreatureScript
                         me->GetMotionMaster()->MovePoint(0, gearslipPath[0]);
 
                         scheduler.
-                            Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                            Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                         {
                             me->DespawnOrUnsummon();
                         });
@@ -462,12 +461,12 @@ class npc_darkheart_crafty_the_ambitious : public CreatureScript
                     Talk(TALK_INTRO);
     
                     delay = 0;
-                    scheduler.Schedule(Milliseconds(delay += 5500), [this](TaskContext context)
+                    scheduler.Schedule(Milliseconds(delay += 5500), [this](TaskContext /*context*/)
                     {
                         Talk(TALK_SPECIAL_1);
                     });
     
-                    scheduler.Schedule(Milliseconds(delay += 9000), [this](TaskContext context)
+                    scheduler.Schedule(Milliseconds(delay += 9000), [this](TaskContext /*context*/)
                     {
                         Talk(TALK_SPECIAL_2);
 
@@ -486,12 +485,12 @@ class npc_darkheart_crafty_the_ambitious : public CreatureScript
                         init.Launch();
 
                         delay = me->GetSplineDuration();
-                        scheduler.Schedule(Milliseconds(delay), [this](TaskContext context)
+                        scheduler.Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_3);
                         });
 
-                        scheduler.Schedule(Milliseconds(delay += 3000), [this](TaskContext context)
+                        scheduler.Schedule(Milliseconds(delay += 3000), [this](TaskContext /*context*/)
                         {
                             DoCast(me, SPELL_NITRO_BOOSTS, true);
                             me->GetMotionMaster()->MoveCharge(darkheartDest.GetPositionX(), darkheartDest.GetPositionY(), darkheartDest.GetPositionZ(), 20.0f, EVENT_CHARGE);
@@ -519,7 +518,7 @@ class npc_darkheart_crafty_the_ambitious : public CreatureScript
                         heartOfYshaarj->SetGoState(GO_STATE_ACTIVE);
 
                     scheduler.
-                        Schedule(Milliseconds(7000), [this](TaskContext context)
+                        Schedule(Milliseconds(7000), [this](TaskContext /*context*/)
                     {
                         if (Creature* echo = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_ECHO_OF_YSHAARJ) : ObjectGuid::Empty))
                         {
@@ -630,7 +629,7 @@ struct npc_darkheart_malkorok : public ScriptedAI
         me->GetMotionMaster()->MovePoint(0, malkorokSpawnPos);
 
         scheduler.
-            Schedule(Milliseconds(delay += me->GetSplineDuration()), [this](TaskContext context)
+            Schedule(Milliseconds(delay += me->GetSplineDuration()), [this](TaskContext /*context*/)
         {
             Talk(TALK_INTRO);
 
@@ -639,7 +638,7 @@ struct npc_darkheart_malkorok : public ScriptedAI
         });
 
         scheduler.
-            Schedule(Milliseconds(delay += 5500), [this](TaskContext context)
+            Schedule(Milliseconds(delay += 5500), [this](TaskContext /*context*/)
         {
             if (Creature* grizzle = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_GRIZZLE_GEARSLIP + 1) : ObjectGuid::Empty))
                 grizzle->AI()->DoAction(ACTION_GRIZZLE_ANSWER);
@@ -655,45 +654,45 @@ struct npc_darkheart_malkorok : public ScriptedAI
             Talk(TALK_SPECIAL_1);
 
             scheduler.
-                Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
+                Schedule(Milliseconds(delay += 6000), [this](TaskContext /*context*/)
             {
                 if (Creature* grizzle = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_GRIZZLE_GEARSLIP + 1) : ObjectGuid::Empty))
                     grizzle->AI()->Talk(TALK_SPECIAL_6);
             });
 
             scheduler.
-                Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_2);
             });
 
             scheduler.
-                Schedule(Milliseconds(delay += 6500), [this](TaskContext context)
+                Schedule(Milliseconds(delay += 6500), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_3);
             });
 
             scheduler.
-                Schedule(Milliseconds(delay += 7000), [this](TaskContext context)
+                Schedule(Milliseconds(delay += 7000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_4);
             });
 
             scheduler.
-                Schedule(Milliseconds(delay += 5950), [this](TaskContext context)
+                Schedule(Milliseconds(delay += 5950), [this](TaskContext /*context*/)
             {
                 if (Creature* grizzle = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_GRIZZLE_GEARSLIP + 1) : ObjectGuid::Empty))
                     grizzle->AI()->Talk(TALK_SPECIAL_7);
             });
 
             scheduler.
-                Schedule(Milliseconds(delay += 4000), [this](TaskContext context)
+                Schedule(Milliseconds(delay += 4000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_5);
             });
 
             scheduler.
-                Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
+                Schedule(Milliseconds(delay += 6000), [this](TaskContext /*context*/)
             {
                 if (Creature* grizzle = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_GRIZZLE_GEARSLIP + 1) : ObjectGuid::Empty))
                     grizzle->AI()->DoAction(ACTION_LEAVE_MALKOROK);

@@ -27,7 +27,6 @@
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
-#include "Spell.h"
 #include "SmartAI.h"
 #include "Guild.h"
 

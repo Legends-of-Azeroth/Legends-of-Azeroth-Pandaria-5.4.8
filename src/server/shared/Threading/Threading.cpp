@@ -16,7 +16,6 @@
 */
 
 #include "Threading.h"
-#include "Errors.h"
 #include <vector>
 
 using namespace MopCore;
@@ -77,7 +76,7 @@ void Thread::destroy()
 
 void Thread::ThreadTask(void* param)
 {
-    Runnable* _task = (Runnable*)param;
+    auto* _task = (Runnable*)param;
     _task->run();
 }
 
@@ -86,11 +85,11 @@ std::thread::id Thread::currentId()
     return std::this_thread::get_id();
 }
 
+#ifdef WIN32
 void Thread::setPriority(Priority priority)
 {
     std::thread::native_handle_type handle = m_ThreadImp.native_handle();
     bool _ok = true;
-#ifdef WIN32
 
     switch (priority)
     {
@@ -102,11 +101,11 @@ void Thread::setPriority(Priority priority)
         case Priority_Lowest: _ok = SetThreadPriority(handle, THREAD_PRIORITY_LOWEST);        break;
         case Priority_Idle: _ok = SetThreadPriority(handle, THREAD_PRIORITY_IDLE);          break;
     }
-#endif
 
     // remove this ASSERT in case you don't want to know is thread priority change was successful or not
     ASSERT(_ok);
 }
+#endif
 
 void Thread::Sleep(unsigned long msecs)
 {

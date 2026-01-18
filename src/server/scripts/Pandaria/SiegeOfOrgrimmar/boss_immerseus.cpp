@@ -27,7 +27,6 @@
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "CreatureTextMgr.h"
 #include "MoveSplineInit.h"
 #include "Unit.h"
@@ -236,7 +235,7 @@ class boss_immerseus : public CreatureScript
                 _Reset();
 
                 scheduler
-                    .Schedule(Seconds(1), [this](TaskContext context)
+                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
                 {
                     if (me->GetInstanceScript() && me->GetInstanceScript()->GetData(DATA_AQUEOUS_DEFENDERS_FALLEN) == DONE)
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
@@ -642,7 +641,7 @@ class boss_immerseus : public CreatureScript
                                     targetGUID = target->GetGUID();
                                 
                                 scheduler  // Should wait a few seconds on the postision before casting spell 
-                                    .Schedule(Milliseconds(2000), [this](TaskContext context)
+                                    .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
                                 {
                                     DoCast(me, SPELL_SWIRL_SPRAY, true);
                                 });
@@ -659,7 +658,7 @@ class boss_immerseus : public CreatureScript
                                 }
 
                                 scheduler
-                                    .Schedule(Milliseconds(13500), [this](TaskContext context)
+                                    .Schedule(Milliseconds(13500), [this](TaskContext /*context*/)
                                 {
                                     me->RemoveChanneledCast(targetGUID);
                                 });

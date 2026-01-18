@@ -336,6 +336,8 @@ class boss_ultraxion: public CreatureScript
                     case RAID_DIFFICULTY_25MAN_HEROIC:
                         instance->DoRespawnGameObject(instance->GetGuidData(DATA_LESSER_CACHE_25H), DAY);
                         break;
+
+                    default: break;
                 }
 
                 if (instance->GetData(DATA_IS_LFR))
@@ -743,7 +745,7 @@ class spell_ultraxion_fading_light : public SpellScriptLoader
                 aura->SetMaxDuration(duration);
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget())
                 {    
@@ -968,7 +970,7 @@ class spell_ultraxion_heroic_will : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ultraxion_heroic_will_AuraScript);
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget())
                     if (InstanceScript* instance = GetTarget()->GetInstanceScript())
@@ -1043,7 +1045,7 @@ class spell_ultraxion_achievement_aura : public AuraScript
 {
     PrepareAuraScript(spell_ultraxion_achievement_aura);
 
-    void HandleAuraEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+    void HandleAuraEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (GetStackAmount() > 1 && GetOwner() && GetOwner()->ToUnit())
             GetOwner()->ToUnit()->GetMap()->SetWorldState(WORLDSTATE_MINUTES_TO_MIDNIGHT, 0);

@@ -19,7 +19,6 @@
 #include "siege_of_orgrimmar.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
 #include "CreatureAI.h"
 #include "MoveSplineInit.h"
 
@@ -363,7 +362,7 @@ struct npc_siege_of_orgrimmar_lesser_sha_puddle : public customCreatureAI
         me->GetMotionMaster()->MovePoint(0, immerseusPuddleEvent);
     }
 
-    void MovementInform(uint32 type, uint32 pointId) override
+    void MovementInform(uint32 type, uint32 /*pointId*/) override
     {
         if (type != POINT_MOTION_TYPE)
             return;
@@ -371,7 +370,7 @@ struct npc_siege_of_orgrimmar_lesser_sha_puddle : public customCreatureAI
         me->DespawnOrUnsummon();
     }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 /*diff*/) override
     {
         if (!UpdateVictim())
             return;
@@ -392,7 +391,7 @@ struct npc_tormented_initiate : public customCreatureAI
         events.Reset();
 
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext context)
+            .Schedule(Seconds(1), [this](TaskContext /*context*/)
         {
             if (me->GetPositionZ() < 250.0f)
             {
@@ -471,7 +470,7 @@ struct npc_fallen_pool_tender : public customCreatureAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(TALK_INTRO);
-        events.ScheduleEvent(EVENT_BUBLE_SHIELD, urand(1.5 * IN_MILLISECONDS, 2 * IN_MILLISECONDS));
+        events.ScheduleEvent(EVENT_BUBLE_SHIELD, urand(static_cast<uint32>(1.5 * (double)IN_MILLISECONDS), 2 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_CORRUPTED_WATER, 10 * IN_MILLISECONDS);
     }
 
@@ -581,13 +580,13 @@ struct npc_siege_of_orgrimmar_lorewalker_cho : public customCreatureAI
 
                 delay = 2000;
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_INTRO);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 11900), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 11900), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_1);
                 });
@@ -602,25 +601,25 @@ struct npc_siege_of_orgrimmar_lorewalker_cho : public customCreatureAI
 
                 delay = me->GetSplineDuration();
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_2);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 10700), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 10700), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_3);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 13300), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 13300), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_4);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 8500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 8500), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_5);
                 });
@@ -630,19 +629,19 @@ struct npc_siege_of_orgrimmar_lorewalker_cho : public customCreatureAI
 
                 delay = me->GetSplineDuration();
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_6);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 7800), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 7800), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_7);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 6100), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 6100), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_8);
                 });
@@ -658,59 +657,59 @@ struct npc_siege_of_orgrimmar_lorewalker_cho : public customCreatureAI
 
                 delay = me->GetSplineDuration();
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_9);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 6000), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_10);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 7900), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 7900), [this](TaskContext /*context*/)
                 {
                     if (Creature* rook = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_ROOK_STONETOE) : ObjectGuid::Empty))
                         rook->AI()->Talk(TALK_INTRO);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 6900), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 6900), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_11);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 7600), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 7600), [this](TaskContext /*context*/)
                 {
                     if (Creature* rook = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_ROOK_STONETOE) : ObjectGuid::Empty))
                         rook->AI()->Talk(TALK_SPECIAL_1);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 9300), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 9300), [this](TaskContext /*context*/)
                 {
                     if (Creature* sun = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SUN_TENDERHEART) : ObjectGuid::Empty))
                         sun->AI()->Talk(TALK_INTRO);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 6200), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 6200), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_12);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 12500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 12500), [this](TaskContext /*context*/)
                 {
                     if (Creature* rook = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_ROOK_STONETOE) : ObjectGuid::Empty))
                         rook->AI()->Talk(TALK_SPECIAL_2);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 4400), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 4400), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_13);
                 });
@@ -720,7 +719,7 @@ struct npc_siege_of_orgrimmar_lorewalker_cho : public customCreatureAI
                 Talk(TALK_SPECIAL_14);
 
                 scheduler
-                    .Schedule(Milliseconds(5500), [this](TaskContext context)
+                    .Schedule(Milliseconds(5500), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_15);
                 });
@@ -759,79 +758,79 @@ struct npc_siege_of_orgrimmar_lorewalker_cho_norushen : public customCreatureAI
         delay = 6300;
 
         scheduler
-            .Schedule(Milliseconds(delay), [this](TaskContext context)
+            .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
         {
             Talk(TALK_SPECIAL_1);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 7000), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 7000), [this](TaskContext /*context*/)
         {
             Talk(TALK_SPECIAL_2);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 7300), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 7300), [this](TaskContext /*context*/)
         {
             if (Creature* norushen = ObjectAccessor::GetCreature(*me, summonerGUID))
                 norushen->AI()->Talk(TALK_INTRO);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 2300), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 2300), [this](TaskContext /*context*/)
         {
             Talk(TALK_SPECIAL_3);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 6600), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 6600), [this](TaskContext /*context*/)
         {
             if (Creature* norushen = ObjectAccessor::GetCreature(*me, summonerGUID))
                 norushen->AI()->Talk(TALK_SPECIAL_1);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 6600), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 6600), [this](TaskContext /*context*/)
         {
             Talk(TALK_SPECIAL_4);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 8300), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 8300), [this](TaskContext /*context*/)
         {
             if (Creature* norushen = ObjectAccessor::GetCreature(*me, summonerGUID))
                 norushen->AI()->Talk(TALK_SPECIAL_2);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 5100), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 5100), [this](TaskContext /*context*/)
         {
             Talk(TALK_SPECIAL_5);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 3800), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 3800), [this](TaskContext /*context*/)
         {
             if (Creature* norushen = ObjectAccessor::GetCreature(*me, summonerGUID))
                 norushen->AI()->Talk(TALK_SPECIAL_3);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 13500), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 13500), [this](TaskContext /*context*/)
         {
             if (Creature* norushen = ObjectAccessor::GetCreature(*me, summonerGUID))
                 norushen->AI()->Talk(TALK_SPECIAL_4);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 8400), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 8400), [this](TaskContext /*context*/)
         {
             if (Creature* norushen = ObjectAccessor::GetCreature(*me, summonerGUID))
                 norushen->AI()->Talk(TALK_SPECIAL_5);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 7700), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 7700), [this](TaskContext /*context*/)
         {
             if (Creature* norushen = ObjectAccessor::GetCreature(*me, summonerGUID))
             {
@@ -842,7 +841,7 @@ struct npc_siege_of_orgrimmar_lorewalker_cho_norushen : public customCreatureAI
             me->GetMotionMaster()->MovePoint(0, choPreNorushenEvent[0]);
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 me->SetFacingTo(Position::NormalizeOrientation(me->GetOrientation() - M_PI));
             });
@@ -1100,7 +1099,7 @@ struct npc_siege_of_orgrimmar_portal_to_galakras : public customCreatureAI
         me->SetVisible(false);
 
         scheduler
-            .Schedule(Milliseconds(1500), [this](TaskContext context)
+            .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
         {
             if (me->GetInstanceScript() && me->GetInstanceScript()->GetData(DATA_SHA_OF_PRIDE_PAST_EVENT) == DONE)
                 me->SetVisible(true);
@@ -1140,52 +1139,52 @@ struct npc_lady_jaina_proudmoore_sha_room : public customCreatureAI
 
             uint32 delay = 5000;
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 Talk(TALK_INTRO);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 10200), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 10200), [this](TaskContext /*context*/)
             {
                 if (Creature* lorthemar = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_LORTHEMAR_PRIDE_ROOM) : ObjectGuid::Empty))
                     lorthemar->AI()->Talk(TALK_INTRO);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 4100), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 4100), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_1);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 2600), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 2600), [this](TaskContext /*context*/)
             {
                 if (Creature* lorthemar = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_LORTHEMAR_PRIDE_ROOM) : ObjectGuid::Empty))
                     lorthemar->AI()->Talk(TALK_SPECIAL_1);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 3800), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 3800), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_2);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 7200), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 7200), [this](TaskContext /*context*/)
             {
                 if (Creature* lorthemar = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_LORTHEMAR_PRIDE_ROOM) : ObjectGuid::Empty))
                     lorthemar->AI()->Talk(TALK_SPECIAL_2);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 6400), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 6400), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_3);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 12000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 12000), [this](TaskContext /*context*/)
             {
                 if (Creature* lorthemar = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_LORTHEMAR_PRIDE_ROOM) : ObjectGuid::Empty))
                     lorthemar->AI()->Talk(TALK_SPECIAL_3);
@@ -1193,7 +1192,7 @@ struct npc_lady_jaina_proudmoore_sha_room : public customCreatureAI
 
             bool isLfr = me->GetInstanceScript() && me->GetInstanceScript()->GetData(DATA_LFR);
             scheduler
-                .Schedule(Milliseconds(delay += 5000), [this, isLfr](TaskContext context)
+                .Schedule(Milliseconds(delay += 5000), [this, isLfr](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_4);
 
@@ -1370,7 +1369,7 @@ struct npc_siege_of_orgrimmar_korkron_elite_sniper : public customCreatureAI
 {
     npc_siege_of_orgrimmar_korkron_elite_sniper(Creature* creature) : customCreatureAI(creature) { }
 
-    void AttackStart(Unit* victim) override { } // ignore any hostile
+    void AttackStart(Unit* /*victim*/) override { } // ignore any hostile
 };
 
 // Voljin 73942
@@ -1413,14 +1412,14 @@ struct npc_siege_of_orgrimmar_voljin : public customCreatureAI
 
                 delay = 1500;
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     for (auto&& itr : darkSpearWarriorsList)
                         itr->HandleEmoteStateCommand(EMOTE_STATE_EXCLAIM);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3500), [this](TaskContext /*context*/)
                 {
                     for (auto&& itr : darkSpearWarriorsList)
                     {
@@ -1436,7 +1435,7 @@ struct npc_siege_of_orgrimmar_voljin : public customCreatureAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 4000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 4000), [this](TaskContext /*context*/)
                 {
                     for (auto&& itr : darkSpearWarriorsList)
                         itr->Kill(itr, true);
@@ -1446,27 +1445,27 @@ struct npc_siege_of_orgrimmar_voljin : public customCreatureAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 5500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 5500), [this](TaskContext /*context*/)
                 {
                     if (Creature* nazgrim = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NAZGRIM_PRE_EVENT) : ObjectGuid::Empty))
                         nazgrim->AI()->Talk(TALK_INTRO);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 9000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 9000), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_INTRO);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 10500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 10500), [this](TaskContext /*context*/)
                 {
                     if (Creature* baine = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_BAINE_BLOODHOOF) : ObjectGuid::Empty))
                         baine->AI()->Talk(TALK_SPECIAL_1);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 7000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 7000), [this](TaskContext /*context*/)
                 {
                     if (Creature* baine = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_BAINE_BLOODHOOF) : ObjectGuid::Empty))
                         baine->AI()->Talk(TALK_SPECIAL_2);
@@ -1486,7 +1485,7 @@ struct npc_siege_of_orgrimmar_voljin : public customCreatureAI
                     baine->GetMotionMaster()->MovePoint(0, blackSpearLeadersPos[1]);
 
                 scheduler
-                    .Schedule(Milliseconds(4500), [this](TaskContext context)
+                    .Schedule(Milliseconds(4500), [this](TaskContext /*context*/)
                 {
                     if (Creature* baine = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_BAINE_BLOODHOOF) : ObjectGuid::Empty))
                         baine->AI()->Talk(TALK_SPECIAL_3);
@@ -1502,14 +1501,14 @@ struct npc_siege_of_orgrimmar_voljin : public customCreatureAI
 
                 delay = 2500;
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     if (Creature* nazgrim = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NAZGRIM_PRE_EVENT) : ObjectGuid::Empty))
                         nazgrim->AI()->Talk(TALK_SPECIAL_1);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 8000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 8000), [this](TaskContext /*context*/)
                 {
                     if (Creature* tyrande = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TYRANDE) : ObjectGuid::Empty))
                         tyrande->AI()->DoAction(ACTION_START_INTRO);
@@ -1561,7 +1560,7 @@ struct npc_siege_of_orgrimmar_tyrande : public customCreatureAI
 
             delay = 6000;
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 if (Creature* nazgrim = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NAZGRIM_PRE_EVENT) : ObjectGuid::Empty))
                 {
@@ -1571,7 +1570,7 @@ struct npc_siege_of_orgrimmar_tyrande : public customCreatureAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 3500), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 3500), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_1);
 
@@ -1580,7 +1579,7 @@ struct npc_siege_of_orgrimmar_tyrande : public customCreatureAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
             {
                 // Call Korkron Here
                 std::list<Creature*> korkronsList;
@@ -1594,14 +1593,14 @@ struct npc_siege_of_orgrimmar_tyrande : public customCreatureAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 3400), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 3400), [this](TaskContext /*context*/)
             {
                 if (Creature* voljin = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_VOLJIN) : ObjectGuid::Empty))
                     voljin->AI()->Talk(TALK_SPECIAL_3);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 4000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 4000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_2);
             });
@@ -1628,7 +1627,7 @@ struct npc_siege_of_orgrimmar_korkron_grunt_gates : public customCreatureAI
         me->GetMotionMaster()->MoveChase(target, 0.0f, me->GetAngle(target));
     }
 
-    void MovementInform(uint32 type, uint32 pointId) override
+    void MovementInform(uint32 type, uint32 /*pointId*/) override
     {
         if (type != POINT_MOTION_TYPE)
             return;
@@ -1639,7 +1638,7 @@ struct npc_siege_of_orgrimmar_korkron_grunt_gates : public customCreatureAI
             AttackStart(nightElf);
     }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 /*diff*/) override
     {
         if (!UpdateVictim())
             return;
@@ -1661,7 +1660,7 @@ struct npc_siege_of_orgrimmar_aysa_cloudsinger : public customCreatureAI
     bool hasTriggered;
     bool hasKomakTriggered;
 
-    void MovementInform(uint32 type, uint32 pointId) override
+    void MovementInform(uint32 /*type*/, uint32 pointId) override
     {
         if (pointId == EVENT_JUMP)
         {
@@ -1693,19 +1692,19 @@ struct npc_siege_of_orgrimmar_aysa_cloudsinger : public customCreatureAI
 
             uint32 delay = me->GetSplineDuration();
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_3);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 13600), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 13600), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_4);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
             {
                 if (Creature* ji = ObjectAccessor::GetCreature(*me, me->GetInstanceId() ? me->GetInstanceScript()->GetGuidData(NPC_JI_FIREPAW) : ObjectGuid::Empty))
                     ji->CastSpell(me, VEHICLE_SPELL_RIDE_HARDCODED, true);
@@ -1713,7 +1712,7 @@ struct npc_siege_of_orgrimmar_aysa_cloudsinger : public customCreatureAI
                 me->GetMotionMaster()->MoveTargetedHome();
 
                 scheduler
-                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     if (Creature* ji = ObjectAccessor::GetCreature(*me, me->GetInstanceId() ? me->GetInstanceScript()->GetGuidData(NPC_JI_FIREPAW) : ObjectGuid::Empty))
                         ji->DespawnOrUnsummon();
@@ -1817,7 +1816,7 @@ struct npc_siege_of_orgrimmar_korkron_dark_shaman : public customCreatureAI
 
         // Init delay
         scheduler
-            .Schedule(Milliseconds(1500), [this](TaskContext context)
+            .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
         {
             if (Creature* wolf = me->FindNearestCreature(NPC_KORKRON_DIRE_WOLF, 5.0f, true))
                 if (!wolf->HasAuraType(SPELL_AURA_CONTROL_VEHICLE))
@@ -1986,7 +1985,7 @@ struct npc_siege_of_orgrimmar_treasure_guard : public customCreatureAI
         hasTriggered = false;
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
     {
         if (HealthBelowPct(60) && !hasTriggered)
         {
@@ -1995,7 +1994,7 @@ struct npc_siege_of_orgrimmar_treasure_guard : public customCreatureAI
         }
     }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 /*diff*/) override
     {
         if (!UpdateVictim())
             return;
@@ -2037,26 +2036,26 @@ struct npc_overseer_komak : public customCreatureAI
 
             uint32 delay = 500;
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 Talk(TALK_INTRO);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 6000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_1);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 11200), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 11200), [this](TaskContext /*context*/)
             {
                 if (Creature* aysa = ObjectAccessor::GetCreature(*me, me->GetInstanceId() ? me->GetInstanceScript()->GetGuidData(NPC_AYSA_CLOUDSINGER) : ObjectGuid::Empty))
                     aysa->AI()->Talk(TALK_SPECIAL_1);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
             {
                 if (Creature* aysa = ObjectAccessor::GetCreature(*me, me->GetInstanceId() ? me->GetInstanceScript()->GetGuidData(NPC_AYSA_CLOUDSINGER) : ObjectGuid::Empty))
                     aysa->AI()->Talk(TALK_SPECIAL_2);
@@ -2104,7 +2103,7 @@ struct npc_siege_of_orgrimmar_mokvar_the_treasurer : public customCreatureAI
         events.Reset();
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_COIN_TOSS, 1.5 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_BRIBE, 12 * IN_MILLISECONDS);
@@ -2165,7 +2164,7 @@ struct npc_siege_of_orgrimmar_cage_prisoner : public customCreatureAI
     {
         // in server crash case
         scheduler
-            .Schedule(Milliseconds(2000), [this](TaskContext context)
+            .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
         {
             if (me->GetInstanceScript() && me->GetInstanceScript()->GetData(DATA_SHAMANS_PRISON) == DONE && me->GetEntry() == 72486)
                 me->GetMotionMaster()->MovePoint(0, cagePrisonerLeavePos);
@@ -2197,7 +2196,7 @@ struct npc_siege_of_orgrimmar_cage_prisoner : public customCreatureAI
         }
     }
 
-    void MovementInform(uint32 type, uint32 pointId) override
+    void MovementInform(uint32 type, uint32 /*pointId*/) override
     {
         if (type != POINT_MOTION_TYPE)
             return;
@@ -2259,7 +2258,7 @@ struct npc_siege_of_orgrimmar_korkron_shadowmage : public customCreatureAI
         events.Reset();
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_MIND_SPIKE, 1.5 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_SHADOWFLAME, 11 * IN_MILLISECONDS);
@@ -2307,7 +2306,7 @@ struct npc_siege_of_orgrimmar_korkron_overseer : public customCreatureAI
         if (me->GetEntry() == NPC_OVERSEER_THATUNG)
         {
             scheduler
-                .Schedule(Milliseconds(1500), [this](TaskContext context)
+                .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
             {
                 DoCast(me, SPELL_SLAVE_CHAINS);
             });
@@ -2363,7 +2362,7 @@ struct npc_siege_of_orgrimmar_korkron_dire_wolf : public customCreatureAI
         events.Reset();
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_REND, 2.5 * IN_MILLISECONDS);
     }
@@ -2408,13 +2407,13 @@ struct npc_siege_of_orgrimmar_eitrigg : public customCreatureAI
 
             uint32 delay = 9600;
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_1);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 5800), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 5800), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_2);
             });
@@ -2442,7 +2441,7 @@ struct npc_siege_of_orgrimmar_overlord_runthak : public customCreatureAI
         events.Reset();
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_BONECRACKER, 3 * IN_MILLISECONDS);
     }
@@ -2496,7 +2495,7 @@ struct npc_siege_of_orgrimmar_hellscream_demolisher : public customCreatureAI
         events.Reset();
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_HURL_BOULDER, urand(1.5 * IN_MILLISECONDS, 4.5 * IN_MILLISECONDS));
     }
@@ -2515,12 +2514,12 @@ struct npc_siege_of_orgrimmar_hellscream_demolisher : public customCreatureAI
         {
             if (eventId == EVENT_HURL_BOULDER)
             {
-                if (!me->GetVictim() || me->GetVictim() && me->GetExactDist2d(me->GetVictim()) > 4.72f) // spell range
+                if (!me->GetVictim() || (me->GetVictim() && me->GetExactDist2d(me->GetVictim()) > 4.72f)) // spell range
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankSpecTargetSelector()))
                         DoCast(target, SPELL_HURL_BOULDER);
-                    else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
-                        DoCast(target, SPELL_HURL_BOULDER);
+                    else if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
+                        DoCast(target2, SPELL_HURL_BOULDER);
                 }
 
                 events.ScheduleEvent(EVENT_HURL_BOULDER, urand(2 * IN_MILLISECONDS, 2.5 * IN_MILLISECONDS));
@@ -2547,7 +2546,7 @@ struct npc_siege_of_orgrimmar_groldar : public customCreatureAI
     {
         // Delay Init
         scheduler
-            .Schedule(Milliseconds(1500), [this](TaskContext context)
+            .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_CONTROL_POWERFUL_DEMON);
         });
@@ -2578,7 +2577,7 @@ struct npc_siege_of_orgrimmar_doomlord : public customCreatureAI
         events.Reset();
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_CRIPPLE, urand(1.5 * IN_MILLISECONDS, 4.5 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 8.5 * IN_MILLISECONDS);
@@ -2653,7 +2652,7 @@ struct npc_siege_of_orgrimmar_korkron_blood_axe : public customCreatureAI
             me->GetMotionMaster()->MovePath(me->GetDBTableGUIDLow(), false);
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 me->HandleEmoteStateCommand(EMOTE_STATE_READY2H);
                 me->SetHomePosition(*me);
@@ -2707,7 +2706,7 @@ struct npc_siege_of_orgrimmar_korkron_gunner : public customCreatureAI
             return;
 
         scheduler
-            .Schedule(Milliseconds(2000), [this](TaskContext context)
+            .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
         {
             Movement::MoveSplineInit init(me);
             init.Path().push_back(G3D::Vector3(x, y, z));
@@ -2722,7 +2721,7 @@ struct npc_siege_of_orgrimmar_korkron_gunner : public customCreatureAI
         });
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
     {
         if (HealthBelowPct(30) && !hasTriggered)
         {
@@ -2738,7 +2737,7 @@ struct npc_siege_of_orgrimmar_korkron_gunner : public customCreatureAI
             me->GetMotionMaster()->MovePath(me->GetDBTableGUIDLow(), false);
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 me->HandleEmoteStateCommand(EMOTE_STATE_READY_RIFLE);
                 me->SetHomePosition(*me);
@@ -2806,7 +2805,7 @@ struct npc_siege_of_orgrimmar_korkron_dark_farseer : public customCreatureAI
 
         // Delay Init
         scheduler
-            .Schedule(Milliseconds(1500), [this](TaskContext context)
+            .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
         {
             if (Creature* darkWolf = me->SummonCreature(NPC_KORKRON_WAR_WOLF, *me, TEMPSUMMON_MANUAL_DESPAWN))
                 me->CastSpell(darkWolf, VEHICLE_SPELL_RIDE_HARDCODED, true);
@@ -2818,7 +2817,7 @@ struct npc_siege_of_orgrimmar_korkron_dark_farseer : public customCreatureAI
         summons.Summon(summon);
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
     {
         if (HealthBelowPct(50) && !hasTriggered)
         {
@@ -2848,7 +2847,7 @@ struct npc_siege_of_orgrimmar_korkron_dark_farseer : public customCreatureAI
         }
     }
 
-    void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
+    void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) override
     {
         if (me->IsAlive())
             Talk(TALK_INTRO);
@@ -2905,7 +2904,7 @@ struct npc_siege_of_orgrimmar_korkron_dark_wolf : public customCreatureAI
             return;
 
         scheduler
-            .Schedule(Milliseconds(500), [this](TaskContext context)
+            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
         {
             Movement::MoveSplineInit init(me);
             init.Path().push_back(G3D::Vector3(x, y, z));
@@ -2920,7 +2919,7 @@ struct npc_siege_of_orgrimmar_korkron_dark_wolf : public customCreatureAI
         });
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->StopMoving();
         scheduler.CancelAll();
@@ -2964,7 +2963,7 @@ struct npc_siege_of_orgrimmar_hellscream_annihilator : public customCreatureAI
         events.Reset();
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         DoCast(me, SPELL_ANNIHILATION);
         events.ScheduleEvent(EVENT_SCORCHED_EARTH, urand(1.5 * IN_MILLISECONDS, 3 * IN_MILLISECONDS));
@@ -3000,7 +2999,7 @@ struct npc_siege_of_orgrimmar_korkron_skull_splitter : public customCreatureAI
         events.Reset();
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(TALK_INTRO);
         DoCast(me, SPELL_BATTLE_BOUND);
@@ -3014,7 +3013,7 @@ struct npc_siege_of_orgrimmar_korkron_skull_splitter : public customCreatureAI
             me->GetMotionMaster()->MovePath(me->GetDBTableGUIDLow(), false);
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 me->HandleEmoteStateCommand(EMOTE_STATE_READY1H);
                 me->SetHomePosition(*me);
@@ -3067,7 +3066,7 @@ struct npc_siege_of_orgrimmar_corrupted_skullsplitter : public customCreatureAI
         DoCast(summon, SPELL_ARCING_BLAST_EFF);
 
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext context)
+            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
         {
             me->RemoveChanneledCast(targetGUID);
         });
@@ -3285,7 +3284,7 @@ struct npc_siege_of_orgrimmar_korkron_jailer_thrash : public customCreatureAI
 {
     npc_siege_of_orgrimmar_korkron_jailer_thrash(Creature* creature) : customCreatureAI(creature) { }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 /*diff*/) override
     {
         if (!UpdateVictim())
             return;
@@ -3319,7 +3318,7 @@ struct npc_korkron_iron_sentinel : public customCreatureAI
         DoCast(me, SPELL_STRENGTH_IN_NUMBERS);
     }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 /*diff*/) override
     {
         if (!UpdateVictim())
             return;
@@ -3347,7 +3346,7 @@ struct npc_siege_of_orgrimmar_korkron_gunner_rp_event : public customCreatureAI
         hasTriggered = false;
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
     {
         if (HealthBelowPct(30) && !hasTriggered)
         {
@@ -3364,7 +3363,7 @@ struct npc_siege_of_orgrimmar_korkron_gunner_rp_event : public customCreatureAI
             Talk(TALK_INTRO);
 
             scheduler
-                .Schedule(Milliseconds(3000), [this](TaskContext context)
+                .Schedule(Milliseconds(3000), [this](TaskContext /*context*/)
             {
                 if (Creature* gunnerRP = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_KORKRON_GUNNER_RP + 1) : ObjectGuid::Empty))
                     gunnerRP->AI()->Talk(TALK_SPECIAL_1);
@@ -3498,7 +3497,7 @@ struct npc_siege_of_orgrimmar_enraged_mushan_beast : public customCreatureAI
             me->GetMotionMaster()->MoveJump(thokBloodthristyRelocate[1], 25.0f, 25.0f, EVENT_JUMP);
     }
 
-    void MovementInform(uint32 type, uint32 pointId) override
+    void MovementInform(uint32 /*type*/, uint32 pointId) override
     {
         if (pointId == EVENT_JUMP)
         {
@@ -3586,12 +3585,12 @@ struct npc_siege_of_orgrimmar_starved_yeti : public ScriptedAI
         }
     }
 
-    void MovementInform(uint32 type, uint32 pointId) override
+    void MovementInform(uint32 /*type*/, uint32 pointId) override
     {
         if (pointId == EVENT_JUMP)
         {
             scheduler
-                .Schedule(Seconds(1), [this](TaskContext context)
+                .Schedule(Seconds(1), [this](TaskContext /*context*/)
             {
                 DoCast(me, SPELL_WRECKING_BALL);
             });
@@ -3605,7 +3604,7 @@ struct npc_siege_of_orgrimmar_starved_yeti : public ScriptedAI
             DoCast(me, SPELL_WRECKING_BALL_BREAK);
 
             scheduler
-                .Schedule(Milliseconds(16000), [this](TaskContext context)
+                .Schedule(Milliseconds(16000), [this](TaskContext /*context*/)
             {
                 DoCast(me, SPELL_WRECKING_BALL);
             });
@@ -3686,7 +3685,7 @@ struct npc_siege_of_orgrimmar_blackfuse_korkron_overseer : public customCreature
         events.ScheduleEvent(EVENT_OBLITERATING_STRIKE, 7 * IN_MILLISECONDS);
     }
 
-    void MovementInform(uint32 type, uint32 pointId) override
+    void MovementInform(uint32 /*type*/, uint32 pointId) override
     {
         if (pointId == EVENT_JUMP)
         {
@@ -3740,7 +3739,7 @@ struct npc_siege_of_orgrimmar_blackfuse_sellsword : public customCreatureAI
             events.ScheduleEvent(EVENT_FAN_OF_KNIVES, 0.5 * IN_MILLISECONDS);
     }
 
-    void MovementInform(uint32 type, uint32 pointId) override
+    void MovementInform(uint32 /*type*/, uint32 pointId) override
     {
         if (pointId == EVENT_JUMP)
         {
@@ -3791,7 +3790,7 @@ struct npc_siege_of_orgrimmar_blackfuse_engineer : public customCreatureAI
         events.ScheduleEvent(EVENT_THROW_DYNAMITE, 1 * IN_MILLISECONDS);
     }
 
-    void MovementInform(uint32 type, uint32 pointId) override
+    void MovementInform(uint32 /*type*/, uint32 pointId) override
     {
         if (pointId == EVENT_JUMP)
         {
@@ -3865,7 +3864,7 @@ struct npc_siege_of_orgrimmar_gorodan : public customCreatureAI
         events.ScheduleEvent(EVENT_DRILLSTORM, 10 * IN_MILLISECONDS);
     }
 
-    void MovementInform(uint32 type, uint32 pointId) override
+    void MovementInform(uint32 /*type*/, uint32 pointId) override
     {
         if (pointId == EVENT_JUMP)
         {
@@ -3942,7 +3941,7 @@ struct npc_siege_of_orgrimmar_shanna_sparkfizz : public customCreatureAI
         events.ScheduleEvent(EVENT_LASER_BEAM, 2 * IN_MILLISECONDS);
     }
 
-    void MovementInform(uint32 type, uint32 pointId) override
+    void MovementInform(uint32 /*type*/, uint32 pointId) override
     {
         if (pointId == EVENT_JUMP)
         {
@@ -4036,8 +4035,8 @@ struct npc_klaxxi_srathik_amber_master : public customCreatureAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        events.ScheduleEvent(EVENT_AMBER_BLAST, 1.5 * IN_MILLISECONDS);
-        events.ScheduleEvent(EVENT_RESONATING_AMBER, 8.5 * IN_MILLISECONDS);
+        events.ScheduleEvent(EVENT_AMBER_BLAST, static_cast<uint32>(1.5 * (double)IN_MILLISECONDS));
+        events.ScheduleEvent(EVENT_RESONATING_AMBER, static_cast<uint32>(8.5 * (double)IN_MILLISECONDS));
     }
 
     void JustSummoned(Creature* summon) override
@@ -4064,7 +4063,7 @@ struct npc_klaxxi_srathik_amber_master : public customCreatureAI
 
         while (uint32 eventId = events.ExecuteEvent())
         {
-            ExecuteTargetEvent(SPELL_AMBER_BLAST, urand(3.1 * IN_MILLISECONDS, 3.5 * IN_MILLISECONDS), EVENT_AMBER_BLAST, eventId, PRIORITY_NOT_VICTIM);
+            ExecuteTargetEvent(SPELL_AMBER_BLAST, urand(static_cast<uint32>(3.1 * (double)IN_MILLISECONDS), static_cast<uint32>(3.5 * (double)IN_MILLISECONDS)), EVENT_AMBER_BLAST, eventId, PRIORITY_NOT_VICTIM);
             ExecuteTargetEvent(SPELL_RESONATING_AMBER_SELECTOR, urand(18 * IN_MILLISECONDS, 26 * IN_MILLISECONDS), EVENT_RESONATING_AMBER, eventId);
             break;
         }
@@ -4123,7 +4122,7 @@ struct npc_klaxxi_kovok : public customCreatureAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        events.ScheduleEvent(EVENT_MIGHTY_CLEAVE, 3.5 * IN_MILLISECONDS);
+        events.ScheduleEvent(EVENT_MIGHTY_CLEAVE, static_cast<uint32>(3.5 * (double)IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_GROUND_SLAM, 10 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_POISON_BLAST, 13 * IN_MILLISECONDS);
     }
@@ -4163,7 +4162,7 @@ struct npc_klaxxi_grand_master_alchemist_kixen : public customCreatureAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        events.ScheduleEvent(EVENT_ALCHEMICAL_MASTERY, 2.5 * IN_MILLISECONDS);
+        events.ScheduleEvent(EVENT_ALCHEMICAL_MASTERY, static_cast<uint32>(2.5f * (float)IN_MILLISECONDS));
     }
 
     void UpdateAI(uint32 diff) override
@@ -4209,37 +4208,37 @@ struct npc_siege_of_orgrimmar_overlord_saurfang : public customCreatureAI
 
             delay = 6800;
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_1);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 5500), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 5500), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_2);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 6000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_3);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 8500), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 8500), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_4);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 11300), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 11300), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_5);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_6);
             });
@@ -4285,40 +4284,40 @@ struct npc_siege_of_orgrimmar_thrall : public customCreatureAI
 
                 delay = 12500;
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     if (Creature* garrosh = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_GARROSH_HELLSCREAM) : ObjectGuid::Empty))
                         garrosh->AI()->Talk(TALK_SPECIAL_12);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 21800), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 21800), [this](TaskContext /*context*/)
                 {
                     if (Creature* garrosh = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_GARROSH_HELLSCREAM) : ObjectGuid::Empty))
                         garrosh->AI()->Talk(TALK_SPECIAL_13);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 13500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 13500), [this](TaskContext /*context*/)
                 {
                     if (Creature* garrosh = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_GARROSH_HELLSCREAM) : ObjectGuid::Empty))
                         garrosh->AI()->Talk(TALK_SPECIAL_14);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 18300), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 18300), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_1);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 8200), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 8200), [this](TaskContext /*context*/)
                 {
                     DoCast(me, SPELL_CALL_OF_THE_ELEMENTS);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 6400), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 6400), [this](TaskContext /*context*/)
                 {
                     if (Creature* garrosh = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_GARROSH_HELLSCREAM) : ObjectGuid::Empty))
                         garrosh->AI()->Talk(TALK_SPECIAL_15);
@@ -4331,7 +4330,7 @@ struct npc_siege_of_orgrimmar_thrall : public customCreatureAI
 
                 delay = 6000;
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     if (Creature* garrosh = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_GARROSH_HELLSCREAM) : ObjectGuid::Empty))
                     {
@@ -4341,12 +4340,12 @@ struct npc_siege_of_orgrimmar_thrall : public customCreatureAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
                 {
                     me->GetMotionMaster()->MovePoint(0, garroshPathReach[1]);
 
                     scheduler
-                        .Schedule(Milliseconds(me->GetSplineDuration() + 500), [this](TaskContext context)
+                        .Schedule(Milliseconds(me->GetSplineDuration() + 500), [this](TaskContext /*context*/)
                     {
                         DoCast(me, SPELL_ATTACK_GARROSH);
 
@@ -4361,7 +4360,7 @@ struct npc_siege_of_orgrimmar_thrall : public customCreatureAI
             case ACTION_THRALL_KNELL:
                 delay = 2500;
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     DoCast(me, SPELL_EXHAUSTED);
                 });
@@ -4392,12 +4391,12 @@ struct npc_siege_of_orgrimmar_blood_of_yshaarj_trigger : public customCreatureAI
         ichorCount = 0;
     }
 
-    void JustSummoned(Creature* summon) override
+    void JustSummoned(Creature* /*summon*/) override
     {
         ichorCount++; // limit is 4
     }
 
-    void SummonedCreatureDespawn(Creature* summon) override
+    void SummonedCreatureDespawn(Creature* /*summon*/) override
     {
         ichorCount--;
     }
@@ -4425,7 +4424,7 @@ struct npc_siege_of_orgrimmar_blood_of_yshaarj_trigger : public customCreatureAI
                 hasLaunch = true;
 
                 scheduler
-                    .Schedule(Seconds(5), [this](TaskContext context)
+                    .Schedule(Seconds(5), [this](TaskContext /*context*/)
                 {
                     me->RemoveAllAreasTrigger();
                     me->DespawnOrUnsummon();
@@ -4453,10 +4452,10 @@ struct npc_siege_of_orgrimmar_ichor_of_yshaarj : public customCreatureAI
     void JustDied(Unit* /*killer*/) override
     {
         DoCast(me, SPELL_EMPOWERING_CORRUPTION);
-        me->DespawnOrUnsummon(2.5 * IN_MILLISECONDS);
+        me->DespawnOrUnsummon(2.5f * (float)IN_MILLISECONDS);
     }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 /*diff*/) override
     {
         if (!UpdateVictim())
             return;
@@ -4537,7 +4536,7 @@ struct npc_siege_of_orgrimmar_korkron_reaper : public customCreatureAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         me->CallForHelp(15.0f);
-        events.ScheduleEvent(EVENT_REAPER, 6.5 * IN_MILLISECONDS);
+        events.ScheduleEvent(EVENT_REAPER, int32(6.5f * (float)IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_REAPER_CHARGE, 7 * IN_MILLISECONDS);
     }
 
@@ -4553,7 +4552,7 @@ struct npc_siege_of_orgrimmar_korkron_reaper : public customCreatureAI
 
         while (uint32 eventId = events.ExecuteEvent())
         {
-            ExecuteTargetEvent(SPELL_REAPER, 14.5 * IN_MILLISECONDS, EVENT_REAPER, eventId);
+            ExecuteTargetEvent(SPELL_REAPER, int32(14.5f * (float)IN_MILLISECONDS), EVENT_REAPER, eventId);
             ExecuteTargetEvent(SPELL_REAPER_CHARGE, 15 * IN_MILLISECONDS, EVENT_REAPER_CHARGE, eventId, PRIORITY_NOT_VICTIM);
             break;
         }
@@ -4585,7 +4584,7 @@ struct npc_siege_of_orgrimmar_gamon : public customCreatureAI
         {
             // Init delay
             scheduler
-                .Schedule(Milliseconds(1500), [this](TaskContext context)
+                .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
             {
                 DoCast(me, SPELL_GAMON_CHAIN_1);
                 DoCast(me, SPELL_GAMON_CHAIN_2);
@@ -4610,7 +4609,7 @@ struct npc_siege_of_orgrimmar_gamon : public customCreatureAI
             init.Launch();
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 reachNazgrim = true;
 
@@ -4625,7 +4624,7 @@ struct npc_siege_of_orgrimmar_gamon : public customCreatureAI
         }
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->SetHomePosition(*me);
         Talk(urand(TALK_SPECIAL_7, TALK_SPECIAL_9));
@@ -4665,38 +4664,38 @@ struct npc_siege_of_orgrimmar_gamon : public customCreatureAI
 
                 delay = 4000;
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_1);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 7300), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 7300), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_2);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 9000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 9000), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_3);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3800), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3800), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_4);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 8600), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 8600), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_5);
                     me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, 63252);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_6);
                     me->SetFaction(1665);
@@ -4710,7 +4709,7 @@ struct npc_siege_of_orgrimmar_gamon : public customCreatureAI
                     init.Launch();
 
                     scheduler
-                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                     {
                         reachNazgrim = true;
 
@@ -4736,7 +4735,7 @@ struct npc_siege_of_orgrimmar_gamon : public customCreatureAI
                     me->GetMotionMaster()->MovePoint(0, *nazgrim);
 
                     scheduler
-                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                     {
                         me->HandleEmoteStateCommand(EMOTE_STATE_LOOT);
                         Talk(TALK_SPECIAL_11);
@@ -4914,7 +4913,7 @@ struct npc_siege_of_orgrimmar_theramore_prisoners : public ScriptedAI
         }
     }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 /*diff*/) override
     {
         if (!UpdateVictim())
             return;
@@ -4976,7 +4975,7 @@ class spell_aqueous_defender_vortex : public SpellScript
             Trinity::Containers::RandomResizeList(targets, targetsCount);
     }
 
-    void HandleOnEffectHit(SpellEffIndex effIdx)
+    void HandleOnEffectHit(SpellEffIndex /*effIdx*/)
     {
         if (Unit* caster = GetCaster())
             if (Unit* target = GetHitUnit())
@@ -5029,7 +5028,8 @@ class spell_rushing_waters_eff : public AuraScript
 
     void HandleOnApply(AuraEffect const* /*aureff*/, AuraEffectHandleModes /*mode*/)
     {
-        SetDuration(1.5 * IN_MILLISECONDS);
+        int32 duration = int32(1.5f * (float)IN_MILLISECONDS);
+        SetDuration(duration);
     }
 
     void Register() override
@@ -5207,7 +5207,7 @@ class spell_dragonmaw_tidal_wave : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if([=](WorldObject* target) { return target && target->ToPlayer() && !GetCaster()->HasInArc(M_PI / 3, target); });
+        targets.remove_if([this](WorldObject* target) { return target && target->ToPlayer() && !GetCaster()->HasInArc(M_PI / 3, target); });
         
         if (!targets.empty())
             copyTargets.push_back(targets.front());
@@ -5542,7 +5542,7 @@ class spell_siege_of_orgrimmar_envenomed_shadowstep : public SpellScript
 {
     PrepareSpellScript(spell_siege_of_orgrimmar_envenomed_shadowstep);
 
-    void HandleEffectHitTarget(SpellEffIndex effIndex)
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
     {
         if (Creature* caster = GetCaster()->ToCreature())
             caster->AI()->DoAction(ACTION_START_INTRO);
@@ -5575,7 +5575,7 @@ class spell_siege_of_orgrimmar_drillstorm : public AuraScript
 {
     PrepareAuraScript(spell_siege_of_orgrimmar_drillstorm);
 
-    void OnAuraEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+    void OnAuraEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Creature* owner = GetOwner()->ToCreature())
             owner->ClearUnitState(UNIT_STATE_CASTING);
@@ -5592,7 +5592,7 @@ class spell_siege_of_orgrimmar_call_of_the_elements : public AuraScript
 {
     PrepareAuraScript(spell_siege_of_orgrimmar_call_of_the_elements);
 
-    void OnAuraEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+    void OnAuraEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Creature* owner = GetOwner()->ToCreature())
             owner->AI()->DoAction(ACTION_THRALL_UNLEASHED);
@@ -5609,7 +5609,7 @@ class spell_siege_of_orgrimmar_attack_thrall : public SpellScript
 {
     PrepareSpellScript(spell_siege_of_orgrimmar_attack_thrall);
 
-    void HandleEffectHitTarget(SpellEffIndex effIndex)
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
     {
         if (Creature* target = GetHitCreature()) // we can`t use spell from dbc instant on effect hit, cuz it`ll prevented our knockback
             target->AI()->DoAction(ACTION_THRALL_KNELL);
@@ -5635,14 +5635,14 @@ class spell_siege_of_orgrimmar_blood_of_yshaarj : public AuraScript
         return true;
     }
 
-    void SetGuid(uint32 type, ObjectGuid guid) override
+    void SetGuid(uint32 type, ObjectGuid /*guid*/) override
     {
-        allowStack = type ? true : false;
+        allowStack = type != 0;
     }
 
     void OnTrigger(AuraEffect const* aurEff)
     {
-        if (Unit* target = GetOwner()->ToUnit())
+        if (GetOwner()->ToUnit())
         {
             if (aurEff->GetTickNumber() > 1 && allowStack)
             {
@@ -5710,7 +5710,7 @@ class spell_siege_of_orgrimmar_reaper_charge : public SpellScript
 {
     PrepareSpellScript(spell_siege_of_orgrimmar_reaper_charge);
 
-    void HandleEffectHitTarget(SpellEffIndex eff_idx)
+    void HandleEffectHitTarget(SpellEffIndex /*eff_idx*/)
     {
         if (Unit* caster = GetCaster())
             caster->CastSpell(caster, SPELL_REAPING_WHIRLWIND, true);
@@ -5890,11 +5890,10 @@ class sat_spike_mine : public IAreaTriggerOnce
         return object && object->ToPlayer();
     }
 
-    void OnTrigger(WorldObject* target) override
+    void OnTrigger(WorldObject* /*target*/) override
     {
-        if (Player* itr = target->ToPlayer())
-            if (Unit* caster = GetCaster())
-                caster->CastSpell(caster, SPELL_SPIKE_MINE_DETONATION, true);
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_SPIKE_MINE_DETONATION, true);
     }
 };
 
@@ -6006,7 +6005,7 @@ class AreaTrigger_at_siege_of_orgrimmar_entrance : public AreaTriggerScript
     public:
         AreaTrigger_at_siege_of_orgrimmar_entrance() : AreaTriggerScript("AreaTrigger_at_siege_of_orgrimmar_entrance") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
             if (Creature* lorewalkerCho = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_LOREWALKER_CHO) : ObjectGuid::Empty))
                 lorewalkerCho->AI()->DoAction(ACTION_START_INTRO);
@@ -6021,7 +6020,7 @@ class AreaTrigger_at_siege_of_orgrimmar_corrupted_waters : public AreaTriggerScr
     public:
         AreaTrigger_at_siege_of_orgrimmar_corrupted_waters() : AreaTriggerScript("AreaTrigger_at_siege_of_orgrimmar_corrupted_waters") { }
     
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
             if (Creature* lorewalkerCho = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_LOREWALKER_CHO) : ObjectGuid::Empty))
                 lorewalkerCho->AI()->DoAction(ACTION_UNDER_TORMENTED);
@@ -6269,13 +6268,12 @@ class cond_gamon_event : public ConditionScript
     public:
         cond_gamon_event() : ConditionScript("cond_gamon_event") { }
 
-        bool OnConditionCheck(const Condition* cond, ConditionSourceInfo& source) override
+        bool OnConditionCheck(const Condition* /*cond*/, ConditionSourceInfo& source) override
         {
             if (source.mConditionTargets[0] && source.mConditionTargets[1])
-                if (Creature* caster = source.mConditionTargets[1]->ToCreature())
-                    if (Creature* target = source.mConditionTargets[0]->ToCreature())
-                        if (target->GetPositionZ() > 37.5f)
-                            return true;
+                if (Creature* target = source.mConditionTargets[0]->ToCreature())
+                    if (target->GetPositionZ() > 37.5f)
+                        return true;
 
             return false;
         }

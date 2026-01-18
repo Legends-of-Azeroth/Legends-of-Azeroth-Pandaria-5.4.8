@@ -15,15 +15,12 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Common.h"
 #include "UpdateMask.h"
 #include "Opcodes.h"
 #include "World.h"
 #include "ObjectAccessor.h"
-#include "DatabaseEnv.h"
 #include "GridNotifiers.h"
 #include "CellImpl.h"
-#include "GridNotifiersImpl.h"
 #include "ScriptMgr.h"
 #include "Group.h"
 #include "GroupMgr.h"
@@ -315,7 +312,7 @@ void DynamicObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player
 
 uint32 DynamicObject::GetVisualForTarget(Player const* target) const
 {
-    auto getVisualIfHostile = [=](Player const* target, uint32 hostileViusal)
+    auto getVisualIfHostile = [this](Player const* target, uint32 hostileViusal)
     {
         if (GetMap()->IsBattlegroundOrArena())
         {

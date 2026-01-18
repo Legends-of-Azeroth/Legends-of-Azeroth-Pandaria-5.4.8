@@ -19,7 +19,6 @@
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
 #include "CreatureAI.h"
 #include "MoveSplineInit.h"
 #include "SpellScript.h"
@@ -1124,7 +1123,7 @@ class spell_terror_shards_triggered_effect : public SpellScriptLoader
         {
             PrepareAuraScript(spell_terror_shards_triggered_effect_AuraScript);
 
-            void OnAuraEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnAuraEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (GetCaster())
                     GetCaster()->AddAura(SPELL_GREENSTONE_SHARDS_D, GetCaster());
@@ -1152,7 +1151,7 @@ class spell_greenstone_brew_bubble : public SpellScriptLoader
         {
             PrepareAuraScript(spell_greenstone_brew_bubble_AuraScript);
 
-            void OnAuraEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnAuraEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetCaster())
                     if (Creature* bubble = GetClosestCreatureWithEntry(GetCaster(), NPC_BREW_BUBLE, 10.0f, true))
@@ -1239,7 +1238,7 @@ class AreaTrigger_at_behind_tzu : public AreaTriggerScript
     public:
         AreaTrigger_at_behind_tzu() : AreaTriggerScript("AreaTrigger_at_behind_tzu") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
             {

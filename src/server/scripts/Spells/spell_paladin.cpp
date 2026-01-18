@@ -1014,7 +1014,7 @@ class spell_pal_judgment : public SpellScript
         return sSpellMgr->GetSpellInfo(PALADIN_SPELL_JUDGMENT) != nullptr;
     }
 
-    void HandleHit(SpellEffIndex effIndex)
+    void HandleHit(SpellEffIndex /*effIndex*/)
     {
         Player* player = GetCaster()->ToPlayer();
         Unit* unitTarget = GetHitUnit();
@@ -1425,7 +1425,7 @@ class spell_pal_consecration : public AuraScript
             summonSpell = sSpellMgr->GetSpellInfo(GetSpellInfo()->Effects[EFFECT_2].TriggerSpell);
 
         for (auto&& itr : caster->GetSummons())
-            if (itr->GetEntry() == summonSpell->Effects[EFFECT_2].MiscValue)
+            if (itr->GetEntry() == (uint32)summonSpell->Effects[EFFECT_2].MiscValue)
                 caster->CastSpell(itr->GetPosition(), spellId, true);
     }
 
@@ -1622,7 +1622,7 @@ class spell_pal_holy_wrath : public SpellScript
         if (GetCaster()->HasAura(SPELL_PALADIN_GLYPH_OF_FOCUSED_WRATH) && !targets.empty())
         {
             WorldObject* random = Trinity::Containers::SelectRandomContainerElement(targets);
-                targets.remove_if([=](WorldObject* target)
+                targets.remove_if([this](WorldObject* target)
             {
                 return target->GetGUID() != GetCaster()->GetTarget();
             });
@@ -1980,7 +1980,6 @@ class spell_pal_beacon_of_light : public AuraScript
         auto list = GetUnitOwner()->GetBoundAurasBySpellId(SPELL_PALADIN_BEACON_OF_LIGHT);
 
         Unit* beaconTarget = list->front()->GetUnitOwner();
-        Unit* healTarget = eventInfo.GetActionTarget();
 
         static std::map<uint32, int32> const map = 
         {
@@ -1994,7 +1993,7 @@ class spell_pal_beacon_of_light : public AuraScript
         auto it = map.find(eventInfo.GetSpellInfo()->Id);
         int32 pct = it != map.end() ? it->second : 50;
 
-        int32 heal = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), pct);
+        int32 heal = CalculatePct<int32>((int32)eventInfo.GetHealInfo()->GetHeal(), pct);
         if (AuraEffect const* setBonus = GetUnitOwner()->GetAuraEffect(SPELL_PALADIN_T15_HOLY_4P_BONUS, EFFECT_0))
             AddPct(heal, setBonus->GetAmount());
         TriggerCastFlags flags = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_CASTER_AURAS);
@@ -2052,7 +2051,7 @@ class spell_pal_seal_of_insight : public AuraScript
         return true;
     }
 
-    void HandleProc(AuraEffect const* eff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* eff, ProcEventInfo& /*eventInfo*/)
     {
         float ap = GetUnitOwner()->GetTotalAttackPowerValue(BASE_ATTACK);
         float sp = GetUnitOwner()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
@@ -2348,7 +2347,7 @@ class spell_pal_t16_protection_4p_bonus : public AuraScript
 {
     PrepareAuraScript(spell_pal_t16_protection_4p_bonus);
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo& /*eventInfo*/)
     {
         if (GetUnitOwner()->GetAuraCount(SPELL_PALADIN_BASTION_OF_GLORY) >= 3)
             GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_PALADIN_BASTION_OF_POWER, true);

@@ -17,7 +17,6 @@
 
 #include <cstring>
 #include "AuthCrypt.h"
-#include "Cryptography/BigNumber.h"
 #include "Cryptography/HMAC.h"
 
 AuthCrypt::AuthCrypt() :

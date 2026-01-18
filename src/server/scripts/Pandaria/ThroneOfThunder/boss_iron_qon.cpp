@@ -744,7 +744,7 @@ struct quelingBaseAI : public ScriptedAI
             // Reset each 10s
             scheduler
                 .SetValidator([this] { return instance && instance->GetBossState(DATA_IRON_QON) == IN_PROGRESS; })
-                .Schedule(Seconds(8), [this](TaskContext context)
+                .Schedule(Seconds(8), [this](TaskContext /*context*/)
             {
                 inferno = true;
             });
@@ -816,7 +816,7 @@ class npc_roshak : public CreatureScript
 
                 scheduler
                     .SetValidator([this] { return instance && instance->GetBossState(DATA_IRON_QON) == IN_PROGRESS; })
-                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     me->StopMoving();
                     me->OverrideInhabitType(INHABIT_GROUND);
@@ -954,7 +954,7 @@ class npc_quetzal : public CreatureScript
                             uint32 delay = me->GetSplineDuration();
 
                             scheduler
-                                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                             {
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, CasterSpecTargetSelector()))
                                     me->SetFacingTo(me->GetAngle(target));
@@ -967,7 +967,7 @@ class npc_quetzal : public CreatureScript
 
                             // Back to fly path
                             scheduler
-                                .Schedule(Milliseconds(delay += 1000), [this](TaskContext context)
+                                .Schedule(Milliseconds(delay += 1000), [this](TaskContext /*context*/)
                             {
                                 me->StopMoving();
                                 Movement::MoveSplineInit init(me);
@@ -1015,7 +1015,7 @@ class npc_quetzal : public CreatureScript
 
                             scheduler
                                 .SetValidator([this] { return instance && instance->GetBossState(DATA_IRON_QON) == IN_PROGRESS; })
-                                .Schedule(Milliseconds(20000), [this](TaskContext context)
+                                .Schedule(Milliseconds(20000), [this](TaskContext /*context*/)
                             {
                                 hasInStorm = false;
                                 me->RemoveChanneledCast(targetGUID);
@@ -1136,7 +1136,7 @@ class npc_damren : public CreatureScript
 
                             scheduler
                                 .SetValidator([this] { return instance && instance->GetBossState(DATA_IRON_QON) == IN_PROGRESS; })
-                                .Schedule(Milliseconds(7500), [this](TaskContext context)
+                                .Schedule(Milliseconds(7500), [this](TaskContext /*context*/)
                             {
                                 me->RemoveChanneledCast(targetGUID);
                             });
@@ -1313,7 +1313,7 @@ struct npc_rushing_wind : public ScriptedAI
 
                 scheduler
                     .SetValidator([this] { return instance && instance->GetBossState(DATA_IRON_QON) == IN_PROGRESS; })
-                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     me->StopMoving();
                     DoCast(me, SPELL_RUSHING_WINDS_ADDITIONAL);
@@ -1453,7 +1453,7 @@ class spell_unleashed_flame_selector : public SpellScript
                 std::list<Player*> pList;
                 GetPlayerListInGrid(pList, itr, 9.2f);
 
-                unleashedDict.insert(std::pair<uint32, WorldObject*>(pList.size(), itr));
+                unleashedDict.emplace((uint32)pList.size(), itr);
             }
 
             auto key = std::max_element(unleashedDict.begin(), unleashedDict.end(), unleashedDict.value_comp());

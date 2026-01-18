@@ -24,7 +24,6 @@
 #include "Vehicle.h"
 #include "CombatAI.h"
 #include "Player.h"
-#include "WorldSession.h"
 
 /////////////////////
 ///npc_injured_goblin

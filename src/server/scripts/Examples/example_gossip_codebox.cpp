@@ -26,7 +26,6 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "Player.h"
-#include <cstring>
 
 enum Yells
 {

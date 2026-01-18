@@ -150,7 +150,7 @@ class boss_iron_juggernaut : public CreatureScript
                 berserkerEvents.Reset();
 
                 scheduler
-                    .Schedule(Seconds(2), [this](TaskContext context)
+                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
                 {
                     for (auto&& itr : invSiegeWeaponsType)
                         if (Creature* siegeWeapon = me->SummonCreature(itr.first, *me))
@@ -500,7 +500,7 @@ struct npc_crawler_mine : public ScriptedAI
             juggernaut->AI()->JustSummoned(me);
 
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext context)
+            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
         {
             me->SetSpeed(MOVE_RUN, 2.75f);
 
@@ -511,7 +511,7 @@ struct npc_crawler_mine : public ScriptedAI
                     me->GetMotionMaster()->MovePoint(0, *target);
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 me->SetFaction(35);
                 me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
@@ -550,7 +550,7 @@ struct npc_crawler_mine : public ScriptedAI
         me->InterruptNonMeleeSpells(false, SPELL_DETONATION_SEQ);
 
         scheduler
-            .Schedule(Milliseconds(750), [this](TaskContext context)
+            .Schedule(Milliseconds(750), [this](TaskContext /*context*/)
         {
             if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
             {
@@ -560,7 +560,7 @@ struct npc_crawler_mine : public ScriptedAI
         });
 
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext context)
+            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
         {
             if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
                 target->CastSpell(target, SPELL_ENGULFED_EXPLOSION, true);
@@ -812,7 +812,7 @@ struct npc_juggernaut_sawblade : public ScriptedAI
             me->SetHomePosition(*me);
 
             scheduler
-                .Schedule(Milliseconds(500), [this](TaskContext context)
+                .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
             {
                 hasLaunched = true;
                 me->StopMoving();
@@ -861,13 +861,13 @@ struct npc_juggernaut_sawblade : public ScriptedAI
                         init.Launch();
 
                         scheduler
-                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                         {
                             me->StopMoving();
                             me->GetMotionMaster()->MoveTargetedHome();
 
                             scheduler
-                                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                             {
                                 hasLaunched = false;
 
@@ -881,13 +881,13 @@ struct npc_juggernaut_sawblade : public ScriptedAI
                         init.Launch();
 
                         scheduler
-                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                         {
                             me->StopMoving();
                             me->GetMotionMaster()->MoveTargetedHome();
 
                             scheduler
-                                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                             {
                                 hasLaunched = false;
 

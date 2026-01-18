@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
 
 enum eBonobosSpells
 {
@@ -1831,7 +1830,7 @@ struct npc_vfw_barrel_of_fireworks : public ScriptedAI
     {
         summonerGUID = summoner->GetGUID();
         scheduler
-            .Schedule(Milliseconds(3000), [this](TaskContext context)
+            .Schedule(Milliseconds(3000), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_EXPLOSION_VISUAL);
 
@@ -2042,7 +2041,7 @@ struct npc_vfw_krungko_fingerlicker : public customCreatureAI
 
         uint32 delay = 2000;
         scheduler
-            .Schedule(Milliseconds(delay), [this](TaskContext context)
+            .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
         {
             Talk(TALK_FOUND_SHEEP);
 
@@ -2056,7 +2055,7 @@ struct npc_vfw_krungko_fingerlicker : public customCreatureAI
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 6000), [this](TaskContext /*context*/)
         {
             Talk(TALK_SHEEP_TASTE);
 
@@ -2150,7 +2149,7 @@ struct npc_vfw_unbarreled_pandaren : public customCreatureAI
 
         uint32 delay = 2000;
         scheduler
-            .Schedule(Milliseconds(delay), [this](TaskContext context)
+            .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
         {
             if (Player* target = ObjectAccessor::GetPlayer(*me, summonerGUID))
                 me->SetFacingToObject(target);
@@ -2159,7 +2158,7 @@ struct npc_vfw_unbarreled_pandaren : public customCreatureAI
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 3000), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 3000), [this](TaskContext /*context*/)
         {
             // Move away!
             Position pos = me->GetNearPosition(15.0f, frand(0.0f, 2 * M_PI));

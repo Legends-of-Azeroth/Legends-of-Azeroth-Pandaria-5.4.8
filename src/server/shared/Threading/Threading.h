@@ -27,7 +27,7 @@ namespace MopCore
     class Runnable
     {
         public:
-            virtual ~Runnable() {}
+            virtual ~Runnable() = default;
             virtual void run() = 0;
 
             void incReference() { ++m_refs; }
@@ -61,7 +61,9 @@ namespace MopCore
             bool wait();
             void destroy();
 
+            #ifdef WIN32
             void setPriority(Priority type);
+            #endif
 
             static void Sleep(unsigned long msecs);
             static std::thread::id currentId();

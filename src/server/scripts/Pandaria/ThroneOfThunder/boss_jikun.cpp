@@ -28,7 +28,6 @@
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "CreatureTextMgr.h"
 #include "Unit.h"
 #include "Player.h"
@@ -266,7 +265,7 @@ class boss_jikun : public CreatureScript
                 }
 
                 scheduler
-                    .Schedule(Seconds(2), [this](TaskContext context)
+                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                 });
@@ -856,7 +855,7 @@ struct npc_fall_catcher_jikun : public ScriptedAI
         init.Launch();
 
         scheduler
-            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
         {
             if (Unit* passenger = ObjectAccessor::GetUnit(*me, summonerGUID))
             {
@@ -1112,7 +1111,7 @@ struct npc_nest_guardian : public ScriptedAI
 
                     scheduler
                         .SetValidator([this] { return me->GetInstanceScript() && me->GetInstanceScript()->GetBossState(DATA_JI_KUN) == IN_PROGRESS; })
-                        .Schedule(Milliseconds(1000), [this](TaskContext context)
+                        .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
                     {
                         me->RemoveChanneledCast(targetGUID);
                     });

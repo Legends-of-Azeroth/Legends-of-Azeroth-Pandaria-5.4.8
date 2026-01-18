@@ -37,7 +37,7 @@ inline void Trinity::VisibleNotifier::Visit(GridRefManager<T> &m)
     }
 }
 
-inline void Trinity::VisibleNotifier::VisitSet(std::unordered_set<WorldObject*> const& objects)
+inline void Trinity::VisibleNotifier::VisitSet(std::unordered_set<WorldObject*> const& /*objects*/)
 {
 }
 

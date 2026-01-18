@@ -478,7 +478,7 @@ class boss_lei_shen : public CreatureScript
                         
                         scheduler
                             .SetValidator([this] { return instance && instance->GetBossState(DATA_LEI_SHEN) == IN_PROGRESS; })
-                            .Schedule(Milliseconds(3000), [this](TaskContext context)
+                            .Schedule(Milliseconds(3000), [this](TaskContext /*context*/)
                         {
                             phaseId = me->HealthBelowPct(30) ? PHASE_LORD_OF_THUNDER : PHASE_DEFAULT;
                             me->RemoveChanneledCast(targetGUID);
@@ -552,7 +552,7 @@ class boss_lei_shen : public CreatureScript
                     // Should`ve triggered from displace, but wrong synch (knockback before teleport)
                     scheduler
                         .SetValidator([this] { return instance && instance->GetBossState(DATA_LEI_SHEN) == IN_PROGRESS; })
-                        .Schedule(Seconds(1), [this](TaskContext context)
+                        .Schedule(Seconds(1), [this](TaskContext /*context*/)
                     {
                         DoCast(me, SPELL_SUPERCHARGE_CONDUITS_KNOCKBACK, true);
 
@@ -704,7 +704,7 @@ class boss_lei_shen : public CreatureScript
 
                             scheduler
                                 .SetValidator([this] { return instance && instance->GetBossState(DATA_LEI_SHEN) == IN_PROGRESS; })
-                                .Schedule(Milliseconds(4500), [this](TaskContext context)
+                                .Schedule(Milliseconds(4500), [this](TaskContext /*context*/)
                             {
                                 me->RemoveChanneledCast(targetGUID);
                             });
@@ -987,7 +987,7 @@ struct npc_ball_lightning : public ScriptedAI
             leiShen->AI()->JustSummoned(me);
 
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext context)
+            .Schedule(Seconds(1), [this](TaskContext /*context*/)
         {
             me->SetInCombatWithZone();
             me->AttackStop();
@@ -1091,7 +1091,7 @@ struct npc_diffused_lightning : public ScriptedAI
             leiShen->AI()->JustSummoned(me);
 
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext context)
+            .Schedule(Seconds(1), [this](TaskContext /*context*/)
         {
             me->SetInCombatWithZone();
         });

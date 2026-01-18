@@ -17,12 +17,10 @@
 
 #include "BattlePet.h"
 #include "DB2Stores.h"
-#include "DBCStore.h"
 #include "BattlePetMgr.h"
 #include "Player.h"
 #include "AchievementMgr.h"
 #include "BattlePetAbilityEffect.h"
-#include "BattlePetSpawnMgr.h"
 #include "PetBattle.h"
 
 BattlePet::~BattlePet()

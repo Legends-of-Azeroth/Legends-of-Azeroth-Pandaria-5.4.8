@@ -36,7 +36,6 @@
 #include "LootMgr.h"
 #include "MapManager.h"
 #include "MoveSpline.h"
-#include "MoveSplineInit.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvPMgr.h"

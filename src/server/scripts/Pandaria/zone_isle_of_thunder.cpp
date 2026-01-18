@@ -20,7 +20,6 @@
 #include "SpellAuraEffects.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
 #include "GameObjectAI.h"
 #include "Transport.h"
 #include "Group.h"
@@ -2668,7 +2667,7 @@ struct npc_sunreaver_bloodhawk : public CreatureAI
         if (me->GetEntry() == NPC_ELSIA_BLOODHAWK)
             DoCast(me, SPELL_SUMMON_ELSIA_TOWNLONG, true);
 
-        scheduler.Schedule(Milliseconds(1500), [this](TaskContext context)
+        scheduler.Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
         {
             if (Unit* owner = ObjectAccessor::GetUnit(*me, summonerGUID))
                 owner->CastSpell(me, VEHICLE_SPELL_RIDE_HARDCODED, true);
@@ -2681,7 +2680,7 @@ struct npc_sunreaver_bloodhawk : public CreatureAI
             init.SetUncompressed();
             init.Launch();
 
-            scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+            scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 if (Unit* owner = ObjectAccessor::GetUnit(*me, summonerGUID))
                 {
@@ -2706,7 +2705,7 @@ struct npc_sunreaver_bloodhawk : public CreatureAI
     {
         if (actionId == ACTION_INTRO)
         {
-            scheduler.Schedule(Milliseconds(1500), [this](TaskContext context) // delay for init or vehicle entrance will drop...
+            scheduler.Schedule(Milliseconds(1500), [this](TaskContext /*context*/) // delay for init or vehicle entrance will drop...
             {
                 Movement::MoveSplineInit init(me);
                 for (auto itr : isleHordePath)
@@ -2716,7 +2715,7 @@ struct npc_sunreaver_bloodhawk : public CreatureAI
                 init.SetUncompressed();
                 init.Launch();
 
-                scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     if (Unit* owner = ObjectAccessor::GetUnit(*me, summonerGUID))
                     {
@@ -2827,7 +2826,7 @@ struct npc_silver_covenant_hippogryph : public CreatureAI
         if (me->GetEntry() == NPC_VEREESA_HIPPOGRYPH)
             DoCast(me, SPELL_SUMMON_VEREESA_TOWNLONG, true);
 
-        scheduler.Schedule(Milliseconds(1500), [this](TaskContext context)
+        scheduler.Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
         {
             if (Unit* owner = ObjectAccessor::GetUnit(*me, summonerGUID))
                 owner->CastSpell(me, VEHICLE_SPELL_RIDE_HARDCODED, true);
@@ -2840,7 +2839,7 @@ struct npc_silver_covenant_hippogryph : public CreatureAI
             init.SetUncompressed();
             init.Launch();
 
-            scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+            scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 if (Unit* owner = ObjectAccessor::GetUnit(*me, summonerGUID))
                 {
@@ -2865,7 +2864,7 @@ struct npc_silver_covenant_hippogryph : public CreatureAI
     {
         if (actionId == ACTION_INTRO)
         {
-            scheduler.Schedule(Milliseconds(1500), [this](TaskContext context) // delay for init or vehicle entrance will drop...
+            scheduler.Schedule(Milliseconds(1500), [this](TaskContext /*context*/) // delay for init or vehicle entrance will drop...
             {
                 Movement::MoveSplineInit init(me);
                 for (auto itr : isleAlliancePath)
@@ -2875,7 +2874,7 @@ struct npc_silver_covenant_hippogryph : public CreatureAI
                 init.SetUncompressed();
                 init.Launch();
 
-                scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     if (Unit* owner = ObjectAccessor::GetUnit(*me, summonerGUID))
                     {
@@ -2912,19 +2911,19 @@ struct npc_lorthemar_theron_isle_intro : public ScriptedAI
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         me->SetPhaseMask(4, true);
 
-        scheduler.Schedule(Seconds(2), [this](TaskContext context)
+        scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
         {
             Talk(TALK_INTRO);
             me->SetFacingTo(Position::NormalizeOrientation(me->GetOrientation() + M_PI / 2));
         });
 
-        scheduler.Schedule(Milliseconds(8250), [this](TaskContext context)
+        scheduler.Schedule(Milliseconds(8250), [this](TaskContext /*context*/)
         {
             me->SetFacingTo(Position::NormalizeOrientation(me->GetOrientation() - M_PI / 2));
             Talk(TALK_SPECIAL_1);
         });
 
-        scheduler.Schedule(Milliseconds(15250), [this](TaskContext context)
+        scheduler.Schedule(Milliseconds(15250), [this](TaskContext /*context*/)
         {
             Movement::MoveSplineInit init(me);
             for (auto itr : lorthemarPath)
@@ -2934,47 +2933,47 @@ struct npc_lorthemar_theron_isle_intro : public ScriptedAI
             init.Launch();
 
             uint32 delay = me->GetSplineDuration();
-            scheduler.Schedule(Milliseconds(delay), [this](TaskContext context)
+            scheduler.Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_2);
             });
-            scheduler.Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
+            scheduler.Schedule(Milliseconds(delay += 6000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_3);
             });
-            scheduler.Schedule(Milliseconds(delay += 10000), [this](TaskContext context)
+            scheduler.Schedule(Milliseconds(delay += 10000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_4);
 
                 if (Unit* owner = ObjectAccessor::GetUnit(*me, summonerGUID))
                     me->SetFacingTo(me->GetAngle(owner));
             });
-            scheduler.Schedule(Milliseconds(delay += 10000), [this](TaskContext context)
+            scheduler.Schedule(Milliseconds(delay += 10000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_5);
             });
-            scheduler.Schedule(Milliseconds(delay += 4500), [this](TaskContext context)
+            scheduler.Schedule(Milliseconds(delay += 4500), [this](TaskContext /*context*/)
             {
                 me->SetFacingTo(4.88f);
                 Talk(TALK_SPECIAL_6);
             });
-            scheduler.Schedule(Milliseconds(delay += 3000), [this](TaskContext context)
+            scheduler.Schedule(Milliseconds(delay += 3000), [this](TaskContext /*context*/)
             {
                 if (Unit* owner = ObjectAccessor::GetUnit(*me, summonerGUID))
                     me->SetFacingTo(me->GetAngle(owner));
 
                 Talk(TALK_SPECIAL_7);
             });
-            scheduler.Schedule(Milliseconds(delay += 7800), [this](TaskContext context)
+            scheduler.Schedule(Milliseconds(delay += 7800), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_8);
             });
-            scheduler.Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+            scheduler.Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_9);
                 me->GetMotionMaster()->MoveTargetedHome();
 
-                scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     if (Unit* owner = ObjectAccessor::GetUnit(*me, summonerGUID))
                         owner->RemoveAurasDueToSpell(SPELL_SUMMON_LORTHEMAR);
@@ -3003,13 +3002,13 @@ struct npc_aethas_isle_intro : public ScriptedAI
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         me->SetPhaseMask(4, true);
 
-        scheduler.Schedule(Seconds(2), [this](TaskContext context)
+        scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
         {
             me->SetFacingTo(Position::NormalizeOrientation(me->GetOrientation() - M_PI / 2));
             me->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
         });
 
-        scheduler.Schedule(Seconds(2), [this](TaskContext context)
+        scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
         {
             me->DespawnOrUnsummon();
         });
@@ -3037,7 +3036,7 @@ struct npc_stone_ritual_bunny_controller : public ScriptedAI
         if (Creature* stoneConqueror = me->SummonCreature(NPC_ANCIENT_STONE_CONQUEROR, *me, TEMPSUMMON_MANUAL_DESPAWN))
             conquerorGUID = stoneConqueror->GetGUID();
 
-        scheduler.Schedule(Seconds(2), [this](TaskContext context) // Init delay
+        scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/) // Init delay
         {
             std::list<Creature*> shanzeList;
             GetCreatureListWithEntryInGrid(shanzeList, me, NPC_ADDIT_SHANZE_SOULRIPPER, 55.0f);
@@ -3341,7 +3340,7 @@ struct npc_puzzle_controller_bunny : public ScriptedAI
             puzzleSequenceGUIDs.clear();
 
             scheduler
-                .Schedule(Seconds(2), [this](TaskContext context) // Init delay
+                .Schedule(Seconds(2), [this](TaskContext /*context*/) // Init delay
             {
                 std::list<Creature*> cList;
                 GetCreatureListWithEntryInGrid(cList, me, NPC_PUZZLE_BUNNY, 200.0f);
@@ -3552,7 +3551,7 @@ struct npc_nalak_essence_of_storms : public customCreatureAI
         DoAction(ACTION_INTRO);
 
         scheduler
-            .Schedule(Seconds(3), [this](TaskContext context)
+            .Schedule(Seconds(3), [this](TaskContext /*context*/)
         {
             me->ClearUnitState(UNIT_STATE_ROOT);
             canAttack = true;

@@ -20,20 +20,17 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
-#include "SpellAuras.h"
 #include "MapManager.h"
 #include "Spell.h"
 #include "Vehicle.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "CreatureTextMgr.h"
 #include "Unit.h"
 #include "Player.h"
 #include "Creature.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "VehicleDefines.h"
 #include "SpellInfo.h"
 #include "MoveSplineInit.h"
@@ -317,12 +314,12 @@ struct boss_norushen_pride : public ScriptedAI
         Talk(SAY_NORUSHEN_INTRO);
 
         scheduler
-            .Schedule(Milliseconds(2000), [this](TaskContext context)
+            .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
         {
             me->GetMotionMaster()->MovePoint(0, norushenShaRoom);
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 Talk(SAY_NORUSHEN_INTRO_1);
             });
@@ -382,13 +379,13 @@ struct lorewalkerAI : public CreatureAI
 
             uint32 delay = 1000;
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 Talk(SAY_LOREWALKER_OUTRO);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
             {
                 me->SetWalk(true);
                 GetPositionWithDistInOrientation(me, 50.0f, me->GetOrientation(), x, y);
@@ -496,7 +493,7 @@ class boss_sha_of_pride : public CreatureScript
                 }
 
                 scheduler
-                    .Schedule(Seconds(1), [this](TaskContext context)
+                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
                 {
                     if (instance && instance->GetData(DATA_SHA_OF_PRIDE_PRE_EVENT) == DONE)
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
@@ -856,7 +853,7 @@ struct npc_manifestation_of_pride : public ScriptedAI
         events.Reset();
 
         scheduler
-            .Schedule(Milliseconds(2000), [this](TaskContext context)
+            .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
         {
             me->RemoveAurasDueToSpell(SPELL_MANIFESTATION_SPAWN);
             me->SetInCombatWithZone();

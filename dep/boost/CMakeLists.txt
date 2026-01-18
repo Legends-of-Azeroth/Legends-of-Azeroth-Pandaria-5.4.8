@@ -24,9 +24,9 @@ include (CheckCXXSourceCompiles)
 
 if (WIN32)
   # On windows the requirements are higher according to the wiki.
-  set(BOOST_REQUIRED_VERSION 1.78)
+  set(BOOST_REQUIRED_VERSION 1.87)
 else()
-  set(BOOST_REQUIRED_VERSION 1.71)
+  set(BOOST_REQUIRED_VERSION 1.83)
 endif()
 
 find_package(Boost ${BOOST_REQUIRED_VERSION} REQUIRED filesystem program_options iostreams regex locale)

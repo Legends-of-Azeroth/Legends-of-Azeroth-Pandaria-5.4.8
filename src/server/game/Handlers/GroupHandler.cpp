@@ -16,9 +16,7 @@
 */
 
 #include "Common.h"
-#include "DatabaseEnv.h"
 #include "Group.h"
-#include "GroupMgr.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"

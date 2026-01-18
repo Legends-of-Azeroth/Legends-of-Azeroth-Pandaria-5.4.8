@@ -428,7 +428,7 @@ class boss_horridon : public CreatureScript
                 }
 
                 scheduler
-                    .Schedule(Seconds(2), [this](TaskContext context)
+                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
                 {
                     if (instance && instance->GetData(DATA_HORIDON_EVENT) == DONE)
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
@@ -565,7 +565,7 @@ class boss_horridon : public CreatureScript
 
                         scheduler
                             .SetValidator([this] { return instance && instance->GetBossState(DATA_HORRIDON) == IN_PROGRESS; })
-                            .Schedule(Milliseconds(300), [this](TaskContext context) // very very low delay or it`ll have a wrong anim (hacky, hitbox issue)
+                            .Schedule(Milliseconds(300), [this](TaskContext /*context*/) // very very low delay or it`ll have a wrong anim (hacky, hitbox issue)
                         {
                             DoCast(SPELL_CHARGE_SWIPE);
                         });
@@ -628,7 +628,7 @@ class boss_horridon : public CreatureScript
 
                         scheduler
                             .SetValidator([this] { return instance && instance->GetBossState(DATA_HORRIDON) == IN_PROGRESS; })
-                            .Schedule(Seconds(5), [this](TaskContext context)
+                            .Schedule(Seconds(5), [this](TaskContext /*context*/)
                         {
                             if (GameObject* curTribalDoor = ObjectAccessor::GetGameObject(*me, instance ? instance->GetGuidData(GetDoorIdByPhase(eTrashPhases(uPhase))) : ObjectGuid::Empty))
                             {
@@ -713,7 +713,7 @@ class boss_horridon : public CreatureScript
 
                             scheduler
                                 .SetValidator([this] { return instance && instance->GetBossState(DATA_HORRIDON) == IN_PROGRESS; })
-                                .Schedule(Milliseconds(4500), [this](TaskContext context)
+                                .Schedule(Milliseconds(4500), [this](TaskContext /*context*/)
                             {
                                 me->RemoveChanneledCast(targetGUID);
                             });
@@ -1713,7 +1713,7 @@ struct npc_direhorn_spirit : public ScriptedAI
 
             // Init delay before start attack
             scheduler
-                .Schedule(Milliseconds(1500), [this](TaskContext context)
+                .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
             {
                 me->ClearUnitState(UNIT_STATE_CASTING);
 
@@ -1758,7 +1758,7 @@ struct npc_living_poison : public ScriptedAI
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
 
         scheduler
-            .Schedule(Milliseconds(2500), [this](TaskContext context)
+            .Schedule(Milliseconds(2500), [this](TaskContext /*context*/)
         {
             me->GetMotionMaster()->MoveRandom(8.5f);
         });

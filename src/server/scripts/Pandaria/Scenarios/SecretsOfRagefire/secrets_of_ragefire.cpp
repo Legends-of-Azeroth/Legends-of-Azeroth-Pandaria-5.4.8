@@ -19,7 +19,6 @@
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
 #include "CreatureAI.h"
 #include "MoveSplineInit.h"
 #include "SpellScript.h"
@@ -102,20 +101,20 @@ struct npc_ragefire_grit : public ScriptedAI
             case ACTION_START_INTRO:
                 delay = 500;
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_INTRO);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3200), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3200), [this](TaskContext /*context*/)
                 {
                     if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NEWT) : ObjectGuid::Empty))
                         newt->AI()->Talk(TALK_INTRO);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 2100), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 2100), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_1);
 
@@ -132,14 +131,14 @@ struct npc_ragefire_grit : public ScriptedAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3900), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3900), [this](TaskContext /*context*/)
                 {
                     if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                         ticker->AI()->Talk(TALK_INTRO);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 1000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 1000), [this](TaskContext /*context*/)
                 {
                     // Ticker, Patch, Volt should move to Newt
                     if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
@@ -174,26 +173,26 @@ struct npc_ragefire_grit : public ScriptedAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 2500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 2500), [this](TaskContext /*context*/)
                 {
                     if (Player* owner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                         Talk(TALK_SPECIAL_2, owner);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3800), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3800), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_3);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 6100), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 6100), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_4);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 6100), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 6100), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_5);
 
@@ -207,13 +206,13 @@ struct npc_ragefire_grit : public ScriptedAI
 
                     delay = me->GetSplineDuration();
                     scheduler
-                        .Schedule(Milliseconds(delay), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                     {
                         Talk(TALK_SPECIAL_6);
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 2700), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 2700), [this](TaskContext /*context*/)
                     {
                         if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NEWT) : ObjectGuid::Empty))
                         {
@@ -230,7 +229,7 @@ struct npc_ragefire_grit : public ScriptedAI
                             init.Launch();
 
                             scheduler
-                                .Schedule(Milliseconds(newt->GetSplineDuration()), [this](TaskContext context)
+                                .Schedule(Milliseconds(newt->GetSplineDuration()), [this](TaskContext /*context*/)
                             {
                                 if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NEWT) : ObjectGuid::Empty))
                                     newt->AI()->Talk(TALK_SPECIAL_2);
@@ -265,13 +264,13 @@ struct npc_ragefire_grit : public ScriptedAI
 
                 delay = 2000;
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_7);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 1000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 1000), [this](TaskContext /*context*/)
                 {
                     // Move in Cavern!
                     if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
@@ -328,20 +327,20 @@ struct npc_ragefire_grit : public ScriptedAI
 
                     delay = me->GetSplineDuration();
                     scheduler
-                        .Schedule(Milliseconds(delay), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                     {
                         Talk(TALK_SPECIAL_8);
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
                     {
                         if (Creature* xorenth = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_DARK_SHAMAN_XORENTH) : ObjectGuid::Empty))
                             xorenth->AI()->Talk(TALK_INTRO);
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 1600), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 1600), [this](TaskContext /*context*/)
                     {
                         // Attack intruders!
                         if (Creature* xorenth = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_DARK_SHAMAN_XORENTH) : ObjectGuid::Empty))
@@ -360,7 +359,7 @@ struct npc_ragefire_grit : public ScriptedAI
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 4700), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 4700), [this](TaskContext /*context*/)
                     {
                         Talk(TALK_SPECIAL_9);
                     });
@@ -382,20 +381,20 @@ struct npc_ragefire_grit : public ScriptedAI
                         {
                             delay = me->GetSplineDuration();
                             scheduler
-                                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                             {
                                 if (Creature* volt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_VOLT) : ObjectGuid::Empty))
                                     volt->AI()->Talk(TALK_INTRO);
                             });
 
                             scheduler
-                                .Schedule(Milliseconds(delay += 4500), [this](TaskContext context)
+                                .Schedule(Milliseconds(delay += 4500), [this](TaskContext /*context*/)
                             {
                                 Talk(TALK_SPECIAL_12);
                             });
 
                             scheduler
-                                .Schedule(Milliseconds(delay += 3500), [this](TaskContext context)
+                                .Schedule(Milliseconds(delay += 3500), [this](TaskContext /*context*/)
                             {
                                 Talk(TALK_SPECIAL_13);
                             });
@@ -473,21 +472,21 @@ struct npc_ragefire_grit : public ScriptedAI
 
                 delay = 1000;
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     if (me->GetInstanceScript())
                         me->GetInstanceScript()->SetData(PROTDRAKES_DATA, DONE);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 2700), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 2700), [this](TaskContext /*context*/)
                 {
                     if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                         ticker->AI()->Talk(TALK_SPECIAL_2);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 2700), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 2700), [this](TaskContext /*context*/)
                 {
                     // Take Mantid Bomb in hands
                     if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
@@ -500,7 +499,7 @@ struct npc_ragefire_grit : public ScriptedAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3600), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3600), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_16);
 
@@ -509,7 +508,7 @@ struct npc_ragefire_grit : public ScriptedAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 6100), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 6100), [this](TaskContext /*context*/)
                 {
                     if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                     {
@@ -519,7 +518,7 @@ struct npc_ragefire_grit : public ScriptedAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 4900), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 4900), [this](TaskContext /*context*/)
                 {
                     if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                         ticker->AI()->Talk(TALK_SPECIAL_5);
@@ -536,7 +535,7 @@ struct npc_ragefire_grit : public ScriptedAI
 
                 delay = 2350;
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                         ticker->AI()->Talk(TALK_SPECIAL_12);
@@ -555,7 +554,7 @@ struct npc_ragefire_grit : public ScriptedAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 2900), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 2900), [this](TaskContext /*context*/)
                 {
                     if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NEWT) : ObjectGuid::Empty))
                         newt->AI()->Talk(TALK_SPECIAL_4);
@@ -565,34 +564,34 @@ struct npc_ragefire_grit : public ScriptedAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3700), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3700), [this](TaskContext /*context*/)
                 {
                     if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                         ticker->AI()->Talk(TALK_SPECIAL_13);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 2600), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 2600), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_17);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 6100), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 6100), [this](TaskContext /*context*/)
                 {
                     if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                         ticker->AI()->Talk(TALK_SPECIAL_14);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3600), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3600), [this](TaskContext /*context*/)
                 {
                     if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                         ticker->AI()->Talk(TALK_SPECIAL_15);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 2700), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 2700), [this](TaskContext /*context*/)
                 {
                     // Explosion!
                     if (Creature* mantidBomb = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MANTID_BOMB) : ObjectGuid::Empty))
@@ -617,61 +616,61 @@ struct npc_ragefire_grit : public ScriptedAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3900), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3900), [this](TaskContext /*context*/)
                 {
                     if (Creature* volt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_VOLT) : ObjectGuid::Empty))
                         volt->AI()->Talk(TALK_SPECIAL_2);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 1000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 1000), [this](TaskContext /*context*/)
                 {
                     if (Creature* patch = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_PATCH) : ObjectGuid::Empty))
                         patch->AI()->Talk(TALK_SPECIAL_1);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 1500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 1500), [this](TaskContext /*context*/)
                 {
                     if (Creature* volt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_VOLT) : ObjectGuid::Empty))
                         volt->AI()->Talk(TALK_SPECIAL_3);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 2100), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 2100), [this](TaskContext /*context*/)
                 {
                     if (Creature* patch = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_PATCH) : ObjectGuid::Empty))
                         patch->AI()->Talk(TALK_SPECIAL_2);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 1500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 1500), [this](TaskContext /*context*/)
                 {
                     if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NEWT) : ObjectGuid::Empty))
                         newt->AI()->Talk(TALK_SPECIAL_5);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 1380), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 1380), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_18);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 4900), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 4900), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_19);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 1000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 1000), [this](TaskContext /*context*/)
                 {
                     if (Creature* patch = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_PATCH) : ObjectGuid::Empty))
                         patch->AI()->Talk(TALK_SPECIAL_3);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 2500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 2500), [this](TaskContext /*context*/)
                 {
                     if (Creature* elaglo = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_OVERSEER_ELAGLO) : ObjectGuid::Empty))
                         elaglo->AI()->DoAction(ACTION_START_INTRO);
@@ -683,7 +682,7 @@ struct npc_ragefire_grit : public ScriptedAI
                     patch->AI()->Talk(TALK_SPECIAL_4);
 
                 scheduler
-                    .Schedule(Milliseconds(5500), [this](TaskContext context)
+                    .Schedule(Milliseconds(5500), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_22);
                 });
@@ -743,7 +742,7 @@ struct npc_ragefire_detonator : public ScriptedAI
         if (moveDuration)
         {
             scheduler
-                .Schedule(Milliseconds(moveDuration), [this](TaskContext context)
+                .Schedule(Milliseconds(moveDuration), [this](TaskContext /*context*/)
             {
                 if (Creature* grit = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_GRIT) : ObjectGuid::Empty))
                     grit->AI()->DoAction(ACTION_INNER_RAGEFIRE);
@@ -806,7 +805,7 @@ struct npc_ragefire_dark_shaman_xorenth : public customCreatureAI
 
             delay = 2400;
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_2);
 
@@ -840,14 +839,14 @@ struct npc_ragefire_dark_shaman_xorenth : public customCreatureAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
             {
                 if (Creature* grit = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_GRIT) : ObjectGuid::Empty))
                     grit->AI()->Talk(TALK_SPECIAL_10);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 2250), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 2250), [this](TaskContext /*context*/)
             {
                 DoCast(me, SPELL_SEALED_GATE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PACIFIED);
@@ -855,7 +854,7 @@ struct npc_ragefire_dark_shaman_xorenth : public customCreatureAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 4800), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 4800), [this](TaskContext /*context*/)
             {
                 if (Creature* grit = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_GRIT) : ObjectGuid::Empty))
                     grit->AI()->Talk(TALK_SPECIAL_11);
@@ -1223,13 +1222,13 @@ struct npc_ragefire_overseer_elaglo : public customCreatureAI
             me->GetInstanceScript()->SetData(DATA_HOLDOUT, IN_PROGRESS);
 
             scheduler
-                .Schedule(Milliseconds(3700), [this](TaskContext context)
+                .Schedule(Milliseconds(3700), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_3);
             });
 
             scheduler
-                .Schedule(Milliseconds(3600), [this](TaskContext context)
+                .Schedule(Milliseconds(3600), [this](TaskContext /*context*/)
             {
                 if (Creature* grit = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_GRIT) : ObjectGuid::Empty))
                     grit->AI()->Talk(TALK_SPECIAL_20);

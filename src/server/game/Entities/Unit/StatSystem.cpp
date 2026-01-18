@@ -510,15 +510,13 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     {
         index = UNIT_FIELD_RANGED_ATTACK_POWER;
         indexMult = UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER;
-        val2 = (level + std::max(GetStat(STAT_AGILITY) - 10.0f, 0.0f)) * entry->RAPPerAgility;
+        val2 = (level + std::max(GetStat(STAT_AGILITY) - 10.0f, 0.0f)) * (float)entry->RAPPerAgility;
     }
     else
     {
         float apPerLevel = entry->APPerStrenth == 2 ? 3 : 2;
-        float strengthValue = std::max((GetStat(STAT_STRENGTH) - 10.0f) * entry->APPerStrenth, 0.0f);
-        float agilityValue = std::max((GetStat(STAT_AGILITY) - 10.0f) * entry->APPerAgility, 0.0f);
-
-        SpellShapeshiftFormEntry const* form = sSpellShapeshiftFormStore.LookupEntry(GetShapeshiftForm());
+        float strengthValue = std::max((GetStat(STAT_STRENGTH) - 10.0f) * (float)entry->APPerStrenth, 0.0f);
+        float agilityValue = std::max((GetStat(STAT_AGILITY) - 10.0f) * (float)entry->APPerAgility, 0.0f);
 
         if (GetShapeshiftForm() == FORM_CAT || GetShapeshiftForm() == FORM_BEAR)
         {
@@ -526,7 +524,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
             apPerLevel = 3;
         }
 
-        val2 = strengthValue + agilityValue + GetLevel() * apPerLevel;
+        val2 = strengthValue + agilityValue + level * apPerLevel;
     }
 
     SetModifierValue(unitMod, BASE_VALUE, val2);
@@ -534,7 +532,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     float attackPower = 0.f;
     float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
     if (!GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SPD).empty())
-        attackPower = CalculatePct(SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL), GetMaxPositiveAuraModifier(SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SPD));
+        attackPower = CalculatePct<float>((float)SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL), GetMaxPositiveAuraModifier(SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SPD));
     else
     {
         float baseAttackPower = GetModifierValue(unitMod, BASE_VALUE) * GetModifierValue(unitMod, BASE_PCT);
@@ -981,7 +979,7 @@ void Player::UpdateSpellCritChance(uint32 school)
 void Player::UpdateArmorPenetration(int32 amount)
 {
     // Store Rating Value
-    SetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_ARMOR_PENETRATION, amount);
+    SetUInt32Value((uint16)PLAYER_FIELD_COMBAT_RATINGS + (uint16)CR_ARMOR_PENETRATION, amount);
 }
 
 void Player::UpdateMeleeHitChances()
@@ -1109,7 +1107,7 @@ void Player::UpdateRuneRegen()
             return effect->GetMiscValue() == POWER_RUNES && effect->GetMiscValueB() == i;
         });
         rate = 1 / rate;
-        float val = float(1 * IN_MILLISECONDS) / RUNE_READINESS_FULL / rate;
+        float val = float(1 * IN_MILLISECONDS) / (float)RUNE_READINESS_FULL / rate;
         SetFloatValue(PLAYER_FIELD_RUNE_REGEN + i, val);
     }
 }
@@ -1501,17 +1499,17 @@ void Guardian::UpdateMaxPower(Powers power)
     if (GetPowerIndex(power) == MAX_POWERS)
         return;
 
-    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
+    UnitMods unitMod = UnitMods((uint16)UNIT_MOD_POWER_START + (uint16)power);
 
     float addValue = (power == POWER_MANA) ? GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT) : 0.0f;
     float multiplicator = 15.0f;
 
-    float value  = GetModifierValue(unitMod, BASE_VALUE) + GetCreatePowers(power);
+    float value  = GetModifierValue(unitMod, BASE_VALUE) + (float)GetCreatePowers(power);
     value *= GetModifierValue(unitMod, BASE_PCT);
     value += GetModifierValue(unitMod, TOTAL_VALUE) + addValue * multiplicator;
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
-    SetMaxPower(power, uint32(value));
+    SetMaxPower(power, int32(value));
 }
 
 void Guardian::UpdateAttackPowerAndDamage(bool ranged)
@@ -1552,8 +1550,8 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
             spdPerAp  = petScaling->SpdPerAp;
         }
 
-        SetBonusDamage(spdPerSpd * spd + spdPerAp * ap);
-        bonusAP = apPerSpd * spd + apPerAp * ap;
+        SetBonusDamage(int32(spdPerSpd * (float)spd + spdPerAp * ap));
+        bonusAP = apPerSpd * (float)spd + apPerAp * ap;
     }
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, bonusAP);
@@ -1616,9 +1614,9 @@ void Pet::UpdateMaxPower(Powers power)
 
     if (GetOwner()->GetClass() == CLASS_MAGE)
     {
-        float pct = GetMaxPower(POWER_MANA) ? 100.0f * GetPower(POWER_MANA) / GetMaxPower(POWER_MANA) : 0;
+        float pct = GetMaxPower(POWER_MANA) ? 100.0f * (float)GetPower(POWER_MANA) / (float)GetMaxPower(POWER_MANA) : 0.0f;
         SetCreateMana(GetOwner()->GetMaxPower(POWER_MANA));
-        SetMaxPower(POWER_MANA, GetCreateMana());
+        SetMaxPower(POWER_MANA, (int32)GetCreateMana());
         SetPower(POWER_MANA, CalculatePct(GetMaxPower(POWER_MANA), pct));
     }
     else

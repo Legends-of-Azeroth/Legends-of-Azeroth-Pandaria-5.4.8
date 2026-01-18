@@ -26,7 +26,6 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Config.h"
-#include <numeric>
 
 namespace Trinity
 {

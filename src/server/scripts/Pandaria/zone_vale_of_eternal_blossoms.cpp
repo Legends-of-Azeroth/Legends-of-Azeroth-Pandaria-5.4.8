@@ -19,7 +19,6 @@
 #include "ObjectMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
 #include "Group.h"
 
 enum eSpells
@@ -1020,7 +1019,7 @@ struct npc_mercurial_guardian : public customCreatureAI
             clicker->ToPlayer()->KilledMonsterCredit(NPC_INVESTIGATE_GUARDIAN);
 
         scheduler
-            .Schedule(Milliseconds(2000), [this](TaskContext context)
+            .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
         {
             me->SetFaction(14);
 

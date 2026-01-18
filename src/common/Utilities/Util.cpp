@@ -26,6 +26,9 @@
 #include <cstring>
 #include <sstream>
 #include <cstdarg>
+#include <iomanip>
+#include <string>
+
 
 std::vector<std::string_view> Trinity::Tokenize(std::string_view str, char sep, bool keepEmpty)
 {
@@ -209,17 +212,12 @@ uint32 TimeStringToSecs(const std::string& timestring)
 
 std::string TimeToTimestampStr(time_t t)
 {
-    tm aTm;
-    localtime_r(&t, &aTm);
-    //       YYYY   year
-    //       MM     month (2 digits 01-12)
-    //       DD     day (2 digits 01-31)
-    //       HH     hour (2 digits 00-23)
-    //       MM     minutes (2 digits 00-59)
-    //       SS     seconds (2 digits 00-59)
-    char buf[20];
-    snprintf(buf, 20, "%04d-%02d-%02d_%02d-%02d-%02d", aTm.tm_year+1900, aTm.tm_mon+1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
-    return std::string(buf);
+    std::tm local_tm = *std::localtime(&t);
+
+    std::ostringstream oss;
+    oss << std::put_time(&local_tm, "%Y-%m-%d_%H-%M-%S");
+
+    return oss.str();
 }
 
 /// Check if the string is a valid ip address representation
@@ -258,7 +256,7 @@ size_t utf8length(std::string& utf8str)
     {
         return utf8::distance(utf8str.c_str(), utf8str.c_str()+utf8str.size());
     }
-    catch(std::exception)
+    catch(const std::exception& /*e*/)
     {
         utf8str = "";
         return 0;
@@ -280,7 +278,7 @@ void utf8truncate(std::string& utf8str, size_t len)
         char* oend = utf8::utf16to8(wstr.c_str(), wstr.c_str()+wstr.size(), &utf8str[0]);
         utf8str.resize(oend-(&utf8str[0]));                 // remove unused tail
     }
-    catch(std::exception)
+    catch(const std::exception& /*e*/)
     {
         utf8str = "";
     }
@@ -303,7 +301,7 @@ bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize)
         utf8::utf8to16(utf8str, utf8str + csize, wstr);
         wstr[len] = L'\0';
     }
-    catch (std::exception)
+    catch (const std::exception& /*e*/)
     {
         if (wsize > 0)
             wstr[0] = L'\0';
@@ -344,7 +342,7 @@ bool WStrToUtf8(wchar_t* wstr, size_t size, std::string& utf8str)
         }
         utf8str = utf8str2;
     }
-    catch(std::exception)
+    catch(const std::exception& /*e*/)
     {
         utf8str = "";
         return false;
@@ -367,7 +365,7 @@ bool WStrToUtf8(std::wstring wstr, std::string& utf8str)
         }
         utf8str = utf8str2;
     }
-    catch(std::exception)
+    catch(const std::exception& /*e*/)
     {
         utf8str = "";
         return false;

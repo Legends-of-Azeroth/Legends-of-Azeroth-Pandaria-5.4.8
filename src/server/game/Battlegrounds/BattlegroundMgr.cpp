@@ -42,7 +42,6 @@
 #include "BattlegroundTV.h"
 #include "Chat.h"
 #include "Map.h"
-#include "MapInstanced.h"
 #include "MapManager.h"
 #include "Player.h"
 #include "GameEventMgr.h"

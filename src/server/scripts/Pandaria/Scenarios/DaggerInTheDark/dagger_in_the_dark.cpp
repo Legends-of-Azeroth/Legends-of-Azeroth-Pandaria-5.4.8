@@ -19,7 +19,6 @@
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
 #include "CreatureAI.h"
 #include "MoveSplineInit.h"
 #include "SpellScript.h"
@@ -157,7 +156,7 @@ class npc_dagger_in_dark_voljin : public CreatureScript
                     init.Launch();
 
                     scheduler
-                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                     {
                         if (me->GetInstanceScript())
                             me->GetInstanceScript()->SetData(DATA_THE_SOURCE, DONE);
@@ -212,21 +211,21 @@ class npc_dagger_in_dark_voljin : public CreatureScript
 
                         delay = 3800;
                         scheduler
-                            .Schedule(Milliseconds(delay), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                         {
                             if (Creature* rakgor = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_RAKGOR_BLOODRAZOR) : ObjectGuid::Empty))
                                 rakgor->AI()->Talk(TALK_INTRO);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 3400), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 3400), [this](TaskContext /*context*/)
                         {
                             if (Creature* rakgor = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_RAKGOR_BLOODRAZOR) : ObjectGuid::Empty))
                                 rakgor->SetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID, 17719);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 1000), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 1000), [this](TaskContext /*context*/)
                         {
                             // Fly out of there
                             if (Creature* rakgor = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_RAKGOR_BLOODRAZOR) : ObjectGuid::Empty))
@@ -244,7 +243,7 @@ class npc_dagger_in_dark_voljin : public CreatureScript
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
                         {
                             // Fly out of there
                             if (Creature* bodyguard = ObjectAccessor::GetCreature(*me, getAnyKorkronBodyguardGUID()))
@@ -264,7 +263,7 @@ class npc_dagger_in_dark_voljin : public CreatureScript
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_1);
 
@@ -286,7 +285,7 @@ class npc_dagger_in_dark_voljin : public CreatureScript
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 4800), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 4800), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_2);
 
@@ -299,7 +298,7 @@ class npc_dagger_in_dark_voljin : public CreatureScript
 
                             delay = me->GetSplineDuration();
                             scheduler
-                                .Schedule(Milliseconds(delay += 1000), [this](TaskContext context)
+                                .Schedule(Milliseconds(delay += 1000), [this](TaskContext /*context*/)
                             {
                                 Talk(TALK_SPECIAL_3);
                                 me->SetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID, 29261);
@@ -307,7 +306,7 @@ class npc_dagger_in_dark_voljin : public CreatureScript
                             });
 
                             scheduler
-                                .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                                .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
                             {
                                 me->StopMoving();
 
@@ -323,20 +322,20 @@ class npc_dagger_in_dark_voljin : public CreatureScript
                                     gearslip->AI()->DoAction(ACTION_START_INTRO);
 
                                 scheduler
-                                    .Schedule(Milliseconds(17300), [this](TaskContext context)
+                                    .Schedule(Milliseconds(17300), [this](TaskContext /*context*/)
                                 {
                                     Talk(TALK_SPECIAL_4);
                                 });
 
                                 delay = me->GetSplineDuration();
                                 scheduler
-                                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                                 {
                                     Talk(TALK_SPECIAL_5);
                                 });
 
                                 scheduler
-                                    .Schedule(Milliseconds(delay += 3000), [this](TaskContext context)
+                                    .Schedule(Milliseconds(delay += 3000), [this](TaskContext /*context*/)
                                 {
                                     me->SetHomePosition(*me);
                                     me->SetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID, 0);
@@ -349,7 +348,7 @@ class npc_dagger_in_dark_voljin : public CreatureScript
                         break;
                     case ACTION_MEET_LIZARD_LORD:
                         scheduler
-                            .Schedule(Milliseconds(1000), [this](TaskContext context)
+                            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
                         {
                             me->SetHomePosition(voljinLizzardPoint);
                             me->GetMotionMaster()->MovePoint(0, voljinLizzardPoint);
@@ -360,13 +359,13 @@ class npc_dagger_in_dark_voljin : public CreatureScript
                         delay = 1500;
 
                         scheduler
-                            .Schedule(Milliseconds(delay), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_10);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 3500), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 3500), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_11);
 
@@ -383,20 +382,20 @@ class npc_dagger_in_dark_voljin : public CreatureScript
                         me->SetHomePosition(voljinLeaveBoatPoint);
                         delay = 4000;
                         scheduler
-                            .Schedule(Milliseconds(delay), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_14);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 2600), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 2600), [this](TaskContext /*context*/)
                         {
                             if (Creature* grizzle = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_GRIZZLE_GEARSLIP) : ObjectGuid::Empty))
                                 grizzle->AI()->Talk(TALK_SPECIAL_4);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 6000), [this](TaskContext /*context*/)
                         {
                             if (Creature* grizzle = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_GRIZZLE_GEARSLIP) : ObjectGuid::Empty))
                                 grizzle->AI()->Talk(TALK_SPECIAL_5);
@@ -412,7 +411,7 @@ class npc_dagger_in_dark_voljin : public CreatureScript
                             init.Launch();
 
                             scheduler
-                                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                             {
                                 if (me->GetInstanceScript())
                                     me->GetInstanceScript()->SetData(DATA_THE_SOURCE, DONE);
@@ -424,14 +423,14 @@ class npc_dagger_in_dark_voljin : public CreatureScript
                         Talk(TALK_SPECIAL_15);
 
                         scheduler
-                            .Schedule(Milliseconds(4000), [this](TaskContext context)
+                            .Schedule(Milliseconds(4000), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_16);
                         });
                         break;
                     case ACTION_DEFEAT_BROODMASTER:
                         scheduler
-                            .Schedule(Milliseconds(4650), [this](TaskContext context)
+                            .Schedule(Milliseconds(4650), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_19);
                         });
@@ -442,13 +441,13 @@ class npc_dagger_in_dark_voljin : public CreatureScript
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
                         delay = 6500;
                         scheduler
-                            .Schedule(Milliseconds(delay), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_23);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 8600), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 8600), [this](TaskContext /*context*/)
                         {
                             if (Creature* bloodrazor = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_RAKGOR_BLOODRAZOR + 1) : ObjectGuid::Empty))
                                 me->SetFacingToObject(bloodrazor);
@@ -457,7 +456,7 @@ class npc_dagger_in_dark_voljin : public CreatureScript
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 7000), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 7000), [this](TaskContext /*context*/)
                         {
                             if (Creature* bloodrazor = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_RAKGOR_BLOODRAZOR + 1) : ObjectGuid::Empty))
                                 bloodrazor->AI()->Talk(TALK_SPECIAL_4);
@@ -465,7 +464,7 @@ class npc_dagger_in_dark_voljin : public CreatureScript
 
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 12600), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 12600), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_25);
 
@@ -478,43 +477,43 @@ class npc_dagger_in_dark_voljin : public CreatureScript
                         delay = 3500;
 
                         scheduler
-                            .Schedule(Milliseconds(delay), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_27);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 4800), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 4800), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_28);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 8500), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 8500), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_29);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 3600), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 3600), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_30);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 9700), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 9700), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_31);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 6000), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_32);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 6200), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 6200), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_33);
                         });
@@ -524,7 +523,7 @@ class npc_dagger_in_dark_voljin : public CreatureScript
                         me->GetMotionMaster()->MovePoint(0, bigBadVooodooPos);
 
                         scheduler
-                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                         {
                             me->SetHomePosition(*me);
                             DoCast(me, SPELL_BIG_BAD_VOODOO_AT);
@@ -607,7 +606,7 @@ struct npc_dagger_in_dark_grizzle_gearslip : public ScriptedAI
                 me->SetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID, 25871);
 
                 scheduler
-                    .Schedule(Milliseconds(2000), [this](TaskContext context)
+                    .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
                 {
                     Movement::MoveSplineInit init(me);
                     for (auto&& itr : voljinSecondPath)
@@ -619,7 +618,7 @@ struct npc_dagger_in_dark_grizzle_gearslip : public ScriptedAI
                     init.Launch();
 
                     scheduler
-                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                     {
                         me->SetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID, 0);
                     });
@@ -630,13 +629,13 @@ struct npc_dagger_in_dark_grizzle_gearslip : public ScriptedAI
 
                 uint32 delay = me->GetSplineDuration();
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_1);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_2);
 
@@ -648,14 +647,14 @@ struct npc_dagger_in_dark_grizzle_gearslip : public ScriptedAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 8500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 8500), [this](TaskContext /*context*/)
                 {
                     if (Creature* voljin = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_VOLJIN) : ObjectGuid::Empty))
                         voljin->AI()->Talk(TALK_SPECIAL_12);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 4800), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 4800), [this](TaskContext /*context*/)
                 {
                     if (Creature* voljin = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_VOLJIN) : ObjectGuid::Empty))
                         voljin->AI()->Talk(TALK_SPECIAL_13);
@@ -690,7 +689,7 @@ struct npc_dagger_in_dark_mogu_rune : public customCreatureAI
         me->SetObjectScale(2.0f);
 
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext context)
+            .Schedule(Seconds(1), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_MOGU_RUNE_POWERUP);
         });
@@ -1134,7 +1133,7 @@ struct npc_dagger_in_dark_darkhatched_lizard_lord : public customCreatureAI
             init.Launch();
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 me->SetHomePosition(*me);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_PC);
@@ -1189,7 +1188,7 @@ struct npc_dagger_in_dark_darkhatched_lizard_lord : public customCreatureAI
                         events.ScheduleEvent(EVENT_WATER_JETS, 14.5 * IN_MILLISECONDS);
 
                         scheduler
-                            .Schedule(Milliseconds(3500), [this](TaskContext context)
+                            .Schedule(Milliseconds(3500), [this](TaskContext /*context*/)
                         {
                             me->RemoveChanneledCast(targetGUID);
                         });
@@ -1265,7 +1264,7 @@ struct npc_dagger_in_dark_spring_saurok_slayer : public customCreatureAI
                 init.Launch();
 
                 scheduler
-                    .Schedule(Milliseconds(me->GetSplineDuration()), 1, [this](TaskContext context)
+                    .Schedule(Milliseconds(me->GetSplineDuration()), 1, [this](TaskContext /*context*/)
                 {
                     if (me->GetInstanceScript())
                         me->GetInstanceScript()->SetData(DATA_INTO_THE_CAVE, DONE);
@@ -1301,7 +1300,7 @@ struct npc_dagger_in_dark_spring_saurok_slayer : public customCreatureAI
 
                 me->StopMoving();
                 scheduler
-                    .Schedule(Milliseconds(1000), 1, [this](TaskContext context)
+                    .Schedule(Milliseconds(1000), 1, [this](TaskContext /*context*/)
                 {
                     Movement::MoveSplineInit init(me);
                     for (auto&& itr : slayerPath)
@@ -1318,7 +1317,7 @@ struct npc_dagger_in_dark_spring_saurok_slayer : public customCreatureAI
                     init.Launch();
 
                     scheduler
-                        .Schedule(Milliseconds(me->GetSplineDuration()), 1, [this](TaskContext context)
+                        .Schedule(Milliseconds(me->GetSplineDuration()), 1, [this](TaskContext /*context*/)
                     {
                         if (me->GetInstanceScript())
                             me->GetInstanceScript()->SetData(DATA_INTO_THE_CAVE, DONE);
@@ -1391,13 +1390,13 @@ struct npc_dagger_in_dark_rakgor_bloodrazor : public customCreatureAI
 
                 uint32 delay = me->GetSplineDuration();
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_1);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 4700), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 4700), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_2);
 
@@ -1406,7 +1405,7 @@ struct npc_dagger_in_dark_rakgor_bloodrazor : public customCreatureAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 7400), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 7400), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_3);
 
@@ -1415,14 +1414,14 @@ struct npc_dagger_in_dark_rakgor_bloodrazor : public customCreatureAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 6300), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 6300), [this](TaskContext /*context*/)
                 {
                     if (Creature* voljin = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_VOLJIN) : ObjectGuid::Empty))
                         voljin->AI()->Talk(TALK_SPECIAL_20);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3000), [this](TaskContext /*context*/)
                 {
                     if (Creature* voljin = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_VOLJIN) : ObjectGuid::Empty))
                         voljin->AI()->Talk(TALK_SPECIAL_21);
@@ -1458,13 +1457,13 @@ struct npc_dagger_in_dark_rakgor_bloodrazor : public customCreatureAI
 
                     uint32 delay = me->GetSplineDuration() + 3000;
                     scheduler
-                        .Schedule(Milliseconds(delay), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                     {
                         Talk(TALK_SPECIAL_5);
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 6600), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 6600), [this](TaskContext /*context*/)
                     {
                         me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK1H);
 
@@ -1473,14 +1472,14 @@ struct npc_dagger_in_dark_rakgor_bloodrazor : public customCreatureAI
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 3000), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 3000), [this](TaskContext /*context*/)
                     {
                         if (Creature* newVoljin = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_VOLJIN) : ObjectGuid::Empty))
                             newVoljin->AI()->Talk(TALK_SPECIAL_26);
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 2500), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 2500), [this](TaskContext /*context*/)
                     {
                         me->SetHomePosition(*me);
                         Talk(TALK_SPECIAL_5);

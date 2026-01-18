@@ -147,8 +147,7 @@ class spell_dk_gorefiends_grasp : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        Unit* caster = GetCaster();
-        targets.remove_if([=](WorldObject const* obj)
+        targets.remove_if([](WorldObject const* obj)
         {
             Unit const* target = obj->ToUnit();
             switch (target->GetCreatureType())
@@ -282,7 +281,7 @@ class spell_dk_necrotic_strike : public AuraScript
 {
     PrepareAuraScript(spell_dk_necrotic_strike);
 
-    void CalculateAmount(AuraEffect const* aurEff, float& amount, bool&)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, float& amount, bool&)
     {
         if (Unit* caster = GetCaster())
         {
@@ -295,7 +294,7 @@ class spell_dk_necrotic_strike : public AuraScript
             
             if (AuraEffect* necrotic = GetUnitOwner()->GetAuraEffect(73975, EFFECT_0, caster->GetGUID()))
                 absorbAmount += necrotic->GetAmount();
-            amount = int32(absorbAmount);
+            amount = (float)absorbAmount;
         }
     }
 
@@ -1324,9 +1323,9 @@ class spell_dk_riposte : public SpellScriptLoader
 
                 if (Player const* const player = caster->ToPlayer())
                 {
-                    uint32 rating = player->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_PARRY);
-                    rating += player->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_DODGE);
-                    amount = CalculatePct(rating, 75);
+                    uint32 rating = player->GetUInt32Value((uint16)PLAYER_FIELD_COMBAT_RATINGS + (uint16)CR_PARRY);
+                    rating += player->GetUInt32Value((uint16)PLAYER_FIELD_COMBAT_RATINGS + (uint16)CR_DODGE);
+                    amount = CalculatePct<float>((float)rating, 75);
                 }
             }
 
@@ -1447,14 +1446,14 @@ class spell_dk_death_and_decay : public AuraScript
 {
     PrepareAuraScript(spell_dk_death_and_decay);
 
-    void CalculateDamage(AuraEffect const* eff, float& amount, bool&)
+    void CalculateDamage(AuraEffect const* /*eff*/, float& amount, bool&)
     {
         // Just for tooltip
         if (Unit* deathknight = GetCaster())
             amount = deathknight->SpellDamageBonusDone(deathknight, sSpellMgr->GetSpellInfo(SPELL_DK_DEATH_AND_DECAY_DAMAGE), EFFECT_0, amount, SPELL_DIRECT_DAMAGE);
     }
 
-    void HandleTick(AuraEffect const* eff)
+    void HandleTick(AuraEffect const* /*eff*/)
     {
         if (Player* deathknight = GetOwner()->ToPlayer())
             if (DynamicObject* dnd = deathknight->GetDynObject(SPELL_DK_DEATH_AND_DECAY))
@@ -1726,7 +1725,7 @@ class spell_dk_vampiric_blood : public AuraScript
 {
     PrepareAuraScript(spell_dk_vampiric_blood);
 
-    void CalculateAmount(AuraEffect const* eff, float& amount, bool&)
+    void CalculateAmount(AuraEffect const* /*eff*/, float& amount, bool&)
     {
         amount = GetUnitOwner()->CountPctFromMaxHealth(amount);
     }
@@ -1885,7 +1884,7 @@ struct npc_bloodworm : public ScriptedAI
         me->SetMaxHealth(me->GetCreateHealth());
     }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 /*diff*/) override
     {
         if (!me->GetVictim())
         {
@@ -1923,7 +1922,7 @@ class spell_dk_shadow_infusion_proc : public AuraScript
         return GetOwner()->GetTypeId() == TYPEID_PLAYER;
     }
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
         if (Pet* ghoul = GetOwner()->ToPlayer()->GetPet())
             if (ghoul->HasAura(SPELL_DK_DARK_TRANSFORMATION))
@@ -2102,7 +2101,7 @@ class spell_dk_death_siphon : public SpellScript
     {
         int32 damage = GetHitDamage();
         if (Player* target = GetHitUnit()->GetAffectingPlayer())
-            if (Player* caster = GetCaster()->GetAffectingPlayer())
+            if (GetCaster()->GetAffectingPlayer())
                 damage /= (1.0f + target->GetFloatValue(PLAYER_FIELD_MOD_RESILIENCE_PERCENT) / 100.0f);
 
         if (int32 heal = CalculatePct(damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints))
@@ -2270,10 +2269,10 @@ struct npc_ebon_gargoyle : ScriptedAI
         me->SetSpeed(MOVE_RUN, 0.75f, true);
         me->SetReactState(REACT_PASSIVE);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_scheduler.SetValidator([=]() { return !me->HasUnitState(UNIT_STATE_CASTING); });
+        m_scheduler.SetValidator([this]() { return !me->HasUnitState(UNIT_STATE_CASTING); });
     }
 
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(Unit* /*summoner*/) override
     {
         me->GetMotionMaster()->MovePoint(POINT_DESCEND, m_originalPosition.GetPositionX(), m_originalPosition.GetPositionY(), m_originalPosition.GetPositionZ(), false, MOTION_SLOT_CRITICAL);
     }
@@ -2325,7 +2324,7 @@ struct npc_ebon_gargoyle : ScriptedAI
         }
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         m_scheduler.Schedule(Milliseconds(1), std::bind(&npc_ebon_gargoyle::DoAttack, this, std::placeholders::_1));
     }
@@ -2486,7 +2485,7 @@ class spell_dk_relentless_grip : public AuraScript
 {
     PrepareAuraScript(spell_dk_relentless_grip);
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo& /*eventInfo*/)
     {
         GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_DK_RELENTLESS_GRIP, true);
     }
@@ -2613,7 +2612,7 @@ class spell_dk_dancing_rune_weapon : public SpellScript
         GetCaster()->CastSpell(GetCaster(), 81256, true);
         for (auto&& itr : GetCaster()->GetSummons())
         {
-            if (itr->GetEntry() == GetSpellInfo()->Effects[EFFECT_0].MiscValue)
+            if (itr->GetEntry() == (uint32)GetSpellInfo()->Effects[EFFECT_0].MiscValue)
             {
                 itr->CastSpell(itr, 53160, true);           //
                 GetCaster()->CastSpell(itr, 63416, true);   // Copy Weapon
@@ -2659,7 +2658,7 @@ class spell_dk_dancing_rune_weapon_driver : public AuraScript
         }
 
         for (auto&& itr : GetUnitOwner()->GetSummons())
-            if (itr->GetEntry() == GetSpellInfo()->Effects[EFFECT_0].MiscValue)
+            if (itr->GetEntry() == (uint32)GetSpellInfo()->Effects[EFFECT_0].MiscValue)
                 itr->CastSpell(itr->GetVictim(), eventInfo.GetSpellInfo()->Id, true);
     }
 
@@ -2699,7 +2698,7 @@ class spell_dk_runic_corruption : public AuraScript
 {
     PrepareAuraScript(spell_dk_runic_corruption);
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo& /*eventInfo*/)
     {
         GetUnitOwner()->CastSpell(GetUnitOwner(), 51460, true);
     }
@@ -2761,7 +2760,7 @@ class spell_dk_t15_blood_4p_bonus : public AuraScript
 {
     PrepareAuraScript(spell_dk_t15_blood_4p_bonus);
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo& /*eventInfo*/)
     {
         if (GetUnitOwner()->HasAura(SPELL_DK_T15_BLOOD_4P_BONUS))
             GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_DK_RUNIC_POWER, true);
@@ -2882,7 +2881,7 @@ class spell_dk_t16_blood_2p_bonus : public AuraScript
 
     uint32 counter = 0;
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo& /*eventInfo*/)
     {
         Unit* deathknight = GetUnitOwner();
         if (++counter == 10 && deathknight->HasAura(SPELL_DK_T16_BLOOD_2P_BONUS))
@@ -2908,7 +2907,7 @@ class spell_dk_t16_blood_4p_bonus : public AuraScript
         return GetOwner()->GetTypeId() == TYPEID_PLAYER && GetUnitOwner()->GetClass() == CLASS_DEATH_KNIGHT;
     }
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo& /*eventInfo*/)
     {
         Player* deathknight = GetUnitOwner()->ToPlayer();
         for (uint32 rune = 0; rune < MAX_RUNES; ++rune)
@@ -3129,7 +3128,7 @@ struct npc_dk_army_of_the_dead_ghoul : public ScriptedAI
             followAngle = M_PI / 2.0f + M_PI * count / 7.0f;
         }
 
-        scheduler.Schedule(Milliseconds(100), [=](TaskContext ctx)
+        scheduler.Schedule(Milliseconds(100), [this](TaskContext ctx)
         {
             if (me->GetPower(POWER_ENERGY) >= 40 && me->GetVictim() && me->IsWithinMeleeRange(me->GetVictim()))
             {

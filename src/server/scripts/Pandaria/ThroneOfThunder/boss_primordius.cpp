@@ -261,7 +261,7 @@ class boss_primordius : public CreatureScript
                 DoCast(me, SPELL_MUTATED_ABOMINATION, true);
 
                 scheduler
-                    .Schedule(Seconds(2), [this](TaskContext context)
+                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                 });
@@ -284,14 +284,14 @@ class boss_primordius : public CreatureScript
 
                         scheduler
                             .SetValidator([this] { return instance && instance->GetBossState(DATA_PRIMORDIUS) != IN_PROGRESS; })
-                            .Schedule(Seconds(7), [this](TaskContext context)
+                            .Schedule(Seconds(7), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_INTRO_2);
                         });
 
                         scheduler
                             .SetValidator([this] { return instance && instance->GetBossState(DATA_PRIMORDIUS) != IN_PROGRESS; })
-                            .Schedule(Seconds(17), [this](TaskContext context)
+                            .Schedule(Seconds(17), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_INTRO_3);
                         });
@@ -461,7 +461,7 @@ class boss_primordius : public CreatureScript
 
                             scheduler
                                 .SetValidator([this] { return instance && instance->GetBossState(DATA_PRIMORDIUS) == IN_PROGRESS; })
-                                .Schedule(Milliseconds(3500), [this](TaskContext context)
+                                .Schedule(Milliseconds(3500), [this](TaskContext /*context*/)
                             {
                                 hasInGasBladder = false;
                             });

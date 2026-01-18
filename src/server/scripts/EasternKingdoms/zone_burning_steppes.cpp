@@ -217,7 +217,7 @@ class npc_burning_steppes_chiseled_golem : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (hasDefeat)
                     damage = 0;
@@ -235,7 +235,7 @@ class npc_burning_steppes_chiseled_golem : public CreatureScript
                         Talk(TALK_DEFEAT_1);
 
                         scheduler
-                            .Schedule(Seconds(5), [this](TaskContext context)
+                            .Schedule(Seconds(5), [this](TaskContext /*context*/)
                         {
                             me->SetFullHealth();
                             Talk(TALK_OVERRIDE);
@@ -254,7 +254,7 @@ class npc_burning_steppes_chiseled_golem : public CreatureScript
                         Talk(TALK_DEFEAT_2);
 
                         scheduler
-                            .Schedule(Seconds(5), [this](TaskContext context)
+                            .Schedule(Seconds(5), [this](TaskContext /*context*/)
                         {
                             me->SetFullHealth();
                             Talk(TALK_OVERRIDE);

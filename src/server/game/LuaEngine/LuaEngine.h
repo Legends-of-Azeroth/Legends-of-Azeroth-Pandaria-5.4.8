@@ -97,7 +97,7 @@ class ElunaTemplate
                     lua_pop(L, 1);
                 }
                 lua_getfield(L, LUA_REGISTRYINDEX, "DO NOT TRASH");
-                if (gc == false)
+                if (!gc)
                 {
                     lua_pushboolean(L, 1);
                     lua_setfield(L, -2, name);
@@ -253,8 +253,8 @@ struct EventMgr
     void Update(uint32 diff)
     {
         GlobalEvents.Update(diff);
-        for (ProcessorMap::iterator it = Processors.begin(); it != Processors.end(); ++it)
-            it->second.Update(diff);
+        for (auto & Processor : Processors)
+            Processor.second.Update(diff);
     }
 
     /*
@@ -273,21 +273,21 @@ struct EventMgr
     {
         if (!events)
             return;
-        EventMap::const_iterator it = LuaEvents.find(events); // Get event set
+        auto it = LuaEvents.find(events); // Get event set
         if (it == LuaEvents.end())
             return;
-        for (EventSet::const_iterator itr = it->second.begin(); itr != it->second.end(); ++itr) // Loop events
-            (*itr)->to_Abort = true; // Abort event
+        for (auto itr : it->second) // Loop events
+            itr->to_Abort = true; // Abort event
     }
 
     // Remove all timed events
     void RemoveEvents()
     {
-        for (ProcessorMap::iterator it = Processors.begin(); it != Processors.end(); ++it)
-            it->second.KillAllEvents(true);
+        for (auto & Processor : Processors)
+            Processor.second.KillAllEvents(true);
         Processors.clear();
-        for (EventMap::const_iterator it = LuaEvents.begin(); it != LuaEvents.end(); ++it) // loop processors
-            KillAllEvents(it->first);
+        for (auto & LuaEvent : LuaEvents) // loop processors
+            KillAllEvents(LuaEvent.first);
         LuaEvents.clear(); // remove pointer sets
     }
     
@@ -310,7 +310,7 @@ struct EventMgr
     }
 
     // Adds a new event to the processor and returns the eventID or 0 (Never negative)
-    int AddEvent(EventProcessor* events, int funcRef, uint32 delay, uint32 calls, Object* obj = NULL)
+    int AddEvent(EventProcessor* events, int funcRef, uint32 delay, uint32 calls, Object* obj = nullptr)
     {
         if (!events || funcRef <= 0) // If funcRef <= 0, function reference failed
             return 0; // on fail always return 0. funcRef can be negative.
@@ -319,7 +319,7 @@ struct EventMgr
     }
 
     // Creates a processor for the guid if needed and adds the event to it
-    int AddEvent(uint64 guid, int funcRef, uint32 delay, uint32 calls, Object* obj = NULL)
+    int AddEvent(uint64 guid, int funcRef, uint32 delay, uint32 calls, Object* obj = nullptr)
     {
         if (!guid) // 0 should be unused
             return 0;
@@ -330,14 +330,14 @@ struct EventMgr
     LuaEvent* GetEvent(EventProcessor* events, int eventId)
     {
         if (!events || !eventId)
-            return NULL;
-        EventMap::const_iterator it = LuaEvents.find(events); // Get event set
+            return nullptr;
+        auto it = LuaEvents.find(events); // Get event set
         if (it == LuaEvents.end())
-            return NULL;
-        for (EventSet::const_iterator itr = it->second.begin(); itr != it->second.end(); ++itr) // Loop events
-            if ((*itr) && (*itr)->funcRef == eventId) // Check if the event has our ID
-                return *itr; // Return the event if found
-        return NULL;
+            return nullptr;
+        for (auto itr : it->second) // Loop events
+            if (itr && itr->funcRef == eventId) // Check if the event has our ID
+                return itr; // Return the event if found
+        return nullptr;
     }
 
     // Remove the event with the eventId from processor
@@ -367,8 +367,8 @@ struct EventMgr
     {
         if (!eventId)
             return;
-        for (EventMap::const_iterator it = LuaEvents.begin(); it != LuaEvents.end(); ++it) // loop processors
-            if (RemoveEvent(it->first, eventId))
+        for (auto & LuaEvent : LuaEvents) // loop processors
+            if (RemoveEvent(LuaEvent.first, eventId))
                 break; // succesfully remove the event, stop loop.
     }
 };
@@ -521,7 +521,7 @@ class Eluna
         // Creates new binding stores
         Eluna()
         {
-            L = NULL;
+            L = nullptr;
 
             for (int i = 0; i < SERVER_EVENT_COUNT; ++i)
             {
@@ -563,39 +563,39 @@ class Eluna
 
         ~Eluna()
         {
-            for (std::map<int, std::vector<int> >::iterator itr = ServerEventBindings.begin(); itr != ServerEventBindings.end(); ++itr)
+            for (auto & ServerEventBinding : ServerEventBindings)
             {
-                for (std::vector<int>::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-                    luaL_unref(L, LUA_REGISTRYINDEX, (*it));
-                itr->second.clear();
+                for (int & it : ServerEventBinding.second)
+                    luaL_unref(L, LUA_REGISTRYINDEX, it);
+                ServerEventBinding.second.clear();
             }
 
-            for (std::map<int, std::vector<int> >::iterator itr = PlayerEventBindings.begin(); itr != PlayerEventBindings.end(); ++itr)
+            for (auto & PlayerEventBinding : PlayerEventBindings)
             {
-                for (std::vector<int>::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-                    luaL_unref(L, LUA_REGISTRYINDEX, (*it));
-                itr->second.clear();
+                for (int & it : PlayerEventBinding.second)
+                    luaL_unref(L, LUA_REGISTRYINDEX, it);
+                PlayerEventBinding.second.clear();
             }
 
-            for (std::map<int, std::vector<int> >::iterator itr = VehicleEventBindings.begin(); itr != VehicleEventBindings.end(); ++itr)
+            for (auto & VehicleEventBinding : VehicleEventBindings)
             {
-                for (std::vector<int>::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-                    luaL_unref(L, LUA_REGISTRYINDEX, (*it));
-                itr->second.clear();
+                for (int & it : VehicleEventBinding.second)
+                    luaL_unref(L, LUA_REGISTRYINDEX, it);
+                VehicleEventBinding.second.clear();
             }
 
-            for (std::map<int, std::vector<int> >::iterator itr = GuildEventBindings.begin(); itr != GuildEventBindings.end(); ++itr)
+            for (auto & GuildEventBinding : GuildEventBindings)
             {
-                for (std::vector<int>::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-                    luaL_unref(L, LUA_REGISTRYINDEX, (*it));
-                itr->second.clear();
+                for (int & it : GuildEventBinding.second)
+                    luaL_unref(L, LUA_REGISTRYINDEX, it);
+                GuildEventBinding.second.clear();
             }
 
-            for (std::map<int, std::vector<int> >::iterator itr = GroupEventBindings.begin(); itr != GroupEventBindings.end(); ++itr)
+            for (auto & GroupEventBinding : GroupEventBindings)
             {
-                for (std::vector<int>::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-                    luaL_unref(L, LUA_REGISTRYINDEX, (*it));
-                itr->second.clear();
+                for (int & it : GroupEventBinding.second)
+                    luaL_unref(L, LUA_REGISTRYINDEX, it);
+                GroupEventBinding.second.clear();
             }
             ServerEventBindings.clear();
             PlayerEventBindings.clear();
@@ -621,7 +621,7 @@ class Eluna
             // Gets the function ref of an entry for an event
             int GetBind(uint32 entryId, uint32 eventId)
             {
-                ElunaEntryMap::iterator itr = Bindings.find(entryId);
+                auto itr = Bindings.find(entryId);
                 if (itr == Bindings.end())
                     return 0;
 
@@ -631,9 +631,9 @@ class Eluna
             // Gets the binding std::map containing all registered events with the function refs for the entry
             ElunaBindingMap* GetBindMap(uint32 entryId)
             {
-                ElunaEntryMap::iterator itr = Bindings.find(entryId);
+                auto itr = Bindings.find(entryId);
                 if (itr == Bindings.end())
-                    return NULL;
+                    return nullptr;
 
                 return &itr->second;
             }
@@ -655,7 +655,7 @@ class Eluna
         // Binary predicate to sort WorldObjects based on the distance to a reference WorldObject
         struct ObjectDistanceOrderPred
         {
-            ObjectDistanceOrderPred(WorldObject const* pRefObj, bool ascending = true) : m_refObj(pRefObj), m_ascending(ascending) { }
+            explicit ObjectDistanceOrderPred(WorldObject const* pRefObj, bool ascending = true) : m_refObj(pRefObj), m_ascending(ascending) { }
             bool operator()(WorldObject const* pLeft, WorldObject const* pRight) const
             {
                 return m_ascending ? m_refObj->GetDistanceOrder(pLeft, pRight) : !m_refObj->GetDistanceOrder(pLeft, pRight);
@@ -669,8 +669,8 @@ class Eluna
         class WorldObjectInRangeCheck
         {
             WorldObjectInRangeCheck(bool nearest, WorldObject const* obj, float range,
-                                    TypeID typeId = TYPEID_OBJECT, uint32 entry = 0) : i_nearest(nearest),
-                i_obj(obj), i_range(range), i_typeId(typeId), i_entry(entry) {}
+                                    TypeID typeId = TYPEID_OBJECT, uint32 entry = 0) : i_obj(obj),
+                i_range(range), i_typeId(typeId), i_entry(entry), i_nearest(nearest) {}
             WorldObject const& GetFocusObject() const { return *i_obj; }
             bool operator()(WorldObject* u)
             {

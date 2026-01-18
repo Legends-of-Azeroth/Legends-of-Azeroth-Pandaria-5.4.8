@@ -30,7 +30,6 @@
 #include "RandomMovementGenerator.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
-#include <cassert>
 
 inline bool isStatic(MovementGenerator *mv)
 {
@@ -504,7 +503,7 @@ void MotionMaster::MoveFall(uint32 id /*=0*/)
 
 void MotionMaster::MoveCharge(float x, float y, float z, float speed, uint32 id, bool generatePath)
 {
-    if (Impl[MOTION_SLOT_CONTROLLED] && Impl[MOTION_SLOT_CONTROLLED]->GetMovementGeneratorType() != DISTRACT_MOTION_TYPE || Impl[MOTION_SLOT_CRITICAL])
+    if ((Impl[MOTION_SLOT_CONTROLLED] && Impl[MOTION_SLOT_CONTROLLED]->GetMovementGeneratorType() != DISTRACT_MOTION_TYPE) || Impl[MOTION_SLOT_CRITICAL])
         return;
 
     if (_owner->GetTypeId() == TYPEID_PLAYER)
@@ -684,7 +683,7 @@ void MotionMaster::MovePath(uint32 path_id, bool repeatable)
         _owner->GetGUID().GetCounter(), path_id, repeatable ? "YES" : "NO");
 }
 
-void MotionMaster::MoveSplinePath(const Position* path, uint32 count, bool fly, bool walk, float speed, bool cyclic, bool catmullrom, bool uncompressed)
+void MotionMaster::MoveSplinePath(const Position* path, uint32 count, bool fly, bool walk, float speed, bool cyclic, bool /*catmullrom*/, bool uncompressed)
 {
     if (_owner->isMoving())
         _owner->StopMoving();
@@ -696,14 +695,14 @@ void MotionMaster::MoveSplinePath(const Position* path, uint32 count, bool fly, 
     init.Path().push_back(vertice);
 
     for (uint32 i = 0; i < count; i++)
-        init.Path().push_back(G3D::Vector3(path[i].m_positionX, path[i].m_positionY, path[i].m_positionZ));
+        init.Path().emplace_back(path[i].m_positionX, path[i].m_positionY, path[i].m_positionZ);
 
     init.SetWalk(walk);
     if (fly)
         init.SetFly();
     if (cyclic)
         init.SetCyclic();
-    if (speed)
+    if (speed != 0)
         init.SetVelocity(speed);
     if (uncompressed)
         init.SetUncompressed();

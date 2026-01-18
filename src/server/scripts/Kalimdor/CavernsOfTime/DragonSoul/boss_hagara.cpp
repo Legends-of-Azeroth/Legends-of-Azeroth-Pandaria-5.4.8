@@ -814,6 +814,7 @@ class boss_hagara_the_stormbinder: public CreatureScript
                                         if (Creature* pCronductor = me->SummonCreature(NPC_CRYSTAL_CONDUCTOR, crystalconductorPos[i]))
                                             pCronductor->CastSpell(me, SPELL_CRYSTALLINE_TETHER_2);
                                     break;
+                                default: break;
                             }
                             
                             me->SummonCreature(NPC_BOUND_LIGHTNING_ELEMENTAL, circlePos[0][3]);
@@ -825,7 +826,7 @@ class boss_hagara_the_stormbinder: public CreatureScript
                                 events.ScheduleEvent(EVENT_STORM_PILLARS, 5000);
                             break;
                         case EVENT_STORM_PILLARS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCastAOE(SPELL_STORM_PILLARS, true);
                             events.ScheduleEvent(EVENT_STORM_PILLARS, urand(5000, 10000));
                             break;
@@ -1052,7 +1053,7 @@ class npc_hagara_the_stormbinder_stormbinder_adept : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
                 
-                if (uint32 eventId = events.ExecuteEvent())
+                if (events.ExecuteEvent())
                 {
                     DoCast(SPELL_TORNADO);
                     events.ScheduleEvent(EVENT_TORNADO, urand(15000, 20000));
@@ -1095,7 +1096,7 @@ class npc_hagara_the_stormbinder_tornado_stalker : public CreatureScript
             {
                 events.Update(diff);
                 
-                if (uint32 eventId = events.ExecuteEvent())
+                if (events.ExecuteEvent())
                 {
                     me->StopMoving();
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
@@ -1718,7 +1719,7 @@ class npc_hagara_the_stormbinder_crystal_conductor : public CreatureScript
             {
                 events.Update(diff);
 
-                if (uint32 eventId = events.ExecuteEvent())
+                if (events.ExecuteEvent())
                 {
                     if (Player* player = me->FindNearestPlayer(10.0f))
                     {
@@ -1787,7 +1788,7 @@ class npc_hagara_the_stormbinder_bound_lightning_elemental : public CreatureScri
 
                 events.Update(diff);
 
-                if (uint32 eventId = events.ExecuteEvent())
+                if (events.ExecuteEvent())
                 {
                     me->SetReactState(REACT_AGGRESSIVE);
                     AttackStart(me->GetVictim());

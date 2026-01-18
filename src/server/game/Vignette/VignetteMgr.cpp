@@ -16,7 +16,6 @@
 */
 
 #include "VignetteMgr.h"
-#include "ObjectAccessor.h"
 #include "Player.h"
 #include "AreaTrigger.h"
 

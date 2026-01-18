@@ -117,7 +117,7 @@ class npc_highlord_demitrian : public CreatureScript
             return true;
         }
 
-        bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*item*/) override
+        bool OnQuestReward(Player* player, Creature* /*creature*/, Quest const* quest, uint32 /*item*/) override
         {
             if (quest->GetQuestId() == QUEST_THUNDERAAN_THE_WINDSEEKER)
                 player->SummonCreature(NPC_PRINCE_THUNDERAAN, windseekerSpawnPos, TEMPSUMMON_MANUAL_DESPAWN); // in SAI it was 60s, but... i think it should despawn at evade and summon new if need from demitrian

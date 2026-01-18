@@ -25,7 +25,6 @@
 #include "QueryHolder.h"
 #include "Transaction.h"
 #include "Config.h"
-#include "SystemConfig.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "WorldSession.h"
@@ -56,7 +55,6 @@
 #include "CreatureAIRegistry.h"
 #include "BattlegroundMgr.h"
 #include "OutdoorPvPMgr.h"
-#include "TemporarySummon.h"
 #include "WaypointMovementGenerator.h"
 #include "M2Stores.h"
 #include "MMapFactory.h"
@@ -78,7 +76,6 @@
 #include "ConditionMgr.h"
 #include "DisableMgr.h"
 #include "CharacterDatabaseCleaner.h"
-#include "ScriptMgr.h"
 #include "WeatherMgr.h"
 #include "CreatureTextMgr.h"
 #include "SmartAI.h"
@@ -104,7 +101,6 @@
 #include "CharacterCache.h"
 #ifdef ELUNA
 #include "LuaEngine.h"
-#include "HookMgr.h"
 #endif
 
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;

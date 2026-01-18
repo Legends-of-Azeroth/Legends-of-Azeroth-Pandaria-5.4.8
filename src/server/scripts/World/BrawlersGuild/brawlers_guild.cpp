@@ -560,7 +560,7 @@ struct brawlers_miscAI : public ScriptedAI
 {
     brawlers_miscAI(Creature* creature) : ScriptedAI(creature) { }
 
-    void KilledUnit(Unit* victim) override { }
+    void KilledUnit(Unit* /*victim*/) override { }
 };
 
 // Bizmo 68323
@@ -586,7 +586,7 @@ struct npc_brawlers_guild_bizmo : public ScriptedAI
 
         // Fly around arena perimetr
         scheduler
-            .Schedule(Seconds(2), [this](TaskContext context)
+            .Schedule(Seconds(2), [this](TaskContext /*context*/)
         {
             Movement::MoveSplineInit init(me);
             for (auto&& itr : bizmoPath)
@@ -622,7 +622,7 @@ struct npc_brawlers_guild_bizmo : public ScriptedAI
 
         for (auto&& itr : playersInQueue)
         {
-            if (type != itr)
+            if ((uint32)type != itr)
                 i++;
             else
                 break;
@@ -680,7 +680,7 @@ struct npc_brawlers_guild_bizmo : public ScriptedAI
                 {
                     hasQueueStarted = true;
                     scheduler
-                        .Schedule(Seconds(5), [this](TaskContext context)
+                        .Schedule(Seconds(5), [this](TaskContext /*context*/)
                     {
                         hasQueueStarted = false;
                         SetData(TYPE_QUEUE_NEXT, 1);
@@ -697,7 +697,7 @@ struct npc_brawlers_guild_bizmo : public ScriptedAI
 
                 hasQueueStarted = true;
                 scheduler
-                    .Schedule(Seconds(5), [this](TaskContext context)
+                    .Schedule(Seconds(5), [this](TaskContext /*context*/)
                 {
                     hasQueueStarted = false;
                     SetData(TYPE_QUEUE_NEXT, 1);
@@ -716,11 +716,11 @@ struct npc_brawlers_guild_bizmo : public ScriptedAI
             if (playersInQueue.size() > 1)
                 return;
 
-            if (Player* target = ObjectAccessor::GetPlayer(*me, currentChampionGUID))
+            if (ObjectAccessor::GetPlayer(*me, currentChampionGUID))
                 return;
 
             scheduler
-                .Schedule(Seconds(5), [this](TaskContext context)
+                .Schedule(Seconds(5), [this](TaskContext /*context*/)
             {
                 SetData(TYPE_QUEUE_NEXT, 1);
             });
@@ -967,7 +967,7 @@ class npc_brawlers_guild_brawlgar_arena_grunt : public CreatureScript
 
                     // Not yell so much often
                     scheduler
-                        .Schedule(Seconds(8), [this](TaskContext context)
+                        .Schedule(Seconds(8), [this](TaskContext /*context*/)
                     {
                         queueYell = 0;
                     });
@@ -1011,7 +1011,7 @@ struct npc_brawlers_guild_boss_bazzelflange : public ScriptedAI
 
         // Fly around arena perimetr
         scheduler
-            .Schedule(Seconds(2), [this](TaskContext context)
+            .Schedule(Seconds(2), [this](TaskContext /*context*/)
         {
             Movement::MoveSplineInit init(me);
             for (auto&& itr : BazzelflangePath)
@@ -1046,7 +1046,7 @@ struct npc_brawlers_guild_boss_bazzelflange : public ScriptedAI
 
         for (auto&& itr : playersInQueue)
         {
-            if (type != itr)
+            if ((uint32)type != itr)
                 i++;
             else
                 break;
@@ -1104,7 +1104,7 @@ struct npc_brawlers_guild_boss_bazzelflange : public ScriptedAI
                 {
                     hasQueueStarted = true;
                     scheduler
-                        .Schedule(Seconds(5), [this](TaskContext context)
+                        .Schedule(Seconds(5), [this](TaskContext /*context*/)
                     {
                         hasQueueStarted = false;
                         SetData(TYPE_QUEUE_NEXT, 1);
@@ -1121,7 +1121,7 @@ struct npc_brawlers_guild_boss_bazzelflange : public ScriptedAI
 
                 hasQueueStarted = true;
                 scheduler
-                    .Schedule(Seconds(5), [this](TaskContext context)
+                    .Schedule(Seconds(5), [this](TaskContext /*context*/)
                 {
                     hasQueueStarted = false;
                     SetData(TYPE_QUEUE_NEXT, 1);
@@ -1140,11 +1140,11 @@ struct npc_brawlers_guild_boss_bazzelflange : public ScriptedAI
             if (playersInQueue.size() > 1)
                 return;
 
-            if (Player* target = ObjectAccessor::GetPlayer(*me, currentChampionGUID))
+            if (ObjectAccessor::GetPlayer(*me, currentChampionGUID))
                 return;
 
             scheduler
-                .Schedule(Seconds(5), [this](TaskContext context)
+                .Schedule(Seconds(5), [this](TaskContext /*context*/)
             {
                 SetData(TYPE_QUEUE_NEXT, 1);
             });
@@ -1607,7 +1607,7 @@ struct npc_brawlers_guild_goredome : public brawlers_guild_encounter_typeAI
         return 0;
     }
 
-    void MovementInform(uint32 type, uint32 pointId) override
+    void MovementInform(uint32 /*type*/, uint32 pointId) override
     {
         if (pointId == EVENT_CHARGE)
         {
@@ -1960,7 +1960,7 @@ struct npc_brawlers_guild_fran : public brawlers_guild_encounter_typeAI
         }
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
         if (!riddohDeath && me->GetHealth() < damage && !fakeDeath)
         {
@@ -2057,7 +2057,7 @@ struct npc_brawlers_guild_riddoh : public brawlers_miscAI
         events.ScheduleEvent(EVENT_NET_TOSS, urand(6 * IN_MILLISECONDS, 10 * IN_MILLISECONDS));
     }
 
-    void JustDied(Unit* killer) override
+    void JustDied(Unit* /*killer*/) override
     {
         Talk(TALK_DEATH);
 
@@ -2287,7 +2287,7 @@ struct npc_brawlers_guild_sanoriak : public brawlers_guild_encounter_typeAI
             DoStartNoMovement(target);
     }
 
-    void CastInterrupted(SpellInfo const* spell) override
+    void CastInterrupted(SpellInfo const* /*spell*/) override
     {
         if (Unit* vict = me->GetVictim())
         {
@@ -2295,7 +2295,7 @@ struct npc_brawlers_guild_sanoriak : public brawlers_guild_encounter_typeAI
             me->GetMotionMaster()->MoveChase(vict);
 
             scheduler
-                .Schedule(Seconds(4), [this](TaskContext context)
+                .Schedule(Seconds(4), [this](TaskContext /*context*/)
             {
                 allowCast = true;
             });
@@ -2981,7 +2981,7 @@ struct npc_brawlers_shock_field : public brawlers_miscAI
         isMoving = 0;
 
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext context)
+            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_SHOCK_FIELD_AT);
         });
@@ -3013,7 +3013,7 @@ struct npc_brawlers_shock_field : public brawlers_miscAI
             me->GetMotionMaster()->MovePoint(0, x, y, z);
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 isReachDestination = true;
                 isMoving = 0;
@@ -4636,7 +4636,7 @@ struct npc_brawlers_guild_gnomish_tesla_coil : public ScriptedAI
             DoCast(me, SPELL_OVERCHARGED);
 
             scheduler
-                .Schedule(Seconds(9), [this](TaskContext context)
+                .Schedule(Seconds(9), [this](TaskContext /*context*/)
             {
                 Reset();
             });

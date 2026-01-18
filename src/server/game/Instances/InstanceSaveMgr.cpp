@@ -27,7 +27,6 @@
 #include "MapInstanced.h"
 #include "InstanceSaveMgr.h"
 #include "Timer.h"
-#include "GridNotifiersImpl.h"
 #include "Config.h"
 #include "Transport.h"
 #include "ObjectMgr.h"

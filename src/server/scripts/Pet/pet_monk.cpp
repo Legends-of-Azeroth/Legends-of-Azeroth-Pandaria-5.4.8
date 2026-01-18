@@ -20,10 +20,6 @@
  * Scriptnames of files in this file should be prefixed with "npc_pet_monk_".
  */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Pet.h"
-
 enum MonkPetSpells
 {
 };

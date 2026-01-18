@@ -24,19 +24,13 @@
 #include "WorldSession.h"
 #include "CryptoHash.h"
 
-AccountMgr::AccountMgr() { }
-
-AccountMgr::~AccountMgr()
-{
-}
-
 AccountMgr* AccountMgr::instance()
 {
     static AccountMgr instance;
     return &instance;
 }
 
-AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password, std::string email /*= ""*/, uint32 bnetAccountId /*= 0*/, uint8 bnetIndex /*= 0*/)
+AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password, std::string email /*= ""*/, uint32 /*bnetAccountId*/ /*= 0*/, uint8 /*bnetIndex*/ /*= 0*/)
 {
     if (utf8length(username) > MAX_ACCOUNT_STR)
         return AccountOpResult::AOR_NAME_TOO_LONG;                           // username's too long
@@ -129,36 +123,6 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
     trans->Append(loginStmt);
 
     LoginDatabase.CommitTransaction(trans);
-
-    return AccountOpResult::AOR_OK;
-}
-
-AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword)
-{
-    // Check if accounts exists
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_ID);
-    stmt->setUInt32(0, accountId);
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
-
-    if (!result)
-        return AccountOpResult::AOR_NAME_NOT_EXIST;
-
-    if (utf8length(newUsername) > MAX_ACCOUNT_STR)
-        return AccountOpResult::AOR_NAME_TOO_LONG;
-
-    if (utf8length(newPassword) > MAX_ACCOUNT_STR)
-        return AccountOpResult::AOR_PASS_TOO_LONG;
-
-    normalizeString(newUsername);
-    normalizeString(newPassword);
-
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_USERNAME);
-
-    stmt->setString(0, newUsername);
-    stmt->setString(1, CalculateShaPassHash(newUsername, newPassword));
-    stmt->setUInt32(2, accountId);
-
-    LoginDatabase.Execute(stmt);
 
     return AccountOpResult::AOR_OK;
 }
@@ -441,24 +405,7 @@ AccountOpResult Battlenet::AccountMgr::ChangePassword(uint32 accountId, std::str
     return AccountOpResult::AOR_OK;
 }
 
-bool Battlenet::AccountMgr::CheckPassword(uint32 accountId, std::string password)
-{
-    std::string username;
-
-    if (!GetName(accountId, username))
-        return false;
-
-    Utf8ToUpperOnlyLatin(username);
-    Utf8ToUpperOnlyLatin(password);
-
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHECK_PASSWORD);
-    stmt->setUInt32(0, accountId);
-    stmt->setString(1, CalculateShaPassHash(username, password));
-
-    return LoginDatabase.Query(stmt) != nullptr;
-}
-
-AccountOpResult Battlenet::AccountMgr::LinkWithGameAccount(std::string const& email, std::string const& gameAccountName)
+AccountOpResult Battlenet::AccountMgr::LinkWithGameAccount(std::string const& /*email*/, std::string const& /*gameAccountName*/)
 {
     /*uint32 bnetAccountId = GetId(email);
     if (!bnetAccountId)
@@ -479,7 +426,7 @@ AccountOpResult Battlenet::AccountMgr::LinkWithGameAccount(std::string const& em
     return AccountOpResult::AOR_OK;
 }
 
-AccountOpResult Battlenet::AccountMgr::UnlinkGameAccount(std::string const& gameAccountName)
+AccountOpResult Battlenet::AccountMgr::UnlinkGameAccount(std::string const& /*gameAccountName*/)
 {
     /*uint32 gameAccountId = GameAccountMgr::GetId(gameAccountName);
     if (!gameAccountId)
@@ -519,17 +466,7 @@ bool Battlenet::AccountMgr::GetName(uint32 accountId, std::string& name)
     return false;
 }
 
-uint32 Battlenet::AccountMgr::GetIdByGameAccount(uint32 gameAccountId)
-{
-    /*PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_ID_BY_GAME_ACCOUNT);
-    stmt->setUInt32(0, gameAccountId);
-    if (PreparedQueryResult result = LoginDatabase.Query(stmt))
-    return (*result)[0].GetUInt32();*/
-
-    return 0;
-}
-
-uint8 Battlenet::AccountMgr::GetMaxIndex(uint32 accountId)
+uint8 Battlenet::AccountMgr::GetMaxIndex(uint32 /*accountId*/)
 {
     /*PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_MAX_ACCOUNT_INDEX);
     stmt->setUInt32(0, accountId);

@@ -19,7 +19,6 @@
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
 #include "CreatureAI.h"
 #include "MoveSplineInit.h"
 #include "SpellScript.h"
@@ -364,31 +363,31 @@ class npc_brewmaster_bo_brew : public CreatureScript
 
                         delay = 8000;
                         scheduler
-                            .Schedule(Milliseconds(delay), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_1);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 4000), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 4000), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_2);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 5500), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 5500), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_3);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 10000), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 10000), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_4);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 4500), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 4500), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_5);
                         });
@@ -400,13 +399,13 @@ class npc_brewmaster_bo_brew : public CreatureScript
                         Talk(TALK_SPECIAL_7);
                         delay = 7500;
                         scheduler
-                            .Schedule(Milliseconds(delay), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_8);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 4500), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 4500), [this](TaskContext /*context*/)
                         {
                             me->GetMotionMaster()->MoveJump(BanquestPos, 15.0f, 20.0f, EVENT_JUMP);
                         });
@@ -676,7 +675,7 @@ struct npc_unga_zipline_to_ship : public ScriptedAI
         init.Launch();
 
         scheduler
-            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
         {
             if (Vehicle* Passengers = me->GetVehicleKit())
                 Passengers->RemoveAllPassengers();
@@ -813,7 +812,7 @@ struct npc_unga_banana_ship : public ScriptedAI
         init.Launch();
 
         scheduler
-            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
         {
             if (Creature* Ook = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_CAPTAIN_OOK) : ObjectGuid::Empty))
                 Ook->AI()->DoAction(ACTION_CAPTAIN_ASSAULT);
@@ -942,7 +941,7 @@ struct npc_unga_pirate : public ScriptedAI
                     initx.Launch();
 
                     scheduler
-                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                     {
                         // If reach home pos - remove 10 beer in progress
                         if (me->IsAlive() && me->GetInstanceScript() && me->GetInstanceScript()->GetData(DATA_BARRELS_PROGRESS) > 9)

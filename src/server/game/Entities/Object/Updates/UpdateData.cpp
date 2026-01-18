@@ -15,14 +15,11 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Common.h"
 #include "ByteBuffer.h"
 #include "WorldPacket.h"
 #include "UpdateData.h"
-#include "Log.h"
 #include "Opcodes.h"
 #include "World.h"
-#include "zlib.h"
 
 UpdateData::UpdateData(uint16 map) : m_map(map), m_blockCount(0) { }
 

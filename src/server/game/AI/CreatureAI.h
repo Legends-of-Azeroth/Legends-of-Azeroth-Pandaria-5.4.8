@@ -136,7 +136,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) { }
 
         // Called after spell is casted
-        virtual void SpellCasted(Spell const* spell) { }
+        virtual void SpellCasted(Spell const* /*spell*/) { }
 
         // Called when spellcast was interrupted for any reason
         virtual void CastInterrupted(SpellInfo const* /*spell*/) {}
@@ -218,11 +218,11 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         /// == Fields =======================================
 
-        virtual void PassengerBoarded(Unit* passenger, int8 seatId, bool apply) { }
-        virtual void GetPassengerEnterPosition(Unit* passenger, int8 seatId, Position& pos) { }
-        virtual void GetPassengerExitPosition(Unit* passenger, int8 seatId, Position& pos) { }
-        virtual void BoardedVehicle(Vehicle* vehicle, int8 seatId, bool apply) { }
-        virtual void GetVehicleExitPosition(Vehicle* vehicle, int8 seatId, Position& pos) { }
+        virtual void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool /*apply*/) { }
+        virtual void GetPassengerEnterPosition(Unit* /*passenger*/, int8 /*seatId*/, Position& /*pos*/) { }
+        virtual void GetPassengerExitPosition(Unit* /*passenger*/, int8 /*seatId*/, Position& /*pos*/) { }
+        virtual void BoardedVehicle(Vehicle* /*vehicle*/, int8 /*seatId*/, bool /*apply*/) { }
+        virtual void GetVehicleExitPosition(Vehicle* /*vehicle*/, int8 /*seatId*/, Position& /*pos*/) { }
 
         virtual void OnSpellClick(Unit* /*clicker*/, bool& /*result*/) { }
 
@@ -233,7 +233,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Object destruction is handled by Unit::RemoveCharmedBy
         virtual PlayerAI* GetAIForCharmedPlayer(Player* /*who*/) { return nullptr; }
 
-        virtual SpellMissInfo SpellHitResult(Unit* /*attacker*/, SpellInfo const* /*spell*/, Spell const* spellInstance = NULL) { return SPELL_MISS_NONE; }
+        virtual SpellMissInfo SpellHitResult(Unit* /*attacker*/, SpellInfo const* /*spell*/, Spell const* spellInstance = nullptr) { return SPELL_MISS_NONE; }
 
         // ONLY FOR PET AI
         virtual void SpellRequiresMovement(Unit* target, Spell* spell);
@@ -297,7 +297,7 @@ struct SummonablePremiumNpcAI : public CreatureAI
 {
     SummonablePremiumNpcAI(Creature* creature, uint32 displayId = 0);
 
-    void UpdateAI(uint32 diff) override { }
+    void UpdateAI(uint32 /*diff*/) override { }
 
     // Just pass a Player* or ChatHandler* instead of this, it will implicitly use the appropriate constructor
     struct PlayerOrChatHandler

@@ -21,14 +21,12 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
-#include "SpellAuras.h"
 #include "MapManager.h"
 #include "Spell.h"
 #include "Vehicle.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "CreatureTextMgr.h"
 #include "Unit.h"
 #include "Player.h"
@@ -273,7 +271,7 @@ const std::map<uint32, float> invMazeType =
     { SPELL_WHOLE_ROOM_SLICE_TEN,   7.5f    },
     { SPELL_WHOLE_ROOM_SLICE_ELEVEN, 8.25f  },
     { SPELL_WHOLE_ROOM_SLICE_TWELVE, 9.0f   },
-    { SPELL_WHOLE_ROOM_SLICE_THIRTEEN, 9.75 },
+    { SPELL_WHOLE_ROOM_SLICE_THIRTEEN, 9.75f }
 };
 
 const std::map<uint32, std::array<uint32, 2>> invAchievFogsType =
@@ -365,7 +363,7 @@ class boss_durumu : public CreatureScript
                 achievementFogsEntry = { SPELL_SUMMON_GREEN_FOG_BEAST, SPELL_SUMMON_ORANGE_FOG_BEAST, SPELL_SUMMON_PURPLE_FOG_BEAST };
 
                 scheduler
-                    .Schedule(Seconds(2), [this](TaskContext context)
+                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                 });

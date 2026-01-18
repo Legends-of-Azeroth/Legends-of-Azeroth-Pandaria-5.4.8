@@ -31,11 +31,11 @@ class Appender;
 class Logger;
 struct LogMessage;
 
-namespace Trinity
+namespace boost
 {
-    namespace Asio
+    namespace asio
     {
-        class IoContext;
+        class any_io_executor;
     }
 }
 

@@ -20,6 +20,16 @@ endif()
 
 set(COMPILER_FLAGS "")
 
+# Check C++20 compiler support
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++20" COMPILER_SUPPORTS_CXX20)
+if(COMPILER_SUPPORTS_CXX20)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
+else()
+  message(FATAL_ERROR "Error, SkyFire requires a compiler that supports C++20!")
+endif()
+
+
 if (WITH_SANITIZER)
   set(COMPILER_FLAGS "${COMPILER_FLAGS} -fno-omit-frame-pointer -fsanitize=address -fsanitize-recover=address -fsanitize-address-use-after-scope")
 endif()

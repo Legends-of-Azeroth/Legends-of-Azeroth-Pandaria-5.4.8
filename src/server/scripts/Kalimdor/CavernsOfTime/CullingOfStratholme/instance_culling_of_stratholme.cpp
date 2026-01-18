@@ -290,6 +290,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                                             summon->DisappearAndDie();
                                     }
                                 }
+                                break;
                             case IN_PROGRESS: // Transform Citizens
                                 for (auto&& guid : _citizensList)
                                     if (Creature* citizen = instance->GetCreature(guid))

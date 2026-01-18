@@ -25,7 +25,6 @@
 #include "Player.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 #include "AchievementMgr.h"
 
 BattlePetMgr::~BattlePetMgr()

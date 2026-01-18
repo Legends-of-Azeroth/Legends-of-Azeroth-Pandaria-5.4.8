@@ -386,7 +386,6 @@ public:
         char* pmark = strtok(NULL, " ");
 
         uint8 spellflatid = atoi(pspellflatid);
-        uint8 op   = atoi(pop);
         uint16 val = atoi(pval);
         if (!pmark)
             mark = 65535;

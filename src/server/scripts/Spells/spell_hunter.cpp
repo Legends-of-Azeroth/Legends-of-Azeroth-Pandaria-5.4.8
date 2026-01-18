@@ -419,7 +419,7 @@ class spell_hunt_dire_beast_focus_driver : public AuraScript
 {
     PrepareAuraScript(spell_hunt_dire_beast_focus_driver);
 
-    void HandleProc(AuraEffect const* eff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* eff, ProcEventInfo& /*eventInfo*/)
     {
         if (Unit* hunter = GetUnitOwner()->GetOwner())
             hunter->CastCustomSpell(SPELL_HUNTER_ENERGIZE_FOCUS, SPELLVALUE_BASE_POINT0, eff->GetAmount(), hunter, true);
@@ -1194,18 +1194,18 @@ class sat_hunt_ice_trap_black_ice : public IAreaTriggerAura
         return object == GetCaster();
     }
 
-    void OnTriggeringApply(WorldObject* object) override
+    void OnTriggeringApply(WorldObject* /*object*/) override
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_BLACK_ICE, true);
     }
 
-    void OnTriggeringUpdate(WorldObject* object) override
+    void OnTriggeringUpdate(WorldObject* /*object*/) override
     {
         if (!GetCaster()->HasAura(SPELL_HUNTER_BLACK_ICE))
             GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_BLACK_ICE, true);
     }
 
-    void OnTriggeringRemove(WorldObject* object) override
+    void OnTriggeringRemove(WorldObject* /*object*/) override
     {
         GetCaster()->RemoveAurasDueToSpell(SPELL_HUNTER_BLACK_ICE);
     }
@@ -1273,12 +1273,12 @@ public:
             startPositon = GetUnitOwner()->GetPosition();
             destPosition = spell->m_targets.GetDstPos()->GetPosition();
             float dist = startPositon.GetExactDist(&destPosition);
-            timeToTarget = Milliseconds(uint32(dist / 24.0f * IN_MILLISECONDS));
+            timeToTarget = Milliseconds(uint32(dist / 24.0f * (float)IN_MILLISECONDS));
             startTime = TimeValue::Now();
         }
     }
 
-    void HandlePeriodic(AuraEffect const* eff)
+    void HandlePeriodic(AuraEffect const* /*eff*/)
     {
         if (!done)
         {
@@ -1316,7 +1316,7 @@ class spell_hunt_glaive_toss_damage : public SpellScript
 
         mainTarget = script->mainTarget;
         auto diff = TimeValue::Now() - script->startTime;
-        float dist = diff.ToMilliseconds() * 24.0f / IN_MILLISECONDS;
+        float dist = (float)diff.ToMilliseconds() * 24.0f / (float)IN_MILLISECONDS;
         auto& hit = GetSpellInfo()->Id == SPELL_HUNT_GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT ? script->targetsLeft : script->targetsRight;
 
         targets.remove_if([&](WorldObject const* target)
@@ -1365,8 +1365,8 @@ class spell_hunt_glaive_toss_damage : public SpellScript
             else
                 script->startPositon = script->destPosition;
             script->destPosition = GetCaster()->GetPosition();
-            float dist = script->startPositon.GetExactDist(&script->destPosition);
-            script->timeToTarget = Milliseconds(uint32(dist / 24.0f * IN_MILLISECONDS));
+            dist = script->startPositon.GetExactDist(&script->destPosition);
+            script->timeToTarget = Milliseconds(uint32(dist / 24.0f * (float)IN_MILLISECONDS));
             script->startTime = TimeValue::Now();
         }
         selected = targets;
@@ -1457,7 +1457,7 @@ class spell_hunt_cobra_strikes : public AuraScript
             && eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->Id == SPELL_HUNT_ARCANE_SHOT;
     }
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
         GetUnitOwner()->CastCustomSpell(SPELL_HUNT_COBRA_STRIKES_STACKS, SPELLVALUE_AURA_STACK, 2, GetUnitOwner(), true);
@@ -1643,7 +1643,7 @@ class spell_hunt_camouflage_driver : public AuraScript
         return hunter != nullptr;
     }
 
-    void HandleApply(AuraEffect const* eff, AuraEffectHandleModes)
+    void HandleApply(AuraEffect const* /*eff*/, AuraEffectHandleModes)
     {
         if (hunter->IsInCombat())
             SetDuration(6000);
@@ -1662,7 +1662,7 @@ class spell_hunt_camouflage_driver : public AuraScript
         }
     }
 
-    void HandleRemove(AuraEffect const* eff, AuraEffectHandleModes)
+    void HandleRemove(AuraEffect const* /*eff*/, AuraEffectHandleModes)
     {
         std::vector<Unit*> v = { hunter };
         if (Pet* pet = hunter->GetPet())
@@ -1689,7 +1689,7 @@ class spell_hunt_camouflage : public AuraScript
 {
     PrepareAuraScript(spell_hunt_camouflage);
 
-    void HandleRemove(AuraEffect const* eff, AuraEffectHandleModes)
+    void HandleRemove(AuraEffect const* /*eff*/, AuraEffectHandleModes)
     {
         Unit* target = GetTarget();
         Player* hunter = target->ToPlayer();
@@ -1711,7 +1711,7 @@ class spell_hunt_camouflage_invisibility_driver : public AuraScript
 {
     PrepareAuraScript(spell_hunt_camouflage_invisibility_driver);
 
-    void ApplyInvisibility(AuraEffect const* eff)
+    void ApplyInvisibility(AuraEffect const* /*eff*/)
     {
         Unit* target = GetTarget();
         if (Player* hunter = target->GetAffectingPlayer())
@@ -1791,7 +1791,7 @@ class spell_hunt_master_marksman : public AuraScript
 {
     PrepareAuraScript(spell_hunt_master_marksman );
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
         return !GetUnitOwner()->HasAura(SPELL_HUNT_FIRE);
     }
@@ -1957,7 +1957,7 @@ class spell_hunt_misdirection : public AuraScript
             caster->ResetRedirectThreat();
     }
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo& /*eventInfo*/)
     {
         Unit* caster = GetCaster();
         if (GetOwner() != caster)  // Target buff.
@@ -2136,7 +2136,7 @@ class spell_hunt_lynx_rush_dot : public AuraScript
 {
     PrepareAuraScript(spell_hunt_lynx_rush_dot);
 
-    void CalculateAmount(AuraEffect const* eff, float& amount, bool&)
+    void CalculateAmount(AuraEffect const* /*eff*/, float& amount, bool&)
     {
         if (Unit* pet = GetCaster())
             if (Unit* hunter = pet->GetOwner())
@@ -2296,7 +2296,7 @@ class spell_hunt_invigoration : public AuraScript
         return m_owner != nullptr;
     }
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo& /*eventInfo*/)
     {
         if (Player* player = m_owner->GetOwner())
             player->CastSpell(player, SPELL_HUNTER_INVIGORATION_ENERGIZE, true);
@@ -2524,7 +2524,7 @@ class spell_hunt_spirit_mend_hot : public AuraScript
 {
     PrepareAuraScript(spell_hunt_spirit_mend_hot);
 
-    void CalculateHeal(AuraEffect const* eff, float& amount, bool&)
+    void CalculateHeal(AuraEffect const* /*eff*/, float& amount, bool&)
     {
         if (Unit* caster = GetCaster())
         {
@@ -2583,7 +2583,7 @@ class spell_hunt_glyph_of_mend_pet : public AuraScript
 {
     PrepareAuraScript(spell_hunt_glyph_of_mend_pet);
 
-    void HandleTick(AuraEffect const* eff)
+    void HandleTick(AuraEffect const* /*eff*/)
     {
         if (Unit* hunter = GetCaster())
             if (hunter->HasAura(SPELL_HUNTER_GLYPH_OF_MEND_PET))
@@ -2887,7 +2887,7 @@ class spell_hunt_fetch_loot : public SpellScript
         Unit* pet = GetCaster();
 
         std::list<Creature*> corpses;
-        auto check = [=](Creature const* creature)
+        auto check = [this, pet, hunter](Creature const* creature)
         {
             if (creature->IsAlive())
                 return false;
@@ -3208,7 +3208,7 @@ class spell_hunt_t16_2p_bonus : public AuraScript
         return GetOwner()->GetTypeId() == TYPEID_PLAYER;
     }
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo& /*eventInfo*/)
     {
         Player* hunter = GetUnitOwner()->ToPlayer();
         uint32 effIndex;
@@ -3258,7 +3258,7 @@ class spell_hunt_t16_4p_bonus : public AuraScript
         return false;
     }
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo& /*eventInfo*/)
     {
         if (hunter->GetSpecialization() == SPEC_HUNTER_MARKSMANSHIP)
             hunter->CastSpell(hunter, SPELL_HUNTER_KEEN_EYE, true);
@@ -3281,7 +3281,7 @@ class spell_hunt_t16_4p_bonus_survival : public AuraScript
 {
     PrepareAuraScript(spell_hunt_t16_4p_bonus_survival);
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
         if (AuraEffect const* bonus = GetUnitOwner()->GetAuraEffect(SPELL_HUNTER_T16_4P_BONUS, EFFECT_0))
             if (roll_chance_i(bonus->GetAmount()))
@@ -3289,7 +3289,7 @@ class spell_hunt_t16_4p_bonus_survival : public AuraScript
         return true;
     }
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo& /*eventInfo*/)
     {
         // FIXME
         if (GetCharges() == 1)

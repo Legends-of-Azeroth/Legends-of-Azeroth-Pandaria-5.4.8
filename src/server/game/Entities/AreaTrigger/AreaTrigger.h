@@ -54,7 +54,7 @@ class IAreaTrigger
         virtual ~IAreaTrigger() {}
 
         virtual void OnInit() { }
-        virtual void OnUpdate(uint32 diff) {}
+        virtual void OnUpdate(uint32 /*diff*/) {}
         virtual void OnExpire() {}
         virtual void OnDestroy() {}
         virtual void OnPathPointRiched() { }
@@ -111,10 +111,10 @@ class IAreaTriggerAura : public IAreaTrigger
 
         virtual void OnUpdate(uint32 diff) override;
 
-        virtual bool CheckTriggering(WorldObject* triggering) = 0;
-        virtual void OnTriggeringApply(WorldObject* triggering) {}
-        virtual void OnTriggeringUpdate(WorldObject* triggering) {}
-        virtual void OnTriggeringRemove(WorldObject* triggering) {}
+        virtual bool CheckTriggering(WorldObject* /*triggering*/) = 0;
+        virtual void OnTriggeringApply(WorldObject* /*triggering*/) {}
+        virtual void OnTriggeringUpdate(WorldObject* /*triggering*/) {}
+        virtual void OnTriggeringRemove(WorldObject* /*triggering*/) {}
 
         void OnRemoveFromWorld() final;
         bool IsInBox(Unit* target, float extentsX, float extentsY, float extentsZ);

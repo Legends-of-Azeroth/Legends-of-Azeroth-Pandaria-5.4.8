@@ -28,12 +28,9 @@
 #include "Totem.h"
 #include "TemporarySummon.h"
 #include "SpellAuras.h"
-#include "CreatureAI.h"
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
-#include "SpellAuraEffects.h"
 #include "Player.h"
-#include "DBCStores.h"
 #include "InstanceScript.h"
 #include "Battleground.h"
 
@@ -1437,7 +1434,7 @@ void WorldSession::HandleSpellClick(WorldPacket& recvData)
     guid[6] = recvData.ReadBit();
     guid[5] = recvData.ReadBit();
 
-    uint8 unk = recvData.ReadBit();
+    [[maybe_unused]] uint8 unk = recvData.ReadBit();
 
     guid[1] = recvData.ReadBit();
     guid[2] = recvData.ReadBit();
@@ -1885,8 +1882,9 @@ void WorldSession::SendPlayerChoice(uint32 choiceId)
                     case 0: currencry = pve ? 396 : 392; currencryCount = pve ? 60 : 525; break;
                     case 1: currencry = pve ? 738 : 390; currencryCount = pve ? 30 :  50; break;
                     case 2: if (!pve) { currencry = 738; currencryCount = 19; }           break;
+
+                    default: break;
                 }
-                auto faction = sCurrencyTypesStore.LookupEntry(currencry);
 
                 data << uint32(currencry);
                 data << uint32(currencryCount);
@@ -1931,5 +1929,7 @@ void WorldSession::HandlePlayerChoiceResponse(WorldPacket& recvPacket)
             player->CastSpell(player, 139046);
             player->UpdatePvP(true);
             break;
+
+        default: break;
     }
 }

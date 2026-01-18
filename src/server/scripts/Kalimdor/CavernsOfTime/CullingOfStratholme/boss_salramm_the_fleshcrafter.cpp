@@ -135,13 +135,13 @@ class boss_salramm : public CreatureScript
                     return;
 
                 // Curse of twisted flesh timer
-                if (IsHeroic())
-                    if (uiCurseFleshTimer <= diff)
-                    {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true))
+                if (IsHeroic()) {
+                    if (uiCurseFleshTimer <= diff) {
+                        if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true))
                             DoCast(target, SPELL_CURSE_OF_TWISTED_FLESH);
                         uiCurseFleshTimer = 37000;
                     } else uiCurseFleshTimer -= diff;
+                }
 
                 // Shadow bolt timer
                 if (uiShadowBoltTimer <= diff)

@@ -19,7 +19,6 @@
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
 #include "CreatureAI.h"
 #include "MoveSplineInit.h"
 #include "SpellScript.h"
@@ -615,7 +614,7 @@ class npc_assistant_tart : public CreatureScript
                 Reset();
             }
 
-            void MovementInform(uint32 type, uint32 pointId) override
+            void MovementInform(uint32 type, uint32 /*pointId*/) override
             {
                 if (type != POINT_MOTION_TYPE)
                     return;
@@ -877,7 +876,7 @@ class npc_brewmaster_boof : public CreatureScript
                 ScriptedAI::MoveInLineOfSight(who);
             }
 
-            void MovementInform(uint32 type, uint32 pointId) override
+            void MovementInform(uint32 /*type*/, uint32 pointId) override
             {
                 if (pointId == EVENT_JUMP)
                 {
@@ -992,7 +991,7 @@ class npc_bataari_yaungol : public CreatureScript
                 events.ScheduleEvent(EVENT_HEROIC_LEAP, urand(8 * IN_MILLISECONDS, 14.5 * IN_MILLISECONDS));
             }
 
-            void SetData(uint32 type, uint32 data) override
+            void SetData(uint32 type, uint32 /*data*/) override
             {
                 switch (type)
                 {
@@ -1017,7 +1016,7 @@ class npc_bataari_yaungol : public CreatureScript
                 nonCombatEvents.ScheduleEvent(onBloat ? EVENT_BLOAT_PATH : EVENT_PATH, urand(1 * IN_MILLISECONDS, 3.5 * IN_MILLISECONDS));
             }
 
-            void MovementInform(uint32 type, uint32 pointId) override
+            void MovementInform(uint32 /*type*/, uint32 pointId) override
             {
                 if (pointId == EVENT_JUMP)
                 {
@@ -1156,7 +1155,7 @@ class npc_bataari_flamecaller : public CreatureScript
                 events.ScheduleEvent(EVENT_FLAME_SHELL, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
             }
 
-            void SetData(uint32 type, uint32 data) override
+            void SetData(uint32 type, uint32 /*data*/) override
             {
                 switch (type)
                 {
@@ -1272,7 +1271,7 @@ class npc_bataari_outrunner : public CreatureScript
                 events.ScheduleEvent(EVENT_QUICKEN, urand(5 * IN_MILLISECONDS, 8 * IN_MILLISECONDS));
             }
 
-            void SetData(uint32 type, uint32 data) override
+            void SetData(uint32 type, uint32 /*data*/) override
             {
                 switch (type)
                 {
@@ -1390,7 +1389,7 @@ class npc_bataari_war_yeti : public CreatureScript
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
             }
 
-            void SetData(uint32 type, uint32 data) override
+            void SetData(uint32 type, uint32 /*data*/) override
             {
                 switch (type)
                 {
@@ -1709,7 +1708,7 @@ class spell_burrow_cosmetic : public SpellScriptLoader
         {
             PrepareAuraScript(spell_burrow_cosmetic_AuraScript);
 
-            void OnAuraEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnAuraEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* m_owner = GetOwner()->ToUnit())
                     m_owner->SummonCreature(NPC_DEN_MOTHER_MOOF, *m_owner, TEMPSUMMON_MANUAL_DESPAWN);

@@ -20,20 +20,20 @@ env:
   
 jobs:
   build:
-    runs-on: windows-2019
+    runs-on: windows-2022
     
     steps:
     #git checkout
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
-    - uses: FranzDiebold/github-env-vars-action@v2
+    - uses: FranzDiebold/github-env-vars-action@v2.8.0
     - name: Create Build Environment
       run: |
         echo "ARCHIVE_FILENAME=$env:CI_REPOSITORY_NAME-${{matrix.TYPE}}-$env:CI_SHA_SHORT.zip" >> $env:GITHUB_ENV
         cmake -E make_directory ${{ env.BUILD_DIR }}
  
     - name: Install boost
-      uses: MarkusJx/install-boost@v2.4.4
+      uses: MarkusJx/install-boost@v2.4.5
       id: install-boost
       with:
           # REQUIRED: Specify the required boost version
@@ -41,7 +41,7 @@ jobs:
           # https://github.com/actions/boost-versions/blob/main/versions-manifest.json
           boost_version: ${{env.BOOST_VERSION}}
           # OPTIONAL: Specify a platform version
-          platform_version: 2019         
+          platform_version: 2022         
           # OPTIONAL: Specify a toolset on windows
           toolset: ${{env.BOOST_TOOLSET}}
           # OPTIONAL: Specify a custon install location
@@ -55,7 +55,7 @@ jobs:
         #cmake
         choco install -y cmake
         #openssl
-        choco install -y openssl --version=1.1.1.2100
+        choco install -y openssl --version=3.1.1
       #git bash shell
       shell: bash
 
@@ -71,37 +71,21 @@ jobs:
         cmake --build . --config RelWithDebInfo --parallel 4
       #git bash shell
       shell: bash
-    - name: Create Upload File Name
+    - name: Check binaries
       run: |
-          echo "ARCHIVE_FILENAME=${{ github.event.repository.name }}-$(git rev-parse --short HEAD).zip" >> $env:GITHUB_ENV
-    - name: Archive files
-      run: |
-          #data is in Release folder
-          cd ${{github.workspace}}/build/bin
-          dir
-          copy "C:/Program Files/MySQL/MySQL Server 5.7/lib/libmysql.dll" ${{github.workspace}}/build/bin/RelWithDebInfo/libmysql.dll
-          copy "C:/Program Files/OpenSSL/bin/libssl-1_1-x64.dll" ${{github.workspace}}/build/bin/RelWithDebInfo/libssl-1_1-x64.dll
-          copy "c:/Program Files/OpenSSL/bin/libcrypto-1_1-x64.dll" ${{github.workspace}}/build/bin/RelWithDebInfo/libcrypto-1_1-x64.dll
+        cd ${{github.workspace}}/build/bin/RelWithDebInfo
+        
+        dir
+          copy "C:/Program Files/MySQL/MySQL Server 8.0/lib/libmysql.dll" ${{github.workspace}}/build/bin/RelWithDebInfo/libmysql.dll
+          copy "C:/Program Files/OpenSSL/bin/libcrypto-3-x64.dll" ${{github.workspace}}/build/bin/RelWithDebInfo/libcrypto-3-x64.dll
+          copy "C:/Program Files/OpenSSL/bin/libssl-3-x64.dll" ${{github.workspace}}/build/bin/RelWithDebInfo/libssl-3-x64.dll
           move ${{github.workspace}}/contrib/lua_scripts ${{github.workspace}}/build/bin/RelWithDebInfo/lua_scripts
-          7z a -tzip ${{env.ARCHIVE_FILENAME}} RelWithDebInfo
-    - name: Archive this artefact
+        
+        ./authserver --version
+        ./worldserver --version
+
+    - name: Upload Artifacts
       uses: actions/upload-artifact@v4
-      with:
-          name: snapshot-devbuild
-          path: "${{github.workspace}}/build/bin/${{env.ARCHIVE_FILENAME}}"
-
-    - name: Download artifact snapshot-Release
-      uses: actions/download-artifact@v4
-      with:
-        name: snapshot-devbuild
-        path: all_snapshots
-
-    - name: Get current date
-      id: date
-      run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
-
-    - name: Upload snapshot
-      uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"

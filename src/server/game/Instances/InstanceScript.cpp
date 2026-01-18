@@ -611,7 +611,7 @@ void InstanceScript::DoDampeningForCreatures(Creature* creature)
     }
 
     if (Pet* pet = creature->ToPet())
-        if (Player* player = pet->GetOwner())
+        if (pet->GetOwner())
             return;
 
     if (TempSummon* temp = creature->ToTempSummon())
@@ -774,16 +774,16 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
     instance->SendToPlayers(&data);
 }
 
-bool InstanceScript::IsWipe(float range, Unit* source)
+bool InstanceScript::IsWipe(float /*range*/, Unit* /*source*/)
 {
     Map::PlayerList const& PlayerList = instance->GetPlayers();
 
     if (PlayerList.isEmpty())
         return true;
 
-    for (Map::PlayerList::const_iterator Itr = PlayerList.begin(); Itr != PlayerList.end(); ++Itr)
+    for (const auto & Itr : PlayerList)
     {
-        Player* player = Itr->GetSource();
+        Player* player = Itr.GetSource();
 
         if (!player)
             continue;
@@ -803,9 +803,8 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
 
     uint32 dungeonId = 0;
 
-    for (DungeonEncounterList::const_iterator itr = encounters->begin(); itr != encounters->end(); ++itr)
+    for (auto encounter : *encounters)
     {
-        DungeonEncounter const* encounter = *itr;
         if (encounter->creditType == type && encounter->creditEntry == creditEntry)
         {
             completedEncounters |= 1 << encounter->dbcEntry->encounterIndex;

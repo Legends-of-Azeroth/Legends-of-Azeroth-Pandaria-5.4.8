@@ -24,7 +24,17 @@
 #include "IoContext.h"
 #include "Log.h"
 #include "Timer.h"
+
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/system_timer.hpp>
+#include <boost/asio/any_io_executor.hpp>
+#include <boost/asio/awaitable.hpp>
+#include <boost/asio/use_awaitable.hpp>
+#include <boost/asio/as_tuple.hpp>
+#include <boost/asio/detached.hpp>
+#include <boost/asio/co_spawn.hpp>
+
+
 #include <atomic>
 #include <chrono>
 #include <memory>
@@ -143,19 +153,32 @@ protected:
 
         _sockets.erase(std::remove_if(_sockets.begin(), _sockets.end(), [this](std::shared_ptr<SocketType> sock)
         {
-            if (!sock->Update())
+            while (!_stopped)
             {
-                if (sock->IsOpen())
-                    sock->CloseSocket();
+                _updateTimer.expires_after(std::chrono::milliseconds(1));
+                auto [err] = co_await _updateTimer.async_wait(boost::asio::as_tuple(boost::asio::use_awaitable));
+                if (err)
+                    break;
 
-                this->SocketRemoved(sock);
+                AddNewSockets();
+                _sockets.erase(std::remove_if(_sockets.begin(), _sockets.end(), [this](std::shared_ptr<SocketType> sock)
+                    {
+                        if (!sock->Update())
+                        {
+                            if (sock->IsOpen())
+                                sock->CloseSocket();
 
-                --this->_connections;
-                return true;
+                            this->SocketRemoved(sock);
+
+                            --this->_connections;
+                            return true;
+                        }
+
+                        return false;
+                    }), _sockets.end());
             }
-
-            return false;
-        }), _sockets.end());
+            co_return;
+        }, boost::asio::detached);
     }
 
 private:
@@ -173,7 +196,7 @@ private:
 
     Trinity::Asio::IoContext _ioContext;
     tcp::socket _acceptSocket;
-    Trinity::Asio::DeadlineTimer _updateTimer;
+    boost::asio::system_timer _updateTimer;
 };
 
 #endif // NetworkThread_h__

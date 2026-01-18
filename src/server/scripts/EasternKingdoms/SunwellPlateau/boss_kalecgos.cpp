@@ -522,7 +522,7 @@ class go_kalecgos_teleporter : public GameObjectScript
             }
 
             uint8 maxSpectralPlayers =  MAX_PLAYERS_IN_SPECTRAL_REALM;
-            if (player->HasAura(AURA_SPECTRAL_EXHAUSTION) || (maxSpectralPlayers && spectralPlayers >= maxSpectralPlayers))
+            if (player->HasAura(AURA_SPECTRAL_EXHAUSTION) || (maxSpectralPlayers != 0 && spectralPlayers >= maxSpectralPlayers))
                 player->GetSession()->SendNotification(GO_FAILED);
             else
                 player->CastSpell(player, SPELL_TELEPORT_SPECTRAL, true);
@@ -677,11 +677,12 @@ class boss_sathrovarr : public CreatureScript
                 if (checkTimer <= diff)
                 {
                     Creature* kalec = Unit::GetCreature(*me, kalecGUID);
-                    if (!kalec || (kalec && !kalec->IsAlive()))
+                    if (!kalec || !kalec->IsAlive())
                     {
-                        if (Creature* kalecgos = Unit::GetCreature(*me, instance->GetGuidData(DATA_KALECGOS_DRAGON)))
+                        if (Creature* kalecgos = Unit::GetCreature(*me, instance->GetGuidData(DATA_KALECGOS_DRAGON))) {
                             kalecgos->AI()->EnterEvadeMode();
                             return;
+                        }
                     }
 
                     if (HealthBelowPct(10) && !isEnraged)

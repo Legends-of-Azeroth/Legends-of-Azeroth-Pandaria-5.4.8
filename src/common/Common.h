@@ -77,7 +77,7 @@ inline unsigned long long atoull(char const* str) { return strtoull(str, nullptr
 
 #define STRINGIZE(a) #a
 
-enum TimeConstants
+enum TimeConstants : uint32
 {
     MINUTE          = 60,
     HOUR            = MINUTE*60,

@@ -272,7 +272,7 @@ class instance_crypt_of_forgotten_kings : public InstanceMapScript
                 return ObjectGuid::Empty;
             }
 
-            bool IsWipe(float range, Unit* source) override
+            bool IsWipe(float /*range*/, Unit* /*source*/) override
             {
                 Map::PlayerList const &playerList = instance->GetPlayers();
 

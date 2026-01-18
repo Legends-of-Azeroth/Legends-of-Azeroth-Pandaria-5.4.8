@@ -19,7 +19,6 @@
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
 #include "CreatureAI.h"
 #include "MoveSplineInit.h"
 #include "SpellScript.h"
@@ -105,20 +104,20 @@ struct npc_secret_ing_sungshin_iron_paw : public ScriptedAI
                 delay = 5000;
 
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     if (Player* target = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_PLAYER) : ObjectGuid::Empty))
                         Talk(TALK_INTRO, target);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 8500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 8500), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_1);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3000), [this](TaskContext /*context*/)
                 {
                     // Summon Scholar
                     if (Creature* sholar = me->SummonCreature(NPC_SHOLAR, scholarPath[0], TEMPSUMMON_MANUAL_DESPAWN))
@@ -128,7 +127,7 @@ struct npc_secret_ing_sungshin_iron_paw : public ScriptedAI
             case ACTION_SPECIAL_1:
                 delay = 2500;
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_2);
                 });
@@ -154,7 +153,7 @@ struct npc_secret_ing_sungshin_iron_paw : public ScriptedAI
                 Talk(TALK_SPECIAL_4);
 
                 scheduler
-                    .Schedule(Milliseconds(8500), [this](TaskContext context)
+                    .Schedule(Milliseconds(8500), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_5);
 
@@ -188,19 +187,19 @@ struct npc_secret_ing_sungshin_iron_paw : public ScriptedAI
 
                 delay = 6000;
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_9);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 8400), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 8400), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_10);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 8500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 8500), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_11);
                     isTraining = false;
@@ -258,7 +257,7 @@ struct npc_secret_ing_noodle_stand : public ScriptedAI
         hasUse = true;
 
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext context)
+            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
         {
             if (Player* target = ObjectAccessor::GetPlayer(*me, summonerGUID))
                 target->CastSpell(me, VEHICLE_SPELL_RIDE_HARDCODED, true);
@@ -371,7 +370,7 @@ struct npc_secret_ing_scholar : public ScriptedAI
                     pInit.Launch();
 
                     scheduler
-                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                     {
                         if (Player* target = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_PLAYER) : ObjectGuid::Empty))
                             me->SetFacingToObject(target);
@@ -407,7 +406,7 @@ struct npc_secret_ing_scholar : public ScriptedAI
                     me->GetMotionMaster()->MovePoint(0, *selectedTable);
 
                     scheduler
-                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                     {
                         if (Creature* myTable = ObjectAccessor::GetCreature(*me, tableGUID))
                         {
@@ -481,7 +480,7 @@ struct npc_secret_ing_seat : public ScriptedAI
         DoCast(me, SPELL_SEAT_AVAILABLE);
 
         scheduler
-            .Schedule(Milliseconds(3000), [this](TaskContext context)
+            .Schedule(Milliseconds(3000), [this](TaskContext /*context*/)
         {
             // Force to player
             if (!hasRotate)

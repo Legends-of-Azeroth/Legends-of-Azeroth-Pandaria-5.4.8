@@ -1055,7 +1055,7 @@ void WorldSession::HandleGuildReplaceGuildMaster(WorldPacket& /*recvPacket*/)
         guild->HandleSetNewGuildMaster(this, playerName, true);
 }
 
-void WorldSession::HandleGuildRequestChallengeUpdate(WorldPacket& recvPacket)
+void WorldSession::HandleGuildRequestChallengeUpdate(WorldPacket& /*recvPacket*/)
 {
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleRequestChallengeUpdate(this);

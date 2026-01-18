@@ -17,7 +17,6 @@
 
 #include "PetBattle.h"
 #include "BattlePetMgr.h"
-#include "Common.h"
 #include "DB2Enums.h"
 #include "DB2Stores.h"
 #include "Log.h"

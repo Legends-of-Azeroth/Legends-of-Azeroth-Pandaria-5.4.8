@@ -19,9 +19,7 @@
 #include "Map.h"
 #include "Player.h"
 #include "SpellMgr.h"
-#include "Unit.h"
 #include "Weather.h"
-#include "ObjectMgr.h"
 #include "SpellInfo.h"
 
 enum Gilneas

@@ -376,7 +376,7 @@ class npc_gurgthock_twilands : public CreatureScript
 
                     delay = 3 * IN_MILLISECONDS;
                     scheduler
-                        .Schedule(Milliseconds(delay), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                     {
                         if (Player* champion = ObjectAccessor::GetPlayer(*me, championGUID))
                             Talk(TALK_MISC_INTRO, champion);
@@ -387,19 +387,19 @@ class npc_gurgthock_twilands : public CreatureScript
                 {
                     case ACTION_BRUISER:
                         scheduler
-                            .Schedule(Milliseconds(delay += 5 * IN_MILLISECONDS), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 5 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                         {
                             if (Player* champion = ObjectAccessor::GetPlayer(*me, championGUID))
                                 Talk(TALK_BRUISER_INTRO_1, champion);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 8 * IN_MILLISECONDS), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 8 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_BRUISER_INTRO_2);
 
                             // Summon first champion (only if player is in World)
-                            if (Player* champion = ObjectAccessor::GetPlayer(*me, championGUID))
+                            if (ObjectAccessor::GetPlayer(*me, championGUID))
                                 me->SummonCreature(NPC_HURP_DERP, championsSummonPos[0], TEMPSUMMON_MANUAL_DESPAWN);
                             else
                                 Reset();
@@ -407,17 +407,17 @@ class npc_gurgthock_twilands : public CreatureScript
                         break;
                     case ACTION_FACTION_CHAMPION_A:
                         scheduler
-                            .Schedule(Milliseconds(delay += 6 * IN_MILLISECONDS), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 6 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                         {
                             if (Player* champion = ObjectAccessor::GetPlayer(*me, championGUID))
                                 Talk(TALK_DRAGONMAW_INTRO, champion);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
                         {
                             // Summon second champion (only if player is in World)
-                            if (Player* champion = ObjectAccessor::GetPlayer(*me, championGUID))
+                            if (ObjectAccessor::GetPlayer(*me, championGUID))
                                 me->SummonCreature(NPC_TORG_DRAKEFLAYER, championsSummonPos[2], TEMPSUMMON_MANUAL_DESPAWN);
                             else
                                 Reset();
@@ -425,19 +425,19 @@ class npc_gurgthock_twilands : public CreatureScript
                         break;
                     case ACTION_FACTION_CHAMPION_H:
                         scheduler
-                            .Schedule(Milliseconds(delay += 6 * IN_MILLISECONDS), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 6 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                         {
                             if (Player* champion = ObjectAccessor::GetPlayer(*me, championGUID))
                                 Talk(TALK_WILDHUMMER_INTRO_2, champion);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 6200), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 6200), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_WILDHUMMER_INTRO_3);
 
                             // Summon second champion (only if player is in World)
-                            if (Player* champion = ObjectAccessor::GetPlayer(*me, championGUID))
+                            if (ObjectAccessor::GetPlayer(*me, championGUID))
                                 me->SummonCreature(NPC_SULLY_KNEECAPPER, championsSummonPos[1], TEMPSUMMON_MANUAL_DESPAWN);
                             else
                                 Reset();
@@ -445,25 +445,25 @@ class npc_gurgthock_twilands : public CreatureScript
                         break;
                     case ACTION_ABOMINATION:
                         scheduler
-                            .Schedule(Milliseconds(delay += 6 * IN_MILLISECONDS), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 6 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_ABOMINATION_INTRO_1);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 8700), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 8700), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_ABOMINATION_INTRO_2);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 1000), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 1000), [this](TaskContext /*context*/)
                         {
                             if (Creature* calderGray = me->FindNearestCreature(NPC_CALDER_GRAY, 100.0f, true))
                                 calderGray->AI()->Talk(TALK_COLDER_INTRO);
 
                             // Summon third champion (only if player is in World)
-                            if (Player* champion = ObjectAccessor::GetPlayer(*me, championGUID))
+                            if (ObjectAccessor::GetPlayer(*me, championGUID))
                                 me->SummonCreature(NPC_COLDERS_CREATION, championsSummonPos[3], TEMPSUMMON_MANUAL_DESPAWN);
                             else
                                 Reset();
@@ -471,12 +471,12 @@ class npc_gurgthock_twilands : public CreatureScript
                         break;
                     case ACTION_LORD:
                         scheduler
-                            .Schedule(Milliseconds(delay += 6 * IN_MILLISECONDS), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 6 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_LORD_INTRO);
 
                             // Summon four champion (only if player is in World)
-                            if (Player* champion = ObjectAccessor::GetPlayer(*me, championGUID))
+                            if (ObjectAccessor::GetPlayer(*me, championGUID))
                                 me->SummonCreature(NPC_LORD_TULVAN, championsSummonPos[0], TEMPSUMMON_MANUAL_DESPAWN);
                             else
                                 Reset();
@@ -484,18 +484,18 @@ class npc_gurgthock_twilands : public CreatureScript
                         break;
                     case ACTION_TWILIGHT_TERROR:
                         scheduler
-                            .Schedule(Milliseconds(delay += 5 * IN_MILLISECONDS), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 5 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_TWILIGHT_TERROR_INTRO_1);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 8 * IN_MILLISECONDS), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 8 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_TWILIGHT_TERROR_INTRO_2);
 
                             // Summon last champion (only if player is in World)
-                            if (Player* champion = ObjectAccessor::GetPlayer(*me, championGUID))
+                            if (ObjectAccessor::GetPlayer(*me, championGUID))
                                 me->SummonCreature(NPC_EMBERSCAR_DEVOURER, championsSummonPos[0], TEMPSUMMON_MANUAL_DESPAWN);
                             else
                                 Reset();
@@ -503,20 +503,20 @@ class npc_gurgthock_twilands : public CreatureScript
                         break;
                     case ACTION_CADAVER_OUTRO:
                         scheduler
-                            .Schedule(Milliseconds(2350), [this](TaskContext context)
+                            .Schedule(Milliseconds(2350), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_ABOMINATION_DEFEAT_2);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(6000), [this](TaskContext context)
+                            .Schedule(Milliseconds(6000), [this](TaskContext /*context*/)
                         {
                             if (Creature* colder = me->FindNearestCreature(NPC_CALDER_GRAY, 150.0f, true))
                                 colder->AI()->Talk(TALK_COLDER_OUTRO_2);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(14000), [this](TaskContext context)
+                            .Schedule(Milliseconds(14000), [this](TaskContext /*context*/)
                         {
                             if (Creature* colder = me->FindNearestCreature(NPC_CALDER_GRAY, 150.0f, true))
                                 colder->AI()->Talk(TALK_COLDER_OUTRO_3);
@@ -524,7 +524,7 @@ class npc_gurgthock_twilands : public CreatureScript
                         break;
                     case ACTION_LORD_OUTRO:
                         scheduler
-                            .Schedule(Milliseconds(5500), [this](TaskContext context)
+                            .Schedule(Milliseconds(5500), [this](TaskContext /*context*/)
                         {
                             if (Player* champion = ObjectAccessor::GetPlayer(*me, GetGUID(0)))
                                 Talk(TALK_LORD_DEFEAT_2, champion);
@@ -564,14 +564,14 @@ struct npc_twilight_hurp_derp : public customCreatureAI
         me->GetMotionMaster()->MovePoint(0, x, y, z);
 
         scheduler
-            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
         {
             me->SetHomePosition(*me);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PACIFIED);
 
             // Special Check - if we not pulled in 15s - remove from world for not spam
             scheduler
-                .Schedule(Milliseconds(15 * IN_MILLISECONDS), [this](TaskContext context)
+                .Schedule(Milliseconds(15 * IN_MILLISECONDS), [this](TaskContext /*context*/)
             {
                 if (Creature* gurgthock = me->FindNearestCreature(NPC_GURGTHOCK, 150.0f, true))
                     gurgthock->AI()->Reset();
@@ -586,7 +586,7 @@ struct npc_twilight_hurp_derp : public customCreatureAI
         scheduler.CancelAll();
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         scheduler.CancelAll();
 
@@ -606,7 +606,7 @@ struct npc_twilight_hurp_derp : public customCreatureAI
                 DoCast(target, SPELL_INTIMIDATING_ROAR);
 
             scheduler
-                .Schedule(Seconds(1), [this](TaskContext context)
+                .Schedule(Seconds(1), [this](TaskContext /*context*/)
             {
                 DoCast(me, SPELL_WHIRLWIND);
             });
@@ -672,12 +672,12 @@ struct npc_twilight_faction_champions : public customCreatureAI
             init.SetWalk(true);
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 Talk(TALK_WILDHUMMER_SELF_INTRO);
 
                 scheduler
-                    .Schedule(Milliseconds(1500), [this](TaskContext context)
+                    .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
                 {
                     me->SetHomePosition(*me);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PACIFIED);
@@ -685,7 +685,7 @@ struct npc_twilight_faction_champions : public customCreatureAI
 
                 // Special Check - if we not pulled in 15s - remove from world for not spam
                 scheduler
-                    .Schedule(Milliseconds(16 * IN_MILLISECONDS), [this](TaskContext context)
+                    .Schedule(Milliseconds(16 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                 {
                     if (Creature* gurgthock = me->FindNearestCreature(NPC_GURGTHOCK, 150.0f, true))
                         gurgthock->AI()->Reset();
@@ -700,7 +700,7 @@ struct npc_twilight_faction_champions : public customCreatureAI
 
             // Special Check - if we not pulled in 15s - remove from world for not spam
             scheduler
-                .Schedule(Milliseconds(20 * IN_MILLISECONDS), [this](TaskContext context)
+                .Schedule(Milliseconds(20 * IN_MILLISECONDS), [this](TaskContext /*context*/)
             {
                 if (Creature* gurgthock = me->FindNearestCreature(NPC_GURGTHOCK, 150.0f, true))
                     gurgthock->AI()->Reset();
@@ -715,7 +715,7 @@ struct npc_twilight_faction_champions : public customCreatureAI
         scheduler.CancelAll();
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         scheduler.CancelAll();
 
@@ -740,7 +740,7 @@ struct npc_twilight_faction_champions : public customCreatureAI
                 DoCast(target, SPELL_CHARGE_MISC);
 
             scheduler
-                .Schedule(Milliseconds(1 * IN_MILLISECONDS), [this](TaskContext context)
+                .Schedule(Milliseconds(1 * IN_MILLISECONDS), [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MoveCharge(chargePos.GetPositionX(), chargePos.GetPositionY(), chargePos.GetPositionZ(), 30.0f, EVENT_CHARGE);
             });
@@ -760,7 +760,7 @@ struct npc_twilight_faction_champions : public customCreatureAI
 
                     // Vehicle Issue
                     scheduler
-                        .Schedule(Milliseconds(1000), [this](TaskContext context)
+                        .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
                     {
                         if (Unit* victim = me->GetVictim())
                             DoCast(victim, SPELL_UPPERCUT);
@@ -771,7 +771,7 @@ struct npc_twilight_faction_champions : public customCreatureAI
                 Talk(TALK_DRAGONMAW_SELF_INTRO);
 
                 scheduler
-                    .Schedule(Milliseconds(1500), [this](TaskContext context)
+                    .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
                 {
                     me->SetHomePosition(*me);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PACIFIED);
@@ -843,12 +843,12 @@ struct npc_twilight_calders_creation : public customCreatureAI
         init.SetWalk(true);
 
         scheduler
-            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
         {
             Talk(TALK_ABOMINATION_SELF_INTRO);
 
             scheduler
-                .Schedule(Milliseconds(1500), [this](TaskContext context)
+                .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
             {
                 me->SetHomePosition(*me);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PACIFIED);
@@ -856,7 +856,7 @@ struct npc_twilight_calders_creation : public customCreatureAI
 
             // Special Check - if we not pulled in 15s - remove from world for not spam
             scheduler
-                .Schedule(Milliseconds(16 * IN_MILLISECONDS), [this](TaskContext context)
+                .Schedule(Milliseconds(16 * IN_MILLISECONDS), [this](TaskContext /*context*/)
             {
                 if (Creature* gurgthock = me->FindNearestCreature(NPC_GURGTHOCK, 150.0f, true))
                     gurgthock->AI()->Reset();
@@ -882,7 +882,7 @@ struct npc_twilight_calders_creation : public customCreatureAI
         summon->CastSpell(summon, SPELL_POISON_CLOUD_TRIGGERING, true);
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         scheduler.CancelAll();
 
@@ -927,7 +927,7 @@ struct npc_twilight_calders_creation : public customCreatureAI
         me->DisappearAndDie();
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
         if (hasOutro)
             damage = 0;
@@ -943,13 +943,13 @@ struct npc_twilight_calders_creation : public customCreatureAI
                 calder->AI()->Talk(TALK_COLDER_ULTIMATE);
 
             scheduler
-                .Schedule(Seconds(2), [this](TaskContext context)
+                .Schedule(Seconds(2), [this](TaskContext /*context*/)
             {
                 Talk(TALK_ABOMINATION_OUTRO_1);
                 DoCast(me, SPELL_INHALE);
 
                 scheduler
-                    .Schedule(Seconds(7), [this](TaskContext context)
+                    .Schedule(Seconds(7), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_ABOMINATION_OUTRO_2);
 
@@ -959,18 +959,18 @@ struct npc_twilight_calders_creation : public customCreatureAI
                     me->UpdateMovementFlags();
 
                     scheduler
-                        .Schedule(Seconds(1), [this](TaskContext context)
+                        .Schedule(Seconds(1), [this](TaskContext /*context*/)
                     {
                         me->SetWalk(true);
                         me->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 20.0f);
 
                         scheduler
-                            .Schedule(Milliseconds(me->GetSplineDuration() + 1000), [this](TaskContext context)
+                            .Schedule(Milliseconds(me->GetSplineDuration() + 1000), [this](TaskContext /*context*/)
                         {
                             DoCast(me, SPELL_PLAGUE_EXPLOSION);
 
                             scheduler
-                                .Schedule(Seconds(2), [this](TaskContext context)
+                                .Schedule(Seconds(2), [this](TaskContext /*context*/)
                             {
                                 // Complete event
                                 summons.DespawnAll();
@@ -1012,7 +1012,7 @@ struct npc_twilight_calders_creation : public customCreatureAI
 // Lord Tulvan 46948
 struct npc_twilight_lord_tulvan : public customCreatureAI
 {
-    npc_twilight_lord_tulvan(Creature* creature) : customCreatureAI(creature) { }
+    explicit npc_twilight_lord_tulvan(Creature* creature) : customCreatureAI(creature) { }
 
     TaskScheduler scheduler;
     bool firstEnrage;
@@ -1030,7 +1030,7 @@ struct npc_twilight_lord_tulvan : public customCreatureAI
         me->GetMotionMaster()->MovePoint(0, x, y, z);
 
         scheduler
-            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
         {
             Talk(TALK_LORD_SELF_INTRO);
             me->SetHomePosition(*me);
@@ -1038,7 +1038,7 @@ struct npc_twilight_lord_tulvan : public customCreatureAI
 
             // Special Check - if we not pulled in 15s - remove from world for not spam
             scheduler
-                .Schedule(Milliseconds(15 * IN_MILLISECONDS), [this](TaskContext context)
+                .Schedule(Milliseconds(15 * IN_MILLISECONDS), [this](TaskContext /*context*/)
             {
                 if (Creature* gurgthock = me->FindNearestCreature(NPC_GURGTHOCK, 150.0f, true))
                     gurgthock->AI()->Reset();
@@ -1055,7 +1055,7 @@ struct npc_twilight_lord_tulvan : public customCreatureAI
         secondEnrage = false;
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         scheduler.CancelAll();
 
@@ -1078,7 +1078,7 @@ struct npc_twilight_lord_tulvan : public customCreatureAI
         me->DisappearAndDie();
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
     {
         if (HealthBelowPct(60) && !firstEnrage)
         {
@@ -1168,7 +1168,7 @@ struct npc_twilight_emberscar_devourer : public customCreatureAI
         me->GetMotionMaster()->MovePoint(0, x, y, z);
 
         scheduler
-            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
         {
             Talk(TALK_TWILIGHT_TERROR_SELF_INTRO);
             me->SetHomePosition(*me);
@@ -1176,7 +1176,7 @@ struct npc_twilight_emberscar_devourer : public customCreatureAI
 
             // Special Check - if we not pulled in 15s - remove from world for not spam
             scheduler
-                .Schedule(Milliseconds(15 * IN_MILLISECONDS), [this](TaskContext context)
+                .Schedule(Milliseconds(15 * IN_MILLISECONDS), [this](TaskContext /*context*/)
             {
                 if (Creature* gurgthock = me->FindNearestCreature(NPC_GURGTHOCK, 150.0f, true))
                     gurgthock->AI()->Reset();
@@ -1192,7 +1192,7 @@ struct npc_twilight_emberscar_devourer : public customCreatureAI
         hasEnrage = false;
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         scheduler.CancelAll();
 
@@ -1227,7 +1227,7 @@ struct npc_twilight_emberscar_devourer : public customCreatureAI
         me->DisappearAndDie();
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
     {
         if (HealthBelowPct(30) && !hasEnrage)
         {
@@ -1293,7 +1293,7 @@ struct npc_twilight_firebeads_patrol : public customCreatureAI
             inRestore = true;
 
             scheduler
-                .Schedule(Seconds(20), [this](TaskContext context)
+                .Schedule(Seconds(20), [this](TaskContext /*context*/)
             {
                 inRestore = false;
                 DoCast(me, SPELL_BUILDING_FIRE);
@@ -1311,7 +1311,7 @@ class spell_twilight_activate_pools : public SpellScript
 {
     PrepareSpellScript(spell_twilight_activate_pools);
 
-    void HandleHit(SpellEffIndex effIndex)
+    void HandleHit(SpellEffIndex /*effIndex*/)
     {
         if (Unit* target = GetHitUnit())
             target->CastSpell(target, SPELL_LAVA_POOL, true);
@@ -1334,7 +1334,7 @@ class spell_twilight_douse_fire : public SpellScript
 {
     PrepareSpellScript(spell_twilight_douse_fire);
 
-    void HandleHit(SpellEffIndex effIndex)
+    void HandleHit(SpellEffIndex /*effIndex*/)
     {
         if (Player* caster = GetCaster()->ToPlayer())
             if (Creature* target = GetHitCreature())
@@ -1350,7 +1350,7 @@ class spell_twilight_douse_fire : public SpellScript
 
     void SelectTargets(std::list<WorldObject*>&targets)
     {
-        targets.remove_if([=](WorldObject* target) { return target->GetEntry() != NPC_FIREBEADS_PATROL || target->ToCreature() && target->ToCreature()->GetEntry()== NPC_FIREBEADS_PATROL && !target->ToCreature()->HasAura(SPELL_BUILDING_FIRE); });
+        targets.remove_if([=](WorldObject* target) { return target->GetEntry() != NPC_FIREBEADS_PATROL || (target->ToCreature() && target->ToCreature()->GetEntry()== NPC_FIREBEADS_PATROL && !target->ToCreature()->HasAura(SPELL_BUILDING_FIRE)); });
     }
 
     void Register() override

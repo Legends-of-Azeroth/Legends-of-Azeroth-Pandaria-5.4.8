@@ -20,14 +20,12 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
-#include "SpellAuras.h"
 #include "MapManager.h"
 #include "Spell.h"
 #include "Vehicle.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "CreatureTextMgr.h"
 #include "Unit.h"
 #include "Player.h"
@@ -316,7 +314,7 @@ class boss_rook_stonetoe : public CreatureScript
                 _Reset();
 
                 scheduler
-                    .Schedule(Seconds(1), [this](TaskContext context)
+                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                 });
@@ -733,7 +731,7 @@ class boss_he_softfoot : public CreatureScript
                 _Reset();
 
                 scheduler
-                    .Schedule(Seconds(1), [this](TaskContext context)
+                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                 });
@@ -1095,7 +1093,7 @@ class boss_sun_tenderheart : public CreatureScript
                 _Reset();
 
                 scheduler
-                    .Schedule(Seconds(1), [this](TaskContext context)
+                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                 });
@@ -1462,7 +1460,7 @@ struct npc_embodied_misery : public ScriptedAI
 
         // On Heroic they share health.
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext context)
+            .Schedule(Seconds(1), [this](TaskContext /*context*/)
         {
             if (summonerEntry == NPC_ROOK_STONETOE)
                 DoCast(me, SPELL_SHARED_TORMENT);
@@ -1572,7 +1570,7 @@ struct npc_embodied_sorrow : public ScriptedAI
 
         // On Heroic they share health.
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext context)
+            .Schedule(Seconds(1), [this](TaskContext /*context*/)
         {
             if (summonerEntry == NPC_ROOK_STONETOE)
                 DoCast(me, SPELL_SHARED_TORMENT);
@@ -1681,7 +1679,7 @@ struct npc_embodied_gloom : public ScriptedAI
 
         // On Heroic they share health.
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext context)
+            .Schedule(Seconds(1), [this](TaskContext /*context*/)
         {
             if (summonerEntry == NPC_ROOK_STONETOE)
                 DoCast(me, SPELL_SHARED_TORMENT);
@@ -1849,7 +1847,7 @@ struct npc_embodied_anguish : public ScriptedAI
             DoCast(me, SPELL_SHADOW_WEAKNESS_TRANSFER, true);
 
             scheduler
-                .Schedule(Milliseconds(500), [this](TaskContext context)
+                .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
             {
                 DoCast(me, SPELL_MARK_OF_ANGUISH, true);
             });
@@ -2086,7 +2084,7 @@ struct npc_golden_lotus_trigger : public ScriptedAI
         me->SetDisplayFromModel(1);
 
         scheduler
-            .Schedule(Milliseconds(2500), [this](TaskContext context)
+            .Schedule(Milliseconds(2500), [this](TaskContext /*context*/)
         {
             if (Creature* embodiedSpirit = me->SummonCreature(goldenLotusCorrupedType.find(me->GetEntry())->second, *me, TEMPSUMMON_MANUAL_DESPAWN))
                 embodiedSpirit->CastSpell(me, VEHICLE_SPELL_RIDE_HARDCODED, true);

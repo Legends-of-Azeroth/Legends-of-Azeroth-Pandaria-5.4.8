@@ -216,7 +216,7 @@ class boss_dark_animus : public CreatureScript
 
                     scheduler
                         .SetValidator([this] { return instance && instance->GetBossState(DATA_DARK_ANIMUS) == IN_PROGRESS; })
-                        .Schedule(Seconds(2), [this](TaskContext context)
+                        .Schedule(Seconds(2), [this](TaskContext /*context*/)
                     {
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         me->SetReactState(REACT_AGGRESSIVE);
@@ -674,7 +674,7 @@ struct golemsBaseAI : public ScriptedAI
 
             scheduler
                 .SetValidator([this] { return instance && instance->GetBossState(DATA_DARK_ANIMUS) == IN_PROGRESS; })
-                .Schedule(Seconds(2), [this](TaskContext context)
+                .Schedule(Seconds(2), [this](TaskContext /*context*/)
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PACIFIED);
                 me->SetReactState(REACT_AGGRESSIVE);

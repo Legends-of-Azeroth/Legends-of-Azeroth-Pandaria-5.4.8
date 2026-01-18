@@ -339,7 +339,7 @@ class npc_shaolmara_lady_jaina : public CreatureScript
                 if (!me->GetDBTableGUIDLow())
                     return;
 
-                scheduler.Schedule(Seconds(3), [this](TaskContext context)
+                scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_INTRO);
 
@@ -353,12 +353,12 @@ class npc_shaolmara_lady_jaina : public CreatureScript
 
                     uint32 delay = me->GetSplineDuration();
 
-                    scheduler.Schedule(Milliseconds(delay), [this](TaskContext context)
+                    scheduler.Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                     {
                         Talk(TALK_SPECIAL_1);
                     });
 
-                    scheduler.Schedule(Milliseconds(delay + 5 * IN_MILLISECONDS), [this](TaskContext context)
+                    scheduler.Schedule(Milliseconds(delay + 5 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                     {
                         Talk(TALK_SPECIAL_2);
                     });
@@ -368,22 +368,22 @@ class npc_shaolmara_lady_jaina : public CreatureScript
             void IsSummonedBy(Unit* summoner) override
             {
                 uint32 delay = 2500;
-                scheduler.Schedule(Milliseconds(delay), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_3);
                 });
 
-                scheduler.Schedule(Milliseconds(delay+=7800), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay+=7800), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_4);
                 });
 
-                scheduler.Schedule(Milliseconds(delay += 6500), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay += 6500), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_5);
                 });
 
-                scheduler.Schedule(Milliseconds(delay += 8000), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay += 8000), [this](TaskContext /*context*/)
                 {
                     // @Todo - complete Scenario credit
 
@@ -424,7 +424,7 @@ struct npc_shaolmara_player_covenant_hippogryph : public ScriptedAI
             me->GetInstanceScript()->SetData(STEP_MEET_WITH_RANGER, IN_PROGRESS);
 
         // Delay for init
-        scheduler.Schedule(Milliseconds(1500), [this](TaskContext context)
+        scheduler.Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
         {
             Movement::MoveSplineInit init(me);
 
@@ -435,7 +435,7 @@ struct npc_shaolmara_player_covenant_hippogryph : public ScriptedAI
             init.SetUncompressed();
             init.Launch();
 
-            scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+            scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 DoCast(me, SPELL_LIGHTNING_STRIKE, true);
             });
@@ -481,7 +481,7 @@ struct npc_shaolmara_covenant_hippogryph : public ScriptedAI
         me->SetSpeed(MOVE_RUN, 3.35f);
 
         // Delay for init
-        scheduler.Schedule(Milliseconds(1500), [this](TaskContext context)
+        scheduler.Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
         {
             if (Creature* ranger = me->SummonCreature(me->GetEntry() == NPC_VEERISA_HIPPOGRYPH ? NPC_VEREESA_WINDRUNNER : NPC_SILVER_COVENANT_RANGER, *me, TEMPSUMMON_MANUAL_DESPAWN))
                 ranger->CastSpell(me, VEHICLE_SPELL_RIDE_HARDCODED, true);
@@ -493,7 +493,7 @@ struct npc_shaolmara_covenant_hippogryph : public ScriptedAI
         if (actionId == ACTION_START_INTRO)
         {
             // Delay for init
-            scheduler.Schedule(Milliseconds(1500), [this](TaskContext context)
+            scheduler.Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
             {
                 Movement::MoveSplineInit init(me);
 
@@ -505,7 +505,7 @@ struct npc_shaolmara_covenant_hippogryph : public ScriptedAI
                 init.Launch();
 
                 uint32 delay = me->GetEntry() == NPC_VEERISA_HIPPOGRYPH ? me->GetSplineDuration() : me->GetSplineDuration() - rand() % 8;
-                scheduler.Schedule(Milliseconds(delay), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     DoCast(me, SPELL_LIGHTNING_STRIKE, true);
                 });
@@ -537,43 +537,43 @@ struct npc_shaolmara_vereesa_windrunner : public ScriptedAI
                 Talk(TALK_INTRO);
 
                 delay = 5 * IN_MILLISECONDS;
-                scheduler.Schedule(Milliseconds(delay), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_1);
                 });
 
-                scheduler.Schedule(Milliseconds(delay += 10800), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay += 10800), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_2);
                 });
 
-                scheduler.Schedule(Milliseconds(delay += 12250), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay += 12250), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_3);
                 });
 
-                scheduler.Schedule(Milliseconds(delay += 10900), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay += 10900), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_4);
                 });
 
-                scheduler.Schedule(Milliseconds(delay += 9800), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay += 9800), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_5);
                 });
 
-                scheduler.Schedule(Milliseconds(delay += 7300), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay += 7300), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_6);
                 });
 
-                scheduler.Schedule(Milliseconds(delay += 4000), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay += 4000), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_7);
                 });
                 break;
             case ACTION_FLY_FALL:
-                scheduler.Schedule(Milliseconds(2000), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
                 {
                     if (Unit* target = ObjectAccessor::GetUnit(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                         me->GetMotionMaster()->MovePoint(0, *target);
@@ -581,7 +581,7 @@ struct npc_shaolmara_vereesa_windrunner : public ScriptedAI
                     Talk(TALK_SPECIAL_8);
                 });
 
-                scheduler.Schedule(Milliseconds(4800), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(4800), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_9);
 
@@ -593,7 +593,7 @@ struct npc_shaolmara_vereesa_windrunner : public ScriptedAI
                 });
                 break;
             case ACTION_SURPRISED:
-                scheduler.Schedule(Milliseconds(5000), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(5000), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_11);
                 });
@@ -602,13 +602,13 @@ struct npc_shaolmara_vereesa_windrunner : public ScriptedAI
                 me->GetMotionMaster()->MovePoint(0, vereesaAmbushPoint);
 
                 delay = me->GetSplineDuration();
-                scheduler.Schedule(Milliseconds(delay), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_12);
                     me->StopMoving();
                 });
 
-                scheduler.Schedule(Milliseconds(delay += 5 * IN_MILLISECONDS), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay += 5 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                 {
                     Movement::MoveSplineInit init(me);
 
@@ -618,7 +618,7 @@ struct npc_shaolmara_vereesa_windrunner : public ScriptedAI
                     init.SetUncompressed();
                     init.Launch();
 
-                    scheduler.Schedule(Milliseconds(me->GetSplineDuration() + 3 * IN_MILLISECONDS), [this](TaskContext context)
+                    scheduler.Schedule(Milliseconds(me->GetSplineDuration() + 3 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                     {
                         thirdStep = false;
                         Talk(TALK_SPECIAL_13);
@@ -759,7 +759,7 @@ struct npc_shaolmara_beastcaller : public customCreatureAI
 
         init.Launch();
 
-        scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+        scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_PC);
 
@@ -829,7 +829,7 @@ struct npc_shaolmara_raptor : public customCreatureAI
 
         init.Launch();
 
-        scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+        scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_PC);
 
@@ -987,7 +987,7 @@ struct npc_shaolmara_anki : public customCreatureAI
     void IsSummonedBy(Unit* summoner) override
     {
         // Delay for init
-        scheduler.Schedule(Milliseconds(1500), [this](TaskContext context)
+        scheduler.Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
         {
             if (Creature* pakutesh = me->SummonCreature(NPC_BEASTCALLER_PAKUTESH, *me, TEMPSUMMON_MANUAL_DESPAWN))
             {
@@ -1295,11 +1295,11 @@ class npc_zebtula_lorthemar_theron : public CreatureScript
                 if (!me->GetDBTableGUIDLow())
                     return;
 
-                scheduler.Schedule(Seconds(3), [this](TaskContext context)
+                scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_INTRO);
 
-                    scheduler.Schedule(Milliseconds(4000), [this](TaskContext context)
+                    scheduler.Schedule(Milliseconds(4000), [this](TaskContext /*context*/)
                     {
                         Talk(TALK_SPECIAL_1);
 
@@ -1313,17 +1313,17 @@ class npc_zebtula_lorthemar_theron : public CreatureScript
 
                         uint32 delay = me->GetSplineDuration();
 
-                        scheduler.Schedule(Milliseconds(delay), [this](TaskContext context)
+                        scheduler.Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_2);
                         });
 
-                        scheduler.Schedule(Milliseconds(delay += 5 * IN_MILLISECONDS), [this](TaskContext context)
+                        scheduler.Schedule(Milliseconds(delay += 5 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_3);
                         });
 
-                        scheduler.Schedule(Milliseconds(delay += 6 * IN_MILLISECONDS), [this](TaskContext context)
+                        scheduler.Schedule(Milliseconds(delay += 6 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_4);
                         });
@@ -1334,19 +1334,19 @@ class npc_zebtula_lorthemar_theron : public CreatureScript
             void IsSummonedBy(Unit* summoner) override
             {
                 uint32 delay = 2500;
-                scheduler.Schedule(Milliseconds(delay), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_3);
                 });
-                scheduler.Schedule(Milliseconds(delay += 7800), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay += 7800), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_4);
                 });
-                scheduler.Schedule(Milliseconds(delay += 6500), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay += 6500), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_5);
                 });
-                scheduler.Schedule(Milliseconds(delay += 8000), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay += 8000), [this](TaskContext /*context*/)
                 {
                     // @Todo - complete Scenario credit
                     if (Player* target = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
@@ -1386,7 +1386,7 @@ struct npc_zebtula_player_bloodhawk : public ScriptedAI
             me->GetInstanceScript()->SetData(STEP_MEET_WITH_RANGER, IN_PROGRESS);
 
         // Delay for init
-        scheduler.Schedule(Milliseconds(1500), [this](TaskContext context)
+        scheduler.Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
         {
             Movement::MoveSplineInit init(me);
 
@@ -1397,7 +1397,7 @@ struct npc_zebtula_player_bloodhawk : public ScriptedAI
             init.SetUncompressed();
             init.Launch();
 
-            scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+            scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 DoCast(me, SPELL_LIGHTNING_STRIKE, true);
             });
@@ -1443,7 +1443,7 @@ struct npc_zebtula_bloodhawk : public ScriptedAI
         me->SetSpeed(MOVE_RUN, 3.35f);
 
         // Delay for init
-        scheduler.Schedule(Milliseconds(1500), [this](TaskContext context)
+        scheduler.Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
         {
             if (Creature* ranger = me->SummonCreature(me->GetEntry() == NPC_ELSIA_BLOODHAWK ? NPC_SCOUT_CAPTAIN_ELSIA : NPC_SUNREAVER_LIEUTENANT, *me, TEMPSUMMON_MANUAL_DESPAWN))
                 ranger->CastSpell(me, VEHICLE_SPELL_RIDE_HARDCODED, true);
@@ -1455,7 +1455,7 @@ struct npc_zebtula_bloodhawk : public ScriptedAI
         if (actionId == ACTION_START_INTRO)
         {
             // Delay for init
-            scheduler.Schedule(Milliseconds(1500), [this](TaskContext context)
+            scheduler.Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
             {
                 Movement::MoveSplineInit init(me);
 
@@ -1467,7 +1467,7 @@ struct npc_zebtula_bloodhawk : public ScriptedAI
                 init.Launch();
 
                 uint32 delay = me->GetEntry() == NPC_ELSIA_BLOODHAWK ? me->GetSplineDuration() : me->GetSplineDuration() - rand() % 8;
-                scheduler.Schedule(Milliseconds(delay), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     DoCast(me, SPELL_LIGHTNING_STRIKE, true);
                 });
@@ -1500,31 +1500,31 @@ struct npc_zebtula_scout_captain_elsia : public ScriptedAI
                 Talk(TALK_INTRO);
 
                 delay = 5 * IN_MILLISECONDS;
-                scheduler.Schedule(Milliseconds(delay), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_1);
                 });
-                scheduler.Schedule(Milliseconds(delay += 10800), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay += 10800), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_2);
                 });
-                scheduler.Schedule(Milliseconds(delay += 12250), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay += 12250), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_3);
                 });
-                scheduler.Schedule(Milliseconds(delay += 10900), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay += 10900), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_4);
                 });
-                scheduler.Schedule(Milliseconds(delay += 9800), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay += 9800), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_5);
                 });
-                scheduler.Schedule(Milliseconds(delay += 7300), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay += 7300), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_6);
                 });
-                scheduler.Schedule(Milliseconds(delay += 4000), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay += 4000), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_7);
                 });
@@ -1532,7 +1532,7 @@ struct npc_zebtula_scout_captain_elsia : public ScriptedAI
             }
             case ACTION_FLY_FALL:
             {
-                scheduler.Schedule(Milliseconds(2100), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(2100), [this](TaskContext /*context*/)
                 {
                     if (Unit* target = ObjectAccessor::GetUnit(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                         me->GetMotionMaster()->MovePoint(0, *target);
@@ -1540,7 +1540,7 @@ struct npc_zebtula_scout_captain_elsia : public ScriptedAI
                     Talk(TALK_SPECIAL_8);
                 });
 
-                scheduler.Schedule(Milliseconds(4800), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(4800), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_9);
 
@@ -1554,7 +1554,7 @@ struct npc_zebtula_scout_captain_elsia : public ScriptedAI
             }
             case ACTION_SURPRISED:
             {
-                scheduler.Schedule(Milliseconds(5000), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(5000), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_11);
                 });
@@ -1565,13 +1565,13 @@ struct npc_zebtula_scout_captain_elsia : public ScriptedAI
                 me->GetMotionMaster()->MovePoint(0, hordeAmbusherSpawnPos[0]);
 
                 delay = me->GetSplineDuration();
-                scheduler.Schedule(Milliseconds(delay), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_12);
                     me->StopMoving();
                 });
 
-                scheduler.Schedule(Milliseconds(delay += 5 * IN_MILLISECONDS), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(delay += 5 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                 {
                     Movement::MoveSplineInit init(me);
 
@@ -1581,7 +1581,7 @@ struct npc_zebtula_scout_captain_elsia : public ScriptedAI
                     init.SetUncompressed();
                     init.Launch();
 
-                    scheduler.Schedule(Milliseconds(me->GetSplineDuration() + 3 * IN_MILLISECONDS), [this](TaskContext context)
+                    scheduler.Schedule(Milliseconds(me->GetSplineDuration() + 3 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                     {
                         thirdStep = false;
                         Talk(TALK_SPECIAL_13);
@@ -1903,13 +1903,13 @@ class npc_teardown_scout_captain_elsia : public CreatureScript
                     
                         delay = me->GetSplineDuration();
                         scheduler
-                            .Schedule(Milliseconds(delay), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_INTRO);
                         });
                     
                         scheduler
-                            .Schedule(Milliseconds(delay += 6 * IN_MILLISECONDS), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 6 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_1);
                         });
@@ -1928,7 +1928,7 @@ class npc_teardown_scout_captain_elsia : public CreatureScript
                             alchukla->AI()->DoAction(ACTION_START_INTRO);
 
                         scheduler
-                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                         {
                             me->SummonCreature(NPC_HEAVY_EXPLOSIVES, *me, TEMPSUMMON_MANUAL_DESPAWN);
 
@@ -1942,7 +1942,7 @@ class npc_teardown_scout_captain_elsia : public CreatureScript
                     case ACTION_ALCHUKLA_FIND:
                     {
                         scheduler
-                            .Schedule(Milliseconds(4000), [this](TaskContext context)
+                            .Schedule(Milliseconds(4000), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_3);
                         });
@@ -1956,7 +1956,7 @@ class npc_teardown_scout_captain_elsia : public CreatureScript
                         init.Launch();
 
                         scheduler
-                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                         {
                             if (Creature* alchukla = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_WARGOD_ALCHUKLA) : ObjectGuid::Empty))
                             {
@@ -2001,14 +2001,14 @@ struct npc_teardown_heavy_explosives : public ScriptedAI
 
         delay = 3500;
         scheduler
-            .Schedule(Milliseconds(delay), [this](TaskContext context)
+            .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
         {
             if (Player* target = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                 target->CastSpell(target, SPELL_LAUNCH_WALL_SCENE, true);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 7 * IN_MILLISECONDS), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 7 * IN_MILLISECONDS), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_WALL_EXPLOSIVE, true);
 
@@ -2041,32 +2041,32 @@ struct npc_teardown_lorthemar_therone : public ScriptedAI
 
             delay = me->GetSplineDuration();
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext context)
+                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_2);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 3500), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 3500), [this](TaskContext /*context*/)
             {
                 if (Creature* elsia = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TEARDOWN_SCOUT_CAPTAIN_ELSIA + 1) : ObjectGuid::Empty))
                     elsia->AI()->Talk(TALK_SPECIAL_5);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_3);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_4);
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 6750), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 6750), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_5);
             });
@@ -2625,14 +2625,14 @@ struct npc_beastmaster_horaki : public customCreatureAI
                     Talk(TALK_SPECIAL_1, target);
 
                 scheduler
-                    .Schedule(Seconds(4), [this](TaskContext context)
+                    .Schedule(Seconds(4), [this](TaskContext /*context*/)
                 {
                     if (Player* target = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                         Talk(TALK_SPECIAL_2, target);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(6500), [this](TaskContext context)
+                    .Schedule(Milliseconds(6500), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
                 });
@@ -2693,7 +2693,7 @@ struct npc_lorthemar_therone_to_skies : public customCreatureAI
             return;
 
         scheduler
-            .Schedule(Seconds(2), [this](TaskContext context)
+            .Schedule(Seconds(2), [this](TaskContext /*context*/)
         {
             Talk(TALK_INTRO);
         });
@@ -2706,19 +2706,19 @@ struct npc_lorthemar_therone_to_skies : public customCreatureAI
             me->GetMotionMaster()->MovePoint(0, forgeAssaultEntrancePos);
 
             scheduler
-                .Schedule(Seconds(1), [this](TaskContext context)
+                .Schedule(Seconds(1), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_1);
             });
 
             scheduler
-                .Schedule(Seconds(5), [this](TaskContext context)
+                .Schedule(Seconds(5), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_2);
             });
 
             scheduler
-                .Schedule(Seconds(7), [this](TaskContext context)
+                .Schedule(Seconds(7), [this](TaskContext /*context*/)
             {
                 if (Creature* taoshi = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TAOSHI) : ObjectGuid::Empty))
                 {
@@ -2728,7 +2728,7 @@ struct npc_lorthemar_therone_to_skies : public customCreatureAI
             });
 
             scheduler
-                .Schedule(Milliseconds(9500), [this](TaskContext context)
+                .Schedule(Milliseconds(9500), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_3);
             });
@@ -2736,21 +2736,21 @@ struct npc_lorthemar_therone_to_skies : public customCreatureAI
             if (me->GetEntry() == NPC_LADY_JAINA_IN_SKY)
             {
                 scheduler
-                    .Schedule(Seconds(11), [this](TaskContext context)
+                    .Schedule(Seconds(11), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_4);
                 });
             }
 
             scheduler
-                .Schedule(Milliseconds(13500), [this](TaskContext context)
+                .Schedule(Milliseconds(13500), [this](TaskContext /*context*/)
             {
                 if (Creature* taoshi = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TAOSHI) : ObjectGuid::Empty))
                     taoshi->AI()->Talk(me->GetEntry() == NPC_LADY_JAINA_IN_SKY ? TALK_SPECIAL_9 : TALK_SPECIAL_7);
             });
 
             scheduler
-                .Schedule(Seconds(16), [this](TaskContext context)
+                .Schedule(Seconds(16), [this](TaskContext /*context*/)
             {
                 Talk(me->GetEntry() == NPC_LADY_JAINA_IN_SKY ? TALK_SPECIAL_5 : TALK_SPECIAL_4);
             });
@@ -2758,7 +2758,7 @@ struct npc_lorthemar_therone_to_skies : public customCreatureAI
             if (me->GetEntry() == NPC_LADY_JAINA_IN_SKY)
             {
                 scheduler
-                    .Schedule(Seconds(19), [this](TaskContext context)
+                    .Schedule(Seconds(19), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_6);
                 });
@@ -2785,13 +2785,13 @@ struct npc_scout_captain_elsia_to_skies : public customCreatureAI
             return;
 
         scheduler
-            .Schedule(Seconds(4), [this](TaskContext context)
+            .Schedule(Seconds(4), [this](TaskContext /*context*/)
         {
             Talk(TALK_INTRO);
         });
 
         scheduler
-            .Schedule(Seconds(9), [this](TaskContext context)
+            .Schedule(Seconds(9), [this](TaskContext /*context*/)
         {
             Talk(TALK_SPECIAL_1);
 
@@ -2807,13 +2807,13 @@ struct npc_scout_captain_elsia_to_skies : public customCreatureAI
             Talk(TALK_SPECIAL_2);
 
             scheduler
-                .Schedule(Milliseconds(5600), [this](TaskContext context)
+                .Schedule(Milliseconds(5600), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_3);
             });
 
             scheduler
-                .Schedule(Milliseconds(6200), [this](TaskContext context)
+                .Schedule(Milliseconds(6200), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_4);
 
@@ -2880,7 +2880,7 @@ struct npc_thunderwing_to_skies : public customCreatureAI
                 init.Launch();
             
                 scheduler
-                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     if (me->GetInstanceScript())
                         me->GetInstanceScript()->SetData(STEP_IN_SKY, DONE);
@@ -2899,21 +2899,21 @@ struct npc_thunderwing_to_skies : public customCreatureAI
 
                     // 3 cycles of pterrorwings
                     scheduler
-                        .Schedule(Milliseconds(4500), [this](TaskContext context)
+                        .Schedule(Milliseconds(4500), [this](TaskContext /*context*/)
                     {
                         for (uint8 i = 0; i < 2; i++)
                             me->SummonCreature(NPC_ZANDALARI_PTERRORWING, cycleFlyPath[0].GetPositionX() + frand(-7.5f, 7.5f), cycleFlyPath[0].GetPositionY() + frand(-5.0f, 5.0f), cycleFlyPath[0].GetPositionZ(), TEMPSUMMON_MANUAL_DESPAWN);
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(28000), [this](TaskContext context)
+                        .Schedule(Milliseconds(28000), [this](TaskContext /*context*/)
                     {
                         for (uint8 i = 0; i < 3; i++)
                             me->SummonCreature(NPC_ZANDALARI_PTERRORWING, cycleFlyPath[4].GetPositionX() + frand(-7.5f, 7.5f), cycleFlyPath[4].GetPositionY() + frand(-5.0f, 5.0f), cycleFlyPath[4].GetPositionZ(), TEMPSUMMON_MANUAL_DESPAWN);
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(50100), [this](TaskContext context)
+                        .Schedule(Milliseconds(50100), [this](TaskContext /*context*/)
                     {
                         for (uint8 i = 0; i < 3; i++)
                             me->SummonCreature(NPC_ZANDALARI_PTERRORWING, cycleFlyPath[7].GetPositionX() + frand(-7.5f, 7.5f), cycleFlyPath[7].GetPositionY() + frand(-5.0f, 5.0f), cycleFlyPath[7].GetPositionZ(), TEMPSUMMON_MANUAL_DESPAWN);
@@ -2938,7 +2938,7 @@ struct npc_thunderwing_to_skies : public customCreatureAI
                 init.Launch();
 
                 scheduler
-                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     if (Player* target = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                     {
@@ -2976,7 +2976,7 @@ struct npc_zandalari_pterrorwing_to_skies : public customCreatureAI
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext context)
+            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
         {
             if (Creature* beastcaller = me->SummonCreature(NPC_ZANDALARI_BEASTCALLER, *me, TEMPSUMMON_MANUAL_DESPAWN))
                 beastcaller->CastSpell(me, VEHICLE_SPELL_RIDE_HARDCODED, true);
@@ -3099,7 +3099,7 @@ class npc_taoshi_to_skies : public CreatureScript
                 {
                     case EVENT_JUMP:
                         scheduler
-                            .Schedule(Milliseconds(200), [this](TaskContext context)
+                            .Schedule(Milliseconds(200), [this](TaskContext /*context*/)
                         {
                             me->GetMotionMaster()->MoveJump(taoshiJump[1], 20.0f, 15.0f, EVENT_JUMP + 1);
                         });
@@ -3119,7 +3119,7 @@ class npc_taoshi_to_skies : public CreatureScript
                     me->GetMotionMaster()->MovePoint(0, taoshiExplosionPos);
 
                     scheduler
-                        .Schedule(Milliseconds(me->GetSplineDuration() + 5 * IN_MILLISECONDS), [this](TaskContext context)
+                        .Schedule(Milliseconds(me->GetSplineDuration() + 5 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                     {
                         if (me->GetInstanceScript())
                         {
@@ -3171,19 +3171,19 @@ struct npc_taoshi_stormsea_landing : public customCreatureAI
 
         delay = 0;
         scheduler
-            .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
         {
             Talk(TALK_INTRO);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
         {
             Talk(TALK_SPECIAL_1);
         });
 
         scheduler
-            .Schedule(Milliseconds(delay += 5200), [this](TaskContext context)
+            .Schedule(Milliseconds(delay += 5200), [this](TaskContext /*context*/)
         {
             Talk(TALK_SPECIAL_2);
 
@@ -3197,13 +3197,13 @@ struct npc_taoshi_stormsea_landing : public customCreatureAI
         {
             case ACTION_START_INTRO:
                 scheduler
-                    .Schedule(Seconds(3), [this](TaskContext context)
+                    .Schedule(Seconds(3), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_3);
                 });
             
                 scheduler
-                    .Schedule(Seconds(10), [this](TaskContext context)
+                    .Schedule(Seconds(10), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_4);
                 });
@@ -3213,25 +3213,25 @@ struct npc_taoshi_stormsea_landing : public customCreatureAI
 
                 delay = 0;
                 scheduler
-                    .Schedule(Milliseconds(delay += 5500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 5500), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_6);
                 });
             
                 scheduler
-                    .Schedule(Milliseconds(delay += 4200), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 4200), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_7);
                 });
             
                 scheduler
-                    .Schedule(Milliseconds(delay += 4900), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 4900), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_8);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 10000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 10000), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_9);
                 });
@@ -3299,7 +3299,7 @@ struct npc_thunderwing_stormsea_landing : public customCreatureAI
         init.Launch();
 
         scheduler
-            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
         {
             if (me->GetInstanceScript())
                 me->GetInstanceScript()->SetData(STEP_BLENDING_IN, DONE);
@@ -3311,7 +3311,7 @@ struct npc_thunderwing_stormsea_landing : public customCreatureAI
                 target->AddAura(SPELL_SMOKE_BOMB_AVAILABLE, target);
 
             scheduler
-                .Schedule(Milliseconds(3500), [this](TaskContext context)
+                .Schedule(Milliseconds(3500), [this](TaskContext /*context*/)
             {
                 me->StopMoving();
                 Movement::MoveSplineInit newInit(me);
@@ -3327,14 +3327,14 @@ struct npc_thunderwing_stormsea_landing : public customCreatureAI
 
                 uint32 delay = 0;
                 scheduler
-                    .Schedule(Milliseconds(delay += me->GetSplineDuration() / 2), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += me->GetSplineDuration() / 2), [this](TaskContext /*context*/)
                 {
                     if (Creature* shanbu = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SHAN_BU_STORMSEA) : ObjectGuid::Empty))
                         shanbu->AI()->Talk(TALK_INTRO);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3000), [this](TaskContext /*context*/)
                 {
                     if (Creature* huseng = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_HUSENG_THE_GATEKEEPER) : ObjectGuid::Empty))
                     {
@@ -3372,7 +3372,7 @@ struct npc_thunderwing_stormsea_landing : public customCreatureAI
             init.Launch();
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 if (Unit* target = ObjectAccessor::GetUnit(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                     target->ExitVehicle();
@@ -3423,7 +3423,7 @@ struct npc_taoshi_stormsea_landing_ship : public customCreatureAI
                 Talk(TALK_INTRO);
             
                 scheduler
-                    .Schedule(Milliseconds(4500), [this](TaskContext context)
+                    .Schedule(Milliseconds(4500), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_1);
                     DoAction(ACTION_MOVE_TO);
@@ -3461,7 +3461,7 @@ struct npc_taoshi_stormsea_landing_ship : public customCreatureAI
                     newInit.Launch();
 
                     scheduler
-                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                     {
                         Talk(TALK_SPECIAL_3);
                         Talk(TALK_SPECIAL_4); // Ann
@@ -3485,7 +3485,7 @@ struct npc_taoshi_stormsea_landing_ship : public customCreatureAI
                     newInit.Launch();
 
                     scheduler
-                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                     {
                         DoAction(ACTION_AMBUSH_HIM);
                     });
@@ -3500,7 +3500,7 @@ struct npc_taoshi_stormsea_landing_ship : public customCreatureAI
                 init.Launch();
 
                 scheduler
-                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     DoAction(ACTION_AMBUSH_HIM);
                 });
@@ -3520,13 +3520,13 @@ struct npc_taoshi_stormsea_landing_ship : public customCreatureAI
 
                 delay = 0;
                 scheduler
-                    .Schedule(Milliseconds(delay += me->GetSplineDuration()), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_6);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 4500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 4500), [this](TaskContext /*context*/)
                 {
                     DoCast(me, SPELL_INFILT_STORMSEA_LANDING, true);
                     Talk(TALK_SPECIAL_7);
@@ -3543,13 +3543,13 @@ struct npc_taoshi_stormsea_landing_ship : public customCreatureAI
 
                     delay = 0;
                     scheduler
-                        .Schedule(Milliseconds(delay += me->GetSplineDuration()), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += me->GetSplineDuration()), [this](TaskContext /*context*/)
                     {
                         Talk(TALK_SPECIAL_8);
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 3000), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 3000), [this](TaskContext /*context*/)
                     {
                         me->StopMoving();
 
@@ -3562,7 +3562,7 @@ struct npc_taoshi_stormsea_landing_ship : public customCreatureAI
                         init.Launch();
 
                         scheduler
-                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                         {
                             if (me->GetInstanceScript())
                                 me->GetInstanceScript()->SetData(STEP_KEEP_QUIET, DONE);
@@ -3617,7 +3617,7 @@ struct npc_captain_halukal : public customCreatureAI
 
             uint32 delay = 0;
             scheduler
-                .Schedule(Milliseconds(delay += 1000), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 1000), [this](TaskContext /*context*/)
             {
                 Talk(TALK_INTRO);
 
@@ -3626,7 +3626,7 @@ struct npc_captain_halukal : public customCreatureAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 3500), [this](TaskContext context)
+                .Schedule(Milliseconds(delay += 3500), [this](TaskContext /*context*/)
             {
                 Talk(TALK_SPECIAL_1);
 
@@ -3698,7 +3698,7 @@ struct npc_drunken_wingrider : public customCreatureAI
             DoCast(me, SPELL_HANGOVER, true);
 
             scheduler
-                .Schedule(Milliseconds(1500), [this](TaskContext context)
+                .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
             {
                 if (Unit* target = ObjectAccessor::GetUnit(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                     me->RemoveChanneledCast(target->GetGUID());
@@ -3898,7 +3898,7 @@ struct npc_huseng_gatekeeper : public customCreatureAI
         }
 
         scheduler
-            .Schedule(Milliseconds(500), [this](TaskContext context)
+            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_DESIST);
         });
@@ -3926,7 +3926,7 @@ struct npc_huseng_gatekeeper : public customCreatureAI
             me->GetInstanceScript()->SetData(STEP_LIGHT_UP_THE_NIGHT, DONE);
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
     {
         if (HealthBelowPct(30) && !hasTriggered)
         {
@@ -3976,7 +3976,7 @@ class npc_stormsea_landing_taoshi_queue : public CreatureScript
     public:
         npc_stormsea_landing_taoshi_queue() : CreatureScript("npc_stormsea_landing_taoshi_queue") { }
     
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
         {
             player->PlayerTalkClass->ClearMenus();
     
@@ -4015,7 +4015,7 @@ struct npc_stormsea_landing_sentry_totem : public ScriptedAI
     void InitializeAI() override
     {
         scheduler
-            .Schedule(Milliseconds(1500), [this](TaskContext context)
+            .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_SENTRY, true);
         });
@@ -4129,13 +4129,13 @@ struct shanbuAssaultBaseAI : public customCreatureAI
         me->GetMotionMaster()->MoveTargetedHome();
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
         if (HealthBelowPct(75))
             damage = 0;
     }
 
-    void MovementInform(uint32 type, uint32 pointId) override
+    void MovementInform(uint32 /*type*/, uint32 pointId) override
     {
         switch (pointId)
         {
@@ -4144,7 +4144,7 @@ struct shanbuAssaultBaseAI : public customCreatureAI
                 Talk(TALK_SPECIAL_5);
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_6);
                 });
@@ -4155,19 +4155,19 @@ struct shanbuAssaultBaseAI : public customCreatureAI
 
                 delay = 0;
                 scheduler
-                    .Schedule(Milliseconds(delay += 2800), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 2800), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_15);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3000), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_16);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 5500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 5500), [this](TaskContext /*context*/)
                 {
                     if (Creature* jaina = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_JAINA + 5000) : ObjectGuid::Empty))
                         jaina->AI()->Talk(TALK_SPECIAL_8);
@@ -4177,122 +4177,122 @@ struct shanbuAssaultBaseAI : public customCreatureAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 1500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 1500), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_17);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 2300), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 2300), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_18);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3500), [this](TaskContext /*context*/)
                 {
                     if (Creature* lorthemar = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_LORTHEMAR + 5000) : ObjectGuid::Empty))
                         lorthemar->AI()->Talk(TALK_SPECIAL_8);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 1800), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 1800), [this](TaskContext /*context*/)
                 {
                     if (Creature* jaina = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_JAINA + 5000) : ObjectGuid::Empty))
                         jaina->AI()->Talk(TALK_SPECIAL_9);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 1800), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 1800), [this](TaskContext /*context*/)
                 {
                     if (Creature* vereesa = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_VEREESA + 5000) : ObjectGuid::Empty))
                         vereesa->AI()->Talk(TALK_SPECIAL_4);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 1200), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 1200), [this](TaskContext /*context*/)
                 {
                     if (Creature* jaina = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_JAINA + 5000) : ObjectGuid::Empty))
                         jaina->AI()->Talk(TALK_SPECIAL_10);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3000), [this](TaskContext /*context*/)
                 {
                     if (Creature* jaina = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_JAINA + 5000) : ObjectGuid::Empty))
                         jaina->AI()->Talk(TALK_SPECIAL_11);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3200), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3200), [this](TaskContext /*context*/)
                 {
                     if (Creature* lorthemar = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_LORTHEMAR + 5000) : ObjectGuid::Empty))
                         lorthemar->AI()->Talk(TALK_SPECIAL_9);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3500), [this](TaskContext /*context*/)
                 {
                     if (Creature* lorthemar = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_LORTHEMAR + 5000) : ObjectGuid::Empty))
                         lorthemar->AI()->Talk(TALK_SPECIAL_10);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 1500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 1500), [this](TaskContext /*context*/)
                 {
                     if (Creature* jaina = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_JAINA + 5000) : ObjectGuid::Empty))
                         jaina->AI()->Talk(TALK_SPECIAL_12);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
                 {
                     if (Creature* jaina = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_JAINA + 5000) : ObjectGuid::Empty))
                         jaina->AI()->Talk(TALK_SPECIAL_13);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 1200), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 1200), [this](TaskContext /*context*/)
                 {
                     if (Creature* lorthemar = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_LORTHEMAR + 5000) : ObjectGuid::Empty))
                         lorthemar->AI()->Talk(TALK_SPECIAL_11);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 2500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 2500), [this](TaskContext /*context*/)
                 {
                     if (Creature* taoshi = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_TAOSHI) : ObjectGuid::Empty))
                         taoshi->AI()->Talk(TALK_SPECIAL_2);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 1500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 1500), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_19);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 2500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 2500), [this](TaskContext /*context*/)
                 {
                     if (Creature* taoshi = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_TAOSHI) : ObjectGuid::Empty))
                         taoshi->AI()->Talk(TALK_SPECIAL_3);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 2350), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 2350), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_20);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 4500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 4500), [this](TaskContext /*context*/)
                 {
                     if (Creature* taoshi = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_TAOSHI) : ObjectGuid::Empty))
                         taoshi->AI()->Talk(TALK_SPECIAL_4);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
                 {
                     if (Player* target = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                         me->SetFacingToObject(target);
@@ -4302,14 +4302,14 @@ struct shanbuAssaultBaseAI : public customCreatureAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
                 {
                     if (Creature* taoshi = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_TAOSHI) : ObjectGuid::Empty))
                         taoshi->AI()->Talk(TALK_SPECIAL_6);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3500), [this](TaskContext /*context*/)
                 {
                     if (Creature* taoshi = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_TAOSHI) : ObjectGuid::Empty))
                         taoshi->AI()->Talk(TALK_SPECIAL_7);
@@ -4331,7 +4331,7 @@ struct shanbuAssaultBaseAI : public customCreatureAI
 
                     delay = 0;
                     scheduler
-                        .Schedule(Milliseconds(delay += 3500), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 3500), [this](TaskContext /*context*/)
                     {
                         if (Creature* taranZhu = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_TARAN_ZHU) : ObjectGuid::Empty))
                             taranZhu->AI()->Talk(TALK_INTRO);
@@ -4348,7 +4348,7 @@ struct shanbuAssaultBaseAI : public customCreatureAI
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 8000), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 8000), [this](TaskContext /*context*/)
                     {
                         if (Creature* lorthemar = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_LORTHEMAR + 5000) : ObjectGuid::Empty))
                             lorthemar->AI()->Talk(TALK_SPECIAL_4);
@@ -4363,7 +4363,7 @@ struct shanbuAssaultBaseAI : public customCreatureAI
 
                         init.Launch();
 
-                        scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                        scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                         {
                             me->SetFacingTo(Position::NormalizeOrientation(me->GetOrientation() - M_PI));
 
@@ -4372,7 +4372,7 @@ struct shanbuAssaultBaseAI : public customCreatureAI
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
                     {
                         if (Creature* jaina = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_JAINA + 5000) : ObjectGuid::Empty))
                             jaina->AI()->Talk(TALK_SPECIAL_4);
@@ -4397,13 +4397,13 @@ struct shanbuAssaultBaseAI : public customCreatureAI
                 delay = 0;
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3500), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_INTRO);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 2500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 2500), [this](TaskContext /*context*/)
                 {
                     bool hasHorde = instance && instance->GetData64(FACTION_DATA);
 
@@ -4412,7 +4412,7 @@ struct shanbuAssaultBaseAI : public customCreatureAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_2);
 
@@ -4434,7 +4434,7 @@ struct shanbuAssaultBaseAI : public customCreatureAI
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3500), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_3);
                 });
@@ -4454,7 +4454,7 @@ struct shanbuAssaultBaseAI : public customCreatureAI
 
                     init.Launch();
 
-                    scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                    scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                     {
                         me->DespawnOrUnsummon();
                     });
@@ -4468,7 +4468,7 @@ struct shanbuAssaultBaseAI : public customCreatureAI
 
                     init.Launch();
 
-                    scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                    scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                     {
                         me->DespawnOrUnsummon();
                     });
@@ -4478,27 +4478,27 @@ struct shanbuAssaultBaseAI : public customCreatureAI
             case ACTION_KEEP_TO_SHANBU:
                 delay = 0;
                 scheduler
-                    .Schedule(Milliseconds(delay += 4000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 4000), [this](TaskContext /*context*/)
                 {
                     if (Creature* scoutLeader = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_VEREESA + 5000) : ObjectGuid::Empty))
                         scoutLeader->AI()->Talk(TALK_SPECIAL_3);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 4500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 4500), [this](TaskContext /*context*/)
                 {
                     if (Creature* jaina = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_JAINA + 5000) : ObjectGuid::Empty))
                         jaina->AI()->Talk(TALK_SPECIAL_5);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 6000), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_2);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 5500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 5500), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_3);
 
@@ -4510,20 +4510,20 @@ struct shanbuAssaultBaseAI : public customCreatureAI
 
                     delay = 0;
                     scheduler
-                        .Schedule(Milliseconds(delay += me->GetSplineDuration() + 2000), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += me->GetSplineDuration() + 2000), [this](TaskContext /*context*/)
                     {
                         Talk(TALK_SPECIAL_4);
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 4900), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 4900), [this](TaskContext /*context*/)
                     {
                         if (Creature* shanbu = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHAN_BU) : ObjectGuid::Empty))
                             shanbu->AI()->Talk(TALK_SPECIAL_1);
                     });
 
                     scheduler
-                        .Schedule(Milliseconds(delay += 4500), [this](TaskContext context)
+                        .Schedule(Milliseconds(delay += 4500), [this](TaskContext /*context*/)
                     {
                         if (Creature* shanbu = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHAN_BU) : ObjectGuid::Empty))
                             shanbu->AI()->Talk(TALK_SPECIAL_2);
@@ -4545,14 +4545,14 @@ struct shanbuAssaultBaseAI : public customCreatureAI
 
                 delay = 0;
                 scheduler
-                    .Schedule(Milliseconds(delay += 3500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3500), [this](TaskContext /*context*/)
                 {
                     if (Creature* taranZhu = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_TARAN_ZHU) : ObjectGuid::Empty))
                         taranZhu->AI()->Talk(TALK_SPECIAL_7);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 5000), [this](TaskContext /*context*/)
                 {
                     me->RemoveAurasDueToSpell(SPELL_LIGHTNING_BARRIER);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
@@ -4580,33 +4580,33 @@ struct shanbuAssaultBaseAI : public customCreatureAI
 
                 delay = 0;
                 scheduler
-                    .Schedule(Milliseconds(delay += me->GetSplineDuration()), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_INTRO);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3000), [this](TaskContext /*context*/)
                 {
                     if (Creature* taranZhu = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_TARAN_ZHU) : ObjectGuid::Empty))
                         taranZhu->AI()->Talk(TALK_SPECIAL_11);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 2500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 2500), [this](TaskContext /*context*/)
                 {
                     if (Creature* taranZhu = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_TARAN_ZHU) : ObjectGuid::Empty))
                         taranZhu->AI()->Talk(TALK_SPECIAL_12);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3500), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_SPECIAL_1);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3200), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3200), [this](TaskContext /*context*/)
                 {
                     if (Creature* taranZhu = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_TARAN_ZHU) : ObjectGuid::Empty))
                         taranZhu->AI()->DoAction(ACTION_BREAK_THIS_CONFLICT);
@@ -4625,35 +4625,35 @@ struct shanbuAssaultBaseAI : public customCreatureAI
 
                 delay = 0;
                 scheduler
-                    .Schedule(Milliseconds(delay += me->GetSplineDuration()), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += me->GetSplineDuration()), [this](TaskContext /*context*/)
                 {
                     if (Creature* jaina = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_JAINA + 5000) : ObjectGuid::Empty))
                         jaina->AI()->Talk(TALK_SPECIAL_6);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 2500), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 2500), [this](TaskContext /*context*/)
                 {
                     if (Creature* lorthemar = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_LORTHEMAR + 5000) : ObjectGuid::Empty))
                         lorthemar->AI()->Talk(TALK_SPECIAL_5);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 4000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 4000), [this](TaskContext /*context*/)
                 {
                     if (Creature* jaina = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_JAINA + 5000) : ObjectGuid::Empty))
                         jaina->AI()->Talk(TALK_SPECIAL_7);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 3000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 3000), [this](TaskContext /*context*/)
                 {
                     if (Creature* lorthemar = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_LORTHEMAR + 5000) : ObjectGuid::Empty))
                         lorthemar->AI()->Talk(TALK_SPECIAL_6);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+                    .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
                 {
                     me->GetMotionMaster()->MoveJump(taranZhuBreakPos, 20.0f, 15.0f, EVENT_JUMP + 1);
 
@@ -4733,7 +4733,7 @@ class npc_shanbu_fall_elsia : public CreatureScript
             void IsSummonedBy(Unit* summoner) override
             {
                 scheduler
-                    .Schedule(Milliseconds(2000), [this](TaskContext context)
+                    .Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
                 {
                     Talk(TALK_INTRO);
                 });
@@ -4889,7 +4889,7 @@ struct npc_shanbu_nalak : public customCreatureAI
             me->GetMotionMaster()->MovePoint(0, nalakLeavePos);
 
             scheduler
-                .Schedule(Milliseconds(me->GetSplineDuration() / 2), [this](TaskContext context)
+                .Schedule(Milliseconds(me->GetSplineDuration() / 2), [this](TaskContext /*context*/)
             {
                 Talk(TALK_INTRO);
             });
@@ -5016,7 +5016,7 @@ struct npc_shan_bu : public shanbuAssaultBaseAI
             Talk(TALK_SPECIAL_6);
 
             scheduler
-                .Schedule(Milliseconds(1500), [this](TaskContext context)
+                .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
             {
                 if (Creature* taranZhu = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHANBU_TARAN_ZHU) : ObjectGuid::Empty))
                 {
@@ -5154,7 +5154,7 @@ class npc_wrathion_thunder_forge : public CreatureScript
                         init.Launch();
                     
                         scheduler
-                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_1);
 
@@ -5168,7 +5168,7 @@ class npc_wrathion_thunder_forge : public CreatureScript
                         delay = 0;
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 1500), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 1500), [this](TaskContext /*context*/)
                         {
                             // Summon Shado-Pan and jump to area
                             me->SummonCreature(NPC_SHADO_PAN_DEFENDER, ShadoPanForgeAssault[0], TEMPSUMMON_MANUAL_DESPAWN);
@@ -5178,7 +5178,7 @@ class npc_wrathion_thunder_forge : public CreatureScript
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_2);
                         });
@@ -5187,13 +5187,13 @@ class npc_wrathion_thunder_forge : public CreatureScript
                         delay = 0;
                         Talk(TALK_SPECIAL_3);
                         scheduler
-                            .Schedule(Milliseconds(delay += 3000), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 3000), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_3);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 4500), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 4500), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_4);
 
@@ -5213,7 +5213,7 @@ class npc_wrathion_thunder_forge : public CreatureScript
                         me->StopMoving();
 
                         scheduler
-                            .Schedule(Milliseconds(4500), [this](TaskContext context)
+                            .Schedule(Milliseconds(4500), [this](TaskContext /*context*/)
                         {
                             if (Creature* shadopanDefender = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHADO_PAN_DEFENDER) : ObjectGuid::Empty))
                                 shadopanDefender->AI()->Talk(TALK_SPECIAL_2);
@@ -5230,7 +5230,7 @@ class npc_wrathion_thunder_forge : public CreatureScript
                         init.Launch();
 
                         scheduler
-                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                         {
                             if (instance)
                                 instance->SetData(STEP_IN_FORGE, DONE);
@@ -5243,7 +5243,7 @@ class npc_wrathion_thunder_forge : public CreatureScript
                         Talk(TALK_SPECIAL_6);
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 10 * IN_MILLISECONDS), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 10 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_7);
 
@@ -5253,19 +5253,19 @@ class npc_wrathion_thunder_forge : public CreatureScript
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 9400), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 9400), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_8);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 12 * IN_MILLISECONDS), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 12 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_9);
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 13 * IN_MILLISECONDS), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 13 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                         {
                             me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         });
@@ -5277,7 +5277,7 @@ class npc_wrathion_thunder_forge : public CreatureScript
                         DoCast(me, SPELL_THUNDER_FORGE_SMITHING);
 
                         scheduler
-                            .Schedule(Milliseconds(6 * IN_MILLISECONDS), [this](TaskContext context)
+                            .Schedule(Milliseconds(6 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_11);
 
@@ -5286,7 +5286,7 @@ class npc_wrathion_thunder_forge : public CreatureScript
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(16 * IN_MILLISECONDS), [this](TaskContext context)
+                            .Schedule(Milliseconds(16 * IN_MILLISECONDS), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_11);
                         });
@@ -5299,7 +5299,7 @@ class npc_wrathion_thunder_forge : public CreatureScript
                         Talk(TALK_SPECIAL_16);
 
                         scheduler
-                            .Schedule(Milliseconds(7500), [this](TaskContext context)
+                            .Schedule(Milliseconds(7500), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_17);
                         });
@@ -5309,7 +5309,7 @@ class npc_wrathion_thunder_forge : public CreatureScript
 
                         delay = 0;
                         scheduler
-                            .Schedule(Milliseconds(delay += 6200), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 6200), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_14);
 
@@ -5318,7 +5318,7 @@ class npc_wrathion_thunder_forge : public CreatureScript
                         });
 
                         scheduler
-                            .Schedule(Milliseconds(delay += 8000), [this](TaskContext context)
+                            .Schedule(Milliseconds(delay += 8000), [this](TaskContext /*context*/)
                         {
                             Talk(TALK_SPECIAL_15);
 
@@ -5940,7 +5940,7 @@ struct npc_thunder_forge_celestial_defender : public ScriptedAI
         init.SetWalk(true);
         init.Launch();
 
-        scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+        scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
         {
             me->SetHomePosition(*me);
         });
@@ -6026,7 +6026,7 @@ struct npc_thunder_forge_celestial_blacksmith : public ScriptedAI
             me->HandleEmoteCommand(EMOTE_STATE_NONE);
             me->GetMotionMaster()->MovePoint(0, anvilsPathPos[anvilIndex]);
 
-            scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+            scheduler.Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
             {
                 if (Creature* anvil = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_THUNDER_FORGE_2) : ObjectGuid::Empty))
                     me->SetFacingToObject(anvil);

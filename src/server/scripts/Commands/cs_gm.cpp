@@ -22,7 +22,6 @@ Comment: All gm related commands
 Category: commandscripts
 EndScriptData */
 
-#include <mutex>
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
 #include "Chat.h"

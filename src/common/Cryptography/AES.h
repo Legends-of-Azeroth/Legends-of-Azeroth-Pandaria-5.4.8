@@ -35,7 +35,7 @@ namespace Trinity::Crypto
         using Key = std::array<uint8, KEY_SIZE_BYTES>;
         using Tag = uint8[TAG_SIZE_BYTES];
 
-        AES(bool encrypting);
+        explicit AES(bool encrypting);
         ~AES();
 
         void Init(Key const& key);

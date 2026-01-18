@@ -315,7 +315,7 @@ class boss_siegecrafter_blackfuse : public CreatureScript
 
                 // Init delay
                 scheduler
-                    .Schedule(Milliseconds(1500), [this](TaskContext context)
+                    .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
                 {
                     if (Creature* siegecrafterVehicle = me->SummonCreature(NPC_SIEGECRAFTER_BLACKFUSE_1, *me, TEMPSUMMON_MANUAL_DESPAWN))
                     {
@@ -428,7 +428,7 @@ class boss_siegecrafter_blackfuse : public CreatureScript
                 if (actionId == ACTION_OVERCHARGE_WEAPON)
                 {
                     scheduler
-                        .Schedule(Milliseconds(500), [this](TaskContext context)
+                        .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
                     {
                         if (Creature* target = ObjectAccessor::GetCreature(*me, getOverchargeWeaponGUID()))
                             DoCast(target, SPELL_OVERCHARGE_WEAPON);
@@ -676,7 +676,7 @@ struct npc_automated_shredder : public ScriptedAI
                     me->ClearUnitState(UNIT_STATE_CASTING);
 
                     scheduler
-                        .Schedule(Milliseconds(5200), [this](TaskContext context)
+                        .Schedule(Milliseconds(5200), [this](TaskContext /*context*/)
                     {
                         inAir = true;
                         // Movement Type
@@ -690,17 +690,17 @@ struct npc_automated_shredder : public ScriptedAI
                         me->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 20.0f);
 
                         scheduler
-                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                            .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                         {
                             me->CastSpell(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() - 20.0f, SPELL_DEATH_FROM_ABOVE_MISSLE, false);
 
                             scheduler
-                                .Schedule(Milliseconds(1300), [this](TaskContext context)
+                                .Schedule(Milliseconds(1300), [this](TaskContext /*context*/)
                             {
                                 me->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() - 20.0f, 15.0f, 15.0f);
 
                                 scheduler
-                                    .Schedule(Milliseconds(me->GetSplineDuration() + 650), [this](TaskContext context)
+                                    .Schedule(Milliseconds(me->GetSplineDuration() + 650), [this](TaskContext /*context*/)
                                 {
                                     me->OverrideInhabitType(INHABIT_GROUND);
                                     me->UpdateMovementFlags();
@@ -763,7 +763,7 @@ struct npc_siegecrafter_sawblade : public ScriptedAI
             case TYPE_LAUNCH_SAWBLADE:
                 // Sawblade Shouldn`t pull to magnet in time when it was launch. should have a delay
                 scheduler
-                    .Schedule(Seconds(2), [this](TaskContext context)
+                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
                 {
                     hasLaunched = 1;
                 });
@@ -1323,7 +1323,7 @@ struct npc_soo_activated_weapons : public ScriptedAI
 
             // Init Delay
             scheduler
-                .Schedule(Milliseconds(1500), [this](TaskContext context)
+                .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
             {
                 uint8 mineCount = Is25ManRaid() ? 8 : 3;
 
@@ -1652,7 +1652,7 @@ struct npc_soo_activated_weapons_type : public ScriptedAI
                 allowDetonate = false;
 
                 scheduler
-                    .Schedule(Seconds(1), [this](TaskContext context)
+                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
                 {
                     DoCast(me, SPELL_CRAWLER_MINE_SELECTOR);
                     me->PrepareChanneledCast(me->GetOrientation());
@@ -1940,7 +1940,7 @@ struct npc_soo_laser_target_bunny : public ScriptedAI
         }
 
         scheduler
-            .Schedule(Milliseconds(1000), [this](TaskContext context)
+            .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
         {
             if (Player* owner = ObjectAccessor::GetPlayer(*me, targetGUID))
             {
@@ -1989,7 +1989,7 @@ struct npc_soo_laser_target_bunny : public ScriptedAI
                     init.SetVelocity(mod);
 
                     scheduler
-                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
+                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
                     {
                         stopMovement = true;
                         me->RemoveAllAuras();
@@ -2038,7 +2038,7 @@ struct npc_soo_laser_target_bunny : public ScriptedAI
 
         // not remove trigger until areatrigger not expire
         scheduler
-            .Schedule(Seconds(16), [this](TaskContext context)
+            .Schedule(Seconds(16), [this](TaskContext /*context*/)
         {
             if (byOvercharged)
                 return;
@@ -2148,7 +2148,7 @@ struct npc_soo_shockwave_missle : public ScriptedAI
     {
         // Required: visible for first inner circle
         scheduler
-            .Schedule(Seconds(1), [this](TaskContext context)
+            .Schedule(Seconds(1), [this](TaskContext /*context*/)
         {
             DoCast(me, SPELL_SHOCKWAVE_INNER_CIRCLE);
         });
@@ -2621,7 +2621,7 @@ class spell_siegecrafter_magnetic_pulse_past_eff : public AuraScript
 {
     PrepareAuraScript(spell_siegecrafter_magnetic_pulse_past_eff);
 
-    void OnAuraEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+    void OnAuraEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Creature* owner = GetOwner()->ToCreature())
         {
@@ -2727,7 +2727,7 @@ class spell_siegecrafter_crawler_mine_fixate : public AuraScript
 {
     PrepareAuraScript(spell_siegecrafter_crawler_mine_fixate);
 
-    void OnAuraEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+    void OnAuraEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Creature* caster = GetCaster()->ToCreature())
         {
@@ -2739,7 +2739,7 @@ class spell_siegecrafter_crawler_mine_fixate : public AuraScript
         }
     }
 
-    void OnAuraEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+    void OnAuraEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (GetCaster() && GetCaster()->ToCreature())
             GetCaster()->ToCreature()->AI()->DoAction(ACTION_CRAWLER_MINE_REFIXATE);
@@ -2779,7 +2779,7 @@ class spell_siegecrafter_pipe_transfert_platform_to_underhold : public AuraScrip
 {
     PrepareAuraScript(spell_siegecrafter_pipe_transfert_platform_to_underhold);
 
-    void OnAuraEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+    void OnAuraEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Creature* owner = GetOwner()->ToCreature())
         {
@@ -2788,7 +2788,7 @@ class spell_siegecrafter_pipe_transfert_platform_to_underhold : public AuraScrip
         }
     }
 
-    void OnAuraEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+    void OnAuraEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Creature* owner = GetOwner()->ToCreature())
         {
@@ -2809,7 +2809,7 @@ class spell_siegecrafter_deathdealer_laser_targeting : public SpellScript
 {
     PrepareSpellScript(spell_siegecrafter_deathdealer_laser_targeting);
 
-    void HandleOnEffectHit(SpellEffIndex effIdx)
+    void HandleOnEffectHit(SpellEffIndex /*effIdx*/)
     {
         if (Unit* caster = GetCaster())
             if (Unit* target = GetHitUnit())
@@ -2834,7 +2834,7 @@ class spell_siegecrafter_on_conveyor : public AuraScript
 {
     PrepareAuraScript(spell_siegecrafter_on_conveyor);
 
-    void OnUpdate(uint32 /*diff*/, AuraEffect* aurEff)
+    void OnUpdate(uint32 /*diff*/, AuraEffect* /*aurEff*/)
     {
         if (Player* owner = GetOwner()->ToPlayer())
         {
@@ -2850,7 +2850,7 @@ class spell_siegecrafter_on_conveyor : public AuraScript
         }
     }
 
-    void OnAuraEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+    void OnAuraEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Player* owner = GetOwner()->ToPlayer())
         {
@@ -2875,7 +2875,7 @@ class spell_siegecrafter_conveyor_death_beam_hc : public AuraScript
 {
     PrepareAuraScript(spell_siegecrafter_conveyor_death_beam_hc);
 
-    void OnAuraEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+    void OnAuraEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* owner = GetOwner()->ToUnit())
         {
@@ -2923,7 +2923,7 @@ class spell_siegecrafter_conveyor_death_beam_hc : public AuraScript
         }
     }
 
-    void OnAuraEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+    void OnAuraEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* owner = GetOwner()->ToUnit())
         {
@@ -3004,7 +3004,7 @@ class spell_siegecrafter_magnetic_crush_push_saw : public SpellScript
         return true;
     }
 
-    void HandleOnEffectHit(SpellEffIndex effIdx)
+    void HandleOnEffectHit(SpellEffIndex /*effIdx*/)
     {
         if (Creature* target = GetHitCreature())
         {
@@ -3069,7 +3069,7 @@ class spell_siegecrafter_magnetic_crush_pull_saw : public SpellScript
         return true;
     }
 
-    void HandleOnEffectHit(SpellEffIndex effIdx)
+    void HandleOnEffectHit(SpellEffIndex /*effIdx*/)
     {
         if (Creature* target = GetHitCreature())
         {
@@ -3128,7 +3128,7 @@ class spell_siegecrafter_magnetic_crush_invert : public AuraScript
 {
     PrepareAuraScript(spell_siegecrafter_magnetic_crush_invert);
 
-    void OnAuraEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+    void OnAuraEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         SetDuration(5100); // it set 4500, but triggering eff 5000
     }
@@ -3144,7 +3144,7 @@ class spell_siegecrafter_disintegration_laser : public AuraScript
 {
     PrepareAuraScript(spell_siegecrafter_disintegration_laser);
 
-    void OnAuraEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+    void OnAuraEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (GetOwner() && GetOwner()->ToCreature() && GetOwner()->ToCreature()->GetEntry() == NPC_ACTIVATED_LASER_TURRET && !GetOwner()->ToCreature()->AI()->GetData(TYPE_NOT_IN_CONVEYOR_LINE) && GetCaster())
             GetCaster()->CastSpell(GetOwner()->ToCreature(), GetSpellInfo()->Id, true);
@@ -3178,7 +3178,7 @@ class spell_siegecrafter_pattern_recognition : public SpellScript
 {
     PrepareSpellScript(spell_siegecrafter_pattern_recognition);
 
-    void HandleOnJumpInPipe(SpellEffIndex effIdx)
+    void HandleOnJumpInPipe(SpellEffIndex /*effIdx*/)
     {
         if (GetCaster() && GetCaster()->GetInstanceScript() && GetCaster()->GetInstanceScript()->GetData(DATA_FLEX))
             PreventHitAura();
@@ -3226,7 +3226,7 @@ class AreaTrigger_at_soo_pipelines_to_conveyor : public AreaTriggerScript
     public:
         AreaTrigger_at_soo_pipelines_to_conveyor() : AreaTriggerScript("AreaTrigger_at_soo_pipelines_to_conveyor") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
             // Prevent conveyor jump if encounter not started
             if (player->GetInstanceScript() && player->GetInstanceScript()->GetBossState(DATA_SIEGECRAFTER_BLACKFUSE) != IN_PROGRESS)
@@ -3261,7 +3261,7 @@ class AreaTrigger_at_soo_pipelines_from_conveyor : public AreaTriggerScript
     public:
         AreaTrigger_at_soo_pipelines_from_conveyor() : AreaTriggerScript("AreaTrigger_at_soo_pipelines_from_conveyor") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
             if (!player->HasAura(SPELL_PIPE_TRANSFERT_CONVEYOR_TO_PLATFORM))
                 player->CastSpell(player, SPELL_PIPE_TRANSFERT_CONVEYOR_TO_PLATFORM, true);
@@ -3276,7 +3276,7 @@ class AreaTrigger_at_soo_pipelines_down : public AreaTriggerScript
     public:
         AreaTrigger_at_soo_pipelines_down() : AreaTriggerScript("AreaTrigger_at_soo_pipelines_down") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
             player->Kill(player);
 
@@ -3294,7 +3294,7 @@ class AreaTrigger_at_soo_pipelines_from_underhold_to_platform : public AreaTrigg
     public:
         AreaTrigger_at_soo_pipelines_from_underhold_to_platform() : AreaTriggerScript("AreaTrigger_at_soo_pipelines_from_underhold_to_platform") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
             if (player->GetInstanceScript() && (player->GetInstanceScript()->GetBossState(DATA_SIEGECRAFTER_BLACKFUSE) == IN_PROGRESS || player->GetInstanceScript()->GetData(DATA_SIEGECRAFTER_PRE_EVENT) != DONE))
             {
@@ -3318,7 +3318,7 @@ class AreaTrigger_at_soo_pipelines_from_platform_to_underhold : public AreaTrigg
     public:
         AreaTrigger_at_soo_pipelines_from_platform_to_underhold() : AreaTriggerScript("AreaTrigger_at_soo_pipelines_from_platform_to_underhold") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
             if (player->GetInstanceScript() && player->GetInstanceScript()->GetBossState(DATA_SIEGECRAFTER_BLACKFUSE) == IN_PROGRESS)
             {
@@ -3400,7 +3400,7 @@ class sat_siegecrafter_launch_sawblade : public IAreaTriggerAura
 {
     bool CheckTriggering(WorldObject* triggering) override
     {
-        return triggering && (triggering->ToCreature() && triggering->ToCreature()->GetEntry() == NPC_AUTOMATED_SHREDDER || triggering->ToPlayer() && !triggering->ToPlayer()->HasAura(SPELL_DEMONIC_GATEWAY_TRANSITION)) && GetCaster() && GetCaster()->ToCreature() && GetCaster()->ToCreature()->AI()->GetData(TYPE_LAUNCH_SAWBLADE);
+        return triggering && ((triggering->ToCreature() && triggering->ToCreature()->GetEntry() == NPC_AUTOMATED_SHREDDER) || (triggering->ToPlayer() && !triggering->ToPlayer()->HasAura(SPELL_DEMONIC_GATEWAY_TRANSITION))) && GetCaster() && GetCaster()->ToCreature() && GetCaster()->ToCreature()->AI()->GetData(TYPE_LAUNCH_SAWBLADE);
     }
 
     void OnTriggeringApply(WorldObject* triggering) override
@@ -3449,7 +3449,7 @@ class sat_siegecrafter_laser_ground_eff : public IAreaTriggerAura
 {
     bool CheckTriggering(WorldObject* triggering) override
     {
-        return triggering && (triggering->ToPlayer() && !triggering->ToPlayer()->HasAura(SPELL_DEMONIC_GATEWAY_TRANSITION) && triggering->ToPlayer()->IsAlive() || triggering->ToCreature() && triggering->ToCreature()->GetEntry() == NPC_AUTOMATED_SHREDDER);
+        return triggering && ((triggering->ToPlayer() && !triggering->ToPlayer()->HasAura(SPELL_DEMONIC_GATEWAY_TRANSITION) && triggering->ToPlayer()->IsAlive()) || (triggering->ToCreature() && triggering->ToCreature()->GetEntry() == NPC_AUTOMATED_SHREDDER));
     }
 
     void OnTriggeringApply(WorldObject* triggering) override

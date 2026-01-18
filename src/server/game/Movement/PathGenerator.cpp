@@ -19,7 +19,6 @@
 #include "Map.h"
 #include "Creature.h"
 #include "DisableMgr.h"
-#include "GameObject.h"
 #include "Transport.h"
 #include "MapDefines.h"
 #include "MMapFactory.h"
@@ -1100,6 +1099,8 @@ void PathGenerator::VisualizePath(uint32 duration)
             waypoint->SetTempSummonType(TEMPSUMMON_TIMED_DESPAWN);
             return waypoint->GetGUID();
         }
+
+        return ObjectGuid::Empty;
     };
     static auto const UpdateWaypoint = [](Unit const* source, ObjectGuid prevGUID, G3D::Vector3 const& pos, uint32 duration, ObjectGuid guid)
     {
@@ -1173,6 +1174,8 @@ void PathGenerator::VisualizeNavmesh(uint32 duration)
             waypoint->SetTempSummonType(TEMPSUMMON_TIMED_DESPAWN);
             return waypoint->GetGUID();
         }
+
+        return ObjectGuid::Empty;
     };
     static auto const UpdateWaypoint = [](Unit const* source, ObjectGuid prevGUID, G3D::Vector3 const& pos, uint32 duration, ObjectGuid guid)
     {

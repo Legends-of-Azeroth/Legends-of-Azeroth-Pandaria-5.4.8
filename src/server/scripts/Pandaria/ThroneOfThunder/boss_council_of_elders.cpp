@@ -387,7 +387,7 @@ class boss_council_of_elders_baseAI : public ScriptedAI
             me->SetReactState(REACT_AGGRESSIVE);
 
             scheduler
-                .Schedule(Seconds(2), [this](TaskContext context)
+                .Schedule(Seconds(2), [this](TaskContext /*context*/)
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
             });

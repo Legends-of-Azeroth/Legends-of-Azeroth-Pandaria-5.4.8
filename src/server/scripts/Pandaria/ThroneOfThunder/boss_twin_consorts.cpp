@@ -325,7 +325,7 @@ class boss_suen : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_FROM_DUSK_TILL_DOWN, 0);
 
                 scheduler
-                    .Schedule(Seconds(2), [this](TaskContext context)
+                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                 });
@@ -824,7 +824,7 @@ class boss_suen : public CreatureScript
 
                             scheduler
                                 .SetValidator([this] { return instance && instance->GetBossState(DATA_TWIN_CONSORTS) == IN_PROGRESS && !me->HasAura(SPELL_PERMANENT_FEIGN_DEATH); })
-                                .Schedule(Milliseconds(3000), [this](TaskContext context)
+                                .Schedule(Milliseconds(3000), [this](TaskContext /*context*/)
                             {
                                 me->RemoveChanneledCast(targetGUID);
                             });
@@ -939,7 +939,7 @@ class boss_lulin : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
 
                 scheduler
-                    .Schedule(Seconds(2), [this](TaskContext context)
+                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                 });
@@ -1181,7 +1181,7 @@ class boss_lulin : public CreatureScript
 
                             scheduler
                                 .SetValidator([this] { return instance && instance->GetBossState(DATA_TWIN_CONSORTS) == IN_PROGRESS; })
-                                .Schedule(Milliseconds(18500), [this](TaskContext context)
+                                .Schedule(Milliseconds(18500), [this](TaskContext /*context*/)
                             {
                                 me->RemoveChanneledCast(targetGUID);
                             });
@@ -1483,7 +1483,7 @@ struct npc_beast_of_nightmares : public ScriptedAI
         me->ClearUnitState(UNIT_STATE_CASTING);
         AttackStart(summoner);
 
-        scheduler.Schedule(Milliseconds(1000), [this](TaskContext context)
+        scheduler.Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
         {
             me->SetPhaseMask(2, true); // hacky, should`ve visible for whole, but attackable only by victim
         });

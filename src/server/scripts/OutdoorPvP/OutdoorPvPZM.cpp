@@ -22,7 +22,6 @@
 #include "Player.h"
 #include "Creature.h"
 #include "ObjectAccessor.h"
-#include "WorldPacket.h"
 #include "GossipDef.h"
 #include "World.h"
 

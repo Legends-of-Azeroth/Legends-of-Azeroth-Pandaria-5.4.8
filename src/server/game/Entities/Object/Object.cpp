@@ -38,7 +38,6 @@
 #include "OutdoorPvPMgr.h"
 #include "Player.h"
 #include "SharedDefines.h"
-#include "SpellAuraEffects.h"
 #include "TargetedMovementGenerator.h"
 #include "TemporarySummon.h"
 #include "Totem.h"
@@ -51,7 +50,6 @@
 #include "Vehicle.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
-#include "WaypointMovementGenerator.h"
 #include "World.h"
 #include "WorldPacket.h"
 

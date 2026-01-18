@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
 #include "Vehicle.h"
 #include "CombatAI.h"
 #include "Random.h"
@@ -2457,7 +2456,7 @@ struct npc_kunlai_old_poof_poof : public ScriptedAI
         {
             me->StopMoving();
 
-            scheduler.Schedule(Milliseconds(1000), [this](TaskContext context)
+            scheduler.Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MovePoint(0, pootPootLeavePos[1]);
                 me->DespawnOrUnsummon(me->GetSplineDuration());

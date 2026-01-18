@@ -328,7 +328,7 @@ class spell_warr_unbridled_wrath : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_unbridled_wrath_AuraScript);
 
-            bool checkProc(ProcEventInfo& eventInfo)
+            bool checkProc(ProcEventInfo& /*eventInfo*/)
             {
                 if (Unit* caster = GetCaster())
                     if (caster->HasSpell(143268) && (caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED) || caster->HasAuraType(SPELL_AURA_MOD_ROOT)))
@@ -657,7 +657,7 @@ class spell_warr_charge : public SpellScript
         caster->CastSpell(target, stunSpellId, true);
     }
 
-    void HandleDummy(SpellEffIndex effIndex)
+    void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (!GetCaster()->HasAura(SPELL_WARRIOR_DOUBLE_TIME) || !GetCaster()->HasAura(SPELL_WARRIOR_DOUBLE_TIME_MARKER))
             GetCaster()->EnergizeBySpell(GetCaster(), GetSpellInfo()->Id, GetEffectValue(), POWER_RAGE);
@@ -691,9 +691,9 @@ class spell_warr_riposte : public SpellScriptLoader
 
                 if (Player* player = caster->ToPlayer())
                 {
-                    uint32 rating = player->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_PARRY);
-                    rating += player->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_DODGE);
-                    amount = CalculatePct(rating, 75);
+                    uint32 rating = player->GetUInt32Value((uint16)PLAYER_FIELD_COMBAT_RATINGS + (uint16)CR_PARRY);
+                    rating += player->GetUInt32Value((uint16)PLAYER_FIELD_COMBAT_RATINGS + (uint16)CR_DODGE);
+                    amount = CalculatePct<float>((float)rating, 75);
                 }
             }
 
@@ -753,7 +753,7 @@ class spell_warr_overpower : public SpellScriptLoader
                 MORTAL_STRIKE           = 12294
             };
 
-            void HandleCast(SpellEffIndex effIndex)
+            void HandleCast(SpellEffIndex /*effIndex*/)
             {
                 Player* player = GetCaster()->ToPlayer();
                 if (!player)
@@ -1107,7 +1107,7 @@ class spell_warr_sword_and_board : public AuraScript
 {
     PrepareAuraScript(spell_warr_sword_and_board);
 
-    void HandleProc(AuraEffect const* eff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* eff, ProcEventInfo& /*eventInfo*/)
     {
         if (roll_chance_i(eff->GetAmount()))
             GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_WARRIOR_SWORD_AND_BOARD, true);
@@ -1156,7 +1156,6 @@ class spell_warr_dragon_roar : public SpellScript
         if (targetCount > 20)
             damage = damage * targetCount / 20;
 
-        float mult = 1.0f;
         switch (targetCount)
         {
             case 1:
@@ -1174,7 +1173,7 @@ class spell_warr_dragon_roar : public SpellScript
                 if (targetCount >= 5 && targetCount <= 10)
                     damage *= 0.50f;
                 else
-                    damage = damage * 5 / targetCount;
+                    damage = damage * 5 / (float)targetCount;
         }
 
         SetHitDamage(damage);
@@ -1292,7 +1291,7 @@ class spell_warr_raging_blow : public SpellScript
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         // Meat Cleaver chain targets are added to main spell, remove them
-        targets.remove_if([=](WorldObject const* target) { return target != GetExplTargetWorldObject(); });
+        targets.remove_if([this](WorldObject const* target) { return target != GetExplTargetWorldObject(); });
     }
 
     void HandleHit()
@@ -1477,7 +1476,7 @@ class spell_warr_meat_cleaver : public AuraScript
 {
     PrepareAuraScript(spell_warr_meat_cleaver);
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
         Player* warrior = GetOwner()->ToPlayer();
         if (!warrior || warrior->HasSpellCooldown(SPELL_WARRIOR_MEAT_CLEAVER))

@@ -115,7 +115,7 @@ class boss_commander_durand : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 if (instance)
@@ -352,7 +352,7 @@ class boss_high_inqusitior_whitemane : public CreatureScript
 
                     // sometimes it stuck, and she doesn`t appear to durand near (stuck on half of path if distance too long, in result MovementInForm not called)
                     scheduler
-                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context) // blizzlike
+                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/) // blizzlike
                     {
                         Talk(WHITEMANE_TALK_RESSURETION);
 
@@ -379,7 +379,7 @@ class boss_high_inqusitior_whitemane : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(WHITEMANE_TALK_DEATH);
                 _JustDied();
@@ -415,7 +415,7 @@ class boss_high_inqusitior_whitemane : public CreatureScript
                     DoStartNoMovement(target);
             }
 
-            void CastInterrupted(SpellInfo const* spell) override
+            void CastInterrupted(SpellInfo const* /*spell*/) override
             {
                 events.RescheduleEvent(EVENT_SMITE, 6 * IN_MILLISECONDS);
 
@@ -563,7 +563,7 @@ class spell_sc_mass_ressurection : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if([=](WorldObject const* target)
+        targets.remove_if([this](WorldObject const* target)
         {
             if (target->GetTypeId() != TYPEID_UNIT)
                 return true;

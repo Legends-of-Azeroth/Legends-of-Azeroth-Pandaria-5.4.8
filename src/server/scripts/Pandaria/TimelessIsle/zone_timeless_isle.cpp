@@ -1186,7 +1186,7 @@ class npc_timeless_cats : public CreatureScript
 
                 // prevent cone swipe while in pounce
                 scheduler
-                    .Schedule(Seconds(5), [this](TaskContext context)
+                    .Schedule(Seconds(5), [this](TaskContext /*context*/)
                 {
                     pounce = false;
                     events.RescheduleEvent(EVENT_SWIPE, 2 * IN_MILLISECONDS);
@@ -2217,7 +2217,7 @@ class npc_molten_guards : public CreatureScript
                             me->PrepareChanneledCast(me->GetAngle(target), invMoltenRotationType.find(spellRotation)->second);
 
                             scheduler
-                                .Schedule(Milliseconds(2600), [this](TaskContext context)
+                                .Schedule(Milliseconds(2600), [this](TaskContext /*context*/)
                             {
                                 // Prevent if evade
                                 if (me->IsInCombat())

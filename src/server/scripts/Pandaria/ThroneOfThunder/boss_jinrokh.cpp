@@ -223,7 +223,7 @@ class boss_jinrokh : public CreatureScript
                 inStorm = false;
 
                 scheduler
-                    .Schedule(Seconds(2), [this](TaskContext context)
+                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
                 });
@@ -409,7 +409,7 @@ class boss_jinrokh : public CreatureScript
 
                 DoCastBossSpell(me, SPELL_LIGHTNING_STORM, false, 3000);
 
-                scheduler.Schedule(Milliseconds(18000), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(18000), [this](TaskContext /*context*/)
                 {
                     if (me->IsAlive() && instance && instance->GetBossState(DATA_JINROKH) == IN_PROGRESS)
                     {
@@ -471,7 +471,7 @@ class boss_jinrokh : public CreatureScript
                                 me->PrepareChanneledCast(me->GetAngle(target));
                             }
 
-                            scheduler.Schedule(Milliseconds(1500), [this](TaskContext context)
+                            scheduler.Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
                             {
                                 if (me->IsAlive() && instance && instance->GetBossState(DATA_JINROKH) == IN_PROGRESS)
                                     me->RemoveChanneledCast(targetGUID);
@@ -592,7 +592,7 @@ struct npc_focused_lightning : public ScriptedAI
         });
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
         damage = 0;
     }
@@ -612,7 +612,7 @@ struct npc_lightning_fissure : public ScriptedAI
     TaskScheduler scheduler;
     InstanceScript* instance;
 
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(Unit* /*summoner*/) override
     {
         instance = me->GetInstanceScript();
         me->SetDisplayFromModel(1);

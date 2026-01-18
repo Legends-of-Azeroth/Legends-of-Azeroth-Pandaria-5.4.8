@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-24.04
     if: ${{ !github.event.pull_request.draft }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Dependencies
       run: |
         sudo apt-get update && sudo apt-get install -yq libboost-all-dev g++-13 libreadline-dev libbz2-dev
@@ -32,8 +32,8 @@ jobs:
       run: |
         cd bin
         make -j 4 -k && make install
-    #- name: Check executables
-    #  run: |
-    #    cd bin/check_install/bin
-    #    ./authserver --version
-    #    ./worldserver --version
+    - name: Check executables
+      run: |
+        cd bin/check_install/bin
+        ./authserver --version
+        ./worldserver --version
