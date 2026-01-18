@@ -2200,6 +2200,7 @@ bool PlayerbotAI::CanCastSpell(uint32 spellid, float x, float y, float z, uint8 
 
 bool PlayerbotAI::CastSpell(std::string const name, Unit* target, Item* itemTarget)
 {
+    TC_LOG_DEBUG("playerbots", "%s cast: %s", bot->GetName().c_str(), name.c_str());
     bool result = CastSpell(_aiObjectContext->GetValue<uint32>("spell id", name)->Get(), target, itemTarget);
     //const std::string res = result ? "success" : "failed";
     //TC_LOG_DEBUG("playerbots", "%s cast: %s => %s", bot->GetName().c_str(), name.c_str(), res.c_str());

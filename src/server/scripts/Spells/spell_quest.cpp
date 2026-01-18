@@ -2352,8 +2352,10 @@ class spell_q12414_hand_over_reins : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         GetHitUnit()->ExitVehicle();
-        if (Creature* creature = GetCaster()->ToCreature())
-            creature->DespawnOrUnsummon();
+
+        if (Unit* caster = GetCaster())
+            if (Creature* creature = GetCaster()->ToCreature())
+                creature->DespawnOrUnsummon();
     }
 
     void Register() override
@@ -2472,7 +2474,7 @@ class spell_q31112_ping_bunny: public SpellScriptLoader
         {
             PrepareSpellScript(spell_q31112_ping_bunny_SpellScript);
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
+            void HandleDummy(SpellEffIndex effIndex)
             {
                 if (Unit* caster = GetCaster())
                     caster->GetMotionMaster()->MoveJump(2390.78f, -226.66f, 303.89f, 40.0f, 40.0f);

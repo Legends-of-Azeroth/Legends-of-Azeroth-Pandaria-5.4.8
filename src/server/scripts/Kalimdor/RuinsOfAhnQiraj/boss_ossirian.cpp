@@ -21,6 +21,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "WorldPacket.h"
 #include "Opcodes.h"
 
 enum Texts

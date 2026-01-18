@@ -22,6 +22,7 @@
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
 #include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "MiscPackets.h"
 #include "ObjectMgr.h"

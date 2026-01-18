@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -17,19 +17,15 @@
 
 #include "RealmList.h"
 #include "DatabaseEnv.h"
+#include "DeadlineTimer.h"
+#include "IoContext.h"
 #include "Log.h"
 #include "Resolver.h"
 #include "Util.h"
-
-#include <boost/asio/co_spawn.hpp>
-#include <boost/asio/detached.hpp>
-#include <boost/asio/system_timer.hpp>
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/as_tuple.hpp>
 
 RealmList::RealmList() :
-    _updateInterval(0)
-{}
+    _updateInterval(0) { }
 
 RealmList* RealmList::instance()
 {
@@ -39,20 +35,21 @@ RealmList* RealmList::instance()
 
 // Load the realm list from the database
 //void RealmList::Initialize(uint32 updateInterval)
-void RealmList::Initialize(boost::asio::any_io_executor executor, uint32 updateInterval)
+void RealmList::Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInterval)
 {
     _updateInterval = updateInterval;
-    _executor = &executor;
-    _resolver = std::make_unique<Trinity::Asio::Resolver>(executor);
+    _updateTimer = std::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
+    _resolver = std::make_unique<Trinity::Asio::Resolver>(ioContext);
 
     LoadBuildInfo();
 
     // Get the content of the realmlist table in the database
-    UpdateRealms();
+    UpdateRealms(boost::system::error_code());
 }
 
 void RealmList::Close()
 {
+    _updateTimer->cancel();
 }
 
 void RealmList::LoadBuildInfo()
@@ -121,98 +118,97 @@ void RealmList::UpdateRealm(RealmHandle const& id, uint32 build, std::string con
     realm.Port = port;
 }
 
-void RealmList::UpdateRealms()
+void RealmList::UpdateRealms(boost::system::error_code const& error)
 {
-    boost::asio::co_spawn(*_executor, [this]() -> boost::asio::awaitable<void>
+    if (error)
+        return;    
+
+    TC_LOG_INFO("server.authserver", "Updating Realm List...");
+
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST);
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
+
+    std::map<RealmHandle, std::string> existingRealms;
+    for (auto const& [handle, realm] : _realms)
     {
-        boost::asio::system_timer timer(*_executor);
-        while (42)
+        existingRealms[handle] = realm.Name;
+    }
+
+    _realms.clear();
+
+    // Circle through results and add them to the realm map
+    if (result)
+    {
+        do
         {
-            TC_LOG_INFO("server.authserver", "Updating Realm List...");
+            Field* fields = result->Fetch();
+            uint32 realmId                    = fields[0].GetUInt32();
+            std::string name                  = fields[1].GetString();
+            std::string externalAddressString = fields[2].GetString();
+            std::string localAddressString    = fields[3].GetString();
+            std::string localSubmaskString    = fields[4].GetString();           
+            uint16 port                       = fields[5].GetUInt16();
 
-            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST);
-            PreparedQueryResult result = LoginDatabase.Query(stmt);
-
-            std::map<RealmHandle, std::string> existingRealms;
-            for (auto const& [handle, realm] : _realms)
+            Optional<boost::asio::ip::tcp::endpoint> externalAddress = _resolver->Resolve(boost::asio::ip::tcp::v4(), externalAddressString, "");
+            if (!externalAddress)
             {
-                existingRealms[handle] = realm.Name;
+                TC_LOG_ERROR("server.authserver", "Could not resolve address %s for realm \"%s\" id %u", externalAddressString.c_str(), name.c_str(), realmId);
+                continue;
             }
 
-            _realms.clear();
-
-            // Circle through results and add them to the realm map
-            if (result)
+            Optional<boost::asio::ip::tcp::endpoint> localAddress = _resolver->Resolve(boost::asio::ip::tcp::v4(), localAddressString, "");
+            if (!localAddress)
             {
-                do
-                {
-                    Field* fields = result->Fetch();
-                    uint32 realmId = fields[0].GetUInt32();
-                    std::string name = fields[1].GetString();
-                    std::string externalAddressString = fields[2].GetString();
-                    std::string localAddressString = fields[3].GetString();
-                    std::string localSubmaskString = fields[4].GetString();
-                    uint16 port = fields[5].GetUInt16();
-
-                    Optional<boost::asio::ip::tcp::endpoint> externalAddress = _resolver->Resolve(boost::asio::ip::tcp::v4(), externalAddressString, "");
-                    if (!externalAddress)
-                    {
-                        TC_LOG_ERROR("server.authserver", "Could not resolve address %s for realm \"%s\" id %u", externalAddressString.c_str(), name.c_str(), realmId);
-                        continue;
-                    }
-
-                    Optional<boost::asio::ip::tcp::endpoint> localAddress = _resolver->Resolve(boost::asio::ip::tcp::v4(), localAddressString, "");
-                    if (!localAddress)
-                    {
-                        TC_LOG_ERROR("server.authserver", "Could not resolve localAddress %s for realm \"%s\" id %u", localAddressString.c_str(), name.c_str(), realmId);
-                        continue;
-                    }
-
-                    Optional<boost::asio::ip::tcp::endpoint> localSubmask = _resolver->Resolve(boost::asio::ip::tcp::v4(), localSubmaskString, "");
-                    if (!localSubmask)
-                    {
-                        TC_LOG_ERROR("server.authserver", "Could not resolve localSubnetMask %s for realm \"%s\" id %u", localSubmaskString.c_str(), name.c_str(), realmId);
-                        continue;
-                    }
-
-                    uint8 icon = fields[6].GetUInt8();
-                    if (icon == REALM_TYPE_FFA_PVP)
-                        icon = REALM_TYPE_PVP;
-                    if (icon >= MAX_CLIENT_REALM_TYPE)
-                        icon = REALM_TYPE_NORMAL;
-
-                    RealmFlags flag = RealmFlags(fields[7].GetUInt8());
-                    uint8 timezone = fields[8].GetUInt8();
-                    uint8 allowedSecurityLevel = fields[9].GetUInt8();
-                    float pop = fields[10].GetFloat();
-                    uint32 build = fields[11].GetUInt32();
-
-                    RealmHandle id{ realmId };
-
-                    UpdateRealm(id, build, name, externalAddress->address(), localAddress->address(), localSubmask->address(), port, icon, flag,
-                        timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop);
-                    if (!existingRealms.count(id))
-                    {
-                        TC_LOG_INFO("server.authserver", "Added realm \"%s\" at %s:%u.", name.c_str(), externalAddressString.c_str(), port);
-                    }
-                    else
-                    {
-                        TC_LOG_DEBUG("server.authserver", "Updating realm \"%s\" at %s:%u.", name.c_str(), externalAddressString.c_str(), port);
-                    }
-
-                    existingRealms.erase(id);
-
-                } while (result->NextRow());
+                TC_LOG_ERROR("server.authserver", "Could not resolve localAddress %s for realm \"%s\" id %u", localAddressString.c_str(), name.c_str(), realmId);
+                continue;
             }
 
-            for (auto itr = existingRealms.begin(); itr != existingRealms.end(); ++itr)
-                TC_LOG_INFO("server.authserver", "Removed realm \"%s\".", itr->second.c_str());
+            Optional<boost::asio::ip::tcp::endpoint> localSubmask = _resolver->Resolve(boost::asio::ip::tcp::v4(), localSubmaskString, "");
+            if (!localSubmask)
+            {
+                TC_LOG_ERROR("server.authserver", "Could not resolve localSubnetMask %s for realm \"%s\" id %u", localSubmaskString.c_str(), name.c_str(), realmId);
+                continue;
+            }
 
-            timer.expires_after(std::chrono::seconds(_updateInterval));
-            auto [err] = co_await timer.async_wait(boost::asio::as_tuple(boost::asio::use_awaitable));
-            if (err) break;
+            uint8 icon                  = fields[6].GetUInt8();
+            if (icon == REALM_TYPE_FFA_PVP)
+                icon = REALM_TYPE_PVP;
+            if (icon >= MAX_CLIENT_REALM_TYPE)
+                icon = REALM_TYPE_NORMAL;
+
+            RealmFlags flag             = RealmFlags(fields[7].GetUInt8());
+            uint8 timezone              = fields[8].GetUInt8();
+            uint8 allowedSecurityLevel  = fields[9].GetUInt8();
+            float pop                   = fields[10].GetFloat();
+            uint32 build                = fields[11].GetUInt32();
+
+            RealmHandle id{ realmId };
+
+            UpdateRealm(id, build, name, externalAddress->address(), localAddress->address(), localSubmask->address(), port, icon, flag,
+                timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop);            
+            if (!existingRealms.count(id))
+            {
+                TC_LOG_INFO("server.authserver", "Added realm \"%s\" at %s:%u.", name.c_str(), externalAddressString.c_str(), port);
+            }
+            else
+            {
+                TC_LOG_DEBUG("server.authserver", "Updating realm \"%s\" at %s:%u.", name.c_str(), externalAddressString.c_str(), port);
+            }
+
+            existingRealms.erase(id);
+
         }
-    }, boost::asio::detached);
+        while (result->NextRow());
+    }
+
+    for (auto itr = existingRealms.begin(); itr != existingRealms.end(); ++itr)
+        TC_LOG_INFO("server.authserver", "Removed realm \"%s\".", itr->second.c_str());
+
+    if (_updateInterval)
+    {
+        _updateTimer->expires_after(std::chrono::seconds(_updateInterval));
+        _updateTimer->async_wait(std::bind(&RealmList::UpdateRealms, this, std::placeholders::_1));
+    }    
 }
 
 Realm const* RealmList::GetRealm(RealmHandle const& id) const

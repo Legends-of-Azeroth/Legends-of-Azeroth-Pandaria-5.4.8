@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -21,6 +21,7 @@
 #include "DisableMgr.h"
 #include "ObjectMgr.h"
 #include "SocialMgr.h"
+#include "Language.h"
 #include "LFGMgr.h"
 #include "LFGScripts.h"
 #include "LFGGroupData.h"
@@ -30,14 +31,19 @@
 #include "Player.h"
 #include "GroupMgr.h"
 #include "GameEventMgr.h"
+#include "WorldSession.h"
 #include "ReputationMgr.h"
 #include "Config.h"
 #include "Guild.h"
 #include "ScenarioMgr.h"
+#include "Guild.h"
 #include "Chat.h"
 #include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "WorldPacket.h"
 #include "BattlegroundMgr.h"
 #include "Field.h"
+#include <numeric>
 
 template <typename... Args>
 static void AlmostAssert(char const* filter, Args... args)

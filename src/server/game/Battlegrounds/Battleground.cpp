@@ -25,6 +25,7 @@
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Guild.h"
+#include "GuildMgr.h"
 #include "MapManager.h"
 #include "MiscPackets.h"
 #include "Object.h"
@@ -40,6 +41,7 @@
 #include "Pet.h"
 #include "AchievementMgr.h"
 #include "BattlegroundTOK.h"
+#include "Realm.h"
 
 namespace Trinity
 {

@@ -258,9 +258,7 @@ class boss_warlord_zonozz: public CreatureScript
                     case NPC_EYE_OF_GORATH:
                         if (!IsHeroic())
                             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                        if (IsHeroic())
-                            DoCastAOE(SPELL_BLACK_BLOOD_OF_GORATH, true);
-                        break;
+                        // no break
                     case NPC_CLAW_OF_GORATH:
                     case NPC_FLAIL_OF_GORATH:
                         if (IsHeroic())

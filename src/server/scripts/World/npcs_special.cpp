@@ -46,10 +46,12 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "ObjectMgr.h"
+#include "ScriptMgr.h"
 #include "World.h"
 #include "PassiveAI.h"
 #include "GameEventMgr.h"
 #include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "SpellAuras.h"
@@ -122,9 +124,9 @@ public:
 
     struct npc_air_force_botsAI : public ScriptedAI
     {
-        explicit npc_air_force_botsAI(Creature* creature) : ScriptedAI(creature)
+        npc_air_force_botsAI(Creature* creature) : ScriptedAI(creature)
         {
-            SpawnAssoc = nullptr;
+            SpawnAssoc = NULL;
             SpawnedGUID = ObjectGuid::Empty;
 
             // find the correct spawnhandling
@@ -148,7 +150,7 @@ public:
                 if (!spawnedTemplate)
                 {
                     TC_LOG_ERROR("sql.sql", "TCSR: Creature template entry %u does not exist in DB, which is required by npc_air_force_bots", SpawnAssoc->spawnedCreatureEntry);
-                    SpawnAssoc = nullptr;
+                    SpawnAssoc = NULL;
                     return;
                 }
             }
@@ -168,7 +170,7 @@ public:
             else
             {
                 TC_LOG_ERROR("sql.sql", "TCSR: npc_air_force_bots: wasn't able to spawn Creature %u", SpawnAssoc->spawnedCreatureEntry);
-                SpawnAssoc = nullptr;
+                SpawnAssoc = NULL;
             }
 
             return summoned;
@@ -181,7 +183,7 @@ public:
             if (creature && creature->IsAlive())
                 return creature;
 
-            return nullptr;
+            return NULL;
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -198,7 +200,7 @@ public:
                 if (!playerTarget)
                     return;
 
-                Creature* lastSpawnedGuard = SpawnedGUID == 0 ? nullptr : GetSummonedGuard();
+                Creature* lastSpawnedGuard = SpawnedGUID == 0 ? NULL : GetSummonedGuard();
 
                 // prevent calling Unit::GetUnit at next MoveInLineOfSight call - speedup
                 if (!lastSpawnedGuard)
@@ -910,21 +912,16 @@ public:
 
     struct npc_garments_of_questsAI : public npc_escortAI
     {
-        explicit npc_garments_of_questsAI(Creature* creature)
-            : npc_escortAI(creature)
-            , CasterGUID(ObjectGuid::Empty)
-            , IsHealed(false)
-            , CanRun(false)
-            , RunAwayTimer(5000)
+        npc_garments_of_questsAI(Creature* creature) : npc_escortAI(creature)
         {
-            me->SetStandState(UNIT_STAND_STATE_KNEEL);
-            // expect database to have RegenHealth=0
-            me->SetHealth(me->CountPctFromMaxHealth(70));
+            Reset();
         }
 
         ObjectGuid CasterGUID;
+
         bool IsHealed;
         bool CanRun;
+
         uint32 RunAwayTimer;
 
         void Reset() override
@@ -1122,7 +1119,7 @@ public:
 
     struct npc_guardianAI : public ScriptedAI
     {
-        explicit npc_guardianAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_guardianAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override
         {
@@ -1327,11 +1324,11 @@ public:
                 player->SendTalentWipeConfirm(creature->GetGUID(), true);
                 break;
             case GOSSIP_OPTION_LEARNDUALSPEC:
-                if (player->GetSpecsCount() == 1 && sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL) > player->GetLevel())
+                if (player->GetSpecsCount() == 1 && !(player->GetLevel() < sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL)))
                 {
                     if (!player->HasEnoughMoney(uint64(10000000)))
                     {
-                        player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, nullptr, 0, 0);
+                        player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
                         player->PlayerTalkClass->SendCloseGossip();
                         break;
                     }
@@ -1524,7 +1521,7 @@ public:
 
     struct npc_steam_tonkAI : public ScriptedAI
     {
-        explicit npc_steam_tonkAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_steam_tonkAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override { }
         void JustEngagedWith(Unit* /*who*/) override { }
@@ -1562,9 +1559,7 @@ public:
 
     struct npc_tonk_mineAI : public ScriptedAI
     {
-        explicit npc_tonk_mineAI(Creature* creature)
-            : ScriptedAI(creature)
-            , ExplosionTimer(3000)
+        npc_tonk_mineAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetReactState(REACT_PASSIVE);
         }
@@ -1615,7 +1610,7 @@ class npc_brewfest_reveler : public CreatureScript
 
         struct npc_brewfest_revelerAI : public ScriptedAI
         {
-            explicit npc_brewfest_revelerAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_brewfest_revelerAI(Creature* creature) : ScriptedAI(creature) { }
 
             void ReceiveEmote(Player* player, uint32 emote) override
             {
@@ -1646,13 +1641,10 @@ public:
 
     struct npc_training_dummyAI : ScriptedAI
     {
-        explicit npc_training_dummyAI(Creature* creature)
-            : ScriptedAI(creature)
-            , entry(creature->GetEntry())
-            , resetTimer(5000)
-            , despawnTimer(15000)
+        npc_training_dummyAI(Creature* creature) : ScriptedAI(creature)
         {
             SetCombatMovement(false);
+            entry = creature->GetEntry();
         }
 
         uint32 entry;
@@ -1683,10 +1675,10 @@ public:
 
         void DamageTaken(Unit* attacker, uint32& damage) override
         {
-            me->GetThreatManager().addThreat(attacker, (float)damage);
+            me->GetThreatManager().addThreat(attacker, damage);
 
             if (Player* owner = attacker->GetCharmerOrOwnerPlayerOrPlayerItself())
-                clearAttackerCombat[owner->GetGUID()] = time(nullptr) + 5;
+                clearAttackerCombat[owner->GetGUID()] = time(NULL) + 5;
             resetTimer = 5000;
 
             if (damage >= me->GetHealth())
@@ -1787,7 +1779,7 @@ class npc_wormhole : public CreatureScript
 
         struct npc_wormholeAI : public PassiveAI
         {
-            explicit npc_wormholeAI(Creature* creature) : PassiveAI(creature) { }
+            npc_wormholeAI(Creature* creature) : PassiveAI(creature) { }
 
             void InitializeAI() override
             {
@@ -2663,7 +2655,7 @@ struct npc_abominated_greench : public ScriptedAI
                 eligiblePlayers.insert(attacker->GetGUID());
     }
 
-    void JustDied(Unit* /*who*/) override
+    void JustDied(Unit* who) override
     {
         for (auto&& guid : eligiblePlayers)
             if (Player* player = ObjectAccessor::FindPlayer(guid))
@@ -2781,7 +2773,7 @@ struct npc_vision_of_the_naaru_stalker : public ScriptedAI
 {
     npc_vision_of_the_naaru_stalker(Creature* creature) : ScriptedAI(creature) { }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(Unit* summoner) override
     {
         DoCast(me, SPELL_VISION_OF_NAARU_COSMETIC);
     }
@@ -2797,19 +2789,19 @@ struct npc_vision_of_the_naaru : public ScriptedAI
     float angleFacing, x, y;
     std::vector<ObjectGuid> tinyDraneiGUIDs;
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(Unit* summoner) override
     {
         // shoul`ve size more than default
         me->SetObjectScale(2.0f);
         x = 0.0f; y = 0.0f;
-        angleFacing = Position::NormalizeOrientation(me->GetOrientation() + M_PI - M_PI / 6.0f);
+        angleFacing = Position::NormalizeOrientation(me->GetOrientation() + M_PI - M_PI / 6);
         tinyDraneiGUIDs.resize(3, ObjectGuid::Empty);
 
         for (uint32 i = 0; i < 3; i++)
         {
-            GetPositionWithDistInOrientation(me, 6.0f, Position::NormalizeOrientation(angleFacing + i * (M_PI / 6.0f)), x, y);
+            GetPositionWithDistInOrientation(me, 6.0f, Position::NormalizeOrientation(angleFacing + i * (M_PI / 6)), x, y);
 
-            if (Creature* tinyDranei = me->SummonCreature(NPC_VERY_TINY_DRANEI, x, y, me->GetPositionZ(), Position::NormalizeOrientation(angleFacing + i * (M_PI / 6.0f) + M_PI), TEMPSUMMON_TIMED_DESPAWN, 8 * IN_MILLISECONDS))
+            if (Creature* tinyDranei = me->SummonCreature(NPC_VERY_TINY_DRANEI, x, y, me->GetPositionZ(), Position::NormalizeOrientation(angleFacing + i * (M_PI / 6) + M_PI), TEMPSUMMON_TIMED_DESPAWN, 8 * IN_MILLISECONDS))
             {
                 GetPositionWithDistInOrientation(tinyDranei, 4.5f, tinyDranei->GetOrientation(), x, y);
                 tinyDraneiGUIDs[i] = tinyDranei->GetGUID();
@@ -2839,7 +2831,7 @@ struct npc_sword_dancers_stalker : public ScriptedAI
 {
     npc_sword_dancers_stalker(Creature* creature) : ScriptedAI(creature) { }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(Unit* summoner) override
     {
         DoCast(me, SPELL_SUMMON_SWORD_DANCERS);
     }
@@ -2855,7 +2847,7 @@ struct npc_sword_dancer : public ScriptedAI
     uint32 delay;
     float spawnedOri, x, y;
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(Unit* summoner) override
     {
         x = 0.0f; y = 0.0f;
         spawnedOri = me->GetOrientation();
@@ -3092,7 +3084,7 @@ struct npc_ethereal_soul_trader : public ScriptedAI
         DoCastAOE(SPELL_ETHEREAL_PET_AURA_REMOVE, true);
     }
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit* killer) override
     {
         events.Reset();
         DoCastAOE(SPELL_ETHEREAL_PET_AURA_REMOVE, true);
@@ -3124,9 +3116,9 @@ struct npc_ethereal_soul_trader : public ScriptedAI
         }
     }
 
-    void AttackStart(Unit* /*victim*/) override { }
+    void AttackStart(Unit* victim) override { }
 
-    void MoveInLineOfSight(Unit* /*who*/) override { }
+    void MoveInLineOfSight(Unit* who) override { }
 
     void UpdateAI(uint32 diff) override
     {
@@ -3193,7 +3185,7 @@ struct npc_sa_demolisher : public VehicleAI
 {
     npc_sa_demolisher(Creature* creature) : VehicleAI(creature) { }
 
-    void JustDied(Unit* /*summoner*/) override
+    void JustDied(Unit* summoner) override
     {
         me->DespawnOrUnsummon(5000);
     }
@@ -3299,7 +3291,7 @@ struct npc_pandaren_firework_launcher : public ScriptedAI
         me->SetDisplayFromModel(1);
 
         scheduler
-            .Schedule(Milliseconds(500), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(500), [this](TaskContext context)
         {
             DoCast(me, SPELL_PANDAREN_FIREWORK_LAUNCHER);
         });

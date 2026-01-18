@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -15,12 +15,15 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Common.h"
 #include "UpdateMask.h"
 #include "Opcodes.h"
 #include "World.h"
 #include "ObjectAccessor.h"
+#include "DatabaseEnv.h"
 #include "GridNotifiers.h"
 #include "CellImpl.h"
+#include "GridNotifiersImpl.h"
 #include "ScriptMgr.h"
 #include "Group.h"
 #include "GroupMgr.h"
@@ -312,7 +315,7 @@ void DynamicObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player
 
 uint32 DynamicObject::GetVisualForTarget(Player const* target) const
 {
-    auto getVisualIfHostile = [this](Player const* target, uint32 hostileViusal)
+    auto getVisualIfHostile = [=](Player const* target, uint32 hostileViusal)
     {
         if (GetMap()->IsBattlegroundOrArena())
         {

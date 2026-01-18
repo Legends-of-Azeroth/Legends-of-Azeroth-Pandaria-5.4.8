@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -548,10 +548,10 @@ class Battleground
         virtual void RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool SendPacket);
                                                             // can be extended in in BG subclass
         // Returns Conquest points award for loser
-        virtual uint32 GetRBGLoserReward(uint32 /*team*/) const { return 0; }
+        virtual uint32 GetRBGLoserReward(uint32 team) const { return 0; }
 
         // To create player score before player enter the arena
-        virtual void OnInvite(Player* /*player*/, GroupQueueInfo const* /*ginfo*/) { }
+        virtual void OnInvite(Player* player, GroupQueueInfo const* ginfo) { }
 
         void HandleTriggerBuff(ObjectGuid go_guid);
         void SetHoliday(bool is_holiday);

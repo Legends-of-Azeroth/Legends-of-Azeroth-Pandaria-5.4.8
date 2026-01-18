@@ -14,15 +14,13 @@
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
+#include "Define.h"
 #include <vector>
 #include <string>
-#include "Define.h"
 
 // Includes list
 void AddSC_mod_exemple();
-#ifdef PLAYERBOTS
-void AddSC_mod_playerbots();
-#endif
+
 
 #include "ModulesLoader.h"
 
@@ -30,8 +28,6 @@ void AddSC_mod_playerbots();
 void AddModulesScripts()
 {
     // Modules
-    AddSC_mod_exemple();
-#ifdef PLAYERBOTS
-    AddSC_mod_playerbots();
-#endif
+        AddSC_mod_exemple();
+
 }

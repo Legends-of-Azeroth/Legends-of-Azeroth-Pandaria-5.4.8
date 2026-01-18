@@ -198,13 +198,17 @@ bool RASession::CheckPassword(const std::string& user, const std::string& pass)
         TC_LOG_INFO("commands.ra", "Wrong password for user: %s", user.c_str());
         return false;
     }
+    else
+    {
+        return true;
+    }
 
-    return true;
+    return false;
 }
 
 bool RASession::ProcessCommand(std::string& command)
 {
-    if (command.empty())
+    if (command.length() == 0)
         return true;
 
     TC_LOG_INFO("commands.ra", "Received command: %s", command.c_str());
@@ -221,7 +225,7 @@ bool RASession::ProcessCommand(std::string& command)
     _commandExecuting = new std::promise<void>();
 
     //CliCommandHolder* cmd = new CliCommandHolder(this, command.c_str(), &RASession::CommandPrint, &RASession::CommandFinished);
-    auto* cmd = new CliCommandHolder(this, command.c_str(), &RASession::zprint, &RASession::CommandFinished);
+    CliCommandHolder* cmd = new CliCommandHolder(this, command.c_str(), &RASession::zprint, &RASession::CommandFinished);
     sWorld->QueueCliCommand(cmd);
 
     // Wait for the command to finish
@@ -235,13 +239,13 @@ void RASession::CommandPrint(void* callbackArg, std::string_view text)
     if (text.empty())
         return;
 
-    auto* session = static_cast<RASession*>(callbackArg);
+    RASession* session = static_cast<RASession*>(callbackArg);
     session->Send(text);
 }
 
 void RASession::CommandFinished(void* callbackArg, bool /*success*/)
 {
-    auto* session = static_cast<RASession*>(callbackArg);
+    RASession* session = static_cast<RASession*>(callbackArg);
     session->_commandExecuting->set_value();
 }
 
@@ -249,7 +253,10 @@ void RASession::zprint(void* callbackArg, const char * szText)
 {
     if (!szText || !callbackArg)
         return;
-    auto* session = static_cast<RASession*>(callbackArg);
+
+    RASession* session = static_cast<RASession*>(callbackArg);
+    size_t sz = strlen(szText);
+
     std::string text(szText);
     session->Send(text);
 }

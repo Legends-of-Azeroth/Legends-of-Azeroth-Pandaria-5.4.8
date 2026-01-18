@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -18,14 +18,17 @@
 #ifndef DeadlineTimer_h__
 #define DeadlineTimer_h__
 
-#include <boost/asio/deadline_timer.hpp>
+#include "Duration.h"
+#include <boost/asio/basic_waitable_timer.hpp>
+#include <boost/asio/io_context.hpp>
 
-#if BOOST_VERSION >= 107000
-#define BasicDeadlineTimerThirdTemplateArg , boost::asio::io_context::executor_type
-#elif BOOST_VERSION >= 106600
-#define BasicDeadlineTimerThirdTemplateArg
-#else
-#define BasicDeadlineTimerThirdTemplateArg , boost::asio::deadline_timer_service<boost::posix_time::ptime, boost::asio::time_traits<boost::posix_time::ptime>>
-#endif
+namespace Trinity::Asio
+{
+class DeadlineTimer : public boost::asio::basic_waitable_timer<std::chrono::steady_clock, boost::asio::wait_traits<std::chrono::steady_clock>, boost::asio::io_context::executor_type>
+{
+public:
+    using basic_waitable_timer::basic_waitable_timer;
+};
+}
 
 #endif // DeadlineTimer_h__

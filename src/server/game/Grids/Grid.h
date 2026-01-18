@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -51,7 +51,7 @@ class Grid
         /** destructor to clean up its resources. This includes unloading the
         grid if it has not been unload.
         */
-        ~Grid() = default;
+        ~Grid() { }
 
         /** an object of interested enters the grid
          */

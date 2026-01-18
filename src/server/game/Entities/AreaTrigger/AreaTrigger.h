@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -54,7 +54,7 @@ class IAreaTrigger
         virtual ~IAreaTrigger() {}
 
         virtual void OnInit() { }
-        virtual void OnUpdate(uint32 /*diff*/) {}
+        virtual void OnUpdate(uint32 diff) {}
         virtual void OnExpire() {}
         virtual void OnDestroy() {}
         virtual void OnPathPointRiched() { }
@@ -111,10 +111,10 @@ class IAreaTriggerAura : public IAreaTrigger
 
         virtual void OnUpdate(uint32 diff) override;
 
-        virtual bool CheckTriggering(WorldObject* /*triggering*/) = 0;
-        virtual void OnTriggeringApply(WorldObject* /*triggering*/) {}
-        virtual void OnTriggeringUpdate(WorldObject* /*triggering*/) {}
-        virtual void OnTriggeringRemove(WorldObject* /*triggering*/) {}
+        virtual bool CheckTriggering(WorldObject* triggering) = 0;
+        virtual void OnTriggeringApply(WorldObject* triggering) {}
+        virtual void OnTriggeringUpdate(WorldObject* triggering) {}
+        virtual void OnTriggeringRemove(WorldObject* triggering) {}
 
         void OnRemoveFromWorld() final;
         bool IsInBox(Unit* target, float extentsX, float extentsY, float extentsZ);

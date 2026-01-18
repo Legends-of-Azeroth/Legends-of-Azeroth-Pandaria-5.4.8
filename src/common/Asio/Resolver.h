@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -33,9 +33,9 @@ namespace Trinity
         class Resolver
         {
         public:
-            explicit Resolver(boost::asio::any_io_executor executor) : _impl(executor) { }
+            explicit Resolver(IoContext& ioContext) : _impl(ioContext) { }
 
-            Optional<boost::asio::ip::tcp::endpoint> Resolve(boost::asio::ip::tcp const& protocol, std::string_view host, std::string_view service)
+            Optional<boost::asio::ip::tcp::endpoint> Resolve(boost::asio::ip::tcp const& protocol, std::string const& host, std::string const& service)
             {
                 boost::system::error_code ec;
                 boost::asio::ip::resolver_base::flags flagsResolver = boost::asio::ip::resolver_base::all_matching;
@@ -44,18 +44,6 @@ namespace Trinity
                     return {};
 
                 return results.begin()->endpoint();
-            }
-
-            std::vector<boost::asio::ip::tcp::endpoint> ResolveAll(std::string_view host, std::string_view service)
-            {
-                boost::system::error_code ec;
-                boost::asio::ip::resolver_base::flags flagsResolver = boost::asio::ip::resolver_base::all_matching;
-                boost::asio::ip::tcp::resolver::results_type results = _impl.resolve(host, service, flagsResolver, ec);
-                std::vector<boost::asio::ip::tcp::endpoint> result;
-                if (!ec)
-                    std::ranges::transform(results, std::back_inserter(result), [](boost::asio::ip::tcp::resolver::results_type::value_type const& entry) { return entry.endpoint(); });
-
-                return result;
             }
 
         private:

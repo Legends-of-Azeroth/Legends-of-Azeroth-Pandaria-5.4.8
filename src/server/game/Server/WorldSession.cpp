@@ -19,7 +19,7 @@
     \ingroup u2w
 */
 
-#include "WorldSocket.h"                                    // must be first to make ACE happy with ACE includes in it
+#include "WorldSocket.h"
 #include "Config.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -28,8 +28,6 @@
 #include "Opcodes.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-
-#include <memory>
 #include "Player.h"
 #include "Vehicle.h"
 #include "ObjectMgr.h"
@@ -99,7 +97,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
         return true;
 
     //lets process all packets for non-in-the-world player
-    return !player->IsInWorld();
+    return (player->IsInWorld() == false);
 }
 
 /// WorldSession constructor
@@ -124,7 +122,6 @@ WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, Account
     m_sessionDbLocaleIndex(locale),
     m_latency(0),
     m_clientTimeDelay(0),
-    m_flags(flags),
     m_TutorialsChanged(false),
     _filterAddonMessages(false),
     recruiterId(recruiter),
@@ -143,7 +140,7 @@ WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, Account
 
     // At current time it will never be removed from container, so pointer must be valid all of the session life time.
 
-    _achievementMgr = std::make_unique<AccountAchievementMgr>();
+    _achievementMgr.reset(new AccountAchievementMgr(this));
 }
 
 /// WorldSession destructor

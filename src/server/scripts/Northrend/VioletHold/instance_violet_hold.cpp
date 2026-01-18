@@ -19,6 +19,7 @@
 #include "violet_hold.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
+#include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
 #define MAX_ENCOUNTER          3

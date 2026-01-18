@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "Common.h"
+#include "Language.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "World.h"
@@ -24,6 +25,7 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "Guild.h"
+#include "ArenaTeam.h"
 #include "GossipDef.h"
 #include "SocialMgr.h"
 #include "ScriptMgr.h"

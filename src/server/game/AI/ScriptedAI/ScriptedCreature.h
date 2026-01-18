@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -163,7 +163,8 @@ struct ScriptedAI : public CreatureAI
     virtual void UpdateAI(uint32 diff) override;
 
     // Called when AI is temporarily replaced or put back when possess is applied or removed
-    virtual void OnPossess(bool /*apply*/) { }
+    void OnPossess(bool /*apply*/)
+    { }
 
     // *************
     // Variables

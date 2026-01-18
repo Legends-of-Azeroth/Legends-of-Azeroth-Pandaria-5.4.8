@@ -19,6 +19,7 @@
 #include "BattlefieldWG.h"
 #include "Battlefield.h"
 #include "ScriptSystem.h"
+#include "WorldSession.h"
 #include "ObjectMgr.h"
 #include "Vehicle.h"
 #include "GameObjectAI.h"

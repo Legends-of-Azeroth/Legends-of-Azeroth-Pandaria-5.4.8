@@ -25,6 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "old_hillsbrad.h"
+#include "ScriptedEscortAI.h"
 
 /*######
 ## go_barrel_old_hillsbrad

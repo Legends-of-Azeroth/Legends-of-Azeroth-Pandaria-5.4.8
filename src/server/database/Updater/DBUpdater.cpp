@@ -22,6 +22,7 @@
 #include "DatabaseLoader.h"
 #include "GitRevision.h"
 #include "Log.h"
+#include "QueryResult.h"
 #include "StartProcess.h"
 #include "UpdateFetcher.h"
 #include <boost/filesystem/operations.hpp>

@@ -27,6 +27,7 @@
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "CreatureTextMgr.h"
 #include "Unit.h"
 #include "Player.h"
@@ -35,6 +36,7 @@
 #include "Map.h"
 #include "VehicleDefines.h"
 #include "SpellInfo.h"
+#include <utility>
 #include "throne_of_thunder.h"
 
 enum Yells
@@ -402,7 +404,7 @@ class boss_megaera : public CreatureScript
                 _JustEngagedWith();
 
                 scheduler
-                    .Schedule(Milliseconds(IsHeroic() ? TIMER_BERSERK_H : TIMER_BERSERK), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(IsHeroic() ? TIMER_BERSERK_H : TIMER_BERSERK), [this](TaskContext context)
                 {
                     DoCast(me, SPELL_BERSERK);
                     SendHeadsAction(ACTION_BERSERK);
@@ -498,7 +500,7 @@ class boss_megaera : public CreatureScript
 
                         // Megera Rampage 
                         scheduler
-                            .Schedule(Milliseconds(4500), [this](TaskContext /*context*/)
+                            .Schedule(Milliseconds(4500), [this](TaskContext context)
                         {
                             if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SLG_GENERIC_MOP) : ObjectGuid::Empty))
                                 announcer->AI()->Talk(ANN_RAMPAGE_ADDIT);
@@ -510,7 +512,7 @@ class boss_megaera : public CreatureScript
 
                         // Rampage Done
                         scheduler
-                            .Schedule(Milliseconds(24500), [this](TaskContext /*context*/)
+                            .Schedule(Milliseconds(24500), [this](TaskContext context)
                         {
                             me->RemoveAurasDueToSpell(SPELL_RAMPAGE);
 
@@ -741,7 +743,7 @@ struct megaeraHeadsBaseAI : public ScriptedAI
         me->NearTeleportTo(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY(), me->GetHomePosition().GetPositionZ(), me->GetHomePosition().GetOrientation());
 
         scheduler
-            .Schedule(Seconds(2), [this](TaskContext /*context*/)
+            .Schedule(Seconds(2), [this](TaskContext context)
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
         });
@@ -817,14 +819,14 @@ struct megaeraHeadsBaseAI : public ScriptedAI
                     spawner->AI()->SetData(TYPE_HEAD_SPAWNED, 0);
 
                 scheduler
-                    .Schedule(Milliseconds(1200), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(1200), [this](TaskContext context)
                 {
                     DoCast(me, SPELL_EMERGE);
                     me->NearTeleportTo(invHeadCombatType.find(me->GetEntry())->second.GetPositionX(), invHeadCombatType.find(me->GetEntry())->second.GetPositionY(), invHeadCombatType.find(me->GetEntry())->second.GetPositionZ(), invHeadCombatType.find(me->GetEntry())->second.GetOrientation());
                 });
             
                 scheduler
-                    .Schedule(Milliseconds(2700), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(2700), [this](TaskContext context)
                 {
                     me->RemoveAurasDueToSpell(SPELL_EMERGE);
                     me->RemoveAurasDueToSpell(SPELL_CONCEALING_FOG);
@@ -843,7 +845,7 @@ struct megaeraHeadsBaseAI : public ScriptedAI
             case ACTION_MEGERA_RAGE:
                 events.ScheduleEvent(EVENT_MEGAERAS_RAGE, urand(0.5 * IN_MILLISECONDS, 1.5 * IN_MILLISECONDS));
                 scheduler
-                    .Schedule(Milliseconds(20000), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(20000), [this](TaskContext context)
                 {
                     inRampage = false;
                 });
@@ -860,13 +862,13 @@ struct megaeraHeadsBaseAI : public ScriptedAI
                 me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
 
                 scheduler
-                    .Schedule(Milliseconds(1200), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(1200), [this](TaskContext context)
                 {
                     DoCast(me, SPELL_EMERGE);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(2700), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(2700), [this](TaskContext context)
                 {
                     me->RemoveAurasDueToSpell(SPELL_EMERGE);
                 });

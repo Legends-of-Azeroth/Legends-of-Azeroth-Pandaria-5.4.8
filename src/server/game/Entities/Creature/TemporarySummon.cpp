@@ -18,6 +18,7 @@
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "CreatureAI.h"
+#include "ObjectMgr.h"
 #include "TemporarySummon.h"
 #include "Pet.h"
 #include "Player.h"

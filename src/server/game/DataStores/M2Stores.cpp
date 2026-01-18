@@ -16,6 +16,7 @@
 */
 
 #include "DBCStores.h"
+#include "Common.h"
 #include "Containers.h"
 #include "Log.h"
 #include "M2Structure.h"
@@ -24,6 +25,7 @@
 #include <boost/filesystem/path.hpp>
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <algorithm>
 #include <cctype>
 #include <string>

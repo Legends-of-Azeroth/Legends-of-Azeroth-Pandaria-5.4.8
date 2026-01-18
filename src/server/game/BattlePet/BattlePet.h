@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -310,16 +310,16 @@ class BattlePet
 public:
     // new battle pet
     BattlePet(uint64 id, uint32 speciesId, uint8 family, uint8 level, uint8 quality, uint8 breedId, Player* owner = nullptr)
-        : m_owner(owner), m_id(id), m_timestamp(0), m_species(speciesId), m_family(family), m_level(level), m_xp(0), m_curHealth(0),
-        m_quality(quality), m_breed(breedId), m_flags(0),
-        m_dbState(BATTLE_PET_DB_STATE_SAVE) { Initialise(true); }
+        : m_id(id), m_species(speciesId), m_family(family), m_breed(breedId), m_nickname(""), m_timestamp(0), m_level(level), m_xp(0), m_curHealth(0),
+        m_quality(quality), m_flags(0), m_dbState(BATTLE_PET_DB_STATE_SAVE),
+        m_owner(owner) { Initialise(true); }
 
     // load from database
     BattlePet(uint64 id, uint32 speciesId, uint8 family, std::string nickname, uint32 timestamp,
         uint8 level, uint16 xp, uint16 curHealth, uint8 quality, uint8 breedId, uint16 flags, Player* owner)
-        : m_owner(owner), m_id(id), m_nickname(nickname), m_timestamp(timestamp), m_species(speciesId), m_family(family), m_level(level), m_xp(xp),
-         m_curHealth(curHealth), m_quality(quality), m_breed(breedId), m_flags(flags),
-         m_dbState(BATTLE_PET_DB_STATE_NONE) { Initialise(false); }
+        : m_id(id), m_species(speciesId), m_family(family), m_nickname(nickname), m_timestamp(timestamp), m_level(level), m_xp(xp), m_curHealth(curHealth),
+         m_quality(quality), m_breed(breedId), m_flags(flags), m_dbState(BATTLE_PET_DB_STATE_NONE),
+         m_owner(owner) { Initialise(false); }
 
     ~BattlePet();
 

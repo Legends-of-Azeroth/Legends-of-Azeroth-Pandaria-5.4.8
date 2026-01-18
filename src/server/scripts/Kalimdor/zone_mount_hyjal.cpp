@@ -59,7 +59,7 @@ class npc_garr : public CreatureScript
 
         struct npc_garrAI : public ScriptedAI
         {
-            explicit npc_garrAI(Creature* creature) : ScriptedAI(creature)
+            npc_garrAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -117,7 +117,6 @@ class npc_garr : public CreatureScript
                                 DoCast(pTarget, SPELL_ANTIMAGIC_PULSE);
                             events.ScheduleEvent(EVENT_ANTIMAGIC_PULSE, urand(12000, 16000));
                             break;
-                        default: break;
                     }
                 }
 
@@ -138,7 +137,7 @@ class npc_garr_firesworn : public CreatureScript
 
         struct npc_garr_fireswornAI : public ScriptedAI
         {
-            explicit npc_garr_fireswornAI(Creature* creature) : ScriptedAI(creature)
+            npc_garr_fireswornAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -231,7 +230,7 @@ class npc_marion_wormswing : public CreatureScript
 
         struct npc_marion_wormswingAI : public ScriptedAI
         {
-            explicit npc_marion_wormswingAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_marion_wormswingAI(Creature* creature) : ScriptedAI(creature) { }
 
             void DamageTaken(Unit* attacker, uint32& damage) override
             {
@@ -285,7 +284,7 @@ class npc_soft_target : public CreatureScript
 
         struct npc_soft_targetAI : public CreatureAI
         {
-            explicit npc_soft_targetAI(Creature* creature) : CreatureAI(creature)
+            npc_soft_targetAI(Creature* creature) : CreatureAI(creature)
             {
                 timer = 0;
                 clearTimer = 0;
@@ -300,9 +299,9 @@ class npc_soft_target : public CreatureScript
                     Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, check);
                     me->VisitNearbyWorldObject(10.0f, searcher);
 
-                    for (auto player : players)
+                    for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
-                        if (player)
+                        if (Player* player = *itr)
                         {
                             if (player->IsFalling() || me->GetExactDist2d(player) > 2.5f || player->GetPositionZ() > 1366.0f)
                                 continue;
@@ -413,7 +412,7 @@ class npc_wings_of_aviana : public CreatureScript
         {
             npc_wings_of_avianaAI(Creature* creature) : VehicleAI(creature) { }
 
-            void PassengerBoarded(Unit* /*who*/, int8 /*seatId*/, bool /*boarded*/) override
+            void PassengerBoarded(Unit* who, int8 seatId, bool boarded) override
             {
                 me->SetSpeed(MOVE_FLIGHT, me->GetSpeedRate(MOVE_RUN));
             }
@@ -439,7 +438,7 @@ class npc_flamewaker_sentinel : public CreatureScript
 
         struct npc_flamewaker_sentinelAI : public ScriptedAI
         {
-            explicit npc_flamewaker_sentinelAI(Creature* creature) : ScriptedAI(creature)
+            npc_flamewaker_sentinelAI(Creature* creature) : ScriptedAI(creature)
             {
                 timer = 5000;
                 me->SetReactState(REACT_DEFENSIVE);
@@ -751,13 +750,13 @@ struct npc_hyjal_aronus_ride : public CreatureAI
         delay = 0;
 
         scheduler
-            .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(1500), [this](TaskContext context)
         {
             me->GetMotionMaster()->MovePoint(0, aronusFlyPos);
 
             delay = me->GetSplineDuration();
             scheduler
-                .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
+                .Schedule(Milliseconds(delay), [this](TaskContext context)
             {
                 DoCast(me, SPELL_HYJAL_INTRO_PORT);
 
@@ -769,13 +768,13 @@ struct npc_hyjal_aronus_ride : public CreatureAI
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 1500), [this](TaskContext /*context*/)
+                .Schedule(Milliseconds(delay += 1500), [this](TaskContext context)
             {
                 me->GetMotionMaster()->MovePoint(0, aronusTelePos.GetPositionX() + 5.0f, aronusTelePos.GetPositionY(), aronusTelePos.GetPositionZ(), aronusTelePos.GetOrientation()); // updating
             });
 
             scheduler
-                .Schedule(Milliseconds(delay += 2000), [this](TaskContext /*context*/)
+                .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
             {
                 me->StopMoving();
                 Movement::MoveSplineInit init(me);
@@ -787,13 +786,13 @@ struct npc_hyjal_aronus_ride : public CreatureAI
 
                 delay = me->GetSplineDuration() + 1500;
                 scheduler
-                    .Schedule(Milliseconds(delay), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(delay), [this](TaskContext context)
                 {
                     Talk(TALK_INTRO);
                 });
 
                 scheduler
-                    .Schedule(Milliseconds(delay += 1000), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(delay += 1000), [this](TaskContext context)
                 {
                     me->StopMoving();
                     Movement::MoveSplineInit init(me);
@@ -804,7 +803,7 @@ struct npc_hyjal_aronus_ride : public CreatureAI
                     init.Launch();
 
                     scheduler
-                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
+                        .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
                     {
                         Talk(TALK_SPECIAL_1);
 
@@ -818,7 +817,7 @@ struct npc_hyjal_aronus_ride : public CreatureAI
                         init.Launch();
 
                         scheduler
-                            .Schedule(Milliseconds(me->GetSplineDuration() + 7800), [this](TaskContext /*context*/)
+                            .Schedule(Milliseconds(me->GetSplineDuration() + 7800), [this](TaskContext context)
                         {
                             Talk(TALK_SPECIAL_2);
 
@@ -832,7 +831,7 @@ struct npc_hyjal_aronus_ride : public CreatureAI
                             init.Launch();
 
                             scheduler
-                                .Schedule(Milliseconds(me->GetSplineDuration() + 1000), [this](TaskContext /*context*/)
+                                .Schedule(Milliseconds(me->GetSplineDuration() + 1000), [this](TaskContext context)
                             {
                                 if (Player* target = ObjectAccessor::GetPlayer(*me, targetGUID))
                                 {
@@ -1060,7 +1059,7 @@ class AreaTrigger_at_hyjal_alysra : public AreaTriggerScript
     public:
         AreaTrigger_at_hyjal_alysra() : AreaTriggerScript("AreaTrigger_at_hyjal_alysra") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
         {
             if (player->GetQuestStatus(QUEST_THROUGH_THE_DREAM) == QUEST_STATUS_INCOMPLETE)
                 player->CompleteQuest(QUEST_THROUGH_THE_DREAM);

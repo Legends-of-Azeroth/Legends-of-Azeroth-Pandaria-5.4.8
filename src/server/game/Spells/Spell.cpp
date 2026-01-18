@@ -16,7 +16,9 @@
 */
 
 #include "Common.h"
+#include "DatabaseEnv.h"
 #include "WorldPacket.h"
+#include "WorldSession.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Opcodes.h"
@@ -56,6 +58,7 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "SpellHistory.h"
+#include "Guild.h"
 #include "LootLockoutMap.h"
 #include "BattlePetMgr.h"
 #include "TradeData.h"

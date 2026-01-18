@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -611,7 +611,7 @@ void InstanceScript::DoDampeningForCreatures(Creature* creature)
     }
 
     if (Pet* pet = creature->ToPet())
-        if (pet->GetOwner())
+        if (Player* player = pet->GetOwner())
             return;
 
     if (TempSummon* temp = creature->ToTempSummon())
@@ -774,16 +774,16 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
     instance->SendToPlayers(&data);
 }
 
-bool InstanceScript::IsWipe(float /*range*/, Unit* /*source*/)
+bool InstanceScript::IsWipe(float range, Unit* source)
 {
     Map::PlayerList const& PlayerList = instance->GetPlayers();
 
     if (PlayerList.isEmpty())
         return true;
 
-    for (const auto & Itr : PlayerList)
+    for (Map::PlayerList::const_iterator Itr = PlayerList.begin(); Itr != PlayerList.end(); ++Itr)
     {
-        Player* player = Itr.GetSource();
+        Player* player = Itr->GetSource();
 
         if (!player)
             continue;
@@ -803,8 +803,9 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
 
     uint32 dungeonId = 0;
 
-    for (auto encounter : *encounters)
+    for (DungeonEncounterList::const_iterator itr = encounters->begin(); itr != encounters->end(); ++itr)
     {
+        DungeonEncounter const* encounter = *itr;
         if (encounter->creditType == type && encounter->creditEntry == creditEntry)
         {
             completedEncounters |= 1 << encounter->dbcEntry->encounterIndex;

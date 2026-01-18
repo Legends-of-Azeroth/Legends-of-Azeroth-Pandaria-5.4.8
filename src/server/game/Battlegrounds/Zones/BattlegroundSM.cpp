@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -276,9 +276,9 @@ void BattlegroundSM::ProcessCartTicks()
 
                     if (player->IsWithinDistInMap(cart, 22.0f) )
                     {
-                        auto itr2 = m_playerTicks[i].find(itr.first.GetCounter());
+                        auto itr2 = m_playerTicks[i].find(itr.first);
                         if (itr2 == m_playerTicks[i].end())
-                            itr2 = m_playerTicks[i].insert({ itr.first.GetCounter(), 0 }).first;
+                            itr2 = m_playerTicks[i].insert({ itr.first, 0 }).first;
 
                         ++itr2->second;
                     }

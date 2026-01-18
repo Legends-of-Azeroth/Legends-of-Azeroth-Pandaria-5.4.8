@@ -912,22 +912,27 @@ struct RealmCompletedChallenge
 {
     struct ChallengeMember
     {
-        ChallengeMember() :
-                Guid(ObjectGuid::Empty),
-                SpecId(0) {}
+        ChallengeMember()
+        {
+            Guid = ObjectGuid::Empty;
+            SpecId = 0;
+        }
 
-        ObjectGuid Guid{};
-        uint32 SpecId{};
+        ObjectGuid Guid;
+        uint32 SpecId;
     };
 
-    RealmCompletedChallenge() = default;
+    RealmCompletedChallenge()
+    {
+        memset(this, 0, sizeof (RealmCompletedChallenge));
+    }
 
-    uint32 GuildId{0};
-    uint32 AttemptId{0};
-    uint32 CompletionTime{0};
-    uint32 CompletionDate{0};
-    uint8 MedalEarned{0};
-    uint8 MembersCount{0};
+    uint32 GuildId;
+    uint32 AttemptId;
+    uint32 CompletionTime;
+    uint32 CompletionDate;
+    uint8 MedalEarned;
+    uint8 MembersCount;
 
     ChallengeMember Members[5];
 };
@@ -939,11 +944,11 @@ struct ChallengeReward
         memset(this, 0, sizeof(ChallengeReward));
     }
 
-    uint32 MapId{0};
-    uint32 MoneyReward[4]{0};
-    uint32 ValorReward[4]{0};
-    uint32 TitleID{0};
-    uint32 AchievementID{0};
+    uint32 MapId;
+    uint32 MoneyReward[4];
+    uint32 ValorReward[4];
+    uint32 TitleID;
+    uint32 AchievementID;
 };
 
 typedef std::vector<GuildChallengeReward> GuildChallengeRewardData;

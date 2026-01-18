@@ -31,7 +31,7 @@ namespace Trinity
         class Strand : public boost::asio::io_context::strand
         {
         public:
-            Strand(Trinity::Asio::IoContext& ioContext) : boost::asio::io_context::strand(ioContext) { }
+            Strand(IoContext& ioContext) : boost::asio::io_context::strand(ioContext) { }
         };
 
         using boost::asio::bind_executor;

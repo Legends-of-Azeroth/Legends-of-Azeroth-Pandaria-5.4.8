@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -32,6 +32,7 @@
 #include "AuctionHouseMgr.h"
 #include "Chat.h"
 #include "WordFilterMgr.h"
+#include "Realm.h"
 
 void WorldSession::HandleSendMail(WorldPacket& recvData)
 {
@@ -501,7 +502,7 @@ void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
         return;
     }
 
-    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL))
+    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(nullptr))
     {
         player->SendMailResult(mailId, MAIL_RETURNED_TO_SENDER, MAIL_ERR_INTERNAL_ERROR);
         return;
@@ -583,7 +584,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
     Player* player = _player;
 
     Mail* m = player->GetMail(mailId);
-    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL))
+    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(nullptr))
     {
         player->SendMailResult(mailId, MAIL_ITEM_TAKEN, MAIL_ERR_INTERNAL_ERROR);
         return;
@@ -703,7 +704,7 @@ void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
     Player* player = _player;
 
     Mail* m = player->GetMail(mailId);
-    if ((!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL)) ||
+    if ((!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(nullptr)) ||
         (money > 0 && m->money != money))
     {
         player->SendMailResult(mailId, MAIL_MONEY_TAKEN, MAIL_ERR_INTERNAL_ERROR);
@@ -725,7 +726,7 @@ void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
             attachments << tok[0] << ":" << tok[4];
         }
 
-        uint32 guid;
+        uint32 guid = 0;
         Tokenizer tok2(m->body, ':');
         if (tok.size() == 5)
         {
@@ -734,7 +735,7 @@ void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
             {
                 case AUCTION_SUCCESSFUL:    // Money from another player.
                     if (tok2.size() == 5)
-                        guid = strtoul(tok2[0], NULL, 16);
+                        guid = strtoul(tok2[0], nullptr, 16);
                     else
                         attachments << " Unexpected mail body \"" << m->body << '\"';
                     break;
@@ -802,7 +803,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
 
     uint32 mailCount = 0;
     uint32 realCount = 0;                               // true mail count (includes any skipped mail)
-    time_t cur_time = time(NULL);
+    time_t cur_time = time(nullptr);
     ByteBuffer mailData;
 
     WorldPacket data(SMSG_MAIL_LIST_RESULT, 200);       // guess size
@@ -914,7 +915,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
         mailData << uint64(mail->COD);
         mailData.WriteString(mail->subject);
         mailData << uint32(mail->stationery);
-        mailData << float(float(mail->expire_time - time(nullptr)) / (float)DAY);
+        mailData << float(float(mail->expire_time - time(nullptr)) / DAY);
         mailData << uint64(mail->money);
         mailData << uint32(mail->checked);
 
@@ -978,7 +979,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     Player* player = _player;
 
     Mail* m = player->GetMail(mailId);
-    if (!m || (m->body.empty() && !m->mailTemplateId) || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL))
+    if (!m || (m->body.empty() && !m->mailTemplateId) || m->state == MAIL_STATE_DELETED || m->deliver_time > time(nullptr))
     {
         player->SendMailResult(mailId, MAIL_MADE_PERMANENT, MAIL_ERR_INTERNAL_ERROR);
         return;

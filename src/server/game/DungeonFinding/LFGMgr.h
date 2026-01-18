@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -154,7 +154,7 @@ typedef std::unordered_map<uint32, LFGDungeonData> LFGDungeonContainer;
 // Data needed by SMSG_LFG_JOIN_RESULT
 struct LfgJoinResultData
 {
-    explicit LfgJoinResultData(LfgJoinResult _result = LFG_JOIN_OK, LfgRoleCheckState _state = LFG_ROLECHECK_DEFAULT):
+    LfgJoinResultData(LfgJoinResult _result = LFG_JOIN_OK, LfgRoleCheckState _state = LFG_ROLECHECK_DEFAULT):
         result(_result), state(_state) { }
     LfgJoinResult result;
     LfgRoleCheckState state;
@@ -164,7 +164,7 @@ struct LfgJoinResultData
 // Data needed by SMSG_LFG_QUEUE_STATUS
 struct LfgQueueStatusData
 {
-    explicit LfgQueueStatusData(uint32 queueId = 0, uint32 dungeonId = 0, time_t joinTime = 0, int32 waitTime = -1, int32 waitTimeAvg = -1, int32 waitTimeTank = -1, int32 waitTimeHealer = -1,
+    LfgQueueStatusData(uint32 queueId = 0, uint32 dungeonId = 0, time_t joinTime = 0, int32 waitTime = -1, int32 waitTimeAvg = -1, int32 waitTimeTank = -1, int32 waitTimeHealer = -1,
         int32 waitTimeDps = -1, uint32 queuedTime = 0, uint8 tanks = 0, uint8 healers = 0, uint8 dps = 0) :
         queueId(queueId), dungeonId(dungeonId), joinTime(joinTime), waitTime(waitTime), waitTimeAvg(waitTimeAvg), waitTimeTank(waitTimeTank),
         waitTimeHealer(waitTimeHealer), waitTimeDps(waitTimeDps), queuedTime(queuedTime), tanks(tanks), healers(healers), dps(dps) { }
@@ -197,7 +197,7 @@ struct LfgPlayerRewardData
 /// Reward info
 struct LfgReward
 {
-    explicit LfgReward(uint32 _maxLevel = 0, uint32 _firstQuest = 0, uint32 _otherQuest = 0):
+    LfgReward(uint32 _maxLevel = 0, uint32 _firstQuest = 0, uint32 _otherQuest = 0):
         maxLevel(_maxLevel), firstQuest(_firstQuest), otherQuest(_otherQuest) { }
 
     uint32 maxLevel;
@@ -218,7 +218,7 @@ struct LfgProposalPlayer
 /// Stores group data related to proposal to join
 struct LfgProposal
 {
-    explicit LfgProposal(bool raid = false, uint32 dungeon = 0): id(0), raid(raid), dungeonId(dungeon), state(LFG_PROPOSAL_INITIATING),
+    LfgProposal(bool raid = false, uint32 dungeon = 0): id(0), raid(raid), dungeonId(dungeon), state(LFG_PROPOSAL_INITIATING),
         group(), leader(), cancelTime(0), encounters(0), isNew(true)
         { }
 
@@ -267,12 +267,12 @@ struct LFGDungeonData
         maxlevel(0), difficulty(REGULAR_DIFFICULTY), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
         requiredItemLevel(0), tanksNeeded(0), healersNeeded(0), dpsNeeded(0), faction(0)
         { }
-    explicit LFGDungeonData(LFGDungeonEntry const* dbc): id(dbc->ID), name(dbc->name[DEFAULT_LOCALE]), map(dbc->map),
+    LFGDungeonData(LFGDungeonEntry const* dbc): id(dbc->ID), name(dbc->name[DEFAULT_LOCALE]), map(dbc->map),
         type(dbc->type), expansion(dbc->expansion), group(dbc->grouptype),
         minlevel(dbc->minlevel), maxlevel(dbc->maxlevel), difficulty(Difficulty(dbc->difficulty)),
-        category(LfgCategory(dbc->category)), seasonal(dbc->flags & LFG_FLAG_SEASONAL), x(0.0f), y(0.0f), z(0.0f),
-        o(0.0f), requiredItemLevel(0), tanksNeeded(dbc->tankNeeded), healersNeeded(dbc->healerNeeded),
-        dpsNeeded(dbc->dpsNeeded), faction(dbc->faction)
+        seasonal(dbc->flags & LFG_FLAG_SEASONAL), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
+        requiredItemLevel(0), tanksNeeded(dbc->tankNeeded), healersNeeded(dbc->healerNeeded), dpsNeeded(dbc->dpsNeeded),
+        faction(dbc->faction), category(LfgCategory(dbc->category))
         { }
 
     uint32 id;
@@ -289,7 +289,7 @@ struct LFGDungeonData
     float x, y, z, o;
     uint16 requiredItemLevel;
     uint8 tanksNeeded, healersNeeded, dpsNeeded;
-    int32 faction;
+    int8 faction;
 
     // Helpers
     uint32 Entry() const { return id + (type << 24); }

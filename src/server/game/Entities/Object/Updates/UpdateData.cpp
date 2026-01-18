@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -15,11 +15,14 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Common.h"
 #include "ByteBuffer.h"
 #include "WorldPacket.h"
 #include "UpdateData.h"
+#include "Log.h"
 #include "Opcodes.h"
 #include "World.h"
+#include "zlib.h"
 
 UpdateData::UpdateData(uint16 map) : m_map(map), m_blockCount(0) { }
 

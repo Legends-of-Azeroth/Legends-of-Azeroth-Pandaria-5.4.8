@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -15,15 +15,19 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Common.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "WorldSession.h"
 #include "DatabaseEnv.h"
+#include "DBCStores.h"
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "BlackMarketMgr.h"
 #include "Item.h"
+#include "Language.h"
 #include "Log.h"
 #include "Random.h"
 #include <vector>
