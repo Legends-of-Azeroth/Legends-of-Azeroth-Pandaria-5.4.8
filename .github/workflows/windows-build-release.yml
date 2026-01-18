@@ -33,7 +33,7 @@ jobs:
         cmake -E make_directory ${{ env.BUILD_DIR }}
  
     - name: Install boost
-      uses: MarkusJx/install-boost@v2.4.5
+      uses: MarkusJx/install-boost@v2.5.1
       id: install-boost
       with:
           # REQUIRED: Specify the required boost version
