@@ -123,12 +123,12 @@ class boss_commander_durand : public CreatureScript
                     instance->SetData(BOSS_DURAND, DONE);
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
-                    // Quest Ender 
-                    if (Creature* HoodedCrusader = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_HOODED_CRUSADER_OUTRO)))
-                    {
-                        HoodedCrusader->SetVisible(true);
-                        HoodedCrusader->GetMotionMaster()->MovePoint(0, Whitemane_intro);
-                    }
+                    // // Quest Ender 
+                    // if (Creature* HoodedCrusader = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_HOODED_CRUSADER_OUTRO)))
+                    // {
+                    //     HoodedCrusader->SetVisible(true);
+                    //     HoodedCrusader->GetMotionMaster()->MovePoint(0, Whitemane_intro);
+                    // }
                 }
             }
 
@@ -392,6 +392,39 @@ class boss_high_inqusitior_whitemane : public CreatureScript
                 // Quest Object
                 DoCast(me, SPELL_WHITEMANE_CORPSE_SPELL_FOCUS);
                 DoCastAOE(SPELL_WHITEMANE_KILL_CREDIT);
+
+                // https://www.wowhead.com/mop-classic/spell=126791/unto-dust-thou-shalt-return-summon-high-inquisitor-whitemanes-soul-target#screenshots
+                // https://www.wowhead.com/mop-classic/spell=126802/unto-dust-thou-shalt-return-summon-unquenchable
+                // https://www.wowhead.com/mop-classic/spell=126832/unto-dust-thou-shalt-return-summon-hand-of-providence
+                // https://www.wowhead.com/mop-classic/spell=126795/unto-dust-thou-shalt-return-soul-missile
+                // https://www.wowhead.com/mop-classic/spell=126789/unto-dust-thou-shalt-return-summon-high-inquisitor-whitemanes-corpse-spell-focus
+
+                // hackfix
+                // if (player->GetQuestStatus(31514) == QUEST_STATUS_INCOMPLETE)
+                // {
+                    DoSpawnCreature(NPC_Q31514_KILL_CREDIT, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                // }
+                // if (player->GetQuestStatus(31516) == QUEST_STATUS_INCOMPLETE)
+                // {
+                    DoSpawnCreature(NPC_Q31516_KILL_CREDIT, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                // }
+
+                // Quest Ender 
+                if (Creature* HoodedCrusader = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_HOODED_CRUSADER_OUTRO)))
+                {
+                    HoodedCrusader->SetVisible(true);
+                    HoodedCrusader->GetMotionMaster()->MovePoint(0, Whitemane_intro);
+                }
+                // RP event https://wowpedia.fandom.com/wiki/Unto_Dust_Thou_Shalt_Return
+                // Hooded Crusader says: It is done. You did it, <name>!
+                // The Hooded Crusader leaps from where she appeared to Whitemane's corpse.
+                // The Hooded Crusader gazes down upon the high inquisitor's blade-skewered corpse.
+                // Hooded Crusader says: And now enough of this deception.
+                // The Hooded Crusader sheds her disguise.
+                // Lilian Voss says: Hello, my name's Lilian. You don't mind if I take those blades, do you?
+                // The blades transform as she pulls them from Whitemane's corpse.
+                // Lilian Voss says: Yes, these will do quite nicely. They feel almost as if they were meant for me all along.
+
             }
 
             void EnterEvadeMode() override
