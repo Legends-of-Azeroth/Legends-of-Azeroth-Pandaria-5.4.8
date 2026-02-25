@@ -32,11 +32,14 @@ INSERT INTO `quest_request_items` (`ID`, `EmoteOnComplete`, `EmoteOnIncomplete`,
 -- Lilian Voss says: Hello, my name's Lilian. You don't mind if I take those blades, do you?
 -- The blades transform as she pulls them from Whitemane's corpse.
 -- Lilian Voss says: Yes, these will do quite nicely. They feel almost as if they were meant for me all along.
-DELETE FROM `creature_text` WHERE `ID`=64842;
+DELETE FROM `creature_text` WHERE `CreatureID`=64842;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `SoundType`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
-(64842, 1, 0, 'It is done. You did it, $p!', 12, 0, 100, 0, 0, 0, 0, 65470, 0, 'Hooded Crusader'),
-(64842, 1, 1, 'The Hooded Crusader gazes down upon the high inquisitor\'s blade-skewered corpse.', 12, 0, 100, 0, 0, 0, 0, 65473, 0, 'Hooded Crusader'),
-(64842, 1, 1, 'And now enough of this deception.', 12, 0, 100, 0, 0, 0, 0, 65471, 0, 'Hooded Crusader'),
-(64842, 1, 1, 'Hello, my name\'s Lilian. You don\'t mind if I take those blades, do you?', 12, 0, 100, 0, 0, 0, 0, 65472, 0, 'Hooded Crusader'),
-(64842, 1, 1, 'The blades transform as she pulls them from Whitemane\'s corpse.', 12, 0, 100, 0, 0, 0, 0, 65567, 0, 'Hooded Crusader'),
-(64842, 1, 1, 'Yes, these will do quite nicely. They feel almost as if they were meant for me all along.', 12, 0, 100, 0, 0, 0, 0, 65518, 0, 'Hooded Crusader'),
+(64842, 0, 0, 'It is done. You did it, $p!', 12, 0, 100, 0, 0, 0, 0, 65470, 0, 'Hooded Crusader'),
+(64842, 1, 0, 'The Hooded Crusader gazes down upon the high inquisitor\'s blade-skewered corpse.', 16, 0, 100, 0, 0, 0, 0, 65473, 0, 'Hooded Crusader'),
+(64842, 2, 0, 'And now enough of this deception.', 12, 0, 100, 0, 0, 0, 0, 65471, 0, 'Hooded Crusader'),
+(64842, 3, 0, 'Hello, my name\'s Lilian. You don\'t mind if I take those blades, do you?', 12, 0, 100, 0, 0, 0, 0, 65472, 0, 'Hooded Crusader'),
+(64842, 4, 0, 'The blades transform as she pulls them from Whitemane\'s corpse.', 16, 0, 100, 0, 0, 0, 0, 65567, 0, 'Hooded Crusader'),
+(64842, 5, 0, 'Yes, these will do quite nicely. They feel almost as if they were meant for me all along.', 12, 0, 100, 0, 0, 0, 0, 65518, 0, 'Hooded Crusader');
+
+-- Creature
+UPDATE `creature_template` SET `ScriptName` = 'npc_hooded_crusader_c64842' WHERE `entry` = 64842;
