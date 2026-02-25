@@ -16,6 +16,7 @@
 */
 
 #include "AchievementMgr.h"
+#include "ArenaTeam.h"
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "Chat.h"
@@ -35,6 +36,7 @@
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "Realm.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SpellMgr.h"
@@ -42,6 +44,7 @@
 #include "WorldPacket.h"
 #include "BattlePetMgr.h"
 #include "PetBattle.h"
+#include "Battleground.h"
 #include "BattlegroundSA.h"
 
 namespace Trinity

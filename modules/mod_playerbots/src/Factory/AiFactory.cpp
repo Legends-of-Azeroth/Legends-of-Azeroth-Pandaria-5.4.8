@@ -567,7 +567,7 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
         nonCombatEngine->addStrategiesNoInit("nc", "food", "chat", "follow", "default", "quest", "loot", "gather", "duel",
             "buff", "mount", "emote", nullptr);
     }
-    //nonCombatEngine->addStrategy("say hello");
+    nonCombatEngine->addStrategy("say hello");
 }
 
 Engine* AiFactory::createNonCombatEngine(Player* player, PlayerbotAI* const facade, AiObjectContext* aiObjectContext)

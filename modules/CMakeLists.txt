@@ -30,6 +30,9 @@ foreach(MODULE ${MODULE_DIRS})
         endif()
     endif()
 endforeach()
+if(NOT PLAYERBOTS)
+    list(REMOVE_ITEM VALID_MODULES "mod_playerbots")
+endif()
 
 message(STATUS "Modules : ${VALID_MODULES}")
 

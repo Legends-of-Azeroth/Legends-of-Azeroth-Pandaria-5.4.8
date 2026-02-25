@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -163,13 +163,13 @@ class ChatHandler
 //! Okay, class for some asynchronus command handling.
 struct ChatCommandHolder : public std::enable_shared_from_this<ChatCommandHolder>
 {
-    explicit ChatCommandHolder(ChatHandler* handler) : m_handler(handler) { }
+    ChatCommandHolder(ChatHandler* handler) : m_handler(handler) { }
 
     ChatHandler& GetHandler() { return *m_handler; }
-    virtual void FinishCommand(bool /*success*/) { }
+    virtual void FinishCommand(bool success) { }
 
 protected:
-    ChatCommandHolder() = default;
+    ChatCommandHolder() { }
 
     std::unique_ptr<ChatHandler> m_handler;
 };
@@ -189,8 +189,9 @@ struct CliCommandHolder : public ChatCommandHolder
     CommandFinished* m_commandFinished;
 
     CliCommandHolder(void* callbackArg, char const* command, Print* zprint, CommandFinished* commandFinished)
-        : m_callbackArg(callbackArg), m_command(command), m_print(zprint), m_shared(false), m_commandFinished(commandFinished)
+        : m_callbackArg(callbackArg), m_print(zprint), m_commandFinished(commandFinished), m_shared(false)
     {
+        m_command = command;
     }
 
     void Delay(ChatHandler* handler)
@@ -199,7 +200,7 @@ struct CliCommandHolder : public ChatCommandHolder
         m_handler.reset(handler);
     }
 
-    void FinishCommand(bool success) override;
+    void FinishCommand(bool success);
 };
 
 class CliHandler : public ChatHandler
@@ -207,7 +208,7 @@ class CliHandler : public ChatHandler
     public:
         typedef void Print(void*, char const*);
         explicit CliHandler(CliCommandHolder* holder) :
-            m_callbackArg(holder->m_callbackArg), m_print(holder->m_print), m_hptr((ChatCommandHolder*)holder), m_holder(holder) { }
+            m_callbackArg(holder->m_callbackArg), m_print(holder->m_print), m_holder(holder), m_hptr((ChatCommandHolder*)holder) { }
 
         // overwrite functions
         const char *GetTrinityString(int32 entry) const;

@@ -22,6 +22,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "DatabaseEnv.h"
 #include "CellImpl.h"
 #include "Chat.h"
 #include "ChannelMgr.h"
@@ -33,8 +34,10 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "SpellAuras.h"
+#include "SpellAuraEffects.h"
 #include "Util.h"
 #include "ScriptMgr.h"
+#include "AccountMgr.h"
 #include "WordFilterMgr.h"
 #ifdef ELUNA
 #include "HookMgr.h"
@@ -187,7 +190,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                         case CHAT_MSG_RAID_LEADER:
                         case CHAT_MSG_RAID_WARNING:
                             // allow two side chat at group channel if two side group allowed
-                            if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) || (sender->GetGroup() && sender->GetGroup()->isLFGGroup() && sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_LFG)))
+                            if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) || sender->GetGroup() && sender->GetGroup()->isLFGGroup() && sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_LFG))
                                 lang = LANG_UNIVERSAL;
                             break;
                         case CHAT_MSG_GUILD:
@@ -196,7 +199,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                             if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD))
                                 lang = LANG_UNIVERSAL;
                             break;
-                        default: break;
                     }
                 }
 
@@ -261,8 +263,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             msg = recvData.ReadString(textLength);
             ignoreChecks = true;
             break;
-
-        default: break;
     }
 
     if (!ignoreChecks)
@@ -816,7 +816,7 @@ namespace Trinity
             EmoteChatBuilder(Player const& player, uint32 text_emote, uint32 emote_num, Unit const* target)
                 : i_player(player), i_text_emote(text_emote), i_emote_num(emote_num), i_target(target) { }
 
-            void operator()(WorldPacket& data, LocaleConstant /*loc_idx*/)
+            void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
                 ObjectGuid PlayerGuid = i_player.GetGUID();
                 ObjectGuid TargetGuid = i_target ? i_target->GetGUID() : ObjectGuid::Empty;

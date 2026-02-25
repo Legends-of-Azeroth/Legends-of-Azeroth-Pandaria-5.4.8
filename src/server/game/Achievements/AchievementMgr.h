@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -408,7 +408,7 @@ class AccountAchievementMgr final : public PlayerAchievementMgrBase
 {
     friend class PlayerAchievementMgr;
     public:
-        AccountAchievementMgr()
+        AccountAchievementMgr(WorldSession* session)
             : PlayerAchievementMgrBase(AchievementType::Account) { }
 
         void SetCurrentPlayer(Player* player) { m_owner = player; }
@@ -424,7 +424,7 @@ class AccountAchievementMgr final : public PlayerAchievementMgrBase
 class GuildAchievementMgr final : public AchievementMgr
 {
     public:
-        explicit GuildAchievementMgr(Guild* guild)
+        GuildAchievementMgr(Guild* guild)
             : AchievementMgr(AchievementType::Guild), m_owner(guild) { }
 
         void SendPacket(WorldPacket* data) const override;
@@ -451,8 +451,8 @@ class GuildAchievementMgr final : public AchievementMgr
 
 class AchievementGlobalMgr
 {
-        AchievementGlobalMgr() = default;
-        ~AchievementGlobalMgr() = default;
+        AchievementGlobalMgr() { }
+        ~AchievementGlobalMgr() { }
 
     public:
         static AchievementGlobalMgr* instance()
@@ -499,8 +499,8 @@ class AchievementGlobalMgr
 
         AchievementEntryList const* GetAchievementByReferencedId(uint32 id) const
         {
-            auto itr = m_achievementListByReferencedId.find(id);
-            return itr != m_achievementListByReferencedId.end() ? &itr->second : nullptr;
+            AchievementListByReferencedId::const_iterator itr = m_achievementListByReferencedId.find(id);
+            return itr != m_achievementListByReferencedId.end() ? &itr->second : NULL;
         }
 
         ModifierTreeNode const* GetCriteriaModifierTree(uint32 id) const
@@ -517,20 +517,20 @@ class AchievementGlobalMgr
 
         AchievementReward const* GetAchievementReward(AchievementEntry const* achievement) const
         {
-            auto iter = m_achievementRewards.find(achievement->ID);
-            return iter != m_achievementRewards.end() ? &iter->second : nullptr;
+            AchievementRewards::const_iterator iter = m_achievementRewards.find(achievement->ID);
+            return iter != m_achievementRewards.end() ? &iter->second : NULL;
         }
 
         AchievementRewardLocale const* GetAchievementRewardLocale(AchievementEntry const* achievement) const
         {
-            auto iter = m_achievementRewardLocales.find(achievement->ID);
-            return iter != m_achievementRewardLocales.end() ? &iter->second : nullptr;
+            AchievementRewardLocales::const_iterator iter = m_achievementRewardLocales.find(achievement->ID);
+            return iter != m_achievementRewardLocales.end() ? &iter->second : NULL;
         }
 
         AchievementCriteriaDataSet const* GetCriteriaDataSet(CriteriaEntry const* achievementCriteria) const
         {
-            auto iter = m_criteriaDataMap.find(achievementCriteria->ID);
-            return iter != m_criteriaDataMap.end() ? &iter->second : nullptr;
+            AchievementCriteriaDataMap::const_iterator iter = m_criteriaDataMap.find(achievementCriteria->ID);
+            return iter != m_criteriaDataMap.end() ? &iter->second : NULL;
         }
 
         AchievementEntry const* GetAchievementEntryByCriteriaTree(CriteriaTreeEntry const* criteria) const
@@ -539,12 +539,12 @@ class AchievementGlobalMgr
             {
                 if (!criteria->Parent || criteria->Parent == criteria->ID)
                 {
-                    auto iter = m_achievementEntryByCriteriaTree.find(criteria->ID);
-                    return iter != m_achievementEntryByCriteriaTree.end() ? iter->second : nullptr;
+                    AchievementEntryByCriteriaTree::const_iterator iter = m_achievementEntryByCriteriaTree.find(criteria->ID);
+                    return iter != m_achievementEntryByCriteriaTree.end() ? iter->second : NULL;
                 }
                 criteria = sCriteriaTreeStore.LookupEntry(criteria->Parent);
             }
-            return nullptr;
+            return NULL;
         }
 
         CriteriaTreeNode const* GetCriteriaTree(uint32 treeId) const
@@ -569,7 +569,7 @@ class AchievementGlobalMgr
             m_allCompletedAchievements.insert(achievement->ID);
         }
 
-        static bool IsGroupCriteriaType(AchievementCriteriaTypes type)
+        bool IsGroupCriteriaType(AchievementCriteriaTypes type) const
         {
             switch (type)
             {

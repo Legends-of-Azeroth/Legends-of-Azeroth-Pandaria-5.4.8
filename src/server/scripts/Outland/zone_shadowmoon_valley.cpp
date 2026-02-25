@@ -46,6 +46,7 @@ EndContentData */
 #include "Group.h"
 #include "SpellScript.h"
 #include "Player.h"
+#include "WorldSession.h"
 
 /*#####
 # npc_mature_netherwing_drake

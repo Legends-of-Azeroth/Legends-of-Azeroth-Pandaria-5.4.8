@@ -16,6 +16,8 @@
 */
 
 #include "Common.h"
+#include "Language.h"
+#include "DatabaseEnv.h"
 #include "WorldPacket.h"
 #include "QueryPackets.h"
 #include "WorldSession.h"
@@ -28,7 +30,9 @@
 #include "NPCHandler.h"
 #include "Pet.h"
 #include "MapManager.h"
+#include "Config.h"
 #include "Group.h"
+#include "Realm.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {

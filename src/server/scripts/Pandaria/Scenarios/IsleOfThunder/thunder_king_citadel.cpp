@@ -19,7 +19,9 @@
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
+#include "ScriptedEscortAI.h"
 #include "CreatureAI.h"
+#include "MoveSplineInit.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
 #include "LFGMgr.h"
@@ -132,7 +134,7 @@ struct npc_thunder_king_treasure_sentry_totem : public ScriptedAI
     void InitializeAI() override
     {
         scheduler
-            .Schedule(Milliseconds(1500), [this](TaskContext /*context*/)
+            .Schedule(Milliseconds(1500), [this](TaskContext context)
         {
             DoCast(me, SPELL_SENTRY, true);
         });
@@ -189,7 +191,7 @@ struct npc_thunder_king_treasure_stasis_rune : public ScriptedAI
         hasTriggered = true;
 
         scheduler
-            .Schedule(Seconds(6), [this](TaskContext /*context*/)
+            .Schedule(Seconds(6), [this](TaskContext context)
         {
             hasTriggered = false;
         });

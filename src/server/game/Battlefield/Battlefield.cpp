@@ -21,6 +21,8 @@
 #include "CreatureTextMgr.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "GroupMgr.h"
 #include "Map.h"
@@ -433,6 +435,118 @@ void Battlefield::BroadcastPacketToWar(WorldPacket const* data) const
         for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 player->SendDirectMessage(data);
+}
+
+WorldPacket Battlefield::BuildWarningAnnPacket(std::string const& msg)
+{
+    WorldPacket data(SMSG_MESSAGECHAT, 200);
+
+    ObjectGuid target = ObjectGuid::Empty;
+    ObjectGuid source = ObjectGuid::Empty;
+    ObjectGuid unkGuid = ObjectGuid::Empty;
+    ObjectGuid unkGuid2 = ObjectGuid::Empty;
+
+    data.WriteBit(1);
+    data.WriteBit(0);
+    data.WriteBit(0);
+    data.WriteBit(1);
+    data.WriteBit(0);
+    data.WriteBit(1);
+    data.WriteBit(1);
+    data.WriteBit(1);
+
+    data.WriteBit(unkGuid[0]);
+    data.WriteBit(unkGuid[1]);
+    data.WriteBit(unkGuid[5]);
+    data.WriteBit(unkGuid[4]);
+    data.WriteBit(unkGuid[3]);
+    data.WriteBit(unkGuid[2]);
+    data.WriteBit(unkGuid[6]);
+    data.WriteBit(unkGuid[7]);
+
+    data.WriteBit(0);
+
+    data.WriteBit(source[7]);
+    data.WriteBit(source[6]);
+    data.WriteBit(source[1]);
+    data.WriteBit(source[4]);
+    data.WriteBit(source[0]);
+    data.WriteBit(source[2]);
+    data.WriteBit(source[3]);
+    data.WriteBit(source[5]);
+
+    data.WriteBit(0);
+    data.WriteBit(0); // Send Language
+    data.WriteBit(1);
+
+    data.WriteBit(target[0]);
+    data.WriteBit(target[3]);
+    data.WriteBit(target[7]);
+    data.WriteBit(target[2]);
+    data.WriteBit(target[1]);
+    data.WriteBit(target[5]);
+    data.WriteBit(target[4]);
+    data.WriteBit(target[6]);
+
+    data.WriteBit(1);
+    data.WriteBit(0);
+    data.WriteBits(msg.length(), 12);
+    data.WriteBit(1);
+    data.WriteBit(1);
+    data.WriteBit(0);
+
+    data.WriteBit(unkGuid2[2]);
+    data.WriteBit(unkGuid2[5]);
+    data.WriteBit(unkGuid2[7]);
+    data.WriteBit(unkGuid2[4]);
+    data.WriteBit(unkGuid2[0]);
+    data.WriteBit(unkGuid2[1]);
+    data.WriteBit(unkGuid2[3]);
+    data.WriteBit(unkGuid2[6]);
+
+    data.FlushBits();
+
+    data.WriteByteSeq(unkGuid2[4]);
+    data.WriteByteSeq(unkGuid2[5]);
+    data.WriteByteSeq(unkGuid2[7]);
+    data.WriteByteSeq(unkGuid2[3]);
+    data.WriteByteSeq(unkGuid2[2]);
+    data.WriteByteSeq(unkGuid2[6]);
+    data.WriteByteSeq(unkGuid2[0]);
+    data.WriteByteSeq(unkGuid2[1]);
+
+    data.WriteByteSeq(target[4]);
+    data.WriteByteSeq(target[7]);
+    data.WriteByteSeq(target[1]);
+    data.WriteByteSeq(target[5]);
+    data.WriteByteSeq(target[0]);
+    data.WriteByteSeq(target[6]);
+    data.WriteByteSeq(target[2]);
+    data.WriteByteSeq(target[3]);
+
+    data << uint8(CHAT_MSG_RAID_BOSS_EMOTE);
+
+    data.WriteByteSeq(unkGuid[1]);
+    data.WriteByteSeq(unkGuid[3]);
+    data.WriteByteSeq(unkGuid[4]);
+    data.WriteByteSeq(unkGuid[6]);
+    data.WriteByteSeq(unkGuid[0]);
+    data.WriteByteSeq(unkGuid[2]);
+    data.WriteByteSeq(unkGuid[5]);
+    data.WriteByteSeq(unkGuid[7]);
+
+    data.WriteByteSeq(source[2]);
+    data.WriteByteSeq(source[5]);
+    data.WriteByteSeq(source[3]);
+    data.WriteByteSeq(source[6]);
+    data.WriteByteSeq(source[7]);
+    data.WriteByteSeq(source[4]);
+    data.WriteByteSeq(source[1]);
+    data.WriteByteSeq(source[0]);
+
+    data << uint8(LANG_UNIVERSAL);
+    data.WriteString(msg);
+    return data;
 }
 
 void Battlefield::SendWarningToAllInZone(uint32 entry)
@@ -1026,7 +1140,7 @@ bool BfCapturePoint::Update(uint32 diff)
     }
 
     // get the difference of numbers
-    float fact_diff = ((float) m_activePlayers[0].size() - (float) m_activePlayers[1].size()) * (float)diff / (float)BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL;
+    float fact_diff = ((float) m_activePlayers[0].size() - (float) m_activePlayers[1].size()) * diff / BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL;
     if (G3D::fuzzyEq(fact_diff, 0.0f))
         return false;
 

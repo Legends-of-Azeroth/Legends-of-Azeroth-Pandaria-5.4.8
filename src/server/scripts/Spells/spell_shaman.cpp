@@ -32,6 +32,7 @@
 #include "Battleground.h"
 #include "spell_common.h"
 #include "PassiveAI.h"
+#include "TotemAI.h"
 #include "Pet.h"
 #include "Random.h"
 

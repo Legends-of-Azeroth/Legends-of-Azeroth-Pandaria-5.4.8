@@ -15,6 +15,21 @@ Client exe files" https://mega.nz/file/xUJDkIDA#I3TMdPymMw8ISNwIUgSaXLl5oHJHYFxA
 + MS Visual Studio (Community) ≥ 16.4 (2019) (Desktop) (Not previews) 
 + GCC >= 13.0, Clang >= 12.0 
 
+## Player bots
+Playerbots is in a early stage of developpement, you may encounter bug crash and other unexpected issues.
+Its HIGHLY recommanded to disable ELUNA with bot enable.
+
+Few thing to get it working beside importing databases:
++ copy playerbots.conf into your build dir directory or where your executables are
++ you MUST have enUS dbc in order to make bots functionnal
++ add to your worldconf the following settings
+	-> PlayerbotsDatabaseInfo = "127.0.0.1;3306;root;root;mop_playerbots"
+	-> PlayerbotsDatabase.WorkerThreads     = 1
+	-> PlayerbotsDatabase.SynchThreads     = 1
+	-> Logger.playerbots=3,Console Server
++ the first start may take times, be patient let everything load and randomize
+
+
 ## Copyright
 License: GPL 2.0
 

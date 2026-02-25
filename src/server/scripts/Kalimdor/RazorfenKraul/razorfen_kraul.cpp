@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
+#include "razorfen_kraul.h"
 #include "Player.h"
 #include "PetAI.h"
 #include "SpellScript.h"

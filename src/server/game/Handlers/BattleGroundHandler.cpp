@@ -15,7 +15,9 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Common.h"
 #include "ArenaTeam.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"

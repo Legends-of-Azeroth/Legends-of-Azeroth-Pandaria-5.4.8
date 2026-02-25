@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "AuthSession.h"
+#include "AES.h"
 #include "AuthCodes.h"
 #include "Config.h"
 #include "CryptoGenerics.h"
@@ -26,8 +27,10 @@
 #include "IPLocation.h"
 #include "Log.h"
 #include "RealmList.h"
+//#include "SecretMgr.h"
 #include "Threading/Threading.h"
 #include "Timer.h"
+#include "TOTP.h"
 #include "Util.h"
 #include <boost/lexical_cast.hpp>
 #include <openssl/crypto.h>
@@ -138,8 +141,8 @@ std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B,
 class PatcherRunnable: public MopCore::Runnable
 {
 public:
-    explicit PatcherRunnable(class AuthSocket*);
-    void run() override;
+    PatcherRunnable(class AuthSocket*);
+    void run();
 
 private:
     AuthSocket* mySocket;
@@ -220,16 +223,8 @@ void AccountInfo::LoadResult(Field* fields)
     Utf8ToUpperOnlyLatin(Login);
 }
 
-AuthSession::AuthSession(tcp::socket&& socket)
-    : Socket(std::move(socket))
-    , pPatch(nullptr)
-    , patcherLock()
-    , _status(STATUS_CHALLENGE)
-    , _build(0)
-    , _expversion(0)
-{
-
-}
+AuthSession::AuthSession(tcp::socket&& socket) : Socket(std::move(socket)),
+_status(STATUS_CHALLENGE), _build(0), _expversion(0) { }
 
 void AuthSession::Start()
 {
@@ -306,7 +301,7 @@ void AuthSession::ReadHandler()
 
         if (cmd == AUTH_LOGON_CHALLENGE || cmd == AUTH_RECONNECT_CHALLENGE)
         {
-            auto* challenge = reinterpret_cast<sAuthLogonChallenge_C*>(packet.GetReadPointer());
+            sAuthLogonChallenge_C* challenge = reinterpret_cast<sAuthLogonChallenge_C*>(packet.GetReadPointer());
             size += challenge->size;
             if (size > MAX_ACCEPTED_CHALLENGE_SIZE)
             {
@@ -386,7 +381,7 @@ bool AuthSession::HandleLogonChallenge()
 {
     _status = STATUS_CLOSED;
 
-    auto* challenge = reinterpret_cast<sAuthLogonChallenge_C*>(GetReadBuffer().GetReadPointer());
+    sAuthLogonChallenge_C* challenge = reinterpret_cast<sAuthLogonChallenge_C*>(GetReadBuffer().GetReadPointer());
     if (challenge->size - (sizeof(sAuthLogonChallenge_C) - AUTH_LOGON_CHALLENGE_INITIAL_SIZE - 1) != challenge->I_len)
         return false;
 
@@ -395,7 +390,7 @@ bool AuthSession::HandleLogonChallenge()
 
     _build = challenge->build;
     _expversion = uint8(AuthHelper::IsPostBCAcceptedClientBuild(_build) ? POST_BC_EXP_FLAG : (AuthHelper::IsPreBCAcceptedClientBuild(_build) ? PRE_BC_EXP_FLAG : NO_VALID_EXP_FLAG));
-    std::array<char, 5> os{};
+    std::array<char, 5> os;
     os.fill('\0');
     memcpy(os.data(), challenge->os, sizeof(challenge->os));
     _os = os.data();
@@ -564,7 +559,7 @@ bool AuthSession::HandleLogonProof()
     _status = STATUS_CLOSED;
 
     // Read the packet
-    auto *logonProof = reinterpret_cast<sAuthLogonProof_C*>(GetReadBuffer().GetReadPointer());
+    sAuthLogonProof_C *logonProof = reinterpret_cast<sAuthLogonProof_C*>(GetReadBuffer().GetReadPointer());
 
     // If the client has no valid version
     if (_expversion == NO_VALID_EXP_FLAG)
@@ -604,7 +599,7 @@ bool AuthSession::HandleLogonProof()
             return true;
         }
 
-        if (!VerifyVersion(logonProof->A.data(), (int32)logonProof->A.size(), logonProof->crc_hash, false))
+        if (!VerifyVersion(logonProof->A.data(), logonProof->A.size(), logonProof->crc_hash, false))
         {
             ByteBuffer packet;
             packet << uint8(AUTH_LOGON_PROOF);
@@ -735,7 +730,7 @@ bool AuthSession::HandleReconnectChallenge()
 
     _build = challenge->build;
     _expversion = uint8(AuthHelper::IsPostBCAcceptedClientBuild(_build) ? POST_BC_EXP_FLAG : (AuthHelper::IsPreBCAcceptedClientBuild(_build) ? PRE_BC_EXP_FLAG : NO_VALID_EXP_FLAG));
-    std::array<char, 5> os{};
+    std::array<char, 5> os;
     os.fill('\0');
     memcpy(os.data(), challenge->os, sizeof(challenge->os));
     _os = os.data();
@@ -786,7 +781,7 @@ bool AuthSession::HandleReconnectProof()
     TC_LOG_DEBUG("server.authserver", "Entering _HandleReconnectProof");
     _status = STATUS_CLOSED;
 
-    auto *reconnectProof = reinterpret_cast<sAuthReconnectProof_C*>(GetReadBuffer().GetReadPointer());
+    sAuthReconnectProof_C *reconnectProof = reinterpret_cast<sAuthReconnectProof_C*>(GetReadBuffer().GetReadPointer());
 
     if (_accountInfo.Login.empty())
         return false;
@@ -1125,12 +1120,13 @@ void Patcher::LoadPatchMD5(char *szFileName)
 // Get cached MD5 hash for a given patch file
 bool Patcher::GetHash(char * pat, uint8 mymd5[16])
 {
-    for (auto & _patche : _patches) {
-        if (!stricmp(pat, _patche.first.c_str())) {
-            memcpy(mymd5, _patche.second->md5, 16);
+    for (Patches::iterator i = _patches.begin(); i != _patches.end(); ++i)
+        if (!stricmp(pat, i->first.c_str()))
+        {
+            memcpy(mymd5, i->second->md5, 16);
             return true;
         }
-    }
+
     return false;
 }
 

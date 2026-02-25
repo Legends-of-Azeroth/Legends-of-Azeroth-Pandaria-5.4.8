@@ -46,6 +46,7 @@ EndScriptData */
 #include "WordFilterMgr.h"
 #ifdef ELUNA
 #include "LuaEngine.h"
+#include "HookMgr.h"
 extern void StartEluna(bool restart);
 #endif
 

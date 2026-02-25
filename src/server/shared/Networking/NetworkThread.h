@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -24,17 +24,7 @@
 #include "IoContext.h"
 #include "Log.h"
 #include "Timer.h"
-
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/system_timer.hpp>
-#include <boost/asio/any_io_executor.hpp>
-#include <boost/asio/awaitable.hpp>
-#include <boost/asio/use_awaitable.hpp>
-#include <boost/asio/as_tuple.hpp>
-#include <boost/asio/detached.hpp>
-#include <boost/asio/co_spawn.hpp>
-
-
 #include <atomic>
 #include <chrono>
 #include <memory>
@@ -132,7 +122,8 @@ protected:
     {
         TC_LOG_DEBUG("misc", "Network Thread Starting");
 
-        Update();
+        _updateTimer.expires_after(1ms);
+        _updateTimer.async_wait([this](boost::system::error_code const&) { Update(); });
         _ioContext.run();
 
         TC_LOG_DEBUG("misc", "Network Thread exits");
@@ -142,34 +133,29 @@ protected:
 
     void Update()
     {
-        boost::asio::co_spawn(_ioContext, [this]() -> boost::asio::awaitable<void>
+        if (_stopped)
+            return;
+
+        _updateTimer.expires_after(1ms);
+        _updateTimer.async_wait([this](boost::system::error_code const&) { Update(); });
+
+        AddNewSockets();
+
+        _sockets.erase(std::remove_if(_sockets.begin(), _sockets.end(), [this](std::shared_ptr<SocketType> sock)
         {
-            while (!_stopped)
+            if (!sock->Update())
             {
-                _updateTimer.expires_after(std::chrono::milliseconds(1));
-                auto [err] = co_await _updateTimer.async_wait(boost::asio::as_tuple(boost::asio::use_awaitable));
-                if (err)
-                    break;
+                if (sock->IsOpen())
+                    sock->CloseSocket();
 
-                AddNewSockets();
-                _sockets.erase(std::remove_if(_sockets.begin(), _sockets.end(), [this](std::shared_ptr<SocketType> sock)
-                    {
-                        if (!sock->Update())
-                        {
-                            if (sock->IsOpen())
-                                sock->CloseSocket();
+                this->SocketRemoved(sock);
 
-                            this->SocketRemoved(sock);
-
-                            --this->_connections;
-                            return true;
-                        }
-
-                        return false;
-                    }), _sockets.end());
+                --this->_connections;
+                return true;
             }
-            co_return;
-        }, boost::asio::detached);
+
+            return false;
+        }), _sockets.end());
     }
 
 private:
@@ -187,7 +173,7 @@ private:
 
     Trinity::Asio::IoContext _ioContext;
     tcp::socket _acceptSocket;
-    boost::asio::system_timer _updateTimer;
+    Trinity::Asio::DeadlineTimer _updateTimer;
 };
 
 #endif // NetworkThread_h__

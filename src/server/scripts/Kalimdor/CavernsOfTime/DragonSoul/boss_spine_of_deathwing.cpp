@@ -293,7 +293,6 @@ class npc_spine_of_deathwing_deathwing : public CreatureScript
                                     case RAID_DIFFICULTY_25MAN_HEROIC:
                                         instance->SetData(DATA_SPAWN_GREATER_CHEST, DATA_GREATER_CACHE_25H);
                                         break;
-                                    default: break;
                                 }
                                 if (instance->GetData(DATA_IS_LFR))
                                 {
@@ -1053,7 +1052,7 @@ class npc_spine_of_deathwing_burning_tendons : public CreatureScript
             {
                 events.Update(diff);
 
-                if (events.ExecuteEvent())
+                if (uint32 eventId = events.ExecuteEvent())
                 {
                     if (isOpened)
                     {
@@ -1113,7 +1112,6 @@ class spell_spine_of_deathwing_roll_control_check : public SpellScriptLoader
                     case RAID_DIFFICULTY_25MAN_HEROIC:
                         min_diff = GetCaster()->IsSpawnedInLFRDungeon() ? 10 : 6;
                         break;
-                    default: break;
                 }
                 if (targets.size() <= min_diff)
                     min_diff = targets.size() == 1 ? 1 : targets.size() / 2;
@@ -1283,7 +1281,7 @@ class spell_spine_of_deathwing_nuclear_blast_script : public SpellScriptLoader
                 {
                     if (targets.size() > 1)
                     {
-                        targets.sort(DistancePred(player));
+                        targets.sort(DistancePred(GetCaster()));
                         targets.resize(1);
                     }
                     return;

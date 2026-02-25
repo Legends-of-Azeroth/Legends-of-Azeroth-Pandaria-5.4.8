@@ -169,8 +169,8 @@ private:
 
 HunterAiObjectContext::HunterAiObjectContext(PlayerbotAI* botAI) : AiObjectContext(botAI)
 {
-    strategyContexts.Add(new HunterStrategyFactoryInternal());
-    strategyContexts.Add(new HunterBuffStrategyFactoryInternal());
-    actionContexts.Add(new HunterAiObjectContextInternal());
-    triggerContexts.Add(new HunterTriggerFactoryInternal());
+    //strategyContexts.Add(new HunterStrategyFactoryInternal());
+    //strategyContexts.Add(new HunterBuffStrategyFactoryInternal());
+    //actionContexts.Add(new HunterAiObjectContextInternal());
+    //triggerContexts.Add(new HunterTriggerFactoryInternal());
 }

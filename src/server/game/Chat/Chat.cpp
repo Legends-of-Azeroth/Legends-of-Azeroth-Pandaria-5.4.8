@@ -21,7 +21,6 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "DatabaseEnv.h"
-
 #include "AccountMgr.h"
 #include "CellImpl.h"
 #include "Chat.h"
@@ -31,6 +30,7 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "Player.h"
+#include "Realm.h"
 #include "UpdateMask.h"
 #include "SpellMgr.h"
 #include "ScriptMgr.h"

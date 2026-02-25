@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -42,10 +42,6 @@ namespace boost
     {
         class error_code;
     }
-    namespace asio
-    {
-        class any_io_executor;
-    }
 }
 
 /// Storage object for the list of realms on the server
@@ -58,7 +54,7 @@ public:
 
     static RealmList* instance();
 
-    void Initialize(boost::asio::any_io_executor exec, uint32 updateInterval);
+    void Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInterval);
     void Close();
 
     RealmMap const& GetRealms() const { return _realms; }
@@ -70,7 +66,7 @@ private:
     RealmList();
 
     void LoadBuildInfo();
-    void UpdateRealms();
+    void UpdateRealms(boost::system::error_code const& error);
     void UpdateRealm(RealmHandle const& id, uint32 build, std::string const& name,
         boost::asio::ip::address&& address, boost::asio::ip::address&& localAddr, boost::asio::ip::address&& localSubmask,
         uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population);    
@@ -78,7 +74,7 @@ private:
     std::vector<RealmBuildInfo> _builds;
     RealmMap _realms;
     uint32 _updateInterval;
-    boost::asio::any_io_executor* _executor;
+    std::unique_ptr<Trinity::Asio::DeadlineTimer> _updateTimer;
     std::unique_ptr<Trinity::Asio::Resolver> _resolver;    
 };
 

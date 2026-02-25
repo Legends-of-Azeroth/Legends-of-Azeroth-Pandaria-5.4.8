@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -48,8 +48,12 @@ enum eObjects
 
 enum eSpells
 {
+    SPELL_SUMMON_WHITEMANE_SOUL_TARGET = 126791,
+    SPELL_SUMMON_UNQUENCHABLE          = 126802,
+    SPELL_SUMMON_HAND_OF_PROVIDENCE    = 126832,
+    SPELL_SUMMON_SOUL_MISSILE          = 126795,
     SPELL_WHITEMANE_CORPSE_SPELL_FOCUS = 126789,
-    SPELL_WHITEMANE_KILL_CREDIT        = 132022,
+    SPELL_WHITEMANE_KILL_CREDIT        = 132022, // wrong spell
 };
 
 enum Actions
@@ -92,6 +96,8 @@ enum eCreature
     NPC_PILE_OF_CORPSES             = 59722,
     NPC_FRENZIED_SPIRIT             = 60033,
     NPC_TRAINING_DUMMY_2            = 64446,
+    NPC_Q31514_KILL_CREDIT          = 64835, // "Unto Dust Thou Shalt Return" Kill Credit
+    NPC_Q31516_KILL_CREDIT          = 64840, // "Unto Dust Thou Shalt Return" Kill Credit
 };
 
 enum InstanceScenarioData

@@ -14,6 +14,7 @@
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
+#include "AccountMgr.h"
 #include "AreaTrigger.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
@@ -24,6 +25,7 @@
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
 #include "DynamicObject.h"
+#include "Formulas.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "GossipDef.h"
@@ -31,6 +33,7 @@
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Guild.h"
+#include "GuildMgr.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Language.h"
@@ -50,6 +53,7 @@
 #include "ServiceMgr.h"
 #include "SharedDefines.h"
 #include "SkillExtraItems.h"
+#include "SkillDiscovery.h"
 #include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -22,6 +22,7 @@
 #include "DatabaseLoader.h"
 #include "GitRevision.h"
 #include "Log.h"
+#include "QueryResult.h"
 #include "StartProcess.h"
 #include "UpdateFetcher.h"
 #include <boost/filesystem/operations.hpp>
@@ -441,4 +442,6 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
 template class TC_DATABASE_API DBUpdater<LoginDatabaseConnection>;
 template class TC_DATABASE_API DBUpdater<WorldDatabaseConnection>;
 template class TC_DATABASE_API DBUpdater<CharacterDatabaseConnection>;
+#ifdef PLAYERBOTS
 template class TC_DATABASE_API DBUpdater<PlayerbotsDatabaseConnection>;
+#endif

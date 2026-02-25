@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -29,7 +29,7 @@ typedef std::map<uint32, int32> AuraStateStore;
 class BattlePetAura
 {
 public:
-    BattlePetAura(PetBattle* petBattle, uint32 id, uint32 ability, uint32 /*trigger*/, BattlePet* caster, BattlePet* target, int32 duration)
+    BattlePetAura(PetBattle* petBattle, uint32 id, uint32 ability, uint32 trigger, BattlePet* caster, BattlePet* target, int32 duration)
         : m_id(id), m_ability(ability), m_duration(duration), m_maxDuration(duration), m_caster(caster), m_target(target),
         m_petBattle(petBattle) { }
 

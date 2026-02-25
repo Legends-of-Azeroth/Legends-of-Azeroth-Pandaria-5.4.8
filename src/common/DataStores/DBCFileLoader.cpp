@@ -15,8 +15,9 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <cstdio>
-#include <cstring>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "DBCFileLoader.h"
 #include "Errors.h"

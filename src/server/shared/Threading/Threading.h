@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -27,7 +27,7 @@ namespace MopCore
     class Runnable
     {
         public:
-            virtual ~Runnable() = default;
+            virtual ~Runnable() {}
             virtual void run() = 0;
 
             void incReference() { ++m_refs; }
@@ -61,9 +61,7 @@ namespace MopCore
             bool wait();
             void destroy();
 
-            #ifdef WIN32
             void setPriority(Priority type);
-            #endif
 
             static void Sleep(unsigned long msecs);
             static std::thread::id currentId();

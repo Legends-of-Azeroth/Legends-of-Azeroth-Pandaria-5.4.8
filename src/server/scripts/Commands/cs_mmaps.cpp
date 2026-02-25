@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -376,7 +376,7 @@ public:
             return false;
         }
 
-        int32 entry = args && strlen(args) ? std::atoi(args) : type == DISABLE_TYPE_MMAP_MAP ? -1 : 0;
+        uint32 entry = args && strlen(args) ? atoi(args) : type == DISABLE_TYPE_MMAP_MAP ? -1 : 0;
         Unit* target = handler->GetSession()->GetPlayer()->GetSelectedUnit() ? handler->GetSession()->GetPlayer()->GetSelectedUnit() : handler->GetSession()->GetPlayer();
         std::stringstream ss;
         ss << "MMap Disabled - ";
@@ -415,7 +415,6 @@ public:
                     skip = (sWorld->getBoolConfig(CONFIG_ENABLE_MMAPS) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_MMAP_CREATURE, entry, nullptr)) != disable;
                 ss << "Creature - " << target->GetNameForLocaleIdx(DEFAULT_LOCALE);
                 break;
-            default: break;
         }
 
         const char* name;
@@ -473,7 +472,7 @@ public:
     {
         return DisableHelper(handler, args, false, DISABLE_TYPE_MMAP_CREATURE);
     }
-    static bool HandleMmapEnableCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleMmapEnableCommand(ChatHandler* handler, char const* args)
     {
         sWorld->setBoolConfig(CONFIG_ENABLE_MMAPS, true);
         handler->PSendSysMessage("Enabled pathfinding globally (not saved in config)");
@@ -495,14 +494,14 @@ public:
     {
         return DisableHelper(handler, args, true, DISABLE_TYPE_MMAP_CREATURE);
     }
-    static bool HandleMmapDisableCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleMmapDisableCommand(ChatHandler* handler, char const* args)
     {
         sWorld->setBoolConfig(CONFIG_ENABLE_MMAPS, false);
         handler->PSendSysMessage("Disabled pathfinding globally (not saved in config)");
         return true;
     }
     
-    static bool HandleMmapVisualizeCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleMmapVisualizeCommand(ChatHandler* handler, char const* args)
     {
         Unit* target = handler->getSelectedUnit();
         if (!target)

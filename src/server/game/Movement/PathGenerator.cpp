@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 #include "Map.h"
 #include "Creature.h"
 #include "DisableMgr.h"
+#include "GameObject.h"
 #include "Transport.h"
 #include "MapDefines.h"
 #include "MMapFactory.h"
@@ -1099,8 +1100,6 @@ void PathGenerator::VisualizePath(uint32 duration)
             waypoint->SetTempSummonType(TEMPSUMMON_TIMED_DESPAWN);
             return waypoint->GetGUID();
         }
-
-        return ObjectGuid::Empty;
     };
     static auto const UpdateWaypoint = [](Unit const* source, ObjectGuid prevGUID, G3D::Vector3 const& pos, uint32 duration, ObjectGuid guid)
     {
@@ -1174,8 +1173,6 @@ void PathGenerator::VisualizeNavmesh(uint32 duration)
             waypoint->SetTempSummonType(TEMPSUMMON_TIMED_DESPAWN);
             return waypoint->GetGUID();
         }
-
-        return ObjectGuid::Empty;
     };
     static auto const UpdateWaypoint = [](Unit const* source, ObjectGuid prevGUID, G3D::Vector3 const& pos, uint32 duration, ObjectGuid guid)
     {

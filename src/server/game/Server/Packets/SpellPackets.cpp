@@ -16,6 +16,9 @@
 */
 
 #include "SpellPackets.h"
+#include "SharedDefines.h"
+#include "Spell.h"
+#include "SpellInfo.h"
 
 namespace WorldPackets::Spells
 {

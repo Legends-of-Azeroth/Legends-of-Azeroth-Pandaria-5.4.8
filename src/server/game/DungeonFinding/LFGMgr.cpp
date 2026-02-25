@@ -21,6 +21,7 @@
 #include "DisableMgr.h"
 #include "ObjectMgr.h"
 #include "SocialMgr.h"
+#include "Language.h"
 #include "LFGMgr.h"
 #include "LFGScripts.h"
 #include "LFGGroupData.h"
@@ -30,14 +31,19 @@
 #include "Player.h"
 #include "GroupMgr.h"
 #include "GameEventMgr.h"
+#include "WorldSession.h"
 #include "ReputationMgr.h"
 #include "Config.h"
 #include "Guild.h"
 #include "ScenarioMgr.h"
+#include "Guild.h"
 #include "Chat.h"
 #include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "WorldPacket.h"
 #include "BattlegroundMgr.h"
 #include "Field.h"
+#include <numeric>
 
 template <typename... Args>
 static void AlmostAssert(char const* filter, Args... args)

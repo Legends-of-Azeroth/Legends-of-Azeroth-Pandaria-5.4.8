@@ -27,6 +27,7 @@
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "CreatureTextMgr.h"
 #include "Unit.h"
 #include "Player.h"
@@ -435,7 +436,7 @@ class boss_norushen : public CreatureScript
                 init.Launch();
 
                 scheduler
-                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
                 {
                     me->SetFacingTo(Position::NormalizeOrientation(me->GetOrientation() - M_PI));
                     me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -967,7 +968,7 @@ struct npc_manifestation_of_corruption : public ScriptedAI
             DoCast(me, SPELL_FOUL_LINK_TRIGGER, true);
 
             scheduler
-                .Schedule(Milliseconds(1000), [this](TaskContext /*context*/)
+                .Schedule(Milliseconds(1000), [this](TaskContext context)
             {
                 me->RemoveAurasDueToSpell(SPELL_MANIFEST_SPAWN_VIS);
             });
@@ -981,7 +982,7 @@ struct npc_manifestation_of_corruption : public ScriptedAI
                     me->PrepareChanneledCast(me->GetAngle(target), SPELL_TEAR_REALITY);
 
                     scheduler
-                        .Schedule(Milliseconds(3500), [this](TaskContext /*context*/)
+                        .Schedule(Milliseconds(3500), [this](TaskContext context)
                     {
                         me->RemoveChanneledCast(targetGUID);
                     });
@@ -1460,7 +1461,7 @@ struct npc_titanic_corruption : public ScriptedAI
                         me->PrepareChanneledCast(me->GetAngle(target), SPELL_TITANIC_SMASH);
 
                     scheduler
-                        .Schedule(Milliseconds(2500), [this](TaskContext /*context*/)
+                        .Schedule(Milliseconds(2500), [this](TaskContext context)
                     {
                         me->RemoveChanneledCast(targetGUID);
                     });
@@ -1503,7 +1504,7 @@ struct npc_blind_hatred : public ScriptedAI
         me->SetSpeed(MOVE_WALK, 0.72f);
 
         scheduler
-            .Schedule(Seconds(3), [this](TaskContext /*context*/)
+            .Schedule(Seconds(3), [this](TaskContext context)
         {
             hasMoving = 1;
 

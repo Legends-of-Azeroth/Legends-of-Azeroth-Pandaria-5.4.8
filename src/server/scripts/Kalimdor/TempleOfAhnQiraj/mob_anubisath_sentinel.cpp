@@ -26,12 +26,14 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "WorldPacket.h"
 
+#include "Item.h"
 #include "Player.h"
 #include "Spell.h"
 
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 
 enum Spells
 {

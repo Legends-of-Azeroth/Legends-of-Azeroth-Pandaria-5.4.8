@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -37,7 +37,7 @@ inline void Trinity::VisibleNotifier::Visit(GridRefManager<T> &m)
     }
 }
 
-inline void Trinity::VisibleNotifier::VisitSet(std::unordered_set<WorldObject*> const& /*objects*/)
+inline void Trinity::VisibleNotifier::VisitSet(std::unordered_set<WorldObject*> const& objects)
 {
 }
 
