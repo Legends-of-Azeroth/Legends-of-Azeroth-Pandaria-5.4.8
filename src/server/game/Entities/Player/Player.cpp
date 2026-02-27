@@ -25604,7 +25604,7 @@ void Player::LearnSpecializationSpells()
             SpecializationSpellsEntry const* specSpell = specSpells->at(j);
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(specSpell->SpellID);
 
-            if (!spellInfo || spellInfo->SpellLevel > GetLevel())
+            if (!spellInfo || (spellInfo->SpellLevel > GetLevel()))
                 continue;
 
             LearnSpell(spellInfo->Id, true);
