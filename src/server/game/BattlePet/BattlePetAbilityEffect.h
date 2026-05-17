@@ -88,6 +88,7 @@ public:
     void HandleHealState();
     void HandleDamageNonLethal();
     void HandlePowerlessAura();
+    void HandleWeatherAura();
 
 private:
     uint32 m_abilityId = 0;

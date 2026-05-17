@@ -35,7 +35,7 @@ void BattlePetAura::OnApply()
             m_auraStates[stateEntry->StateId] = 0;
 
         int32 newValue = stateEntry->Value + m_target->States[stateEntry->StateId];
-        m_auraStates[stateEntry->StateId] += newValue;
+        m_auraStates[stateEntry->StateId] += stateEntry->Value;
 
         // update state
         m_petBattle->UpdatePetState(m_caster, m_target, 0, stateEntry->StateId, newValue);
