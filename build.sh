@@ -9,10 +9,10 @@ case "$1" in
     rm -rf "$BUILD_DIR"
     ;;
 
-  build|debug)
+  configure)
     mkdir -p "$BUILD_DIR"
 
-    if [ "$1" = "debug" ]; then
+    if [ "$2" = "--debug" ]; then
       BUILD_TYPE=Debug
       C_FLAGS="-march=native"
       CXX_FLAGS="-march=native"
@@ -28,9 +28,14 @@ case "$1" in
       -DCMAKE_CXX_FLAGS="$CXX_FLAGS" \
       -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" \
       -DTOOLS=0
+    ;;
 
-    cmake --build "$BUILD_DIR" --target worldserver authserver -j8
-    # cmake --build "$BUILD_DIR" -j8
+  build)
+    if [ ! -d "$BUILD_DIR" ]; then
+      echo "Error: build directory '$BUILD_DIR' does not exist. Run 'configure' first." >&2
+      exit 1
+    fi
+    cmake --build "$BUILD_DIR" --target worldserver authserver -j"$(nproc)"
     ;;
 
   install)
@@ -52,11 +57,11 @@ case "$1" in
     ;;
 
   *)
-    echo "Usage: $0 {build|debug|clean|install}"
-    echo "  build   - configure and compile worldserver + authserver (Release, -O3, march=native)"
-    echo "  debug   - same but Debug mode (-O0 -g, march=native)"
-    echo "  clean   - remove build directory"
-    echo "  install - install built binaries to $INSTALL_PREFIX (saves old binaries as *_old)"
-    echo "  restore - restore previous binaries from *_old backups"
+    echo "Usage: $0 {configure|build|clean|install|restore}"
+    echo "  configure [--debug]  - configure build tree (Release by default, Debug with --debug)"
+    echo "  build                - compile worldserver + authserver (run configure first)"
+    echo "  clean                - remove build directory"
+    echo "  install              - install built binaries to $INSTALL_PREFIX (saves old binaries as *_old)"
+    echo "  restore              - restore previous binaries from *_old backups"
     ;;
 esac

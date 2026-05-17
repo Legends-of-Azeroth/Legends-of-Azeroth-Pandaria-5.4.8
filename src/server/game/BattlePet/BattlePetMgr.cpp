@@ -191,9 +191,9 @@ void BattlePetMgr::LoadSlotsFromDb(PreparedQueryResult result)
 
     Field* fields = result->Fetch();
 
-    ObjectGuid slot1(HighGuid::BattlePet, fields[0].GetUInt32());
-    ObjectGuid slot2(HighGuid::BattlePet, fields[1].GetUInt32());
-    ObjectGuid slot3(HighGuid::BattlePet, fields[2].GetUInt32());
+    ObjectGuid slot1(fields[0].GetUInt64());
+    ObjectGuid slot2(fields[1].GetUInt64());
+    ObjectGuid slot3(fields[2].GetUInt64());
     m_loadoutFlags = fields[3].GetUInt8();
 
     // update flag and spell state for new alt characters
