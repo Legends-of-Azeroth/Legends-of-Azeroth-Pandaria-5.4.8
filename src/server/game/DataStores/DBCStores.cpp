@@ -738,8 +738,8 @@ void DBCManager::LoadDBCStores(const std::string& dataPath, uint32 defaultLocale
         if (spellInfo->LevelsID && (!levels || levels->SpellLevel))
             continue;
 
-        _skillLineAbilitiesBySkillupSkill[skillLineAbility->SkillLine].push_back(skillLine);
-        // The Logic below is correct, core missing CreatureFamily
+        _skillLineAbilitiesBySkillupSkill[skillLine->SkillLine].push_back(skillLine);
+        // The Logic below is correct, core missing CreatureFamilybanbenshi
         // if (spellInfo && spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
         // {
         //     for (CreatureFamilyEntry const* cFamily : sCreatureFamilyStore)
