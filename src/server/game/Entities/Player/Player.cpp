@@ -25716,6 +25716,9 @@ void Player::LearnSkillRewardedSpells(uint32 id, uint32 value)
         return;
     for (auto&& ability : *abilities)
     {
+        if (ability->SkillLine != id || ability->AcquireMethod == ABILITY_LEARNED_ON_GET_PROFESSION_SKILL)
+            continue;
+
         SpellInfo const* spell = sSpellMgr->GetSpellInfo(ability->Spell);
         if (!spell)
             continue;
@@ -25731,7 +25734,7 @@ void Player::LearnSkillRewardedSpells(uint32 id, uint32 value)
             continue;
 
         // need unlearn spell
-        if (value < ability->MinSkillLineRank && ability->AcquireMethod == ABILITY_LEARNED_ON_GET_PROFESSION_SKILL)
+        if (value < ability->MinSkillLineRank)
             RemoveSpell(ability->Spell);
         // need learn
         else if (!IsInWorld())

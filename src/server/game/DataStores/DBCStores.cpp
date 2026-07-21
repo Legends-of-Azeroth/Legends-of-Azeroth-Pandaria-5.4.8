@@ -734,12 +734,18 @@ void DBCManager::LoadDBCStores(const std::string& dataPath, uint32 defaultLocale
         if (!spellInfo)
             continue;
 
-        SpellLevelsEntry const* levels = sSpellLevelsStore.LookupEntry(spellInfo->LevelsID);
-        if (spellInfo->LevelsID && (!levels || levels->SpellLevel))
+        // if (skillLine->AcquireMethod != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL && skillLine->AcquireMethod != ABILITY_LEARNED_ON_GET_PROFESSION_SKILL)
+        //     continue;
+
+        if (skillLine->AcquireMethod != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL)
             continue;
 
+        // SpellLevelsEntry const* levels = sSpellLevelsStore.LookupEntry(spellInfo->LevelsID);
+        // if (spellInfo->LevelsID && (!levels || levels->SpellLevel))
+        //     continue;
+
         _skillLineAbilitiesBySkillupSkill[skillLine->SkillLine].push_back(skillLine);
-        // The Logic below is correct, core missing CreatureFamilybanbenshi
+        // The Logic below is correct, core missing CreatureFamily
         // if (spellInfo && spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
         // {
         //     for (CreatureFamilyEntry const* cFamily : sCreatureFamilyStore)
