@@ -720,8 +720,8 @@ void DBCManager::LoadDBCStores(const std::string& dataPath, uint32 defaultLocale
         if (entry->RangeIndex > MAX_BATTLEGROUND_BRACKETS)
             ASSERT(false && "Need update MAX_BATTLEGROUND_BRACKETS by DBC data");
 
-    for (SkillLineAbilityEntry const* skillLineAbility : sSkillLineAbilityStore)
-        _skillLineAbilitiesBySkillupSkill[skillLineAbility->SkillLine].push_back(skillLineAbility);
+    // for (SkillLineAbilityEntry const* skillLineAbility : sSkillLineAbilityStore)
+    //     _skillLineAbilitiesBySkillupSkill[skillLineAbility->SkillLine].push_back(skillLineAbility);
 
     for (SkillRaceClassInfoEntry const* entry : sSkillRaceClassInfoStore)
         if (sSkillLineStore.LookupEntry(entry->SkillID))
@@ -738,6 +738,8 @@ void DBCManager::LoadDBCStores(const std::string& dataPath, uint32 defaultLocale
         if (spellInfo->LevelsID && (!levels || levels->SpellLevel))
             continue;
 
+        _skillLineAbilitiesBySkillupSkill[skillLineAbility->SkillLine].push_back(skillLine);
+        // The Logic below is correct, core missing CreatureFamily
         // if (spellInfo && spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
         // {
         //     for (CreatureFamilyEntry const* cFamily : sCreatureFamilyStore)

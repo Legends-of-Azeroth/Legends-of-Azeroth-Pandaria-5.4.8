@@ -2134,8 +2134,8 @@ struct SkillLineAbilityEntry
     uint32 MinSkillLineRank;                                // 5
     //uint32 ExcludeRace;                                   // 5 maybe not in 5.4.8
     //uint32 ExcludeClass;                                  // 6 maybe not in 5.4.8
-    uint32 SupercededBySpell;                               // 8
-    uint32 AcquireMethod;                                   // 9
+    uint32 SupercededBySpell;                               // 6
+    uint32 AcquireMethod;                                   // 7
     uint32    max_value;                                    // 8        m_trivialSkillLineRankHigh
     uint32    min_value;                                    // 9        m_trivialSkillLineRankLow
     uint32    character_points;                             // 10       m_characterPoints - Pandaria - No longer an array
