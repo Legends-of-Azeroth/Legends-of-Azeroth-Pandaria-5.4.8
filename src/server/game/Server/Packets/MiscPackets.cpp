@@ -243,3 +243,19 @@ WorldPacket const* WorldPackets::Misc::OverrideLight::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::DisplayGameError::Write()
+{
+    _worldPacket << uint32(Error);
+    _worldPacket.WriteBit(Arg.has_value());
+    _worldPacket.WriteBit(Arg2.has_value());
+    _worldPacket.FlushBits();
+
+    if (Arg)
+        _worldPacket << int32(*Arg);
+
+    if (Arg2)
+        _worldPacket << int32(*Arg2);
+
+    return &_worldPacket;
+}
