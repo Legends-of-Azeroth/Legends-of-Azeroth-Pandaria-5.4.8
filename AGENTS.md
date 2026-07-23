@@ -1,92 +1,91 @@
 # Legends-of-Azeroth Pandaria 5.4.8 — Agent Instructions
 
-## Build System
-- CMake 3.16+ (recommended ≥3.27.2), C++20, no extensions
-- Standard build: `mkdir build && cd build && cmake .. && make -j$(nproc) && make install`
-- Default build type: `Release`; override with `-DCMAKE_BUILD_TYPE=Debug`
-- Output goes to CMAKE_INSTALL_PREFIX (default: build dir)
+## Build
 
-### CMake Options (via `-D`)
-- `SERVERS=1` — build worldserver + authserver (default ON)
-- `SCRIPTS=1` — embed game scripts (default ON)
-- `TOOLS=1` — map/vmap/mmap extraction tools (default OFF)
-- `ELUNA=1` — embed Eluna Lua Engine (default ON; **disable with playerbots**)
-- `PLAYERBOTS=1` — embed playerbots module (default ON)
-- `USE_COREPCH=1`, `USE_SCRIPTPCH=1` — precompiled headers (default ON; set `NOPCH=1` to disable all PCH)
-- `WITH_WARNINGS=1` — show compiler warnings (default OFF)
-- `WITH_COREDEBUG=1` — extra debug code (default OFF)
-- `WITH_SANITIZER=1` — AddressSanitizer (default OFF)
-- `AUTH_SERVER=1` — build authserver separately (default ON)
-- `UPDATER=1` — build database updater (default OFF)
-- `USE_MODULES=1` — enable module system (default ON)
+```
+mkdir build && cd build
+cmake .. -D<OPTION>=<VAL>
+make -j$(nproc)
+```
+
+Default build type is `Release`. CMake disallows in-source builds.
+
+**Key CMake options** (`cmake/options.cmake`):
+- `SCRIPTS=1` — build core with custom scripts (default ON)
+- `TOOLS=0` — map/vmap/mmap extractors (default OFF; enable for map tooling)
+- `ELUNA=1` — Lua engine (default ON)
+- `PLAYERBOTS=1` — player bot AI (default ON; see README quirks below)
+- `COREPCH/SCRIPTPCH=1` — precompiled headers (default ON; set to 0 for faster incremental rebuilds)
+- `BUILD_DEPLOY=1` — Unix only (default ON)
+
+Debug builds: `cmake .. -DCMAKE_BUILD_TYPE=Debug`
+
+## Requirements
+
+- **Compiler**: GCC ≥ 13 or Clang ≥ 12 (Windows: MSVC ≥ 2019 v16.4)
+- **CMake** ≥ 3.16 (README says 3.27.2)
+- **MySQL** 5.7 or 8.0-8.1 (note: OpenSSL 3.2.0 not supported with MySQL ≥ 8.0.33)
+- **Boost** ≥ 1.85 (Linux), ≥ 1.81 MSVC
+- **OpenSSL** 1.1.1 or 3.0–3.1.1
+- **C++20** (enforced via `CMAKE_CXX_STANDARD`)
 
 ## Architecture
-- **Binaries**: `authserver` (authentication), `worldserver` (game world)
-- **Entry points**: `src/server/authserver/`, `src/server/worldserver/`
-- **Core game logic**: `src/server/game/` — organized by subsystem (Entities, AI, Spells, Quests, Instances, Movement, etc.)
-- **Scripts**: `src/server/scripts/` — organized by region (EasternKingdoms, Kalimdor, Northrend, Outland, Maelstrom, Pandaria) and type (Spells, Commands, Battlegrounds)
-- **Scripts registration**: All scripts registered via `AddSC_*()` functions in `src/server/scripts/ScriptLoader/ScriptLoader.cpp`
-- **Shared code**: `src/server/shared/` — packets, networking, containers, utilities
-- **Common code**: `src/common/` — cross-module utilities, logging, cryptography, data stores
-- **Modules**: `modules/` — auto-discovered subdirectories (currently `mod_playerbots`, `mod_exemple`); loader generated at cmake time from `ModulesLoader.cpp.in.cmake`
-- **Dependencies**: `dep/` — bundled third-party libraries (Boost, OpenSSL, MySQL, StormLib, fmt, g3dlite, RecastNavigation, etc.)
 
-### Key script categories
-- `scripts/Commands/` — in-game GM commands
-- `scripts/Spells/` — custom spell effects
-- `scripts/Battlegrounds/` — BG-specific logic
-- `scripts/Pandaria/` — MoP zones, dungeons, bosses
-- `scripts/Custom/` — custom server-specific scripts
+This is a **WoW private server** (Mists of Pandaria 5.4.8 client patch).
 
-## Database
-- **MySQL 5.7 or 8.0-8.1** (8.0.33+ requires OpenSSL 3.0-3.1.1; OpenSSL 3.2.0 NOT supported)
-- SQL files in `sql/`:
-  - `sql/base/` — initial schema (auth.sql, characters.sql, world.sql)
-  - `sql/updates/` — incremental migrations (master/, world/, characters/)
-  - `sql/archive/` — applied/old migrations
-- **Playerbots database**: separate DB configured in worldserver.conf (`PlayerbotsDatabaseInfo`)
+- `src/server/shared/` — shared library (packets, networking, data stores, threading)
+- `src/server/authserver/` — authentication server
+- `src/server/worldserver/` — game world server
+- `src/server/game/` — core game logic (entities, spells, quests, combat, maps, AI, etc.)
+- `src/server/scripts/` — custom C++ game scripts, organized by region/expansion (Pandaria, EasternKingdoms, Kalimdor, etc.)
+- `src/server/database/` — database record definitions
+- `modules/` — pluggable module system (loaded via `ModulesLoader`)
+- `mod_playerbots/` — AI player bot module (early stage)
+- `src/tools/` — map_extractor, vmap4_extractor/assembler, mmaps_generator
+- `dep/` — vendored dependencies (Boost, fmt, StormLib, g3dlite, MySQL client, OpenSSL, RecastNavigation, etc.)
+- `sql/base/` — base DB schema (`auth.sql`, `characters.sql`, `world.sql`)
+- `sql/updates/` — incremental DB migration SQL, organized by date
+- `contrib/lua_scripts/` — live Eluna Lua scripts (deployed alongside binaries)
 
-## Scripts Convention
-- Every script file defines an `AddSC_<name>()` function that registers its scripts
-- Scripts are auto-loaded via `ScriptLoader.cpp` — add declaration + call there for new scripts
-- `SCRIPTS` compile flag guards all world script registration (`#ifdef SCRIPTS`)
-- SmartAI scripts use `<name>SmartScripts()` registration
+## SQL / Database
 
-## Platform-Specific Notes
-### Windows
-- CMakeSettings.json targets VS2019 x64 (Desktop)
-- Requires Windows SDK 10.0.22621+
-- Copy MySQL `libmysql.dll` and OpenSSL `libcrypto-3-x64.dll` + `libssl-3-x64.dll` to output dir
-- Boost via `install-boost` action or manual; version 1.85.0+ (MSVC toolset)
+- Base schema lives in `sql/base/` — apply these first
+- Incremental updates in `sql/updates/` — ordered by filename prefix (date-based)
+- Three databases: `auth`, `characters`, `world`
+- Playerbots module uses its own DB: `mop_playerbots` (configured in `worldserver.conf`)
 
-### Linux
-- GCC ≥13.0 or Clang ≥12.0
-- Packages: `libboost-all-dev`, `libreadline-dev`, `libbz2-dev`, `libssl-dev`, `libmysqlclient-dev`
-- CI uses Ubuntu 24.04 with GCC 13
+## Eluna Lua Engine
 
-### macOS
-- ARM64 builds supported (see `.github/workflows/macos-arm-build.yml`)
+When `ELUNA=1`, the server loads `contrib/lua_scripts/` at runtime.
+- **Quirk**: `mod_playerbots` is **HIGHLY recommended to disable** when Eluna is enabled (conflicts/instability).
 
-## Playerbots (module)
-- Early-stage feature; **disable ELUNA when using playerbots**
-- Requires enUS DBC files for bot functionality
-- Setup: copy `playerbots.conf` to build dir, configure `PlayerbotsDatabaseInfo` in worldconf
-- Database: separate `mop_playerbots` DB with connection string in config
+## Player Bots Quirks
+
+To enable bots beyond building:
+1. Import playerbots database
+2. Copy `playerbots.conf` into your build directory
+3. Must use **enUS** DBC files
+4. Add to `worldserver.conf`:
+   ```
+   PlayerbotsDatabaseInfo = "127.0.0.1;3306;root;root;mop_playerbots"
+   PlayerbotsDatabase.WorkerThreads = 1
+   PlayerbotsDatabase.SynchThreads = 1
+   Logger.playerbots = 3,Console Server
+   ```
+5. First startup is slow — let it load and randomize
+
+## Code Style
+
+- Sun/Oracle C++ conventions
+- 4 spaces (no tabs)
+- LF line endings only (`core.autocrlf=true`)
+- No trailing whitespace
+- Squash PR commits; keep PRs tested (compile + functional)
+- See `doc/code_standards.md` for full details
 
 ## CI
-- `linux_gcc.yml` — Ubuntu 24.04, GCC 13, builds with `-DTOOLS=1 -DELUNA=0`
-- `windows-build-release.yml` — Windows 2022, VS2019, RelWithDebInfo
-- Both skip `sql/` path changes (SQL-only commits don't trigger CI)
 
-## Code Standards
-- 4-space indent, no tabs, LF line endings (no CRLF)
-- No trailing whitespace
-- Follow Sun/Oracle C++ conventions
-- Squash commits in PRs; PRs must compile and work
-
-## Gotchas
-- CMake build directory should be separate from source (in-source build disabled: `CMAKE_DISABLE_IN_SOURCE_BUILD ON`)
-- Precompiled headers can cause slow incremental rebuilds on header changes; set `NOPCH=1` if needed
-- `modules/` subdirectories are auto-discovered at configure time — no need to edit CMakeLists for new modules
-- `ModulesLoader.cpp` is auto-generated; edits to it may be overwritten on reconfigure
-- Revision hash is auto-generated at build time via `cmake/genrev.cmake`
+- Linux GCC: `.github/workflows/linux_gcc.yml` — GCC 13, Ubuntu 24.04
+- Windows: `.github/workflows/windows-build-release.yml` — VS 2022, Boost 1.87, OpenSSL 3.1.1
+- SQL changes are ignored in CI (`paths-ignore: sql/**`)
+- Travis CI (`build/` dir, `cmake .. -DSCRIPTS=1 -DTOOLS=1`) is legacy

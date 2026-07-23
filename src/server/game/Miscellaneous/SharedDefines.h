@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -4470,7 +4470,7 @@ enum DiminishingLevels
     DIMINISHING_LEVEL_TAUNT_IMMUNE  = 4
 };
 
-enum class GameError
+enum class GameError : uint32
 {
     ERR_INV_FULL                                               = 0,
     ERR_BANK_FULL                                              = 1,
