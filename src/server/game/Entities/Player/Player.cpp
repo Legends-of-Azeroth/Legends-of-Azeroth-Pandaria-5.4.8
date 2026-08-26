@@ -25716,7 +25716,7 @@ void Player::LearnSkillRewardedSpells(uint32 id, uint32 value)
         return;
     for (auto&& ability : *abilities)
     {
-        if (ability->SkillLine != id || ability->AcquireMethod == ABILITY_LEARNED_ON_GET_PROFESSION_SKILL)
+        if (ability->SkillLine != id)
             continue;
 
         SpellInfo const* spell = sSpellMgr->GetSpellInfo(ability->Spell);

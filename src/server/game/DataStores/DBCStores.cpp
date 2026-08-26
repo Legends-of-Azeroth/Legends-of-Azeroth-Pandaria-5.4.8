@@ -737,7 +737,8 @@ void DBCManager::LoadDBCStores(const std::string& dataPath, uint32 defaultLocale
         // if (skillLine->AcquireMethod != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL && skillLine->AcquireMethod != ABILITY_LEARNED_ON_GET_PROFESSION_SKILL)
         //     continue;
 
-        if (skillLine->AcquireMethod != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL)
+        if (skillLine->AcquireMethod != ABILITY_LEARNED_ON_GET_PROFESSION_SKILL &&
+            skillLine->AcquireMethod != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL)
             continue;
 
         // SpellLevelsEntry const* levels = sSpellLevelsStore.LookupEntry(spellInfo->LevelsID);
