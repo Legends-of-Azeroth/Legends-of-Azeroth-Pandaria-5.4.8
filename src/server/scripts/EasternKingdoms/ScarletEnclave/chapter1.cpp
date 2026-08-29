@@ -426,8 +426,8 @@ struct npc_eye_of_acherus : public ScriptedAI
                     Movement::MoveSplineInit init(me);
                     init.MovebyPath(path);
                     init.SetFly();
-                    init.SetUncompressed();
-                    init.SetSmooth();
+                    // init.SetUncompressed();
+                    // init.SetSmooth();
                     if (Unit* owner = me->GetCharmerOrOwner())
                         init.SetVelocity(owner->GetSpeed(MOVE_RUN));
 
