@@ -27189,9 +27189,6 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
             return;
         }
 
-        // farsight dynobj or puppet may be very far away
-        UpdateVisibilityOf(target);
-
         if (Unit* targetUnit = target->ToUnit(); targetUnit && targetUnit != GetVehicleBase())
             targetUnit->AddPlayerToVision(this);
         SetSeer(target);
