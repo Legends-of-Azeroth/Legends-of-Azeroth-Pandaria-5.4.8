@@ -32,6 +32,7 @@
 #include "ObjectMgr.h"
 #include "MovementStructures.h"
 #include "BattlePetMgr.h"
+#include "GameTime.h"
 #include <boost/accumulators/statistics/variance.hpp>
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics.hpp>
