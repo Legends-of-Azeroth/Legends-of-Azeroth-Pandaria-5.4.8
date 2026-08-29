@@ -23,6 +23,9 @@
 #define __WORLDSESSION_H
 
 #include <atomic>
+#include <memory>
+#include <map>
+#include <utility>
 #include "AllPackets.h"
 #include "Common.h"
 #include "SharedDefines.h"
@@ -35,6 +38,7 @@
 #include "Object.h"
 #include "AsyncCallbackProcessor.h"
 #include "DatabaseEnvFwd.h"
+#include <boost/circular_buffer.hpp>
 
 class BigNumber;
 class AccountAchievementMgr;
@@ -458,7 +462,9 @@ class TC_GAME_API WorldSession
 
         uint32 GetLatency() const { return m_latency; }
         void SetLatency(uint32 latency) { m_latency = latency; }
-        void ResetClientTimeDelay() { m_clientTimeDelay = 0; }
+
+        uint32 AdjustClientMovementTime(uint32 time) const;
+        void ComputeNewClockDelta();
 
         std::atomic<time_t> m_timeOutTime;
         void UpdateTimeOutTime(uint32 diff)
@@ -1280,8 +1286,10 @@ class TC_GAME_API WorldSession
         LocaleConstant m_sessionDbcLocale;
         LocaleConstant m_sessionDbLocaleIndex;
         uint32 m_latency;
-        uint32 m_clientTimeDelay;
         uint32 m_flags;
+        std::unique_ptr<boost::circular_buffer<std::pair<int64, uint32>>> _timeSyncClockDeltaQueue; // first member: clockDelta. Second member: latency of the packet exchange that was used to compute that clockDelta.
+        int64 _timeSyncClockDelta;
+        std::map<uint32, uint32> _pendingTimeSyncRequests; // key: counter. value: server time when packet with that counter was sent.
         TimeValue m_firstCancelModSpeedNoContorlAurasPacket;
         TimeValue m_lastCancelModSpeedNoContorlAurasPacket;
         AccountData m_accountData[NUM_ACCOUNT_DATA_TYPES];

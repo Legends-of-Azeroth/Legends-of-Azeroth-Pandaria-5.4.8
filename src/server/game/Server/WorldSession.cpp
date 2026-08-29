@@ -22,6 +22,8 @@
 #include "WorldSocket.h"
 #include "Config.h"
 #include "Common.h"
+#include <memory>
+#include <cmath>
 #include "DatabaseEnv.h"
 #include "AccountMgr.h"
 #include "Log.h"
@@ -121,7 +123,8 @@ WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, Account
     m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
     m_sessionDbLocaleIndex(locale),
     m_latency(0),
-    m_clientTimeDelay(0),
+    _timeSyncClockDeltaQueue(std::make_unique<boost::circular_buffer<std::pair<int64, uint32>>>(6)),
+    _timeSyncClockDelta(0),
     m_TutorialsChanged(false),
     _filterAddonMessages(false),
     recruiterId(recruiter),

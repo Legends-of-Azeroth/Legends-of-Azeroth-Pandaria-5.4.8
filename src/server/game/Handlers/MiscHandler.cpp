@@ -1914,6 +1914,24 @@ void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
     // diff should be small
     TC_LOG_DEBUG("network", "Our ticks: %u, diff %u, latency %u", ourTicks, ourTicks - clientTicks, GetLatency());
 
+    uint32 serverTimeAtSent = _player->m_timeSyncServer;
+    uint32 roundTripDuration = getMSTimeDiff(serverTimeAtSent, getMSTime());
+    uint32 lagDelay = roundTripDuration / 2;
+
+    /*
+    clockDelta = serverTime - clientTime
+    where
+    serverTime: time that was displayed on the clock of the SERVER at the moment when the client processed the SMSG_TIME_SYNC_REQUEST packet.
+    clientTime:  time that was displayed on the clock of the CLIENT at the moment when the client processed the SMSG_TIME_SYNC_REQUEST packet.
+
+    Once clockDelta has been computed, we can compute the time of an event on server clock when we know the time of that same event on the client clock,
+    using the following relation:
+    serverTime = clockDelta + clientTime
+    */
+    int64 clockDelta = (int64)serverTimeAtSent + (int64)lagDelay - (int64)clientTicks;
+    _timeSyncClockDeltaQueue->push_back(std::pair<int64, uint32>(clockDelta, roundTripDuration));
+    ComputeNewClockDelta();
+
     _player->m_timeSyncClient = clientTicks;
     _player->m_timeSyncQueue.pop();
 }

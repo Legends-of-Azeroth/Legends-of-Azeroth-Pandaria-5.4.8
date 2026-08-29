@@ -35,8 +35,54 @@
 #include <boost/accumulators/statistics/variance.hpp>
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics.hpp>
+#include <boost/circular_buffer.hpp>
 
-#define MOVEMENT_PACKET_TIME_DELAY 0
+uint32 WorldSession::AdjustClientMovementTime(uint32 time) const
+{
+    int64 movementTime = int64(time) + _timeSyncClockDelta;
+    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > SI64LIT(0xFFFFFFFF))
+    {
+        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
+        return GameTime::GetGameTimeMS();
+    }
+    else
+        return uint32(movementTime);
+}
+
+void WorldSession::ComputeNewClockDelta()
+{
+    // implementation of the technique described here: https://web.archive.org/web/20180430214420/http://www.mine-control.com/zack/timesync/timesync.html
+    // to reduce the skew induced by dropped TCP packets that get resent.
+
+    using namespace boost::accumulators;
+
+    accumulator_set<uint32, features<tag::mean, tag::median, tag::variance(lazy)> > latencyAccumulator;
+
+    for (auto [_, roundTripDuration] : *_timeSyncClockDeltaQueue)
+        latencyAccumulator(roundTripDuration);
+
+    uint32 latencyMedian = static_cast<uint32>(std::round(median(latencyAccumulator)));
+    uint32 latencyStandardDeviation = static_cast<uint32>(std::round(sqrt(variance(latencyAccumulator))));
+
+    accumulator_set<int64, features<tag::mean> > clockDeltasAfterFiltering;
+    uint32 sampleSizeAfterFiltering = 0;
+    for (auto [clockDelta, roundTripDuration] : *_timeSyncClockDeltaQueue)
+    {
+        if (roundTripDuration < latencyStandardDeviation + latencyMedian) {
+            clockDeltasAfterFiltering(clockDelta);
+            sampleSizeAfterFiltering++;
+        }
+    }
+
+    if (sampleSizeAfterFiltering != 0)
+    {
+        int64 meanClockDelta = static_cast<int64>(std::round(mean(clockDeltasAfterFiltering)));
+        if (std::abs(meanClockDelta - _timeSyncClockDelta) > 25)
+            _timeSyncClockDelta = meanClockDelta;
+    }
+    else if (_timeSyncClockDelta == 0)
+        _timeSyncClockDelta = _timeSyncClockDeltaQueue->back().first;
+}
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket& /*recvData*/)
 {
@@ -399,12 +445,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
         plrMover->SanitizeMovementInfo(&movementInfo, true);
     }
 
-    uint32 mstime = getMSTime();
-    if(m_clientTimeDelay == 0)
-        m_clientTimeDelay = mstime - movementInfo.time;
-
     /* process position-change */
-    movementInfo.time = movementInfo.time + m_clientTimeDelay + MOVEMENT_PACKET_TIME_DELAY;
+    movementInfo.time = AdjustClientMovementTime(movementInfo.time);
     movementInfo.guid = mover->GetGUID();
     mover->m_movementInfo = movementInfo;
 
@@ -620,7 +662,9 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
     if (_player->m_mover->GetGUID() != movementInfo.guid)
         return;
 
+    movementInfo.time = AdjustClientMovementTime(movementInfo.time);
     _player->m_movementInfo = movementInfo;
+    _player->UpdatePosition(movementInfo.pos);
 
     WorldPacket data(SMSG_MOVE_UPDATE_KNOCK_BACK, 66);
     _player->WriteMovementInfo(data);

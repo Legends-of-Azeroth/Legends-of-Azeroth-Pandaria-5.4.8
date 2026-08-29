@@ -1171,7 +1171,6 @@ bool WorldSocket::HandlePing(WorldPackets::Auth::Ping& ping)
         if (_worldSession)
         {
             _worldSession->SetLatency(ping.Latency);
-            _worldSession->ResetClientTimeDelay();
         }
         else
         {
