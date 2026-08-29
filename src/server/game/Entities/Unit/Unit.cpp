@@ -16655,7 +16655,6 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
                 if (this->GetEntry() != 69458 && this->GetEntry() != 67275 && this->GetEntry() != 68849 && this->GetEntry() != 72952)
                     charmer->ToPlayer()->SetMover(this);
 
-                charmer->ToPlayer()->SetViewpoint(this, true);
                 charmer->ToPlayer()->VehicleSpellInitialize();
                 break;
             case CHARM_TYPE_POSSESS:
@@ -16664,7 +16663,6 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
                 charmer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 charmer->ToPlayer()->SetMover(this);
                 charmer->ToPlayer()->SetClientControl(this, !HasUnitState(UNIT_STATE_FLEEING | UNIT_STATE_CONFUSED));
-                charmer->ToPlayer()->SetViewpoint(this, true);
                 charmer->ToPlayer()->PossessSpellInitialize();
                 break;
             case CHARM_TYPE_CHARM:
@@ -16798,7 +16796,6 @@ void Unit::RemoveCharmedBy(Unit* charmer)
         {
             case CHARM_TYPE_VEHICLE:
                 charmer->ToPlayer()->SetClientControl(charmer, 1);
-                charmer->ToPlayer()->SetViewpoint(this, false);
                 charmer->ToPlayer()->SetClientControl(this, 0);
                 if (GetTypeId() == TYPEID_PLAYER)
                     ToPlayer()->SetMover(this);
@@ -16806,7 +16803,6 @@ void Unit::RemoveCharmedBy(Unit* charmer)
             case CHARM_TYPE_POSSESS:
                 if (!charmer->ToPlayer()->HasUnitState(UNIT_STATE_FLEEING | UNIT_STATE_CONFUSED))
                     charmer->ToPlayer()->SetClientControl(charmer, 1);
-                charmer->ToPlayer()->SetViewpoint(this, false);
                 charmer->ToPlayer()->SetClientControl(this, 0);
                 charmer->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 if (GetTypeId() == TYPEID_PLAYER)

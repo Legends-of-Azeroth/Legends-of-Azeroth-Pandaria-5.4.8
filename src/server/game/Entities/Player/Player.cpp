@@ -27185,7 +27185,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
 
         // Clear existing farsight object before setting a new one
         if (ObjectGuid oldFarsight = GetGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT))
-            RemoveGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT, ObjectGuid::Empty);
+            SetGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT, ObjectGuid());
 
         if (!AddGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT, target->GetGUID()))
         {
