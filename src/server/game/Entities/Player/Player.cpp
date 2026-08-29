@@ -27183,6 +27183,10 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
     {
         TC_LOG_DEBUG("maps", "Player::CreateViewpoint: Player %s create seer %u (TypeId: %u).", GetName().c_str(), target->GetEntry(), target->GetTypeId());
 
+        // Clear existing farsight object before setting a new one
+        if (ObjectGuid oldFarsight = GetGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT))
+            RemoveGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT, ObjectGuid::Empty());
+
         if (!AddGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT, target->GetGUID()))
         {
             TC_LOG_FATAL("entities.player", "Player::CreateViewpoint: Player %s cannot add new viewpoint!", GetName().c_str());

@@ -5478,6 +5478,9 @@ void AuraEffect::HandleBindSight(AuraApplication const* aurApp, uint8 mode, bool
     if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
+    if (target->IsVehicle() && caster->ToPlayer()->GetVehicleBase() == target)
+        return;
+
     caster->ToPlayer()->SetViewpoint(target, apply);
 }
 
