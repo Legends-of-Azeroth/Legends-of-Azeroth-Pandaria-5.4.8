@@ -1958,7 +1958,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 transport->CalculatePassengerOffset(x, y, z, &orientation);
                 m_movementInfo.transport.pos.Relocate(x, y, z, orientation);
             }
-            SendTeleportPacket(oldPos); // this automatically relocates to oldPos in order to broadcast the packet in the right place
+            // use TELE_TO_TRANSPORT_TELEPORT option if player is on transport
+            SendTeleportPacket(oldPos, (options & TELE_TO_TRANSPORT_TELEPORT) != 0);
 
             if (HasUnitState(UNIT_STATE_FLEEING | UNIT_STATE_CONFUSED | UNIT_STATE_POSSESSED) || IsCharmed() || isPossessed())
                 SetClientControl(this, false);
