@@ -30,6 +30,7 @@
 #include "CreatureTextMgr.h"
 #include "MoveSplineInit.h"
 #include <G3D/Vector3.h>
+#include <functional>
 
 /*######
 ##Quest 12848
@@ -412,26 +413,16 @@ struct npc_eye_of_acherus : public ScriptedAI
                     break;
                 case EVENT_LAUNCH_TOWARDS_DESTINATION:
                 {
-                    // std::function<void(Movement::MoveSplineInit&)> initializer = [=](Movement::MoveSplineInit& init)
-                    // {
-                    //     Movement::PointsArray path(EyeOfAcherusPath, EyeOfAcherusPath + EyeOfAcherusPathSize);
-                    //     init.MovebyPath(path);
-                    //     init.SetFly();
-                    //     if (Unit* owner = me->GetCharmerOrOwner())
-                    //         init.SetVelocity(owner->GetSpeed(MOVE_RUN));
-                    // };
-                    // //me->GetMotionMaster()->MovePoint(EYE_POINT_DESTINATION_1, EYE_DESTINATION_1);
-                    // me->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), POINT_NEW_AVALON, MOTION_SLOT_ACTIVE, POINT_MOTION_TYPE);
-                    Movement::PointsArray path(EyeOfAcherusPath, EyeOfAcherusPath + EyeOfAcherusPathSize);
-                    Movement::MoveSplineInit init(me);
-                    init.MovebyPath(path);
-                    init.SetFly();
-                    // init.SetUncompressed();
-                    // init.SetSmooth();
-                    if (Unit* owner = me->GetCharmerOrOwner())
-                        init.SetVelocity(owner->GetSpeed(MOVE_RUN));
+                    std::function<void(Movement::MoveSplineInit&)> initializer = [=, me = me](Movement::MoveSplineInit& init)
+                    {
+                        Movement::PointsArray path(EyeOfAcherusPath, EyeOfAcherusPath + EyeOfAcherusPathSize);
+                        init.MovebyPath(path);
+                        init.SetFly();
+                        if (Unit* owner = me->GetCharmerOrOwner())
+                            init.SetVelocity(owner->GetSpeed(MOVE_RUN));
+                    };
 
-                    me->GetMotionMaster()->LaunchMoveSpline(std::move(init), POINT_NEW_AVALON, MOTION_SLOT_ACTIVE, POINT_MOTION_TYPE);
+                    me->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), POINT_NEW_AVALON, MOTION_SLOT_ACTIVE, POINT_MOTION_TYPE);
                     break;
                 }
                 case EVENT_GRANT_CONTROL:

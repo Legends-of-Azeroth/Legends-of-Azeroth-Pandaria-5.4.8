@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -21,9 +21,16 @@
 #include "MoveSpline.h"
 #include "Unit.h"
 
-void GenericMovementGenerator::Initialize(Unit* /*owner*/)
+void GenericMovementGenerator::Initialize(Unit* owner)
 {
-    _duration.Reset(_splineInit.Launch());
+    if (_useInitializer)
+    {
+        Movement::MoveSplineInit init(owner);
+        _initializer(init);
+        _duration.Reset(init.Launch());
+    }
+    else
+        _duration.Reset(_splineInit->Launch());
 }
 
 bool GenericMovementGenerator::Update(Unit* owner, uint32 diff)

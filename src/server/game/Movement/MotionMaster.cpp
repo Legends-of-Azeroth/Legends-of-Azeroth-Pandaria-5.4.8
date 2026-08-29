@@ -770,6 +770,18 @@ void MotionMaster::LaunchMoveSpline(Movement::MoveSplineInit&& init, uint32 id/*
     Mutate(new GenericMovementGenerator(std::move(init), type, id), slot);
 }
 
+void MotionMaster::LaunchMoveSpline(std::function<void(Movement::MoveSplineInit&)>&& initializer, uint32 id/*= 0*/, MovementSlot slot/*= MOTION_SLOT_ACTIVE*/, MovementGeneratorType type/*= EFFECT_MOTION_TYPE*/)
+{
+    if (IsInvalidMovementGeneratorType(type))
+    {
+        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::LaunchMoveSpline: '%u', tried to launch a spline with an invalid MovementGeneratorType: %u (Id: %u, Slot: %u)", _owner->GetGUID().GetCounter(), type, id, slot);
+        return;
+    }
+
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::LaunchMoveSpline: '%u', initiates spline Id: %u (Type: %u, Slot: %u)", _owner->GetGUID().GetCounter(), id, type, slot);
+    Mutate(new GenericMovementGenerator(std::move(initializer), type, id), slot);
+}
+
 void MotionMaster::propagateSpeedChange()
 {
     /*Impl::container_type::iterator it = Impl::c.begin();

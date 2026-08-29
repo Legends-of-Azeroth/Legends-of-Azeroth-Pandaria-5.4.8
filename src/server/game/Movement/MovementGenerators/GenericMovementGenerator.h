@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -22,6 +22,9 @@
 #include "MoveSplineInit.h"
 #include "Timer.h"
 
+#include <functional>
+#include <optional>
+
 class Unit;
 
 enum MovementGeneratorType : uint8;
@@ -30,6 +33,7 @@ class GenericMovementGenerator : public MovementGenerator
 {
     public:
         explicit GenericMovementGenerator(Movement::MoveSplineInit&& splineInit, MovementGeneratorType type, uint32 id) : _splineInit(std::move(splineInit)), _type(type), _pointId(id), _duration(0) { }
+        explicit GenericMovementGenerator(std::function<void(Movement::MoveSplineInit&)>&& initializer, MovementGeneratorType type, uint32 id) : _type(type), _pointId(id), _duration(0), _initializer(std::move(initializer)), _useInitializer(true) { }
 
         void Initialize(Unit*) override;
         void Finalize(Unit*) override;
@@ -40,10 +44,13 @@ class GenericMovementGenerator : public MovementGenerator
     private:
         void MovementInform(Unit*);
 
-        Movement::MoveSplineInit _splineInit;
+        std::optional<Movement::MoveSplineInit> _splineInit;
         MovementGeneratorType _type;
         uint32 _pointId;
         TimeTrackerSmall _duration;
+
+        std::function<void(Movement::MoveSplineInit&)> _initializer;
+        bool _useInitializer = false;
 };
 
 #endif
