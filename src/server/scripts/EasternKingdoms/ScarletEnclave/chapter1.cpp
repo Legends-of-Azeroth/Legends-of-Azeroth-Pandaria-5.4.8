@@ -429,11 +429,6 @@ struct npc_eye_of_acherus : public ScriptedAI
                     me->RemoveAurasDueToSpell(SPELL_ROOT_SELF);
                     DoCastSelf(SPELL_EYE_OF_ACHERUS_FLIGHT);
                     me->RemoveAurasDueToSpell(SPELL_EYE_OF_ACHERUS_FLIGHT_BOOST);
-                    // keep the eye hovering once the player takes control (same outcome as TC 3.3.5,
-                    // where the flight aura data grants flight)
-                    me->SetCanFly(true);
-                    me->SetDisableGravity(true);
-                    me->SetHover(true);
                     if (Unit* owner = me->GetCharmerOrOwner())
                         Talk(SAY_EYE_UNDER_CONTROL, owner);
                     break;
@@ -546,9 +541,11 @@ public:
                     return;
             }
 
-            // The eye is the visible (channel) caster; quest credit has to go to the controlling player
-            if (Player* player = Object::ToPlayer(GetCaster()->GetCharmerOrOwner()))
-                player->CastSpell((Unit*)NULL, spellId, true);
+            // Exactly as in TC 3.3.5: the eye is the caster, the credit spell's
+            // implicit target 27 (TARGET_UNIT_MASTER) resolves to the player.
+            // (The explicit Unit* cast disambiguates this engine's extra
+            // GameObject* overload; TC 3.3.5 compiles the bare literal.)
+            GetCaster()->CastSpell((Unit*)nullptr, spellId, true);
         }
 
         void Register() override
