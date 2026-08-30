@@ -725,7 +725,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     bool hasOrientation = false;
     bool hasUnkMovementField = false;
     uint32 unkMovementLoopCounter = 0;
-    Unit* caster = mover;
+    Unit* caster = _player;
 
     recvPacket.ReadBit(); // Fake bit
     bool hasTargetString = !recvPacket.ReadBit();
@@ -1039,26 +1039,13 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (caster->GetTypeId() == TYPEID_PLAYER &&  caster->GetMap()->IsDungeon() && caster->GetMap()->IsChallengeDungeon() &&
+    if (caster->GetTypeId() == TYPEID_PLAYER && caster->GetMap()->IsDungeon() && caster->GetMap()->IsChallengeDungeon() &&
         caster->GetInstanceScript() && caster->GetInstanceScript()->IsChallengeModeStarted() &&
         (spellInfo->Id == 63645 || spellInfo->Id == 63644 || spellInfo->Targets & TARGET_FLAG_GLYPH_SLOT))
     {
         caster->ToPlayer()->SendGameError(GameError::ERR_NOT_IN_COMBAT);
         recvPacket.rfinish(); // prevent spam at ignore packet
         return;
-    }
-
-    if (caster->GetTypeId() == TYPEID_UNIT && !caster->ToCreature()->HasSpell(spellId))
-    {
-        // If the vehicle creature does not have the spell but it allows the passenger to cast own spells
-        // change caster to player and let him cast
-        if (!_player->IsOnVehicle(caster) || spellInfo->CheckVehicle(_player) != SPELL_CAST_OK)
-        {
-            recvPacket.rfinish(); // prevent spam at ignore packet
-            return;
-        }
-
-        caster = _player;
     }
 
     // client provided targets
