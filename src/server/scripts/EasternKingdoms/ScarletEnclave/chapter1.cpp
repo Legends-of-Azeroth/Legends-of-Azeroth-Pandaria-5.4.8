@@ -414,10 +414,11 @@ struct npc_eye_of_acherus : public ScriptedAI
                 case EVENT_LAUNCH_TOWARDS_DESTINATION:
                 {
                     // Mirror SkyFire 548 (ApplyLaunchMovement): latch the eye's
-                    // flight state now, while the controlling player's client is
-                    // still in broadcast range. The 5.4.8 client keeps this
-                    // per-GUID status across the remote flight, so the eye keeps
-                    // flying when control transfers at the destination.
+                    // flight state client-side at launch. The 5.4.8 client keeps
+                    // this per-GUID status (CAN_FLY + DISABLE_GRAVITY) for the
+                    // whole remote flight; nothing in the arrival-time path
+                    // reprovides DISABLE_GRAVITY. PacketSender routes these
+                    // directly to the controlling player via GameClient.
                     me->SetCanFly(true);
                     me->SetDisableGravity(true);
 

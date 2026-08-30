@@ -3588,6 +3588,12 @@ void SpellMgr::LoadSpellInfoCorrections()
                 case 69198: // Raging Spirit Visual
                     spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13);             // 50000yd
                     break;
+                case 51858: // Siphon of Acherus - DBC data has this as Self Only (SpellRange id 1), retail is 50000 yd (Anywhere)
+                    spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13);             // 50000yd
+                    break;
+                case 51859: // Siphon of Acherus (periodic trigger channel) - DBC data has this as Self Only (SpellRange id 1), retail is 45 yd (Longer Range)
+                    spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(36);             // 45yd
+                    break;
                 case 73654: // Harvest Souls
                 case 74295: // Harvest Souls
                 case 74296: // Harvest Souls
