@@ -1727,6 +1727,7 @@ public:
     bool SetFall(bool enable);
     bool SetSwim(bool enable);
     bool SetCanFly(bool enable);
+    bool SetAlwaysAllowPitching(bool enable);
     bool SetWaterWalking(bool enable, bool packetOnly = false);
     bool SetFeatherFall(bool enable, bool packetOnly = false);
     bool SetHover(bool enable, bool packetOnly = false);

@@ -19471,6 +19471,13 @@ bool Unit::SetCanFly(bool enable)
         AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
         RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_SPLINE_ELEVATION);
         SetFall(false);
+        // A client-controlled creature that is put into flight gets full 3D
+        // control (pitch) on top of CAN_FLY. TC's 3.3.5/4.3.4 clients grant this
+        // natively for a controlled flyer; the 5.4.8 client needs the
+        // ALWAYS_ALLOW_PITCHING flag delivered, so the Eye of Acherus and similar
+        // possessed flyers can descend.
+        if (IsMovedByClient())
+            SetAlwaysAllowPitching(true);
     }
     else
     {
@@ -19483,6 +19490,31 @@ bool Unit::SetCanFly(bool enable)
         Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_FLYING, SMSG_MOVE_SET_CAN_FLY).Send();
     else
         Movement::PacketSender(this, SMSG_SPLINE_MOVE_UNSET_FLYING, SMSG_MOVE_UNSET_CAN_FLY).Send();
+
+    return true;
+}
+
+bool Unit::SetAlwaysAllowPitching(bool enable)
+{
+    if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
+        return false;
+
+    if (enable)
+        AddExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
+    else
+        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
+
+    // Push an immediate movement update straight to the controlling player so the
+    // client sees ALWAYS_ALLOW_PITCHING (hasPitch=true) right away, instead of
+    // waiting for the next grid broadcast (which cannot reach a remote mover like
+    // the Eye of Acherus, 1000+ yd from the player). Mirrors TC Master's
+    // Unit::SetAlwaysAllowPitching().
+    if (GameClient* controller = GetGameClientMovingMe())
+    {
+        WorldPacket data(SMSG_PLAYER_MOVE, 100);
+        WriteMovementInfo(data);
+        controller->SendDirectMessage(&data);
+    }
 
     return true;
 }
