@@ -1047,11 +1047,27 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         return;
     }
 
+    // Character controlling another unit (vehicle) - let the controlled unit cast, e.g. the
+    // Eye of Acherus must be the caster for its channel visuals to show (matches TC 3.3.5 pre-0a34290484)
+    Unit* caster = mover;
+    if (caster->GetTypeId() == TYPEID_UNIT && !caster->ToCreature()->HasSpell(spellId))
+    {
+        // If the vehicle creature does not have the spell but it allows the passenger to cast own spells
+        // change caster to player and let him cast
+        if (!_player->IsOnVehicle(caster) || spellInfo->CheckVehicle(_player) != SPELL_CAST_OK)
+        {
+            recvPacket.rfinish(); // prevent spam at ignore packet
+            return;
+        }
+
+        caster = _player;
+    }
+
     // client provided targets
-    SpellCastTargets targets(_player, targetMask, targetGuid, itemTargetGuid, srcTransportGuid, destTransportGuid, srcPos, destPos, elevation, missileSpeed, targetString);
+    SpellCastTargets targets(caster, targetMask, targetGuid, itemTargetGuid, srcTransportGuid, destTransportGuid, srcPos, destPos, elevation, missileSpeed, targetString);
 
     // not have spell in spellbook
-    if (!_player->HasActiveSpell(spellId) && !spellInfo->IsRaidMarker() &&
+    if (caster->GetTypeId() == TYPEID_PLAYER && !_player->HasActiveSpell(spellId) && !spellInfo->IsRaidMarker() &&
         spellId != 101603 && // Hack for Throw Totem, Echo of Baine
         spellId != 119393 && // Hack for Siege Explosive, General Pa'valak
         spellId != 123039 && // Hack for Player Throw Barrel, Commander Vo'jak
@@ -1124,7 +1140,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             spellInfo = actualSpellInfo;
     }
 
-    Spell* spell = new Spell(_player, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false);
+    Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false);
     spell->m_cast_count = castCount;                       // set count of casts
     spell->m_glyphIndex = glyphIndex;
 
