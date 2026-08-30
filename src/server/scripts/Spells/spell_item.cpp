@@ -30,6 +30,8 @@
 #include "Battleground.h"
 #include "Chat.h"
 #include "CreatureTextMgr.h"
+#include "Creature.h"
+#include "GridNotifiers.h"
 #include "spell_common.h"
 #include "Random.h"
 
@@ -4462,6 +4464,51 @@ class spell_item_fate_rune_of_unsurpassed_vigor : public AuraScript
     }
 };
 
+// 84421 - Loot-A-Rang
+class spell_item_loot_a_rang : public SpellScript
+{
+    PrepareSpellScript(spell_item_loot_a_rang);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetCaster()->ToPlayer())
+        {
+            std::list<Creature*> corpses;
+            auto check = [=](Creature const* creature)
+            {
+                if (creature->IsAlive())
+                    return false;
+                if (!player->IsWithinDist(creature, 40.0f))
+                    return false;
+                return player->IsAllowedToLoot(creature);
+            };
+            Trinity::CreatureListSearcher<decltype(check)> searcher{ player, corpses, check };
+            player->VisitNearbyGridObject(40.0f, searcher);
+
+            // find the nearest corpse
+            Creature* nearest = nullptr;
+            float minDist = 40.0f;
+            for (Creature* c : corpses)
+            {
+                float dist = player->GetExactDist(c);
+                if (dist < minDist)
+                {
+                    minDist = dist;
+                    nearest = c;
+                }
+            }
+
+            if (nearest)
+                player->SendLoot(nearest->GetGUID(), LOOT_CORPSE, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_item_loot_a_rang::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4588,5 +4635,5 @@ void AddSC_item_spell_scripts()
     //RegisterSpellScript(spell_item_echoes_of_light);
     new spell_script<spell_item_echoes_of_light>("spell_item_echoes_of_light");
     new aura_script<spell_item_fate_rune_of_unsurpassed_vigor>("spell_item_fate_rune_of_unsurpassed_vigor");
-    
+    new spell_script<spell_item_loot_a_rang>("spell_item_loot_a_rang");
 }

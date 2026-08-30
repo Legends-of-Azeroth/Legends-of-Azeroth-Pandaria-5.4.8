@@ -30,6 +30,7 @@
 #include "Opcodes.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameClient.h"
 #include "Player.h"
 #include "Vehicle.h"
 #include "ObjectMgr.h"
@@ -108,6 +109,7 @@ WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, Account
     m_timeOutTime(0),
     AntiDOS(this),
     _player(nullptr),
+    _gameClient(new GameClient(this)),
     m_Socket(sock),
     _security(sec),
     _accountId(id),
@@ -162,6 +164,7 @@ WorldSession::~WorldSession()
 
     delete _warden;
     delete m_charBooster;
+    delete _gameClient;
 
     ///- empty incoming packet queue
     WorldPacket* packet = nullptr;

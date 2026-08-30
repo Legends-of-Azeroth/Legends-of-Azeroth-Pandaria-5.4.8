@@ -44,6 +44,7 @@
 #include "PassiveAI.h"
 #include "PetAI.h"
 #include "Pet.h"
+#include "GameClient.h"
 #include "Player.h"
 #include "PlayerAI.h"
 #include "QuestDef.h"
@@ -190,7 +191,7 @@ uint32 ProcEventInfo::GetDamageWithoutResilience() const
 Unit::Unit(bool isWorldObject) :
 WorldObject(isWorldObject), m_movedPlayer(NULL), m_lastSanctuaryTime(0),
 IsAIEnabled(false), NeedChangeAI(false), LastCharmerGUID(),
-m_ControlledByPlayer(false), movespline(new Movement::MoveSpline()),
+m_ControlledByPlayer(false), movespline(new Movement::MoveSpline()), _gameClientMovingMe(nullptr),
 i_AI(NULL), i_disabledAI(NULL), m_procDeep(0),
 m_removedAurasCount(0), i_motionMaster(new MotionMaster(this)), m_ThreatManager(this),
 m_vehicle(NULL), m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE),
@@ -351,6 +352,7 @@ Unit::~Unit()
     ASSERT(m_removedAuras.empty());
     ASSERT(m_gameObj.empty());
     ASSERT(m_dynObj.empty());
+    ASSERT(!_gameClientMovingMe || _gameClientMovingMe->GetBasePlayer() == this);
 }
 
 void Unit::Update(uint32 p_time)

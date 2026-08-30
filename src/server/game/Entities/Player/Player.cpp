@@ -16,6 +16,7 @@
 */
 
 #include "Player.h"
+#include "GameClient.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "Battlefield.h"
@@ -26821,6 +26822,8 @@ void Player::SetClientControl(Unit* target, bool allowMove)
         SetMover(target);
     else
         m_clientMoverGuid = 0;
+
+    GetSession()->GetGameClient()->SetMovedUnit(target, allowMove);
 }
 
 void Player::SetMover(Unit* target)
