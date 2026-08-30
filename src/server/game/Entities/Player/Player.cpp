@@ -26818,7 +26818,7 @@ void Player::SetClientControl(Unit* target, bool allowMove)
         SetViewpoint(target, allowMove);
 
     if (allowMove)
-        SetMover(this);
+        SetMover(target);
     else
         m_clientMoverGuid = 0;
 }
