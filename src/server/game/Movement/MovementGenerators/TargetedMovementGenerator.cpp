@@ -183,7 +183,8 @@ bool TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
 
     // allow pets to use shortcut if no path found when following their master
     bool forceDest = (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsPet()
-        && owner->HasUnitState(UNIT_STATE_FOLLOW));
+        && owner->HasUnitState(UNIT_STATE_FOLLOW)
+        && i_target.getTarget()->GetGUID() == owner->ToCreature()->GetOwnerGUID());
 
     bool result = i_path->CalculatePath(x, y, z, forceDest);
 
