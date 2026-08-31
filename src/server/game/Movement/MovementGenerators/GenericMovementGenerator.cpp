@@ -21,7 +21,7 @@
 #include "MoveSpline.h"
 #include "Unit.h"
 
-void GenericMovementGenerator::Initialize(Unit* owner)
+bool GenericMovementGenerator::Initialize(Unit* owner)
 {
     if (_useInitializer)
     {
@@ -31,6 +31,8 @@ void GenericMovementGenerator::Initialize(Unit* owner)
     }
     else
         _duration.Reset(_splineInit->Launch());
+
+    return true;
 }
 
 bool GenericMovementGenerator::Update(Unit* owner, uint32 diff)
@@ -45,7 +47,7 @@ bool GenericMovementGenerator::Update(Unit* owner, uint32 diff)
     return !owner->movespline->Finalized();
 }
 
-void GenericMovementGenerator::Finalize(Unit* owner)
+void GenericMovementGenerator::Finalize(Unit* owner, bool, bool)
 {
     MovementInform(owner);
 }

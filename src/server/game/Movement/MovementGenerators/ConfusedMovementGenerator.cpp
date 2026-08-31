@@ -30,34 +30,36 @@
 #endif
 
 template<class T>
-void ConfusedMovementGenerator<T>::DoInitialize(T* unit)
+bool ConfusedMovementGenerator<T>::DoInitialize(T* unit)
 {
     unit->AddUnitState(UNIT_STATE_CONFUSED);
     unit->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
     unit->GetPosition(m_x, m_y, m_z);
 
     if (!unit->IsAlive())
-        return;
+        return true;
 
     unit->StopMoving();
     unit->AddUnitState(UNIT_STATE_CONFUSED_MOVE);
 
     if (unit->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
-        return;
+        return true;
 
     this->SetDestination(unit);
+    return true;
 }
 
 template<class T>
-void ConfusedMovementGenerator<T>::DoReset(T* unit)
+bool ConfusedMovementGenerator<T>::DoReset(T* unit)
 {
     m_nextMoveTime.Reset(0);
 
     if (!unit->IsAlive())
-        return;
+        return false;
 
     unit->StopMoving();
     unit->AddUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
+    return true;
 }
 
 template<class T>
@@ -105,7 +107,7 @@ void ConfusedMovementGenerator<T>::SetDestination(Unit* unit)
 }
 
 template<>
-void ConfusedMovementGenerator<Player>::DoFinalize(Player* unit)
+void ConfusedMovementGenerator<Player>::DoFinalize(Player* unit, bool, bool)
 {
     if (unit->HasAuraType(SPELL_AURA_MOD_CONFUSE))
         return;
@@ -116,7 +118,7 @@ void ConfusedMovementGenerator<Player>::DoFinalize(Player* unit)
 }
 
 template<>
-void ConfusedMovementGenerator<Creature>::DoFinalize(Creature* unit)
+void ConfusedMovementGenerator<Creature>::DoFinalize(Creature* unit, bool, bool)
 {
     if (unit->HasAuraType(SPELL_AURA_MOD_CONFUSE))
         return;
@@ -127,9 +129,9 @@ void ConfusedMovementGenerator<Creature>::DoFinalize(Creature* unit)
         unit->SetTarget(unit->GetVictim()->GetGUID());
 }
 
-template void ConfusedMovementGenerator<Player>::DoInitialize(Player*);
-template void ConfusedMovementGenerator<Creature>::DoInitialize(Creature*);
-template void ConfusedMovementGenerator<Player>::DoReset(Player*);
-template void ConfusedMovementGenerator<Creature>::DoReset(Creature*);
+template bool ConfusedMovementGenerator<Player>::DoInitialize(Player*);
+template bool ConfusedMovementGenerator<Creature>::DoInitialize(Creature*);
+template bool ConfusedMovementGenerator<Player>::DoReset(Player*);
+template bool ConfusedMovementGenerator<Creature>::DoReset(Creature*);
 template bool ConfusedMovementGenerator<Player>::DoUpdate(Player*, uint32 diff);
 template bool ConfusedMovementGenerator<Creature>::DoUpdate(Creature*, uint32 diff);

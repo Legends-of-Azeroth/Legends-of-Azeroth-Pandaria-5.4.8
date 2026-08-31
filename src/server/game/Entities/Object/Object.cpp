@@ -39,7 +39,6 @@
 #include "Player.h"
 #include "SharedDefines.h"
 #include "SpellAuraEffects.h"
-#include "TargetedMovementGenerator.h"
 #include "TemporarySummon.h"
 #include "Totem.h"
 #include "Transport.h"

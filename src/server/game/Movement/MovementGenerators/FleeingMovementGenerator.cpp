@@ -100,18 +100,19 @@ void FleeingMovementGenerator<T>::_getPoint(T* owner, float &x, float &y, float 
 }
 
 template<class T>
-void FleeingMovementGenerator<T>::DoInitialize(T* owner)
+bool FleeingMovementGenerator<T>::DoInitialize(T* owner)
 {
     if (!owner)
-        return;
+        return true;
 
     owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
     owner->AddUnitState(UNIT_STATE_FLEEING | UNIT_STATE_FLEEING_MOVE);
     _setTargetLocation(owner);
+    return true;
 }
 
 template<>
-void FleeingMovementGenerator<Player>::DoFinalize(Player* owner)
+void FleeingMovementGenerator<Player>::DoFinalize(Player* owner, bool, bool)
 {
     if (owner->HasAuraType(SPELL_AURA_MOD_FEAR) || owner->HasAuraType(SPELL_AURA_MOD_FEAR_2))
         return;
@@ -122,7 +123,7 @@ void FleeingMovementGenerator<Player>::DoFinalize(Player* owner)
 }
 
 template<>
-void FleeingMovementGenerator<Creature>::DoFinalize(Creature* owner)
+void FleeingMovementGenerator<Creature>::DoFinalize(Creature* owner, bool, bool)
 {
     if (owner->HasAuraType(SPELL_AURA_MOD_FEAR) || owner->HasAuraType(SPELL_AURA_MOD_FEAR_2))
         return;
@@ -134,9 +135,9 @@ void FleeingMovementGenerator<Creature>::DoFinalize(Creature* owner)
 }
 
 template<class T>
-void FleeingMovementGenerator<T>::DoReset(T* owner)
+bool FleeingMovementGenerator<T>::DoReset(T* owner)
 {
-    DoInitialize(owner);
+    return DoInitialize(owner);
 }
 
 template<class T>
@@ -158,18 +159,18 @@ bool FleeingMovementGenerator<T>::DoUpdate(T* owner, uint32 time_diff)
     return true;
 }
 
-template void FleeingMovementGenerator<Player>::DoInitialize(Player*);
-template void FleeingMovementGenerator<Creature>::DoInitialize(Creature*);
+template bool FleeingMovementGenerator<Player>::DoInitialize(Player*);
+template bool FleeingMovementGenerator<Creature>::DoInitialize(Creature*);
 template void FleeingMovementGenerator<Player>::_getPoint(Player*, float&, float&, float&);
 template void FleeingMovementGenerator<Creature>::_getPoint(Creature*, float&, float&, float&);
 template void FleeingMovementGenerator<Player>::_setTargetLocation(Player*);
 template void FleeingMovementGenerator<Creature>::_setTargetLocation(Creature*);
-template void FleeingMovementGenerator<Player>::DoReset(Player*);
-template void FleeingMovementGenerator<Creature>::DoReset(Creature*);
+template bool FleeingMovementGenerator<Player>::DoReset(Player*);
+template bool FleeingMovementGenerator<Creature>::DoReset(Creature*);
 template bool FleeingMovementGenerator<Player>::DoUpdate(Player*, uint32);
 template bool FleeingMovementGenerator<Creature>::DoUpdate(Creature*, uint32);
 
-void TimedFleeingMovementGenerator::Finalize(Unit* owner)
+void TimedFleeingMovementGenerator::Finalize(Unit* owner, bool, bool)
 {
     if (owner->HasAuraType(SPELL_AURA_MOD_FEAR) || owner->HasAuraType(SPELL_AURA_MOD_FEAR_2))
         return;

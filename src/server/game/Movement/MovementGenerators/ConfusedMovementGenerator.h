@@ -27,12 +27,13 @@ class ConfusedMovementGenerator : public MovementGeneratorMedium< T, ConfusedMov
     public:
         explicit ConfusedMovementGenerator() : m_nextMoveTime(0) { }
 
-        void DoInitialize(T*);
-        void DoFinalize(T*);
-        void DoReset(T*);
+        bool DoInitialize(T*);
+        void DoFinalize(T*, bool, bool);
+        bool DoReset(T*);
         bool DoUpdate(T*, uint32);
+        void DoDeactivate(T*) { }
 
-        MovementGeneratorType GetMovementGeneratorType() { return CONFUSED_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const { return CONFUSED_MOTION_TYPE; }
     private:
         void SetDestination(Unit* unit);
     private:

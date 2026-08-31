@@ -35,7 +35,6 @@
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 
-#include "TargetedMovementGenerator.h"
 #include "Timer.h"
 #include "Transport.h"
 #include "Unit.h"

@@ -32,7 +32,6 @@
 #include "PathGenerator.h"
 #include "MMapFactory.h"
 #include "Map.h"
-#include "TargetedMovementGenerator.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"

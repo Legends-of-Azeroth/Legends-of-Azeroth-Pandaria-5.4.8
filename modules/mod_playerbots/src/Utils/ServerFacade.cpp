@@ -6,7 +6,7 @@
 #include "ServerFacade.h"
 
 #include "Playerbots.h"
-#include "TargetedMovementGenerator.h"
+#include "ChaseMovementGenerator.h"
 
 float ServerFacade::GetDistance2d(Unit* unit, WorldObject* wo)
 {
@@ -55,16 +55,7 @@ Unit* ServerFacade::GetChaseTarget(Unit* target)
 {
     MovementGenerator* movementGen = target->GetMotionMaster()->top();
     if (movementGen && movementGen->GetMovementGeneratorType() == CHASE_MOTION_TYPE)
-    {
-        if (target->GetTypeId() == TYPEID_PLAYER)
-        {
-            return static_cast<ChaseMovementGenerator<Player> const*>(movementGen)->GetTarget();
-        }
-        else
-        {
-            return static_cast<ChaseMovementGenerator<Creature> const*>(movementGen)->GetTarget();
-        }
-    }
+        return static_cast<ChaseMovementGenerator const*>(movementGen)->GetTarget();
 
     return nullptr;
 }

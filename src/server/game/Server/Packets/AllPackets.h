@@ -22,6 +22,7 @@
 #include "AuthenticationPackets.h"
 #include "CharacterPackets.h"
 #include "MiscPackets.h"
+#include "MovementPackets.h"
 #include "QueryPackets.h"
 #include "QuestPackets.h"
 #include "SpellPackets.h"

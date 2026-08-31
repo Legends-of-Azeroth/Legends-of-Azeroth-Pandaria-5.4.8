@@ -18,10 +18,9 @@
 #ifndef SF_UNIT_H
 #define SF_UNIT_H
 
+#include "AbstractFollower.h"
 #include "DBCStructure.h"
 #include "EventProcessor.h"
-#include "FollowerReference.h"
-#include "FollowerRefManager.h"
 #include "FunctionProcessor.h"
 #include "HostileRefManager.h"
 #include "MotionMaster.h"
@@ -2318,13 +2317,8 @@ public:
     void  ModSpellCastTime(SpellInfo const* spellProto, int32& castTime, Spell* spell = NULL);
     float CalculateLevelPenalty(SpellInfo const* spellProto) const;
 
-    void addFollower(FollowerReference* pRef)
-    {
-        m_FollowingRefManager.insertFirst(pRef);
-    }
-    void removeFollower(FollowerReference* /*pRef*/)
-    { /* nothing to do yet */
-    }
+    void FollowerAdded(AbstractFollower* follower) { _followers.insert(follower); }
+    void FollowerRemoved(AbstractFollower* follower) { _followers.erase(follower); }
     static Unit* GetUnit(WorldObject& object, ObjectGuid guid);
     static Player* GetPlayer(WorldObject& object, ObjectGuid guid);
     static Creature* GetCreature(WorldObject& object, ObjectGuid guid);
@@ -2729,7 +2723,7 @@ private:
     // Manage all Units that are threatened by us
     HostileRefManager m_HostileRefManager;
 
-    FollowerRefManager m_FollowingRefManager;
+    std::set<AbstractFollower*> _followers;
 
     GuidSet m_comboPointHolders;
     uint32 m_comboPointResetTimer = 0;

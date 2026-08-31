@@ -28,7 +28,7 @@ EndScriptData */
 #include "Transport.h"
 #include "CreatureGroups.h"
 #include "Language.h"
-#include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
+#include "FollowMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 #include "CreatureAI.h"
 #include "Player.h"
 #include "Pet.h"
@@ -1375,7 +1375,7 @@ public:
             return false;
         }
 
-        FollowMovementGenerator<Creature> const* mgen = static_cast<FollowMovementGenerator<Creature> const*>((creature->GetMotionMaster()->top()));
+        FollowMovementGenerator const* mgen = static_cast<FollowMovementGenerator const*>((creature->GetMotionMaster()->top()));
 
         if (mgen->GetTarget() != player)
         {

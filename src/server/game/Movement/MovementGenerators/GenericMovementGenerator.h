@@ -35,11 +35,12 @@ class GenericMovementGenerator : public MovementGenerator
         explicit GenericMovementGenerator(Movement::MoveSplineInit&& splineInit, MovementGeneratorType type, uint32 id) : _splineInit(std::move(splineInit)), _type(type), _pointId(id), _duration(0) { }
         explicit GenericMovementGenerator(std::function<void(Movement::MoveSplineInit&)>&& initializer, MovementGeneratorType type, uint32 id) : _type(type), _pointId(id), _duration(0), _initializer(std::move(initializer)), _useInitializer(true) { }
 
-        void Initialize(Unit*) override;
-        void Finalize(Unit*) override;
-        void Reset(Unit*) override { }
+        bool Initialize(Unit*) override;
+        void Finalize(Unit*, bool, bool) override;
+        bool Reset(Unit*) override { return true; }
         bool Update(Unit*, uint32) override;
-        MovementGeneratorType GetMovementGeneratorType() override { return _type; }
+        void Deactivate(Unit*) override { }
+        MovementGeneratorType GetMovementGeneratorType() const override { return _type; }
 
     private:
         void MovementInform(Unit*);

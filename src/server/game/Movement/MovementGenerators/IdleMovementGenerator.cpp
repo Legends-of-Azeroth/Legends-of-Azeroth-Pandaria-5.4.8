@@ -22,20 +22,15 @@
 
 IdleMovementGenerator si_idleMovement;
 
-// StopMoving is needed to make unit stop if its last movement generator expires
-// But it should not be sent otherwise there are many redundent packets
-void IdleMovementGenerator::Initialize(Unit* owner)
-{
-    Reset(owner);
-}
-
-void IdleMovementGenerator::Reset(Unit* owner)
+bool IdleMovementGenerator::Reset(Unit* owner)
 {
     if (!owner->IsStopped())
         owner->StopMoving();
+
+    return true;
 }
 
-void RotateMovementGenerator::Initialize(Unit* owner)
+bool RotateMovementGenerator::Initialize(Unit* owner)
 {
     if (!owner->IsStopped())
         owner->StopMoving();
@@ -45,6 +40,7 @@ void RotateMovementGenerator::Initialize(Unit* owner)
 
     owner->AddUnitState(UNIT_STATE_ROTATING);
     owner->AttackStop();
+    return true;
 }
 
 bool RotateMovementGenerator::Update(Unit* owner, uint32 diff)
@@ -64,19 +60,20 @@ bool RotateMovementGenerator::Update(Unit* owner, uint32 diff)
     return true;
 }
 
-void RotateMovementGenerator::Finalize(Unit* unit)
+void RotateMovementGenerator::Finalize(Unit* unit, bool, bool)
 {
     unit->ClearUnitState(UNIT_STATE_ROTATING);
     if (unit->GetTypeId() == TYPEID_UNIT)
       unit->ToCreature()->AI()->MovementInform(ROTATE_MOTION_TYPE, 0);
 }
 
-void DistractMovementGenerator::Initialize(Unit* owner)
+bool DistractMovementGenerator::Initialize(Unit* owner)
 {
     owner->AddUnitState(UNIT_STATE_DISTRACTED);
+    return true;
 }
 
-void DistractMovementGenerator::Finalize(Unit* owner)
+void DistractMovementGenerator::Finalize(Unit* owner, bool, bool)
 {
     owner->ClearUnitState(UNIT_STATE_DISTRACTED);
 }
@@ -93,7 +90,7 @@ bool DistractMovementGenerator::Update(Unit* owner, uint32 time_diff)
     return true;
 }
 
-void AssistanceDistractMovementGenerator::Finalize(Unit* unit)
+void AssistanceDistractMovementGenerator::Finalize(Unit* unit, bool, bool)
 {
     unit->ClearUnitState(UNIT_STATE_DISTRACTED);
     unit->ToCreature()->SetReactState(REACT_AGGRESSIVE);

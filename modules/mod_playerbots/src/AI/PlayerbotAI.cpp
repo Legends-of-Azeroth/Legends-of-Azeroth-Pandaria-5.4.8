@@ -1051,7 +1051,9 @@ void PlayerbotAI::HandleTeleportAck()
             p.WriteByteSeq(guid[5]);
             p.WriteByteSeq(guid[3]);
             
-            bot->GetSession()->HandleMoveTeleportAck(p);
+            WorldPackets::Movement::MoveTeleportAck ack(std::move(p));
+            ack.Read();
+            bot->GetSession()->HandleMoveTeleportAck(ack);
         };
     }
     if (bot->IsBeingTeleportedFar())

@@ -27,12 +27,13 @@ class RandomMovementGenerator : public MovementGeneratorMedium< T, RandomMovemen
         RandomMovementGenerator(float wanderDistance = 0.0f) : i_nextMoveTime(0), wander_distance(wanderDistance) { }
 
         void _setRandomLocation(T*);
-        void DoInitialize(T*);
-        void DoFinalize(T*);
-        void DoReset(T*);
+        bool DoInitialize(T*);
+        void DoFinalize(T*, bool, bool);
+        bool DoReset(T*);
         bool DoUpdate(T*, const uint32);
-        bool GetResetPos(T*, float& x, float& y, float& z);
-        MovementGeneratorType GetMovementGeneratorType() { return RANDOM_MOTION_TYPE; }
+        void DoDeactivate(T*) { }
+        bool GetResetPosition(T*, float& x, float& y, float& z);
+        MovementGeneratorType GetMovementGeneratorType() const { return RANDOM_MOTION_TYPE; }
     private:
         TimeTrackerSmall i_nextMoveTime;
 

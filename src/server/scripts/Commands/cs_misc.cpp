@@ -43,7 +43,8 @@
 #include "ServiceMgr.h"
 #include "SpellAuras.h"
 #include "SpellHistory.h"
-#include "TargetedMovementGenerator.h"
+#include "ChaseMovementGenerator.h"
+#include "FollowMovementGenerator.h"
 #include "WeatherMgr.h"
 #include "WordFilterMgr.h"
 #include "World.h"
@@ -2780,9 +2781,9 @@ public:
                 {
                     Unit* target = NULL;
                     if (unit->GetTypeId() == TYPEID_PLAYER)
-                        target = static_cast<ChaseMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
+                        target = static_cast<ChaseMovementGenerator const*>(movementGenerator)->GetTarget();
                     else
-                        target = static_cast<ChaseMovementGenerator<Creature> const*>(movementGenerator)->GetTarget();
+                        target = static_cast<ChaseMovementGenerator const*>(movementGenerator)->GetTarget();
 
                     if (!target)
                         handler->SendSysMessage(LANG_MOVEGENS_CHASE_NULL);
@@ -2796,9 +2797,9 @@ public:
                 {
                     Unit* target = NULL;
                     if (unit->GetTypeId() == TYPEID_PLAYER)
-                        target = static_cast<FollowMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
+                        target = static_cast<FollowMovementGenerator const*>(movementGenerator)->GetTarget();
                     else
-                        target = static_cast<FollowMovementGenerator<Creature> const*>(movementGenerator)->GetTarget();
+                        target = static_cast<FollowMovementGenerator const*>(movementGenerator)->GetTarget();
 
                     if (!target)
                         handler->SendSysMessage(LANG_MOVEGENS_FOLLOW_NULL);

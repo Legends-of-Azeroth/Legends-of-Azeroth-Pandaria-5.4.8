@@ -22,7 +22,6 @@
 #include "PetAI.h"
 #include "TotemAI.h"
 #include "RandomMovementGenerator.h"
-#include "MovementGeneratorImpl.h"
 #include "CreatureAIRegistry.h"
 #include "WaypointMovementGenerator.h"
 #include "CreatureAIFactory.h"

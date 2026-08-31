@@ -1,0 +1,172 @@
+/*
+ * This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "FollowMovementGenerator.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "MoveSpline.h"
+#include "MoveSplineInit.h"
+#include "Optional.h"
+#include "PathGenerator.h"
+#include "Unit.h"
+#include "Util.h"
+
+static void DoMovementInform(Unit* owner, Unit* target)
+{
+    if (owner->GetTypeId() != TYPEID_UNIT)
+        return;
+
+    if (CreatureAI* AI = owner->ToCreature()->AI())
+        AI->MovementInform(FOLLOW_MOTION_TYPE, target->GetGUID().GetCounter());
+}
+
+FollowMovementGenerator::FollowMovementGenerator(Unit* target, float range, ChaseAngle angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle), _checkTimer(CHECK_INTERVAL)
+{
+    Priority = MOTION_PRIORITY_NORMAL;
+    Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
+    BaseUnitState = UNIT_STATE_FOLLOW;
+}
+FollowMovementGenerator::~FollowMovementGenerator() = default;
+
+static bool PositionOkay(Unit* owner, Unit* target, float range, Optional<ChaseAngle> angle = {})
+{
+    float const xx = owner->GetCombatReach() + target->GetCombatReach() + range;
+    if (owner->GetExactDistSq(target) > xx * xx)
+        return false;
+
+    return !angle || angle->IsAngleOkay(target->GetRelativeAngle(owner));
+}
+
+bool FollowMovementGenerator::Initialize(Unit* owner)
+{
+    RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
+    AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED | MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
+
+    _path = nullptr;
+    _lastTargetPosition.reset();
+    return true;
+}
+
+bool FollowMovementGenerator::Reset(Unit* owner)
+{
+    RemoveFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
+
+    return Initialize(owner);
+}
+
+bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
+{
+    // owner might be dead or gone
+    if (!owner || !owner->IsAlive())
+        return false;
+
+    // our target might have gone away
+    Unit* const target = GetTarget();
+    if (!target || !target->IsInWorld())
+        return false;
+
+    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsNonMeleeSpellCasted(false))
+    {
+        _path = nullptr;
+        owner->StopMoving();
+        _lastTargetPosition.reset();
+        return true;
+    }
+
+    _checkTimer.Update(diff);
+    if (_checkTimer.Passed())
+    {
+        _checkTimer.Reset(CHECK_INTERVAL);
+        if (HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED) && PositionOkay(owner, target, _range, _angle))
+        {
+            RemoveFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
+            _path = nullptr;
+            owner->StopMoving();
+            _lastTargetPosition.reset();
+            DoMovementInform(owner, target);
+            return true;
+        }
+    }
+
+    if (owner->HasUnitState(UNIT_STATE_FOLLOW_MOVE) && owner->movespline->Finalized())
+    {
+        RemoveFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
+        _path = nullptr;
+        owner->ClearUnitState(UNIT_STATE_FOLLOW_MOVE);
+        DoMovementInform(owner, target);
+    }
+
+    if (!_lastTargetPosition || _lastTargetPosition->GetExactDistSq(target->GetPosition()) > 0.0f)
+    {
+        _lastTargetPosition = target->GetPosition();
+        if (owner->HasUnitState(UNIT_STATE_FOLLOW_MOVE) || !PositionOkay(owner, target, _range + FOLLOW_RANGE_TOLERANCE))
+        {
+            if (!_path)
+                _path = std::make_unique<PathGenerator>(owner);
+
+            float x, y, z;
+
+            // select angle
+            float tAngle;
+            float const curAngle = target->GetRelativeAngle(owner);
+            if (_angle.IsAngleOkay(curAngle))
+                tAngle = curAngle;
+            else
+            {
+                float const diffUpper = Position::NormalizeOrientation(curAngle - _angle.UpperBound());
+                float const diffLower = Position::NormalizeOrientation(_angle.LowerBound() - curAngle);
+                if (diffUpper < diffLower)
+                    tAngle = _angle.UpperBound();
+                else
+                    tAngle = _angle.LowerBound();
+            }
+
+            target->GetNearPoint(owner, x, y, z, 0.0f, _range, target->ToAbsoluteAngle(tAngle));
+
+            bool success = _path->CalculatePath(x, y, z, false);
+            if (!success || (_path->GetPathType() & PATHFIND_NOPATH))
+            {
+                owner->StopMoving();
+                return true;
+            }
+
+            owner->AddUnitState(UNIT_STATE_FOLLOW_MOVE);
+            AddFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
+
+            Movement::MoveSplineInit init(owner);
+            init.MovebyPath(_path->GetPath());
+            init.SetWalk(target->IsWalking());
+            init.SetFacing(target->GetOrientation());
+            init.Launch();
+        }
+    }
+    return true;
+}
+
+void FollowMovementGenerator::Deactivate(Unit* owner)
+{
+    AddFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
+    RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
+    owner->ClearUnitState(UNIT_STATE_FOLLOW_MOVE);
+}
+
+void FollowMovementGenerator::Finalize(Unit* owner, bool active, bool/* movementInform*/)
+{
+    AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
+    if (active)
+        owner->ClearUnitState(UNIT_STATE_FOLLOW_MOVE);
+}

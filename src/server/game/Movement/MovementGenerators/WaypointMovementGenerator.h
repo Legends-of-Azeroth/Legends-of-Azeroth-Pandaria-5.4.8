@@ -64,19 +64,20 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium< Crea
         WaypointMovementGenerator(uint32 _path_id = 0, bool _repeating = true)
             : i_nextMoveTime(0), m_isArrivalDone(false), path_id(_path_id), repeating(_repeating)  { }
         ~WaypointMovementGenerator() { i_path = NULL; }
-        void DoInitialize(Creature*);
-        void DoFinalize(Creature*);
-        void DoReset(Creature*);
+        bool DoInitialize(Creature*);
+        void DoFinalize(Creature*, bool, bool);
+        bool DoReset(Creature*);
         bool DoUpdate(Creature*, uint32 diff);
+        void DoDeactivate(Creature*) { }
 
         void MovementInform(Creature*);
 
-        MovementGeneratorType GetMovementGeneratorType() { return WAYPOINT_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const { return WAYPOINT_MOTION_TYPE; }
 
         // now path movement implmementation
         void LoadPath(Creature*);
 
-        bool GetResetPos(Creature*, float& x, float& y, float& z);
+        bool GetResetPosition(Creature*, float& x, float& y, float& z);
 
     private:
 
@@ -117,11 +118,12 @@ class FlightPathMovementGenerator : public MovementGeneratorMedium< Player, Flig
             i_path = &pathnodes;
             i_currentNode = startNode;
         }
-        void DoInitialize(Player*);
-        void DoReset(Player*);
-        void DoFinalize(Player*);
+        bool DoInitialize(Player*);
+        bool DoReset(Player*);
+        void DoFinalize(Player*, bool, bool);
         bool DoUpdate(Player*, uint32);
-        MovementGeneratorType GetMovementGeneratorType() { return FLIGHT_MOTION_TYPE; }
+        void DoDeactivate(Player*) { }
+        MovementGeneratorType GetMovementGeneratorType() const { return FLIGHT_MOTION_TYPE; }
 
         TaxiPathNodeList const& GetPath() { return *i_path; }
         uint32 GetPathAtMapEnd() const;
@@ -130,7 +132,7 @@ class FlightPathMovementGenerator : public MovementGeneratorMedium< Player, Flig
         void SkipCurrentNode() { ++i_currentNode; }
         void DoEventIfAny(Player* player, TaxiPathNodeEntry const& node, bool departure);
 
-        bool GetResetPos(Player*, float& x, float& y, float& z);
+        bool GetResetPosition(Player*, float& x, float& y, float& z);
 
         void InitEndGridInfo();
         void PreloadEndGrid();

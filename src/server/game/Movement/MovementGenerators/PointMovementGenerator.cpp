@@ -27,7 +27,7 @@
 
 //----- Point Movement Generator
 template<class T>
-void PointMovementGenerator<T>::DoInitialize(T* unit)
+bool PointMovementGenerator<T>::DoInitialize(T* unit)
 {
     if (!unit->IsStopped())
         unit->StopMoving();
@@ -35,7 +35,7 @@ void PointMovementGenerator<T>::DoInitialize(T* unit)
     unit->AddUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
 
     if (id == EVENT_CHARGE_PREPATH)
-        return;
+        return true;
 
     Movement::MoveSplineInit init(unit);
     init.MoveTo(i_x, i_y, i_z, m_generatePath);
@@ -47,6 +47,8 @@ void PointMovementGenerator<T>::DoInitialize(T* unit)
     if (Creature* creature = unit->ToCreature())
         if (creature->GetFormation() && creature->GetFormation()->GetLeader() == creature)
             creature->GetFormation()->LeaderMoveTo(i_x, i_y, i_z);
+
+    return true;
 }
 
 template<class T>
@@ -86,17 +88,16 @@ bool PointMovementGenerator<T>::DoUpdate(T* unit, uint32 /*diff*/)
 }
 
 template<class T>
-void PointMovementGenerator<T>::DoFinalize(T* unit)
+void PointMovementGenerator<T>::DoFinalize(T* unit, bool, bool)
 {
     if (unit->HasUnitState(UNIT_STATE_CHARGING))
         unit->ClearUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
 }
 
 template<class T>
-void PointMovementGenerator<T>::DoReset(T* unit)
+bool PointMovementGenerator<T>::DoReset(T* unit)
 {
-    // Not sure if we want to reactivate point movement when higher motion slot ends. It could be useful, but it's not the way it was previously behaving.
-    //DoInitialize(unit);
+    return true;
 }
 
 template<class T>
@@ -108,16 +109,16 @@ template <> void PointMovementGenerator<Creature>::MovementInform(Creature* unit
         unit->AI()->MovementInform(POINT_MOTION_TYPE, id);
 }
 
-template void PointMovementGenerator<Player>::DoInitialize(Player*);
-template void PointMovementGenerator<Creature>::DoInitialize(Creature*);
-template void PointMovementGenerator<Player>::DoFinalize(Player*);
-template void PointMovementGenerator<Creature>::DoFinalize(Creature*);
-template void PointMovementGenerator<Player>::DoReset(Player*);
-template void PointMovementGenerator<Creature>::DoReset(Creature*);
+template bool PointMovementGenerator<Player>::DoInitialize(Player*);
+template bool PointMovementGenerator<Creature>::DoInitialize(Creature*);
+template void PointMovementGenerator<Player>::DoFinalize(Player*, bool, bool);
+template void PointMovementGenerator<Creature>::DoFinalize(Creature*, bool, bool);
+template bool PointMovementGenerator<Player>::DoReset(Player*);
+template bool PointMovementGenerator<Creature>::DoReset(Creature*);
 template bool PointMovementGenerator<Player>::DoUpdate(Player*, uint32);
 template bool PointMovementGenerator<Creature>::DoUpdate(Creature*, uint32);
 
-void AssistanceMovementGenerator::Finalize(Unit* unit)
+void AssistanceMovementGenerator::Finalize(Unit* unit, bool, bool)
 {
     unit->ToCreature()->SetNoCallAssistance(false);
     unit->ToCreature()->CallAssistance();
@@ -136,13 +137,15 @@ bool EffectMovementGenerator::Update(Unit* unit, uint32)
     return !done;
 }
 
-void EffectMovementGenerator::Initialize(Unit* unit)
+bool EffectMovementGenerator::Initialize(Unit* unit)
 {
     if (Player* player = unit->ToPlayer())
         player->SetFallInformation(0, player->GetPositionZ());
+
+    return true;
 }
 
-void EffectMovementGenerator::Finalize(Unit* unit)
+void EffectMovementGenerator::Finalize(Unit* unit, bool, bool)
 {
     if (unit->GetTypeId() != TYPEID_UNIT)
         return;

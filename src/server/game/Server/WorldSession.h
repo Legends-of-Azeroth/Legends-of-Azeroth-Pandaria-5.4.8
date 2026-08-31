@@ -537,10 +537,10 @@ class TC_GAME_API WorldSession
         void HandleInspectHonorStatsOpcode(WorldPacket& recvPacket);
         void HandleInspectRatedBGStatsOpcode(WorldPacket& recvPacket);
 
-        void HandleMoveWaterWalkAck(WorldPacket& recvPacket);
+        void HandleMoveWaterWalkAck(WorldPackets::Movement::MoveWaterWalkAck& packet);
         void HandleFeatherFallAck(WorldPacket& recvData);
 
-        void HandleMoveHoverAck(WorldPacket& recvData);
+        void HandleMoveHoverAck(WorldPackets::Movement::MoveHoverAck& packet);
         void HandleMoveGravityAck(WorldPacket& recvData);
 
         void HandleMountSpecialAnimOpcode(WorldPacket& recvdata);
@@ -553,13 +553,13 @@ class TC_GAME_API WorldSession
         void HandleRepairItemOpcode(WorldPacket& recvPacket);
 
         // Knockback
-        void HandleMoveKnockBackAck(WorldPacket& recvPacket);
+        void HandleMoveKnockBackAck(WorldPackets::Movement::MoveKnockBackAck& packet);
 
-        void HandleMoveTeleportAck(WorldPacket& recvPacket);
-        void HandleForceSpeedChangeAck(WorldPacket& recvData);
-        void HandleSetCollisionHeightAck(WorldPacket& recvPacket);
-        void HandleMovementForceAck(WorldPacket& recvPacket);
-        void HandleMoveSetCanTurnWhileFallingAck(WorldPacket& recvData);
+        void HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet);
+        void HandleForceSpeedChangeAck(WorldPackets::Movement::MoveSpeedChangeAck& packet);
+        void HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCollisionHeightAck& packet);
+        void HandleMovementForceAck(WorldPackets::Movement::MovementForceAck& packet);
+        void HandleMoveSetCanTurnWhileFallingAck(WorldPackets::Movement::MoveSetCanTurnWhileFallingAck& packet);
 
         void HandlePingOpcode(WorldPacket& recvPacket);
         void HandleAuthSessionOpcode(WorldPacket& recvPacket);
@@ -633,11 +633,12 @@ class TC_GAME_API WorldSession
 
         void HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObject& packet);
 
-        void HandleMoveWorldportAckOpcode(WorldPacket& recvPacket);
+        void HandleMoveWorldportAckOpcode(WorldPackets::Movement::WorldPortResponse& packet);
         void HandleMoveWorldportAck();
 
-        void HandleMovementOpcodes(WorldPacket& recvPacket);
-        void HandleSetActiveMoverOpcode(WorldPacket& recvData);
+        void HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet);
+        void HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movementInfo);
+        void HandleSetActiveMoverOpcode(WorldPackets::Movement::MoveSetActiveMover& packet);
         void HandleMoveNotActiveMover(WorldPacket& recvData);
         void HandleDismissControlledVehicle(WorldPacket& recvData);
         void HandleRequestVehicleExit(WorldPacket& recvData);
@@ -871,7 +872,7 @@ class TC_GAME_API WorldSession
         void HandleCorpseQueryOpcode(WorldPacket& recvPacket);
         void HandleCorpseMapPositionQuery(WorldPacket& recvPacket);
         void HandleResurrectResponseOpcode(WorldPacket& recvPacket);
-        void HandleSummonResponseOpcode(WorldPacket& recvData);
+        void HandleSummonResponseOpcode(WorldPackets::Movement::SummonResponse& packet);
 
         void HandleJoinChannel(WorldPacket& recvPacket);
         void HandleLeaveChannel(WorldPacket& recvPacket);

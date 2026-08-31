@@ -23,29 +23,8 @@
 #include "MoveSpline.h"
 #include "Transport.h"
 
-void HomeMovementGenerator<Creature>::DoInitialize(Creature* owner)
-{
-    _setTargetLocation(owner);
-}
-
-void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner)
-{
-    owner->ClearUnitState(UNIT_STATE_EVADE);
-    if (arrived)
-    {
-        owner->SetWalk(true);
-        owner->LoadCreaturesAddon(true);
-        owner->ApplyInstanceAuraIfNeeded();
-        owner->AI()->JustReachedHome();
-    }
-
-    if (!owner->HasSwimmingFlagOutOfCombat())
-        owner->RemoveUnitFlag(UNIT_FLAG_CAN_SWIM);
-}
-
-void HomeMovementGenerator<Creature>::DoReset(Creature*) { }
-
-void HomeMovementGenerator<Creature>::_setTargetLocation(Creature* owner)
+template<>
+void HomeMovementGenerator<Creature>::SetTargetLocation(Creature* owner)
 {
     if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
         return;
@@ -76,6 +55,30 @@ void HomeMovementGenerator<Creature>::_setTargetLocation(Creature* owner)
     owner->ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~UNIT_STATE_EVADE | UNIT_STATE_IGNORE_PATHFINDING));
 }
 
+template<>
+bool HomeMovementGenerator<Creature>::DoInitialize(Creature* owner)
+{
+    SetTargetLocation(owner);
+    return true;
+}
+
+template<>
+void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner, bool, bool)
+{
+    owner->ClearUnitState(UNIT_STATE_EVADE);
+    if (arrived)
+    {
+        owner->SetWalk(true);
+        owner->LoadCreaturesAddon(true);
+        owner->ApplyInstanceAuraIfNeeded();
+        owner->AI()->JustReachedHome();
+    }
+
+    if (!owner->HasSwimmingFlagOutOfCombat())
+        owner->RemoveUnitFlag(UNIT_FLAG_CAN_SWIM);
+}
+
+template<>
 bool HomeMovementGenerator<Creature>::DoUpdate(Creature* owner, const uint32 /*time_diff*/)
 {
     arrived = owner->movespline->Finalized();
