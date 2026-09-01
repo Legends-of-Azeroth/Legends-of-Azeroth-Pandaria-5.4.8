@@ -209,7 +209,7 @@ class boss_hodir : public CreatureScript
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 cacheReset = true;
                 instance->SetBossState(BOSS_HODIR, FAIL);
@@ -547,7 +547,7 @@ class npc_flash_freeze : public CreatureScript
             }
 
             void AttackStart(Unit* victim) override { }
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
             void UpdateAI(uint32 diff) override
             {
@@ -607,7 +607,7 @@ class npc_ice_block : public CreatureScript
             }
 
             void AttackStart(Unit* /*victim*/) override { }
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
             void IsSummonedBy(Unit* summoner) override
             {

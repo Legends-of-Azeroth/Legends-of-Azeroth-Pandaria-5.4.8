@@ -222,7 +222,7 @@ class npc_onyx_flamecaller : public CreatureScript
                 _events.ScheduleEvent(EVENT_LAVA_GOUT, 5000);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 // Prevent EvadeMode
             }

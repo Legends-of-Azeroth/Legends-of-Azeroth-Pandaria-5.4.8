@@ -455,7 +455,7 @@ class boss_arcanotron : public CreatureScript
                             if (Creature* target = GetFriendlyTarget())
                             {
                                 //DoCast(target, SPELL_POWER_GENERATOR);
-                                me->SummonCreature(NPC_POWER_GENERATOR, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 40000);
+                                me->SummonCreature(NPC_POWER_GENERATOR, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 40000ms);
                                 if (IsHeroic())
                                     if (Creature* pNefarius = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS_HEROIC, 100.0f))
                                         if (pNefarius->IsAIEnabled)
@@ -1052,7 +1052,7 @@ class npc_poison_bomb : public CreatureScript
                     if (me->GetDistance(target) <= 3.0f)
                     {
                         DoCast(me, SPELL_POISON_BOMB);
-                        me->SummonCreature(NPC_POISON_PUDDLE, me->GetPositionX(),me->GetPositionY(), me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 20000);
+                        me->SummonCreature(NPC_POISON_PUDDLE, me->GetPositionX(),me->GetPositionY(), me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 20000ms);
                         me->Kill(me);
                     }
                 }

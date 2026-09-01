@@ -96,7 +96,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 {
                     Creature* anubArak = Unit::GetCreature(*player, GetGuidData(NPC_ANUBARAK));
                     if (!anubArak)
-                        anubArak = player->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
+                        anubArak = player->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(DESPAWN_TIME));
 
                     if (GameObject* floor = GameObject::GetGameObject(*player, GetGuidData(GO_ARGENT_COLISEUM_FLOOR)))
                         floor->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);

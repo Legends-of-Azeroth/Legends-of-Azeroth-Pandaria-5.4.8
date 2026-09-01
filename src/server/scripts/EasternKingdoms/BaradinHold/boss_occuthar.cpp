@@ -237,7 +237,7 @@ class spell_occuthar_eye_of_occuthar : public SpellScriptLoader
 
                 GetCaster()->CastSpell(GetCaster(), SPELL_EYE_OF_OCCUTHAR_VEHICLE, true);
                 
-                if (Creature* pEye = GetCaster()->SummonCreature(NPC_EYE_OF_OCCUTHAR, GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), GetCaster()->GetPositionZ(), GetCaster()->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 11000))
+                if (Creature* pEye = GetCaster()->SummonCreature(NPC_EYE_OF_OCCUTHAR, GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), GetCaster()->GetPositionZ(), GetCaster()->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 11000ms))
                     pEye->CastSpell(GetCaster(), SPELL_EYE_OF_OCCUTHAR_DMG, true); 
             }
 

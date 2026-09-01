@@ -63,7 +63,7 @@ struct npc_escortAI : public ScriptedAI
         void JustDied(Unit*) override;
         void JustAppeared() override;
         void ReturnToLastPoint();
-        void EnterEvadeMode() override;
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override;
         void UpdateAI(uint32 diff) override;                   //the "internal" update, calls UpdateEscortAI()
         void MovementInform(uint32, uint32) override;
         

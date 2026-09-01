@@ -2595,7 +2595,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 // Summons a vehicle, but doesn't force anyone to enter it (see SUMMON_CATEGORY_VEHICLE)
                 case SUMMON_TYPE_VEHICLE:
                 case SUMMON_TYPE_VEHICLE2:
-                    summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id, 0, privateObjectOwner);
+                    summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, Milliseconds(duration), m_originalCaster, m_spellInfo->Id, 0, privateObjectOwner);
                     break;
                 case SUMMON_TYPE_LIGHTWELL:
                 case SUMMON_TYPE_TOTEM:
@@ -2604,7 +2604,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     break;
                 case SUMMON_TYPE_MINIPET:
                 {
-                    summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id, 0, privateObjectOwner);
+                    summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, Milliseconds(duration), m_originalCaster, m_spellInfo->Id, 0, privateObjectOwner);
                     if (!summon || !summon->HasUnitTypeMask(UNIT_MASK_MINION))
                         return;
 
@@ -2659,7 +2659,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                             // randomize position for multiple summons
                             pos = m_caster->GetRandomPoint(*destTarget, radius);
 
-                        summon = m_originalCaster->SummonCreature(entry, pos, summonType, duration, 0, privateObjectOwner);
+                        summon = m_originalCaster->SummonCreature(entry, pos, summonType, Milliseconds(duration), 0, privateObjectOwner);
                         if (!summon)
                             continue;
 
@@ -2679,12 +2679,12 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
             SummonGuardian(effIndex, entry, properties, numSummons, privateObjectOwner);
             break;
         case SUMMON_CATEGORY_PUPPET:
-            summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id, 0, privateObjectOwner);
+            summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, Milliseconds(duration), m_originalCaster, m_spellInfo->Id, 0, privateObjectOwner);
             break;
         case SUMMON_CATEGORY_VEHICLE:
             // Summoning spells (usually triggered by npc_spellclick) that spawn a vehicle and that cause the clicker
             // to cast a ride vehicle spell on the summoned unit.
-            summon = m_originalCaster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_caster, m_spellInfo->Id, 0, privateObjectOwner);
+            summon = m_originalCaster->GetMap()->SummonCreature(entry, *destTarget, properties, Milliseconds(duration), m_caster, m_spellInfo->Id, 0, privateObjectOwner);
             if (!summon || !summon->IsVehicle())
                 return;
 
@@ -6553,7 +6553,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
             // randomize position for multiple summons
             pos = m_caster->GetRandomPoint(*destTarget, radius);
 
-        TempSummon* summon = map->SummonCreature(entry, pos, properties, duration, caster, m_spellInfo->Id, 0, privateObjectOwner);
+        TempSummon* summon = map->SummonCreature(entry, pos, properties, Milliseconds(duration), caster, m_spellInfo->Id, 0, privateObjectOwner);
         if (!summon)
             return;
         if (summon->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
@@ -6614,7 +6614,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
 
 TempSummon* Spell::SummonTotem(uint32 entry, SummonPropertiesEntry const* properties, uint32 duration, ObjectGuid privateObjectOwner)
 {
-    auto summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id, 0, privateObjectOwner);
+    auto summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, Milliseconds(duration), m_originalCaster, m_spellInfo->Id, 0, privateObjectOwner);
     if (!summon || !summon->IsTotem())
         return nullptr;
 

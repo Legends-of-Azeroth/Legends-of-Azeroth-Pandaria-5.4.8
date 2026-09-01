@@ -230,7 +230,7 @@ class boss_general_pavalak : public CreatureScript
                             if (target)
                             {
                                 events.DelayEvents(15000);
-                                me->SummonCreature(NPC_BLADE_RUSH_STALKER, *target, TEMPSUMMON_TIMED_DESPAWN, 15000);
+                                me->SummonCreature(NPC_BLADE_RUSH_STALKER, *target, TEMPSUMMON_TIMED_DESPAWN, 15000ms);
                                 me->GetMotionMaster()->Clear();
                                 me->GetMotionMaster()->MoveIdle();
                                 me->StopMoving();

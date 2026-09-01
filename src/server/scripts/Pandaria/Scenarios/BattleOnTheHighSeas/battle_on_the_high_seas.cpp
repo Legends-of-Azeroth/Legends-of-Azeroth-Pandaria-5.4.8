@@ -115,7 +115,7 @@ struct npc_high_seas_cannoneer : public customCreatureAI
                 if (!me->IsAlive() || !me->IsValidAttackTarget(target))
                     return;
 
-                if (Creature* bunny = me->SummonCreature(NPC_GENERAL_BUNNY_JMF, *target, TEMPSUMMON_TIMED_DESPAWN, 8 * IN_MILLISECONDS))
+                if (Creature* bunny = me->SummonCreature(NPC_GENERAL_BUNNY_JMF, *target, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(8 * IN_MILLISECONDS)))
                 {
                     x = bunny->GetPositionX() + frand(-2.0f, 2.0f);
                     y = bunny->GetPositionY() + frand(-2.0f, 2.0f);
@@ -229,7 +229,7 @@ struct npc_high_seas_swashbuckler : public customCreatureAI
                 if (!me->IsAlive() || !me->IsValidAttackTarget(target))
                     return;
 
-                if (Creature* bunny = me->SummonCreature(NPC_GENERAL_BUNNY_JMF, *target, TEMPSUMMON_TIMED_DESPAWN, 8 * IN_MILLISECONDS))
+                if (Creature* bunny = me->SummonCreature(NPC_GENERAL_BUNNY_JMF, *target, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(8 * IN_MILLISECONDS)))
                 {
                     x = bunny->GetPositionX() + frand(-2.0f, 2.0f);
                     y = bunny->GetPositionY() + frand(-2.0f, 2.0f);
@@ -371,7 +371,7 @@ struct npc_high_seas_admiral_hagman : public ScriptedAI
         Talk(TALK_INTRO);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
     }
@@ -515,7 +515,7 @@ struct npc_high_seas_horde_captain : public customCreatureAI
         events.ScheduleEvent(EVENT_SHOT, 1.5 * IN_MILLISECONDS);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
     }
@@ -1035,7 +1035,7 @@ struct npc_high_seas_admiral_hodgson : public customCreatureAI
             {
                 Player* target = Trinity::Containers::SelectRandomContainerElement(targets);
 
-                if (Creature* bunny = me->SummonCreature(NPC_GENERAL_BUNNY_JMF, *target, TEMPSUMMON_TIMED_DESPAWN, 8 * IN_MILLISECONDS))
+                if (Creature* bunny = me->SummonCreature(NPC_GENERAL_BUNNY_JMF, *target, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(8 * IN_MILLISECONDS)))
                 {
                     x = bunny->GetPositionX() + frand(-2.0f, 2.0f);
                     y = bunny->GetPositionY() + frand(-2.0f, 2.0f);

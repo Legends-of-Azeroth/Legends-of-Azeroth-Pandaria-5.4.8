@@ -269,7 +269,7 @@ class boss_eadric : public CreatureScript
                 _events.ScheduleEvent(EVENT_VENGEANCE, urand(12000, 15000));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
             }
@@ -575,7 +575,7 @@ class boss_paletress : public CreatureScript
                 _events.ScheduleEvent(EVENT_HOLYSMITE, urand(3000, 6000));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
             }

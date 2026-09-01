@@ -32,6 +32,7 @@
 #include "DynamicTree.h"
 #include "GameObjectModel.h"
 #include "ObjectGuid.h"
+#include "Duration.h"
 
 #include <bitset>
 #include <list>
@@ -493,7 +494,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         void UpdateIteratorBack(Player* player);
 
-        TempSummon* SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties = NULL, uint32 duration = 0, Unit* summoner = NULL, uint32 spellId = 0, uint32 vehId = 0, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
+        TempSummon* SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties = NULL, Milliseconds duration = 0ms, Unit* summoner = NULL, uint32 spellId = 0, uint32 vehId = 0, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = NULL);
         Player* GetPlayer(ObjectGuid guid);
         AreaTrigger* GetAreaTrigger(ObjectGuid const& guid);

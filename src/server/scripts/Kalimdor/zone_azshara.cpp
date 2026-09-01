@@ -34,9 +34,9 @@ enum groundTroopsTypes
 };
 
 // AWOL Grunt 42646
-struct npc_azshara_awol_grunt : public CreatureAI
+struct npc_azshara_awol_grunt : public ScriptedAI
 {
-    npc_azshara_awol_grunt(Creature* creature) : CreatureAI(creature) { }
+    npc_azshara_awol_grunt(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
     ObjectGuid targetGUID;

@@ -593,7 +593,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/) override { }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();
@@ -1031,7 +1031,7 @@ struct helpers_baseAI : public ScriptedAI
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (me->GetInstanceScript() && me->GetInstanceScript()->GetBossState(DATA_THOK_THE_BLOODTHIRSTY) == IN_PROGRESS)
             return;
@@ -1222,7 +1222,7 @@ struct npc_thok_captive_cave_bat : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override { }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         Reset();
@@ -1287,7 +1287,7 @@ struct npc_thok_starved_yeti : public ScriptedAI
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         Reset();

@@ -559,9 +559,9 @@ class boss_warmaster_blackhorn: public CreatureScript
 
             void CallAssaultDrakes(uint8 wave)
             {
-                if (Creature* creature = me->SummonCreature(NPC_TWILIGHT_ASSAULT_DRAKE_1, assaultdrakePos[0][0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000))
+                if (Creature* creature = me->SummonCreature(NPC_TWILIGHT_ASSAULT_DRAKE_1, assaultdrakePos[0][0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000ms))
                     creature->AI()->SetData(DATA_WAVE, wave);
-                if (Creature* creature = me->SummonCreature(NPC_TWILIGHT_ASSAULT_DRAKE_2, assaultdrakePos[1][0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000))
+                if (Creature* creature = me->SummonCreature(NPC_TWILIGHT_ASSAULT_DRAKE_2, assaultdrakePos[1][0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000ms))
                     creature->AI()->SetData(DATA_WAVE, wave);
             }
         };
@@ -951,7 +951,7 @@ class npc_warmaster_blackhorn_twilight_assault_drake: public CreatureScript
                     {
                         case EVENT_SUMMON_ADDS:
                             if (Creature* pBlackhorn = me->FindNearestCreature(NPC_BLACKHORN, 200.0f))
-                                pBlackhorn->SummonCreature(((side == 1) ? NPC_TWILIGHT_ELITE_DREADBLADE : NPC_TWILIGHT_ELITE_SLAYER), addsPos[side], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+                                pBlackhorn->SummonCreature(((side == 1) ? NPC_TWILIGHT_ELITE_DREADBLADE : NPC_TWILIGHT_ELITE_SLAYER), addsPos[side], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000ms);
                             break;
                         case EVENT_TWILIGHT_BARRAGE:
                         {
@@ -1049,14 +1049,14 @@ class npc_warmaster_blackhorn_twilight_elite_dreadblade_slayer: public CreatureS
                             {
                                 endPos = target->GetPosition();
                                 endPos.SetOrientation(0);
-                                if (Unit* rushTarget = me->SummonCreature(NPC_BLADE_RUSH_TARGET, endPos, TEMPSUMMON_TIMED_DESPAWN, 3000))
+                                if (Unit* rushTarget = me->SummonCreature(NPC_BLADE_RUSH_TARGET, endPos, TEMPSUMMON_TIMED_DESPAWN, 3000ms))
                                 {
                                     me->SetTarget(rushTarget->GetGUID());
                                     me->SetFacingToObject(rushTarget);
                                     DoCast(target, SPELL_BLADE_RUSH);
                                     float angle = rushTarget->GetAngle(me);
                                     for (float dist = 3; dist < rushTarget->GetExactDist2d(me); dist += 3)
-                                        me->SummonCreature(NPC_BLADE_RUSH_TARGET, endPos.GetPositionX() + cosf(angle) * dist, endPos.GetPositionY() + sinf(angle) * dist, endPos.GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 3000);
+                                        me->SummonCreature(NPC_BLADE_RUSH_TARGET, endPos.GetPositionX() + cosf(angle) * dist, endPos.GetPositionY() + sinf(angle) * dist, endPos.GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 3000ms);
                                 }
                             }
                             events.ScheduleEvent(EVENT_BLADE_RUSH, urand(8500, 9500));
@@ -1235,7 +1235,7 @@ class npc_warmaster_blackhorn_twilight_infiltrator: public CreatureScript
                             if (Creature* pBlackhorn = me->FindNearestCreature(NPC_BLACKHORN, 200.0f))
                             {
                                 pBlackhorn->AI()->Talk(SAY_SAPPER_YELL);
-                                pBlackhorn->SummonCreature(NPC_TWILIGHT_SAPPER, sapperPos[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+                                pBlackhorn->SummonCreature(NPC_TWILIGHT_SAPPER, sapperPos[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000ms);
                             }
                             break;
                         case EVENT_DESPAWN_INFILTRATOR:
@@ -1306,7 +1306,7 @@ class npc_warmaster_blackhorn_twilight_sapper: public CreatureScript
                             break;
                         case EVENT_CONTINUE:
                         {
-                            if (Creature* pTrigger = me->SummonCreature(WORLD_TRIGGER, sapperPos[1], TEMPSUMMON_TIMED_DESPAWN, 30000))
+                            if (Creature* pTrigger = me->SummonCreature(WORLD_TRIGGER, sapperPos[1], TEMPSUMMON_TIMED_DESPAWN, 30000ms))
                                 me->GetMotionMaster()->MoveFollow(pTrigger, 0.0f, 0.0f);
 
                             events.ScheduleEvent(EVENT_CHECK_PLAYERS, 1000);
@@ -1556,7 +1556,7 @@ class npc_dragon_soul_sky_captain_swayze : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_END_BATTLE:
-                            if (Creature* pTrigger = me->SummonCreature(NPC_MASSIVE_EXPLOSION, customPos[0], TEMPSUMMON_TIMED_DESPAWN, 5000))
+                            if (Creature* pTrigger = me->SummonCreature(NPC_MASSIVE_EXPLOSION, customPos[0], TEMPSUMMON_TIMED_DESPAWN, 5000ms))
                                 pTrigger->CastSpell(pTrigger, SPELL_MASSIVE_EXPLOSION);
                             events.Reset();
                             me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);

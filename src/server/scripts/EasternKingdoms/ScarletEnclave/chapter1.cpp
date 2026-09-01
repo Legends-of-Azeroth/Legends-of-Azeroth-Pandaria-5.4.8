@@ -1046,7 +1046,7 @@ public:
                 if (summonAttackers >= 15000)
                 {
                     for (uint8 i = 0; i < 15; ++i)
-                        if (Creature* summon = me->SummonCreature(28834 /*NPC_SCARLET_FLEET_DEFENDER*/, 2192.56f + irand(-10, 10), -6147.90f + irand(-10, 10), 5.2f, 4.7f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 45000))
+                        if (Creature* summon = me->SummonCreature(28834 /*NPC_SCARLET_FLEET_DEFENDER*/, 2192.56f + irand(-10, 10), -6147.90f + irand(-10, 10), 5.2f, 4.7f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 45000ms))
                         {
                             summon->SetHomePosition(me->GetHomePosition());
                             summon->AI()->AttackStart(me);

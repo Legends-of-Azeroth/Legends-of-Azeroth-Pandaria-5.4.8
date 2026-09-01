@@ -780,7 +780,7 @@ struct npc_black_harvest_ashtongue_shaman : public customCreatureAI
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         me->GetMotionMaster()->MoveTargetedHome();
@@ -836,7 +836,7 @@ struct npc_black_harvest_ashtongue_primalist : public customCreatureAI
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         me->GetMotionMaster()->MoveTargetedHome();
@@ -958,7 +958,7 @@ struct npc_black_harvest_kanrethad_ebonlocke : public customCreatureAI
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (me->HasAura(SPELL_ETERNAL_BANISHMENT))
             return;

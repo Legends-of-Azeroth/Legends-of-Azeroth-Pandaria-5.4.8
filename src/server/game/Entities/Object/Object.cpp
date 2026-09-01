@@ -2631,7 +2631,7 @@ void WorldObject::AddObjectToRemoveList()
     map->AddObjectToRemoveList(this);
 }
 
-TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties /*= NULL*/, uint32 duration /*= 0*/, Unit* summoner /*= NULL*/, uint32 spellId /*= 0*/, uint32 vehId /*= 0*/, ObjectGuid privateObjectOwner /*= ObjectGuid::Empty*/)
+TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties /*= NULL*/, Milliseconds duration /*= 0ms*/, Unit* summoner /*= NULL*/, uint32 spellId /*= 0*/, uint32 vehId /*= 0*/, ObjectGuid privateObjectOwner /*= ObjectGuid::Empty*/)
 {
     if (!Trinity::IsValidMapCoord(pos.GetPositionX(), pos.GetPositionY()))
     {
@@ -2742,7 +2742,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     summon->SetHomePosition(pos);
     summon->AddToTransportIfNeeded(summoner ? summoner->GetTransport() : nullptr, true);
 
-    summon->InitStats(duration);
+    summon->InitStats(duration.count());
 
     summon->SetPrivateObjectOwner(privateObjectOwner);
 
@@ -2780,7 +2780,7 @@ void Map::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list /*= NULL
         return;
 
     for (std::vector<TempSummonData>::const_iterator itr = data->begin(); itr != data->end(); ++itr)
-        if (TempSummon* summon = SummonCreature(itr->entry, itr->pos, NULL, itr->time))
+        if (TempSummon* summon = SummonCreature(itr->entry, itr->pos, NULL, Milliseconds(itr->time)))
             if (list)
                 list->push_back(summon);
 }
@@ -2803,7 +2803,7 @@ void WorldObject::SetZoneScript()
     }
 }
 
-TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempSummonType spwtype, uint32 duration, uint32 vehId, ObjectGuid privateObjectOwner /*= ObjectGuid::Empty*/)
+TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempSummonType spwtype, Milliseconds duration, uint32 vehId, ObjectGuid privateObjectOwner /*= ObjectGuid::Empty*/)
 {
     if (Map* map = FindMap())
     {
@@ -2817,7 +2817,7 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempS
     return NULL;
 }
 
-TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float ang /*= 0*/, TempSummonType spwtype /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 despwtime /*= 0*/, ObjectGuid privateObjectOwner /*= ObjectGuid::Empty*/)
+TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float ang /*= 0*/, TempSummonType spwtype /*= TEMPSUMMON_MANUAL_DESPAWN*/, Milliseconds despawntime /*= 0ms*/, ObjectGuid privateObjectOwner /*= ObjectGuid::Empty*/)
 {
     if (!x && !y && !z)
     {
@@ -2826,7 +2826,7 @@ TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, fl
     }
     Position pos;
     pos.Relocate(x, y, z, ang);
-    return SummonCreature(id, pos, spwtype, despwtime, 0, privateObjectOwner);
+    return SummonCreature(id, pos, spwtype, despawntime, 0, privateObjectOwner);
 }
 
 GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, G3D::Quat const& rotation, uint32 respawnTime, GOSummonType summonType)
@@ -2867,7 +2867,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
 Creature* WorldObject::SummonTrigger(float x, float y, float z, float ang, uint32 duration, CreatureAI* (*GetAI)(Creature*))
 {
     TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
-    Creature* summon = SummonCreature(WORLD_TRIGGER, x, y, z, ang, summonType, duration);
+    Creature* summon = SummonCreature(WORLD_TRIGGER, x, y, z, ang, summonType, Milliseconds(duration));
     if (!summon)
         return NULL;
 
@@ -2898,7 +2898,7 @@ void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list 
         return;
 
     for (std::vector<TempSummonData>::const_iterator itr = data->begin(); itr != data->end(); ++itr)
-        if (TempSummon* summon = SummonCreature(itr->entry, itr->pos, itr->type, itr->time))
+        if (TempSummon* summon = SummonCreature(itr->entry, itr->pos, itr->type, Milliseconds(itr->time)))
             if (list)
                 list->push_back(summon);
 }

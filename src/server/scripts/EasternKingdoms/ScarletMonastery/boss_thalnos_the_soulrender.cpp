@@ -120,7 +120,7 @@ class boss_thalnos_the_soulrender : public CreatureScript
                     itr->DespawnOrUnsummon();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 DespawnSummoned();

@@ -188,7 +188,7 @@ class boss_commander_durand : public CreatureScript
                     BossAI::EnterEvadeMode();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)
@@ -446,7 +446,7 @@ class boss_high_inqusitior_whitemane : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)

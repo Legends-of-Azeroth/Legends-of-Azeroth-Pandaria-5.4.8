@@ -189,7 +189,7 @@ class boss_lord_rhyolith : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_NOT_AN_AMBI_TURNER, 1);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BALANCE_BAR);
                 BossAI::EnterEvadeMode();
@@ -578,7 +578,7 @@ class npc_lord_rhyolith_rhyolith : public CreatureScript
                 events.Reset();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->DespawnOrUnsummon();
             }
@@ -911,7 +911,7 @@ class npc_lord_rhyolith_volcano : public CreatureScript
 
                                 pRhyolith->AI()->DoAction(ACTION_ADD_MOLTEN_ARMOR);
                                 pRhyolith->AI()->DoAction(ACTION_REMOVE_OBSIDIAN_ARMOR);
-                                pRhyolith->SummonCreature(NPC_CRATER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 60000);
+                                pRhyolith->SummonCreature(NPC_CRATER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 60000ms);
                                 if (IsHeroic())
                                 {
                                     std::set<uint8> posList;

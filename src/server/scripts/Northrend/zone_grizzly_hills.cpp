@@ -87,7 +87,7 @@ public:
                     if (Unit::GetCreature(*me, _mrfloppyGUID))
                     {
                         Talk(SAY_WORGHAGGRO1);
-                        me->SummonCreature(NPC_HUNGRY_WORG, me->GetPositionX()+5, me->GetPositionY()+2, me->GetPositionZ()+1, 3.229f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
+                        me->SummonCreature(NPC_HUNGRY_WORG, me->GetPositionX()+5, me->GetPositionY()+2, me->GetPositionZ()+1, 3.229f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000ms);
                     }
                     break;
                 case 11:
@@ -98,7 +98,7 @@ public:
                     if (Creature* Mrfloppy = Unit::GetCreature(*me, _mrfloppyGUID))
                         Mrfloppy->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                     Talk(SAY_WORGRAGGRO3);
-                    if (Creature* RWORG = me->SummonCreature(NPC_RAVENOUS_WORG, me->GetPositionX()+10, me->GetPositionY()+8, me->GetPositionZ()+2, 3.229f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
+                    if (Creature* RWORG = me->SummonCreature(NPC_RAVENOUS_WORG, me->GetPositionX()+10, me->GetPositionY()+8, me->GetPositionZ()+2, 3.229f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000ms))
                     {
                         RWORG->SetFaction(35);
                         _RavenousworgGUID = RWORG->GetGUID();
@@ -238,7 +238,7 @@ public:
             }
         }
 
-        void EnterEvadeMode() override { }
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 

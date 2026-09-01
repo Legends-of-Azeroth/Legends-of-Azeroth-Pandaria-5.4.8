@@ -709,7 +709,7 @@ class boss_illidan_stormrage : public CreatureScript
                 final.x = 2 * final.x - initial.x;
                 final.y = 2 * final.y - initial.y;
 
-                Creature* trigger = me->SummonCreature(23069, initial.x, initial.y, initial.z, 0, TEMPSUMMON_TIMED_DESPAWN, 13000);
+                Creature* trigger = me->SummonCreature(23069, initial.x, initial.y, initial.z, 0, TEMPSUMMON_TIMED_DESPAWN, 13000ms);
                 if (!trigger)
                     return;
 
@@ -730,7 +730,7 @@ class boss_illidan_stormrage : public CreatureScript
                 {
                     if (Creature* glaive = ObjectAccessor::GetCreature(*me, GlaiveGUID[i]))
                     {
-                        Creature* flame = me->SummonCreature(FLAME_OF_AZZINOTH, GlaivePosition[i+2].x, GlaivePosition[i+2].y, GlaivePosition[i+2].z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
+                        Creature* flame = me->SummonCreature(FLAME_OF_AZZINOTH, GlaivePosition[i+2].x, GlaivePosition[i+2].y, GlaivePosition[i+2].z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000ms);
                         if (flame)
                         {
                             flame->SetFaction(me->GetFaction()); // Just in case the database has it as a different faction
@@ -783,7 +783,7 @@ class boss_illidan_stormrage : public CreatureScript
                     case 3: // throw one glaive
                         {
                             uint8 i = 1;
-                            Creature* glaive = me->SummonCreature(BLADE_OF_AZZINOTH, GlaivePosition[i].x, GlaivePosition[i].y, GlaivePosition[i].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                            Creature* glaive = me->SummonCreature(BLADE_OF_AZZINOTH, GlaivePosition[i].x, GlaivePosition[i].y, GlaivePosition[i].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
                             if (glaive)
                             {
                                 GlaiveGUID[i] = glaive->GetGUID();
@@ -799,7 +799,7 @@ class boss_illidan_stormrage : public CreatureScript
                         SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
                         {
                             uint8 i = 0;
-                            Creature* glaive = me->SummonCreature(BLADE_OF_AZZINOTH, GlaivePosition[i].x, GlaivePosition[i].y, GlaivePosition[i].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                            Creature* glaive = me->SummonCreature(BLADE_OF_AZZINOTH, GlaivePosition[i].x, GlaivePosition[i].y, GlaivePosition[i].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
                             if (glaive)
                             {
                                 GlaiveGUID[i] = glaive->GetGUID();
@@ -1076,7 +1076,7 @@ class boss_illidan_stormrage : public CreatureScript
                                 DoCast(me, SPELL_SUMMON_SHADOWDEMON);
                             //for (int i = 0; i < 4; i++)
                             //{
-                            //    temp = DoSpawnCreature(SHADOW_DEMON, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
+                            //    temp = DoSpawnCreature(SHADOW_DEMON, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000ms);
                             //    if (temp)
                             //    {
                             //        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true))
@@ -1138,7 +1138,7 @@ class boss_maiev_shadowsong : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override { }
             void MoveInLineOfSight(Unit* /*who*/) override { }
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
             void GetIllidanGUID(ObjectGuid guid)
             {
@@ -1447,7 +1447,7 @@ class npc_akama_illidan : public CreatureScript
             }
 
             // Do not call reset in Akama's evade mode, as this will stop him from summoning minions after he kills the first bit
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 //me->InterruptNonMeleeSpells(true);
                 me->RemoveAllAuras();
@@ -1529,8 +1529,8 @@ class npc_akama_illidan : public CreatureScript
                 else
                     return; //if door not spawned, don't crash server
 
-                if (Creature* Channel = me->SummonCreature(ILLIDAN_DOOR_TRIGGER, x, y, z+5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
-                //if (Creature* Channel = me->SummonCreature(ILLIDAN_DOOR_TRIGGER, 771.637f, 304.536f, 315.156f, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
+                if (Creature* Channel = me->SummonCreature(ILLIDAN_DOOR_TRIGGER, x, y, z+5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000ms))
+                //if (Creature* Channel = me->SummonCreature(ILLIDAN_DOOR_TRIGGER, 771.637f, 304.536f, 315.156f, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000ms))
                 {
                     ChannelGUID = Channel->GetGUID();
                     Channel->SetDisplayId(11686); // Invisible but spell visuals can still be seen.
@@ -1538,7 +1538,7 @@ class npc_akama_illidan : public CreatureScript
                 }
 
                 for (uint8 i = 0; i < 2; ++i)
-                    if (Creature* Spirit = me->SummonCreature(i ? SPIRIT_OF_OLUM : SPIRIT_OF_UDALO, SpiritSpawns[i].x, SpiritSpawns[i].y, SpiritSpawns[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 20000))
+                    if (Creature* Spirit = me->SummonCreature(i ? SPIRIT_OF_OLUM : SPIRIT_OF_UDALO, SpiritSpawns[i].x, SpiritSpawns[i].y, SpiritSpawns[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 20000ms))
                     {
                         Spirit->SetVisible(false);
                         SpiritGUID[i] = Spirit->GetGUID();
@@ -1786,8 +1786,8 @@ class npc_akama_illidan : public CreatureScript
                             {
                                 float x, y, z;
                                 me->GetPosition(x, y, z);
-                                Creature* elite = me->SummonCreature(ILLIDARI_ELITE, x+rand()%10, y+rand()%10, z, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000);
-                                //Creature* elite = me->SummonCreature(ILLIDARI_ELITE, x, y, z, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000);
+                                Creature* elite = me->SummonCreature(ILLIDARI_ELITE, x+rand()%10, y+rand()%10, z, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000ms);
+                                //Creature* elite = me->SummonCreature(ILLIDARI_ELITE, x, y, z, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000ms);
                                 if (elite)
                                 {
                                     elite->AI()->AttackStart(me);

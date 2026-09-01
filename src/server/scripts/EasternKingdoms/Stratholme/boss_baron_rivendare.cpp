@@ -154,12 +154,12 @@ public:
             //SummonSkeletons
             if (SummonSkeletons_Timer <= diff)
             {
-                me->SummonCreature(11197, ADD_POS_1, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                me->SummonCreature(11197, ADD_POS_2, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                me->SummonCreature(11197, ADD_POS_3, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                me->SummonCreature(11197, ADD_POS_4, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                me->SummonCreature(11197, ADD_POS_5, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                me->SummonCreature(11197, ADD_POS_6, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                me->SummonCreature(11197, ADD_POS_1, TEMPSUMMON_TIMED_DESPAWN, 29000ms);
+                me->SummonCreature(11197, ADD_POS_2, TEMPSUMMON_TIMED_DESPAWN, 29000ms);
+                me->SummonCreature(11197, ADD_POS_3, TEMPSUMMON_TIMED_DESPAWN, 29000ms);
+                me->SummonCreature(11197, ADD_POS_4, TEMPSUMMON_TIMED_DESPAWN, 29000ms);
+                me->SummonCreature(11197, ADD_POS_5, TEMPSUMMON_TIMED_DESPAWN, 29000ms);
+                me->SummonCreature(11197, ADD_POS_6, TEMPSUMMON_TIMED_DESPAWN, 29000ms);
 
                 //34 seconds until we should cast this again
                 SummonSkeletons_Timer = 40000;

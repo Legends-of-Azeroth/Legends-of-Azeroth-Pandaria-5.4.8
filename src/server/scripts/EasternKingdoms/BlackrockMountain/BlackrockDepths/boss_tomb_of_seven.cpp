@@ -182,7 +182,7 @@ public:
         {
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
         {
             me->RemoveAllAuras();
             me->DeleteThreatList();

@@ -35,9 +35,9 @@ class AreaTrigger_at_mandori : public AreaTriggerScript
 
            ObjectGuid playerGuid = player->GetGUID();
 
-            auto const aysa = player->SummonCreature(59986, 698.04f, 3601.79f, 142.82f, 3.254830f, TEMPSUMMON_MANUAL_DESPAWN, 0); // Aysa
-            auto const ji   = player->SummonCreature(59988, 698.06f, 3599.34f, 142.62f, 2.668790f, TEMPSUMMON_MANUAL_DESPAWN, 0); // Ji
-            auto const jojo = player->SummonCreature(59989, 702.78f, 3603.58f, 142.01f, 3.433610f, TEMPSUMMON_MANUAL_DESPAWN, 0); // Jojo
+            auto const aysa = player->SummonCreature(59986, 698.04f, 3601.79f, 142.82f, 3.254830f, TEMPSUMMON_MANUAL_DESPAWN, 0ms); // Aysa
+            auto const ji   = player->SummonCreature(59988, 698.06f, 3599.34f, 142.62f, 2.668790f, TEMPSUMMON_MANUAL_DESPAWN, 0ms); // Ji
+            auto const jojo = player->SummonCreature(59989, 702.78f, 3603.58f, 142.01f, 3.433610f, TEMPSUMMON_MANUAL_DESPAWN, 0ms); // Jojo
 
             if (!aysa || !ji || !jojo)
                 return true;
@@ -267,7 +267,7 @@ class npc_korga : public CreatureScript
         bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
         {
             if (quest->GetQuestId() == 30589) // Wrecking the Wreck
-                if (Creature* jiEscort = player->SummonCreature(60900, 424.71f, 3635.59f, 92.70f, 2.498430f, TEMPSUMMON_MANUAL_DESPAWN, 0))
+                if (Creature* jiEscort = player->SummonCreature(60900, 424.71f, 3635.59f, 92.70f, 2.498430f, TEMPSUMMON_MANUAL_DESPAWN, 0ms))
                 {
                     jiEscort->SetExplicitSeerGuid(player->GetGUID());
                     jiEscort->SetReactState(REACT_PASSIVE);
@@ -390,7 +390,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_AN_ANCIENT_EVIL)
         {
-            if (Creature* const vordraka = player->SummonCreature(NPC_VORDRAKA, 281.74f, 4003.40f, 72.96f, 0.05f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000))
+            if (Creature* const vordraka = player->SummonCreature(NPC_VORDRAKA, 281.74f, 4003.40f, 72.96f, 0.05f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000ms))
             {
                 vordraka->SetExplicitSeerGuid(player->GetGUID());
                 vordraka->AI()->SetGUID(player->GetGUID());
@@ -494,7 +494,7 @@ public:
                 for (int i = 0; i < 3; ++i)
                 {
                     Position pos = me->GetRandomNearPosition(20.f);
-                    if (Creature* const summon = me->SummonCreature(NPC_DEEPSCALE_AGGRESSOR, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
+                    if (Creature* const summon = me->SummonCreature(NPC_DEEPSCALE_AGGRESSOR, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000ms))
                         if (Player * const player = Unit::GetPlayer(*me, summonerGUID))
                             summon->AI()->AttackStart(player);
                 }
@@ -542,7 +542,7 @@ class npc_aysa_gunship_crash : public CreatureScript
         {
             if (quest->GetQuestId() == QUEST_RISKING_IT_ALL)
             {
-                if (Creature* aysa = player->SummonCreature(60729, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0))
+                if (Creature* aysa = player->SummonCreature(60729, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0ms))
                 {
                     aysa->SetExplicitSeerGuid(player->GetGUID());
                     aysa->AI()->SetGUID(player->GetGUID());
@@ -630,7 +630,7 @@ public:
         {
             playerGuid = guid;
 
-            if (Creature* ji = me->SummonCreature(NPC_JI_FIREPAW, 230.31f, 4006.67f, 87.27f, 3.38f, TEMPSUMMON_MANUAL_DESPAWN, 0))
+            if (Creature* ji = me->SummonCreature(NPC_JI_FIREPAW, 230.31f, 4006.67f, 87.27f, 3.38f, TEMPSUMMON_MANUAL_DESPAWN, 0ms))
             {
                 ji->SetExplicitSeerGuid(playerGuid);
                 jiGuid = ji->GetGUID();

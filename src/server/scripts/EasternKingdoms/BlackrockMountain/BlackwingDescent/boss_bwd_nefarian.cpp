@@ -356,7 +356,7 @@ class boss_bd_nefarian : public CreatureScript
 
                 SummonList.clear();
             }
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 Reset();
@@ -857,7 +857,7 @@ class boss_bd_onyxia : public CreatureScript
                 events.ScheduleEvent(EVENT_TAIL_LASH, urand(4000, 6000));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->DespawnOrUnsummon(1000);
             }

@@ -596,7 +596,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                 return target->GetTypeId() == TYPEID_PLAYER;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 // Stop spawning creatures etc
                 if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VALITHRIA_LICH_KING)))
@@ -1217,9 +1217,9 @@ class npc_dream_portal : public CreatureScript
     public:
         npc_dream_portal() : CreatureScript("npc_dream_portal") { }
 
-        struct npc_dream_portalAI : public CreatureAI
+        struct npc_dream_portalAI : public ScriptedAI
         {
-            npc_dream_portalAI(Creature* creature) : CreatureAI(creature), _used(false) { }
+            npc_dream_portalAI(Creature* creature) : ScriptedAI(creature), _used(false) { }
 
             void OnSpellClick(Unit* /*clicker*/, bool& result) override
             {

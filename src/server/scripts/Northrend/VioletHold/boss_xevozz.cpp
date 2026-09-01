@@ -149,7 +149,7 @@ class boss_xevozz : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
                 if (instance)
@@ -200,7 +200,7 @@ class boss_xevozz : public CreatureScript
                     Talk(SAY_REPEAT_SUMMON);
                     DoCast(me, SPELL_SUMMON_ETHEREAL_SPHERE_1);
                     if (IsHeroic()) // extra one for heroic
-                        me->SummonCreature(NPC_ETHEREAL_SPHERE, me->GetPositionX() - 5 + rand() % 10, me->GetPositionY() - 5 + rand() % 10, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 40000);
+                        me->SummonCreature(NPC_ETHEREAL_SPHERE, me->GetPositionX() - 5 + rand() % 10, me->GetPositionY() - 5 + rand() % 10, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 40000ms);
 
                     uiSummonEtherealSphere_Timer = urand(45000, 47000);
                 }

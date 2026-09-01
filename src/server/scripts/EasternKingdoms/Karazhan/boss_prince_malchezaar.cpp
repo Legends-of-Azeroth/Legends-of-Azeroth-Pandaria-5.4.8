@@ -362,7 +362,7 @@ class boss_malchezaar : public CreatureScript
                     pos.Relocate(point->x, point->y, INFERNAL_Z, frand(0.0f, float(M_PI * 2)));
                 }
 
-                if (Creature* Infernal = me->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000))
+                if (Creature* Infernal = me->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000ms))
                 {
                     Infernal->SetDisplayId(INFERNAL_MODEL_INVISIBLE);
                     Infernal->SetFaction(me->GetFaction());
@@ -447,7 +447,7 @@ class boss_malchezaar : public CreatureScript
                         Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                         for (uint8 i = 0; i < 2; ++i)
                         {
-                            if (Creature* axe = me->SummonCreature(MALCHEZARS_AXE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000))
+                            if (Creature* axe = me->SummonCreature(MALCHEZARS_AXE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000ms))
                             {
                                 axe->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 axe->SetFaction(me->GetFaction());

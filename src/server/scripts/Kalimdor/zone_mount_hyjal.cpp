@@ -262,7 +262,7 @@ class npc_marion_wormswing : public CreatureScript
         bool OnGossipHello(Player* player, GameObject* go) override
         {
             if (!go->FindNearestCreature(41112, 100.0f) && player->GetQuestStatus(25731) == QUEST_STATUS_INCOMPLETE)
-                go->SummonCreature(41112, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 60000);
+                go->SummonCreature(41112, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 60000ms);
             return false;
         }
 }; */
@@ -282,9 +282,9 @@ class npc_soft_target : public CreatureScript
     public:
         npc_soft_target() : CreatureScript("npc_soft_target") { }
 
-        struct npc_soft_targetAI : public CreatureAI
+        struct npc_soft_targetAI : public ScriptedAI
         {
-            npc_soft_targetAI(Creature* creature) : CreatureAI(creature)
+            npc_soft_targetAI(Creature* creature) : ScriptedAI(creature)
             {
                 timer = 0;
                 clearTimer = 0;
@@ -355,9 +355,9 @@ class npc_angry_little_squirrel : public CreatureScript
     public:
         npc_angry_little_squirrel() : CreatureScript("npc_angry_little_squirrel") { }
 
-        struct npc_angry_little_squirrelAI : public CreatureAI
+        struct npc_angry_little_squirrelAI : public ScriptedAI
         {
-            npc_angry_little_squirrelAI(Creature* creature) : CreatureAI(creature), timer(0) { }
+            npc_angry_little_squirrelAI(Creature* creature) : ScriptedAI(creature), timer(0) { }
 
             void UpdateAI(uint32 diff) override
             {
@@ -715,9 +715,9 @@ const Position aronusFlyPath4[10] =
 };
 
 // Aronus 39140
-struct npc_hyjal_aronus : public CreatureAI
+struct npc_hyjal_aronus : public ScriptedAI
 {
-    npc_hyjal_aronus(Creature* creature) : CreatureAI(creature)
+    npc_hyjal_aronus(Creature* creature) : ScriptedAI(creature)
     {
         me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     }
@@ -732,9 +732,9 @@ struct npc_hyjal_aronus : public CreatureAI
 };
 
 // Aronus Ride 39128
-struct npc_hyjal_aronus_ride : public CreatureAI
+struct npc_hyjal_aronus_ride : public ScriptedAI
 {
-    npc_hyjal_aronus_ride(Creature* creature) : CreatureAI(creature) { }
+    npc_hyjal_aronus_ride(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
     ObjectGuid targetGUID;

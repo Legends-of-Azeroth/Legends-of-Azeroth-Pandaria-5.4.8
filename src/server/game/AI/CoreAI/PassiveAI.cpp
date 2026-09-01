@@ -64,7 +64,7 @@ void CritterAI::DamageTaken(Unit* /*done_by*/, uint32&)
         me->SetControlled(true, UNIT_STATE_FLEEING);
 }
 
-void CritterAI::EnterEvadeMode()
+void CritterAI::EnterEvadeMode(EvadeReason why)
 {
     if (me->HasUnitState(UNIT_STATE_FLEEING))
         me->SetControlled(false, UNIT_STATE_FLEEING);

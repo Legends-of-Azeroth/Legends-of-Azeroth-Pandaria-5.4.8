@@ -1434,7 +1434,7 @@ class npc_vengeful_fleshreapert_icc : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (!_EnterEvadeMode())
                     return;

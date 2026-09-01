@@ -122,7 +122,7 @@ class boss_lilian_voss : public CreatureScript
                 me->Kill(me);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)
@@ -484,7 +484,7 @@ class spell_dark_blaze : public SpellScriptLoader
             void HandleOnCast()
             {
                 if (GetCaster())
-                    if (Creature* Trigger = GetCaster()->SummonCreature(NPC_DARK_BLAZE, GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), GetCaster()->GetPositionZ(), GetCaster()->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 30 * IN_MILLISECONDS))
+                    if (Creature* Trigger = GetCaster()->SummonCreature(NPC_DARK_BLAZE, GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), GetCaster()->GetPositionZ(), GetCaster()->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(30 * IN_MILLISECONDS)))
                         GetCaster()->AddAura(SPELL_DARK_BLAZE_DUMMY, Trigger);
             }
 

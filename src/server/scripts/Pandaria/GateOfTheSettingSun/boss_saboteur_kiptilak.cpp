@@ -123,7 +123,7 @@ class boss_saboteur_kiptilak : public CreatureScript
                 events.ScheduleEvent(EVENT_SABOTAGE, urand(22500, 30000));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)

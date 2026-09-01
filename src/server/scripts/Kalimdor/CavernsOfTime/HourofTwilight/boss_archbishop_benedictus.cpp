@@ -351,7 +351,7 @@ class boss_archbishop_benedictus : public CreatureScript
                             break;
                         case EVENT_PURIFYING_LIGHT:
                             for (uint8 i = 0; i < 3; ++i)
-                                me->SummonCreature(NPC_PURIFYING_LIGHT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 15.0f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 20000);
+                                me->SummonCreature(NPC_PURIFYING_LIGHT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 15.0f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 20000ms);
                             DoCast(me, SPELL_PURIFYING_LIGHT);
                             for (auto itr : GetSphereStalkers(me, NPC_PURIFYING_LIGHT))
                                 itr->AI()->DoAction(ACTION_BLAST);
@@ -374,7 +374,7 @@ class boss_archbishop_benedictus : public CreatureScript
                             break;
                         case EVENT_CORRUPTING_TWILIGHT:
                             for (uint8 i = 0; i < 3; ++i)
-                                me->SummonCreature(NPC_TWILIGHT_BLAST, me->GetPositionX() + frand(-5.0f, 5.0f), me->GetPositionY() + frand(-3.0f, 3.0f), me->GetPositionZ() + 15.0f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 20000);
+                                me->SummonCreature(NPC_TWILIGHT_BLAST, me->GetPositionX() + frand(-5.0f, 5.0f), me->GetPositionY() + frand(-3.0f, 3.0f), me->GetPositionZ() + 15.0f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 20000ms);
                             DoCast(me, SPELL_CORRUPTING_TWILIGHT);
                             for (auto itr : GetSphereStalkers(me, NPC_TWILIGHT_BLAST))
                                 itr->AI()->DoAction(ACTION_BLAST);

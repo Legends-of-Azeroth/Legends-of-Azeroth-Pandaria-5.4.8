@@ -493,7 +493,7 @@ class boss_freya : public CreatureScript
                             for (int8 n = 0; n < 3; n++)
                             {
                                 Position pos = me->GetRandomNearPosition(30);
-                                me->SummonCreature(NPC_SUN_BEAM, pos, TEMPSUMMON_TIMED_DESPAWN, 10000);
+                                me->SummonCreature(NPC_SUN_BEAM, pos, TEMPSUMMON_TIMED_DESPAWN, 10000ms);
                             }
                             events.ScheduleEvent(EVENT_UNSTABLE_ENERGY, urand(35000, 45000));
                             break;
@@ -906,7 +906,7 @@ class boss_elder_brightleaf : public CreatureScript
                         case EVENT_UNSTABLE_SUN_BEAM:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 if (target->IsAlive())
-                                    me->SummonCreature(NPC_UNSTABLE_SUN_BEAM, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000);
+                                    me->SummonCreature(NPC_UNSTABLE_SUN_BEAM, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000ms);
                             events.ScheduleEvent(EVENT_UNSTABLE_SUN_BEAM, 8000);
                             break;
                         case EVENT_SOLAR_FLARE:

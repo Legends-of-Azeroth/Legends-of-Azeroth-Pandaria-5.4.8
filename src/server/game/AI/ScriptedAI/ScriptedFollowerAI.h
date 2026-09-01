@@ -45,7 +45,7 @@ class FollowerAI : public ScriptedAI
 
         void MoveInLineOfSight(Unit*);
 
-        void EnterEvadeMode();
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
 
         void JustDied(Unit*);
 

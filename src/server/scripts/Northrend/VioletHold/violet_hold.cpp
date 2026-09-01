@@ -687,7 +687,7 @@ class npc_teleportation_portal_vh : public CreatureScript
                                 for (uint8 i = 0; i < k; ++i)
                                 {
                                     uint32 entry = RAND(NPC_AZURE_CAPTAIN,NPC_AZURE_RAIDER,NPC_AZURE_STALKER,NPC_AZURE_SORCEROR);
-                                    DoSummon(entry, me, 2.0f, 20000, TEMPSUMMON_DEAD_DESPAWN);
+                                    DoSummon(entry, me, 2.0f, 20000ms, TEMPSUMMON_DEAD_DESPAWN);
                                 }
 
                                 if (Creature* sinclariTrigger = instance->instance->GetCreature(instance->GetGuidData(DATA_SINCLARI_TRIGGER)))
@@ -716,14 +716,14 @@ class npc_teleportation_portal_vh : public CreatureScript
                                 for (uint8 i = 0; i < k; ++i)
                                 {
                                     uint32 entry = RAND(NPC_AZURE_INVADER_1, NPC_AZURE_INVADER_2, NPC_AZURE_SPELLBREAKER_1, NPC_AZURE_SPELLBREAKER_2, NPC_AZURE_MAGE_SLAYER_1, NPC_AZURE_MAGE_SLAYER_2, NPC_AZURE_BINDER_1, NPC_AZURE_BINDER_2);
-                                    DoSummon(entry, me, 2.0f, 20000, TEMPSUMMON_DEAD_DESPAWN);
+                                    DoSummon(entry, me, 2.0f, 20000ms, TEMPSUMMON_DEAD_DESPAWN);
                                 }
                             }
                             else
                             {
                                 bPortalGuardianOrKeeperOrEliteSpawn = true;
                                 uint32 entry = RAND(NPC_PORTAL_GUARDIAN, NPC_PORTAL_KEEPER);
-                                if (Creature* pPortalKeeper = DoSummon(entry, me, 2.0f, 0, TEMPSUMMON_DEAD_DESPAWN))
+                                if (Creature* pPortalKeeper = DoSummon(entry, me, 2.0f, 0ms, TEMPSUMMON_DEAD_DESPAWN))
                                 {
                                     me->CastSpell(pPortalKeeper, SPELL_PORTAL_CHANNEL, false);
                                     me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
@@ -1385,7 +1385,7 @@ class npc_violet_hold_arcane_sphere : public CreatureScript
             void Reset() override { }
             void AttackStart(Unit* /*who*/) override { }
             void JustEngagedWith(Unit* /*who*/) override { }
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
             void UpdateAI(uint32 /*diff*/) override { }
         };
 

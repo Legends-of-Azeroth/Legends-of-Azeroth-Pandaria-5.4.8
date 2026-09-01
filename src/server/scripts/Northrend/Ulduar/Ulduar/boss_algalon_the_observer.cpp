@@ -512,7 +512,7 @@ class boss_algalon_the_observer : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 instance->SetBossState(BOSS_ALGALON, FAIL);
                 BossAI::EnterEvadeMode();
@@ -552,7 +552,7 @@ class boss_algalon_the_observer : public CreatureScript
                     for (auto&& stalker : stalkers)
                         stalker->m_Events.KillAllEvents(true);
                     for (uint32 i = 0; i < COLLAPSING_STAR_COUNT; ++i)
-                        if (Creature* wormHole = DoSummon(NPC_WORM_HOLE, CollapsingStarPos[i], TEMPSUMMON_MANUAL_DESPAWN))
+                        if (Creature* wormHole = DoSummon(NPC_WORM_HOLE, CollapsingStarPos[i], 30s, TEMPSUMMON_MANUAL_DESPAWN))
                             wormHole->m_Events.AddEvent(new SummonUnleashedDarkMatter(wormHole), wormHole->m_Events.CalculateTime(i >= 2 ? 8000 : 6000));
                 }
                 else if ((int32(me->GetHealth()) - int32(damage)) < CalculatePct(float(me->GetMaxHealth()), 2.5f) && !_fightWon)
@@ -641,7 +641,7 @@ class boss_algalon_the_observer : public CreatureScript
                             if (!me->GetThreatManager().isThreatListEmpty())
                                 AttackStart(me->GetThreatManager().getHostilTarget());
                             for (uint32 i = 0; i < LIVING_CONSTELLATION_COUNT; ++i)
-                                if (Creature* summon = DoSummon(NPC_LIVING_CONSTELLATION, ConstellationPos[i], 0, TEMPSUMMON_DEAD_DESPAWN))
+                                if (Creature* summon = DoSummon(NPC_LIVING_CONSTELLATION, ConstellationPos[i], 0ms, TEMPSUMMON_DEAD_DESPAWN))
                                     summon->SetReactState(REACT_PASSIVE);
                             for (uint32 i = 0; i < 8; i++)
                                 if (Creature* DarkMatter = me->SummonCreature(33089, DarkMatterPos[i], TEMPSUMMON_MANUAL_DESPAWN))
@@ -743,7 +743,7 @@ class boss_algalon_the_observer : public CreatureScript
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             break;
                         case EVENT_OUTRO_5:
-                            if (Creature* brann = DoSummon(NPC_BRANN_BRONZBEARD_ALG, BrannOutroPos[0], 131500, TEMPSUMMON_TIMED_DESPAWN))
+                            if (Creature* brann = DoSummon(NPC_BRANN_BRONZBEARD_ALG, BrannOutroPos[0], 131500ms, TEMPSUMMON_TIMED_DESPAWN))
                                 brann->AI()->DoAction(ACTION_OUTRO);
                             break;
                         case EVENT_OUTRO_6:
@@ -810,9 +810,9 @@ class npc_living_constellation : public CreatureScript
     public:
         npc_living_constellation() : CreatureScript("npc_living_constellation") { }
 
-        struct npc_living_constellationAI : public CreatureAI
+        struct npc_living_constellationAI : public ScriptedAI
         {
-            npc_living_constellationAI(Creature* creature) : CreatureAI(creature) { }
+            npc_living_constellationAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {
@@ -910,9 +910,9 @@ class npc_collapsing_star : public CreatureScript
     public:
         npc_collapsing_star() : CreatureScript("npc_collapsing_star") { }
 
-        struct npc_collapsing_starAI : public CreatureAI
+        struct npc_collapsing_starAI : public ScriptedAI
         {
-            npc_collapsing_starAI(Creature* creature) : CreatureAI(creature)
+            npc_collapsing_starAI(Creature* creature) : ScriptedAI(creature)
             {
                 _dying = false;
             }
@@ -977,9 +977,9 @@ class npc_black_hole : public CreatureScript
     public:
         npc_black_hole() : CreatureScript("npc_black_hole") { }
 
-        struct npc_black_holeAI : public CreatureAI
+        struct npc_black_holeAI : public ScriptedAI
         {
-            npc_black_holeAI(Creature* creature) : CreatureAI(creature) { }
+            npc_black_holeAI(Creature* creature) : ScriptedAI(creature) { }
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
             void AttackStart(Unit* /*who*/) override { }
@@ -1018,9 +1018,9 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
     public:
         npc_brann_bronzebeard_algalon() : CreatureScript("npc_brann_bronzebeard_algalon") { }
 
-        struct npc_brann_bronzebeard_algalonAI : public CreatureAI
+        struct npc_brann_bronzebeard_algalonAI : public ScriptedAI
         {
-            npc_brann_bronzebeard_algalonAI(Creature* creature) : CreatureAI(creature) { }
+            npc_brann_bronzebeard_algalonAI(Creature* creature) : ScriptedAI(creature) { }
 
             void DoAction(int32 action) override
             {
@@ -1124,9 +1124,9 @@ class npc_dark_matter : public CreatureScript
     public:
         npc_dark_matter() : CreatureScript("npc_dark_matter") { }
 
-        struct npc_dark_matterAI : public CreatureAI
+        struct npc_dark_matterAI : public ScriptedAI
         {
-            npc_dark_matterAI(Creature* creature) : CreatureAI(creature) { }
+            npc_dark_matterAI(Creature* creature) : ScriptedAI(creature) { }
 
             void IsSummonedBy(Unit* summoner) override
             {

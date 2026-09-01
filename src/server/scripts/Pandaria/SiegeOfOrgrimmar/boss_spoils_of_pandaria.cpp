@@ -676,7 +676,7 @@ class boss_spoils_of_pandaria : public CreatureScript
                 return 0;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 DoCast(me, SPELL_GB_11010_ARMAGEDDON_CLASS_DEFENSE_SYSTEME);
 
@@ -1886,7 +1886,7 @@ struct npc_spoils_ancient_brewmaster_spirit : public ScriptedAI
     void JustDied(Unit* /*killer*/) override
     {
         me->RemoveAllAreasTrigger();
-        me->SummonCreature(invPandarensType.find(me->GetEntry())->second[0], *me, TEMPSUMMON_TIMED_DESPAWN, 3 * MINUTE * IN_MILLISECONDS);
+        me->SummonCreature(invPandarensType.find(me->GetEntry())->second[0], *me, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(3 * MINUTE * IN_MILLISECONDS));
         me->DisappearAndDie();
     }
 
@@ -2020,7 +2020,7 @@ struct npc_spoils_wise_mistweaver_spirit : public ScriptedAI
     void JustDied(Unit* /*killer*/) override
     {
         me->RemoveAllAreasTrigger();
-        me->SummonCreature(invPandarensType.find(me->GetEntry())->second[0], *me, TEMPSUMMON_TIMED_DESPAWN, 3 * MINUTE * IN_MILLISECONDS);
+        me->SummonCreature(invPandarensType.find(me->GetEntry())->second[0], *me, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(3 * MINUTE * IN_MILLISECONDS));
         me->DisappearAndDie();
     }
 
@@ -2117,7 +2117,7 @@ struct npc_spoils_nameless_windwalker_spirit : public ScriptedAI
     void JustDied(Unit* /*killer*/) override
     {
         me->RemoveAllAreasTrigger();
-        me->SummonCreature(invPandarensType.find(me->GetEntry())->second[0], *me, TEMPSUMMON_TIMED_DESPAWN, 3 * MINUTE * IN_MILLISECONDS);
+        me->SummonCreature(invPandarensType.find(me->GetEntry())->second[0], *me, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(3 * MINUTE * IN_MILLISECONDS));
         me->DisappearAndDie();
     }
 

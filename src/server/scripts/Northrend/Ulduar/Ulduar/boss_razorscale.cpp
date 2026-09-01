@@ -654,7 +654,7 @@ class boss_razorscale : public CreatureScript
                     float x = float(irand(540, 640));       // Safe range is between 500 and 650
                     float y = float(irand(-230, -195));     // Safe range is between -235 and -145
                     float z = GROUND_Z;                     // Ground level
-                    me->SummonCreature(NPC_MOLE_MACHINE_TRIGGER, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 15000);
+                    me->SummonCreature(NPC_MOLE_MACHINE_TRIGGER, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 15000ms);
                 }
             }
 
@@ -765,7 +765,7 @@ class npc_expedition_commander : public CreatureScript
                         case 2:
                             for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
                             {
-                                if (Creature* engineer = me->SummonCreature(NPC_ENGINEER, PosEngSpawn, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000))
+                                if (Creature* engineer = me->SummonCreature(NPC_ENGINEER, PosEngSpawn, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms))
                                 {
                                     Engineer[n] = engineer->GetGUID();
                                     engineer->SetWalk(false);
@@ -782,7 +782,7 @@ class npc_expedition_commander : public CreatureScript
                         case 3:
                             for (uint8 n = 0; n < 4; n++)
                             {
-                                if (Creature* defender = me->SummonCreature(NPC_DEFENDER, PosDefSpawn[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000))
+                                if (Creature* defender = me->SummonCreature(NPC_DEFENDER, PosDefSpawn[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms))
                                 {
                                     Defender[n] = defender->GetGUID();
                                     defender->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_NPC);
@@ -962,7 +962,7 @@ class npc_devouring_flame : public CreatureScript
                 DoCast(SPELL_FLAME_GROUND);
             }
 
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
             void AttackStart(Unit* who) override { }
         };
 

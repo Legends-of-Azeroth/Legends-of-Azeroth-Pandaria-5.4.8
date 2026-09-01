@@ -42,7 +42,7 @@ TotemAI::TotemAI(Creature* c) : CreatureAI(c)
 
 void TotemAI::MoveInLineOfSight(Unit* /*who*/) { }
 
-void TotemAI::EnterEvadeMode()
+void TotemAI::EnterEvadeMode(EvadeReason why)
 {
     me->CombatStop(true);
 }

@@ -1366,7 +1366,7 @@ class npc_theramore_gatecrusher : public CreatureScript
                             break;
                         case EVENT_CANNON:
                             if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 150.0f, true))
-                                if (TempSummon* cannonTarget = me->SummonCreature(NPC_TANK_TARGET, *target, TEMPSUMMON_TIMED_DESPAWN, 4 * IN_MILLISECONDS))
+                                if (TempSummon* cannonTarget = me->SummonCreature(NPC_TANK_TARGET, *target, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(4 * IN_MILLISECONDS)))
                                     DoCast(target, SPELL_BIG_BESSA_CANNON, false);
 
                             events.ScheduleEvent(EVENT_CANNON, urand(11.5 * IN_MILLISECONDS, 17 * IN_MILLISECONDS));

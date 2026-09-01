@@ -224,7 +224,7 @@ class boss_tayak : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_CANDLE_IN_THE_WIND, 0);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (instance)
                 {
@@ -848,7 +848,7 @@ class npc_tempest_slash_tornado : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
             void MovementInform(uint32 type, uint32 pointId) override
             {

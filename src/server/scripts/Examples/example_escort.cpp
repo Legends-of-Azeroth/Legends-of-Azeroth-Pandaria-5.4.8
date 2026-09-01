@@ -93,7 +93,7 @@ class example_escort : public CreatureScript
                         break;
                     case 3:
                         Talk(SAY_WP_2);
-                        me->SummonCreature(NPC_FELBOAR, me->GetPositionX()+5.0f, me->GetPositionY()+7.0f, me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
+                        me->SummonCreature(NPC_FELBOAR, me->GetPositionX()+5.0f, me->GetPositionY()+7.0f, me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000ms);
                         break;
                     case 4:
                         if (Player* player = GetPlayerForEscort())

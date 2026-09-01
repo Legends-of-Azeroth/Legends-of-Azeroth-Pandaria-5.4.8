@@ -703,7 +703,7 @@ class npc_scarlet_zealot : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override 
             {
-                me->SummonCreature(NPC_SPIRIT_OF_REDEMPTION, me->GetPositionX() + frand(-2.0f, 2.0f), me->GetPositionY() + frand(-1.5f, 1.5f), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 12000);
+                me->SummonCreature(NPC_SPIRIT_OF_REDEMPTION, me->GetPositionX() + frand(-2.0f, 2.0f), me->GetPositionY() + frand(-1.5f, 1.5f), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 12000ms);
             }
 
             void DoAction(int32 actionId) override

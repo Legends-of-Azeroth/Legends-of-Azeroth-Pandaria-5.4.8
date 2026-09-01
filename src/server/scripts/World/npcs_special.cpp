@@ -163,7 +163,7 @@ public:
 
         Creature* SummonGuard()
         {
-            Creature* summoned = me->SummonCreature(SpawnAssoc->spawnedCreatureEntry, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
+            Creature* summoned = me->SummonCreature(SpawnAssoc->spawnedCreatureEntry, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000ms);
 
             if (summoned)
                 SpawnedGUID = summoned->GetGUID();
@@ -856,7 +856,7 @@ void npc_doctor::npc_doctorAI::UpdateAI(uint32 diff)
 
             if (Location* point = *itr)
             {
-                if (Creature* Patient = me->SummonCreature(patientEntry, point->x, point->y, point->z, point->o, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+                if (Creature* Patient = me->SummonCreature(patientEntry, point->x, point->y, point->z, point->o, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000ms))
                 {
                     //303, this flag appear to be required for client side item->spell to work (TARGET_SINGLE_FRIEND)
                     Patient->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
@@ -1665,7 +1665,7 @@ public:
             clearAttackerCombat.clear();
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
         {
             if (!_EnterEvadeMode())
                 return;
@@ -2379,7 +2379,7 @@ public:
                             case 1:
                             case 2:
                             case 3:
-                                if (Creature* minion = me->SummonCreature(NPC_MINION_OF_OMEN, me->GetPositionX()+frand(-5.0f, 5.0f), me->GetPositionY()+frand(-5.0f, 5.0f), me->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                                if (Creature* minion = me->SummonCreature(NPC_MINION_OF_OMEN, me->GetPositionX()+frand(-5.0f, 5.0f), me->GetPositionY()+frand(-5.0f, 5.0f), me->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000ms))
                                     minion->AI()->AttackStart(me->SelectNearestPlayer(20.0f));
                                 break;
                             case 9:
@@ -2516,7 +2516,7 @@ struct npc_stone_statue : public ScriptedAI
             DoCastAOE(spellId);
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
     bool CanAIAttack(Unit const* /*who*/) const override { return false; }
     void AttackStart(Unit* /*who*/) override { }
     void JustEngagedWith(Unit* /*who*/) override { }
@@ -2544,7 +2544,7 @@ struct npc_sky_lantern : public ScriptedAI
         }
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
     bool CanAIAttack(Unit const* /*who*/) const override { return false; }
     void AttackStart(Unit* /*who*/) override { }
     void JustEngagedWith(Unit* /*who*/) override { }
@@ -2756,7 +2756,7 @@ struct npc_soul_mirror_artifact : public ScriptedAI
         me->SetTarget(summoner->GetGUID());
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 };
 
 enum naaruArrivedsMisc
@@ -2778,7 +2778,7 @@ struct npc_vision_of_the_naaru_stalker : public ScriptedAI
         DoCast(me, SPELL_VISION_OF_NAARU_COSMETIC);
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 };
 
 // Vision of the Naaru 51190
@@ -2801,7 +2801,7 @@ struct npc_vision_of_the_naaru : public ScriptedAI
         {
             GetPositionWithDistInOrientation(me, 6.0f, Position::NormalizeOrientation(angleFacing + i * (M_PI / 6)), x, y);
 
-            if (Creature* tinyDranei = me->SummonCreature(NPC_VERY_TINY_DRANEI, x, y, me->GetPositionZ(), Position::NormalizeOrientation(angleFacing + i * (M_PI / 6) + M_PI), TEMPSUMMON_TIMED_DESPAWN, 8 * IN_MILLISECONDS))
+            if (Creature* tinyDranei = me->SummonCreature(NPC_VERY_TINY_DRANEI, x, y, me->GetPositionZ(), Position::NormalizeOrientation(angleFacing + i * (M_PI / 6) + M_PI), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(8 * IN_MILLISECONDS)))
             {
                 GetPositionWithDistInOrientation(tinyDranei, 4.5f, tinyDranei->GetOrientation(), x, y);
                 tinyDraneiGUIDs[i] = tinyDranei->GetGUID();
@@ -2836,7 +2836,7 @@ struct npc_sword_dancers_stalker : public ScriptedAI
         DoCast(me, SPELL_SUMMON_SWORD_DANCERS);
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 };
 
 // Sword Dancers 51269, 51270, 51271, 51272
@@ -2925,9 +2925,9 @@ enum HauntedMementoEnums
     EVENT_CHECK_SUMMONER_AURA,
 };
 
-struct npc_scourge_haunt : public CreatureAI
+struct npc_scourge_haunt : public ScriptedAI
 {
-    npc_scourge_haunt(Creature* creature) : CreatureAI(creature) { }
+    npc_scourge_haunt(Creature* creature) : ScriptedAI(creature) { }
 
     void IsSummonedBy(Unit* summoner) override
     {

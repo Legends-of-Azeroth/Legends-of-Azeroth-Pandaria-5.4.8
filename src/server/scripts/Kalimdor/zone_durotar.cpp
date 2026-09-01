@@ -587,7 +587,7 @@ class npc_ji_firepaw_horde_way_quest : public CreatureScript
                 });
             }
 
-            void EnterEvadeMode() override 
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override 
             {
                 me->HandleEmoteStateCommand(EMOTE_STATE_NONE);
                 Talk(SAY_SPECIAL_2);

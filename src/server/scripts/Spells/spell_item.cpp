@@ -2901,7 +2901,7 @@ class spell_item_summon_sword_dancers : public SpellScript
             for (uint32 i = 0; i < 4; i++)
             {
                 GetPositionWithDistInOrientation(caster, 3.5f, Position::NormalizeOrientation(faceOri + i * (M_PI / 2)), x, y);
-                caster->SummonCreature(NPC_SWORD_DANCER_A + i, x, y, caster->GetPositionZ(), Position::NormalizeOrientation(faceOri + i * (M_PI / 2) - M_PI), TEMPSUMMON_TIMED_DESPAWN, 18 * IN_MILLISECONDS);
+                caster->SummonCreature(NPC_SWORD_DANCER_A + i, x, y, caster->GetPositionZ(), Position::NormalizeOrientation(faceOri + i * (M_PI / 2) - M_PI), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(18 * IN_MILLISECONDS));
             }
         }
     }

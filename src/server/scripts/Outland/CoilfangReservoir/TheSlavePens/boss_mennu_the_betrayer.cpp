@@ -86,7 +86,7 @@ class boss_mennu_the_betrayer : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
 

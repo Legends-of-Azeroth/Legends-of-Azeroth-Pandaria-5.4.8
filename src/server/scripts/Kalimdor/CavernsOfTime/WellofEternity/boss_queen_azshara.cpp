@@ -148,7 +148,7 @@ class boss_queen_azshara : public CreatureScript
                 memset(addsGUIDs, 0, sizeof(addsGUIDs));
 
                 for (uint8 i = 0; i < 6; ++i)
-                    if (Creature* pAdd = me->SummonCreature(addsEntry[i], addsPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+                    if (Creature* pAdd = me->SummonCreature(addsEntry[i], addsPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000ms))
                         addsGUIDs[i] = pAdd->GetGUID();
 
                 addsCount = 0;
@@ -386,8 +386,8 @@ class npc_queen_azshara_enchanted_magus : public CreatureScript
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             {
-                                Creature* pStalker1 = me->SummonCreature(NPC_HAMMER_OF_DIVINITY_2, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 20000);
-                                Creature* pStalker2 = me->SummonCreature(NPC_HAMMER_OF_DIVINITY_1, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + 30.0f, target->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 20000);
+                                Creature* pStalker1 = me->SummonCreature(NPC_HAMMER_OF_DIVINITY_2, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 20000ms);
+                                Creature* pStalker2 = me->SummonCreature(NPC_HAMMER_OF_DIVINITY_1, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + 30.0f, target->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 20000ms);
                                 
                                 if (pStalker1 && pStalker2)
                                     pStalker2->GetMotionMaster()->MovePoint(0, pStalker1->GetPositionX(), pStalker1->GetPositionY(), pStalker1->GetPositionZ()); 

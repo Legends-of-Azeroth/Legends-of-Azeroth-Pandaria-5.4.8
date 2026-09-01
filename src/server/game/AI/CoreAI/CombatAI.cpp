@@ -83,6 +83,8 @@ void CombatAI::JustDied(Unit* killer)
 
 void CombatAI::JustEngagedWith(Unit* who)
 {
+    CreatureAI::JustEngagedWith(who);
+
     for (SpellVct::iterator i = spells.begin(); i != spells.end(); ++i)
     {
         if (AISpellInfo[*i].condition == AICOND_AGGRO)
@@ -134,6 +136,8 @@ void CasterAI::InitializeAI()
 
 void CasterAI::JustEngagedWith(Unit* who)
 {
+    CreatureAI::JustEngagedWith(who);
+
     if (spells.empty())
         return;
 

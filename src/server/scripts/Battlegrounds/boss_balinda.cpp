@@ -208,7 +208,7 @@ struct boss_balinda : public ScriptedAI
                     break;
                 case EVENT_SUMMON_WATER_ELEMENTAL:
                     if (summons.empty())
-                        me->SummonCreature(NPC_WATER_ELEMENTAL, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45 * IN_MILLISECONDS);
+                        me->SummonCreature(NPC_WATER_ELEMENTAL, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, Milliseconds(45 * IN_MILLISECONDS));
 
                     _events.ScheduleEvent(EVENT_SUMMON_WATER_ELEMENTAL, 50s);
                     break;

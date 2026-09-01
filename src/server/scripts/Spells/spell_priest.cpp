@@ -2901,7 +2901,7 @@ struct npc_pri_psy_fiend : public PassiveAI
     std::set<uint64> Guids;
     std::map<uint64, uint32> Attackers;
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
     void UpdateAI(uint32 diff) override
     {

@@ -263,9 +263,9 @@ class boss_echo_of_jaina : public CreatureScript
                             break;
                         case EVENT_FROST_BLADES:
                             Talk(SAY_SPELL);
-                            me->SummonCreature(NPC_FROSTBLADES, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation() - (M_PI / 4.0f), TEMPSUMMON_TIMED_DESPAWN, 30000);
-                            me->SummonCreature(NPC_FROSTBLADES, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 30000);
-                            me->SummonCreature(NPC_FROSTBLADES, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation() + (M_PI / 4.0f), TEMPSUMMON_TIMED_DESPAWN, 30000);
+                            me->SummonCreature(NPC_FROSTBLADES, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation() - (M_PI / 4.0f), TEMPSUMMON_TIMED_DESPAWN, 30000ms);
+                            me->SummonCreature(NPC_FROSTBLADES, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 30000ms);
+                            me->SummonCreature(NPC_FROSTBLADES, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation() + (M_PI / 4.0f), TEMPSUMMON_TIMED_DESPAWN, 30000ms);
                             break;
                     }
                 }

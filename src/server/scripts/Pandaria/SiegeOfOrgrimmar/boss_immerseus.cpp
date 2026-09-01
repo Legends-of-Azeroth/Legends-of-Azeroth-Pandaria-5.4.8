@@ -518,7 +518,7 @@ class boss_immerseus : public CreatureScript
 
             void KilledUnit(Unit* victim) override { }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 DespawnSummon(NPC_SHA_BOLT);
 
@@ -651,7 +651,7 @@ class boss_immerseus : public CreatureScript
                                 float sOri = Position::NormalizeOrientation(frand(0.0f, 2 * M_PI));
                                 GetPositionWithDistInOrientation(me, 65.0f, sOri, x, y);
 
-                                if (Creature* swirlTarget = me->SummonCreature(NPC_SWIRL_TARGET, x, y, 246.83f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 13100))
+                                if (Creature* swirlTarget = me->SummonCreature(NPC_SWIRL_TARGET, x, y, 246.83f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 13100ms))
                                 {
                                     me->PrepareChanneledCast(sOri, SPELL_SWIRL);
                                     me->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, swirlTarget->GetGUID());

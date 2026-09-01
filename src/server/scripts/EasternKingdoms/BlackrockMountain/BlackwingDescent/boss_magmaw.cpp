@@ -314,7 +314,7 @@ class boss_magmaw : public CreatureScript
                                 target->GetPositionX(),
                                 target->GetPositionY(),
                                 target->GetPositionZ(),
-                                0.0f, TEMPSUMMON_TIMED_DESPAWN, 8000);
+                                0.0f, TEMPSUMMON_TIMED_DESPAWN, 8000ms);
                             events.ScheduleEvent(EVENT_PILLAR_OF_FLAME, urand(35000, 45000));
                             break;
                         case EVENT_MANGLE:

@@ -93,7 +93,7 @@ class boss_dalliah_the_doomsayer : public CreatureScript
                     events.ScheduleEvent(EVENT_HEAL, 2 * IN_MILLISECONDS);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
 

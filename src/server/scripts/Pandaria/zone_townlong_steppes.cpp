@@ -837,7 +837,7 @@ class go_sikthik_cage : public GameObjectScript
             // If counter is 7 (script is called before counting) max is 8
             if (player->GetQuestObjectiveCounter(OBJECTIVE_SIKTHIK_CAGES_SEARCHED) == 7 && player->GetQuestStatus(QUEST_THE_SEARCH_OF_RESTLESS_LENG) == QUEST_STATUS_INCOMPLETE)
             {
-                if (Creature* leng = player->SummonCreature(NPC_RESTLESS_LENG, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 20000))
+                if (Creature* leng = player->SummonCreature(NPC_RESTLESS_LENG, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 20000ms))
                 {
                     ObjectGuid playerGuid = player->GetGUID();
 
@@ -1058,7 +1058,7 @@ class npc_lin_silentstrike : public CreatureScript
 
             void SetGUID(ObjectGuid guid, int32 /*type*/) override
             {
-                if (auto suna = me->SummonCreature(NPC_SUNA_SILENTSTRIKE, 2659.59f, 3268.618f, 425.33f, 5.56f, TEMPSUMMON_TIMED_DESPAWN, 34000))
+                if (auto suna = me->SummonCreature(NPC_SUNA_SILENTSTRIKE, 2659.59f, 3268.618f, 425.33f, 5.56f, TEMPSUMMON_TIMED_DESPAWN, 34000ms))
                 {
                     sunaGUID = suna->GetGUID();
 

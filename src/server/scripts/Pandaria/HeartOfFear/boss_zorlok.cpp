@@ -500,7 +500,7 @@ class boss_zorlok : public CreatureScript
                 DoCast(me, m_echo);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();

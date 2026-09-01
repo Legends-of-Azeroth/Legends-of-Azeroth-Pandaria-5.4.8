@@ -162,7 +162,7 @@ class boss_taldaram : public CreatureScript
                             Creature* pSpheres[3];
 
                             //DoCast(me, SPELL_FLAME_SPHERE_SUMMON_1);
-                            pSpheres[0] = DoSpawnCreature(NPC_FLAME_SPHERE, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS);
+                            pSpheres[0] = DoSpawnCreature(NPC_FLAME_SPHERE, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10s);
                             Unit* pSphereTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                             if (pSphereTarget && pSpheres[0])
                             {
@@ -175,9 +175,9 @@ class boss_taldaram : public CreatureScript
                             if (IsHeroic())
                             {
                                 //DoCast(me, SPELL_FLAME_SPHERE_SUMMON_1_H);
-                                pSpheres[1] = DoSpawnCreature(NPC_FLAME_SPHERE_1_H, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS);
+                                pSpheres[1] = DoSpawnCreature(NPC_FLAME_SPHERE_1_H, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10s);
                                 //DoCast(me, SPELL_FLAME_SPHERE_SUMMON_2_H);
-                                pSpheres[2] = DoSpawnCreature(NPC_FLAME_SPHERE_2_H, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS);
+                                pSpheres[2] = DoSpawnCreature(NPC_FLAME_SPHERE_2_H, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10s);
                                 if (pSphereTarget && pSpheres[1] && pSpheres[2])
                                 {
                                     float angle,x,y;

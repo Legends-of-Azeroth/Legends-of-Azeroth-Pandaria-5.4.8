@@ -336,7 +336,7 @@ class boss_iron_qon : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (atEvade)
                     return;
@@ -688,7 +688,7 @@ struct quelingBaseAI : public ScriptedAI
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (atEvade)
             return;

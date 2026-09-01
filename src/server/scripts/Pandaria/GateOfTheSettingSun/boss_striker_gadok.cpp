@@ -230,7 +230,7 @@ class boss_striker_gadok : public CreatureScript
                 exploitEvents.ScheduleEvent(EVENT_CHECK_WIPE, 1 * IN_MILLISECONDS);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 summons.DespawnAll();
                 _DespawnAtEvade();

@@ -77,7 +77,7 @@ class boss_nalak : public CreatureScript
                 events.ScheduleEvent(EVENT_STORM_CLOUD, randtime(15s, 17s));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
 

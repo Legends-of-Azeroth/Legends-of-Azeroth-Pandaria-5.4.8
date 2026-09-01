@@ -275,7 +275,7 @@ struct npc_amani_lynx : public customCreatureAI
         events.ScheduleEvent(EVENT_FERAL_SWIPE, urand(2 * IN_MILLISECONDS, 4.5 * IN_MILLISECONDS));
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         DoCast(me, SPELL_STEALTH, true);

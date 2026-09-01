@@ -246,7 +246,7 @@ class boss_kilnara : public CreatureScript
                     Talk(SAY_TRANSFORM_1);
                     DoCast(me, SPELL_CAVE_IN);
                     for (uint8 i = 0; i < 4; ++i)
-                        if (Creature* pCave = me->SummonCreature(NPC_CAVE_IN_STALKER, cavePos[i], TEMPSUMMON_TIMED_DESPAWN, 5000))
+                        if (Creature* pCave = me->SummonCreature(NPC_CAVE_IN_STALKER, cavePos[i], TEMPSUMMON_TIMED_DESPAWN, 5000ms))
                             pCave->CastSpell(pCave, SPELL_CAVE_IN_DUMMY);
                     summons.DoZoneInCombat(NPC_PRIDE_OF_BETHEKK);
                     events.ScheduleEvent(EVENT_PRIMAL_BLESSING, 6000);

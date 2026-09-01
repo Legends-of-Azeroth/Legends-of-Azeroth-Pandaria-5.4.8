@@ -2330,7 +2330,7 @@ struct npc_ebon_gargoyle : ScriptedAI
         m_scheduler.Schedule(Milliseconds(1), std::bind(&npc_ebon_gargoyle::DoAttack, this, std::placeholders::_1));
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
     void JustDied(Unit*) override
     {
@@ -3152,7 +3152,7 @@ struct npc_dk_army_of_the_dead_ghoul : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (!_EnterEvadeMode())
             return;

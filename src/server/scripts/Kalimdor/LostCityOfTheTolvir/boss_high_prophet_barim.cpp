@@ -433,7 +433,7 @@ class npc_blaze_of_the_heavens : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 instance->SetData64(DATA_BLAZE, 0);
 
@@ -664,7 +664,7 @@ class npc_harbinger_of_darkness : public CreatureScript
                     barim->AI()->JustSummoned(me);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 instance->SetData64(DATA_HARBINGER, 0);
 

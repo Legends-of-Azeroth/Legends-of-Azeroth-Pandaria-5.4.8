@@ -77,6 +77,16 @@ void MotionMaster::Initialize()
     InitDefault();
 }
 
+void MotionMaster::AddToWorld()
+{
+    if (!HasFlag(MOTIONMASTER_FLAG_INITIALIZATION_PENDING))
+        return;
+
+    RemoveFlag(MOTIONMASTER_FLAG_INITIALIZATION_PENDING);
+    Initialize();
+    ResolveDelayedActions();
+}
+
 void MotionMaster::InitDefault()
 {
     if (_owner->GetTypeId() == TYPEID_UNIT)

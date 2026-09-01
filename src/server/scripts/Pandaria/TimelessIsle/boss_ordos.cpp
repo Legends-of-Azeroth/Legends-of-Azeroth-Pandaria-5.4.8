@@ -137,7 +137,7 @@ class boss_ordos : public CreatureScript
                 HandleDoor(me, GO_HEATET_DOOR, false);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
                 summons.DespawnAll();
@@ -247,7 +247,7 @@ struct npc_ordos_ancient_flame : public ScriptedAI
         DoCast(me, SPELL_ANCIENT_FLAME);
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 };
 
 // Magma Crush - 144688

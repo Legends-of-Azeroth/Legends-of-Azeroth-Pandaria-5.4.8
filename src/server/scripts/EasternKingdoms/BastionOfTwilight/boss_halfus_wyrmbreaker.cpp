@@ -392,7 +392,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
-                if (Creature* Chogall = me->SummonCreature(NPC_CHOGALL_DLG, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 1, TEMPSUMMON_DEAD_DESPAWN, 0))
+                if (Creature* Chogall = me->SummonCreature(NPC_CHOGALL_DLG, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 1, TEMPSUMMON_DEAD_DESPAWN, 0ms))
                     Chogall->AI()->DoAction(ACTION_AT_HALFUS_END);
             }
 

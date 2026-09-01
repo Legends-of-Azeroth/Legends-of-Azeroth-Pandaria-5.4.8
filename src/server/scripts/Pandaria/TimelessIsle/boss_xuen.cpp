@@ -193,7 +193,7 @@ class boss_xuen : public CreatureScript
                 summons.Summon(summon);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->AddUnitState(UNIT_STATE_EVADE);
 

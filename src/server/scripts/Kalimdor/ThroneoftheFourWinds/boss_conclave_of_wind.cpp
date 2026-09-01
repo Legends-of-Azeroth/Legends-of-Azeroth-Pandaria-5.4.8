@@ -226,7 +226,7 @@ struct boss_conclave_of_wind : public BossAI
         evading = false;
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (me->FindNearestPlayer(500))
             return;
@@ -795,7 +795,7 @@ class boss_rohash : public CreatureScript
                 {
                     Position pos = me->GetPosition();
                     pos.m_positionZ = 250;
-                    if (Creature* hurricane = me->SummonCreature(NPC_HURRICANE, pos, TEMPSUMMON_TIMED_DESPAWN, 20000))
+                    if (Creature* hurricane = me->SummonCreature(NPC_HURRICANE, pos, TEMPSUMMON_TIMED_DESPAWN, 20000ms))
                     {
                         target->CastSpell(target, SPELL_HURRICANE_FLIGHT_AURA, true);
                         // Hack to make a player "fly". Without it the camera drops to the ground when boarding a flying vehicle
@@ -941,9 +941,9 @@ class npc_ravenous_creeper : public CreatureScript
     public:
         npc_ravenous_creeper() : CreatureScript("npc_ravenous_creeper") { }
 
-        struct npc_ravenous_creeperAI : public CreatureAI
+        struct npc_ravenous_creeperAI : public ScriptedAI
         {
-            npc_ravenous_creeperAI(Creature* creature) : CreatureAI(creature) { }
+            npc_ravenous_creeperAI(Creature* creature) : ScriptedAI(creature) { }
 
             void IsSummonedBy(Unit* /*summoner*/) override
             {

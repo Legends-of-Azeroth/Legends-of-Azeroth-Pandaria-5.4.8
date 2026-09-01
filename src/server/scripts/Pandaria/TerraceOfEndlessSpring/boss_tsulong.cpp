@@ -573,7 +573,7 @@ class boss_tsulong : public CreatureScript
                 EnterEvadeMode();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
 
@@ -815,9 +815,9 @@ class npc_sunbeam : public CreatureScript
     public:
         npc_sunbeam() : CreatureScript("npc_sunbeam") { }
 
-        struct npc_sunbeamAI : public CreatureAI
+        struct npc_sunbeamAI : public ScriptedAI
         {
-            npc_sunbeamAI(Creature* creature) : CreatureAI(creature)
+            npc_sunbeamAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
                 creature->SetObjectScale(5.0f);
@@ -851,9 +851,9 @@ class npc_embodied_terror : public CreatureScript
     public:
         npc_embodied_terror() : CreatureScript("npc_embodied_terror") { }
 
-        struct npc_embodied_terrorAI : public CreatureAI
+        struct npc_embodied_terrorAI : public ScriptedAI
         {
-            npc_embodied_terrorAI(Creature* creature) : CreatureAI(creature) { }
+            npc_embodied_terrorAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {
@@ -958,9 +958,9 @@ class npc_fright_spawn : public CreatureScript
     public:
         npc_fright_spawn() : CreatureScript("npc_fright_spawn") { }
 
-        struct npc_fright_spawnAI : public CreatureAI
+        struct npc_fright_spawnAI : public ScriptedAI
         {
-            npc_fright_spawnAI(Creature* creature) : CreatureAI(creature) { }
+            npc_fright_spawnAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {

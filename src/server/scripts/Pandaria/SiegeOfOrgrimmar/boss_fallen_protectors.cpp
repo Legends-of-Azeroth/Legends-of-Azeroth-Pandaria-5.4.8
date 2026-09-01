@@ -447,7 +447,7 @@ class boss_rook_stonetoe : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (hasEvade)
                     return;
@@ -591,7 +591,7 @@ class boss_rook_stonetoe : public CreatureScript
                             DoCast(me, SPELL_MISSERY_SORROW_GLOOM);
 
                             for (auto&& itr : invRookDespairType)
-                                if (Creature* rookSpirits = me->SummonCreature(itr.first, fallenProtectorsCenterPos.GetPositionX() + frand(-2.0f, 2.0f), fallenProtectorsCenterPos.GetPositionY() + frand(-2.0f, 2.0f), 450.5f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 1000))
+                                if (Creature* rookSpirits = me->SummonCreature(itr.first, fallenProtectorsCenterPos.GetPositionX() + frand(-2.0f, 2.0f), fallenProtectorsCenterPos.GetPositionY() + frand(-2.0f, 2.0f), 450.5f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 1000ms))
                                     rookSpirits->GetMotionMaster()->MoveJump(itr.second.GetPositionX(), itr.second.GetPositionY(), itr.second.GetPositionZ(), 15.0f, 15.0f, EVENT_JUMP);
 
 
@@ -870,7 +870,7 @@ class boss_he_softfoot : public CreatureScript
                 return 0;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (hasEvade)
                     return;
@@ -1014,7 +1014,7 @@ class boss_he_softfoot : public CreatureScript
                             if (Creature* rook = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_ROOK_STONETOE) : ObjectGuid::Empty))
                                 rook->AI()->SetData(TYPE_GO_LONG_CLEAR, 1);
 
-                            if (Creature* anguish = me->SummonCreature(NPC_EMBODIED_ANGUISH, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 1000))
+                            if (Creature* anguish = me->SummonCreature(NPC_EMBODIED_ANGUISH, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 1000ms))
                                 anguish->CastSpell(anguish, SPELL_MARK_OF_ANGUISH, false);
 
                             scheduler
@@ -1230,7 +1230,7 @@ class boss_sun_tenderheart : public CreatureScript
                 }
             };
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (hasEvade)
                     return;
@@ -1369,13 +1369,13 @@ class boss_sun_tenderheart : public CreatureScript
                             GetPositionWithDistInOrientation(me, 26.5f, sOri, x, y);
 
                             // Despair
-                            if (Creature* despair = me->SummonCreature(NPC_EMBODIED_DESPAIR, fallenProtectorsCenterPos.GetPositionX() + frand(-2.0f, 2.0f), fallenProtectorsCenterPos.GetPositionY() + frand(-2.0f, 2.0f), 450.5f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 1000))
+                            if (Creature* despair = me->SummonCreature(NPC_EMBODIED_DESPAIR, fallenProtectorsCenterPos.GetPositionX() + frand(-2.0f, 2.0f), fallenProtectorsCenterPos.GetPositionY() + frand(-2.0f, 2.0f), 450.5f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 1000ms))
                                 despair->GetMotionMaster()->MoveJump(x, y, 418.1f, 15.0f, 15.0f, EVENT_JUMP);
 
                             // Desperation always in inverse side
                             GetPositionWithDistInOrientation(me, 26.5f, Position::NormalizeOrientation(sOri - M_PI), x, y);
 
-                            if (Creature* despair = me->SummonCreature(NPC_EMBODIED_DESPERATION, fallenProtectorsCenterPos.GetPositionX() + frand(-2.0f, 2.0f), fallenProtectorsCenterPos.GetPositionY() + frand(-2.0f, 2.0f), 450.5f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 1000))
+                            if (Creature* despair = me->SummonCreature(NPC_EMBODIED_DESPERATION, fallenProtectorsCenterPos.GetPositionX() + frand(-2.0f, 2.0f), fallenProtectorsCenterPos.GetPositionY() + frand(-2.0f, 2.0f), 450.5f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 1000ms))
                                 despair->GetMotionMaster()->MoveJump(x, y, 418.1f, 15.0f, 15.0f, EVENT_JUMP);
 
                             scheduler

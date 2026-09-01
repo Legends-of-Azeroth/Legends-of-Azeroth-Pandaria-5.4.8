@@ -69,7 +69,7 @@ class boss_rokmar_the_crackler : public CreatureScript
                 events.ScheduleEvent(EVENT_WATER_SPIT, urand(10.5 * IN_MILLISECONDS, 19 * IN_MILLISECONDS));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
 

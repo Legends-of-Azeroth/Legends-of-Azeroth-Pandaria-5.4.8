@@ -188,7 +188,7 @@ class boss_ook_ook : public CreatureScript
                 return 90;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
 

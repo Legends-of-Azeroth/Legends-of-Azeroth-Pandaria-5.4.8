@@ -1085,7 +1085,7 @@ class npc_blood_queen_lana_thel : public CreatureScript
                             _events.SetPhase(1);
                             _events.ScheduleEvent(EVENT_INTRO_1, 14000);
                             // summon a visual trigger
-                            if (Creature* summon = DoSummon(NPC_FLOATING_TRIGGER, triggerPos, 15000, TEMPSUMMON_TIMED_DESPAWN))
+                            if (Creature* summon = DoSummon(NPC_FLOATING_TRIGGER, triggerPos, 15000ms, TEMPSUMMON_TIMED_DESPAWN))
                             {
                                 summon->CastSpell(summon, SPELL_OOC_INVOCATION_VISUAL, true);
                                 summon->SetSpeed(MOVE_RUN, 0.15f, true); // todo: creature is swimming, check if this is blizzlike or not.

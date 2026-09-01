@@ -367,7 +367,7 @@ struct brawlers_guild_encounter_typeAI : public ScriptedAI
             queueController->AI()->DoAction(ACTION_FORCE_DESPAWNED);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         summons.DespawnAll();
@@ -1877,9 +1877,9 @@ struct npc_brawlers_guild_kirrawk : public brawlers_guild_encounter_typeAI
 };
 
 // Twister 67270
-struct npc_brawlers_guild_twister : public CreatureAI
+struct npc_brawlers_guild_twister : public ScriptedAI
 {
-    npc_brawlers_guild_twister(Creature* creature) : CreatureAI(creature) { }
+    npc_brawlers_guild_twister(Creature* creature) : ScriptedAI(creature) { }
 
     EventMap events;
 
@@ -3511,9 +3511,9 @@ struct npc_brawlers_guild_yikkan_izu : public brawlers_guild_encounter_typeAI
 };
 
 // Izus Raven 68268
-struct npc_brawlers_guild_izus_raven : public CreatureAI
+struct npc_brawlers_guild_izus_raven : public ScriptedAI
 {
-    npc_brawlers_guild_izus_raven(Creature* creature) : CreatureAI(creature) { }
+    npc_brawlers_guild_izus_raven(Creature* creature) : ScriptedAI(creature) { }
 
     void JustDied(Unit* killer) override
     {
@@ -4007,9 +4007,9 @@ struct npc_brawlers_guild_dark_summoner : public brawlers_guild_encounter_typeAI
 };
 
 // Tormented Ghost 67664
-struct npc_brawlers_guild_tormented_ghost : public CreatureAI
+struct npc_brawlers_guild_tormented_ghost : public ScriptedAI
 {
-    npc_brawlers_guild_tormented_ghost(Creature* creature) : CreatureAI(creature) { }
+    npc_brawlers_guild_tormented_ghost(Creature* creature) : ScriptedAI(creature) { }
 
     ObjectGuid targetGUID;
 
@@ -4168,9 +4168,9 @@ struct npc_brawlers_guild_battletron : public brawlers_guild_encounter_typeAI
 //}
 
 // Unstable Mine 67422
-struct npc_brawlers_guild_unstable_mine : public CreatureAI
+struct npc_brawlers_guild_unstable_mine : public ScriptedAI
 {
-    npc_brawlers_guild_unstable_mine(Creature* creature) : CreatureAI(creature) { }
+    npc_brawlers_guild_unstable_mine(Creature* creature) : ScriptedAI(creature) { }
 
     ObjectGuid targetGUID;
     EventMap events;
@@ -4655,9 +4655,9 @@ struct npc_brawlers_guild_gnomish_tesla_coil : public ScriptedAI
 };
 
 // Blingtron 2000 70802
-struct npc_brawlers_guild_blingtron_2000 : public CreatureAI
+struct npc_brawlers_guild_blingtron_2000 : public ScriptedAI
 {
-    npc_brawlers_guild_blingtron_2000(Creature* creature) : CreatureAI(creature) { }
+    npc_brawlers_guild_blingtron_2000(Creature* creature) : ScriptedAI(creature) { }
 
     bool hasDefeat;
     uint32 isCharged;

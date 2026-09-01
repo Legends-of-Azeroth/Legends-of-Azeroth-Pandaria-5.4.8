@@ -352,7 +352,7 @@ struct npc_brother_paxton : public ScriptedAI
         _cooldownTimer = 0;
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         return;
     }
@@ -1153,10 +1153,10 @@ struct npc_hogger : public ScriptedAI
                     break;
                 case ElwynnForest::EVENT_SUMMON_KIDS:
                 {
-                    if (Creature* ragamuffin_1 = me->SummonCreature(ElwynnForest::NPC_RAGAMUFFIN, -10130.9f, 653.302f, 36.05013f, 1.652422f, TEMPSUMMON_TIMED_DESPAWN, 7500))
+                    if (Creature* ragamuffin_1 = me->SummonCreature(ElwynnForest::NPC_RAGAMUFFIN, -10130.9f, 653.302f, 36.05013f, 1.652422f, TEMPSUMMON_TIMED_DESPAWN, 7500ms))
                         ragamuffin_1->AI()->SetData(0, 1);
 
-                    if (Creature* ragamuffin_2 = me->SummonCreature(ElwynnForest::NPC_RAGAMUFFIN, -10122.5f, 660.198f, 36.03663f, 2.837752f, TEMPSUMMON_TIMED_DESPAWN, 6500))
+                    if (Creature* ragamuffin_2 = me->SummonCreature(ElwynnForest::NPC_RAGAMUFFIN, -10122.5f, 660.198f, 36.03663f, 2.837752f, TEMPSUMMON_TIMED_DESPAWN, 6500ms))
                         ragamuffin_2->AI()->SetData(0, 2);
 
                     events.ScheduleEvent(ElwynnForest::EVENT_SAY_GRR, 8s + 500ms);

@@ -435,7 +435,7 @@ class boss_horridon : public CreatureScript
                 });
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();
@@ -980,7 +980,7 @@ struct horridon_tribeAI : public ScriptedAI
             horridon->AI()->JustSummoned(summon);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (!me->GetDBTableGUIDLow())
             return;
@@ -1857,7 +1857,7 @@ class npc_amani_shi_warbear : public CreatureScript
             EventMap events;
             InstanceScript* instance;
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (Creature* passenger = ObjectAccessor::GetCreature(*me, m_shamanGuid))
                     passenger->DespawnOrUnsummon();

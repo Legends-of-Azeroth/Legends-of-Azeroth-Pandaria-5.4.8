@@ -184,7 +184,7 @@ class boss_ymiron : public CreatureScript
                         Talk(ActiveBoat[_activeOrder[_activeBoatNumber]].say);
 
                         DoCast(me, SPELL_CHANNEL_YMIRON_TO_SPIRIT);
-                        if (Creature* ghost = me->SummonCreature(ActiveBoat[_activeOrder[_activeBoatNumber]].npc, ActiveBoat[_activeOrder[_activeBoatNumber]].SpawnX, ActiveBoat[_activeOrder[_activeBoatNumber]].SpawnY, ActiveBoat[_activeOrder[_activeBoatNumber]].SpawnZ, ActiveBoat[_activeOrder[_activeBoatNumber]].SpawnO, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                        if (Creature* ghost = me->SummonCreature(ActiveBoat[_activeOrder[_activeBoatNumber]].npc, ActiveBoat[_activeOrder[_activeBoatNumber]].SpawnX, ActiveBoat[_activeOrder[_activeBoatNumber]].SpawnY, ActiveBoat[_activeOrder[_activeBoatNumber]].SpawnZ, ActiveBoat[_activeOrder[_activeBoatNumber]].SpawnO, TEMPSUMMON_CORPSE_DESPAWN, 0ms))
                         {
                             _activeGhostGUID = ghost->GetGUID();
                             ghost->CastSpell(me, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
@@ -277,7 +277,7 @@ class boss_ymiron : public CreatureScript
                     // Ghosts abilities
                     if (_isActiveWithBjorn && _abilityBjornTimer <= diff)
                     {
-                        if (Creature* spirit = me->SummonCreature(NPC_SPIRIT_FOUNT, 385.0f + rand() % 10, -330.0f + rand() % 10, 104.756f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3 * MINUTE * IN_MILLISECONDS))
+                        if (Creature* spirit = me->SummonCreature(NPC_SPIRIT_FOUNT, 385.0f + rand() % 10, -330.0f + rand() % 10, 104.756f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, Milliseconds(3 * MINUTE * IN_MILLISECONDS)))
                         {
                             spirit->SetSpeed(MOVE_RUN, 0.4f);
                             spirit->CastSpell(spirit, DUNGEON_MODE(SPELL_SPIRIT_FOUNT, SPELL_SPIRIT_FOUNT_H));
@@ -315,7 +315,7 @@ class boss_ymiron : public CreatureScript
                         z = me->GetPositionZ();
                         for (uint8 i = 0; i < 4; ++i)
                         {
-                            if (Creature* spirit = me->SummonCreature(NPC_AVENGING_SPIRIT, x + rand() % 10, y + rand() % 10, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30 * IN_MILLISECONDS))
+                            if (Creature* spirit = me->SummonCreature(NPC_AVENGING_SPIRIT, x + rand() % 10, y + rand() % 10, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, Milliseconds(30 * IN_MILLISECONDS)))
                             {
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 {

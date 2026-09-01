@@ -27,6 +27,7 @@
 #include "Optional.h"
 #include "Position.h"
 #include "UpdateMask.h"
+#include "Duration.h"
 #include <G3D/Quat.h>
 
 #include <set>
@@ -551,8 +552,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void SetZoneScript();
         ZoneScript* GetZoneScript() const { return m_zoneScript; }
 
-        TempSummon* SummonCreature(uint32 id, Position const &pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, uint32 vehId = 0, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
-        TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
+        TempSummon* SummonCreature(uint32 id, Position const &pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, Milliseconds despawntime = 0ms, uint32 vehId = 0, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
+        TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, Milliseconds despawntime = 0ms, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, G3D::Quat const& rotation, uint32 respawnTime, GOSummonType summonType = GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
 
         Creature* SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = NULL);

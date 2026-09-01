@@ -112,6 +112,7 @@ class TC_GAME_API MotionMaster
         ~MotionMaster();
 
         void Initialize();
+        void AddToWorld();
         void InitDefault();
         void InitializeDefault();
 

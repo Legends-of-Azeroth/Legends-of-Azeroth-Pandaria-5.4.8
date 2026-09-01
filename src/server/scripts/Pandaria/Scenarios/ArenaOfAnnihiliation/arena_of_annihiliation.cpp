@@ -549,9 +549,9 @@ class npc_arena_of_annihiliation_flamecoaxing_spirit : public CreatureScript
             EVENT_PUSH_WAVE = 2,
         };
 
-        struct npc_arena_of_annihiliation_flamecoaxing_spiritAI : public CreatureAI
+        struct npc_arena_of_annihiliation_flamecoaxing_spiritAI : public ScriptedAI
         {
-            npc_arena_of_annihiliation_flamecoaxing_spiritAI(Creature* creature) : CreatureAI(creature) { }
+            npc_arena_of_annihiliation_flamecoaxing_spiritAI(Creature* creature) : ScriptedAI(creature) { }
 
             EventMap events;
             InstanceScript* instance;
@@ -668,9 +668,9 @@ class npc_arena_of_annihiliation_flame_wall : public CreatureScript
             EVENT_MOVE = 1,
         };
 
-        struct npc_arena_of_annihiliation_flame_wallAI : public CreatureAI
+        struct npc_arena_of_annihiliation_flame_wallAI : public ScriptedAI
         {
-            npc_arena_of_annihiliation_flame_wallAI(Creature* creature) : CreatureAI(creature) { }
+            npc_arena_of_annihiliation_flame_wallAI(Creature* creature) : ScriptedAI(creature) { }
 
             EventMap events;
             InstanceScript* instance;

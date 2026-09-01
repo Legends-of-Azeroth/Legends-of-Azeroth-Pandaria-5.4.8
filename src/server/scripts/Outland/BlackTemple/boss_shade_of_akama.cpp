@@ -372,7 +372,7 @@ class boss_shade_of_akama : public CreatureScript
                 // max of 6 sorcerers can be summoned
                 if ((rand() % 3 == 0) && (DeathCount > 0) && (SorcererCount < 7))
                 {
-                    Creature* sorcerer = me->SummonCreature(NPC_ASHTONGUE_SORCERER, X, Y, Z_SPAWN, 0, TEMPSUMMON_DEAD_DESPAWN, 0);
+                    Creature* sorcerer = me->SummonCreature(NPC_ASHTONGUE_SORCERER, X, Y, Z_SPAWN, 0, TEMPSUMMON_DEAD_DESPAWN, 0ms);
                     if (sorcerer)
                     {
                         CAST_AI(npc_ashtongue_sorcerer::npc_ashtongue_sorcererAI, sorcerer->AI())->ShadeGUID = me->GetGUID();
@@ -393,7 +393,7 @@ class boss_shade_of_akama : public CreatureScript
 
                     for (uint8 i = 0; i < 3; ++i)
                     {
-                        Creature* spawn = me->SummonCreature(spawnEntries[i], X, Y, Z_SPAWN, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                        Creature* spawn = me->SummonCreature(spawnEntries[i], X, Y, Z_SPAWN, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000ms);
                         if (spawn)
                         {
                             spawn->SetWalk(false);
@@ -457,7 +457,7 @@ class boss_shade_of_akama : public CreatureScript
                     if (DefenderTimer <= diff)
                     {
                         uint32 ran = rand() % 2;
-                        Creature* defender = me->SummonCreature(NPC_ASHTONGUE_DEFENDER, SpawnLocations[ran].x, SpawnLocations[ran].y, Z_SPAWN, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000);
+                        Creature* defender = me->SummonCreature(NPC_ASHTONGUE_DEFENDER, SpawnLocations[ran].x, SpawnLocations[ran].y, Z_SPAWN, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000ms);
                         if (defender)
                         {
                             defender->SetWalk(false);
@@ -822,7 +822,7 @@ class npc_akama_shade : public CreatureScript
                             float y = BrokenCoords[BrokenSummonIndex].y + (1*5);
                             float z = BrokenCoords[BrokenSummonIndex].z;
                             float o = BrokenCoords[BrokenSummonIndex].o;
-                            Creature* broken = me->SummonCreature(NPC_ASHTONGUE_BROKEN, x, y, z, o, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000);
+                            Creature* broken = me->SummonCreature(NPC_ASHTONGUE_BROKEN, x, y, z, o, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000ms);
                             if (broken)
                             {
                                 float wx = BrokenWP[BrokenSummonIndex].x + (i*5);

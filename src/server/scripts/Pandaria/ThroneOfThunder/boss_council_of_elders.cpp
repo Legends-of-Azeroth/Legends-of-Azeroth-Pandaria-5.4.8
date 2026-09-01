@@ -417,7 +417,7 @@ class boss_council_of_elders_baseAI : public ScriptedAI
             }
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
         {
             if (instance)
             {
@@ -1338,7 +1338,7 @@ class npc_garajal : public CreatureScript
                 return m_uiDeadCouncillors;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (atEvade)
                     return;
@@ -1809,7 +1809,7 @@ class npc_living_sand : public CreatureScript
 
             void Reset() override { }
 
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
             
             void Initialize()
             {
@@ -2675,7 +2675,7 @@ class spell_kazrajin_reckless_charge_targeting : public SpellScript
         {
             if (Unit* target = GetHitUnit())
             {
-                if (Creature* recklessChargeTrigger = target->SummonCreature(NPC_RECKLESS_CHARGE, *target, TEMPSUMMON_TIMED_DESPAWN, 7 * IN_MILLISECONDS))
+                if (Creature* recklessChargeTrigger = target->SummonCreature(NPC_RECKLESS_CHARGE, *target, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(7 * IN_MILLISECONDS)))
                 {
                     caster->CastSpell(caster, SPELL_RECKLESS_CHARGE_UNK, true);
                     caster->CastSpell(caster, SPELL_RECKLESS_CHARGE_FACE, true);

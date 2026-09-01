@@ -438,13 +438,13 @@ class boss_warlord_zonozz: public CreatureScript
                     max_claws = 2;
 
                 for (uint8 i = 0; i < max_eyes; ++i)
-                    me->SummonCreature(NPC_EYE_OF_GORATH, tentaclePos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                    me->SummonCreature(NPC_EYE_OF_GORATH, tentaclePos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
                 
                 for (uint8 i = 8; i < (8 + max_flails); ++i)
-                    me->SummonCreature(NPC_FLAIL_OF_GORATH, tentaclePos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                    me->SummonCreature(NPC_FLAIL_OF_GORATH, tentaclePos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
                 
                 for (uint8 i = 12; i < (12 + max_claws); ++i)
-                    me->SummonCreature(NPC_CLAW_OF_GORATH, tentaclePos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                    me->SummonCreature(NPC_CLAW_OF_GORATH, tentaclePos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
             }
         };
 

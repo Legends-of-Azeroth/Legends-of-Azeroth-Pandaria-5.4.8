@@ -587,51 +587,51 @@ class boss_hagara_the_stormbinder: public CreatureScript
                         case EVENT_SUMMON_ADDS_3:
                             phase = 1;
                             summonCount = 4;
-                            me->SummonCreature(NPC_TWILIGHT_FROST_EVOKER, portalPos[1].GetPositionX(), portalPos[1].GetPositionY() + 4.0f, portalPos[1].GetPositionZ() + 1.0f, portalPos[1].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                            me->SummonCreature(NPC_STORMBORN_MYRMIDON, portalPos[1].GetPositionX(), portalPos[1].GetPositionY() + 2.0f, portalPos[1].GetPositionZ() + 1.0f, portalPos[1].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                            me->SummonCreature(NPC_STORMBORN_MYRMIDON, portalPos[1].GetPositionX(), portalPos[1].GetPositionY() - 2.0f, portalPos[1].GetPositionZ() + 1.0f, portalPos[1].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                            me->SummonCreature(NPC_TWILIGHT_FROST_EVOKER, portalPos[1].GetPositionX(), portalPos[1].GetPositionY() - 4.0f, portalPos[1].GetPositionZ() + 1.0f, portalPos[1].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                            me->SummonCreature(NPC_TWILIGHT_FROST_EVOKER, portalPos[1].GetPositionX(), portalPos[1].GetPositionY() + 4.0f, portalPos[1].GetPositionZ() + 1.0f, portalPos[1].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
+                            me->SummonCreature(NPC_STORMBORN_MYRMIDON, portalPos[1].GetPositionX(), portalPos[1].GetPositionY() + 2.0f, portalPos[1].GetPositionZ() + 1.0f, portalPos[1].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
+                            me->SummonCreature(NPC_STORMBORN_MYRMIDON, portalPos[1].GetPositionX(), portalPos[1].GetPositionY() - 2.0f, portalPos[1].GetPositionZ() + 1.0f, portalPos[1].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
+                            me->SummonCreature(NPC_TWILIGHT_FROST_EVOKER, portalPos[1].GetPositionX(), portalPos[1].GetPositionY() - 4.0f, portalPos[1].GetPositionZ() + 1.0f, portalPos[1].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
                             break;
                         case EVENT_SUMMON_ADDS_4:
                             Talk(SAY_ADDS_2);
                             phase = 2;
                             summonCount = 12;
                             me->SummonCreature(NPC_HAGARA_TRASH_TWILIGHT_PORTAL, portalPos[0]);
-                            me->SummonCreature(NPC_STORMBINDER_ADEPT, portalPos[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                            me->SummonCreature(NPC_STORMBINDER_ADEPT, portalPos[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
                             for (uint8 i = 0; i < 5; ++i)
-                                me->SummonCreature(NPC_CORRUPTED_FRAGMENT, portalPos[0].GetPositionX()+ frand(-2.0f, 2.0f), portalPos[0].GetPositionY() + frand(-2.0f, 2.0f), portalPos[0].GetPositionZ() + 1.0f, portalPos[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                                me->SummonCreature(NPC_CORRUPTED_FRAGMENT, portalPos[0].GetPositionX()+ frand(-2.0f, 2.0f), portalPos[0].GetPositionY() + frand(-2.0f, 2.0f), portalPos[0].GetPositionZ() + 1.0f, portalPos[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
 
                             me->SummonCreature(NPC_HAGARA_TRASH_TWILIGHT_PORTAL, portalPos[2]);
-                            me->SummonCreature(NPC_STORMBINDER_ADEPT, portalPos[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                            me->SummonCreature(NPC_STORMBINDER_ADEPT, portalPos[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
                             for (uint8 i = 0; i < 5; ++i)
-                                me->SummonCreature(NPC_CORRUPTED_FRAGMENT, portalPos[2].GetPositionX()+ frand(-2.0f, 2.0f), portalPos[2].GetPositionY() + frand(-2.0f, 2.0f), portalPos[2].GetPositionZ() + 1.0f, portalPos[2].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                                me->SummonCreature(NPC_CORRUPTED_FRAGMENT, portalPos[2].GetPositionX()+ frand(-2.0f, 2.0f), portalPos[2].GetPositionY() + frand(-2.0f, 2.0f), portalPos[2].GetPositionZ() + 1.0f, portalPos[2].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
                             break;
                         case EVENT_SUMMON_ADDS_5:
                             Talk(SAY_ADDS_3);
                             phase = 3;
                             summonCount = 6;
                             me->SummonCreature(NPC_HAGARA_TRASH_TWILIGHT_PORTAL, portalPos[0]);
-                            me->SummonCreature(NPC_STORMBINDER_ADEPT, portalPos[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                            me->SummonCreature(NPC_TWILIGHT_FROST_EVOKER, portalPos[0].GetPositionX(), portalPos[0].GetPositionY() + 4.0f, portalPos[0].GetPositionZ() + 1.0f, portalPos[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                            me->SummonCreature(NPC_STORMBORN_MYRMIDON, portalPos[0].GetPositionX(), portalPos[0].GetPositionY() + 2.0f, portalPos[0].GetPositionZ() + 1.0f, portalPos[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                            me->SummonCreature(NPC_STORMBINDER_ADEPT, portalPos[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
+                            me->SummonCreature(NPC_TWILIGHT_FROST_EVOKER, portalPos[0].GetPositionX(), portalPos[0].GetPositionY() + 4.0f, portalPos[0].GetPositionZ() + 1.0f, portalPos[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
+                            me->SummonCreature(NPC_STORMBORN_MYRMIDON, portalPos[0].GetPositionX(), portalPos[0].GetPositionY() + 2.0f, portalPos[0].GetPositionZ() + 1.0f, portalPos[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
                             
-                            me->SummonCreature(NPC_HAGARA_TRASH_TWILIGHT_PORTAL, portalPos[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                            me->SummonCreature(NPC_HAGARA_TRASH_TWILIGHT_PORTAL, portalPos[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
                             me->SummonCreature(NPC_STORMBINDER_ADEPT, portalPos[2]);
-                            me->SummonCreature(NPC_TWILIGHT_FROST_EVOKER, portalPos[2].GetPositionX(), portalPos[2].GetPositionY() - 4.0f, portalPos[2].GetPositionZ() + 1.0f, portalPos[2].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                            me->SummonCreature(NPC_STORMBORN_MYRMIDON, portalPos[2].GetPositionX(), portalPos[2].GetPositionY() - 2.0f, portalPos[2].GetPositionZ() + 1.0f, portalPos[2].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                            me->SummonCreature(NPC_TWILIGHT_FROST_EVOKER, portalPos[2].GetPositionX(), portalPos[2].GetPositionY() - 4.0f, portalPos[2].GetPositionZ() + 1.0f, portalPos[2].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
+                            me->SummonCreature(NPC_STORMBORN_MYRMIDON, portalPos[2].GetPositionX(), portalPos[2].GetPositionY() - 2.0f, portalPos[2].GetPositionZ() + 1.0f, portalPos[2].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
                             break;
                         case EVENT_SUMMON_ADDS_6:
                             phase = 4;
                             summonCount = 10;
                             me->SummonCreature(NPC_HAGARA_TRASH_TWILIGHT_PORTAL, portalPos[1]);
                             for (uint8 i = 0; i < 10; ++i)
-                                me->SummonCreature(NPC_CORRUPTED_FRAGMENT, portalPos[1].GetPositionX()+ frand(-2.0f, 2.0f), portalPos[1].GetPositionY() + frand(-2.0f, 2.0f), portalPos[1].GetPositionZ() + 1.0f, portalPos[1].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                                me->SummonCreature(NPC_CORRUPTED_FRAGMENT, portalPos[1].GetPositionX()+ frand(-2.0f, 2.0f), portalPos[1].GetPositionY() + frand(-2.0f, 2.0f), portalPos[1].GetPositionZ() + 1.0f, portalPos[1].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
                             break;
                         case EVENT_SUMMON_ADDS_7:
                             Talk(SAY_ADDS_4);
                             phase = 5;
                             summonCount = 1;
-                            me->SummonCreature(NPC_LIEUTENANT_SHARA, portalPos[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                            me->SummonCreature(NPC_LIEUTENANT_SHARA, portalPos[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
                             break;
                         case EVENT_SUMMON_ADDS_8:
                             phase = 0;
@@ -676,7 +676,7 @@ class boss_hagara_the_stormbinder: public CreatureScript
                             uint8 i = 0;
                             for (UnitList::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
                             {
-                                if (Creature* pLance = me->SummonCreature(NPC_ICE_LANCE, icelancePos[i], TEMPSUMMON_TIMED_DESPAWN, 15000))
+                                if (Creature* pLance = me->SummonCreature(NPC_ICE_LANCE, icelancePos[i], TEMPSUMMON_TIMED_DESPAWN, 15000ms))
                                     pLance->AI()->SetGUID((*itr)->GetGUID(), DATA_ICE_LANCE_GUID);
                                 i++;
                             }

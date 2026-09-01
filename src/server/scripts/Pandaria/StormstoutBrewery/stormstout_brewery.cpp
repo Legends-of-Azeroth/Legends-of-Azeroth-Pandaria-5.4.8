@@ -725,7 +725,7 @@ class npc_controlled_hozen : public CreatureScript
         {
             npc_controlled_hozenAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->CombatStop(true);
                 me->AttackStop();

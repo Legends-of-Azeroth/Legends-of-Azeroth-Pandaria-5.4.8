@@ -53,7 +53,7 @@ class boss_argaloth : public CreatureScript
                 events.ScheduleEvent(EVENT_BERSERK, 5 * MINUTE * IN_MILLISECONDS);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->GetMotionMaster()->MoveTargetedHome();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);

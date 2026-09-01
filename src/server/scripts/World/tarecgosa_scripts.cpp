@@ -459,7 +459,7 @@ class npc_hallegosa : public CreatureScript
                             me->GetMotionMaster()->MovePoint(POINT_HALLEGOSA_2, ((me->GetMapId() == 1) ? finalPos2[curPoint] : finalPos1[curPoint]));
                             break;
                         case EVENT_HALLEGOSA_END:
-                            me->SummonCreature(NPC_KALECGOS_53392, ((me->GetMapId() == 1) ? finalPos2[8] : finalPos1[4]), TEMPSUMMON_TIMED_DESPAWN, 30 * MINUTE * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_KALECGOS_53392, ((me->GetMapId() == 1) ? finalPos2[8] : finalPos1[4]), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(30 * MINUTE * IN_MILLISECONDS));
                             break;
                         default:
                             break;
@@ -532,12 +532,12 @@ class npc_kalecgos_53392 : public CreatureScript
                             if (me->GetMapId() == 1)
                             {
                                 for (uint8 i = 10; i < 12; ++i)
-                                    me->SummonCreature(NPC_BLUE_DRAGON_53394, finalPos2[i], TEMPSUMMON_TIMED_DESPAWN, 30 * MINUTE * IN_MILLISECONDS); 
+                                    me->SummonCreature(NPC_BLUE_DRAGON_53394, finalPos2[i], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(30 * MINUTE * IN_MILLISECONDS)); 
                             }
                             else
                             {
                                 for (uint8 i = 6; i < 9; ++i)
-                                    me->SummonCreature(NPC_BLUE_DRAGON_53394, finalPos1[i], TEMPSUMMON_TIMED_DESPAWN, 30 * MINUTE * IN_MILLISECONDS); 
+                                    me->SummonCreature(NPC_BLUE_DRAGON_53394, finalPos1[i], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(30 * MINUTE * IN_MILLISECONDS)); 
                             }
                             events.ScheduleEvent(EVENT_TALK_3, 7000);
                             break;
@@ -547,12 +547,12 @@ class npc_kalecgos_53392 : public CreatureScript
                             break;
                         case EVENT_TALK_4:
                             Talk(SAY_53392_4, 0);
-                            me->SummonCreature(NPC_TARECGOSA_53396, ((me->GetMapId() == 1) ? finalPos2[9] : finalPos1[5]), TEMPSUMMON_TIMED_DESPAWN, 30 * MINUTE * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_TARECGOSA_53396, ((me->GetMapId() == 1) ? finalPos2[9] : finalPos1[5]), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(30 * MINUTE * IN_MILLISECONDS));
                             events.ScheduleEvent(EVENT_TALK_5, 7000);
                             break;
                         case EVENT_TALK_5:
                             Talk(SAY_53392_5, 0);
-                            if (Creature* pStalker = me->SummonCreature(NPC_STALKER_53422, ((me->GetMapId() == 1) ? finalPos2[12] : finalPos1[9]), TEMPSUMMON_TIMED_DESPAWN, 30 * MINUTE * IN_MILLISECONDS))
+                            if (Creature* pStalker = me->SummonCreature(NPC_STALKER_53422, ((me->GetMapId() == 1) ? finalPos2[12] : finalPos1[9]), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(30 * MINUTE * IN_MILLISECONDS)))
                             {
                                 pStalker->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                                 pStalker->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 0, 69859);

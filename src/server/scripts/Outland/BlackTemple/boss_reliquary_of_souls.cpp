@@ -226,7 +226,7 @@ class boss_reliquary_of_souls : public CreatureScript
                 uint32 random = rand() % 6;
                 float x = Coords[random].x;
                 float y = Coords[random].y;
-                Creature* soul = me->SummonCreature(CREATURE_ENSLAVED_SOUL, x, y, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0);
+                Creature* soul = me->SummonCreature(CREATURE_ENSLAVED_SOUL, x, y, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0ms);
                 if (!soul)
                     return false;
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -298,7 +298,7 @@ class boss_reliquary_of_souls : public CreatureScript
                             break;
                         case 2:
                             Timer = 5000;
-                            if (Creature* Summon = DoSpawnCreature(23417+Phase, 0, 0, 0, 0, TEMPSUMMON_DEAD_DESPAWN, 0))
+                            if (Creature* Summon = DoSpawnCreature(23417+Phase, 0, 0, 0, 0, TEMPSUMMON_DEAD_DESPAWN, 0ms))
                             {
                                 me->HandleEmoteStateCommand(EMOTE_STATE_SUBMERGED);  // Ribs: open
                                 Summon->AI()->AttackStart(SelectTarget(SELECT_TARGET_TOPAGGRO, 0));

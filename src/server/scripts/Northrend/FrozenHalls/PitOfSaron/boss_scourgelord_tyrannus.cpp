@@ -173,7 +173,7 @@ class boss_tyrannus : public CreatureScript
                     me->GetMotionMaster()->MoveChase(victim);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 instance->SetBossState(DATA_TYRANNUS, FAIL);
                 if (Creature* rimefang = GetRimefang())

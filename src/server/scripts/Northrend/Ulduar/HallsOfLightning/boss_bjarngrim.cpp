@@ -165,7 +165,7 @@ class boss_bjarngrim : public CreatureScript
                     instance->SetData(TYPE_BJARNGRIM, NOT_STARTED);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (me->HasAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE))
                     canBuff = true;

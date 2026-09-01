@@ -99,7 +99,7 @@ void SummonCroneIfReady(InstanceScript* instance, Creature* creature)
 
     if (instance->GetData(DATA_OPERA_OZ_DEATHCOUNT) == 4)
     {
-        if (Creature* crone = creature->SummonCreature(CREATURE_CRONE, -10891.96f, -1755.95f, creature->GetPositionZ(), 4.64f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR * 2 * IN_MILLISECONDS))
+        if (Creature* crone = creature->SummonCreature(CREATURE_CRONE, -10891.96f, -1755.95f, creature->GetPositionZ(), 4.64f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, Milliseconds(HOUR * 2 * IN_MILLISECONDS)))
         {
             if (Unit* victim = crone->SelectNearestTarget(100.0f))
                 crone->AI()->AttackStart(victim);
@@ -315,7 +315,7 @@ class npc_tito : public CreatureScript
 
 void boss_dorothee::boss_dorotheeAI::SummonTito()
 {
-    if (Creature* tito = me->SummonCreature(CREATURE_TITO, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
+    if (Creature* tito = me->SummonCreature(CREATURE_TITO, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000ms))
     {
         Talk(SAY_DOROTHEE_SUMMON);
         CAST_AI(npc_tito::npc_titoAI, tito->AI())->DorotheeGUID = me->GetGUID();
@@ -736,7 +736,7 @@ class boss_crone : public CreatureScript
 
                 if (CycloneTimer <= diff)
                 {
-                    if (Creature* cyclone = DoSpawnCreature(CREATURE_CYCLONE, float(urand(0, 9)), float(urand(0, 9)), 0, 0, TEMPSUMMON_TIMED_DESPAWN, 15000))
+                    if (Creature* cyclone = DoSpawnCreature(CREATURE_CYCLONE, float(urand(0, 9)), float(urand(0, 9)), 0, 0, TEMPSUMMON_TIMED_DESPAWN, 15000ms))
                         cyclone->CastSpell(cyclone, SPELL_CYCLONE_VISUAL, true);
                     CycloneTimer = 30000;
                 } else CycloneTimer -= diff;
@@ -827,7 +827,7 @@ class npc_grandmother : public CreatureScript
             player->PlayerTalkClass->ClearMenus();
             if (action == GOSSIP_ACTION_INFO_DEF)
             {
-                if (Creature* bigBadWolf = creature->SummonCreature(CREATURE_BIG_BAD_WOLF, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
+                if (Creature* bigBadWolf = creature->SummonCreature(CREATURE_BIG_BAD_WOLF, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, Milliseconds(HOUR*2*IN_MILLISECONDS)))
                     bigBadWolf->AI()->AttackStart(player);
 
                 creature->DespawnOrUnsummon();
@@ -1408,7 +1408,7 @@ void boss_julianne::boss_julianneAI::UpdateAI(const uint32 diff)
     {
         if (SummonRomuloTimer <= diff)
         {
-            if (Creature* pRomulo = me->SummonCreature(CREATURE_ROMULO, ROMULO_X, ROMULO_Y, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
+            if (Creature* pRomulo = me->SummonCreature(CREATURE_ROMULO, ROMULO_X, ROMULO_Y, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, Milliseconds(HOUR*2*IN_MILLISECONDS)))
             {
                 RomuloGUID = pRomulo->GetGUID();
                 CAST_AI(boss_romulo::boss_romuloAI, pRomulo->AI())->JulianneGUID = me->GetGUID();

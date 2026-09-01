@@ -240,7 +240,7 @@ class boss_ingvar_the_plunderer : public CreatureScript
                             Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
                             if (target)
                             {
-                                me->SummonCreature(NPC_THROW_TARGET,target->GetPositionX(),target->GetPositionY(),target->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,2000);
+                                me->SummonCreature(NPC_THROW_TARGET,target->GetPositionX(),target->GetPositionY(),target->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,2000ms);
 
                                 DoCast(me, SPELL_SHADOW_AXE_SUMMON);
                             }

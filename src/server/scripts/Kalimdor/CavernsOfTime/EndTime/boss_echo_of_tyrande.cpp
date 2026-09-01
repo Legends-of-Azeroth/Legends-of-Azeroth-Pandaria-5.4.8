@@ -340,7 +340,7 @@ class boss_echo_of_tyrande : public CreatureScript
                                 default: break;
                             }
                             curPool = NULL;
-                            curPool = me->SummonCreature(NPC_POOL_OF_MOONLIGHT, poolPos[eventphase - 1], TEMPSUMMON_TIMED_DESPAWN, 40000);
+                            curPool = me->SummonCreature(NPC_POOL_OF_MOONLIGHT, poolPos[eventphase - 1], TEMPSUMMON_TIMED_DESPAWN, 40000ms);
                             if (eventphase < 5)
                             {
                                 switch (eventphase)
@@ -519,11 +519,11 @@ class npc_echo_of_tyrande_moonlance : public CreatureScript
                         Position pos2_2 = me->GetNearPosition(30.0f, 0.0f); 
                         Position pos3_1 = me->GetNearPosition(3.0f, (M_PI / 4.0f)); 
                         Position pos3_2 = me->GetNearPosition(30.0f, (M_PI / 4.0f));
-                        if (Creature* pLance1 = me->SummonCreature(NPC_MOONLANCE_2_1, pos1_1, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                        if (Creature* pLance1 = me->SummonCreature(NPC_MOONLANCE_2_1, pos1_1, TEMPSUMMON_TIMED_DESPAWN, 30000ms))
                             pLance1->GetMotionMaster()->MovePoint(POINT_MOONLANCE, pos1_2);
-                        if (Creature* pLance2 = me->SummonCreature(NPC_MOONLANCE_2_2, pos2_1, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                        if (Creature* pLance2 = me->SummonCreature(NPC_MOONLANCE_2_2, pos2_1, TEMPSUMMON_TIMED_DESPAWN, 30000ms))
                             pLance2->GetMotionMaster()->MovePoint(POINT_MOONLANCE, pos2_2);
-                        if (Creature* pLance3 = me->SummonCreature(NPC_MOONLANCE_2_3, pos3_1, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                        if (Creature* pLance3 = me->SummonCreature(NPC_MOONLANCE_2_3, pos3_1, TEMPSUMMON_TIMED_DESPAWN, 30000ms))
                             pLance3->GetMotionMaster()->MovePoint(POINT_MOONLANCE, pos3_2);
                     }
 
@@ -591,9 +591,9 @@ class npc_echo_of_tyrande_eye_of_elune : public CreatureScript
     public:
         npc_echo_of_tyrande_eye_of_elune() : CreatureScript("npc_echo_of_tyrande_eye_of_elune") { }
 
-        struct npc_echo_of_tyrande_eye_of_eluneAI : public CreatureAI
+        struct npc_echo_of_tyrande_eye_of_eluneAI : public ScriptedAI
         {
-            npc_echo_of_tyrande_eye_of_eluneAI(Creature* creature) : CreatureAI(creature)
+            npc_echo_of_tyrande_eye_of_eluneAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->SetReactState(REACT_PASSIVE);
             }

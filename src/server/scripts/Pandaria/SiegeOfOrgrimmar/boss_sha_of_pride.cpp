@@ -364,9 +364,9 @@ struct boss_norushen_pride : public ScriptedAI
     }
 };
 
-struct lorewalkerAI : public CreatureAI
+struct lorewalkerAI : public ScriptedAI
 {
-    lorewalkerAI(Creature* creature) : CreatureAI(creature) { }
+    lorewalkerAI(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
     float x, y, z;
@@ -600,7 +600,7 @@ class boss_sha_of_pride : public CreatureScript
                 summon->SetInCombatWithZone();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();

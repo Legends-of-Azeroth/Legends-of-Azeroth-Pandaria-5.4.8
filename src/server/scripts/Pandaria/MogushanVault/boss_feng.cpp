@@ -382,7 +382,7 @@ class boss_feng : public CreatureScript
                 berserkEvents.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 10 * MINUTE * IN_MILLISECONDS : 9 * MINUTE * IN_MILLISECONDS);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (instance)
                 {

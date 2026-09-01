@@ -363,7 +363,7 @@ class boss_yorsahj_the_unsleeping: public CreatureScript
                                     default: return;
                                 }
 
-                                if (Creature* pGlobule = me->SummonCreature((*itr), globulesPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000))
+                                if (Creature* pGlobule = me->SummonCreature((*itr), globulesPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms))
                                 {
                                     pGlobule->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                     pGlobule->SetDisplayId(11686);
@@ -425,7 +425,7 @@ class boss_yorsahj_the_unsleeping: public CreatureScript
                                             events.ScheduleEvent(EVENT_SEARING_BLOOD, urand(5000, 7000));
                                             break;
                                         case NPC_ACIDIC_GLOBULE: 
-                                            me->SummonCreature(NPC_MAW_OF_SHUMA, mawofshumaPos, TEMPSUMMON_TIMED_DESPAWN, 60000);
+                                            me->SummonCreature(NPC_MAW_OF_SHUMA, mawofshumaPos, TEMPSUMMON_TIMED_DESPAWN, 60000ms);
                                             DoCast(me, SPELL_ACIDIC_BLOOD_OF_SHUMA, true);
                                             DoCast(me, SPELL_DIGESTIVE_ACID_DUMMY, true);
                                             events.ScheduleEvent(EVENT_DIGESTIVE_ACID, urand(7000, 9000));

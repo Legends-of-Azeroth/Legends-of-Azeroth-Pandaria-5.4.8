@@ -708,7 +708,7 @@ class boss_generic_guardian : public CreatureScript
                 });
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->RemoveAurasDueToSpell(SPELL_AMETHYST_PETRIFICATION);
                 me->RemoveAurasDueToSpell(SPELL_JADE_PETRIFICATION);

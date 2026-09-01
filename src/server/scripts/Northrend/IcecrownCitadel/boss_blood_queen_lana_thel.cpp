@@ -252,7 +252,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 Cleanup();

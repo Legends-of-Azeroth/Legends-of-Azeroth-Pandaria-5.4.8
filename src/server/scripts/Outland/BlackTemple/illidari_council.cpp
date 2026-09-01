@@ -314,7 +314,7 @@ class npc_illidari_council : public CreatureScript
                                 if (Creature* VoiceTrigger = (Unit::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_ELF_COUNCIL_VOICE))))
                                     VoiceTrigger->DealDamage(VoiceTrigger, VoiceTrigger->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                                 instance->SetData(DATA_ILLIDARI_COUNCIL_EVENT, DONE);
-                                //me->SummonCreature(AKAMAID,746.466980f,304.394989f,311.90208f,6.272870f,TEMPSUMMON_DEAD_DESPAWN,0);
+                                //me->SummonCreature(AKAMAID,746.466980f,304.394989f,311.90208f,6.272870f,TEMPSUMMON_DEAD_DESPAWN,0ms);
                             }
                             me->DealDamage(me, me->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                             return;
@@ -412,7 +412,7 @@ struct boss_illidari_councilAI : public ScriptedAI
             LoadGUIDs();
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         for (uint8 i = 0; i < 4; ++i)
         {

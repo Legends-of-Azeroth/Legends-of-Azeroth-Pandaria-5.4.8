@@ -471,7 +471,7 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
         _me->GetGUID().GetCounter(), (_me->GetTypeId() == TYPEID_UNIT ? _me->ToCreature()->GetDBTableGUIDLow() : _me->GetGUID().GetCounter()), GetCreatureEntry(),
         entry, (int32)seatId);
 
-    TempSummon* accessory = _me->SummonCreature(entry, *_me, TempSummonType(type), summonTime);
+    TempSummon* accessory = _me->SummonCreature(entry, *_me, TempSummonType(type), Milliseconds(summonTime));
     ASSERT(accessory);
 
     if (minion)

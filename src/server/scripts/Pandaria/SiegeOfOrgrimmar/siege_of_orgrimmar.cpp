@@ -1773,7 +1773,7 @@ struct npc_siege_of_orgrimmar_blind_blademaster : public customCreatureAI
         });
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
     }
@@ -1878,7 +1878,7 @@ struct npc_siege_of_orgrimmar_poison_bolt_totem : public customCreatureAI
         });
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
     void UpdateAI(uint32 diff) override
     {
@@ -2118,7 +2118,7 @@ struct npc_siege_of_orgrimmar_mokvar_the_treasurer : public customCreatureAI
                     target->RemoveCharmAuras();
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
 
@@ -2241,7 +2241,7 @@ struct npc_siege_of_orgrimmar_resistance_totem : public customCreatureAI
         }
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
     void UpdateAI(uint32 diff) override
     {
@@ -2854,7 +2854,7 @@ struct npc_siege_of_orgrimmar_korkron_dark_farseer : public customCreatureAI
             Talk(TALK_INTRO);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         summons.DespawnAll();
@@ -3079,7 +3079,7 @@ struct npc_siege_of_orgrimmar_corrupted_skullsplitter : public customCreatureAI
         events.ScheduleEvent(EVENT_ARCING_BLAST, urand(6 * IN_MILLISECONDS, 8 * IN_MILLISECONDS));
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         summons.DespawnAll();
@@ -3254,7 +3254,7 @@ struct npc_siege_of_orgrimmar_storeroom_guard : public customCreatureAI
         summon->SetInCombatWithZone();
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         summons.DespawnAll();
@@ -3956,7 +3956,7 @@ struct npc_siege_of_orgrimmar_shanna_sparkfizz : public customCreatureAI
         summons.Summon(summon);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         summons.DespawnAll();

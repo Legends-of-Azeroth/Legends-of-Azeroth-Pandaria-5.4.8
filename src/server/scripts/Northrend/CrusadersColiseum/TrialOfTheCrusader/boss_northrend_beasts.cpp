@@ -168,7 +168,7 @@ class boss_gormok : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
                 ScriptedAI::EnterEvadeMode();
@@ -216,7 +216,7 @@ class boss_gormok : public CreatureScript
 
                 for (uint8 i = 0; i < MAX_SNOBOLDS; i++)
                 {
-                    if (Creature* pSnobold = DoSpawnCreature(NPC_SNOBOLD_VASSAL, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                    if (Creature* pSnobold = DoSpawnCreature(NPC_SNOBOLD_VASSAL, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms))
                     {
                         pSnobold->EnterVehicle(me, i);
                         pSnobold->SetInCombatWithZone();
@@ -313,7 +313,7 @@ class npc_snobold_vassal : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
             }
@@ -765,7 +765,7 @@ class boss_dreadscale : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
                 boss_jormungarAI::EnterEvadeMode();
@@ -841,7 +841,7 @@ class spell_gormok_fire_bomb : public SpellScriptLoader
                 if (const WorldLocation* pos = GetExplTargetDest())
                 {
                     if (Unit* caster = GetCaster())
-                        caster->SummonCreature(NPC_FIRE_BOMB, pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30*IN_MILLISECONDS);
+                        caster->SummonCreature(NPC_FIRE_BOMB, pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(30*IN_MILLISECONDS));
                 }
             }
 
@@ -928,7 +928,7 @@ class boss_icehowl : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
                 ScriptedAI::EnterEvadeMode();

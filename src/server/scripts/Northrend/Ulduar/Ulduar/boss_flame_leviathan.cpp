@@ -404,7 +404,7 @@ class boss_flame_leviathan : public CreatureScript
                     me->GetMap()->SetWorldState(WORLDSTATE_ORBIT_UARY, 1);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 Reset();
                 instance->SetBossState(BOSS_LEVIATHAN, FAIL);
@@ -599,7 +599,7 @@ class boss_flame_leviathan : public CreatureScript
                             break;
                         case EVENT_SUMMON:
                             if (summons.size() < 15)
-                                if (Creature* lift = DoSummonFlyer(NPC_MECHANOLIFT, me, 30.0f, 50.0f, 0))
+                                if (Creature* lift = DoSummonFlyer(NPC_MECHANOLIFT, me, 30.0f, 50.0f, 0ms))
                                     lift->GetMotionMaster()->MoveRandom(100);
                             events.ScheduleEvent(EVENT_SUMMON, 2*IN_MILLISECONDS);
                             break;
@@ -1086,7 +1086,7 @@ class npc_mechanolift : public CreatureScript
                     passenger->ToCreature()->DespawnOrUnsummon(1);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
             }

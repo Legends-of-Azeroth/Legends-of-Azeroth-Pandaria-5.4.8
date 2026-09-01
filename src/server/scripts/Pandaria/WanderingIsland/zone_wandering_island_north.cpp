@@ -131,7 +131,7 @@ struct npc_training_target : public ScriptedAI
         _resetTimer = 5 * IN_MILLISECONDS;
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (_EnterEvadeMode())
             Reset();
@@ -374,7 +374,7 @@ class npc_min_dimwind : public CreatureScript
                 summons.DespawnAll();
 
                 for (int i = 0; i < 4; ++i)
-                    me->SummonCreature(54130, me->GetPositionX()-3+rand()%6, me->GetPositionY() + 4 + rand()%4, me->GetPositionZ()+2, 4.9f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
+                    me->SummonCreature(54130, me->GetPositionX()-3+rand()%6, me->GetPositionY() + 4 + rand()%4, me->GetPositionZ()+2, 4.9f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000ms);
             }
 
             void MoveInLineOfSight(Unit* who) override
@@ -518,7 +518,7 @@ class npc_aysa : public CreatureScript
         bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_WAY_OF_THE_TUSHUI)
-                if (Creature* tempSummon = creature->SummonCreature(NPC_AYSA_LAKE_ESCORT, *creature, TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID()))
+                if (Creature* tempSummon = creature->SummonCreature(NPC_AYSA_LAKE_ESCORT, *creature, TEMPSUMMON_MANUAL_DESPAWN, 0ms, player->GetGUID()))
                     tempSummon->SetPhaseMask(1, true);
 
             return true;
@@ -635,7 +635,7 @@ class npc_aysa : public CreatureScript
                             auto const maxSpawns = std::max<size_t>(maxSize * 3, 3);
 
                             for (size_t i = 0; i < maxSpawns; ++i)
-                                if (TempSummon* temp = me->SummonCreature(NPC_TROUBLEMAKER, 1155.625f, 3438.559f, 104.97f, 3.3f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
+                                if (TempSummon* temp = me->SummonCreature(NPC_TROUBLEMAKER, 1155.625f, 3438.559f, 104.97f, 3.3f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000ms))
                                 {
                                     if (temp->AI())
                                         temp->AI()->AttackStart(me);
@@ -856,7 +856,7 @@ class spell_huo_benediction: public SpellScriptLoader
                             return;
 
                 // A partir d'ici on sait que le joueur n'a pas encore de Huo
-                if (TempSummon* tempHuo = target->SummonCreature(54958, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0))
+                if (TempSummon* tempHuo = target->SummonCreature(54958, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0ms))
                 {
                     tempHuo->SetExplicitSeerGuid(target->GetGUID());
                     tempHuo->SetOwnerGUID(target->GetGUID());

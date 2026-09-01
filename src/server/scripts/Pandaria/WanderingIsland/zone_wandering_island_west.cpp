@@ -289,13 +289,13 @@ class npc_aysa_in_wind_temple : public CreatureScript
         {
             if (quest->GetQuestId() == 29786) // Bataille Pyrotechnique
             {
-                if (Creature* aysa = player->SummonCreature(64543, 543.94f, 4317.31f, 212.24f, 1.675520f, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                if (Creature* aysa = player->SummonCreature(64543, 543.94f, 4317.31f, 212.24f, 1.675520f, TEMPSUMMON_TIMED_DESPAWN, 10000ms))
                 {
                     aysa->SetExplicitSeerGuid(player->GetGUID());
                     aysa->GetMotionMaster()->MovePoint(1, 643.45f, 4228.66f, 202.90f);
                 }
 
-                if (Creature* dafeng = player->SummonCreature(64532, 543.56f, 4320.97f, 212.24f, 5.445430f, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                if (Creature* dafeng = player->SummonCreature(64532, 543.56f, 4320.97f, 212.24f, 5.445430f, TEMPSUMMON_TIMED_DESPAWN, 10000ms))
                 {
                     dafeng->SetExplicitSeerGuid(player->GetGUID());
                     dafeng->GetMotionMaster()->MovePoint(1, 643.45f, 4228.66f, 202.90f);
@@ -570,7 +570,7 @@ class npc_master_shang_xi_after_zhao : public CreatureScript
         {
             if (quest->GetQuestId() == 29787) // Worthy of Passing
             {
-                if (Creature* master = player->SummonCreature(56159, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0))
+                if (Creature* master = player->SummonCreature(56159, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0ms))
                 {
                     master->SetExplicitSeerGuid(player->GetGUID());
                     master->AI()->SetGUID(player->GetGUID());
@@ -629,7 +629,7 @@ class npc_master_shang_xi_after_zhao_escort : public CreatureScript
                         Talk(3);
                         break;
                     case 10:
-                        if (Creature* creature = me->SummonCreature(56274, 845.89f, 4372.62f, 223.98f, 4.78f, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                        if (Creature* creature = me->SummonCreature(56274, 845.89f, 4372.62f, 223.98f, 4.78f, TEMPSUMMON_CORPSE_DESPAWN, 0ms))
                         {
                             creature->SetExplicitSeerGuid(playerGuid);
                             summonGUID = creature->GetGUID();
@@ -704,7 +704,7 @@ class npc_master_shang_xi_thousand_staff : public CreatureScript
         {
             if (quest->GetQuestId() == 29790) // Passing Wisdom
             {
-                if (Creature* master = player->SummonCreature(56686, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0))
+                if (Creature* master = player->SummonCreature(56686, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0ms))
                 {
                     master->SetExplicitSeerGuid(player->GetGUID());
                     master->AI()->SetGUID(player->GetGUID());
@@ -754,7 +754,7 @@ class npc_master_shang_xi_thousand_staff_escort : public CreatureScript
 
                     if (phase == 7)
                     {
-                        auto const creature = me->SummonCreature(57874, 873.09f, 4462.25f, 241.27f, 3.80f, TEMPSUMMON_TIMED_DESPAWN, 60000);
+                        auto const creature = me->SummonCreature(57874, 873.09f, 4462.25f, 241.27f, 3.80f, TEMPSUMMON_TIMED_DESPAWN, 60000ms);
                         creature->SetExplicitSeerGuid(playerGuid);
 
                         me->DespawnOrUnsummon();
@@ -788,7 +788,7 @@ class spell_grab_air_balloon: public SpellScriptLoader
                 PreventHitAura();
 
                 if (Unit* caster = GetCaster())
-                    if (Creature* balloon = caster->SummonCreature(55649, 915.55f, 4563.66f, 230.68f, 2.298090f, TEMPSUMMON_MANUAL_DESPAWN, 0))
+                    if (Creature* balloon = caster->SummonCreature(55649, 915.55f, 4563.66f, 230.68f, 2.298090f, TEMPSUMMON_MANUAL_DESPAWN, 0ms))
                     {
                         balloon->SetExplicitSeerGuid(caster->GetGUID());
                         caster->EnterVehicle(balloon, 0);
@@ -1039,10 +1039,10 @@ class npc_shang_xi_air_balloon : public CreatureScript
                 {
                     auto const player = passenger->ToPlayer();
 
-                    if (auto const firepaw = player->SummonCreature(56660, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0.f, TEMPSUMMON_TIMED_DESPAWN, 300000))
+                    if (auto const firepaw = player->SummonCreature(56660, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0.f, TEMPSUMMON_TIMED_DESPAWN, 300000ms))
                         firepaw->EnterVehicle(me, 1);
 
-                    if (auto const aysa = player->SummonCreature(56662, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0.f, TEMPSUMMON_TIMED_DESPAWN, 300000))
+                    if (auto const aysa = player->SummonCreature(56662, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0.f, TEMPSUMMON_TIMED_DESPAWN, 300000ms))
                         aysa->EnterVehicle(me, 2);
 
                     playerGUID = player->GetGUID();

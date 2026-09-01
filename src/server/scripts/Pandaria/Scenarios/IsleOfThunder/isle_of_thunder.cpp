@@ -626,7 +626,7 @@ struct npc_shaolmara_vereesa_windrunner : public ScriptedAI
                         if (me->GetInstanceScript())
                             me->GetInstanceScript()->SetData(STEP_DESTROY_THE_BARRICADES, IN_PROGRESS);
 
-                        if (Creature* arcanital = me->SummonCreature(NPC_ARCANITAL_MARAKAH, arcanitalBarricadePoint, TEMPSUMMON_TIMED_DESPAWN, 5 * IN_MILLISECONDS))
+                        if (Creature* arcanital = me->SummonCreature(NPC_ARCANITAL_MARAKAH, arcanitalBarricadePoint, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(5 * IN_MILLISECONDS)))
                             arcanital->AI()->Talk(TALK_SPECIAL_2);
 
                         // Wait
@@ -699,7 +699,7 @@ struct npc_shaolmara_vereesa_windrunner : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_MISC: // Scheduler not schedule anymore...
-                    if (Creature* arcanital = me->SummonCreature(NPC_ARCANITAL_MARAKAH, arcanitalAnkiPoint, TEMPSUMMON_TIMED_DESPAWN, 5 * IN_MILLISECONDS))
+                    if (Creature* arcanital = me->SummonCreature(NPC_ARCANITAL_MARAKAH, arcanitalAnkiPoint, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(5 * IN_MILLISECONDS)))
                         arcanital->AI()->Talk(TALK_SPECIAL_3);
                 
                     events.ScheduleEvent(EVENT_MISC + 1, 4.5 * IN_MILLISECONDS);
@@ -1589,7 +1589,7 @@ struct npc_zebtula_scout_captain_elsia : public ScriptedAI
                         if (me->GetInstanceScript())
                             me->GetInstanceScript()->SetData(STEP_DESTROY_THE_BARRICADES, IN_PROGRESS);
 
-                        if (Creature* arcanital = me->SummonCreature(NPC_ARCANITAL_TULACHEK, arcanitalBarricadePoint, TEMPSUMMON_TIMED_DESPAWN, 5 * IN_MILLISECONDS))
+                        if (Creature* arcanital = me->SummonCreature(NPC_ARCANITAL_TULACHEK, arcanitalBarricadePoint, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(5 * IN_MILLISECONDS)))
                             arcanital->AI()->Talk(TALK_SPECIAL_2);
 
                         // Wait
@@ -1665,7 +1665,7 @@ struct npc_zebtula_scout_captain_elsia : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_MISC: // Scheduler not schedule anymore...
-                    if (Creature* arcanital = me->SummonCreature(NPC_ARCANITAL_TULACHEK, arcanitalkreshPoint, TEMPSUMMON_TIMED_DESPAWN, 5 * IN_MILLISECONDS))
+                    if (Creature* arcanital = me->SummonCreature(NPC_ARCANITAL_TULACHEK, arcanitalkreshPoint, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(5 * IN_MILLISECONDS)))
                         arcanital->AI()->Talk(TALK_SPECIAL_3);
 
                     events.ScheduleEvent(EVENT_MISC + 1, 4.5 * IN_MILLISECONDS);
@@ -4123,7 +4123,7 @@ struct shanbuAssaultBaseAI : public customCreatureAI
             DoCast(me, SPELL_BLOOD_DRIP, true);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         me->GetMotionMaster()->MoveTargetedHome();
@@ -4739,7 +4739,7 @@ class npc_shanbu_fall_elsia : public CreatureScript
                 });
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
                 me->GetMotionMaster()->MoveTargetedHome();
@@ -5407,7 +5407,7 @@ struct npc_thunder_forge_shado_pan_warrior : public ScriptedAI
             damage = 0;
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         me->GetMotionMaster()->MoveTargetedHome();
@@ -5563,7 +5563,7 @@ struct npc_forgemaster_vulkon : public customCreatureAI
         events.ScheduleEvent(EVENT_SWITCH_WEAPONS, 10 * IN_MILLISECONDS);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         me->GetMotionMaster()->MoveTargetedHome();
@@ -5642,7 +5642,7 @@ struct npc_thunder_forge_shanze_warrior : public customCreatureAI
             damage = 0;
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         me->GetMotionMaster()->MoveTargetedHome();
@@ -5701,7 +5701,7 @@ struct npc_thunder_forge_shanze_pyromancer : public customCreatureAI
             damage = 0;
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         me->GetMotionMaster()->MoveTargetedHome();
@@ -5818,7 +5818,7 @@ struct npc_thunder_forge_sha_fiend : public customCreatureAI
             events.ScheduleEvent(EVENT_SHA_BLAST, urand(1.5 * IN_MILLISECONDS, 6 * IN_MILLISECONDS));
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         me->GetMotionMaster()->MoveTargetedHome();
@@ -5885,7 +5885,7 @@ struct npc_sha_almagmation : public customCreatureAI
             damage = 0;
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         me->GetMotionMaster()->MoveTargetedHome();
@@ -5962,7 +5962,7 @@ struct npc_thunder_forge_celestial_defender : public ScriptedAI
             damage = 0;
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         me->GetMotionMaster()->MoveTargetedHome();

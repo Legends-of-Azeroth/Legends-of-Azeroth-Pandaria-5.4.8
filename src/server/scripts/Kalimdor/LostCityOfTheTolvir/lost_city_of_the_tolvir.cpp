@@ -150,7 +150,7 @@ class npc_pygmy_brute_tv : public CreatureScript
                                         ++uiSummonMask;
 
                                         if (!vehicle->GetPassenger(0))
-                                            if (TempSummon* pygmy = me->SummonCreature(44897, x, y, z, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 30000))
+                                            if (TempSummon* pygmy = me->SummonCreature(44897, x, y, z, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 30000ms))
                                                 pygmy->EnterVehicle(me);
                                     }
                                     break;
@@ -161,7 +161,7 @@ class npc_pygmy_brute_tv : public CreatureScript
                                         if (Unit* passenger = vehicle->GetPassenger(0))
                                             if (Vehicle* veh_pygmy = passenger->GetVehicleKit())
                                                 if (!veh_pygmy->GetPassenger(0))
-                                                    if (Creature* pygmy = me->SummonCreature(44898, x, y, z, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 30000))
+                                                    if (Creature* pygmy = me->SummonCreature(44898, x, y, z, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 30000ms))
                                                         pygmy->EnterVehicle(passenger);
                                     }
                                     break;

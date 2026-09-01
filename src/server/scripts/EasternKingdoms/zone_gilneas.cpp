@@ -1399,7 +1399,7 @@ public:
 
         void AttackStart(Unit* /*who*/) override { }
         void JustEngagedWith(Unit* /*who*/) override { }
-        void EnterEvadeMode() override { }
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
         void Reset() override
         {
@@ -1773,7 +1773,7 @@ public:
         bool Catch;
         bool Summon;
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
         {
             me->DespawnOrUnsummon();
         }
@@ -2093,7 +2093,7 @@ public:
                 return true;
 
             if (Creature* harness = player->FindNearestCreature(NPC_STAGECOACH_HARNESS, 30.0f, true))
-                player->SummonCreature(NPC_HARNESS_SUMMONED, harness->GetPositionX(), harness->GetPositionY(), harness->GetPositionZ(), harness->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 600000);
+                player->SummonCreature(NPC_HARNESS_SUMMONED, harness->GetPositionX(), harness->GetPositionY(), harness->GetPositionZ(), harness->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 600000ms);
             return true;
         }
 

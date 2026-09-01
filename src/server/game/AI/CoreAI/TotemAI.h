@@ -33,7 +33,7 @@ class TotemAI : public CreatureAI
 
         void MoveInLineOfSight(Unit* who);
         void AttackStart(Unit* victim);
-        void EnterEvadeMode();
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
 
         void UpdateAI(uint32 diff);
         static int Permissible(Creature const* creature);

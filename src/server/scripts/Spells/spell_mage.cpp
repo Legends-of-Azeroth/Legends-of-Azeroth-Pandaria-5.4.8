@@ -2539,7 +2539,7 @@ struct npc_mage_mirror_image : ScriptedAI
     }
 
     // Do not reload Creature templates on evade mode enter - prevent visual lost
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (me->IsInEvadeMode() || !me->IsAlive())
             return;

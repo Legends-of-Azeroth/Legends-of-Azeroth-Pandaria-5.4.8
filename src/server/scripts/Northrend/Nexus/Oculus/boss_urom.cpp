@@ -147,7 +147,7 @@ class boss_urom : public CreatureScript
                 StartAttack();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 me->CastSpell(me, SPELL_EVOCATE);

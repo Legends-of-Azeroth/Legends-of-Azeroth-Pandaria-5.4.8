@@ -341,7 +341,7 @@ class boss_elegon : public CreatureScript
                 events.ScheduleEvent(EVENT_ENRAGE_HARD, 570000); // 9min30
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();

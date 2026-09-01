@@ -416,7 +416,7 @@ class boss_norushen : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 Talk(SAY_NORUSHEN_WIPE);
 
@@ -717,7 +717,7 @@ class boss_amalgam_of_corruption : public CreatureScript
 
             void KilledUnit(Unit* victim) override { }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->RemoveAllAuras();
                 me->RemoveAllAreasTrigger();
@@ -1015,7 +1015,7 @@ struct npc_manifestation_of_corruption : public ScriptedAI
         return targetGUID;
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         // fake death, vanish etc.
         if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
@@ -1129,7 +1129,7 @@ struct npc_essence_of_corruption : public ScriptedAI
         return targetGUID;
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         // fake death, vanish etc.
         if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
@@ -1242,7 +1242,7 @@ struct npc_greater_corruption : public ScriptedAI
         events.ScheduleEvent(EVENT_BOTTOMLESS_PIT, 20000);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         // fake death, vanish etc.
         if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
@@ -1390,7 +1390,7 @@ struct npc_titanic_corruption : public ScriptedAI
         events.ScheduleEvent(EVENT_TITANIC_SMASH, 7000);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         // fake death, vanish etc.
         if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))

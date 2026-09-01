@@ -464,7 +464,7 @@ void SmartAI::RemoveAuras()
     }
 }
 
-void SmartAI::EnterEvadeMode()
+void SmartAI::EnterEvadeMode(EvadeReason why)
 {
     if (!me->IsAlive() || me->IsInEvadeMode())
         return;
@@ -634,6 +634,8 @@ void SmartAI::JustReachedHome()
 
 void SmartAI::JustEngagedWith(Unit* enemy)
 {
+    CreatureAI::JustEngagedWith(enemy);
+
     me->InterruptNonMeleeSpells(false); // must be before ProcessEvents
     GetScript()->ProcessEventsFor(SMART_EVENT_AGGRO, enemy);
     mLastOOCPos = me->GetPosition();

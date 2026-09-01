@@ -485,10 +485,10 @@ class boss_sinestra : public CreatureScript
                             Trinity::RandomResizeList<Unit*>(targetList, 2);
 
                             std::list<Unit*>::const_iterator iter = targetList.begin();
-                            pOrb1 = me->SummonCreature(NPC_SHADOW_ORB, (*iter)->GetPositionX(), (*iter)->GetPositionY(), (*iter)->GetPositionZ(), (*iter)->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 14000);
+                            pOrb1 = me->SummonCreature(NPC_SHADOW_ORB, (*iter)->GetPositionX(), (*iter)->GetPositionY(), (*iter)->GetPositionZ(), (*iter)->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 14000ms);
                             
                             ++iter;
-                            pOrb2 = me->SummonCreature(NPC_SHADOW_ORB, (*iter)->GetPositionX(), (*iter)->GetPositionY(), (*iter)->GetPositionZ(), (*iter)->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 14000);
+                            pOrb2 = me->SummonCreature(NPC_SHADOW_ORB, (*iter)->GetPositionX(), (*iter)->GetPositionY(), (*iter)->GetPositionZ(), (*iter)->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 14000ms);
 
                             events.ScheduleEvent(EVENT_TWILIGHT_SLICER, 5500);
                             events.ScheduleEvent(EVENT_SUMMON_ORB, 30000);
@@ -551,14 +551,14 @@ class boss_sinestra : public CreatureScript
                             break;
                         }
                         case EVENT_SUMMON_CALLER:
-                            if (Creature* pCaller = me->SummonCreature(NPC_TWILIGHT_SPITECALLER, addsPos[9], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
+                            if (Creature* pCaller = me->SummonCreature(NPC_TWILIGHT_SPITECALLER, addsPos[9], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000ms))
                                 pCaller->GetMotionMaster()->MovePoint(0, addsPos[10]);
                             events.ScheduleEvent(EVENT_SUMMON_CALLER, 35000);
                             break;
                         case EVENT_SUMMON_DRAKE:
                         {
                             uint8 i = urand(0, 1);
-                            if (Creature* pDrake = me->SummonCreature(NPC_TWILIGHT_DRAKE, addsPos[5+i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
+                            if (Creature* pDrake = me->SummonCreature(NPC_TWILIGHT_DRAKE, addsPos[5+i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000ms))
                                 pDrake->GetMotionMaster()->MovePoint(0, addsPos[7+i]);
                             events.ScheduleEvent(EVENT_SUMMON_DRAKE, 50000);
                             break;

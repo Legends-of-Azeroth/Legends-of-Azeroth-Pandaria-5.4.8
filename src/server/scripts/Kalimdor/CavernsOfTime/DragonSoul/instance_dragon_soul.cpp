@@ -224,8 +224,8 @@ class instance_dragon_soul : public InstanceMapScript
                         if (GetBossState(DATA_ULTRAXION) == DONE)
                         {
                             creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                            creature->SummonCreature(NPC_SKY_CAPTAIN_SWAYZE, customPos[1], TEMPSUMMON_MANUAL_DESPAWN, 0);
-                            creature->SummonCreature(NPC_KAANU_REEVS, customPos[2], TEMPSUMMON_MANUAL_DESPAWN, 0);
+                            creature->SummonCreature(NPC_SKY_CAPTAIN_SWAYZE, customPos[1], TEMPSUMMON_MANUAL_DESPAWN, 0ms);
+                            creature->SummonCreature(NPC_KAANU_REEVS, customPos[2], TEMPSUMMON_MANUAL_DESPAWN, 0ms);
                         }
                         else if (GetBossState(DATA_HAGARA) == DONE)
                             creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);

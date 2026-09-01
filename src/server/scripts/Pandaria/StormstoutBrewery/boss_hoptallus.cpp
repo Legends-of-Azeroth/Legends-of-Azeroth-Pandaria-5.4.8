@@ -382,7 +382,7 @@ class boss_hoptallus : public CreatureScript
                     return false;
                 }
 
-                if (Creature* creature = me->SummonCreature(hoplings[n], hoplingSpawns[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, urand(2000, 5000)))
+                if (Creature* creature = me->SummonCreature(hoplings[n], hoplingSpawns[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(urand(2000, 5000))))
                 {
                     creature->AddAura(SPELL_HOPPER_ANIM_REPLACEMENT, creature);
 
@@ -413,7 +413,7 @@ class boss_hoptallus : public CreatureScript
                     return false;
                 }
 
-                if (Creature* creature = me->SummonCreature(hoppers[urand(0, 1)], hopperSpawns[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, urand(4000, 8000)))
+                if (Creature* creature = me->SummonCreature(hoppers[urand(0, 1)], hopperSpawns[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(urand(4000, 8000))))
                 {
                     Position pos = me->GetRandomNearPosition(10.f);
                     creature->GetMotionMaster()->MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), 10.f, 10.f, EVENT_JUMP);
@@ -425,7 +425,7 @@ class boss_hoptallus : public CreatureScript
                 return DoSummonHoppers(n - 1);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
 
@@ -567,7 +567,7 @@ class npc_hammer_bopper : public CreatureScript
                 events.Reset();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->DespawnOrUnsummon();
             }
@@ -669,7 +669,7 @@ class npc_explosive_hopper : public CreatureScript
                 events.ScheduleEvent(EVENT_EXPLODE, urand(3000, 5000));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->DespawnOrUnsummon();
             }
@@ -919,7 +919,7 @@ class npc_sb_hopling : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->DespawnOrUnsummon();
             }

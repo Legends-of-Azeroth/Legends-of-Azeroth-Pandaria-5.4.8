@@ -161,7 +161,7 @@ class boss_helix_gearbreaker : public CreatureScript
                 DoZoneInCombat();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->DespawnOrUnsummon();
             }
@@ -306,7 +306,7 @@ class npc_lumbering_oaf : public CreatureScript
                 events.ScheduleEvent(EVENT_CHARGE_OAF0, 10000);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 Reset();
                 me->GetMotionMaster()->MoveTargetedHome();
@@ -400,7 +400,7 @@ class npc_lumbering_oaf : public CreatureScript
                                 Position dst = { -289.535614f, -493.059448f, 50.117603f };
                                 me->MovePosition(src, (float)rand_norm() * 2, (float)rand_norm() * M_PI * 2);
                                 me->MovePosition(dst, (float)rand_norm() * 3, (float)rand_norm() * M_PI * 2);
-                                if (Creature* rat = me->SummonCreature(NPC_MINE_RAT, src, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
+                                if (Creature* rat = me->SummonCreature(NPC_MINE_RAT, src, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000ms))
                                     rat->GetMotionMaster()->MovePoint(0, dst, false);
                             }
                             me->SetReactState(REACT_AGGRESSIVE);
@@ -612,7 +612,7 @@ class npc_helix_crew : public CreatureScript
                     {
                         case EVENT_STICKY_BOMB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                                me->SummonCreature(NPC_STICKY_BOMB, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 30000);
+                                me->SummonCreature(NPC_STICKY_BOMB, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 30000ms);
                             events.ScheduleEvent(EVENT_STICKY_BOMB, urand(15000, 20000));
                             break;
                     }

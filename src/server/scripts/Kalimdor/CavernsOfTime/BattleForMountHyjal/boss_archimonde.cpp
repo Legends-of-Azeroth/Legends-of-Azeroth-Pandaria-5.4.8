@@ -423,11 +423,11 @@ public:
         {
             me->SummonCreature(CREATURE_DOOMFIRE_SPIRIT,
                 target->GetPositionX()+15.0f, target->GetPositionY()+15.0f, target->GetPositionZ(), 0,
-                TEMPSUMMON_TIMED_DESPAWN, 27000);
+                TEMPSUMMON_TIMED_DESPAWN, 27000ms);
 
             me->SummonCreature(CREATURE_DOOMFIRE,
                 target->GetPositionX()-15.0f, target->GetPositionY()-15.0f, target->GetPositionZ(), 0,
-                TEMPSUMMON_TIMED_DESPAWN, 27000);
+                TEMPSUMMON_TIMED_DESPAWN, 27000ms);
         }
 
         void UnleashSoulCharge()
@@ -489,7 +489,7 @@ public:
                 {
                     if (!IsChanneling)
                     {
-                        Creature* temp = me->SummonCreature(CREATURE_CHANNEL_TARGET, NordrassilLoc, TEMPSUMMON_TIMED_DESPAWN, 1200000);
+                        Creature* temp = me->SummonCreature(CREATURE_CHANNEL_TARGET, NordrassilLoc, TEMPSUMMON_TIMED_DESPAWN, 1200000ms);
 
                         if (temp)
                             WorldTreeGUID = temp->GetGUID();
@@ -533,7 +533,7 @@ public:
                 if (CheckDistanceTimer <= diff)
                 {
                     // To simplify the check, we simply summon a Creature in the location and then check how far we are from the creature
-                    Creature* Check = me->SummonCreature(CREATURE_CHANNEL_TARGET, NordrassilLoc, TEMPSUMMON_TIMED_DESPAWN, 2000);
+                    Creature* Check = me->SummonCreature(CREATURE_CHANNEL_TARGET, NordrassilLoc, TEMPSUMMON_TIMED_DESPAWN, 2000ms);
                     if (Check)
                     {
                         Check->SetVisible(false);
@@ -565,7 +565,7 @@ public:
 
                 if (SummonWispTimer <= diff)
                 {
-                    DoSpawnCreature(CREATURE_ANCIENT_WISP, float(rand()%40), float(rand()%40), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                    DoSpawnCreature(CREATURE_ANCIENT_WISP, float(rand()%40), float(rand()%40), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000ms);
                     SummonWispTimer = 1500;
                     ++WispCount;
                 } else SummonWispTimer -= diff;

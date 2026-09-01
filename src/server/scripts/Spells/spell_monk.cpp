@@ -1784,7 +1784,7 @@ struct npc_monk_s_e_f_spirit : public ScriptedAI
         me->DespawnOrUnsummon();
     }
 
-    void EnterEvadeMode() override 
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override 
     {
         if (state == State::Attacking && me->IsAlive())
             DoDespawn();

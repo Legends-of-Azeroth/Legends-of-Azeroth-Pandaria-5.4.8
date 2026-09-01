@@ -356,7 +356,7 @@ class boss_garajal : public CreatureScript
                 }
             }
      
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_SHARE);
@@ -518,7 +518,7 @@ class boss_garajal : public CreatureScript
 
                                 for (uint8 i = 0; i < mobCount; ++i)
                                 {
-                                    if (Creature* soulCutter = me->SummonCreature(NPC_SOUL_CUTTER, soulCutterPos[i], TEMPSUMMON_TIMED_DESPAWN, 30000))
+                                    if (Creature* soulCutter = me->SummonCreature(NPC_SOUL_CUTTER, soulCutterPos[i], TEMPSUMMON_TIMED_DESPAWN, 30000ms))
                                     {
                                         if (IsHeroic() && i == 0)
                                             soulCutter->CastSpell(soulCutter, SPELL_COSMETIC_RED_AURA, true);

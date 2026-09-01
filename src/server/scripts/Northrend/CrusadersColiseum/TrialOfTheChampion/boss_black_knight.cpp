@@ -173,7 +173,7 @@ class boss_black_knight : public CreatureScript
                 DoZoneInCombat(summon, 200.0f);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->ClearUnitState(UNIT_STATE_STUNNED | UNIT_STATE_ROOT);
                 ScriptedAI::EnterEvadeMode();

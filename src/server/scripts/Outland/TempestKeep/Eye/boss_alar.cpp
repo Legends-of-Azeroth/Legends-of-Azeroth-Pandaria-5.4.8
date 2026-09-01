@@ -304,7 +304,7 @@ class boss_alar : public CreatureScript
                                 return;
                             case WE_SUMMON:
                                 for (uint8 i = 0; i < 2; ++i)
-                                    DoSpawnCreature(CREATURE_EMBER_OF_ALAR, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                                    DoSpawnCreature(CREATURE_EMBER_OF_ALAR, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000ms);
                                 me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 10);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 me->SetDisplayId(me->GetNativeDisplayId());
@@ -343,7 +343,7 @@ class boss_alar : public CreatureScript
                         {
                             if (urand(0, 4)) // next platform
                             {
-                                DoSpawnCreature(CREATURE_EMBER_OF_ALAR, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                                DoSpawnCreature(CREATURE_EMBER_OF_ALAR, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000ms);
                                 if (cur_wp == 3)
                                     cur_wp = 0;
                                 else
@@ -403,7 +403,7 @@ class boss_alar : public CreatureScript
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
-                            Creature* Summoned = me->SummonCreature(CREATURE_FLAME_PATCH_ALAR, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 120000);
+                            Creature* Summoned = me->SummonCreature(CREATURE_FLAME_PATCH_ALAR, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 120000ms);
                             if (Summoned)
                             {
                                 Summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -481,7 +481,7 @@ class npc_ember_of_alar : public CreatureScript
                 DoZoneInCombat();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->setDeathState(JUST_DIED);
             }

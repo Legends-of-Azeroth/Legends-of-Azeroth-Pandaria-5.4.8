@@ -119,7 +119,7 @@ class npc_coren_direbrew : public CreatureScript
                 _spawnedUrsula = false;
 
                 for (uint8 i = 0; i < 3; ++i)
-                    if (Creature* creature = me->SummonCreature(NPC_DIREBREW_MINION, AddSpawn[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15 * IN_MILLISECONDS))
+                    if (Creature* creature = me->SummonCreature(NPC_DIREBREW_MINION, AddSpawn[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(15 * IN_MILLISECONDS)))
                         _add[i] = creature->GetGUID();
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
@@ -172,7 +172,7 @@ class npc_coren_direbrew : public CreatureScript
                             float posX, posY, posZ;
                             target->GetPosition(posX, posY, posZ);
                             target->CastSpell(target, SPELL_MOLE_MACHINE_EMERGE, true, 0, 0, me->GetGUID());
-                            me->SummonCreature(NPC_DIREBREW_MINION, posX, posY, posZ, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_DIREBREW_MINION, posX, posY, posZ, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(15 * IN_MILLISECONDS));
 
                             _addTimer = 15 * IN_MILLISECONDS;
                             if (_spawnedIlsa)
@@ -188,13 +188,13 @@ class npc_coren_direbrew : public CreatureScript
 
                 if (!_spawnedIlsa && HealthBelowPct(66))
                 {
-                    DoSpawnCreature(NPC_ILSA_DIREBREW, 0, 0, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15 * IN_MILLISECONDS);
+                    DoSpawnCreature(NPC_ILSA_DIREBREW, 0, 0, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15s);
                     _spawnedIlsa = true;
                 }
 
                 if (!_spawnedUrsula && HealthBelowPct(33))
                 {
-                    DoSpawnCreature(NPC_URSULA_DIREBREW, 0, 0, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15 * IN_MILLISECONDS);
+                    DoSpawnCreature(NPC_URSULA_DIREBREW, 0, 0, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15s);
                     _spawnedUrsula = true;
                 }
 

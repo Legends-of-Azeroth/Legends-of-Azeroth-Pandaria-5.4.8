@@ -1109,7 +1109,7 @@ class spell_q9452_cast_net: public SpellScriptLoader
                 }
                 else
                 {
-                    if (Creature* murloc = caster->SummonCreature(NPC_ANGRY_MURLOC, caster->GetPositionX()+5, caster->GetPositionY(), caster->GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 120000))
+                    if (Creature* murloc = caster->SummonCreature(NPC_ANGRY_MURLOC, caster->GetPositionX()+5, caster->GetPositionY(), caster->GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 120000ms))
                         murloc->AI()->AttackStart(caster);
                 }
             }

@@ -47,7 +47,7 @@ class PetAI : public CreatureAI
         //
         void MoveInLineOfSight(Unit* /*who*/) override { } // CreatureAI interferes with returning pets
         void MoveInLineOfSight_Safe(Unit* /*who*/) { } // CreatureAI interferes with returning pets
-        void EnterEvadeMode() override { } // For fleeing, pets don't use this type of Evade mechanic
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { } // For fleeing, pets don't use this type of Evade mechanic
 
         void SpellRequiresMovement(Unit* target, Spell* spell) override;
         void OnPetCommand(CommandStates) override;

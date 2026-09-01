@@ -1060,7 +1060,7 @@ class npc_waterspeaker_gorai : public CreatureScript
                     {
                         Talk(SAY_WATERSPEAKER_GORAI_6);
 
-                        if (auto spawn = me->SummonCreature(NPC_EXPLOSIVE_HATRED, 1921.28f, 167.02f, 477.382f, 4.82f, TEMPSUMMON_DEAD_DESPAWN, 60 * IN_MILLISECONDS))
+                        if (auto spawn = me->SummonCreature(NPC_EXPLOSIVE_HATRED, 1921.28f, 167.02f, 477.382f, 4.82f, TEMPSUMMON_DEAD_DESPAWN, Milliseconds(60 * IN_MILLISECONDS)))
                             if (auto player = me->GetPlayer(*me, playerGUID))
                                 spawn->AI()->AttackStart(player);
                     }
@@ -1165,7 +1165,7 @@ class go_yaungol_banner : public GameObjectScript
 
                 player->SummonGameObject(NPC_URBATAAR, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, { }, 60 * IN_MILLISECONDS);
 
-                if (auto urbataar = player->SummonCreature(NPC_URBATAAR, 2110.05f, 1182.91f, 476.32f, 0, TEMPSUMMON_TIMED_DESPAWN, 120 * IN_MILLISECONDS))
+                if (auto urbataar = player->SummonCreature(NPC_URBATAAR, 2110.05f, 1182.91f, 476.32f, 0, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(120 * IN_MILLISECONDS)))
                 {
                     urbataar->AI()->Talk(SAY_URBATAAR);
                     urbataar->AI()->AttackStart(player);
@@ -1406,9 +1406,9 @@ struct npc_lorewalker_cho_bashon_summoned : public ScriptedAI
 
         me->m_Events.Schedule(delay += 6000, 4, [this]()
         {
-            me->SummonCreature(NPC_RECLAIMER_ZUAN, BashonSpawn[0], TEMPSUMMON_TIMED_DESPAWN, 300 * IN_MILLISECONDS);
-            me->SummonCreature(NPC_YACHI, BashonSpawn[1], TEMPSUMMON_TIMED_DESPAWN, 300 * IN_MILLISECONDS);
-            me->SummonCreature(NPC_YAO, BashonSpawn[2], TEMPSUMMON_TIMED_DESPAWN, 300 * IN_MILLISECONDS);
+            me->SummonCreature(NPC_RECLAIMER_ZUAN, BashonSpawn[0], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(300 * IN_MILLISECONDS));
+            me->SummonCreature(NPC_YACHI, BashonSpawn[1], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(300 * IN_MILLISECONDS));
+            me->SummonCreature(NPC_YAO, BashonSpawn[2], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(300 * IN_MILLISECONDS));
             me->DespawnOrUnsummon(300 * IN_MILLISECONDS);
         });
     }
@@ -1699,7 +1699,7 @@ class npc_xuen_celestial_experience : public CreatureScript
                 return false;
 
             player->KilledMonsterCredit(NPC_XUEN);
-            player->SummonCreature(NPC_XUEN, *creature, TEMPSUMMON_TIMED_DESPAWN, 300 * IN_MILLISECONDS);
+            player->SummonCreature(NPC_XUEN, *creature, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(300 * IN_MILLISECONDS));
             player->SetPhaseMask(3, true);
             player->CLOSE_GOSSIP_MENU();;
             return true;
@@ -1720,7 +1720,7 @@ class npc_xuen_celestial_experience : public CreatureScript
 
                 for (auto&& cItr : CelestialDefenders)
                 {
-                    if (Creature* celestialDef = me->SummonCreature(cItr.first, CelestialProtectorsSpawn[cItr.second], TEMPSUMMON_TIMED_DESPAWN, 300 * IN_MILLISECONDS))
+                    if (Creature* celestialDef = me->SummonCreature(cItr.first, CelestialProtectorsSpawn[cItr.second], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(300 * IN_MILLISECONDS)))
                     {
                         cList.push_back(celestialDef->GetGUID());
                         celestialDef->SetPhaseMask(2, true);

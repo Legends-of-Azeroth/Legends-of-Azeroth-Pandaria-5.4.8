@@ -65,7 +65,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            me->SummonCreature(12238, 28.067f, 61.875f, -123.405f, 4.67f, TEMPSUMMON_TIMED_DESPAWN, 600000);
+            me->SummonCreature(12238, 28.067f, 61.875f, -123.405f, 4.67f, TEMPSUMMON_TIMED_DESPAWN, 600000ms);
         }
 
         void UpdateAI(uint32 diff) override

@@ -2449,7 +2449,7 @@ struct npc_sha_spirit_wolf : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         scheduler.CancelAll();
 
@@ -2782,7 +2782,7 @@ struct npc_sha_spiritwalker_champion : public PassiveAI
         me->SetPower(POWER_MANA, me->GetMaxPower(POWER_MANA));
     }
 
-    void EnterEvadeMode() override 
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override 
     {
         Unit* owner = me->GetCharmerOrOwner();
         if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))

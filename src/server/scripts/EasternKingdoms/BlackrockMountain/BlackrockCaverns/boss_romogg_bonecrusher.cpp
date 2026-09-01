@@ -213,7 +213,7 @@ class boss_romogg_bonecrusher : public CreatureScript
                                 if (me->GetMap()->IsDungeon() && !players.isEmpty())
                                     for (auto&& ref : players)
                                         if (Player* player = ref.GetSource())
-                                            me->SummonCreature(NPC_ANGERED_EARTH, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                            me->SummonCreature(NPC_ANGERED_EARTH, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
                             }
                             events.ScheduleEvent(EVENT_QUAKE, urand(18000, 20000));
                             break;

@@ -2647,9 +2647,9 @@ class npc_scout_captain_elsia : public CreatureScript
 };
 
 // Sunreaver Bloodhawk 70367, 70368
-struct npc_sunreaver_bloodhawk : public CreatureAI
+struct npc_sunreaver_bloodhawk : public ScriptedAI
 {
-    npc_sunreaver_bloodhawk(Creature* creature) : CreatureAI(creature) 
+    npc_sunreaver_bloodhawk(Creature* creature) : ScriptedAI(creature) 
     {
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_NPC);
     }
@@ -2806,9 +2806,9 @@ class npc_vereesa_windrunner : public CreatureScript
 };
 
 // Silver Covenant Hippogryph 70369, 70366
-struct npc_silver_covenant_hippogryph : public CreatureAI
+struct npc_silver_covenant_hippogryph : public ScriptedAI
 {
-    npc_silver_covenant_hippogryph(Creature* creature) : CreatureAI(creature) 
+    npc_silver_covenant_hippogryph(Creature* creature) : ScriptedAI(creature) 
     {
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_NPC);
     }
@@ -3560,7 +3560,7 @@ struct npc_nalak_essence_of_storms : public customCreatureAI
     }
 
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         me->DisappearAndDie();
@@ -3614,7 +3614,7 @@ struct npc_fleshcrafter_hoku : public customCreatureAI
         events.ScheduleEvent(EVENT_EXSANGUINATION, 15 * IN_MILLISECONDS);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         summons.DespawnAll();
         ScriptedAI::EnterEvadeMode();
@@ -3682,7 +3682,7 @@ struct npc_metal_lord_meno_han : public customCreatureAI
         events.ScheduleEvent(EVENT_TOSS_ENERGIZED_METAL, 6.5 * IN_MILLISECONDS);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         summons.DespawnAll();
         ScriptedAI::EnterEvadeMode();

@@ -384,7 +384,7 @@ class npc_gunship_boss : public CreatureScript
                 evading = false;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->CastStop();
                 me->AttackStop();

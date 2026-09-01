@@ -63,7 +63,7 @@ class boss_quagmirran : public CreatureScript
                 events.ScheduleEvent(EVENT_POISON_BOLT_VOLLEY, urand(25 * IN_MILLISECONDS, 28 * IN_MILLISECONDS));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
 

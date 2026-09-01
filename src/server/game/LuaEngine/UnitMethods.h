@@ -481,7 +481,7 @@ namespace LuaUnit
                 type = TEMPSUMMON_MANUAL_DESPAWN;
                 break;
         }
-        sEluna->Push(L, unit->SummonCreature(entry, x, y, z, o, type, despawnTimer));
+        sEluna->Push(L, unit->SummonCreature(entry, x, y, z, o, type, Milliseconds(despawnTimer)));
         return 1;
     }
 
@@ -1644,7 +1644,7 @@ namespace LuaUnit
             return 0;
         Position pos;
         pos.Relocate(x,y,z,o);
-        TempSummon* summon = unit->GetMap()->SummonCreature(entry, pos, properties, desp, unit);
+        TempSummon* summon = unit->GetMap()->SummonCreature(entry, pos, properties, Milliseconds(desp), unit);
 
         if (!summon)
             return 0;

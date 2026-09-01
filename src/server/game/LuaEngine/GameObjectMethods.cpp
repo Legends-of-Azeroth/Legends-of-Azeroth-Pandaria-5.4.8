@@ -61,7 +61,7 @@ namespace LuaGameObject
             default:
                 return 0;
         }
-        sEluna->Push(L, go->SummonCreature(entry, x, y, z, o, type, despawnTimer)->ToCreature());
+        sEluna->Push(L, go->SummonCreature(entry, x, y, z, o, type, Milliseconds(despawnTimer))->ToCreature());
         return 1;
     }
 

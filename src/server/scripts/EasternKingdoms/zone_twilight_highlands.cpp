@@ -615,7 +615,7 @@ struct npc_twilight_hurp_derp : public customCreatureAI
         });
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (Creature* gurgthock = me->FindNearestCreature(NPC_GURGTHOCK, 150.0f, true))
             gurgthock->AI()->Reset();
@@ -780,7 +780,7 @@ struct npc_twilight_faction_champions : public customCreatureAI
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (Creature* gurgthock = me->FindNearestCreature(NPC_GURGTHOCK, 150.0f, true))
             gurgthock->AI()->Reset();
@@ -917,7 +917,7 @@ struct npc_twilight_calders_creation : public customCreatureAI
         });
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (Creature* gurgthock = me->FindNearestCreature(NPC_GURGTHOCK, 150.0f, true))
             gurgthock->AI()->Reset();
@@ -1068,7 +1068,7 @@ struct npc_twilight_lord_tulvan : public customCreatureAI
 
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (Creature* gurgthock = me->FindNearestCreature(NPC_GURGTHOCK, 150.0f, true))
             gurgthock->AI()->Reset();
@@ -1217,7 +1217,7 @@ struct npc_twilight_emberscar_devourer : public customCreatureAI
 
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (Creature* gurgthock = me->FindNearestCreature(NPC_GURGTHOCK, 150.0f, true))
             gurgthock->AI()->Reset();

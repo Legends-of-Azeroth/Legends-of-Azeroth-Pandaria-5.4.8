@@ -88,7 +88,7 @@ class boss_moragg : public CreatureScript
                 //DoCast(me, DUNGEON_MODE(SPELL_RAY_OF_PAIN,SPELL_RAY_OF_PAIN_H), true);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
                 if (instance)

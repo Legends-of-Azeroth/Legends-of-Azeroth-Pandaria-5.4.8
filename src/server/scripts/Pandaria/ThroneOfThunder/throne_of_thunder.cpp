@@ -977,7 +977,7 @@ class npc_spirit_flayer : public CreatureScript
                 DoCast(me, SPELL_SPIRIT_LANTERN);
             }
     
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (!_EnterEvadeMode())
                     return;
@@ -1343,7 +1343,7 @@ class npc_farraki_sand_conjurer : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 summons.DespawnAll();
             }
@@ -2024,7 +2024,7 @@ class npc_lei_shen_tortos : public CreatureScript
                         case EVENT_LEI_SHEN_SEND_CINEMATIC:
                             events.CancelEvent(EVENT_DESTROY_BRIDGE);
                         
-                            if (Creature* bridgeTrigger = me->SummonCreature(NPC_BRIDGE_TRIGGER, pMidBridge, TEMPSUMMON_TIMED_DESPAWN, 60000))
+                            if (Creature* bridgeTrigger = me->SummonCreature(NPC_BRIDGE_TRIGGER, pMidBridge, TEMPSUMMON_TIMED_DESPAWN, 60000ms))
                             {
                                 for (auto&& itr : instance->instance->GetPlayers())
                                 {
@@ -2323,9 +2323,9 @@ struct npc_cavern_burrower : public customCreatureAI
 };
 
 // Mysterious Mushroom 70545
-struct npc_mysterious_mushroom : public CreatureAI
+struct npc_mysterious_mushroom : public ScriptedAI
 {
-    npc_mysterious_mushroom(Creature* creature) : CreatureAI(creature) { }
+    npc_mysterious_mushroom(Creature* creature) : ScriptedAI(creature) { }
 
     void Reset() override
     {
@@ -2517,9 +2517,9 @@ struct npc_bow_fly_swarm : public customCreatureAI
 };
 
 // Gastropod 68220
-struct npc_gastropod : public CreatureAI
+struct npc_gastropod : public ScriptedAI
 {
-    npc_gastropod(Creature* creature) : CreatureAI(creature) 
+    npc_gastropod(Creature* creature) : ScriptedAI(creature) 
     { 
         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
     }
@@ -2619,9 +2619,9 @@ struct npc_roaming_fog : public customCreatureAI
 };
 
 // Quivering Blob 69383
-struct npc_quivering_blob : public CreatureAI
+struct npc_quivering_blob : public ScriptedAI
 {
-    npc_quivering_blob(Creature* creature) : CreatureAI(creature) { }
+    npc_quivering_blob(Creature* creature) : ScriptedAI(creature) { }
 
     void IsSummonedBy(Unit* summoner) override
     {

@@ -396,7 +396,7 @@ class npc_tournament_training_dummy : public CreatureScript
                 events.ScheduleEvent(EVENT_DUMMY_RECAST_DEFEND, 5000);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (!_EnterEvadeMode())
                     return;

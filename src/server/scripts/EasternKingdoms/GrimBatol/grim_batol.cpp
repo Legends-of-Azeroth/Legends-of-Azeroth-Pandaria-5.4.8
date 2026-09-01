@@ -1840,9 +1840,9 @@ class npc_battered_red_drake : public CreatureScript
     public:
         npc_battered_red_drake() : CreatureScript("npc_battered_red_drake") { }
 
-        struct npc_battered_red_drakeAI : public CreatureAI
+        struct npc_battered_red_drakeAI : public ScriptedAI
         {
-            npc_battered_red_drakeAI(Creature* creature) : CreatureAI(creature) { }
+            npc_battered_red_drakeAI(Creature* creature) : ScriptedAI(creature) { }
 
             void OnSpellClick(Unit* clicker, bool& /*result*/) override
             {

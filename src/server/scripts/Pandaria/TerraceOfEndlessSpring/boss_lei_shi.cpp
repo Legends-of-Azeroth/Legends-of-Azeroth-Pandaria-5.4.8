@@ -440,7 +440,7 @@ class boss_lei_shi : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (instance)
                 {

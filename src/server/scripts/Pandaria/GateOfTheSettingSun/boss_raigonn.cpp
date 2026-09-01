@@ -158,7 +158,7 @@ class boss_raigonn : public CreatureScript
                     damage = 0;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (instance)
                 {
@@ -300,7 +300,7 @@ class boss_raigonn : public CreatureScript
                         case EVENT_SUMMON_PROTECTORAT:
                             Talk(TALK_PROTECT);
                             for (uint8 i = 0; i < 8; ++i)
-                                 if (Creature* summon = me->SummonCreature(NPC_KRIKTHIK_PROTECTORAT, frand(941.0f, 974.0f), 2374.85f, 296.67f, 4.73f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+                                 if (Creature* summon = me->SummonCreature(NPC_KRIKTHIK_PROTECTORAT, frand(941.0f, 974.0f), 2374.85f, 296.67f, 4.73f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000ms))
                                      if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                          if (summon->IsAIEnabled)
                                              summon->AI()->AttackStart(target);
@@ -310,13 +310,13 @@ class boss_raigonn : public CreatureScript
                         case EVENT_SUMMON_ENGULFER:
                             Talk(TALK_ENGULFER);
                             for (uint8 i = 0; i < 3; ++i)
-                                me->SummonCreature(NPC_KRIKTHIK_ENGULFER, frand(941.0f, 974.0f), me->GetPositionY(), me->GetPositionZ() + 30.0f, 4.73f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
+                                me->SummonCreature(NPC_KRIKTHIK_ENGULFER, frand(941.0f, 974.0f), me->GetPositionY(), me->GetPositionZ() + 30.0f, 4.73f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000ms);
 
                             events.ScheduleEvent(EVENT_SUMMON_ENGULFER, urand(95, 105) * IN_MILLISECONDS);
                             break;
                         case EVENT_SUMMON_SWARM_BRINGER:
                             Talk(TALK_SWARM);
-                            if (Creature* summon = me->SummonCreature(NPC_KRIKTHIK_SWARM_BRINGER, frand(941.0f, 974.0f), 2374.85f, 296.67f, 4.73f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+                            if (Creature* summon = me->SummonCreature(NPC_KRIKTHIK_SWARM_BRINGER, frand(941.0f, 974.0f), 2374.85f, 296.67f, 4.73f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000ms))
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                    if (summon->IsAIEnabled)
                                        summon->AI()->AttackStart(target);

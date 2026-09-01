@@ -171,7 +171,7 @@ class boss_xin_the_weaponmaster : public CreatureScript
                 ScriptedAI::MoveInLineOfSight(who);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
 
@@ -481,7 +481,7 @@ class npc_animated_staff : public CreatureScript
                 events.ScheduleEvent(EVENT_MOVE, urand(4000, 7000));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
 
@@ -719,7 +719,7 @@ class npc_animated_axe : public CreatureScript
                 me->GetMotionMaster()->MovePoint(0, me->GetHomePosition());
             }
 
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -797,7 +797,7 @@ class npc_faintly_glowing_gem : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
             void OnSpellClick(Unit* clicker, bool& result) override
             {

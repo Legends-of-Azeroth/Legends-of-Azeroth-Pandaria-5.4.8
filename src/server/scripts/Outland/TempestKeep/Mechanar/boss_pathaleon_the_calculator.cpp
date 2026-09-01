@@ -124,7 +124,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
                             {
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 {
-                                    if (Creature* Wraith = me->SummonCreature(NPC_NETHER_WRAITH, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
+                                    if (Creature* Wraith = me->SummonCreature(NPC_NETHER_WRAITH, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms))
                                         Wraith->AI()->AttackStart(target);
                                 }
                             }

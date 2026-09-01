@@ -179,7 +179,7 @@ class boss_jedoga_shadowseeker : public CreatureScript
                 instance->SetData(DATA_JEDOGA_SHADOWSEEKER_EVENT, IN_PROGRESS);
 
                 //for (int i = 0; i < VOLUNTEER_COUNT; i++)
-                //    if (Creature* pTemp = me->SummonCreature(NPC_TWILIGHT_VOLUNTEER, VolunteerLoc[i].x, VolunteerLoc[i].y, VolunteerLoc[i].z, VolunteerLoc[i].o, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                //    if (Creature* pTemp = me->SummonCreature(NPC_TWILIGHT_VOLUNTEER, VolunteerLoc[i].x, VolunteerLoc[i].y, VolunteerLoc[i].z, VolunteerLoc[i].o, TEMPSUMMON_CORPSE_DESPAWN, 0ms))
                 //        pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 

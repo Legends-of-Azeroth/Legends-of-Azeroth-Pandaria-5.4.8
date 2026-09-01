@@ -179,8 +179,8 @@ class boss_commander_springvale : public CreatureScript
                             break;
                         case EVENT_ADDS:
                             Talk(SAY_ADDS);
-                            me->SummonCreature(NPC_SPRINGVALE_OFFICER, addSpawnPos[0],TEMPSUMMON_CORPSE_DESPAWN, 10000);
-                            me->SummonCreature(NPC_SPRINGVALE_GUARD, addSpawnPos[1],TEMPSUMMON_CORPSE_DESPAWN, 10000);
+                            me->SummonCreature(NPC_SPRINGVALE_OFFICER, addSpawnPos[0],TEMPSUMMON_CORPSE_DESPAWN, 10000ms);
+                            me->SummonCreature(NPC_SPRINGVALE_GUARD, addSpawnPos[1],TEMPSUMMON_CORPSE_DESPAWN, 10000ms);
                             events.ScheduleEvent(EVENT_ADDS, 45000);
                             break;
                         case EVENT_WORD_OF_SHAME:

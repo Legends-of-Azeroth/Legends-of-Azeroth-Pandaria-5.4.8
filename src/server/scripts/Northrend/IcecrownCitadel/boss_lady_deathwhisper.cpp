@@ -882,7 +882,7 @@ class boss_lady_deathwhisper : public CreatureScript
 
             void Summon(uint32 entry, const Position& pos)
             {
-                if (TempSummon* summon = me->SummonCreature(entry, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10 * IN_MILLISECONDS))
+                if (TempSummon* summon = me->SummonCreature(entry, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(10 * IN_MILLISECONDS)))
                     summon->AI()->DoCast(summon, SPELL_TELEPORT_VISUAL);
             }
 
@@ -965,7 +965,7 @@ class npc_cult_fanatic : public CreatureScript
                 _martyrdomCaster = nullptr;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 DoZoneInCombat(me, 150.0f);
                 if (!me->IsInCombat())
@@ -1095,7 +1095,7 @@ class npc_cult_adherent : public CreatureScript
                 _martyrdomCaster = nullptr;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 DoZoneInCombat(me, 150.0f);
                 if (!me->IsInCombat())
@@ -1331,7 +1331,7 @@ class npc_darnavan : public CreatureScript
                 Talk(SAY_DARNAVAN_AGGRO);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 DoZoneInCombat(me, 150.0f);
                 if (!me->IsInCombat())

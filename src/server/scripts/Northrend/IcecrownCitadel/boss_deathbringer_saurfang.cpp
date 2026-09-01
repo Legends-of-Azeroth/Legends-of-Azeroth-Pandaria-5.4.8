@@ -332,7 +332,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 ScriptedAI::AttackStart(victim);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 float x, y, z, o;
                 me->GetRespawnPosition(x, y, z, &o);
@@ -1028,7 +1028,7 @@ private:
     }
     Creature* TeleportIn(uint32 entry, float x, float y, float z, float o, uint32 spell = 0, uint32 duration = 0) const
     {
-        Creature* creature = me->SummonCreature(entry, x, y, z, o, duration ? TEMPSUMMON_TIMED_DESPAWN : TEMPSUMMON_MANUAL_DESPAWN, duration);
+        Creature* creature = me->SummonCreature(entry, x, y, z, o, duration ? TEMPSUMMON_TIMED_DESPAWN : TEMPSUMMON_MANUAL_DESPAWN, Milliseconds(duration));
         if (creature && spell)
             creature->CastSpell(creature, spell, true);
         return creature;
@@ -1413,7 +1413,7 @@ private:
     }
     Creature* TeleportIn(uint32 entry, float x, float y, float z, float o, uint32 spell = 0, uint32 duration = 0) const
     {
-        Creature* creature = me->SummonCreature(entry, x, y, z, o, duration ? TEMPSUMMON_TIMED_DESPAWN : TEMPSUMMON_MANUAL_DESPAWN, duration);
+        Creature* creature = me->SummonCreature(entry, x, y, z, o, duration ? TEMPSUMMON_TIMED_DESPAWN : TEMPSUMMON_MANUAL_DESPAWN, Milliseconds(duration));
         if (creature && spell)
             creature->CastSpell(creature, spell, true);
         return creature;

@@ -242,7 +242,7 @@ class npc_faction_champion_toc5 : public CreatureScript
                 _events.ScheduleEvent(EVENT_SHIELD, 1);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (GetRangedTarget(0.0f , 200.0f, me))
                 {
@@ -538,7 +538,7 @@ class boss_grand_champion_toc5 : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (_phase != 0 && GetRangedTarget(0.0f , 200.0f, me))
                 {

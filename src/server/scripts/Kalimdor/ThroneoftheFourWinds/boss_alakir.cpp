@@ -408,7 +408,7 @@ class boss_alakir : public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 Reset();

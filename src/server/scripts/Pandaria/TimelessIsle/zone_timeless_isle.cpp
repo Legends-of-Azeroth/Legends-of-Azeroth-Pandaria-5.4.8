@@ -262,7 +262,7 @@ struct npc_timeless_turtles : public ScriptedAI
         events.Reset();
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (me->GetEntry() == RARE_CHELON)
         {
@@ -2540,7 +2540,7 @@ struct npc_cranegnasher : public ScriptedAI
             });
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         scheduler.CancelAll();
         ScriptedAI::EnterEvadeMode();
@@ -4030,7 +4030,7 @@ struct npc_evermaw : public ScriptedAI
         });
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         me->CombatStop();
         scheduler.CancelAll(); // not evade to home pos

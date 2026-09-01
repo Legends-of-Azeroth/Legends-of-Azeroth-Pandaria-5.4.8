@@ -249,7 +249,7 @@ class boss_tortos : public CreatureScript
                 m_growingFuryCooldown = 8000;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->AddUnitState(UNIT_STATE_EVADE);
 
@@ -667,7 +667,7 @@ struct npc_humming_crystal : public ScriptedAI
         DoCast(me, SPELL_CRYSTAL_SHELL_AURA, true);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
 
@@ -716,7 +716,7 @@ class spell_call_of_tortos : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     for (uint8 i = 0; i < 3; i++)
-                        caster->SummonCreature(NPC_WHIRL_TURTLE, aTurtlePos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000 + rand() % 5000);
+                        caster->SummonCreature(NPC_WHIRL_TURTLE, aTurtlePos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(10000 + rand() % 5000));
             }
 
             void Register() override

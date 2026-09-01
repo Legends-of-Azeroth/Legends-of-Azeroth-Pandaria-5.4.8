@@ -157,7 +157,7 @@ class boss_anomalus : public CreatureScript
                     Phase = 1;
                     Talk(SAY_SHIELD);
                     DoCast(me, SPELL_RIFT_SHIELD);
-                    if (Creature* Rift = me->SummonCreature(NPC_CHAOTIC_RIFT, RiftLocation[urand(0, 5)], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+                    if (Creature* Rift = me->SummonCreature(NPC_CHAOTIC_RIFT, RiftLocation[urand(0, 5)], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000ms))
                     {
                         sCreatureTextMgr->SendChat(me, SAY_RIFT_EMOTE, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL);
 
@@ -238,7 +238,7 @@ class npc_chaotic_rift : public CreatureScript
 
                 if (uiSummonCrazedManaWraithTimer <= diff)
                 {
-                    if (Creature* Wraith = me->SummonCreature(NPC_CRAZED_MANA_WRAITH, me->GetPositionX() + 1, me->GetPositionY() + 1, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000))
+                    if (Creature* Wraith = me->SummonCreature(NPC_CRAZED_MANA_WRAITH, me->GetPositionX() + 1, me->GetPositionY() + 1, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000ms))
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             Wraith->AI()->AttackStart(target);
                     Creature* Anomalus = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANOMALUS));

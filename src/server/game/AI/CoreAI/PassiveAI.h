@@ -40,7 +40,7 @@ class PossessedAI : public CreatureAI
         void MoveInLineOfSight(Unit*) { }
         void AttackStart(Unit* target);
         void UpdateAI(uint32);
-        void EnterEvadeMode() { }
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) { }
 
         void JustDied(Unit*);
         void KilledUnit(Unit* victim);
@@ -56,7 +56,7 @@ class NullCreatureAI : public CreatureAI
         void MoveInLineOfSight(Unit*) { }
         void AttackStart(Unit*) { }
         void UpdateAI(uint32) { }
-        void EnterEvadeMode() { }
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) { }
         void OnCharmed(bool /*apply*/) { }
 
         static int Permissible(const Creature*) { return PERMIT_BASE_IDLE;  }
@@ -68,7 +68,7 @@ class CritterAI : public PassiveAI
         explicit CritterAI(Creature* c) : PassiveAI(c) { }
 
         void DamageTaken(Unit* done_by, uint32& /*damage*/);
-        void EnterEvadeMode();
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
 };
 
 class TriggerAI : public NullCreatureAI

@@ -259,7 +259,7 @@ class boss_jinrokh : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();
@@ -637,7 +637,7 @@ struct npc_lightning_fissure : public ScriptedAI
         });
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
     void UpdateAI(uint32 diff) override
     {
@@ -1392,7 +1392,7 @@ class npc_lightning_storm_bunny : public CreatureScript
                 nonCombatEvents.ScheduleEvent(EVENT_LAUNCH, 4 * IN_MILLISECONDS);
             }
 
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
             void UpdateAI(uint32 diff) override
             {
@@ -1441,7 +1441,7 @@ struct npc_lightning_strike_charges : public ScriptedAI
             me->DespawnOrUnsummon();
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
     void UpdateAI(uint32 /*diff*/) override { }
 };
@@ -1625,7 +1625,7 @@ class spell_focused_lightning : public SpellScript
             {
                 GetPositionWithDistInOrientation(caster, 10.0f, caster->GetAngle(target), x, y);
 
-                if (Creature* focusedLightning = caster->SummonCreature(NPC_FOCUSED_LIGHTNING, x, y, caster->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000))
+                if (Creature* focusedLightning = caster->SummonCreature(NPC_FOCUSED_LIGHTNING, x, y, caster->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000ms))
                 {
                     focusedLightning->AI()->Talk(0, target);
                     focusedLightning->AI()->SetGUID(target->GetGUID());

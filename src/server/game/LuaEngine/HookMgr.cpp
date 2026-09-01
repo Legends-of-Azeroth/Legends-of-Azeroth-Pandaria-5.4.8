@@ -1482,9 +1482,9 @@ struct HookMgr::ElunaCreatureAI : ScriptedAI
     }
 
     // Called for reaction at stopping attack at no attackers or targets
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
-        ScriptedAI::EnterEvadeMode();
+        ScriptedAI::EnterEvadeMode(why);
         int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_LEAVE_COMBAT);
         if (!bind)
             return;

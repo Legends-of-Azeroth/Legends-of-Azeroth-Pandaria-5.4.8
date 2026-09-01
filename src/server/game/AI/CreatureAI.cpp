@@ -16,6 +16,7 @@
 */
 
 #include "CreatureAI.h"
+#include "AreaBoundary.h"
 #include "CreatureAIImpl.h"
 #include "Creature.h"
 #include "World.h"
@@ -30,14 +31,14 @@
 #include "CellImpl.h"
 #include "InstanceScript.h"
 
-CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), m_MoveInLineOfSight_locked(false), m_canSeeEvenInPassiveMode(false)
+CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), _negateBoundary(false), m_MoveInLineOfSight_locked(false), m_canSeeEvenInPassiveMode(false), _isEngaged(false)
 { 
 
 }
 
 CreatureAI::~CreatureAI() 
 { 
-
+    delete _boundary;
 }
 
 //Disable CreatureAI when charmed
@@ -216,9 +217,9 @@ void CreatureAI::MoveInLineOfSight(Unit* who)
     //    me->GetMotionMaster()->MoveChase(who->GetVictim());
 }
 
-void CreatureAI::EnterEvadeMode()
+void CreatureAI::EnterEvadeMode(EvadeReason why)
 {
-    if (!_EnterEvadeMode())
+    if (!_EnterEvadeMode(why))
         return;
 
     TC_LOG_DEBUG("entities.unit", "Creature %u enters evade mode.", me->GetEntry());
@@ -258,6 +259,94 @@ void CreatureAI::SetGazeOn(Unit* target)
         AttackStart(target);
         me->SetReactState(REACT_PASSIVE);
     }
+}
+
+void CreatureAI::JustEnteredCombat(Unit* victim)
+{
+    UnitAI::JustEnteredCombat(victim);
+    EngagementStart(victim);
+}
+
+void CreatureAI::EngagementStart(Unit* who)
+{
+    if (IsEngaged())
+    {
+        TC_LOG_ERROR("scripts.ai", "CreatureAI::EngagementStart called even though creature is already engaged.");
+        return;
+    }
+
+    _isEngaged = true;
+    JustEngagedWith(who);
+}
+
+void CreatureAI::EngagementOver()
+{
+    if (!IsEngaged())
+    {
+        TC_LOG_DEBUG("scripts.ai", "CreatureAI::EngagementOver called even though creature is not currently engaged.");
+        return;
+    }
+
+    _isEngaged = false;
+}
+
+bool CreatureAI::CheckInRoom()
+{
+    if (!_boundary || _boundary->empty())
+        return true;
+
+    if (IsInBoundary())
+        return true;
+
+    TC_LOG_DEBUG("scripts", "Creature %s (unit %s) has left its designated room area!", me->GetName(), me->GetGUID().ToString().c_str());
+    EnterEvadeMode();
+    return false;
+}
+
+bool CreatureAI::IsInBoundary(Position const* who) const
+{
+    if (!who)
+        who = me;
+
+    for (AreaBoundary const* areaBoundary : *_boundary)
+    {
+        if (!areaBoundary->IsWithinBoundary(who))
+            return _negateBoundary;
+    }
+
+    return !_negateBoundary;
+}
+
+void CreatureAI::SetBoundary(CreatureBoundary const* boundary, bool negateBoundaries)
+{
+    delete _boundary;
+
+    if (!boundary || boundary->empty())
+    {
+        _boundary = nullptr;
+        _negateBoundary = false;
+    }
+    else
+    {
+        _boundary = new CreatureBoundary(*boundary);
+        _negateBoundary = negateBoundaries;
+    }
+}
+
+bool CreatureAI::IsInBounds(CreatureBoundary const& boundary, Position const* who)
+{
+    for (AreaBoundary const* areaBoundary : boundary)
+    {
+        if (!areaBoundary->IsWithinBoundary(who))
+            return false;
+    }
+
+    return true;
+}
+
+int32 CreatureAI::VisualizeBoundary(Seconds duration, Unit* owner /*= nullptr*/, bool fill /*= false*/) const
+{
+    return 0;
 }
 
 bool CreatureAI::UpdateVictimWithGaze()
@@ -326,10 +415,12 @@ bool CreatureAI::UpdateVictim()
     return true;
 }
 
-bool CreatureAI::_EnterEvadeMode()
+bool CreatureAI::_EnterEvadeMode(EvadeReason why)
 {
     if (!me->IsAlive())
         return false;
+
+    EngagementOver();
 
     // don't remove vehicle auras, passengers aren't supposed to drop off the vehicle
     // don't remove clone caster on evade (to be verified)
@@ -356,18 +447,18 @@ bool CreatureAI::_EnterEvadeMode()
 //     return {};
 // }
 
-Creature* CreatureAI::DoSummon(uint32 entry, const Position& pos, uint32 despawnTime, TempSummonType summonType)
+Creature* CreatureAI::DoSummon(uint32 entry, const Position& pos, Milliseconds despawnTime, TempSummonType summonType)
 {
     return me->SummonCreature(entry, pos, summonType, despawnTime);
 }
 
-Creature* CreatureAI::DoSummon(uint32 entry, WorldObject* obj, float radius, uint32 despawnTime, TempSummonType summonType)
+Creature* CreatureAI::DoSummon(uint32 entry, WorldObject* obj, float radius, Milliseconds despawnTime, TempSummonType summonType)
 {
     Position pos = obj->GetRandomNearPosition(radius);
     return me->SummonCreature(entry, pos, summonType, despawnTime);
 }
 
-Creature* CreatureAI::DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius, uint32 despawnTime, TempSummonType summonType)
+Creature* CreatureAI::DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius, Milliseconds despawnTime, TempSummonType summonType)
 {
     Position pos = obj->GetRandomNearPosition(radius);
     pos.m_positionZ += flightZ;

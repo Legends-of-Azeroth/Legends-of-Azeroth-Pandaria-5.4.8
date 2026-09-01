@@ -292,7 +292,7 @@ class boss_frostlord_ahune : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 summons.DespawnAll();
                 ScriptedAI::EnterEvadeMode();
@@ -410,7 +410,7 @@ class boss_frostlord_ahune : public CreatureScript
                             events.ScheduleEvent(EVENT_ICE_CORE, 5 * IN_MILLISECONDS, 0, PHASE_CORE);
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                             me->RemoveAurasDueToSpell(SPELL_AHUNE_SHIELD);
-                            me->SummonCreature(NPC_FROZEN_CORE, *me, TEMPSUMMON_TIMED_DESPAWN, 40 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_FROZEN_CORE, *me, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(40 * IN_MILLISECONDS));
                             DoCast(SPELL_MAKE_BONFIRE);
                             DoCast(SPELL_SUBMERGE);
                             Talk(EMOTE_SUBMERGED);

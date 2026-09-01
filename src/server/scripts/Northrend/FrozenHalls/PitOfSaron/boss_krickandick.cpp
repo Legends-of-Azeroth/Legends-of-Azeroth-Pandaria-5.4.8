@@ -179,7 +179,7 @@ class boss_ick : public CreatureScript
                 instance->SetBossState(DATA_ICK, IN_PROGRESS);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->GetMotionMaster()->Clear();
                 ScriptedAI::EnterEvadeMode();

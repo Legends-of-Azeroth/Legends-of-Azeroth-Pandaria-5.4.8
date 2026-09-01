@@ -182,7 +182,7 @@ class boss_viscidus : public CreatureScript
                 events.ScheduleEvent(EVENT_POISON_SHOCK, urand(7000, 12000));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 summons.DespawnAll();
                 ScriptedAI::EnterEvadeMode();

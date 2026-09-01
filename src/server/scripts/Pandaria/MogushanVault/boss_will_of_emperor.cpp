@@ -360,7 +360,7 @@ class boss_jin_qin_xi : public CreatureScript
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 summons.DespawnAll();
 

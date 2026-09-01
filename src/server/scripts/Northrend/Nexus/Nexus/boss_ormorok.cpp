@@ -132,7 +132,7 @@ class boss_ormorok : public CreatureScript
                         fSpikeXY[3][0] = fBaseX - (SPIKE_DISTANCE * uiCrystalSpikesCount * cos (fBaseO - (M_PI / 2)));
                         fSpikeXY[3][1] = fBaseY - (SPIKE_DISTANCE * uiCrystalSpikesCount * sin (fBaseO - (M_PI / 2)));
                         for (uint8 i = 0; i < 4; ++i)
-                            me->SummonCreature(NPC_CRYSTAL_SPIKE, fSpikeXY[i][0], fSpikeXY[i][1], fBaseZ, 0, TEMPSUMMON_TIMED_DESPAWN, 7 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_CRYSTAL_SPIKE, fSpikeXY[i][0], fSpikeXY[i][1], fBaseZ, 0, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(7 * IN_MILLISECONDS));
                         if (++uiCrystalSpikesCount >= 13)
                             bCrystalSpikes = false;
                         uiCrystalSpikesTimer2 = 200;
@@ -173,7 +173,7 @@ class boss_ormorok : public CreatureScript
 
                 if (IsHeroic() && (uiSummonCrystallineTanglerTimer <= diff))
                 {
-                    Creature* Crystalline_Tangler = me->SummonCreature(NPC_CRYSTALLINE_TANGLER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+                    Creature* Crystalline_Tangler = me->SummonCreature(NPC_CRYSTALLINE_TANGLER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000ms);
                     if (Crystalline_Tangler)
                     {
                         Unit* target = NULL;

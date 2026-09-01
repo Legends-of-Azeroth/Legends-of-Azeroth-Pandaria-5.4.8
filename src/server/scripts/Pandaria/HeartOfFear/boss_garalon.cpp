@@ -250,7 +250,7 @@ class boss_garalon : public CreatureScript
                 me->GetMap()->SetWorldState(WORLD_STATE_LIKE_AN_ARROR_TO_THE_FACE, 1);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 DespawnCreatures(NPC_PHEROMONE_TRAIL);
 

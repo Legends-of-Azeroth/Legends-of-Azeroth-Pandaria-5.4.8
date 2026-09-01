@@ -13787,6 +13787,7 @@ void Unit::AddToWorld()
     {
         WorldObject::AddToWorld();
     }
+    GetMotionMaster()->AddToWorld();
     RebuildTerrainSwaps();
 }
 

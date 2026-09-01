@@ -328,7 +328,7 @@ public:
 
         void AttackStart(Unit* /*who*/) override { }
         void JustEngagedWith(Unit* /*who*/) override { }
-        void EnterEvadeMode() override { }
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
         {
@@ -376,10 +376,10 @@ class npc_hyldsmeet_protodrake : public CreatureScript
     public:
         npc_hyldsmeet_protodrake() : CreatureScript("npc_hyldsmeet_protodrake") { }
 
-        class npc_hyldsmeet_protodrakeAI : public CreatureAI
+        class npc_hyldsmeet_protodrakeAI : public ScriptedAI
         {
             public:
-                npc_hyldsmeet_protodrakeAI(Creature* creature) : CreatureAI(creature), _accessoryRespawnTimer(0), _vehicleKit(creature->GetVehicleKit()) { }
+                npc_hyldsmeet_protodrakeAI(Creature* creature) : ScriptedAI(creature), _accessoryRespawnTimer(0), _vehicleKit(creature->GetVehicleKit()) { }
 
                 void PassengerBoarded(Unit* who, int8 /*seat*/, bool apply) override
                 {
@@ -432,7 +432,7 @@ struct npc_dead_irongiant : public ScriptedAI
             if (!urand(0, 2))
             {
                 for (uint8 i = 0; i < 3; ++i)
-                    if (Creature* temp = me->SummonCreature(ENTRY_AMBUSHER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60 * IN_MILLISECONDS))
+                    if (Creature* temp = me->SummonCreature(ENTRY_AMBUSHER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, Milliseconds(60 * IN_MILLISECONDS)))
                         temp->AI()->AttackStart(caster);
             }
             else

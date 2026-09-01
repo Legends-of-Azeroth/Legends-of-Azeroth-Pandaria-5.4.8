@@ -771,7 +771,7 @@ class npc_massive_jormungar : public CreatureScript
                         DoCast(me, DUNGEON_MODE(SPELL_ACID_SPLATTER, SPELL_ACID_SPLATTER_H)); //for 2 seconds only?
                         uiAcidSplatterTimer = 25 * IN_MILLISECONDS + rand() % 5 * IN_MILLISECONDS;
                         for (uint8 i = 0; i < 6; ++i)
-                            DoSpawnCreature(NPC_JORMUNGAR_WORM, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+                            DoSpawnCreature(NPC_JORMUNGAR_WORM, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000ms);
                     }
                 } else uiAcidSplatterTimer -= diff;
 

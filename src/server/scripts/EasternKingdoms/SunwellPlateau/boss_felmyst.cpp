@@ -230,7 +230,7 @@ class boss_felmyst : public CreatureScript
                     instance->SetData(DATA_FELMYST_EVENT, IN_PROGRESS);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->SetVisible(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);

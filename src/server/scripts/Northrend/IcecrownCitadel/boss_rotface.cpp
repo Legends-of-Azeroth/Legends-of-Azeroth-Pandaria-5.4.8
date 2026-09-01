@@ -171,7 +171,7 @@ class boss_rotface : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
                 if (Creature* professor = Unit::GetCreature(*me, instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
@@ -230,7 +230,7 @@ class boss_rotface : public CreatureScript
                         case EVENT_SLIME_SPRAY:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                             {
-                                if (Creature* orientationTarget = DoSummon(NPC_OOZE_SPRAY_STALKER, *target, 8000, TEMPSUMMON_TIMED_DESPAWN))
+                                if (Creature* orientationTarget = DoSummon(NPC_OOZE_SPRAY_STALKER, *target, 8000ms, TEMPSUMMON_TIMED_DESPAWN))
                                 {
                                     Talk(EMOTE_SLIME_SPRAY);
                                     DoCast(me, SPELL_SLIME_SPRAY);
@@ -887,7 +887,7 @@ class spell_rotface_unstable_ooze_explosion_init : public SpellScriptLoader
 
                 float x, y, z;
                 GetHitUnit()->GetPosition(x, y, z);
-                Creature* dummy = GetCaster()->SummonCreature(NPC_UNSTABLE_EXPLOSION_STALKER, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 60000);
+                Creature* dummy = GetCaster()->SummonCreature(NPC_UNSTABLE_EXPLOSION_STALKER, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 60000ms);
                 GetCaster()->CastSpell(dummy, SPELL_UNSTABLE_OOZE_EXPLOSION_TRIGGER, true);
             }
 

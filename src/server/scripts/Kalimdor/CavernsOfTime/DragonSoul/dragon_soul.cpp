@@ -1644,8 +1644,8 @@ class npc_dragon_soul_thrall : public CreatureScript
                             break;
                         case EVENT_SPAWN_NPC:
                             instance->DoRemoveAurasDueToSpellOnPlayers(106368); // Twilight Shift
-                            me->SummonCreature(NPC_SKY_CAPTAIN_SWAYZE, customPos[1], TEMPSUMMON_MANUAL_DESPAWN, 0);
-                            me->SummonCreature(NPC_KAANU_REEVS, customPos[2], TEMPSUMMON_MANUAL_DESPAWN, 0);
+                            me->SummonCreature(NPC_SKY_CAPTAIN_SWAYZE, customPos[1], TEMPSUMMON_MANUAL_DESPAWN, 0ms);
+                            me->SummonCreature(NPC_KAANU_REEVS, customPos[2], TEMPSUMMON_MANUAL_DESPAWN, 0ms);
                             if (Creature* pSwayze = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SWAYZE)))
                                 pSwayze->AI()->Talk(9);
                             events.ScheduleEvent(EVENT_TALK_ULTRAXION_WIN_1, 10000);

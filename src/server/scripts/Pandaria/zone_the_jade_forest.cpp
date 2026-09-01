@@ -2798,7 +2798,7 @@ struct npc_windward_hatchling : public ScriptedAI
         auto player = caster->ToPlayer();
         if (spell->Id == SPELL_SILKEN_ROPE && player && player->GetQuestStatus(QUEST_EMPTY_NESTS) == QUEST_STATUS_INCOMPLETE)
         {
-            if (auto summon = player->SummonCreature(NPC_WINDWARD_HATCHLING, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 300000))
+            if (auto summon = player->SummonCreature(NPC_WINDWARD_HATCHLING, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 300000ms))
             {
                 summon->SetOwnerGUID(player->GetGUID());
                 summon->SetDisplayId(me->GetDisplayId());
@@ -2987,7 +2987,7 @@ class AreaTrigger_q29586 : public AreaTriggerScript
                 return false;
 
             ObjectGuid playerGuid = player->GetGUID();
-            if (Creature* gormaliStalker1 = player->SummonCreature(NPC_GORMALI_STALKER, pos[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
+            if (Creature* gormaliStalker1 = player->SummonCreature(NPC_GORMALI_STALKER, pos[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000ms))
             {
                 gormaliStalker1->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 gormaliStalker1->SetHomePosition(pos[1]);
@@ -3016,7 +3016,7 @@ class AreaTrigger_q29586 : public AreaTriggerScript
                 });
             }
 
-            if (Creature* gormaliStalker2 = player->SummonCreature(NPC_GORMALI_STALKER, pos[2], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
+            if (Creature* gormaliStalker2 = player->SummonCreature(NPC_GORMALI_STALKER, pos[2], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000ms))
             {
                 gormaliStalker2->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 gormaliStalker2->SetHomePosition(pos[3]);
@@ -3144,7 +3144,7 @@ class spell_q29637 : public SpellScriptLoader
                         for (uint8 i = 0; i < (j == 0 ? combatantCount : bruteCount); i++)
                         {
                             Position pos = player->GetRandomNearPosition(15.0f);
-                            if (Creature* spawn = myang->SummonCreature(j == 0 ? NPC_RUMPUS_COMBATANT : NPC_RUMPUS_BRUTE, pos, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000))
+                            if (Creature* spawn = myang->SummonCreature(j == 0 ? NPC_RUMPUS_COMBATANT : NPC_RUMPUS_BRUTE, pos, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms))
                             {
                                 spawn->SetFaction(14); // hack, with default faction npcs cant be attackable
                                 spawn->AI()->AttackStart(player);
@@ -3416,7 +3416,7 @@ class npc_instructor_bladewind : public CreatureScript
 
             creature->AI()->Talk(TALK_INTRO);
 
-            if (TempSummon* serpent = player->SummonCreature(NPC_GOLDEN_CLOUD_SERPENT, MySerpentRidingPath[0], TEMPSUMMON_TIMED_DESPAWN, 60 * IN_MILLISECONDS))
+            if (TempSummon* serpent = player->SummonCreature(NPC_GOLDEN_CLOUD_SERPENT, MySerpentRidingPath[0], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(60 * IN_MILLISECONDS)))
             {
                 serpent->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
@@ -3466,7 +3466,7 @@ class npc_instructor_windblade_cutscene : public CreatureScript
                     if (Unit* pSummoner = ObjectAccessor::GetUnit(*me, SummonerGUID))
                         Talk(TALK_INTRO, pSummoner);
 
-                    if (TempSummon* serpent = me->SummonCreature(NPC_GOLDEN_CLOUD_SERPENT, MySerpentPath[0], TEMPSUMMON_TIMED_DESPAWN, 21 * IN_MILLISECONDS))
+                    if (TempSummon* serpent = me->SummonCreature(NPC_GOLDEN_CLOUD_SERPENT, MySerpentPath[0], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(21 * IN_MILLISECONDS)))
                     {
                         serpent->SetPhaseMask(2, true);
 
@@ -3734,7 +3734,7 @@ class npc_lorewalker_cho_stones_could_speak : public CreatureScript
         bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_PEERING_INTO_THE_PAST)
-                player->SummonCreature(NPC_CHO_PEERING_INTO_PAST, *creature, TEMPSUMMON_TIMED_DESPAWN, 120 * IN_MILLISECONDS);
+                player->SummonCreature(NPC_CHO_PEERING_INTO_PAST, *creature, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(120 * IN_MILLISECONDS));
     
             return false;
         }

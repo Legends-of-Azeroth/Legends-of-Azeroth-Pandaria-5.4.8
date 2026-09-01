@@ -420,7 +420,7 @@ struct npc_feralas_horde_poacher : public ScriptedAI
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (_playerGUID)
             me->DespawnOrUnsummon(10);
@@ -541,9 +541,9 @@ enum ForceOfNatureTypes
 };
 
 // Mountain Giant 40026
-struct npc_feralas_mountain_giant : public CreatureAI
+struct npc_feralas_mountain_giant : public ScriptedAI
 {
-    npc_feralas_mountain_giant(Creature* creature) : CreatureAI(creature) { }
+    npc_feralas_mountain_giant(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
     bool hasCredit;

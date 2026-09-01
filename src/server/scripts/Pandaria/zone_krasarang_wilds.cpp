@@ -544,7 +544,7 @@ class npc_despondent_warden_of_zhu : public CreatureScript
                 {
                     Position pos = me->GetPosition();
 
-                    if (auto summon = me->SummonCreature(NPC_ENTRY_MANIFESTATION_OF_DESPAIR, pos, TEMPSUMMON_TIMED_DESPAWN, 120 * IN_MILLISECONDS))
+                    if (auto summon = me->SummonCreature(NPC_ENTRY_MANIFESTATION_OF_DESPAIR, pos, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(120 * IN_MILLISECONDS)))
                         summon->AI()->AttackStart(caster);
 
                     auraRecastTimer = 10000;
@@ -1617,7 +1617,7 @@ struct npc_alliance_landing_boat : public ScriptedAI
 
         int32 bp = 1;
 
-        if (Creature* varian = me->SummonCreature(NPC_KING_VARIAN_WRYNN, *me, TEMPSUMMON_TIMED_DESPAWN, 67 * IN_MILLISECONDS))
+        if (Creature* varian = me->SummonCreature(NPC_KING_VARIAN_WRYNN, *me, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(67 * IN_MILLISECONDS)))
         {
             varian->SetPhaseMask(2, true);
             varianGUID = varian->GetGUID();
@@ -1626,7 +1626,7 @@ struct npc_alliance_landing_boat : public ScriptedAI
 
         for (int32 i = 2; i < 4; i++)
         {
-            if (Creature* champion = me->SummonCreature(NPC_7TH_LEGION_CHAMPION, *me, TEMPSUMMON_TIMED_DESPAWN, 67 * IN_MILLISECONDS))
+            if (Creature* champion = me->SummonCreature(NPC_7TH_LEGION_CHAMPION, *me, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(67 * IN_MILLISECONDS)))
             {
                 champion->SetPhaseMask(2, true);
                 champGUIDs.push_back(champion->GetGUID());
@@ -1778,7 +1778,7 @@ struct npc_horde_landing_boat : public ScriptedAI
         {
             int32 bp = 1;
 
-            if (Creature* garrosh = me->SummonCreature(NPC_GARROSH_HELLSCREAM, *me, TEMPSUMMON_TIMED_DESPAWN, 37 * IN_MILLISECONDS))
+            if (Creature* garrosh = me->SummonCreature(NPC_GARROSH_HELLSCREAM, *me, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(37 * IN_MILLISECONDS)))
             {
                 landingGUIDs.push_back(garrosh->GetGUID());
                 garrosh->SetPhaseMask(2, true);
@@ -1786,7 +1786,7 @@ struct npc_horde_landing_boat : public ScriptedAI
                 bp++;
             }
 
-            if (Creature* bodyGuard = me->SummonCreature(NPC_HORDE_BODYGUARD, *me, TEMPSUMMON_TIMED_DESPAWN, 67 * IN_MILLISECONDS))
+            if (Creature* bodyGuard = me->SummonCreature(NPC_HORDE_BODYGUARD, *me, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(67 * IN_MILLISECONDS)))
             {
                 landingGUIDs.push_back(bodyGuard->GetGUID());
                 bodyGuard->SetPhaseMask(2, true);
@@ -1797,7 +1797,7 @@ struct npc_horde_landing_boat : public ScriptedAI
         {
             for (int32 i = 2; i < 4; i++)
             {
-                if (Creature* bodyGuard = me->SummonCreature(NPC_HORDE_BODYGUARD, *me, TEMPSUMMON_TIMED_DESPAWN, 67 * IN_MILLISECONDS))
+                if (Creature* bodyGuard = me->SummonCreature(NPC_HORDE_BODYGUARD, *me, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(67 * IN_MILLISECONDS)))
                 {
                     bodyGuard->SetPhaseMask(2, true);
                     landingGUIDs.push_back(bodyGuard->GetGUID());
@@ -2255,9 +2255,9 @@ class npc_krasarang_wilds_lyalia : public CreatureScript
                 creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
                 // Friendly
-                player->SummonCreature(NPC_SUNWALKER_DEZCO_QUEST, reclaimerFriends[0], TEMPSUMMON_TIMED_DESPAWN, 180 * IN_MILLISECONDS, 0, ObjectGuid(uint64(1)));
-                player->SummonCreature(NPC_LOREKEEPER_VAELDRIN, reclaimerFriends[1], TEMPSUMMON_TIMED_DESPAWN, 180 * IN_MILLISECONDS, 0, ObjectGuid(uint64(1)));
-                player->SummonCreature(NPC_GROUNDBREAKER_BROJAI, reclaimerFriends[2], TEMPSUMMON_TIMED_DESPAWN, 180 * IN_MILLISECONDS);
+                player->SummonCreature(NPC_SUNWALKER_DEZCO_QUEST, reclaimerFriends[0], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(180 * IN_MILLISECONDS), 0, ObjectGuid(uint64(1)));
+                player->SummonCreature(NPC_LOREKEEPER_VAELDRIN, reclaimerFriends[1], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(180 * IN_MILLISECONDS), 0, ObjectGuid(uint64(1)));
+                player->SummonCreature(NPC_GROUNDBREAKER_BROJAI, reclaimerFriends[2], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(180 * IN_MILLISECONDS));
             }
 
             player->CLOSE_GOSSIP_MENU();
@@ -2870,7 +2870,7 @@ struct npc_the_bell_peaks_start : public ScriptedAI
         if (!kite)
             return false;
 
-        Creature* starter = kite->SummonCreature(player->GetTeamId() == TEAM_HORDE ? NPC_ENTRY_TAK_TAK : NPC_ENTRY_FENNIE_HORNSWAGGLE, kite->GetPosition(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 420 * IN_MILLISECONDS);
+        Creature* starter = kite->SummonCreature(player->GetTeamId() == TEAM_HORDE ? NPC_ENTRY_TAK_TAK : NPC_ENTRY_FENNIE_HORNSWAGGLE, kite->GetPosition(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, Milliseconds(420 * IN_MILLISECONDS));
         ObjectGuid guid = player->GetGUID();
 
         if (starter)

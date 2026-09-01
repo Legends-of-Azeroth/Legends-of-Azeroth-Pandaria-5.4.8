@@ -138,7 +138,7 @@ class npc_shadopan_warden: public CreatureScript
                         float x, y, z;
                         z = me->GetPositionZ();
                         me->GetNearPoint2D(x, y, 3.0f, spawnAngles[i]);
-                        me->SummonCreature(NPC_SHADO_PAN_AMBUSHER, x, y, z, me->GetAngle(x, y), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 604800);
+                        me->SummonCreature(NPC_SHADO_PAN_AMBUSHER, x, y, z, me->GetAngle(x, y), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 604800ms);
                     }
                 }
 

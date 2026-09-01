@@ -549,7 +549,7 @@ struct npc_undertaker_mordo : public ScriptedAI
         {
             case TirisfalGlades::UNDERTAKER_MORDO_PHASE_00:
                 if (Creature* npc_trigger = me->FindNearestCreature(TirisfalGlades::NPC_DEATHKNELL_GRAVE_TARGET, 20.0f))
-                    if (m_npc = me->SummonCreature(TirisfalGlades::NPC_RISEN_RECRUIT, npc_trigger->GetPositionX(), npc_trigger->GetPositionY(), npc_trigger->GetPositionZ(), 1.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 46 * TimeConstants::IN_MILLISECONDS))
+                    if (m_npc = me->SummonCreature(TirisfalGlades::NPC_RISEN_RECRUIT, npc_trigger->GetPositionX(), npc_trigger->GetPositionY(), npc_trigger->GetPositionZ(), 1.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, Milliseconds(46 * TimeConstants::IN_MILLISECONDS)))
                         m_npc->GetMotionMaster()->MovePath(TirisfalGlades::RISEN_RECRUIT_PATH_01, false);
 
                 m_timer = 5 * TimeConstants::IN_MILLISECONDS;

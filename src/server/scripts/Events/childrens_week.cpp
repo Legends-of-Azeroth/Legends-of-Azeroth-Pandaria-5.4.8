@@ -1170,7 +1170,7 @@ struct npc_summoned_orphan : public PassiveAI
                 me->DespawnOrUnsummon();
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         scheduler.CancelAll();
         PassiveAI::EnterEvadeMode();

@@ -136,7 +136,7 @@ class boss_liu_flameheart : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 summons.DespawnAll();
                 me->RemoveAllAuras();
@@ -751,7 +751,7 @@ class npc_lie_flameheart_trash_base_ai : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (!talked)
                 {

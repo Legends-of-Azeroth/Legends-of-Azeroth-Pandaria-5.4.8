@@ -316,7 +316,7 @@ class boss_halion : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 // Phase 1: We always can evade. Phase 2 & 3: We can evade if and only if the controller tells us to.
                 if (events.IsInPhase(PHASE_ONE) || _canEvade)
@@ -490,7 +490,7 @@ class boss_twilight_halion : public CreatureScript
             }
 
             // Never evade
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
             void KilledUnit(Unit* victim) override
             {
@@ -1018,14 +1018,14 @@ class npc_meteor_strike_initial : public CreatureScript
                         angle[i] = Position::NormalizeOrientation(angle[i]);
                         me->SetOrientation(angle[i]);
                         newPos = me->GetNearPosition(10.0f, 0.0f); // Exact distance
-                        if (Creature* meteor = me->SummonCreature(NPC_METEOR_STRIKE_NORTH + i, newPos, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                        if (Creature* meteor = me->SummonCreature(NPC_METEOR_STRIKE_NORTH + i, newPos, TEMPSUMMON_TIMED_DESPAWN, 30000ms))
                             _meteorList.push_back(meteor);
                     }
                 }
             }
 
             void UpdateAI(uint32 /*diff*/) override { }
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
         private:
             InstanceScript* _instance;
             std::list<Creature*> _meteorList;
@@ -1081,7 +1081,7 @@ class npc_meteor_strike : public CreatureScript
                 {
                     Position pos = me->GetNearPosition(_range, 0.0f);
 
-                    if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000))
+                    if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000ms))
                     {
                         if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HALION_CONTROLLER)))
                             controller->AI()->JustSummoned(flame);
@@ -1498,7 +1498,7 @@ class spell_halion_damage_aoe_summon : public SpellScriptLoader
                 uint32 duration = uint32(GetSpellInfo()->GetDuration());
 
                 Position pos = caster->GetPosition();
-                if (Creature* summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id))
+                if (Creature* summon = caster->GetMap()->SummonCreature(entry, pos, properties, Milliseconds(duration), caster, GetSpellInfo()->Id))
                     if (summon->IsAIEnabled)
                         summon->AI()->SetData(DATA_STACKS_DISPELLED, GetSpellValue()->EffectBasePoints[EFFECT_1]);
             }

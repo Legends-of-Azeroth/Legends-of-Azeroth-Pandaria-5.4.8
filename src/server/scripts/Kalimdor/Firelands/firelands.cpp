@@ -1148,7 +1148,7 @@ class npc_blazing_monstrosity : public CreatureScript
         {
             npc_blazing_monstrosityAI(Creature* creature) : PassiveAI(creature), _summons(creature) { }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _summons.DespawnAll();
                 _events.Reset();
@@ -1282,9 +1282,9 @@ class npc_egg_pile : public CreatureScript
     public:
         npc_egg_pile() : CreatureScript("npc_egg_pile") { }
 
-        struct npc_egg_pileAI : public CreatureAI
+        struct npc_egg_pileAI : public ScriptedAI
         {
-            npc_egg_pileAI(Creature* creature) : CreatureAI(creature) { }
+            npc_egg_pileAI(Creature* creature) : ScriptedAI(creature) { }
 
             void AttackStart(Unit* /*target*/) override { }
 
@@ -1450,9 +1450,9 @@ class npc_firelands_volcanus : public CreatureScript
     public:
         npc_firelands_volcanus() : CreatureScript("npc_firelands_volcanus") { }
 
-        struct npc_firelands_volcanusAI : public CreatureAI
+        struct npc_firelands_volcanusAI : public ScriptedAI
         {
-            npc_firelands_volcanusAI(Creature* creature) : CreatureAI(creature)
+            npc_firelands_volcanusAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -1482,7 +1482,7 @@ class npc_firelands_volcanus : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* pStalker = me->SummonCreature(NPC_STALKER, me->GetHomePosition(), TEMPSUMMON_TIMED_DESPAWN, 10000))
+                if (Creature* pStalker = me->SummonCreature(NPC_STALKER, me->GetHomePosition(), TEMPSUMMON_TIMED_DESPAWN, 10000ms))
                 {
                     pStalker->RemoveAllAuras();
                     pStalker->CastSpell(pStalker, SPELL_BRANCH_OF_NORDRASSIL_WIN_COSMETIC);
@@ -1728,9 +1728,9 @@ class npc_firelands_instance_portal : public CreatureScript
     public:
         npc_firelands_instance_portal() : CreatureScript("npc_firelands_instance_portal") { }
 
-        struct npc_firelands_instance_portalAI : public CreatureAI
+        struct npc_firelands_instance_portalAI : public ScriptedAI
         {
-            npc_firelands_instance_portalAI(Creature* creature) : CreatureAI(creature) { }
+            npc_firelands_instance_portalAI(Creature* creature) : ScriptedAI(creature) { }
 
             void OnSpellClick(Unit* clicker, bool& result) override
             {
@@ -1754,9 +1754,9 @@ class npc_firelands_instance_portal : public CreatureScript
 };
 
 // Majordomo Stagheim Event 54015
-struct npc_firelands_majordomo_stagheim_event : public CreatureAI
+struct npc_firelands_majordomo_stagheim_event : public ScriptedAI
 {
-    npc_firelands_majordomo_stagheim_event(Creature* creature) : CreatureAI(creature) { }
+    npc_firelands_majordomo_stagheim_event(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
     bool hasInitialize;

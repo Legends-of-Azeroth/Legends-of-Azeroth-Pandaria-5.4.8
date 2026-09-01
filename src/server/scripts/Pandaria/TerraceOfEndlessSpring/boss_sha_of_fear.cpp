@@ -550,7 +550,7 @@ class boss_sha_of_fear : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 summons.DespawnAll();
 
@@ -1647,7 +1647,7 @@ class npc_sha_of_fear_bowman : public CreatureScript
                 events.ScheduleEvent(EVENT_DREAD_SPRAY, 8000);
             }
 
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
             void JustDied(Unit* /*killer*/) override
             {
@@ -2131,7 +2131,7 @@ class spell_sha_waterspout : public SpellScriptLoader
                 // If remove from player, then summon waterspout stalker and set aura
                 if (Unit* owner = GetOwner()->ToPlayer())
                 {
-                    if (TempSummon* m_waterspout = owner->SummonCreature(NPC_WATERSPOUT, *owner, TEMPSUMMON_TIMED_DESPAWN, 6 * IN_MILLISECONDS))
+                    if (TempSummon* m_waterspout = owner->SummonCreature(NPC_WATERSPOUT, *owner, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(6 * IN_MILLISECONDS)))
                     {
                         m_waterspout->AddAura(SPELL_WATERSPOUT, m_waterspout);
                         m_waterspout->CastSpell(m_waterspout, SPELL_WATERSPOUT_DUMMY, true);

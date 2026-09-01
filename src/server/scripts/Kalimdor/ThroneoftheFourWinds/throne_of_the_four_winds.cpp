@@ -200,9 +200,9 @@ class npc_fall_catcher : public CreatureScript
     public:
         npc_fall_catcher() : CreatureScript("npc_fall_catcher") { }
 
-        struct npc_fall_catcherAI : public CreatureAI
+        struct npc_fall_catcherAI : public ScriptedAI
         {
-            npc_fall_catcherAI(Creature* creature) : CreatureAI(creature) { }
+            npc_fall_catcherAI(Creature* creature) : ScriptedAI(creature) { }
 
             void IsSummonedBy(Unit* summoner) override
             {

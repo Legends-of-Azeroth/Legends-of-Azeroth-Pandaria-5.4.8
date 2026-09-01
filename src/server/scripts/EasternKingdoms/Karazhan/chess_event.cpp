@@ -470,7 +470,7 @@ class npc_chess_piece : public CreatureScript
             // no default attacking or evading
             void MoveInLineOfSight(Unit* /*who*/) override { }
             void AttackStart(Unit* /*who*/) override { }
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
             void DamageTaken(Unit* attacker, uint32& damage) override
             {

@@ -532,7 +532,7 @@ class spell_night_terrors_missile : public SpellScriptLoader
 
                 if (Unit* caster = GetCaster())
                     caster->SummonCreature(NPC_NIGHT_TERRORS, GetExplTargetDest()->GetPositionX(), GetExplTargetDest()->GetPositionY(),
-                    GetExplTargetDest()->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 15000);
+                    GetExplTargetDest()->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 15000ms);
             }
 
             void Register() override

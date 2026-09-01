@@ -3871,7 +3871,7 @@ class spell_gen_noodle_cart : public SpellScript
                     case 145169: vendorId = NPC_NOODLE_CART_VENDOR_TIER_2; cartVisual = SPELL_COOKING_NOODLE_CART_VISUAL_TIER_2; break;
                     case 145196: vendorId = NPC_NOODLE_CART_VENDOR_TIER_3; cartVisual = SPELL_COOKING_NOODLE_CART_VISUAL_TIER_3; break;
                 }
-                Creature* vendor = player->SummonCreature(vendorId, player->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 180000);
+                Creature* vendor = player->SummonCreature(vendorId, player->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 180000ms);
                 if (!vendor)
                     return;
 

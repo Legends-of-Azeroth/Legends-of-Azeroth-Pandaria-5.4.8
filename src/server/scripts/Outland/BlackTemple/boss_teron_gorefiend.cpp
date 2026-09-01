@@ -338,7 +338,7 @@ class boss_teron_gorefiend : public CreatureScript
                 {
                     /*float x,y,z;
                     Ghost->GetPosition(x,y,z);
-                    Creature* control = me->SummonCreature(CREATURE_GHOST, x, y, z, 0, TEMPSUMMON_TIMED_DESAWN, 30000);
+                    Creature* control = me->SummonCreature(CREATURE_GHOST, x, y, z, 0, TEMPSUMMON_TIMED_DESAWN, 30000ms);
                     if (control)
                     {
                         CAST_PLR(Ghost)->Possess(control);
@@ -350,7 +350,7 @@ class boss_teron_gorefiend : public CreatureScript
                         Creature* Construct = nullptr;
                         float X = CalculateRandomLocation(Ghost->GetPositionX(), 10);
                         float Y = CalculateRandomLocation(Ghost->GetPositionY(), 10);
-                        Construct = me->SummonCreature(CREATURE_SHADOWY_CONSTRUCT, X, Y, Ghost->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
+                        Construct = me->SummonCreature(CREATURE_SHADOWY_CONSTRUCT, X, Y, Ghost->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000ms);
                         if (Construct)
                         {
                             Construct->CastSpell(Construct, SPELL_PASSIVE_SHADOWFORM, true);
@@ -405,7 +405,7 @@ class boss_teron_gorefiend : public CreatureScript
                     {
                         Creature* shadow = nullptr;
                         float X = CalculateRandomLocation(me->GetPositionX(), 10);
-                        shadow = me->SummonCreature(CREATURE_SHADOWY_CONSTRUCT, X, me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 0);
+                        shadow = me->SummonCreature(CREATURE_SHADOWY_CONSTRUCT, X, me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 0ms);
                         if (shadow)
                         {
                             Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
@@ -427,7 +427,7 @@ class boss_teron_gorefiend : public CreatureScript
                         float Y = CalculateRandomLocation(target->GetPositionY(), 20);
                         float Z = target->GetPositionZ();
                         Z = me->GetMap()->GetHeight(X, Y, Z);
-                        Creature* doomBlossom = me->SummonCreature(CREATURE_DOOM_BLOSSOM, X, Y, Z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
+                        Creature* doomBlossom = me->SummonCreature(CREATURE_DOOM_BLOSSOM, X, Y, Z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000ms);
                         if (doomBlossom)
                         {
                             doomBlossom->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

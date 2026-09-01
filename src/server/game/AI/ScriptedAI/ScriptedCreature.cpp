@@ -186,7 +186,7 @@ void ScriptedAI::DoPlaySoundToSet(WorldObject* source, uint32 soundId)
     source->PlayDirectSound(soundId);
 }
 
-Creature* ScriptedAI::DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, uint32 despawntime)
+Creature* ScriptedAI::DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, Milliseconds despawntime)
 {
     return me->SummonCreature(entry, me->GetPositionX() + offsetX, me->GetPositionY() + offsetY, me->GetPositionZ() + offsetZ, angle, TempSummonType(type), despawntime);
 }
@@ -302,6 +302,82 @@ void ScriptedAI::DoModifyThreatPercent(Unit* unit, int32 pct)
     if (!unit)
         return;
     me->GetThreatManager().modifyThreatPercent(unit, pct);
+}
+
+void ScriptedAI::AddThreat(Unit* victim, float amount, Unit* who)
+{
+    if (!victim)
+        return;
+    if (!who)
+        who = me;
+    if (!who->CanHaveThreatList())
+        return;
+    who->AddThreat(victim, amount);
+}
+
+void ScriptedAI::ModifyThreatByPercent(Unit* victim, int32 pct, Unit* who)
+{
+    if (!victim)
+        return;
+    if (!who)
+        who = me;
+    who->GetThreatManager().modifyThreatPercent(victim, pct);
+}
+
+void ScriptedAI::ResetThreat(Unit* victim, Unit* who)
+{
+    if (!victim)
+        return;
+    if (!who)
+        who = me;
+    who->GetThreatManager().modifyThreatPercent(victim, -100);
+}
+
+void ScriptedAI::ResetThreatList(Unit* who)
+{
+    if (!who)
+        who = me;
+    who->GetThreatManager().resetAllAggro();
+}
+
+float ScriptedAI::GetThreat(Unit* victim, Unit* who)
+{
+    if (!victim)
+        return 0.0f;
+    if (!who)
+        who = me;
+    return who->GetThreatManager().getThreat(victim);
+}
+
+void ScriptedAI::ForceCombatStop(Creature* who, bool reset)
+{
+    if (!who || !who->IsInCombat())
+        return;
+
+    who->CombatStop(true);
+    who->GetMotionMaster()->Clear(false);
+
+    if (reset)
+    {
+        who->LoadCreaturesAddon();
+        who->SetLootRecipient(nullptr);
+        who->ResetPlayerDamageReq();
+    }
+}
+
+void ScriptedAI::ForceCombatStopForCreatureEntry(uint32 entry, float maxSearchRange, bool samePhase, bool reset)
+{
+    std::list<Creature*> creatures;
+    GetCreatureListWithEntryInGrid(creatures, me, entry, maxSearchRange);
+
+    for (Creature* creature : creatures)
+        ForceCombatStop(creature, reset);
+}
+
+void ScriptedAI::ForceCombatStopForCreatureEntry(std::vector<uint32> creatureEntries, float maxSearchRange, bool samePhase, bool reset)
+{
+    for (uint32 const entry : creatureEntries)
+        ForceCombatStopForCreatureEntry(entry, maxSearchRange, samePhase, reset);
 }
 
 void ScriptedAI::DoTeleportTo(float x, float y, float z, uint32 time)

@@ -1678,7 +1678,7 @@ class npc_madness_of_deathwing_limb_tentacle : public CreatureScript
                         case EVENT_HEMORRHAGE:
                             Talk(ANN_HEMMORHAGE);
                             if (m_current_platform > 0)
-                                me->SummonCreature(NPC_HEMORRHAGE_TARGET, hemorrhagePos[m_current_platform - 1], TEMPSUMMON_TIMED_DESPAWN, 10000);
+                                me->SummonCreature(NPC_HEMORRHAGE_TARGET, hemorrhagePos[m_current_platform - 1], TEMPSUMMON_TIMED_DESPAWN, 10000ms);
                             break;
                         case EVENT_UPDATE_HEALTH:
                         {
@@ -1963,9 +1963,9 @@ class npc_madness_of_deathwing_elementium_bolt : public CreatureScript
                 if (spell->Id == SPELL_ELEMENTIUM_METEOR_SCRIPT)
                 {
                     // not offlike !!!
-                    //if (Creature* pTrigger = me->SummonCreature(NPC_CLAWK_MARK, boltPos[platform], TEMPSUMMON_TIMED_DESPAWN, 25000))
+                    //if (Creature* pTrigger = me->SummonCreature(NPC_CLAWK_MARK, boltPos[platform], TEMPSUMMON_TIMED_DESPAWN, 25000ms))
                     //    pTrigger->AddAura(SPELL_ELEMENTIUM_METEOR_TARGET, pTrigger);
-                    if (Creature* pTrigger = me->SummonCreature(NPC_PLATFORM, boltPos[platform], TEMPSUMMON_TIMED_DESPAWN, 25000))
+                    if (Creature* pTrigger = me->SummonCreature(NPC_PLATFORM, boltPos[platform], TEMPSUMMON_TIMED_DESPAWN, 25000ms))
                         pTrigger->AddAura(SPELL_ELEMENTIUM_METEOR_TARGET, pTrigger);
 
                     me->GetMotionMaster()->MovePoint(DATA_METEOR_POINT, boltPos[platform]);
@@ -2499,7 +2499,7 @@ class npc_dragon_soul_alexstrasza_dragon : public CreatureScript
                 isActive = true;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 return;
             }
@@ -2581,7 +2581,7 @@ class npc_dragon_soul_nozdormu_dragon : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 return;
             }
@@ -2665,7 +2665,7 @@ class npc_dragon_soul_ysera_dragon : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 return;
             }
@@ -2713,7 +2713,7 @@ class npc_dragon_soul_kalecgos_dragon : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 return;
             }

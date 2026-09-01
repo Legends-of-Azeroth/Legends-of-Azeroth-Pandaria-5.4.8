@@ -164,7 +164,7 @@ class go_demon_portal : public GameObjectScript
             if (player->GetQuestStatus(QUEST_PORTAL_OF_THE_LEGION_H) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_PORTAL_OF_THE_LEGION_A) == QUEST_STATUS_INCOMPLETE)
             {
                 ObjectGuid goGuid = go->GetGUID();
-                if (Creature* guardian = go->SummonCreature(NPC_DEMON_GUARDIAN, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0))
+                if (Creature* guardian = go->SummonCreature(NPC_DEMON_GUARDIAN, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0ms))
                 {
                     guardian->AI()->AttackStart(player);
                     guardian->SetOwnerGUID(goGuid);

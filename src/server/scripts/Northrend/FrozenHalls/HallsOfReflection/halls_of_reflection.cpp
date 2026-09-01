@@ -853,7 +853,7 @@ struct npc_hor_trash_ai : ScriptedAI
         //Talk(SAY_TRASH_AGGRO, who->GetGUID()); // Unused on retail
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
 
@@ -1395,7 +1395,7 @@ class npc_frostworn_general : public CreatureScript
                 {
                     if (unit)
                     {
-                        if (Creature* pReflection = me->SummonCreature(NPC_REFLECTION, unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000))
+                        if (Creature* pReflection = me->SummonCreature(NPC_REFLECTION, unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000ms))
                         {
                             pReflection->SetName(unit->GetName());
                             unit->CastSpell(pReflection, SPELL_CLONE_NAME, true);
@@ -1933,7 +1933,7 @@ class npc_queldelar : public CreatureScript
 
                 if (me->IsWithinDistInMap(who, 20) && who->HasAura(SPELL_QUELDELAR_AURA))
                 {
-                    me->SummonCreature(NPC_QUELDELAR, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                    me->SummonCreature(NPC_QUELDELAR, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms);
                     me->DisappearAndDie();
                 }
             }

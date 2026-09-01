@@ -23,6 +23,7 @@
 #include "CreatureAIImpl.h"
 #include "InstanceScript.h"
 #include "TaskScheduler.h"
+#include <vector>
 
 #define CAST_AI(a, b)   (dynamic_cast<a*>(b))
 
@@ -208,6 +209,23 @@ struct ScriptedAI : public CreatureAI
     float DoGetThreat(Unit* unit);
     void DoModifyThreatPercent(Unit* unit, int32 pct);
 
+    //Add specified amount of threat directly to victim (ignores redirection effects) - also puts victim in combat and engages them if necessary
+    void AddThreat(Unit* victim, float amount, Unit* who = nullptr);
+    //Adds/removes the specified percentage from the specified victim's threat (to who, or me if not specified)
+    void ModifyThreatByPercent(Unit* victim, int32 pct, Unit* who = nullptr);
+    //Resets the victim's threat level to who (or me if not specified) to zero
+    void ResetThreat(Unit* victim, Unit* who = nullptr);
+    //Resets the specified unit's threat list (me if not specified) - does not delete entries, just sets their threat to zero
+    void ResetThreatList(Unit* who = nullptr);
+    //Returns the threat level of victim towards who (or me if not specified)
+    float GetThreat(Unit* victim, Unit* who = nullptr);
+    //Stops combat, ignoring restrictions, for the given creature
+    void ForceCombatStop(Creature* who, bool reset = true);
+    //Stops combat, ignoring restrictions, for the found creatures
+    void ForceCombatStopForCreatureEntry(uint32 entry, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true);
+    //Stops combat, ignoring restrictions, for the found creatures
+    void ForceCombatStopForCreatureEntry(std::vector<uint32> creatureEntries, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true);
+
     void DoTeleportTo(float x, float y, float z, uint32 time = 0);
     void DoTeleportTo(float const pos [4]);
 
@@ -228,7 +246,7 @@ struct ScriptedAI : public CreatureAI
     Player* GetPlayerAtMinimumRange(float minRange);
 
     //Spawns a creature relative to me
-    Creature* DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, uint32 despawntime);
+    Creature* DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, Milliseconds despawntime);
 
     bool HealthBelowPct(uint32 pct) const
     {
@@ -445,7 +463,7 @@ class BossAI : public ScriptedAI
         virtual void ScheduleTasks() { }
 
         void Reset() override { _Reset(); }
-        void JustEngagedWith(Unit* /*who*/) override { _JustEngagedWith(); }
+        void JustEngagedWith(Unit* who) override { CreatureAI::JustEngagedWith(who); _JustEngagedWith(); }
         void JustDied(Unit* /*killer*/) override { _JustDied(); }
         void JustReachedHome() override { _JustReachedHome(); }
 
@@ -516,7 +534,7 @@ class WorldBossAI : public ScriptedAI
         virtual void ExecuteEvent(uint32 /*eventId*/) { }
 
         void Reset() override { _Reset(); }
-        void JustEngagedWith(Unit* /*who*/) override { _JustEngagedWith(); }
+        void JustEngagedWith(Unit* who) override { CreatureAI::JustEngagedWith(who); _JustEngagedWith(); }
         void JustDied(Unit* /*killer*/) override { _JustDied(); }
 
     protected:
@@ -582,7 +600,7 @@ struct SpellDummyAI : public ScriptedAI
     }
 
     void UpdateAI(uint32) override { }
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 };
 
 enum TargetPriority

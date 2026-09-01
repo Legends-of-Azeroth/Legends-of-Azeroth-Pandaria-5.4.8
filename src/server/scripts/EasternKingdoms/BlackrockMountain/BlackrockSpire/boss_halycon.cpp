@@ -62,7 +62,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            me->SummonCreature(NPC_GIZRUL_THE_SLAVENER, SummonLocation, TEMPSUMMON_TIMED_DESPAWN, 300000);
+            me->SummonCreature(NPC_GIZRUL_THE_SLAVENER, SummonLocation, TEMPSUMMON_TIMED_DESPAWN, 300000ms);
             Talk(EMOTE_DEATH);
 
             Summoned = true;

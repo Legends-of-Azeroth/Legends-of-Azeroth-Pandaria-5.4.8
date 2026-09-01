@@ -245,7 +245,7 @@ class npc_uncle_gao : public CreatureScript
                 if (n < 0)
                     return false;
 
-                if (Creature* creature = me->SummonCreature(addStore[0], smallBrewPos[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, urand(14000, 24000)))
+                if (Creature* creature = me->SummonCreature(addStore[0], smallBrewPos[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(urand(14000, 24000))))
                 {
                     currentStageGuidList.push_back(creature->GetGUID());
                     creature->CastSpell(creature, SPELL_SMALL_SPAWN);
@@ -259,7 +259,7 @@ class npc_uncle_gao : public CreatureScript
                 if (n < 0)
                     return false;
 
-                if (Creature* creature = me->SummonCreature(addStore[1], middleBrewPos[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, urand(14000, 24000)))
+                if (Creature* creature = me->SummonCreature(addStore[1], middleBrewPos[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(urand(14000, 24000))))
                 {
                     currentStageGuidList.push_back(creature->GetGUID());
                     creature->CastSpell(creature, SPELL_MEDIUM_SPAWN);
@@ -273,7 +273,7 @@ class npc_uncle_gao : public CreatureScript
                 if (n < 0)
                     return false;
 
-                if (Creature* creature = me->SummonCreature(addStore[2], largeBrewPos[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, urand(14000, 24000)))
+                if (Creature* creature = me->SummonCreature(addStore[2], largeBrewPos[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(urand(14000, 24000))))
                 {
                     currentStageGuidList.push_back(creature->GetGUID());
                     creature->CastSpell(creature, SPELL_LARGE_SPAWN);
@@ -515,7 +515,7 @@ class npc_uncle_gao : public CreatureScript
                                     events.CancelEvent(EVENT_UPDATE_ENCOUNTER);
 
                                     DoTalk(TALK_SUMMON_BOSS);
-                                    if (Creature* creature = me->SummonCreature(NPC_YAN_ZHU, *yanzhuPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5 * MINUTE*IN_MILLISECONDS))
+                                    if (Creature* creature = me->SummonCreature(NPC_YAN_ZHU, *yanzhuPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(5 * MINUTE*IN_MILLISECONDS)))
                                     {
                                         currentStageGuidList.push_back(creature->GetGUID());
                                         creature->CastSpell(creature, SPELL_LARGE_SPAWN);
@@ -840,7 +840,7 @@ class boss_yanzhu : public CreatureScript
                 return false;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
 
@@ -904,7 +904,7 @@ class boss_yanzhu : public CreatureScript
                 Position pos = me->GetRandomNearPosition(20.f);
                 pos.m_positionZ += frand(1.5f, 3.0f);
 
-                me->SummonCreature(NPC_FIZZY_BUBBLE, pos, TEMPSUMMON_TIMED_DESPAWN, 12 * IN_MILLISECONDS);
+                me->SummonCreature(NPC_FIZZY_BUBBLE, pos, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(12 * IN_MILLISECONDS));
 
                 return DoSummonFizzyBubbles(n - 1);
             }
@@ -997,7 +997,7 @@ class boss_yanzhu : public CreatureScript
 
                 Position pos = me->GetRandomNearPosition(frand(5.f, 11.f));
 
-                if (Creature* pAdd = me->SummonCreature(NPC_YEASTY_ALEMENTAL, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, urand(6000, 14000)))
+                if (Creature* pAdd = me->SummonCreature(NPC_YEASTY_ALEMENTAL, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(urand(6000, 14000))))
                 {
                     if (pAdd->AI())
                         pAdd->AI()->DoZoneInCombat();
@@ -1202,7 +1202,7 @@ class npc_sudsy_alemental : public CreatureScript
                     summon->CastSpell(summon, SPELL_SUDS_AURA, true);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->AttackStop();
                 me->CombatStop(true);
@@ -1283,7 +1283,7 @@ class npc_fizzy_alemental : public CreatureScript
 
             void Reset() override { }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->AttackStop();
                 me->CombatStop(true);
@@ -1366,7 +1366,7 @@ class npc_bloated_alemental : public CreatureScript
 
             void Reset() override { }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->AttackStop();
                 me->CombatStop(true);
@@ -1449,7 +1449,7 @@ class npc_stout_alemental : public CreatureScript
 
             void Reset() override { }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->AttackStop();
                 me->CombatStop(true);
@@ -1576,7 +1576,7 @@ class npc_bubbling_alemental : public CreatureScript
                 cosmeticEvents.ScheduleEvent(EVENT_MOVE, urand(100, 200));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 for (auto&& guid : guidsVector)
                 {
@@ -2093,7 +2093,7 @@ class spell_bloat_aura : public SpellScriptLoader
                     Position pos = GetOwner()->GetPosition();
                     for (int i = 0; i < 2; ++i)
                     {
-                        if (Creature* stalker = GetOwner()->SummonCreature(NPC_BLOATED_STALKER, GetOwner()->GetPositionX(), GetOwner()->GetPositionY(), GetOwner()->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                        if (Creature* stalker = GetOwner()->SummonCreature(NPC_BLOATED_STALKER, GetOwner()->GetPositionX(), GetOwner()->GetPositionY(), GetOwner()->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 30000ms))
                         {
                             stalker->CastSpell(GetOwner()->ToUnit(), SPELL_FORCE_VEHICLE, true);
                             stalker->CastSpell(stalker, SPELL_GUSHING_BREW, true);

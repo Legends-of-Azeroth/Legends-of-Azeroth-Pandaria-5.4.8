@@ -1558,7 +1558,7 @@ struct npc_argent_captainAI : public ScriptedAI
             return (me->GetPositionY() > 2660.0f) == (target->GetPositionY() > 2660.0f);
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
         {
             if (IsUndead)
                 me->DespawnOrUnsummon();
@@ -1940,9 +1940,9 @@ class npc_impaling_spear : public CreatureScript
     public:
         npc_impaling_spear() : CreatureScript("npc_impaling_spear") { }
 
-        struct npc_impaling_spearAI : public CreatureAI
+        struct npc_impaling_spearAI : public ScriptedAI
         {
-            npc_impaling_spearAI(Creature* creature) : CreatureAI(creature) { }
+            npc_impaling_spearAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {
@@ -2494,27 +2494,27 @@ class npc_sindragosas_ward : public CreatureScript
                 {
                     case 1:
                     case 3:
-                        me->SummonCreature(NPC_NERUBAR_WEBWEAVER, SindragosaGauntletSpawn[1], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        me->SummonCreature(NPC_NERUBAR_WEBWEAVER, SindragosaGauntletSpawn[4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        me->SummonCreature(NPC_NERUBAR_WEBWEAVER, SindragosaGauntletSpawn[7], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        me->SummonCreature(NPC_NERUBAR_WEBWEAVER, SindragosaGauntletSpawn[10], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        me->SummonCreature(NPC_NERUBAR_CHAMPION, SindragosaGauntletSpawn[2], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        me->SummonCreature(NPC_NERUBAR_CHAMPION, SindragosaGauntletSpawn[5], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        me->SummonCreature(NPC_NERUBAR_CHAMPION, SindragosaGauntletSpawn[8], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        me->SummonCreature(NPC_NERUBAR_CHAMPION, SindragosaGauntletSpawn[11], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        me->SummonCreature(NPC_NERUBAR_WEBWEAVER, SindragosaGauntletSpawn[1], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000ms);
+                        me->SummonCreature(NPC_NERUBAR_WEBWEAVER, SindragosaGauntletSpawn[4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000ms);
+                        me->SummonCreature(NPC_NERUBAR_WEBWEAVER, SindragosaGauntletSpawn[7], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000ms);
+                        me->SummonCreature(NPC_NERUBAR_WEBWEAVER, SindragosaGauntletSpawn[10], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000ms);
+                        me->SummonCreature(NPC_NERUBAR_CHAMPION, SindragosaGauntletSpawn[2], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000ms);
+                        me->SummonCreature(NPC_NERUBAR_CHAMPION, SindragosaGauntletSpawn[5], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000ms);
+                        me->SummonCreature(NPC_NERUBAR_CHAMPION, SindragosaGauntletSpawn[8], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000ms);
+                        me->SummonCreature(NPC_NERUBAR_CHAMPION, SindragosaGauntletSpawn[11], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000ms);
                         break;
                     case 2:
-                        me->SummonCreature(NPC_FROSTWARDEN_SORCERESS, SindragosaGauntletSpawn[12], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        me->SummonCreature(NPC_FROSTWARDEN_SORCERESS, SindragosaGauntletSpawn[15], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        me->SummonCreature(NPC_FROSTWARDEN_WARRIOR, SindragosaGauntletSpawn[13], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        me->SummonCreature(NPC_FROSTWARDEN_WARRIOR, SindragosaGauntletSpawn[14], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        me->SummonCreature(NPC_FROSTWARDEN_WARRIOR, SindragosaGauntletSpawn[16], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        me->SummonCreature(NPC_FROSTWARDEN_WARRIOR, SindragosaGauntletSpawn[17], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        me->SummonCreature(NPC_FROSTWARDEN_SORCERESS, SindragosaGauntletSpawn[12], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000ms);
+                        me->SummonCreature(NPC_FROSTWARDEN_SORCERESS, SindragosaGauntletSpawn[15], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000ms);
+                        me->SummonCreature(NPC_FROSTWARDEN_WARRIOR, SindragosaGauntletSpawn[13], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000ms);
+                        me->SummonCreature(NPC_FROSTWARDEN_WARRIOR, SindragosaGauntletSpawn[14], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000ms);
+                        me->SummonCreature(NPC_FROSTWARDEN_WARRIOR, SindragosaGauntletSpawn[16], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000ms);
+                        me->SummonCreature(NPC_FROSTWARDEN_WARRIOR, SindragosaGauntletSpawn[17], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000ms);
                         break;
                     case EVENT_SUB_WAVE_1:
                     case EVENT_SUB_WAVE_2:
                         for (uint8 i = 0; i < 12; i++)
-                            me->SummonCreature(NPC_NERUBAR_BROODLING, SindragosaGauntletSpawn[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                            me->SummonCreature(NPC_NERUBAR_BROODLING, SindragosaGauntletSpawn[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000ms);
                         break;
                     default:
                         break;

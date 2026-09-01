@@ -380,7 +380,7 @@ class boss_primordius : public CreatureScript
                 Talk(TALK_DEATH);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();
@@ -493,7 +493,7 @@ class boss_primordius : public CreatureScript
                             SummonLivingFluid();
                             break;
                         case EVENT_VISCOUS_HORROR:
-                            me->SummonCreature(NPC_VISCOUS_HORROR, aFluidPos[urand(0, 9)], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000 + rand() % 2000);
+                            me->SummonCreature(NPC_VISCOUS_HORROR, aFluidPos[urand(0, 9)], TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(5000 + rand() % 2000));
                             events.ScheduleEvent(EVENT_VISCOUS_HORROR, 30 * IN_MILLISECONDS);
                             break;
                     }
@@ -506,7 +506,7 @@ class boss_primordius : public CreatureScript
             void SummonLivingFluid()
             {
                 for (uint8 i = 0; i < 10; ++i)
-                    me->SummonCreature(NPC_LIVING_FLUID, aFluidPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000 + rand() % 2000);
+                    me->SummonCreature(NPC_LIVING_FLUID, aFluidPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(5000 + rand() % 2000));
 
                 events.ScheduleEvent(EVENT_LIVING_FLUID, 14000);
             }

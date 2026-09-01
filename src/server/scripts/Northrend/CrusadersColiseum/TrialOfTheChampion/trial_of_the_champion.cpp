@@ -99,27 +99,27 @@ class npc_anstart : public CreatureScript
                     Phase = INTRO;
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-                    if (Trall = me->SummonCreature(NPC_TRALL, 685.569f, 615.103f, 435.396f, 6.23544f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                    if (Trall = me->SummonCreature(NPC_TRALL, 685.569f, 615.103f, 435.396f, 6.23544f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000ms))
                     {
                         Trall->SetReactState(REACT_PASSIVE);
                         Trall->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     }
-                    if (Garrosh = me->SummonCreature(NPC_GARROSH, 685.7f, 621.134f, 435.396f, 6.259f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                    if (Garrosh = me->SummonCreature(NPC_GARROSH, 685.7f, 621.134f, 435.396f, 6.259f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000ms))
                     {
                         Garrosh->SetReactState(REACT_PASSIVE);
                         Garrosh->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     }
-                    if (King = me->SummonCreature(NPC_KING, 807.724f, 617.9f, 435.396f, 3.18416f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                    if (King = me->SummonCreature(NPC_KING, 807.724f, 617.9f, 435.396f, 3.18416f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000ms))
                     {
                         King->SetReactState(REACT_PASSIVE);
                         King->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     }
-                    if (Lady = me->SummonCreature(NPC_LADY, 807.401f, 613.667f, 435.397f, 3.0585f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                    if (Lady = me->SummonCreature(NPC_LADY, 807.401f, 613.667f, 435.397f, 3.0585f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000ms))
                     {
                         Lady->SetReactState(REACT_PASSIVE);
                         Lady->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     }
-                    if (Highlord = me->SummonCreature(NPC_HIGHLORD, 746.482f, 556.857f, 435.396f, 1.5898f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                    if (Highlord = me->SummonCreature(NPC_HIGHLORD, 746.482f, 556.857f, 435.396f, 1.5898f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000ms))
                     {
                         Highlord->SetReactState(REACT_PASSIVE);
                         Highlord->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -187,7 +187,7 @@ class npc_anstart : public CreatureScript
                             introTimer = 4000;
                             break;
                         case 9:
-                            if (Creature* announcertoc5 = me->SummonCreature(NPC_ANNOUNCER, 746.778f, 621.514f, 411.09f, 4.75104f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000))
+                            if (Creature* announcertoc5 = me->SummonCreature(NPC_ANNOUNCER, 746.778f, 621.514f, 411.09f, 4.75104f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000ms))
                             {
                                 me->DisappearAndDie();
                                 announcertoc5->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -459,7 +459,7 @@ class npc_announcer_toc5 : public CreatureScript
 
                     for (uint8 i = 0; i < 3; ++i)
                     {
-                        if (Creature* add = me->SummonCreature(NPC_TO_SUMMON_2, SpawnPosition, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000))
+                        if (Creature* add = me->SummonCreature(NPC_TO_SUMMON_2, SpawnPosition, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms))
                         {
                             switch (summonTimes)
                             {
@@ -500,11 +500,11 @@ class npc_announcer_toc5 : public CreatureScript
                 {
                     for (uint8 i = 0; i < 3; ++i)
                     {
-                        if (Creature* trash = me->SummonCreature(NPC_ARGENT_LIGHWIELDER, SpawnPosition, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7000))
+                        if (Creature* trash = me->SummonCreature(NPC_ARGENT_LIGHWIELDER, SpawnPosition, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7000ms))
                             trash->AI()->SetData(i, 0);
-                        if (Creature* trash = me->SummonCreature(NPC_ARGENT_MONK, SpawnPosition, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7000))
+                        if (Creature* trash = me->SummonCreature(NPC_ARGENT_MONK, SpawnPosition, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7000ms))
                             trash->AI()->SetData(i, 0);
-                        if (Creature* trash = me->SummonCreature(NPC_PRIESTESS, SpawnPosition, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7000))
+                        if (Creature* trash = me->SummonCreature(NPC_PRIESTESS, SpawnPosition, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7000ms))
                             trash->AI()->SetData(i, 0);
                     }
                 }
@@ -551,7 +551,7 @@ class npc_announcer_toc5 : public CreatureScript
                         instance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE))
                     {
                         //me->SummonCreature(VEHICLE_BLACK_KNIGHT, 769.834f, 651.915f, 447.035f, 0);
-                        if (Unit* pBlackKnight = me->SummonCreature(VEHICLE_BLACK_KNIGHT,801.369507f, 640.574280f, 469.314362f, 3.97124f,TEMPSUMMON_DEAD_DESPAWN,180000))
+                        if (Unit* pBlackKnight = me->SummonCreature(VEHICLE_BLACK_KNIGHT,801.369507f, 640.574280f, 469.314362f, 3.97124f,TEMPSUMMON_DEAD_DESPAWN,180000ms))
                         {
                             uiBlackKnightGUID = pBlackKnight->GetGUID();
                             pBlackKnight->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);

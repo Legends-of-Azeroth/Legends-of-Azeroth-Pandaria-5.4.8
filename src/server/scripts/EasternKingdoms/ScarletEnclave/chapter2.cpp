@@ -272,7 +272,7 @@ public:
         void SummonAcolyte(uint32 uiAmount)
         {
             for (uint32 i = 0; i < uiAmount; ++i)
-                me->SummonCreature(NPC_CRIMSON_ACOLYTE, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                me->SummonCreature(NPC_CRIMSON_ACOLYTE, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000ms);
         }
 
         void UpdateAI(uint32 uiDiff) override
@@ -302,7 +302,7 @@ public:
                             break;
                         case 3:
                             Talk(SAY_BREAKOUT6);
-                            me->SummonCreature(NPC_HIGH_INQUISITOR_VALROTH, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+                            me->SummonCreature(NPC_HIGH_INQUISITOR_VALROTH, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000ms);
                             waveTimer = 1000;
                             break;
                         case 4:

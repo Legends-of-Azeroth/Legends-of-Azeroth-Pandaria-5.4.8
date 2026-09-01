@@ -1798,7 +1798,7 @@ class npc_faceless_minions : public CreatureScript
 
             }
 
-            void EnterEvadeMode() override 
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override 
             {
                 ScriptedAI::EnterEvadeMode();
             }

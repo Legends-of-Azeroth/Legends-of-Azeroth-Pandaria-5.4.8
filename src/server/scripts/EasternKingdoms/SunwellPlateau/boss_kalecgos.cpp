@@ -159,7 +159,7 @@ class boss_kalecgos : public CreatureScript
                 isBanished = false;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 justReset = true;
                 me->SetVisible(false);
@@ -587,7 +587,7 @@ class boss_sathrovarr : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 isStarted = true;
-                if (Creature* kalec = me->SummonCreature(NPC_KALEC, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
+                if (Creature* kalec = me->SummonCreature(NPC_KALEC, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0ms))
                 {
                     kalecGUID = kalec->GetGUID();
                     me->CombatStart(kalec);
