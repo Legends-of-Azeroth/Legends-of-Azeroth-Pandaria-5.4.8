@@ -19,16 +19,14 @@
 #define SF_HOSTILEREFMANAGER
 
 #include "Common.h"
-#include "RefManager.h"
 
 class Unit;
-class ThreatManager;
-class HostileReference;
 class SpellInfo;
 
-//=================================================
-
-class HostileRefManager : public RefManager<Unit, ThreatManager>
+/* Legacy compatibility adapter for the TC 3.3.5 style threat system migration.
+   It does not retain a list of references anymore; every operation delegates
+   to the new ThreatManager/ThreatReference implementation. */
+class HostileRefManager
 {
     private:
         Unit* iOwner;
@@ -53,8 +51,6 @@ class HostileRefManager : public RefManager<Unit, ThreatManager>
 
         // Remove specific faction references
         void deleteReferencesForFaction(uint32 faction);
-
-        HostileReference* getFirst() { return ((HostileReference*) RefManager<Unit, ThreatManager>::getFirst()); }
 
         void updateThreatTables();
 

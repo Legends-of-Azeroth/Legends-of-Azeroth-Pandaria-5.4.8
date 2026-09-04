@@ -22,12 +22,13 @@
 #include "DBCStructure.h"
 #include "EventProcessor.h"
 #include "FunctionProcessor.h"
-#include "HostileRefManager.h"
 #include "MotionMaster.h"
 #include "Object.h"
 #include "SpellAuraDefines.h"
 #include "SpellDefines.h"
 #include "ThreatManager.h"
+#include "CombatManager.h"
+#include "HostileRefManager.h"
 #include "MoveSplineInit.h"
 #include "SpellMgr.h"
 #include "TimeValue.h"
@@ -1596,6 +1597,10 @@ public:
         return HasUnitState(UNIT_STATE_IN_FLIGHT);
     }
 
+    bool IsImmuneToAll() const { return IsImmuneToPC() && IsImmuneToNPC(); }
+    bool IsImmuneToPC() const { return HasUnitFlag(UNIT_FLAG_IMMUNE_TO_PC); }
+    bool IsImmuneToNPC() const { return HasUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC); }
+
     bool IsInCombat() const
     {
         return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
@@ -1736,10 +1741,10 @@ public:
     void SetFacingTo(float ori);
     void SetFacingToObject(WorldObject* object);
 
-    void SendChangeCurrentVictimOpcode(HostileReference* pHostileReference);
+    void SendChangeCurrentVictimOpcode(Unit* victim, std::vector<std::pair<Unit*, float>> const& threats);
     void SendClearThreatListOpcode();
-    void SendRemoveFromThreatListOpcode(HostileReference* pHostileReference);
-    void SendThreatListUpdate();
+    void SendRemoveFromThreatListOpcode(Unit* victim);
+    void SendThreatListUpdate(std::vector<std::pair<Unit*, float>> const& threats);
 
     void SendClearTarget();
 
@@ -2162,16 +2167,16 @@ public:
     // Threat related methods
     bool CanHaveThreatList() const;
     void AddThreat(Unit* victim, float fThreat, SpellSchoolMask schoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* threatSpell = NULL);
-    float ApplyTotalThreatModifier(float fThreat, SpellSchoolMask schoolMask = SPELL_SCHOOL_MASK_NORMAL);
     void DeleteThreatList();
     void TauntApply(Unit* victim);
     void TauntFadeOut(Unit* taunter);
     ThreatManager& GetThreatManager() { return m_ThreatManager; }
     ThreatManager const& GetThreatManager() const { return m_ThreatManager; }
-    void addHatedBy(HostileReference* pHostileReference)
-    {
-        m_HostileRefManager.insertFirst(pHostileReference);
-    };
+    CombatManager& GetCombatManager() { return m_CombatManager; }
+    CombatManager const& GetCombatManager() const { return m_CombatManager; }
+    void addHatedBy(HostileReference* /*pHostileReference*/)
+    { /* nothing to do yet */
+    }
     void removeHatedBy(HostileReference* /*pHostileReference*/)
     { /* nothing to do yet */
     }
@@ -2667,6 +2672,7 @@ protected:
     uint32 m_regenTimer;
 
     ThreatManager m_ThreatManager;
+    CombatManager m_CombatManager;
 
     Vehicle* m_vehicle;
     std::shared_ptr<Vehicle> m_vehicleKit;
@@ -2720,7 +2726,7 @@ private:
     TimeTrackerSmall m_splineSyncTimer;
 
     Diminishing m_Diminishing;
-    // Manage all Units that are threatened by us
+
     HostileRefManager m_HostileRefManager;
 
     std::set<AbstractFollower*> _followers;

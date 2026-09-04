@@ -3561,11 +3561,11 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
     Player* player = m_caster->ToPlayer();
     if (player && player->GetRoleForGroup() == ROLES_TANK)
     {
-        if (auto currentVictim = unitTarget->GetThreatManager().getCurrentVictim())
+        if (Unit* currentVictim = unitTarget->GetThreatManager().GetCurrentVictim())
         {
             const uint32 spellVengeance = 132365;
 
-            if (AuraEffect* victimVengeance = currentVictim->getTarget()->GetAuraEffect(spellVengeance, EFFECT_0))
+            if (AuraEffect* victimVengeance = currentVictim->GetAuraEffect(spellVengeance, EFFECT_0))
             {
                 AuraEffect* myVengeance = m_caster->GetAuraEffect(spellVengeance, EFFECT_0);
                 if (!myVengeance || myVengeance->GetAmount() < victimVengeance->GetAmount() / 2)
@@ -3580,18 +3580,17 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
     }
 
     // Also use this effect to set the taunter's threat to the taunted creature's highest value
-    if (unitTarget->GetThreatManager().getCurrentVictim())
+    if (Unit* currentVictim = unitTarget->GetThreatManager().GetCurrentVictim())
     {
-        float myThreat = unitTarget->GetThreatManager().getThreat(m_caster);
-        float itsThreat = unitTarget->GetThreatManager().getCurrentVictim()->getThreat();
+        float myThreat = unitTarget->GetThreatManager().GetThreat(m_caster);
+        float itsThreat = unitTarget->GetThreatManager().GetThreat(currentVictim);
         if (itsThreat > myThreat)
-            unitTarget->GetThreatManager().addThreat(m_caster, itsThreat - myThreat);
+            unitTarget->GetThreatManager().AddThreat(m_caster, itsThreat - myThreat);
     }
 
     //Set aggro victim to caster
-    if (!unitTarget->GetThreatManager().getOnlineContainer().empty())
-        if (HostileReference* forcedVictim = unitTarget->GetThreatManager().getOnlineContainer().getReferenceByTarget(m_caster))
-            unitTarget->GetThreatManager().setCurrentVictim(forcedVictim);
+    if (unitTarget->GetThreatManager().IsThreatenedBy(m_caster))
+        unitTarget->GetThreatManager().FixateTarget(m_caster);
 
     if ((unitTarget->ToCreature()->IsAIEnabled && !unitTarget->ToCreature()->HasReactState(REACT_PASSIVE)) || (unitTarget->IsPetGuardianStuff() && unitTarget->GetCharmerOrOwnerGUID().IsPlayer()))
         unitTarget->ToCreature()->AI()->AttackStart(m_caster);

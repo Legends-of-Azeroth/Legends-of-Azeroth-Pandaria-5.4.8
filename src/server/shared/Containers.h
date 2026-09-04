@@ -22,6 +22,7 @@
 #include "MapUtils.h"
 #include <list>
 #include <random>
+#include <unordered_map>
 #include "Util.h"
 #include "Random.h"
 
@@ -128,6 +129,21 @@ namespace Trinity
                 weights.assign(container.size(), 1.0);
 
             return SelectRandomWeightedContainerElement(container, weights);
+        }
+
+        // Helper to look up a value in a map by key, returning a pointer (or nullptr)
+        template<class K, class V>
+        V* MapGetValuePtr(std::unordered_map<K, V>& map, K const& key)
+        {
+            auto it = map.find(key);
+            return it != map.end() ? &it->second : nullptr;
+        }
+
+        template<class K, class V>
+        V const* MapGetValuePtr(std::unordered_map<K, V> const& map, K const& key)
+        {
+            auto it = map.find(key);
+            return it != map.end() ? &it->second : nullptr;
         }
     }
     //! namespace Containers

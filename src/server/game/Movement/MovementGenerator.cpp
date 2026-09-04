@@ -28,42 +28,23 @@ std::string MovementGenerator::GetDebugInfo() const
     return Trinity::StringFormat("Priority: %u, Flags: %u, BaseUnitState: %u", Priority, Flags, BaseUnitState);
 }
 
-IdleMovementFactory::IdleMovementFactory() : MovementGeneratorCreator(IDLE_MOTION_TYPE)
-{
-    RegisterSelf();
-}
+IdleMovementFactory::IdleMovementFactory() : MovementGeneratorCreator(IDLE_MOTION_TYPE) { }
 
-MovementGenerator* IdleMovementFactory::Create(void* /*object*/) const
+MovementGenerator* IdleMovementFactory::Create(Creature* /*object*/) const
 {
     return &si_idleMovement;
 }
 
-RandomMovementFactory::RandomMovementFactory() : MovementGeneratorCreator(RANDOM_MOTION_TYPE)
-{
-    RegisterSelf();
-}
+RandomMovementFactory::RandomMovementFactory() : MovementGeneratorCreator(RANDOM_MOTION_TYPE) { }
 
-MovementGenerator* RandomMovementFactory::Create(void* /*object*/) const
+MovementGenerator* RandomMovementFactory::Create(Creature* /*object*/) const
 {
     return new RandomMovementGenerator<Creature>();
 }
 
-WaypointMovementFactory::WaypointMovementFactory() : MovementGeneratorCreator(WAYPOINT_MOTION_TYPE)
-{
-    RegisterSelf();
-}
+WaypointMovementFactory::WaypointMovementFactory() : MovementGeneratorCreator(WAYPOINT_MOTION_TYPE) { }
 
-MovementGenerator* WaypointMovementFactory::Create(void* /*object*/) const
+MovementGenerator* WaypointMovementFactory::Create(Creature* /*object*/) const
 {
     return new WaypointMovementGenerator<Creature>();
 }
-
-static bool RegisterMovementGeneratorFactories()
-{
-    static IdleMovementFactory idleMovementFactory;
-    static RandomMovementFactory randomMovementFactory;
-    static WaypointMovementFactory waypointMovementFactory;
-    return true;
-}
-
-static bool _movementGeneratorFactoriesRegistered = RegisterMovementGeneratorFactories();

@@ -193,7 +193,7 @@ WorldObject(isWorldObject), m_movedPlayer(NULL), m_lastSanctuaryTime(0),
 IsAIEnabled(false), NeedChangeAI(false), LastCharmerGUID(),
 m_ControlledByPlayer(false), movespline(new Movement::MoveSpline()), _gameClientMovingMe(nullptr),
 i_AI(NULL), i_disabledAI(NULL), m_procDeep(0),
-m_removedAurasCount(0), i_motionMaster(new MotionMaster(this)), m_ThreatManager(this),
+m_removedAurasCount(0), i_motionMaster(new MotionMaster(this)), m_ThreatManager(this), m_CombatManager(this),
 m_vehicle(NULL), m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE),
 m_HostileRefManager(this),
 _aiAnimKitId(0), _movementAnimKitId(0), _meleeAnimKitId(0)
@@ -396,8 +396,8 @@ void Unit::Update(uint32 p_time)
     // Having this would prevent spells from being proced, so let's crash
     ASSERT(!m_procDeep);
 
-    if (CanHaveThreatList() && GetThreatManager().isNeedUpdateToClient(p_time))
-        SendThreatListUpdate();
+    m_CombatManager.Update(p_time);
+    GetThreatManager().Update(p_time);
 
     // update combat timer only for players and pets (only pets with PetAI)
     if (IsInCombat())
@@ -427,20 +427,19 @@ void Unit::Update(uint32 p_time)
 
             if (canResetCombat && !m_combatTimerPvP)    // We are not fighting boss and PvP timer is expired or never was
             {
-                if (m_HostileRefManager.isEmpty())      // No enemies, exit combat now
+                if (GetThreatManager().GetThreatedByMeList().empty())      // No enemies, exit combat now
                     ClearInCombat();
                 else if (!m_combatTimerPvE)             // Okay, we have some enemies and PvE combat timer is expired, check if they can reach us
                 {
-                    auto ref = m_HostileRefManager.getFirst();
-                    do
+                    std::vector<ThreatReference*> threats = GetThreatManager().GetThreatedByMeList();
+                    for (ThreatReference* threat : threats)
                     {
-                        Unit* target = ref->GetSource()->GetOwner();
-                        ref = ref->next();
+                        Unit* target = threat->GetOwner();
                         if (Creature* creature = target->ToCreature())
                             if (!creature->CanCreatureAttack(this, false))
-                                m_HostileRefManager.deleteReference(target);
-                    } while (ref);
-                    if (m_HostileRefManager.isEmpty())
+                                threat->ClearThreat();
+                    }
+                    if (GetThreatManager().GetThreatedByMeList().empty())
                         ClearInCombat();
                     else
                         m_combatTimerPvE = 5000;
@@ -12540,98 +12539,38 @@ bool Unit::CanHaveThreatList() const
 
 //======================================================================
 
-float Unit::ApplyTotalThreatModifier(float fThreat, SpellSchoolMask schoolMask)
-{
-    if (!HasAuraType(SPELL_AURA_MOD_THREAT) || fThreat < 0)
-        return fThreat;
-
-    SpellSchools school = GetFirstSchoolInMask(schoolMask);
-
-    return fThreat * m_threatModifier [school];
-}
-
-//======================================================================
-
-void Unit::AddThreat(Unit* victim, float fThreat, SpellSchoolMask schoolMask, SpellInfo const* threatSpell)
+void Unit::AddThreat(Unit* victim, float fThreat, SpellSchoolMask /*schoolMask*/, SpellInfo const* threatSpell)
 {
     // Only mobs can manage threat lists
     if (CanHaveThreatList())
-        m_ThreatManager.addThreat(victim, fThreat, schoolMask, threatSpell);
+        m_ThreatManager.AddThreat(victim, fThreat, threatSpell);
 }
 
 //======================================================================
 
 void Unit::DeleteThreatList()
 {
-    if (CanHaveThreatList() && !m_ThreatManager.isThreatListEmpty())
-        SendClearThreatListOpcode();
-    m_ThreatManager.clearReferences();
+    if (CanHaveThreatList())
+    {
+        m_ThreatManager.RemoveMeFromThreatLists();
+        m_ThreatManager.ClearAllThreat();
+    }
 }
 
 //======================================================================
 
-void Unit::TauntApply(Unit* taunter)
+void Unit::TauntApply(Unit* /*taunter*/)
 {
-    ASSERT(GetTypeId() == TYPEID_UNIT);
-
-    if (!taunter || (taunter->GetTypeId() == TYPEID_PLAYER && taunter->ToPlayer()->IsGameMaster()))
-        return;
-
-    if (!CanHaveThreatList())
-        return;
-
-    Creature* creature = ToCreature();
-
-    if (creature->HasReactState(REACT_PASSIVE))
-        return;
-
-    Unit* target = GetVictim();
-    if (target && target == taunter)
-        return;
-
-    SetInFront(taunter);
-    if (creature->IsAIEnabled)
-        creature->AI()->AttackStart(taunter);
-
-    //m_ThreatManager.tauntApply(taunter);
+    if (CanHaveThreatList())
+        m_ThreatManager.TauntUpdate();
 }
 
 //======================================================================
 
-void Unit::TauntFadeOut(Unit* taunter)
+void Unit::TauntFadeOut(Unit* /*taunter*/)
 {
-    ASSERT(GetTypeId() == TYPEID_UNIT);
-
-    if (!taunter || (taunter->GetTypeId() == TYPEID_PLAYER && taunter->ToPlayer()->IsGameMaster()))
-        return;
-
-    if (!CanHaveThreatList())
-        return;
-
-    Creature* creature = ToCreature();
-
-    if (creature->HasReactState(REACT_PASSIVE))
-        return;
-
-    Unit* target = GetVictim();
-    if (!target || target != taunter)
-        return;
-
-    if (m_ThreatManager.isThreatListEmpty())
-    {
-        if (creature->IsAIEnabled)
-            creature->AI()->EnterEvadeMode();
-        return;
-    }
-
-    target = creature->SelectVictim();  // might have more taunt auras remaining
-
-    if (target && target != taunter)
-    {
-        SetInFront(target);
-        if (creature->IsAIEnabled)
-            creature->AI()->AttackStart(target);
-    }
+    if (CanHaveThreatList())
+        m_ThreatManager.TauntUpdate();
 }
 
 //======================================================================
@@ -12694,9 +12633,9 @@ Unit* Creature::SelectVictim()
 
     if (CanHaveThreatList())
     {
-        if (!target && !m_ThreatManager.isThreatListEmpty())
+        if (!target && !GetThreatManager().IsThreatListEmpty())
             // No taunt aura or taunt aura caster is dead standard target selection
-            target = m_ThreatManager.getHostilTarget();
+            target = GetThreatManager().GetCurrentVictim();
     }
     else if (!HasReactState(REACT_PASSIVE))
     {
@@ -13846,7 +13785,7 @@ void Unit::RemoveFromWorld()
             }
         }
 
-        getHostileRefManager().clearReferences();
+        GetThreatManager().RemoveMeFromThreatLists();
 
         WorldObject::RemoveFromWorld();
         m_duringRemoveFromWorld = false;
@@ -13875,7 +13814,6 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
     CombatStop(true);                                   // Because scripts in RemoveAllAuras can trigger fucking spells, need to call InterruptNonMeleeSpells another time
     ClearComboPointHolders();
     DeleteThreatList();
-    getHostileRefManager().setOnlineOfflineState(false);
     GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
 }
 
@@ -17347,37 +17285,9 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
     {
         RemoveBoundAuras(newPhaseMask, false);             // we can lost access to caster or target
 
-        // modify hostile references for new phasemask, some special cases deal with hostile references themselves
-        if (GetTypeId() == TYPEID_UNIT || (!ToPlayer()->IsGameMaster() && !ToPlayer()->GetSession()->PlayerLogout()))
-        {
-            HostileRefManager& refManager = getHostileRefManager();
-            HostileReference* ref = refManager.getFirst();
-
-            while (ref)
-            {
-                if (Unit* unit = ref->GetSource()->GetOwner())
-                    if (Creature* creature = unit->ToCreature())
-                        refManager.setOnlineOfflineState(creature, creature->InSamePhase(newPhaseMask));
-
-                ref = ref->next();
-            }
-
-            // modify threat lists for new phasemask
-            if (GetTypeId() != TYPEID_PLAYER)
-            {
-                std::list<HostileReference*> threatList = GetThreatManager().getThreatList();
-                std::list<HostileReference*> offlineThreatList = GetThreatManager().getOfflineThreatList();
-
-                // merge expects sorted lists
-                threatList.sort();
-                offlineThreatList.sort();
-                threatList.merge(offlineThreatList);
-
-                for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
-                    if (Unit* unit = (*itr)->getTarget())
-                        unit->getHostileRefManager().setOnlineOfflineState(ToCreature(), unit->InSamePhase(newPhaseMask));
-            }
-        }
+// re-evaluate threat list online/offline state after the phase change
+            if (GetTypeId() == TYPEID_UNIT || (!ToPlayer()->IsGameMaster() && !ToPlayer()->GetSession()->PlayerLogout()))
+                GetThreatManager().EvaluateSuppressed(true);
     }
 
     WorldObject::SetPhaseMask(newPhaseMask, update);
@@ -17414,33 +17324,8 @@ bool Unit::SetPhased(uint32 id, bool update, bool apply)
 
     if (GetTypeId() == TYPEID_UNIT || (!ToPlayer()->IsGameMaster() && !ToPlayer()->GetSession()->PlayerLogout()))
     {
-        HostileRefManager& refManager = getHostileRefManager();
-        HostileReference* ref = refManager.getFirst();
-
-        while (ref)
-        {
-            if (Unit* unit = ref->GetSource()->GetOwner())
-                if (Creature* creature = unit->ToCreature())
-                    refManager.setOnlineOfflineState(creature, creature->IsPhased(this));
-
-            ref = ref->next();
-        }
-
-        // modify threat lists for new phasemask
-        if (GetTypeId() != TYPEID_PLAYER)
-        {
-            std::list<HostileReference*> threatList = GetThreatManager().getThreatList();
-            std::list<HostileReference*> offlineThreatList = GetThreatManager().getOfflineThreatList();
-
-            // merge expects sorted lists
-            threatList.sort();
-            offlineThreatList.sort();
-            threatList.merge(offlineThreatList);
-
-            for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
-                if (Unit* unit = (*itr)->getTarget())
-                    unit->getHostileRefManager().setOnlineOfflineState(ToCreature(), unit->IsPhased(this));
-        }
+        // re-evaluate threat list online/offline state after the phase change
+        GetThreatManager().EvaluateSuppressed(true);
     }
 
     for (ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
@@ -18833,11 +18718,11 @@ void Unit::UpdateHeight(float newZ)
         GetVehicleKit()->RelocatePassengers();
 }
 
-void Unit::SendThreatListUpdate()
+void Unit::SendThreatListUpdate(std::vector<std::pair<Unit*, float>> const& threats)
 {
-    if (!GetThreatManager().isThreatListEmpty())
+    if (!threats.empty())
     {
-        uint32 count = GetThreatManager().getThreatList().size();
+        uint32 count = uint32(threats.size());
 
         TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_THREAT_UPDATE Message");
 
@@ -18853,10 +18738,9 @@ void Unit::SendThreatListUpdate()
         data.WriteBit(Guid[4]);
         data.WriteBits(count, 21);
 
-        ThreatContainer::StorageType const &tlist = GetThreatManager().getThreatList();
-        for (ThreatContainer::StorageType::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
+        for (auto const& pair : threats)
         {
-            ObjectGuid unitGuid = (*itr)->getUnitGuid();
+            ObjectGuid unitGuid = pair.first->GetGUID();
             data.WriteBit(unitGuid[2]);
             data.WriteBit(unitGuid[3]);
             data.WriteBit(unitGuid[6]);
@@ -18871,9 +18755,9 @@ void Unit::SendThreatListUpdate()
 
         data.FlushBits();
 
-        for (ThreatContainer::StorageType::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
+        for (auto const& pair : threats)
         {
-            ObjectGuid unitGuid = (*itr)->getUnitGuid();
+            ObjectGuid unitGuid = pair.first->GetGUID();
             data.WriteByteSeq(unitGuid[6]);
             data.WriteByteSeq(unitGuid[7]);
             data.WriteByteSeq(unitGuid[0]);
@@ -18882,7 +18766,7 @@ void Unit::SendThreatListUpdate()
             data.WriteByteSeq(unitGuid[5]);
             data.WriteByteSeq(unitGuid[3]);
             data.WriteByteSeq(unitGuid[4]);
-            data << uint32((*itr)->getThreat());
+            data << uint32(pair.second);
         }
 
         data.WriteByteSeq(Guid[1]);
@@ -18898,15 +18782,15 @@ void Unit::SendThreatListUpdate()
     }
 }
 
-void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
+void Unit::SendChangeCurrentVictimOpcode(Unit* victim, std::vector<std::pair<Unit*, float>> const& threats)
 {
-    if (!GetThreatManager().isThreatListEmpty())
+    if (!threats.empty())
     {
-        uint32 count = GetThreatManager().getThreatList().size();
+        uint32 count = uint32(threats.size());
 
         TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_HIGHEST_THREAT_UPDATE Message");
-        ObjectGuid unitGuid = pHostileReference->getUnitGuid();
-        ObjectGuid guid = GetGUID(); 
+        ObjectGuid unitGuid = victim->GetGUID();
+        ObjectGuid guid = GetGUID();
         WorldPacket data(SMSG_HIGHEST_THREAT_UPDATE, 8 + 8 + count * 8);
 
         data.WriteBit(unitGuid[3]);
@@ -18924,10 +18808,9 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
         data.WriteBit(guid[4]);
         data.WriteBits(count, 21);
 
-        ThreatContainer::StorageType const &tlist = GetThreatManager().getThreatList();
-        for (ThreatContainer::StorageType::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
+        for (auto const& pair : threats)
         {
-            ObjectGuid UnitGuid = (*itr)->getUnitGuid();
+            ObjectGuid UnitGuid = pair.first->GetGUID();
             data.WriteBit(UnitGuid[6]);
             data.WriteBit(UnitGuid[1]);
             data.WriteBit(UnitGuid[0]);
@@ -18946,13 +18829,13 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
 
         data.WriteByteSeq(guid[4]);
 
-        for (ThreatContainer::StorageType::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
+        for (auto const& pair : threats)
         {
-            ObjectGuid UnitGuid = (*itr)->getUnitGuid();
+            ObjectGuid UnitGuid = pair.first->GetGUID();
 
             data.WriteByteSeq(UnitGuid[6]);
 
-            data << uint32((*itr)->getThreat());
+            data << uint32(pair.second);
 
             data.WriteByteSeq(UnitGuid[4]);
             data.WriteByteSeq(UnitGuid[0]);
@@ -19010,11 +18893,11 @@ void Unit::SendClearThreatListOpcode()
     SendMessageToSet(&data, false);
 }
 
-void Unit::SendRemoveFromThreatListOpcode(HostileReference* pHostileReference)
+void Unit::SendRemoveFromThreatListOpcode(Unit* victim)
 {
     TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_THREAT_REMOVE Message");
     ObjectGuid victimGUID = GetGUID();
-    ObjectGuid hostileGUID = pHostileReference->getUnitGuid();
+    ObjectGuid hostileGUID = victim->GetGUID();
 
     WorldPacket data(SMSG_THREAT_REMOVE, 1 + 1 + 8 + 8);
 

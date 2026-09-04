@@ -32,7 +32,6 @@ enum Spells
     SPELL_ZURAMAT_ADD_2                         = 54342,
     SPELL_ZURAMAT_ADD_2_H                       = 59747,
     SPELL_SHADOW_BOLT_VOLLEY                    = 57942,
-
 };
 
 enum ZuramatCreatures
@@ -45,8 +44,8 @@ enum Yells
     SAY_AGGRO                                   = 0,
     SAY_SLAY                                    = 1,
     SAY_DEATH                                   = 2,
-    SAY_SHIELD                                  = 4, // unused
-    SAY_WHISPER                                 = 5, // unused
+    SAY_SHIELD                                  = 4,
+    SAY_WHISPER                                 = 5,
 };
 
 enum eActions
@@ -61,32 +60,27 @@ class boss_zuramat : public CreatureScript
 
         struct boss_zuramatAI : public ScriptedAI
         {
-            boss_zuramatAI(Creature* creature) : ScriptedAI(creature), Summons(me)
+            boss_zuramatAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summons(me)
             {
-                instance = creature->GetInstanceScript();
+                _scheduler.SetValidator([this]
+                {
+                    return !me->HasUnitState(UNIT_STATE_CASTING);
+                });
             }
-
-            InstanceScript* instance;
-            SummonList Summons;
-
-            uint32 SpellVoidShiftTimer;
-            uint32 SpellSummonVoidTimer;
-            uint32 SpellShroudOfDarknessTimer;
 
             void Reset() override
             {
-                Summons.DespawnAll();
-                if (instance)
+                _scheduler.CancelAll();
+                _summons.DespawnAll();
+
+                if (_instance)
                 {
-                    if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                        instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
-                    else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                        instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
+                    if (_instance->GetData(DATA_WAVE_COUNT) == 6)
+                        _instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
+                    else if (_instance->GetData(DATA_WAVE_COUNT) == 12)
+                        _instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
                 }
 
-                SpellShroudOfDarknessTimer = 22000;
-                SpellVoidShiftTimer = 15000;
-                SpellSummonVoidTimer = 12000;
                 me->GetMap()->SetWorldState(WORLDSTATE_A_VOID_DANCE, 1);
             }
 
@@ -108,26 +102,44 @@ class boss_zuramat : public CreatureScript
             {
                 Talk(SAY_AGGRO);
 
-                if (instance)
+                if (_instance)
                 {
-                    if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetGuidData(DATA_ZURAMAT_CELL)))
+                    if (GameObject* pDoor = _instance->instance->GetGameObject(_instance->GetGuidData(DATA_ZURAMAT_CELL)))
                         if (pDoor->GetGoState() == GO_STATE_READY)
                         {
                             EnterEvadeMode();
                             return;
                         }
-                    if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                        instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
-                    else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                        instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
+                    if (_instance->GetData(DATA_WAVE_COUNT) == 6)
+                        _instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
+                    else if (_instance->GetData(DATA_WAVE_COUNT) == 12)
+                        _instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
                 }
+
+                _scheduler
+                    .Schedule(Seconds(4), [this](TaskContext context)
+                    {
+                        DoCast(me, SPELL_SUMMON_VOID_SENTRY, true);
+                        context.Repeat(Seconds(7), Seconds(10));
+                    })
+                    .Schedule(Seconds(9), [this](TaskContext context)
+                    {
+                        if (Unit* pUnit = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true))
+                            DoCast(pUnit, DUNGEON_MODE(SPELL_VOID_SHIFT, SPELL_VOID_SHIFT_H));
+                        context.Repeat(Seconds(15));
+                    })
+                    .Schedule(Seconds(18), Seconds(20), [this](TaskContext context)
+                    {
+                        DoCast(me, DUNGEON_MODE(SPELL_SHROUD_OF_DARKNESS, SPELL_SHROUD_OF_DARKNESS_H));
+                        context.Repeat(Seconds(18), Seconds(20));
+                    });
             }
 
             void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
-                if (instance)
-                    instance->SetData(DATA_WIPE, 1);
+                if (_instance)
+                    _instance->SetData(DATA_WIPE, 1);
             }
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
@@ -137,53 +149,38 @@ class boss_zuramat : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (SpellSummonVoidTimer <= diff)
+                _scheduler.Update(diff, [this]
                 {
-                    DoCast(me->GetVictim(), SPELL_SUMMON_VOID_SENTRY, false);
-                    SpellSummonVoidTimer = 20000;
-                } else SpellSummonVoidTimer -=diff;
-
-                if (SpellVoidShiftTimer <= diff)
-                {
-                     if (Unit* pUnit = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pUnit, SPELL_VOID_SHIFT);
-                    SpellVoidShiftTimer = 20000;
-                } else SpellVoidShiftTimer -=diff;
-
-                if (SpellShroudOfDarknessTimer <= diff)
-                {
-                    DoCast(me->GetVictim(), SPELL_SHROUD_OF_DARKNESS);
-                    SpellShroudOfDarknessTimer = 20000;
-                } else SpellShroudOfDarknessTimer -=diff;
-
-                DoMeleeAttackIfReady();
+                    DoMeleeAttackIfReady();
+                });
             }
 
             void JustDied(Unit* /*killer*/) override
             {
+                _scheduler.CancelAll();
                 Talk(SAY_DEATH);
 
-                if (instance)
+                if (_instance)
                 {
-                    if (instance->GetData(DATA_WAVE_COUNT) == 6)
+                    if (_instance->GetData(DATA_WAVE_COUNT) == 6)
                     {
-                        if (IsHeroic() && instance->GetData(DATA_1ST_BOSS_EVENT) == DONE)
+                        if (IsHeroic() && _instance->GetData(DATA_1ST_BOSS_EVENT) == DONE)
                             me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
-                        instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
-                        instance->SetData(DATA_WAVE_COUNT, 7);
+                        _instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
+                        _instance->SetData(DATA_WAVE_COUNT, 7);
                     }
-                    else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+                    else if (_instance->GetData(DATA_WAVE_COUNT) == 12)
                     {
-                        if (IsHeroic() && instance->GetData(DATA_2ND_BOSS_EVENT) == DONE)
+                        if (IsHeroic() && _instance->GetData(DATA_2ND_BOSS_EVENT) == DONE)
                             me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
-                        instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
-                        instance->SetData(DATA_WAVE_COUNT, 13);
+                        _instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
+                        _instance->SetData(DATA_WAVE_COUNT, 13);
                     }
                 }
 
-                Summons.DespawnAll();
+                _summons.DespawnAll();
             }
 
             void KilledUnit(Unit* victim) override
@@ -196,8 +193,13 @@ class boss_zuramat : public CreatureScript
 
             void JustSummoned(Creature* summon) override
             {
-                Summons.Summon(summon);
+                _summons.Summon(summon);
             }
+
+        private:
+            InstanceScript* _instance;
+            TaskScheduler _scheduler;
+            SummonList _summons;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -213,7 +215,7 @@ class npc_void_sentry : public CreatureScript
 
         struct npc_void_sentryAI : public ScriptedAI
         {
-            npc_void_sentryAI(Creature* creature) : ScriptedAI(creature), summons(me) { }
+            npc_void_sentryAI(Creature* creature) : ScriptedAI(creature), _summons(me) { }
 
             void Reset() override
             {
@@ -223,24 +225,24 @@ class npc_void_sentry : public CreatureScript
 
             void JustSummoned(Creature* summon) override
             {
-                summons.Summon(summon);
+                _summons.Summon(summon);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 me->GetMap()->SetWorldState(WORLDSTATE_A_VOID_DANCE, 0);
-                summons.DespawnAll();
+                _summons.DespawnAll();
             }
 
             void Unsummoned() override
             {
-                summons.DespawnAll();
+                _summons.DespawnAll();
             }
 
             void UpdateAI(uint32 /*diff*/) override { }
 
         private:
-            SummonList summons;
+            SummonList _summons;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -263,7 +265,7 @@ class npc_void_sentry_ball : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 damage = 0;
             }

@@ -37,62 +37,65 @@ class boss_moragg : public CreatureScript
 
         struct boss_moraggAI : public ScriptedAI
         {
-            boss_moraggAI(Creature* creature) : ScriptedAI(creature)
+            boss_moraggAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
-                instance = creature->GetInstanceScript();
+                _scheduler.SetValidator([this]
+                {
+                    return !me->HasUnitState(UNIT_STATE_CASTING);
+                });
             }
-
-            uint32 uiOpticLinkTimer;
-            uint32 uiCorrosiveSalivaTimer;
-
-            // Workaraound
-            uint32 uiRaySuffer;
-            uint32 uiRayPain;
-
-            InstanceScript* instance;
 
             void Reset() override
             {
-                uiOpticLinkTimer = 10000;
-                uiCorrosiveSalivaTimer = 5000;
+                _scheduler.CancelAll();
 
-                uiRaySuffer = DUNGEON_MODE(5000, 3000);
-                uiRayPain = DUNGEON_MODE(6500, 4500);
-
-                if (instance)
+                if (_instance)
                 {
-                    if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                        instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
-                    else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                        instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
+                    if (_instance->GetData(DATA_WAVE_COUNT) == 6)
+                        _instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
+                    else if (_instance->GetData(DATA_WAVE_COUNT) == 12)
+                        _instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
                 }
             }
 
             void JustEngagedWith(Unit* /*who*/) override
             {
-                if (instance)
+                if (_instance)
                 {
-                    if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetGuidData(DATA_MORAGG_CELL)))
+                    if (GameObject* pDoor = _instance->instance->GetGameObject(_instance->GetGuidData(DATA_MORAGG_CELL)))
                         if (pDoor->GetGoState() == GO_STATE_READY)
                         {
                             EnterEvadeMode();
                             return;
                         }
-                    if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                        instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
-                    else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                        instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
+                    if (_instance->GetData(DATA_WAVE_COUNT) == 6)
+                        _instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
+                    else if (_instance->GetData(DATA_WAVE_COUNT) == 12)
+                        _instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
                 }
 
-                //DoCast(me, DUNGEON_MODE(SPELL_RAY_OF_SUFFERING,SPELL_RAY_OF_SUFFERING_H), true);
-                //DoCast(me, DUNGEON_MODE(SPELL_RAY_OF_PAIN,SPELL_RAY_OF_PAIN_H), true);
+                DoCast(me, DUNGEON_MODE(SPELL_RAY_OF_PAIN, SPELL_RAY_OF_PAIN_H), true);
+                DoCast(me, DUNGEON_MODE(SPELL_RAY_OF_SUFFERING, SPELL_RAY_OF_SUFFERING_H), true);
+
+                _scheduler
+                    .Schedule(Seconds(15), [this](TaskContext context)
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true))
+                            DoCast(target, SPELL_OPTIC_LINK);
+                        context.Repeat(Seconds(25));
+                    })
+                    .Schedule(Seconds(5), [this](TaskContext context)
+                    {
+                        DoCast(me->GetVictim(), SPELL_CORROSIVE_SALIVA);
+                        context.Repeat(Seconds(10));
+                    });
             }
 
             void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
-                if (instance)
-                    instance->SetData(DATA_WIPE, 1);
+                if (_instance)
+                    _instance->SetData(DATA_WIPE, 1);
             }
 
             void AttackStart(Unit* who) override
@@ -116,60 +119,40 @@ class boss_moragg : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (uiRaySuffer <= diff)
+                _scheduler.Update(diff, [this]
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(target, SPELL_RAY_OF_SUFFERING_TIGGER, true);
-                    uiRaySuffer = DUNGEON_MODE(5000, 3000);
-                } else uiRaySuffer -= diff;
-
-                if (uiRayPain <= diff)
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(target, SPELL_RAY_OF_PAIN_TIGGER, true);
-                    uiRayPain = DUNGEON_MODE(6500, 4500);
-                } else uiRayPain -= diff;
-
-                if (uiOpticLinkTimer <= diff)
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(target, SPELL_OPTIC_LINK);
-                    uiOpticLinkTimer = 15000;
-                } else uiOpticLinkTimer -= diff;
-
-                if (uiCorrosiveSalivaTimer <= diff)
-                {
-                    if (!me->IsNonMeleeSpellCasted(false))
-                    {
-                        DoCast(me->GetVictim(), SPELL_CORROSIVE_SALIVA);
-                        uiCorrosiveSalivaTimer = 10000;
-                    }
-                } else uiCorrosiveSalivaTimer -= diff;
-
-                DoMeleeAttackIfReady();
+                    DoMeleeAttackIfReady();
+                });
             }
+
             void JustDied(Unit* /*killer*/) override
             {
-                if (instance)
+                _scheduler.CancelAll();
+
+                if (_instance)
                 {
-                    if (instance->GetData(DATA_WAVE_COUNT) == 6)
+                    if (_instance->GetData(DATA_WAVE_COUNT) == 6)
                     {
-                        if (IsHeroic() && instance->GetData(DATA_1ST_BOSS_EVENT) == DONE)
+                        if (IsHeroic() && _instance->GetData(DATA_1ST_BOSS_EVENT) == DONE)
                             me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
-                        instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
-                        instance->SetData(DATA_WAVE_COUNT, 7);
+                        _instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
+                        _instance->SetData(DATA_WAVE_COUNT, 7);
                     }
-                    else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+                    else if (_instance->GetData(DATA_WAVE_COUNT) == 12)
                     {
-                        if (IsHeroic() && instance->GetData(DATA_2ND_BOSS_EVENT) == DONE)
+                        if (IsHeroic() && _instance->GetData(DATA_2ND_BOSS_EVENT) == DONE)
                             me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
-                        instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
-                        instance->SetData(DATA_WAVE_COUNT,13);
+                        _instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
+                        _instance->SetData(DATA_WAVE_COUNT, 13);
                     }
                 }
             }
+
+        private:
+            InstanceScript* _instance;
+            TaskScheduler _scheduler;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

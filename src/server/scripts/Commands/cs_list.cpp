@@ -674,9 +674,9 @@ public:
                 handler->PSendSysMessage("Listing hostiles towards creature |cffffffff%s|r (guid: |cffffffff%u|r id: |cffffffff%u|r)", unit->GetName().c_str(), unitGuid, unit->GetEntry());
 
             uint32 hostilesCount = 0;
-            for (RefManager<Unit, ThreatManager>::iterator itr = unit->getHostileRefManager().begin(); itr != unit->getHostileRefManager().end(); ++itr)
+            for (auto const& threatEntry : unit->GetThreatManager().GetThreatenedByMeList())
             {
-                Unit* hostile = itr->GetSource()->GetOwner();
+                Unit* hostile = threatEntry.second->GetOwner();
                 uint32 guid = hostile->GetGUID().GetCounter();
                 if (hostile->GetTypeId() == TYPEID_PLAYER)
                     handler->PSendSysMessage("guid: |cffffffff%u|r - player - |cffffffff%s|r", guid, hostile->GetName().c_str());

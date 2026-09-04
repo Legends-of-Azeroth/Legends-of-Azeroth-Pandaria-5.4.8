@@ -1,19 +1,19 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef TRINITY_FACTORY_HOLDER
 #define TRINITY_FACTORY_HOLDER
@@ -24,24 +24,23 @@
 
 /** FactoryHolder holds a factory object of a specific type
  */
-template<class T, class Key = std::string>
+template<class T, class O, class Key = std::string>
 class FactoryHolder
 {
     public:
-        typedef ObjectRegistry<FactoryHolder<T, Key >, Key > FactoryHolderRegistry;
+        typedef ObjectRegistry<FactoryHolder<T, O, Key>, Key> FactoryHolderRegistry;
         typedef FactoryHolderRegistry FactoryHolderRepository;
 
-        FactoryHolder(Key k) : i_key(k) { }
+        explicit FactoryHolder(Key const& k) : _key(k) { }
         virtual ~FactoryHolder() { }
-        inline Key key() const { return i_key; }
+        inline Key const& key() const { return _key; }
 
-        void RegisterSelf(void) { FactoryHolderRepository::instance()->InsertItem(this, i_key); }
-        void DeregisterSelf(void) { FactoryHolderRepository::instance()->RemoveItem(this, false); }
+        void RegisterSelf() { FactoryHolderRepository::instance()->InsertItem(this, _key); }
 
         /// Abstract Factory create method
-        virtual T* Create(void *data = NULL) const = 0;
+        virtual T* Create(O* object = nullptr) const = 0;
     private:
-        Key i_key;
+        Key const _key;
 };
 
 /** Permissible is a classic way of letting the object decide

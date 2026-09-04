@@ -3237,7 +3237,7 @@ class spell_dru_starfall_damage : public SpellScript
             if (!druid->CanSeeOrDetect(target))
                 return true;
             if (Creature* creature = target->ToCreature())
-                if (!creature->GetThreatManager().getOnlineContainer().getReferenceByTarget(druid))
+                if (!creature->GetThreatManager().IsThreateningTo(druid))
                     return true;
             if (Unit* unit = target->ToUnit())
             {

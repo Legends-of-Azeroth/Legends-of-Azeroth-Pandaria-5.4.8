@@ -114,17 +114,14 @@ class MovementGeneratorMedium : public MovementGenerator
         }
 };
 
-typedef FactoryHolder<MovementGenerator, MovementGeneratorType> MovementGeneratorCreator;
+typedef FactoryHolder<MovementGenerator, Creature, MovementGeneratorType> MovementGeneratorCreator;
 
 template<class Movement>
 struct MovementGeneratorFactory : public MovementGeneratorCreator
 {
-    MovementGeneratorFactory(MovementGeneratorType movementGeneratorType) : MovementGeneratorCreator(movementGeneratorType)
-    {
-        RegisterSelf();
-    }
+    MovementGeneratorFactory(MovementGeneratorType movementGeneratorType) : MovementGeneratorCreator(movementGeneratorType) { }
 
-    MovementGenerator* Create(void* /*object*/) const override
+    MovementGenerator* Create(Creature* /*object*/) const override
     {
         return new Movement();
     }
@@ -134,21 +131,21 @@ struct IdleMovementFactory : public MovementGeneratorCreator
 {
     IdleMovementFactory();
 
-    MovementGenerator* Create(void* object) const override;
+    MovementGenerator* Create(Creature* object) const override;
 };
 
 struct RandomMovementFactory : public MovementGeneratorCreator
 {
     RandomMovementFactory();
 
-    MovementGenerator* Create(void* object) const override;
+    MovementGenerator* Create(Creature* object) const override;
 };
 
 struct WaypointMovementFactory : public MovementGeneratorCreator
 {
     WaypointMovementFactory();
 
-    MovementGenerator* Create(void* object) const override;
+    MovementGenerator* Create(Creature* object) const override;
 };
 
 typedef MovementGeneratorCreator::FactoryHolderRegistry MovementGeneratorRegistry;

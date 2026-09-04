@@ -1,109 +1,96 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef TRINITY_OBJECTREGISTRY_H
 #define TRINITY_OBJECTREGISTRY_H
 
 #include "Define.h"
 
-#include <string>
-#include <vector>
 #include <map>
+#include <memory>
+#include <string>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 /** ObjectRegistry holds all registry item of the same type
  */
 template<class T, class Key = std::string>
-class ObjectRegistry
+class ObjectRegistry final
 {
     public:
-        static ObjectRegistry* instance()
+        typedef std::map<Key, std::unique_ptr<T>> RegistryMapType;
+
+        static ObjectRegistry<T, Key>* instance()
         {
-            static ObjectRegistry instance;
+            static ObjectRegistry<T, Key> instance;
             return &instance;
         }
-
-        typedef std::map<Key, T *> RegistryMapType;
 
         /// Returns a registry item
         const T* GetRegistryItem(Key key) const
         {
-            typename RegistryMapType::const_iterator iter = i_registeredObjects.find(key);
-            return( iter == i_registeredObjects.end() ? NULL : iter->second );
+            typename RegistryMapType::const_iterator iter = _registeredObjects.find(key);
+            return( iter == _registeredObjects.end() ? NULL : iter->second.get() );
         }
 
         /// Inserts a registry item
         bool InsertItem(T *obj, Key key, bool override = false)
         {
-            typename RegistryMapType::iterator iter = i_registeredObjects.find(key);
-            if ( iter != i_registeredObjects.end() )
+            typename RegistryMapType::iterator iter = _registeredObjects.find(key);
+            if ( iter != _registeredObjects.end() )
             {
                 if ( !override )
                     return false;
-                delete iter->second;
-                i_registeredObjects.erase(iter);
+                _registeredObjects.erase(iter);
             }
 
-            i_registeredObjects[key] = obj;
+            _registeredObjects.emplace(std::piecewise_construct, std::forward_as_tuple(key), std::forward_as_tuple(obj));
             return true;
-        }
-
-        /// Removes a registry item
-        void RemoveItem(Key key, bool delete_object = true)
-        {
-            typename RegistryMapType::iterator iter = i_registeredObjects.find(key);
-            if ( iter != i_registeredObjects.end() )
-            {
-                if ( delete_object )
-                    delete iter->second;
-                i_registeredObjects.erase(iter);
-            }
         }
 
         /// Returns true if registry contains an item
         bool HasItem(Key key) const
         {
-            return (i_registeredObjects.find(key) != i_registeredObjects.end());
+            return (_registeredObjects.find(key) != _registeredObjects.end());
         }
 
         /// Inefficiently return a vector of registered items
         unsigned int GetRegisteredItems(std::vector<Key> &l) const
         {
             unsigned int sz = l.size();
-            l.resize(sz + i_registeredObjects.size());
-            for (typename RegistryMapType::const_iterator iter = i_registeredObjects.begin(); iter != i_registeredObjects.end(); ++iter)
+            l.resize(sz + _registeredObjects.size());
+            for (typename RegistryMapType::const_iterator iter = _registeredObjects.begin(); iter != _registeredObjects.end(); ++iter)
                 l[sz++] = iter->first;
-            return i_registeredObjects.size();
+            return _registeredObjects.size();
         }
 
         /// Return the map of registered items
         RegistryMapType const &GetRegisteredItems() const
         {
-            return i_registeredObjects;
+            return _registeredObjects;
         }
 
         ObjectRegistry() { }
-        ~ObjectRegistry()
-        {
-            for (typename RegistryMapType::iterator iter=i_registeredObjects.begin(); iter != i_registeredObjects.end(); ++iter)
-                delete iter->second;
-            i_registeredObjects.clear();
-        }
+        ~ObjectRegistry() { }
+        ObjectRegistry(ObjectRegistry const&) = delete;
+        ObjectRegistry& operator=(ObjectRegistry const&) = delete;
     private:
-        RegistryMapType i_registeredObjects;
+        RegistryMapType _registeredObjects;
 };
 
 #endif

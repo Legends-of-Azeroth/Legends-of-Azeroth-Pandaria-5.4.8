@@ -901,17 +901,15 @@ public:
         Unit* target = handler->getSelectedUnit();
         if (!target)
             target = handler->GetSession()->GetPlayer();
-        HostileReference* ref = target->getHostileRefManager().getFirst();
         uint32 count = 0;
         handler->PSendSysMessage("Hostil reference list of %s (guid %u)", target->GetName().c_str(), target->GetGUID().GetCounter());
-        while (ref)
+        for (auto const& threatEntry : target->GetThreatManager().GetThreatenedByMeList())
         {
-            if (Unit* unit = ref->GetSource()->GetOwner())
+            if (Unit* unit = threatEntry.second->GetOwner())
             {
                 ++count;
-                handler->PSendSysMessage("   %u.   %s   (guid %u)  - threat %f", count, unit->GetName().c_str(), unit->GetGUID().GetCounter(), ref->getThreat());
+                handler->PSendSysMessage("   %u.   %s   (guid %u)  - threat %f", count, unit->GetName().c_str(), unit->GetGUID().GetCounter(), threatEntry.second->GetThreat());
             }
-            ref = ref->next();
         }
         handler->SendSysMessage("End of hostil reference list.");
         return true;

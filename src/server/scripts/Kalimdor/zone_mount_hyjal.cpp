@@ -373,8 +373,8 @@ class npc_angry_little_squirrel : public CreatureScript
                     for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
                         if (Player* player = *itr)
                             if (player->IsInCombat())
-                                for (HostileRefManager::iterator itr2 = player->getHostileRefManager().begin(); itr2 != player->getHostileRefManager().end(); ++itr2)
-                                    if (Unit* enemy = itr2->GetSource()->GetOwner())
+                                for (auto const& threatEntry : player->GetThreatManager().GetThreatenedByMeList())
+                                    if (Unit* enemy = threatEntry.second->GetOwner())
                                         if (enemy->GetTypeId() == TYPEID_UNIT && me->IsValidAttackTarget(enemy))
                                             enemies.push_back(enemy);
 

@@ -2491,13 +2491,12 @@ void Creature::FixateOnTarget(ObjectGuid targetGUID, uint32 timer)
 {
     if (Unit* target = ObjectAccessor::GetUnit(*this, targetGUID))
     {
-        GetThreatManager().clearReferences();
-        GetThreatManager().addThreat(target, std::numeric_limits<float>::max());
+        GetThreatManager().ClearAllThreat();
+        GetThreatManager().AddThreat(target, std::numeric_limits<float>::max());
+        GetThreatManager().FixateTarget(target);
 
         if (AI())
             AI()->AttackStart(target);
-
-        TauntApply(target);
 
         ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
         ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_THREAT, true);

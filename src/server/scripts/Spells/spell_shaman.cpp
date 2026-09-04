@@ -2934,8 +2934,8 @@ struct npc_sha_earth_elemental : public ScriptedAI
             ctx.Repeat(Milliseconds(5000));
 
             if (Unit* target = me->GetVictim())
-                if (target->GetThreatManager().getCurrentVictim())
-                    if (Unit* tank = target->GetThreatManager().getCurrentVictim()->getTarget())
+                if (target->GetThreatManager().GetCurrentVictim())
+                    if (Unit* tank = target->GetThreatManager().GetCurrentVictim())
                         if (tank->GetTypeId() == TYPEID_PLAYER && tank->ToPlayer()->GetRoleForGroup() == ROLES_TANK)
                             return;
 

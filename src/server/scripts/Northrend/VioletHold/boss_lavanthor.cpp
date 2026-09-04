@@ -20,13 +20,13 @@
 
 enum Spells
 {
-  SPELL_CAUTERIZING_FLAMES                      = 59466, //Only in heroic
-  SPELL_FIREBOLT                                = 54235,
-  SPELL_FIREBOLT_H                              = 59468,
-  SPELL_FLAME_BREATH                            = 54282,
-  SPELL_FLAME_BREATH_H                          = 59469,
-  SPELL_LAVA_BURN                               = 54249,
-  SPELL_LAVA_BURN_H                             = 59594
+    SPELL_CAUTERIZING_FLAMES                      = 59466,
+    SPELL_FIREBOLT                                = 54235,
+    SPELL_FIREBOLT_H                              = 59468,
+    SPELL_FLAME_BREATH                            = 54282,
+    SPELL_FLAME_BREATH_H                          = 59469,
+    SPELL_LAVA_BURN                               = 54249,
+    SPELL_LAVA_BURN_H                             = 59594
 };
 
 class boss_lavanthor : public CreatureScript
@@ -36,55 +36,75 @@ class boss_lavanthor : public CreatureScript
 
         struct boss_lavanthorAI : public ScriptedAI
         {
-            boss_lavanthorAI(Creature* creature) : ScriptedAI(creature)
+            boss_lavanthorAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
-                instance = creature->GetInstanceScript();
+                _scheduler.SetValidator([this]
+                {
+                    return !me->HasUnitState(UNIT_STATE_CASTING);
+                });
             }
-
-            uint32 uiFireboltTimer;
-            uint32 uiFlameBreathTimer;
-            uint32 uiLavaBurnTimer;
-            uint32 uiCauterizingFlamesTimer;
-
-            InstanceScript* instance;
 
             void Reset() override
             {
-                uiFireboltTimer = 1000;
-                uiFlameBreathTimer = 5000;
-                uiLavaBurnTimer = 10000;
-                uiCauterizingFlamesTimer = 3000;
-                if (instance)
+                _scheduler.CancelAll();
+
+                if (_instance)
                 {
-                    if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                        instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
-                    else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                        instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
+                    if (_instance->GetData(DATA_WAVE_COUNT) == 6)
+                        _instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
+                    else if (_instance->GetData(DATA_WAVE_COUNT) == 12)
+                        _instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
                 }
             }
 
             void JustEngagedWith(Unit* /*who*/) override
             {
-                if (instance)
+                if (_instance)
                 {
-                if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetGuidData(DATA_LAVANTHOR_CELL)))
+                    if (GameObject* pDoor = _instance->instance->GetGameObject(_instance->GetGuidData(DATA_LAVANTHOR_CELL)))
                         if (pDoor->GetGoState() == GO_STATE_READY)
                         {
                             EnterEvadeMode();
                             return;
                         }
-                    if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                        instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
-                    else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                        instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
+                    if (_instance->GetData(DATA_WAVE_COUNT) == 6)
+                        _instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
+                    else if (_instance->GetData(DATA_WAVE_COUNT) == 12)
+                        _instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
                 }
+
+                _scheduler
+                    .Schedule(Seconds(1), [this](TaskContext context)
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
+                            DoCast(target, DUNGEON_MODE(SPELL_FIREBOLT, SPELL_FIREBOLT_H));
+                        context.Repeat(Seconds(5), Seconds(13));
+                    })
+                    .Schedule(Seconds(5), [this](TaskContext context)
+                    {
+                        DoCast(me->GetVictim(), SPELL_FLAME_BREATH);
+                        context.Repeat(Seconds(10), Seconds(15));
+                    })
+                    .Schedule(Seconds(10), [this](TaskContext context)
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true))
+                            DoCast(target, DUNGEON_MODE(SPELL_LAVA_BURN, SPELL_LAVA_BURN_H));
+                        context.Repeat(Seconds(15), Seconds(23));
+                    });
+
+                if (IsHeroic())
+                    _scheduler.Schedule(Seconds(3), [this](TaskContext context)
+                    {
+                        DoCastAOE(SPELL_CAUTERIZING_FLAMES);
+                        context.Repeat(Seconds(10), Seconds(16));
+                    });
             }
 
             void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
-                if (instance)
-                    instance->SetData(DATA_WIPE, 1);
+                if (_instance)
+                    _instance->SetData(DATA_WIPE, 1);
             }
 
             void AttackStart(Unit* who) override
@@ -108,67 +128,40 @@ class boss_lavanthor : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (uiFlameBreathTimer <= diff)
+                _scheduler.Update(diff, [this]
                 {
-                    if (!me->IsNonMeleeSpellCasted(false))
-                    {
-                        DoCast(me->GetVictim(), SPELL_FLAME_BREATH);
-                        uiFlameBreathTimer = urand(10000, 15000);
-                    }
-                } else uiFlameBreathTimer -= diff;
-
-                if (uiLavaBurnTimer <= diff)
-                {
-                    if (!me->IsNonMeleeSpellCasted(false))
-                    {
-                        DoCast(me->GetVictim(), DUNGEON_MODE(SPELL_LAVA_BURN, SPELL_LAVA_BURN_H));
-                        uiLavaBurnTimer = urand(10000, 20000);
-                    }
-                }
-
-                if (IsHeroic())
-                {
-                    if (uiCauterizingFlamesTimer <= diff)
-                    {
-                        DoCast(me->GetVictim(), SPELL_CAUTERIZING_FLAMES);
-                        uiCauterizingFlamesTimer = urand(10000, 16000);
-                    } else uiCauterizingFlamesTimer -= diff;
-                }
-
-                if (uiFireboltTimer <= diff)
-                {
-                    if (!me->IsNonMeleeSpellCasted(false))
-                    {
-                        DoCast(me->GetVictim(), DUNGEON_MODE(SPELL_FIREBOLT, SPELL_FIREBOLT_H));
-                        uiFireboltTimer = urand(5000, 13000);
-                    }
-                } else uiFireboltTimer -= diff;
-
-                DoMeleeAttackIfReady();
+                    DoMeleeAttackIfReady();
+                });
             }
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (instance)
+                _scheduler.CancelAll();
+
+                if (_instance)
                 {
-                    if (instance->GetData(DATA_WAVE_COUNT) == 6)
+                    if (_instance->GetData(DATA_WAVE_COUNT) == 6)
                     {
-                        if (IsHeroic() && instance->GetData(DATA_1ST_BOSS_EVENT) == DONE)
+                        if (IsHeroic() && _instance->GetData(DATA_1ST_BOSS_EVENT) == DONE)
                             me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
-                        instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
-                        instance->SetData(DATA_WAVE_COUNT, 7);
+                        _instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
+                        _instance->SetData(DATA_WAVE_COUNT, 7);
                     }
-                    else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+                    else if (_instance->GetData(DATA_WAVE_COUNT) == 12)
                     {
-                        if (IsHeroic() && instance->GetData(DATA_2ND_BOSS_EVENT) == DONE)
+                        if (IsHeroic() && _instance->GetData(DATA_2ND_BOSS_EVENT) == DONE)
                             me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
-                        instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
-                        instance->SetData(DATA_WAVE_COUNT, 13);
+                        _instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
+                        _instance->SetData(DATA_WAVE_COUNT, 13);
                     }
                 }
             }
+
+        private:
+            InstanceScript* _instance;
+            TaskScheduler _scheduler;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

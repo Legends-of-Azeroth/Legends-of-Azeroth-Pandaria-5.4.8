@@ -31,7 +31,6 @@ enum Spells
 enum NPCs
 {
     NPC_ETHEREAL_SPHERE                       = 29271,
-    //NPC_ETHEREAL_SPHERE2                    = 32582, // heroic only?
 };
 
 enum CreatureSpells
@@ -50,7 +49,7 @@ enum Yells
     SAY_AGGRO                                   = 0,
     SAY_SLAY                                    = 1,
     SAY_DEATH                                   = 2,
-    SAY_CHARGED                                 = 4, // unused
+    SAY_CHARGED                                 = 4,
     SAY_REPEAT_SUMMON                           = 5,
     SAY_SUMMON_ENERGY                           = 6,
 
@@ -65,39 +64,33 @@ class boss_xevozz : public CreatureScript
 
         struct boss_xevozzAI : public ScriptedAI
         {
-            boss_xevozzAI(Creature* creature) : ScriptedAI(creature)
+            boss_xevozzAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
-                instance  = creature->GetInstanceScript();
+                _scheduler.SetValidator([this]
+                {
+                    return !me->HasUnitState(UNIT_STATE_CASTING);
+                });
             }
-
-            InstanceScript* instance;
-
-            uint32 uiSummonEtherealSphere_Timer;
-            uint32 uiArcaneBarrageVolley_Timer;
-            uint32 uiArcaneBuffet_Timer;
-            uint32 uiArcaneBolt;
 
             void Reset() override
             {
-                if (instance)
+                _scheduler.CancelAll();
+
+                if (_instance)
                 {
-                    if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                        instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
-                    else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                        instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
+                    if (_instance->GetData(DATA_WAVE_COUNT) == 6)
+                        _instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
+                    else if (_instance->GetData(DATA_WAVE_COUNT) == 12)
+                        _instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
                 }
 
-                uiSummonEtherealSphere_Timer = urand(10000, 12000);
-                uiArcaneBarrageVolley_Timer = urand(20000, 22000);
-                uiArcaneBolt = urand(2400, 3800);
-                uiArcaneBuffet_Timer = urand(5000, 6000);
                 DespawnSphere();
             }
 
             void DespawnSphere()
             {
                 std::list<Creature*> assistList;
-                GetCreatureListWithEntryInGrid(assistList,me, NPC_ETHEREAL_SPHERE ,150.0f);
+                GetCreatureListWithEntryInGrid(assistList, me, NPC_ETHEREAL_SPHERE, 150.0f);
 
                 if (assistList.empty())
                     return;
@@ -134,26 +127,46 @@ class boss_xevozz : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                if (instance)
+                if (_instance)
                 {
-                    if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetGuidData(DATA_XEVOZZ_CELL)))
+                    if (GameObject* pDoor = _instance->instance->GetGameObject(_instance->GetGuidData(DATA_XEVOZZ_CELL)))
                         if (pDoor->GetGoState() == GO_STATE_READY)
                         {
                             EnterEvadeMode();
                             return;
                         }
-                    if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                        instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
-                    else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                        instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
+                    if (_instance->GetData(DATA_WAVE_COUNT) == 6)
+                        _instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
+                    else if (_instance->GetData(DATA_WAVE_COUNT) == 12)
+                        _instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
                 }
+
+                _scheduler
+                    .Schedule(Seconds(8), Seconds(10), [this](TaskContext context)
+                    {
+                        DoCastAOE(DUNGEON_MODE(SPELL_ARCANE_BARRAGE_VOLLEY, SPELL_ARCANE_BARRAGE_VOLLEY_H));
+                        context.Repeat(Seconds(8), Seconds(10));
+                    })
+                    .Schedule(Seconds(10), Seconds(11), [this](TaskContext context)
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45, true))
+                            DoCast(target, DUNGEON_MODE(SPELL_ARCANE_BUFFED, SPELL_ARCANE_BUFFED_H));
+                        context.Repeat(Seconds(15), Seconds(20));
+                    })
+                    .Schedule(Seconds(5), [this](TaskContext context)
+                    {
+                        Talk(SAY_REPEAT_SUMMON);
+                        uint32 summonSpell = SPELL_SUMMON_ETHEREAL_SPHERE_1 + rand() % 3;
+                        DoCast(me, summonSpell);
+                        context.Repeat(Seconds(45), Seconds(47));
+                    });
             }
 
             void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
-                if (instance)
-                    instance->SetData(DATA_WIPE, 1);
+                if (_instance)
+                    _instance->SetData(DATA_WIPE, 1);
             }
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
@@ -163,75 +176,36 @@ class boss_xevozz : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (uiArcaneBarrageVolley_Timer <= diff)
+                _scheduler.Update(diff, [this]
                 {
-                    if (!me->IsNonMeleeSpellCasted(false))
-                    {
-                        DoCast(me, SPELL_ARCANE_BARRAGE_VOLLEY);
-                        uiArcaneBarrageVolley_Timer = urand(20000, 22000);
-                    }
-                }
-                else uiArcaneBarrageVolley_Timer -= diff;
-
-                if (uiArcaneBolt <= diff)
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(target, SPELL_ARCANE_BOLT);
-                    uiArcaneBolt = urand(2400, 3800);
-                }
-
-                else uiArcaneBolt -= diff;
-
-                if (uiArcaneBuffet_Timer)
-                {
-                    if (uiArcaneBuffet_Timer <= diff)
-                    {
-                        if (!me->IsNonMeleeSpellCasted(false))
-                        {
-                            DoCast(me->GetVictim(), DUNGEON_MODE(SPELL_ARCANE_BUFFED,SPELL_ARCANE_BUFFED_H));
-                            uiArcaneBuffet_Timer = urand(15000, 20000);
-                        }
-                    }
-                    else uiArcaneBuffet_Timer -= diff;
-                }
-
-                if (uiSummonEtherealSphere_Timer <= diff)
-                {
-                    Talk(SAY_REPEAT_SUMMON);
-                    DoCast(me, SPELL_SUMMON_ETHEREAL_SPHERE_1);
-                    if (IsHeroic()) // extra one for heroic
-                        me->SummonCreature(NPC_ETHEREAL_SPHERE, me->GetPositionX() - 5 + rand() % 10, me->GetPositionY() - 5 + rand() % 10, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 40000ms);
-
-                    uiSummonEtherealSphere_Timer = urand(45000, 47000);
-                }
-                else uiSummonEtherealSphere_Timer -= diff;
-
-                DoMeleeAttackIfReady();
+                    DoMeleeAttackIfReady();
+                });
             }
 
             void JustDied(Unit* /*killer*/) override
             {
+                _scheduler.CancelAll();
                 Talk(SAY_DEATH);
 
                 DespawnSphere();
 
-                if (instance)
+                if (_instance)
                 {
-                    if (instance->GetData(DATA_WAVE_COUNT) == 6)
+                    if (_instance->GetData(DATA_WAVE_COUNT) == 6)
                     {
-                        if (IsHeroic() && instance->GetData(DATA_1ST_BOSS_EVENT) == DONE)
+                        if (IsHeroic() && _instance->GetData(DATA_1ST_BOSS_EVENT) == DONE)
                             me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
-                        instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
-                        instance->SetData(DATA_WAVE_COUNT, 7);
+                        _instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
+                        _instance->SetData(DATA_WAVE_COUNT, 7);
                     }
-                    else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+                    else if (_instance->GetData(DATA_WAVE_COUNT) == 12)
                     {
-                        if (IsHeroic() && instance->GetData(DATA_2ND_BOSS_EVENT) == DONE)
+                        if (IsHeroic() && _instance->GetData(DATA_2ND_BOSS_EVENT) == DONE)
                             me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
-                        instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
-                        instance->SetData(DATA_WAVE_COUNT, 13);
+                        _instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
+                        _instance->SetData(DATA_WAVE_COUNT, 13);
                     }
                 }
             }
@@ -249,6 +223,10 @@ class boss_xevozz : public CreatureScript
 
                 Talk(SAY_SLAY);
             }
+
+        private:
+            InstanceScript* _instance;
+            TaskScheduler _scheduler;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -264,65 +242,72 @@ class npc_ethereal_sphere : public CreatureScript
 
         struct npc_ethereal_sphereAI : public ScriptedAI
         {
-            npc_ethereal_sphereAI(Creature* creature) : ScriptedAI(creature)
+            npc_ethereal_sphereAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
-                instance = creature->GetInstanceScript();
+                _scheduler.SetValidator([this]
+                {
+                    return !me->HasUnitState(UNIT_STATE_CASTING);
+                });
             }
-
-            InstanceScript* instance;
-
-            uint32 uiSummonPlayers_Timer;
-            uint32 uiRangeCheck_Timer;
 
             void Reset() override
             {
-                uiSummonPlayers_Timer = urand(33000, 35000);
-                uiRangeCheck_Timer = 1000;
+                _scheduler.CancelAll();
             }
+
+            void JustEngagedWith(Unit* /*who*/) override
+            {
+                _scheduler
+                    .Schedule(Seconds(1), [this](TaskContext context)
+                    {
+                        if (!me->HasAura(SPELL_POWER_BALL_VISUAL))
+                            DoCast(me, SPELL_POWER_BALL_VISUAL);
+
+                        if (_instance)
+                        {
+                            if (Creature* pXevozz = Unit::GetCreature(*me, _instance->GetGuidData(DATA_XEVOZZ)))
+                            {
+                                float fDistance = me->GetDistance2d(pXevozz);
+                                if (fDistance <= 3)
+                                    DoCast(pXevozz, SPELL_ARCANE_POWER);
+                                else
+                                    DoCast(me, 35845);
+                            }
+                        }
+                        context.Repeat(Seconds(1));
+                    })
+                    .Schedule(Seconds(33), Seconds(35), [this](TaskContext context)
+                    {
+                        Talk(SAY_ETHEREAL_SPHERE_SUMMON);
+                        DoCast(me, SPELL_SUMMON_PLAYERS);
+
+                        Map* map = me->GetMap();
+                        if (map && map->IsDungeon())
+                        {
+                            Map::PlayerList const& PlayerList = map->GetPlayers();
+                            if (!PlayerList.isEmpty())
+                                for (auto&& ref : PlayerList)
+                                    if (ref.GetSource()->IsAlive())
+                                        DoTeleportPlayer(ref.GetSource(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), ref.GetSource()->GetOrientation());
+                        }
+
+                        context.Repeat(Seconds(33), Seconds(35));
+                    });
+            }
+
+            void MoveInLineOfSight(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
 
-                if (!me->HasAura(SPELL_POWER_BALL_VISUAL))
-                    DoCast(me, SPELL_POWER_BALL_VISUAL);
-
-                if (uiRangeCheck_Timer < diff)
-                {
-                    if (instance)
-                    {
-                        if (Creature* pXevozz = Unit::GetCreature(*me, instance->GetGuidData(DATA_XEVOZZ)))
-                        {
-                            float fDistance = me->GetDistance2d(pXevozz);
-                            if (fDistance <= 3)
-                                DoCast(pXevozz, SPELL_ARCANE_POWER);
-                            else
-                                DoCast(me, 35845); // Is it blizzlike?
-                        }
-                    }
-                    uiRangeCheck_Timer = 1000;
-                }
-                else uiRangeCheck_Timer -= diff;
-
-                if (uiSummonPlayers_Timer < diff)
-                {
-                    DoCast(me, SPELL_SUMMON_PLAYERS); // not working right
-
-                    Map* map = me->GetMap();
-                    if (map && map->IsDungeon())
-                    {
-                        Map::PlayerList const& PlayerList = map->GetPlayers();
-                        if (!PlayerList.isEmpty())
-                            for (auto&& ref : PlayerList)
-                                if (ref.GetSource()->IsAlive())
-                                    DoTeleportPlayer(ref.GetSource(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), ref.GetSource()->GetOrientation());
-                    }
-
-                    uiSummonPlayers_Timer = urand(33000, 35000);
-                }
-                else uiSummonPlayers_Timer -= diff;
+                _scheduler.Update(diff);
             }
+
+        private:
+            InstanceScript* _instance;
+            TaskScheduler _scheduler;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

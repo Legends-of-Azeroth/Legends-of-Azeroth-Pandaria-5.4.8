@@ -987,7 +987,7 @@ class npc_ravenous_creeper : public CreatureScript
                                 if (target && target->GetExactDist2d(&conclaveHomePositions[0]) <= 90.0f)
                                 {
                                     evading = false;
-                                    me->GetThreatManager().setCurrentVictim(NULL);
+                                    me->GetThreatManager().ClearFixate();
                                     AttackStart(target);
                                     me->GetMotionMaster()->MoveChase(target);
                                 }
