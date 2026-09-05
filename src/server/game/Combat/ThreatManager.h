@@ -230,13 +230,7 @@ class TC_GAME_API ThreatManager
         void modifyThreatPercent(Unit* victim, int32 percent) { ModifyThreatByPercent(victim, percent); }
         void resetAllAggro() { ResetAllThreat(); }
         template<class PREDICATE>
-        void resetAggro(PREDICATE predicate)
-        {
-            for (auto const& pair : _myThreatListEntries)
-                if (Unit* victim = pair.second->GetVictim())
-                    if (predicate(victim))
-                        ResetThreat(victim);
-        }
+        void resetAggro(PREDICATE predicate);
         float getThreat(Unit* victim, bool alsoSearchOfflineList = false) const;
         void clearReferences() { ClearAllThreat(); }
         void tauntApply(Unit* taunter);
@@ -384,6 +378,15 @@ class TC_GAME_API ThreatReference
     friend class ThreatManager;
     friend struct CompareThreatLessThan;
 };
+
+template<class PREDICATE>
+void ThreatManager::resetAggro(PREDICATE predicate)
+{
+    for (auto const& pair : _myThreatListEntries)
+        if (Unit* victim = pair.second->GetVictim())
+            if (predicate(victim))
+                ResetThreat(victim);
+}
 
 inline bool CompareThreatLessThan::operator()(ThreatReference const* a, ThreatReference const* b) const { return ThreatManager::CompareReferencesLT(a, b, 1.0f); }
 

@@ -298,7 +298,7 @@ bool CreatureAI::CheckInRoom()
     if (IsInBoundary())
         return true;
 
-    TC_LOG_DEBUG("scripts", "Creature %s (unit %s) has left its designated room area!", me->GetName(), me->GetGUID().ToString().c_str());
+    TC_LOG_DEBUG("scripts", "Creature %s (unit %s) has left its designated room area!", me->GetName().c_str(), me->GetGUID().ToString().c_str());
     EnterEvadeMode();
     return false;
 }
