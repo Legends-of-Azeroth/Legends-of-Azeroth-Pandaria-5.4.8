@@ -506,6 +506,8 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData* data)
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
     }
 
+    SetIsCombatDisallowed((cInfo->flags_extra & CREATURE_FLAG_EXTRA_NO_COMBAT) != 0);
+
     if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_NO_KNOCK_BACK)
     {
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -228,6 +228,7 @@ public:
             Berserk_Timer = 600000;
             InnerDemons_Timer = 30000;
             me->SetCanDualWield(true);
+            me->SetIsCombatDisallowed(true);
             DealDamage = true;
             DemonForm = false;
             IsFinalForm = false;
@@ -317,6 +318,9 @@ public:
 
                 // and reseting equipment
                 me->LoadEquipment();
+
+                // Leotheras is now allowed to enter combat
+                me->SetIsCombatDisallowed(false);
 
                 if (instance && instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
                 {

@@ -2170,6 +2170,11 @@ public:
     CombatManager& GetCombatManager() { return m_CombatManager; }
     CombatManager const& GetCombatManager() const { return m_CombatManager; }
 
+    // returns if the unit can't enter combat
+    bool IsCombatDisallowed() const { return _isCombatDisallowed; }
+    // enables / disables combat interaction of this unit
+    void SetIsCombatDisallowed(bool apply) { _isCombatDisallowed = apply; }
+
     VisibleAuraMap const* GetVisibleAuras()
     {
         return &m_visibleAuras;
@@ -2658,6 +2663,7 @@ protected:
 
     ThreatManager m_ThreatManager;
     CombatManager m_CombatManager;
+    bool _isCombatDisallowed = false;
 
     Vehicle* m_vehicle;
     std::shared_ptr<Vehicle> m_vehicleKit;

@@ -32,7 +32,7 @@ public:
     float CalcThreatGap(Unit* attacker, ThreatManager* threatMgr)
     {
         Unit* victim = attacker->GetVictim();
-        return threatMgr->getThreat(victim) - threatMgr->getThreat(attacker);
+        return threatMgr->GetThreat(victim) - threatMgr->GetThreat(attacker);
     }
 
 protected:

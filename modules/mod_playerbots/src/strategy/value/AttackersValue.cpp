@@ -148,7 +148,7 @@ bool AttackersValue::IsPossibleTarget(Unit* attacker, Player* bot, float range)
 
     bool leaderHasThreat = false;
     if (attacker && bot->GetGroup() && botAI->GetMaster())
-        leaderHasThreat = attacker->GetThreatManager().getThreat(botAI->GetMaster());
+        leaderHasThreat = attacker->GetThreatManager().GetThreat(botAI->GetMaster());
 
     bool isMemberBotGroup = false;
     if (bot->GetGroup() && botAI->GetMaster())
