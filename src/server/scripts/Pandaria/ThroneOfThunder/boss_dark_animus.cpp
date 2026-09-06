@@ -457,7 +457,8 @@ class npc_anima_orb : public CreatureScript
 
                 atEvade = true;
 
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
 
                 summons.DespawnAll();
@@ -712,7 +713,8 @@ struct golemsBaseAI : public ScriptedAI
         if (!me->IsAlive())
             me->Respawn();
 
-        me->DeleteThreatList();
+        me->GetThreatManager().RemoveMeFromThreatLists();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
 
         uint32 corpseDelay = me->GetCorpseDelay();
@@ -1563,7 +1565,7 @@ class spell_threat_proc_eff : public SpellScript
     {
         if (Unit* caster = GetCaster())
             if (Unit* target = GetHitUnit())
-                target->AddThreat(caster, 1000000.0f);
+                target->GetThreatManager().AddThreat(caster, 1000000.0f);
     }
 
     void Register() override

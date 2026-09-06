@@ -500,7 +500,8 @@ class boss_immerseus : public CreatureScript
 
                 me->SetFaction(35);
                 me->RemoveAllAuras();
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
                 me->SetFullHealth();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -529,7 +530,8 @@ class boss_immerseus : public CreatureScript
                 scheduler.CancelAll();
                 me->RemoveAllAuras();
                 Reset();
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
                 me->GetMotionMaster()->MovementExpired();
                 me->GetMotionMaster()->MoveTargetedHome();

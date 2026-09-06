@@ -1896,7 +1896,7 @@ class npc_dragon_soul_twilight_assaulter : public CreatureScript
                 if (me->GetReactState() == REACT_PASSIVE)
                 {
                     me->CombatStop(true);
-                    me->getHostileRefManager().deleteReferences();
+                    me->GetThreatManager().RemoveMeFromThreatLists();
                     if (wasChanneling)
                         DoCastAOE(SPELL_TWLIGHT_FLAMES_CHANNEL);
                     return;
@@ -1990,7 +1990,7 @@ class npc_dragon_soul_twilight_assaulter : public CreatureScript
                     if (me->IsInCombat())
                     {
                         me->CombatStop(true);
-                        me->getHostileRefManager().deleteReferences();
+                        me->GetThreatManager().RemoveMeFromThreatLists();
                         EnterEvadeMode();
                     }
                 }

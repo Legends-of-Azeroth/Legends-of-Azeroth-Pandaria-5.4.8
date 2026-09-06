@@ -264,7 +264,7 @@ struct npc_brewmaiden : public ScriptedAI
 
         if (me->Attack(who, true))
         {
-            me->AddThreat(who, 1.0f);
+            me->GetThreatManager().AddThreat(who, 1.0f);
             me->SetInCombatWith(who);
             who->SetInCombatWith(me);
 

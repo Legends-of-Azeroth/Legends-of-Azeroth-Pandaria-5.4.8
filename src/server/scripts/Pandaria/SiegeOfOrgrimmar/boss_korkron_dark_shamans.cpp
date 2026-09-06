@@ -650,7 +650,8 @@ class boss_wavebinder_kardris : public CreatureScript
 
                 ScriptedAI::EnterEvadeMode();
 
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->ResetPlayerDamageReq();
 
                 if (instance)

@@ -329,7 +329,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                 if (me->HasAura(SPELL_SHADOW_WARPED))
                     events.ScheduleEvent(EVENT_SHADOW_NOVA, 7000);
                 events.ScheduleEvent(EVENT_BERSERK, 6 * MINUTE * IN_MILLISECONDS);
-                proto->AddThreat(who, 10.0f);
+                proto->GetThreatManager().AddThreat(who, 10.0f);
                 proto->SetInCombatWith(who);
                 Talk(SAY_AGGRO);
                 DoZoneInCombat();

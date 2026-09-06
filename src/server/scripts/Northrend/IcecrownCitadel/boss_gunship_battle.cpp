@@ -525,8 +525,8 @@ class npc_gunship_boss : public CreatureScript
 
                              horde->SetInCombatWith(alliance);
                              alliance->SetInCombatWith(horde);
-                             horde->AddThreat(alliance, 0.0f);
-                             alliance->AddThreat(horde, 0.0f);
+                             horde->GetThreatManager().AddThreat(alliance, 0.0f);
+                             alliance->GetThreatManager().AddThreat(horde, 0.0f);
                              DoZoneInCombat(OtherBoss(), 200.0f);
 
                              for (auto&& passenger : OtherTransport()->GetStaticPassengers())
@@ -1153,7 +1153,7 @@ class npc_gunship_boss : public CreatureScript
                     if (Player* player = ref.GetSource())
                     {
                         player->CombatStop();
-                        player->getHostileRefManager().deleteReferences();
+                        player->GetThreatManager().RemoveMeFromThreatLists();
                     }
                 }
             }
@@ -1472,7 +1472,7 @@ class npc_sergeant : public CreatureScript
                     return;
 
                 if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(me->GetEntry() == NPC_GB_SKYBREAKER_SERGEANT ? DATA_GB_HIGH_OVERLORD_SAURFANG : DATA_GB_MURADIN_BRONZEBEARD)))
-                    me->GetThreatManager().modifyThreatPercent(boss, -100);
+                    me->GetThreatManager().ModifyThreatByPercent(boss, -100);
 
                 UpdateVictim();
 
@@ -1568,7 +1568,7 @@ class npc_marine_or_reaver : public CreatureScript
                     return;
 
                 if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(me->GetEntry() == NPC_GB_SKYBREAKER_MARINE ? DATA_GB_HIGH_OVERLORD_SAURFANG : DATA_GB_MURADIN_BRONZEBEARD)))
-                    me->GetThreatManager().modifyThreatPercent(boss, -100);
+                    me->GetThreatManager().ModifyThreatByPercent(boss, -100);
 
                 UpdateVictim();
 
@@ -2487,7 +2487,7 @@ class npc_icc_spire_frostwyrm: public CreatureScript
                     landed = true;
                     me->SetFlying(false);
                     me->SetInCombatWith(who);
-                    me->AddThreat(who, 1.0f);
+                    me->GetThreatManager().AddThreat(who, 1.0f);
                     me->GetMotionMaster()->MoveChase(who);
                 }
             }
@@ -2876,7 +2876,7 @@ class spell_gb_melee_targeting : public SpellScriptLoader
                         if (caster->GetVictim() != target)
                         {
                             caster->GetAI()->AttackStart(target);
-                            caster->AddThreat(target, 1000.0f);
+                            caster->GetThreatManager().AddThreat(target, 1000.0f);
                         }
                     }
                 }

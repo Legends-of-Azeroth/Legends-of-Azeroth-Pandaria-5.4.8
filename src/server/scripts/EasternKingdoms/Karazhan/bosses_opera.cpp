@@ -928,7 +928,7 @@ class boss_bigbadwolf : public CreatureScript
                             if (TempThreat)
                                 DoModifyThreatPercent(target, -100);
                             HoodGUID = target->GetGUID();
-                            me->AddThreat(target, 1000000.0f);
+                            me->GetThreatManager().AddThreat(target, 1000000.0f);
                             ChaseTimer = 20000;
                             IsChasing = true;
                         }
@@ -942,7 +942,7 @@ class boss_bigbadwolf : public CreatureScript
                             HoodGUID = ObjectGuid::Empty;
                             if (DoGetThreat(target))
                                 DoModifyThreatPercent(target, -100);
-                            me->AddThreat(target, TempThreat);
+                            me->GetThreatManager().AddThreat(target, TempThreat);
                             TempThreat = 0;
                         }
 
@@ -1284,7 +1284,7 @@ class boss_romulo : public CreatureScript
                     Creature* julianne = (Unit::GetCreature(*me, JulianneGUID));
                     if (julianne && julianne->GetVictim())
                     {
-                        me->AddThreat(julianne->GetVictim(), 1.0f);
+                        me->GetThreatManager().AddThreat(julianne->GetVictim(), 1.0f);
                         AttackStart(julianne->GetVictim());
                     }
                 }

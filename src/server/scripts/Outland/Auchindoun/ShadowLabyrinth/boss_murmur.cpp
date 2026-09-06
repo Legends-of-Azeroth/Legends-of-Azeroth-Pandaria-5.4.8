@@ -155,12 +155,12 @@ class boss_murmur : public CreatureScript
 
                 if (!me->IsWithinMeleeRange(me->GetVictim()))
                 {
-                    ThreatContainer::StorageType threatlist = me->GetThreatManager().getThreatList();
-                    for (ThreatContainer::StorageType::const_iterator i = threatlist.begin(); i != threatlist.end(); ++i)
-                        if (Unit* target = ObjectAccessor::GetUnit(*me, (*i)->getUnitGuid()))
+                    auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+                    for (ThreatReference const* ref : threatlist)
+                        if (Unit* target = ObjectAccessor::GetUnit(*me, ref->GetVictim()->GetGUID()))
                             if (me->IsWithinMeleeRange(target))
                             {
-                                me->TauntApply(target);
+                                me->GetThreatManager().TauntUpdate();
                                 break;
                             }
                 }

@@ -195,7 +195,6 @@ m_ControlledByPlayer(false), movespline(new Movement::MoveSpline()), _gameClient
 i_AI(NULL), i_disabledAI(NULL), m_procDeep(0),
 m_removedAurasCount(0), i_motionMaster(new MotionMaster(this)), m_ThreatManager(this), m_CombatManager(this),
 m_vehicle(NULL), m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE),
-m_HostileRefManager(this),
 _aiAnimKitId(0), _movementAnimKitId(0), _meleeAnimKitId(0)
 {
 #ifdef _MSC_VER
@@ -427,11 +426,13 @@ void Unit::Update(uint32 p_time)
 
             if (canResetCombat && !m_combatTimerPvP)    // We are not fighting boss and PvP timer is expired or never was
             {
-                if (GetThreatManager().GetThreatedByMeList().empty())      // No enemies, exit combat now
+                if (GetThreatManager().GetThreatenedByMeList().empty())      // No enemies, exit combat now
                     ClearInCombat();
                 else if (!m_combatTimerPvE)             // Okay, we have some enemies and PvE combat timer is expired, check if they can reach us
                 {
-                    std::vector<ThreatReference*> threats = GetThreatManager().GetThreatedByMeList();
+                    std::vector<ThreatReference*> threats;
+                    for (auto const& pair : GetThreatManager().GetThreatenedByMeList())
+                        threats.push_back(pair.second);
                     for (ThreatReference* threat : threats)
                     {
                         Unit* target = threat->GetOwner();
@@ -439,7 +440,7 @@ void Unit::Update(uint32 p_time)
                             if (!creature->CanCreatureAttack(this, false))
                                 threat->ClearThreat();
                     }
-                    if (GetThreatManager().GetThreatedByMeList().empty())
+                    if (GetThreatManager().GetThreatenedByMeList().empty())
                         ClearInCombat();
                     else
                         m_combatTimerPvE = 5000;
@@ -1038,7 +1039,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             victim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_DIRECT_DAMAGE, spellProto ? spellProto->Id : 0);
 
         if (victim->GetTypeId() != TYPEID_PLAYER)
-            victim->AddThreat(this, float(damage), damageSchoolMask, spellProto);
+            victim->GetThreatManager().AddThreat(this, float(damage), spellProto);
         else                                                // victim is a player
         {
             // random durability for items (HIT TAKEN)
@@ -7608,7 +7609,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = 54445;
                     target = this;
                     float addThreat = float(CalculatePct(procSpell->Effects [0].CalcValue(this), triggerAmount));
-                    victim->AddThreat(this, addThreat);
+                    victim->GetThreatManager().AddThreat(this, addThreat);
                     break;
                 }
                 // Silverback
@@ -8777,7 +8778,7 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
         SetInCombatWith(victim);
         if (victim->GetTypeId() == TYPEID_PLAYER)
             victim->SetInCombatWith(this);
-        AddThreat(victim, 0.0f);
+        GetThreatManager().AddThreat(victim, 0.0f);
 
         ToCreature()->SendAIReaction(AI_REACTION_HOSTILE);
         ToCreature()->CallAssistance();
@@ -9757,7 +9758,7 @@ void Unit::EnergizeBySpell(Unit* victim, uint32 spellId, int32 damage, Powers po
     SendEnergizeSpellLog(victim, spellId, damage, powerType);
     // needs to be called after sending spell log
     victim->ModifyPower(powerType, damage);
-    victim->getHostileRefManager().threatAssist(this, float(damage) * 0.5f, spellInfo);
+    victim->GetThreatManager().ForwardThreatForAssistingMe(this, float(damage) * 0.5f, spellInfo);
 }
 
 int32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 effIndex, int32 damage, DamageEffectType damagetype, uint32 stack) const
@@ -12456,8 +12457,8 @@ void Unit::setDeathState(DeathState s)
     if (s != ALIVE && s != JUST_RESPAWNED)
     {
         CombatStop();
-        DeleteThreatList();
-        getHostileRefManager().deleteReferences();
+        GetThreatManager().RemoveMeFromThreatLists();
+        GetThreatManager().ClearAllThreat();
 
         if (IsNonMeleeSpellCasted(false))
             InterruptNonMeleeSpells(false);
@@ -12537,42 +12538,6 @@ bool Unit::CanHaveThreatList() const
         return false;
 
     return true;
-}
-
-//======================================================================
-
-void Unit::AddThreat(Unit* victim, float fThreat, SpellSchoolMask /*schoolMask*/, SpellInfo const* threatSpell)
-{
-    // Only mobs can manage threat lists
-    if (CanHaveThreatList())
-        m_ThreatManager.AddThreat(victim, fThreat, threatSpell);
-}
-
-//======================================================================
-
-void Unit::DeleteThreatList()
-{
-    if (CanHaveThreatList())
-    {
-        m_ThreatManager.RemoveMeFromThreatLists();
-        m_ThreatManager.ClearAllThreat();
-    }
-}
-
-//======================================================================
-
-void Unit::TauntApply(Unit* /*taunter*/)
-{
-    if (CanHaveThreatList())
-        m_ThreatManager.TauntUpdate();
-}
-
-//======================================================================
-
-void Unit::TauntFadeOut(Unit* /*taunter*/)
-{
-    if (CanHaveThreatList())
-        m_ThreatManager.TauntUpdate();
 }
 
 //======================================================================
@@ -13815,7 +13780,8 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
     m_Events.KillAllEvents(false);                      // non-delatable (currently casted spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
     CombatStop(true);                                   // Because scripts in RemoveAllAuras can trigger fucking spells, need to call InterruptNonMeleeSpells another time
     ClearComboPointHolders();
-    DeleteThreatList();
+    GetThreatManager().RemoveMeFromThreatLists();
+    GetThreatManager().ClearAllThreat();
     GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
 }
 
@@ -16114,7 +16080,8 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellInfo)
 
         if (!creature->IsPet())
         {
-            creature->DeleteThreatList();
+            creature->GetThreatManager().RemoveMeFromThreatLists();
+            creature->GetThreatManager().ClearAllThreat();
             CreatureTemplate const* cInfo = creature->GetCreatureTemplate();
             if (cInfo && (cInfo->lootid || cInfo->maxgold > 0))
                 creature->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
@@ -16504,7 +16471,8 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     if (!aurApp || (aurApp->GetBase()->GetId() != 145065 && aurApp->GetBase()->GetId() != 145171))
     {
         CombatStop(); /// @todo CombatStop(true) may cause crash (interrupt spells)
-        DeleteThreatList();
+        GetThreatManager().RemoveMeFromThreatLists();
+        GetThreatManager().ClearAllThreat();
     }
 
     // Charmer stop charming
@@ -16675,8 +16643,8 @@ void Unit::RemoveCharmedBy(Unit* charmer)
 
     if (this->GetMapId() != 1136) // look up
     {
-        getHostileRefManager().deleteReferences();
-        DeleteThreatList();
+        GetThreatManager().RemoveMeFromThreatLists();
+        GetThreatManager().ClearAllThreat();
     }
 
     Map* map = GetMap();
@@ -18997,7 +18965,11 @@ void Unit::StopAttackFaction(uint32 faction_id)
             ++itr;
     }
 
-    getHostileRefManager().deleteReferencesForFaction(faction_id);
+    auto threats = GetThreatManager().GetThreatenedByMeList();
+    for (auto const& pair : threats)
+        if (pair.second->GetOwner()->GetFactionTemplateEntry() &&
+            pair.second->GetOwner()->GetFactionTemplateEntry()->faction == faction_id)
+            pair.second->ClearThreat();
 
     for (ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
         (*itr)->StopAttackFaction(faction_id);
@@ -20123,9 +20095,9 @@ float Unit::GetScallingDamageMod() const
     // calculate celestials scalling mod
     if (GetEntry() == 71955 || GetEntry() == 71953 || GetEntry() == 71952 || GetEntry() == 71954)
     {
-        auto threatList = const_cast<Unit*>(this)->GetThreatManager().getThreatList();
-        for (auto&& itr : threatList)
-            if (Unit* unit = ObjectAccessor::GetUnit(*this, itr->getUnitGuid()))
+        auto threatList = const_cast<Unit*>(this)->GetThreatManager().GetUnsortedThreatList();
+        for (auto&& ref : threatList)
+            if (Unit* unit = ObjectAccessor::GetUnit(*this, ref->GetVictim()->GetGUID()))
                 if (unit->GetTypeId() == TYPEID_PLAYER && unit->IsWithinDist(this, 100.0f))
                     members++;
     }

@@ -578,22 +578,19 @@ class boss_algalon_the_observer : public CreatureScript
             void UpdateAI(uint32 diff) override
             {
                 // This monstrosity of a code makes Algalon cast Ascend to the Heavens instead of evading if all players enter Black Holes
-                if (!_fightWon && me->IsInCombat() && !events.IsInPhase(PHASE_BIG_BANG) && me->GetThreatManager().getOnlineContainer().empty() && !me->GetThreatManager().getOfflineContainer().empty())
+                if (!_fightWon && me->IsInCombat() && !events.IsInPhase(PHASE_BIG_BANG) && me->GetThreatManager().IsThreatListEmpty() && !me->GetThreatManager().IsThreatListEmpty(true))
                 {
-                    for (auto&& ref : me->GetThreatManager().getOfflineContainer().getThreatList())
+                    for (auto&& ref : me->GetThreatManager().GetUnsortedThreatList())
                     {
-                        if (ref->getUnitGuid().IsPlayer())
+                        if (Unit* target = ref->GetVictim())
                         {
-                            if (Unit* target = ref->getTarget())
+                            if (target->GetGUID().IsPlayer() && target->FindMap() == me->GetMap() && !target->InSamePhase(me))
                             {
-                                if (target->FindMap() == me->GetMap() && !target->InSamePhase(me))
-                                {
-                                    me->InterruptNonMeleeSpells(false);
-                                    events.Reset();
-                                    events.SetPhase(PHASE_BIG_BANG);
-                                    events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 1);
-                                    break;
-                                }
+                                me->InterruptNonMeleeSpells(false);
+                                events.Reset();
+                                events.SetPhase(PHASE_BIG_BANG);
+                                events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 1);
+                                break;
                             }
                         }
                     }
@@ -640,8 +637,8 @@ class boss_algalon_the_observer : public CreatureScript
                             // Workaround for Creature::_IsTargetAcceptable returning false
                             // for creatures that start combat in REACT_PASSIVE and UNIT_FLAG_NOT_SELECTABLE
                             // causing them to immediately evade
-                            if (!me->GetThreatManager().isThreatListEmpty())
-                                AttackStart(me->GetThreatManager().getHostilTarget());
+                            if (!me->GetThreatManager().IsThreatListEmpty())
+                                AttackStart(me->GetThreatManager().GetCurrentVictim());
                             for (uint32 i = 0; i < LIVING_CONSTELLATION_COUNT; ++i)
                                 if (Creature* summon = DoSummon(NPC_LIVING_CONSTELLATION, ConstellationPos[i], 0ms, TEMPSUMMON_DEAD_DESPAWN))
                                     summon->SetReactState(REACT_PASSIVE);
@@ -996,8 +993,7 @@ class npc_black_hole : public CreatureScript
 
                     if (Creature* algalon = me->FindNearestCreature(NPC_ALGALON, 200.0f))
                     {
-                        algalon->GetThreatManager().getOnlineContainer().modifyThreatPercent(target, -100);
-                        algalon->GetThreatManager().getOfflineContainer().modifyThreatPercent(target, -100); // SpellHitTarget is called after effects are handle, hence the target was already moved to offline container due to being in unreachable phase
+                        algalon->GetThreatManager().ModifyThreatByPercent(target, -100);
                     }
                 }
             }

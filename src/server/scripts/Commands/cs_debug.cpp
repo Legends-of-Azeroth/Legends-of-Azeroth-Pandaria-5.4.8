@@ -880,17 +880,16 @@ public:
         if (!target || target->IsTotem() || target->IsPet())
             return false;
 
-        ThreatContainer::StorageType const &threatList = target->GetThreatManager().getThreatList();
-        ThreatContainer::StorageType::const_iterator itr;
+        auto threatList = target->GetThreatManager().GetUnsortedThreatList();
         uint32 count = 0;
         handler->PSendSysMessage("Threat list of %s (guid %u)", target->GetName().c_str(), target->GetGUID().GetCounter());
-        for (itr = threatList.begin(); itr != threatList.end(); ++itr)
+        for (ThreatReference const* ref : threatList)
         {
-            Unit* unit = (*itr)->getTarget();
+            Unit* unit = ref->GetVictim();
             if (!unit)
                 continue;
             ++count;
-            handler->PSendSysMessage("   %u.   %s   (guid %u)  - threat %f", count, unit->GetName().c_str(), unit->GetGUID().GetCounter(), (*itr)->getThreat());
+            handler->PSendSysMessage("   %u.   %s   (guid %u)  - threat %f", count, unit->GetName().c_str(), unit->GetGUID().GetCounter(), ref->GetThreat());
         }
         handler->SendSysMessage("End of threat list.");
         return true;

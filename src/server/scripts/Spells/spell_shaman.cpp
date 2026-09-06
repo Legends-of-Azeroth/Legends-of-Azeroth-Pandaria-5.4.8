@@ -1536,7 +1536,7 @@ class spell_sha_natures_guardian : public AuraScript
         PreventDefaultAction();
         GetUnitOwner()->CastCustomSpell(SPELL_SHA_NATURES_GUARDIAN, SPELLVALUE_BASE_POINT0, eff->GetAmount(), GetUnitOwner(), true);
         if (eventInfo.GetActor() && eventInfo.GetActor()->CanHaveThreatList())
-            eventInfo.GetActor()->GetThreatManager().modifyThreatPercent(GetUnitOwner(), -10.f); // No idea
+            eventInfo.GetActor()->GetThreatManager().ModifyThreatByPercent(GetUnitOwner(), -10.f); // No idea
         m_caster->AddSpellCooldown(SPELL_SHA_NATURES_GUARDIAN, Seconds(30));
     }
 

@@ -431,7 +431,7 @@ class npc_lilian_soul : public CreatureScript
                         case EVENT_FIXATE_ANGER:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                             {
-                                me->GetThreatManager().addThreat(target, 10000.0f);
+                                me->GetThreatManager().AddThreat(target, 10000.0f);
                                 me->AddAura(SPELL_FIXATE_ANGER, target);
                             }
                             events.ScheduleEvent(EVENT_FIXATE_ANGER, 10000);

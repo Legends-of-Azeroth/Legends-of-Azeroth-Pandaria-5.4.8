@@ -192,7 +192,7 @@ class boss_palehoof : public CreatureScript
             //            {
             //                me->SetInCombatWith(i_pl);
             //                i_pl->SetInCombatWith(me);
-            //                me->AddThreat(i_pl, 1.0f);
+            //                me->GetThreatManager().AddThreat(i_pl, 1.0f);
             //            }
             //    }
             //}
@@ -219,7 +219,7 @@ class boss_palehoof : public CreatureScript
 
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
                     DoStartMovement(who);
@@ -431,7 +431,7 @@ class npc_ravenous_furbolg : public CreatureScript
 
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
                     DoStartMovement(who);
@@ -545,7 +545,7 @@ class npc_frenzied_worgen : public CreatureScript
 
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
                     DoStartMovement(who);
@@ -667,7 +667,7 @@ class npc_ferocious_rhino : public CreatureScript
 
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
                     DoStartMovement(who);
@@ -798,7 +798,7 @@ class npc_massive_jormungar : public CreatureScript
 
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
                     DoStartMovement(who);
@@ -870,7 +870,7 @@ class npc_palehoof_orb : public CreatureScript
                         {
                             me->SetInCombatWith(i_pl);
                             i_pl->SetInCombatWith(me);
-                            me->AddThreat(i_pl, 1.0f);
+                            me->GetThreatManager().AddThreat(i_pl, 1.0f);
                         }
                 }
             }*/

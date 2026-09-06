@@ -471,7 +471,7 @@ class npc_risen_ghoul : public CreatureScript
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 40.0f, true))
                                 {
                                     DoResetThreat();
-                                    me->AddThreat(target, 1000.0f);
+                                    me->GetThreatManager().AddThreat(target, 1000.0f);
                                 }
                                 _events.ScheduleEvent(EVENT_CLAW, urand(4000, 8000));
                             }
@@ -482,7 +482,7 @@ class npc_risen_ghoul : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 1, 30.0f, true))
                             {
                                 DoResetThreat();
-                                me->AddThreat(target, 1000.0f);
+                                me->GetThreatManager().AddThreat(target, 1000.0f);
                                 DoCast(target, SPELL_LEAP);
                             }
                             _events.ScheduleEvent(EVENT_LEAP, urand(10000, 12000));

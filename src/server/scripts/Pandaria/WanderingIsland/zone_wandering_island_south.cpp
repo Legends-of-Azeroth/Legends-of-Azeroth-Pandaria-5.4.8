@@ -461,7 +461,7 @@ public:
                 {
                     aysa->AI()->AttackStart(me);
                     AttackStart(aysa);
-                    me->AddThreat(aysa, 1000.0f);
+                    me->GetThreatManager().AddThreat(aysa, 1000.0f);
                 }
 
             ScriptedAI::MoveInLineOfSight(who);
@@ -488,7 +488,7 @@ public:
                 if (Creature* const aysa = GetClosestCreatureWithEntry(me, NPC_AYSA, 30.f))
                 {
                     aysa->AI()->Talk(0);
-                    me->AddThreat(aysa, 1000.0f);
+                    me->GetThreatManager().AddThreat(aysa, 1000.0f);
                 }
 
                 for (int i = 0; i < 3; ++i)

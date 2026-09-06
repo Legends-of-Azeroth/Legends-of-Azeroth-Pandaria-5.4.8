@@ -1221,8 +1221,8 @@ class spell_arena_of_annihiliation_headbutt : public SpellScript
                 // We should select new target as victim after headbutt current
                 if (Player* itr = Trinity::Containers::SelectRandomContainerElement(PlayersInArea))
                 {
-                    caster->GetThreatManager().resetAllAggro();
-                    caster->GetThreatManager().addThreat(itr, 100.0f);
+                    caster->GetThreatManager().ResetAllThreat();
+                    caster->GetThreatManager().AddThreat(itr, 100.0f);
                     caster->AI()->AttackStart(itr);
                 }
             }

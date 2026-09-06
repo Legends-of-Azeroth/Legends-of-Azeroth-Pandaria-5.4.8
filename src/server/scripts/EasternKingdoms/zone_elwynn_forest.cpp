@@ -212,22 +212,22 @@ struct npc_stormwind_infantry : public ScriptedAI
     {
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
-            me->GetThreatManager().resetAllAggro();
-            who->AddThreat(me, 1.0f);
-            me->AddThreat(who, 1.0f);
+            me->GetThreatManager().ResetAllThreat();
+            who->GetThreatManager().AddThreat(me, 1.0f);
+            me->GetThreatManager().AddThreat(who, 1.0f);
             me->AI()->AttackStart(who);
         }
         else if (who->IsPet())
         {
-            me->GetThreatManager().resetAllAggro();
-            me->AddThreat(who, 1.0f);
+            me->GetThreatManager().ResetAllThreat();
+            me->GetThreatManager().AddThreat(who, 1.0f);
             me->AI()->AttackStart(who);
         }
 
         if (who->GetEntry() == ElwynnForest::NPC_BLACKROCK_BATTLE_WORG && me->HealthBelowPct(ElwynnForest::AI_HEALTH_MIN))
         {
             damage = 0;
-            me->AddThreat(who, 1.0f);
+            me->GetThreatManager().AddThreat(who, 1.0f);
             me->AI()->AttackStart(who);
         }
     }
@@ -274,22 +274,22 @@ struct npc_blackrock_battle_worg : public ScriptedAI
     {
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
-            me->GetThreatManager().resetAllAggro();
-            who->AddThreat(me, 1.0f);
-            me->AddThreat(who, 1.0f);
+            me->GetThreatManager().ResetAllThreat();
+            who->GetThreatManager().AddThreat(me, 1.0f);
+            me->GetThreatManager().AddThreat(who, 1.0f);
             me->AI()->AttackStart(who);
         }
         else if (who->IsPet())
         {
-            me->GetThreatManager().resetAllAggro();
-            me->AddThreat(who, 1.0f);
+            me->GetThreatManager().ResetAllThreat();
+            me->GetThreatManager().AddThreat(who, 1.0f);
             me->AI()->AttackStart(who);
         }
 
         if (who->GetEntry() == ElwynnForest::NPC_STORMWIND_INFANTRY && me->HealthBelowPct(ElwynnForest::AI_HEALTH_MIN))
         {
             damage = 0;
-            me->AddThreat(who, 1.0f);
+            me->GetThreatManager().AddThreat(who, 1.0f);
             me->AI()->AttackStart(who);
         }
     }

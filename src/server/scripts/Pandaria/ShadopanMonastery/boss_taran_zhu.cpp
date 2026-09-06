@@ -163,7 +163,8 @@ class boss_taran_zhu : public CreatureScript
                         me->SetFaction(35);
                         me->RemoveAllAuras();
                         me->CombatStop(true);
-                        me->DeleteThreatList();
+                        me->GetThreatManager().RemoveMeFromThreatLists();
+                        me->GetThreatManager().ClearAllThreat();
                         me->SetReactState(REACT_PASSIVE);
                         Talk(TALK_DEATH);
                         events.Reset();

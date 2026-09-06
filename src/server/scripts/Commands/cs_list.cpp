@@ -638,7 +638,7 @@ public:
                         if (guid != dbGuid)
                             guid = dbGuid;
                     }
-                    float threat = attacker->GetThreatManager().getThreat(unit, false);
+                    float threat = attacker->GetThreatManager().GetThreat(unit, false);
                     handler->PSendSysMessage("guid: |cffffffff%u|r - id: |cffffffff%u|r - |cffffffff%s|r (%.2f)", guid, attacker->GetEntry(), attacker->GetName().c_str(), threat);
                 }
                 ++attackersCount;
@@ -688,7 +688,7 @@ public:
                         if (guid != dbGuid)
                             guid = dbGuid;
                     }
-                    float threat = hostile->GetThreatManager().getThreat(unit, false);
+                    float threat = hostile->GetThreatManager().GetThreat(unit, false);
                     handler->PSendSysMessage("guid: |cffffffff%u|r - id: |cffffffff%u|r - |cffffffff%s|r (%.2f)", guid, hostile->GetEntry(), hostile->GetName().c_str(), threat);
                 }
                 ++hostilesCount;
@@ -725,23 +725,24 @@ public:
 
             for (uint8 listType = 0; listType < 2; ++listType)
             {
-                ThreatContainer::StorageType const* list = listType ? &unit->GetThreatManager().getOfflineThreatList() : &unit->GetThreatManager().getThreatList();
                 char const* color = listType ? "|cff808080" : "";
                 char const* summary = listType ? "%u offline hostiles" : "%u online hostiles";
 
                 uint32 hostilesCount = 0;
-                for (HostileReference* ref : *list)
+                for (ThreatReference const* ref : unit->GetThreatManager().GetUnsortedThreatList())
                 {
-                    Unit* hostile = ref->getTarget();
-                    if (!hostile)
-                    {
-                        handler->PSendSysMessage("|cff404040guid: %u - player (%.2f)|r", ref->getUnitGuid().GetCounter(), ref->getThreat());
+                    if (!listType && !ref->IsOnline())
                         continue;
-                    }
+                    if (listType && ref->IsOnline())
+                        continue;
+
+                    Unit* hostile = ref->GetVictim();
+                    if (!hostile)
+                        continue;
 
                     uint32 guid = hostile->GetGUID().GetCounter();
                     if (hostile->GetTypeId() == TYPEID_PLAYER)
-                        handler->PSendSysMessage("%sguid: |cffffffff%u|r%s - player - |cffffffff%s|r%s (%.2f)|r", color, guid, color, hostile->GetName().c_str(), color, ref->getThreat());
+                        handler->PSendSysMessage("%sguid: |cffffffff%u|r%s - player - |cffffffff%s|r%s (%.2f)|r", color, guid, color, hostile->GetName().c_str(), color, ref->GetThreat());
                     else
                     {
                         if (Creature* creature = hostile->ToCreature())
@@ -750,7 +751,7 @@ public:
                             if (guid != dbGuid)
                                 guid = dbGuid;
                         }
-                        handler->PSendSysMessage("%sguid: |cffffffff%u|r%s - id: |cffffffff%u|r%s - |cffffffff%s|r%s (%.2f)|r", color, guid, color, hostile->GetEntry(), color, hostile->GetName().c_str(), color, ref->getThreat());
+                        handler->PSendSysMessage("%sguid: |cffffffff%u|r%s - id: |cffffffff%u|r%s - |cffffffff%s|r%s (%.2f)|r", color, guid, color, hostile->GetEntry(), color, hostile->GetName().c_str(), color, ref->GetThreat());
                     }
                     ++hostilesCount;
                 }

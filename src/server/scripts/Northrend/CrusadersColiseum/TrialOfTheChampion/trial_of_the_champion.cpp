@@ -590,7 +590,7 @@ class npc_announcer_toc5 : public CreatureScript
                                 temp->SetInCombatWith(creature);
                                 player->SetInCombatWith(temp);
                                 creature->SetInCombatWith(temp);
-                                temp->AddThreat(creature, 0.0f);
+                                temp->GetThreatManager().AddThreat(creature, 0.0f);
                             }
                         }
                         else if (player->IsAlive())
@@ -600,7 +600,7 @@ class npc_announcer_toc5 : public CreatureScript
                             temp->SetReactState(REACT_AGGRESSIVE);
                             temp->SetInCombatWith(player);
                             player->SetInCombatWith(temp);
-                            temp->AddThreat(player, 0.0f);
+                            temp->GetThreatManager().AddThreat(player, 0.0f);
                         }
                     }
                 }

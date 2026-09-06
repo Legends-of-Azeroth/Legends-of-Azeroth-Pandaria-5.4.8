@@ -191,22 +191,22 @@ public:
         {
             if (Creature* malygos = instance->GetCreature(malygosGUID))
             {
-                std::list<HostileReference*> m_threatlist = malygos->GetThreatManager().getThreatList();
+                auto m_threatlist = malygos->GetThreatManager().GetUnsortedThreatList();
                 for (std::list<ObjectGuid>::const_iterator itr_vortex = vortexTriggers.begin(); itr_vortex != vortexTriggers.end(); ++itr_vortex)
                 {
-                    if (m_threatlist.empty())
+                    if (malygos->GetThreatManager().IsThreatListEmpty())
                         return;
 
                     uint8 counter = 0;
                     if (Creature* trigger = instance->GetCreature(*itr_vortex))
                     {
                         // each trigger have to cast the spell to 5 players.
-                        for (std::list<HostileReference*>::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+                        for (ThreatReference const* ref : m_threatlist)
                         {
                             if (counter >= 5)
                                 break;
 
-                            if (Unit* target = (*itr)->getTarget())
+                            if (Unit* target = ref->GetVictim())
                             {
                                 Player* player = target->ToPlayer();
 

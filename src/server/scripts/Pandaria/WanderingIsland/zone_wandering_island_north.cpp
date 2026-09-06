@@ -640,7 +640,7 @@ class npc_aysa : public CreatureScript
                                     if (temp->AI())
                                         temp->AI()->AttackStart(me);
 
-                                    temp->AddThreat(me, 250.0f);
+                                    temp->GetThreatManager().AddThreat(me, 250.0f);
                                     temp->GetMotionMaster()->Clear();
                                     temp->GetMotionMaster()->MoveChase(me);
                                 }
@@ -767,10 +767,10 @@ class boss_li_fei_fight : public CreatureScript
 
                 // copy, just to make sure that kill credit that phases players out
                 // does not modify this threat list
-                auto const threatList = me->GetThreatManager().getThreatList();
+                auto const threatList = me->GetThreatManager().GetUnsortedThreatList();
                 for (auto&& hostileRef : threatList)
                 {
-                    auto unit = hostileRef->getTarget();
+                    auto unit = hostileRef->GetVictim();
                     if (unit && unit->GetTypeId() == TYPEID_PLAYER)
                         unit->ToPlayer()->KilledMonsterCredit(54734, ObjectGuid::Empty);
                 }
@@ -778,7 +778,8 @@ class boss_li_fei_fight : public CreatureScript
                 // TODO: it seems that spell 106275 is used to display a text message
                 // after fight is over
 
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
 
                 Reset();

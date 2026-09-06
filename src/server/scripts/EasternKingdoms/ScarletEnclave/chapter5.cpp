@@ -483,7 +483,7 @@ public:
 
             if (me->Attack(who, true))
             {
-                me->AddThreat(who, 0.0f);
+                me->GetThreatManager().AddThreat(who, 0.0f);
                 me->SetInCombatWith(who);
                 who->SetInCombatWith(me);
                 DoStartMovement(who);
@@ -1435,7 +1435,8 @@ public:
                     if (me->HasAura(SPELL_THE_MIGHT_OF_MOGRAINE, 0))
                         me->RemoveAurasDueToSpell(SPELL_THE_MIGHT_OF_MOGRAINE);
                     me->RemoveAllAuras();
-                    me->DeleteThreatList();
+                    me->GetThreatManager().RemoveMeFromThreatLists();
+                    me->GetThreatManager().ClearAllThreat();
                     me->CombatStop(true);
                     me->InterruptNonMeleeSpells(false);
                     me->SetWalk(false);
@@ -1456,7 +1457,8 @@ public:
                     if (Creature* temp = Unit::GetCreature(*me, uiKorfaxGUID))
                     {
                         temp->RemoveAllAuras();
-                        temp->DeleteThreatList();
+                        temp->GetThreatManager().RemoveMeFromThreatLists();
+                        temp->GetThreatManager().ClearAllThreat();
                         temp->CombatStop(true);
                         temp->AttackStop();
                         temp->SetFaction(me->GetFaction());
@@ -1467,7 +1469,8 @@ public:
                     if (Creature* temp = Unit::GetCreature(*me, uiMaxwellGUID))
                     {
                         temp->RemoveAllAuras();
-                        temp->DeleteThreatList();
+                        temp->GetThreatManager().RemoveMeFromThreatLists();
+                        temp->GetThreatManager().ClearAllThreat();
                         temp->CombatStop(true);
                         temp->AttackStop();
                         temp->SetFaction(me->GetFaction());
@@ -1478,7 +1481,8 @@ public:
                     if (Creature* temp = Unit::GetCreature(*me, uiEligorGUID))
                     {
                         temp->RemoveAllAuras();
-                        temp->DeleteThreatList();
+                        temp->GetThreatManager().RemoveMeFromThreatLists();
+                        temp->GetThreatManager().ClearAllThreat();
                         temp->CombatStop(true);
                         temp->AttackStop();
                         temp->SetFaction(me->GetFaction());
@@ -1490,7 +1494,8 @@ public:
                     if (Creature* temp = Unit::GetCreature(*me, uiKoltiraGUID))
                     {
                         temp->RemoveAllAuras();
-                        temp->DeleteThreatList();
+                        temp->GetThreatManager().RemoveMeFromThreatLists();
+                        temp->GetThreatManager().ClearAllThreat();
                         temp->CombatStop(true);
                         temp->AttackStop();
                         temp->SetFaction(me->GetFaction());
@@ -1505,7 +1510,8 @@ public:
                     if (Creature* temp = Unit::GetCreature(*me, uiThassarianGUID))
                     {
                         temp->RemoveAllAuras();
-                        temp->DeleteThreatList();
+                        temp->GetThreatManager().RemoveMeFromThreatLists();
+                        temp->GetThreatManager().ClearAllThreat();
                         temp->CombatStop(true);
                         temp->AttackStop();
                         temp->SetFaction(me->GetFaction());
@@ -1538,8 +1544,9 @@ public:
                     if (Unit* pTarger = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         if (pTarger->IsAlive())
                         {
-                            // temp->DeleteThreatList();
-                            temp->AddThreat(pTarger, 0.0f);
+                            // temp->GetThreatManager().RemoveMeFromThreatLists();
+ temp->GetThreatManager().ClearAllThreat();
+                            temp->GetThreatManager().AddThreat(pTarger, 0.0f);
                             temp->AI()->AttackStart(pTarger);
                             temp->SetInCombatWith(pTarger);
                             pTarger->SetInCombatWith(temp);
@@ -1601,7 +1608,7 @@ public:
                 {
                     temp = me->SummonCreature(NPC_DEFENDER_OF_THE_LIGHT, LightofDawnLoc[0].x+rand()%30, LightofDawnLoc[0].y+rand()%30, LightofDawnLoc[0].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000ms);
                     temp->SetFaction(2089);
-                    me->AddThreat(temp, 0.0f);
+                    me->GetThreatManager().AddThreat(temp, 0.0f);
                     uiDefenderGUID[i] = temp->GetGUID();
                 }
             }
@@ -1612,7 +1619,7 @@ public:
                 {
                     temp = me->SummonCreature(NPC_RIMBLAT_EARTHSHATTER, LightofDawnLoc[0].x+rand()%30, LightofDawnLoc[0].y+rand()%30, LightofDawnLoc[0].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000ms);
                     temp->SetFaction(2089);
-                    me->AddThreat(temp, 0.0f);
+                    me->GetThreatManager().AddThreat(temp, 0.0f);
                     uiEarthshatterGUID[i] = temp->GetGUID();
                 }
             }
@@ -1621,7 +1628,7 @@ public:
             {
                 temp = me->SummonCreature(NPC_KORFAX_CHAMPION_OF_THE_LIGHT, LightofDawnLoc[0].x+rand()%30, LightofDawnLoc[0].y+rand()%30, LightofDawnLoc[0].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 600000ms);
                 temp->SetFaction(2089);
-                me->AddThreat(temp, 0.0f);
+                me->GetThreatManager().AddThreat(temp, 0.0f);
                 uiKorfaxGUID = temp->GetGUID();
             }
             temp = Unit::GetCreature(*me, uiMaxwellGUID);
@@ -1629,7 +1636,7 @@ public:
             {
                 temp = me->SummonCreature(NPC_LORD_MAXWELL_TYROSUS, LightofDawnLoc[0].x+rand()%30, LightofDawnLoc[0].y+rand()%30, LightofDawnLoc[0].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 600000ms);
                 temp->SetFaction(2089);
-                me->AddThreat(temp, 0.0f);
+                me->GetThreatManager().AddThreat(temp, 0.0f);
                 uiMaxwellGUID = temp->GetGUID();
             }
             temp = Unit::GetCreature(*me, uiEligorGUID);
@@ -1637,7 +1644,7 @@ public:
             {
                 temp = me->SummonCreature(NPC_COMMANDER_ELIGOR_DAWNBRINGER, LightofDawnLoc[0].x+rand()%30, LightofDawnLoc[0].y+rand()%30, LightofDawnLoc[0].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 600000ms);
                 temp->SetFaction(2089);
-                me->AddThreat(temp, 0.0f);
+                me->GetThreatManager().AddThreat(temp, 0.0f);
                 uiEligorGUID = temp->GetGUID();
             }
             temp = Unit::GetCreature(*me, uiRayneGUID);
@@ -1645,7 +1652,7 @@ public:
             {
                 temp = me->SummonCreature(NPC_RAYNE, LightofDawnLoc[0].x+rand()%30, LightofDawnLoc[0].y+rand()%30, LightofDawnLoc[0].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000ms);
                 temp->SetFaction(2089);
-                me->AddThreat(temp, 0.0f);
+                me->GetThreatManager().AddThreat(temp, 0.0f);
                 uiRayneGUID = temp->GetGUID();
             }
         }

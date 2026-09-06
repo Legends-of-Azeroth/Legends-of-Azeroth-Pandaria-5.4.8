@@ -304,9 +304,9 @@ class npc_frenzied_croc : public CreatureScript
                     if (Player* player = itr->GetSource())
                     {
                         if (player->HasAura(SPELL_SCENT_OF_BLOOD))
-                            me->AddThreat(player, 100500.0f);
+                            me->GetThreatManager().AddThreat(player, 100500.0f);
                         else
-                            me->GetThreatManager().modifyThreatPercent(player, -10);
+                            me->GetThreatManager().ModifyThreatByPercent(player, -10);
                     }
             }
 

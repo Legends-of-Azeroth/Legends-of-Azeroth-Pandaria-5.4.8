@@ -478,7 +478,8 @@ void SmartAI::EnterEvadeMode(EvadeReason why)
     RemoveAuras();
 
     me->AddUnitState(UNIT_STATE_EVADE);
-    me->DeleteThreatList();
+    me->GetThreatManager().RemoveMeFromThreatLists();
+    me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
     me->LoadCreaturesAddon();
     me->ApplyInstanceAuraIfNeeded();
@@ -533,7 +534,7 @@ void SmartAI::MoveInLineOfSight(Unit* who)
             else/* if (me->GetMap()->IsDungeon())*/
             {
                 who->SetInCombatWith(me);
-                me->AddThreat(who, 0.0f);
+                me->GetThreatManager().AddThreat(who, 0.0f);
             }
         }
     }
@@ -577,7 +578,7 @@ bool SmartAI::AssistPlayerInCombat(Unit* who)
         else
         {
             who->SetInCombatWith(me);
-            me->AddThreat(who, 0.0f);
+            me->GetThreatManager().AddThreat(who, 0.0f);
             return true;
         }
     }

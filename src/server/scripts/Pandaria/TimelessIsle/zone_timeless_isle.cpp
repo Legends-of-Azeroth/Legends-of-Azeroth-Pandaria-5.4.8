@@ -3881,7 +3881,7 @@ struct npc_dread_ship_vazuvius : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (me->GetThreatManager().getThreatList().empty())
+        if (me->GetThreatManager().IsThreatListEmpty())
             return;
 
         events.Update(diff);
@@ -3927,9 +3927,11 @@ private:
     std::list<ObjectGuid> playersAura;
     Unit* GetTarget()
     {
-        std::list<HostileReference*> threatList = me->GetThreatManager().getThreatList();
-        HostileReference* ref = Trinity::Containers::SelectRandomContainerElement(threatList);
-        Unit* target = Unit::GetUnit(*me, ref->getUnitGuid());
+        std::vector<ThreatReference const*> threatList;
+        for (ThreatReference const* threat : me->GetThreatManager().GetUnsortedThreatList())
+            threatList.push_back(threat);
+        ThreatReference const* ref = Trinity::Containers::SelectRandomContainerElement(threatList);
+        Unit* target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
         return target;
     }
     void DespawnSummons()
@@ -4001,9 +4003,9 @@ struct npc_evermaw : public ScriptedAI
         scheduler
             .Schedule(Seconds(1), [this](TaskContext context)
         {
-            for (auto&& itr : me->GetThreatManager().getThreatList())
+            for (auto&& ref : me->GetThreatManager().GetUnsortedThreatList())
             {
-                if (Unit* target = ObjectAccessor::GetUnit(*me, itr->getUnitGuid()))
+                if (Unit* target = ObjectAccessor::GetUnit(*me, ref->GetVictim()->GetGUID()))
                 {
                     if (target->IsAlive() && me->GetExactDist2d(target) < 100.0f)
                     {

@@ -237,8 +237,7 @@ class boss_lord_marrowgar : public CreatureScript
                                 break;
                             }
 
-                            auto list = me->GetThreatManager().getThreatList();
-                            if (!instance->instance->IsHeroic() && list.size() == 1)
+                            if (!instance->instance->IsHeroic() && me->GetThreatManager().GetThreatListSize() == 1)
                                 break;
 
                             DoCast(me, SPELL_BONE_SPIKE_GRAVEYARD);

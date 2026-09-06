@@ -888,7 +888,7 @@ class boss_toxitron : public CreatureScript
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                         {
                             summon->AI()->AttackStart(target);
-                            summon->AddThreat(target, 5000000.0f);
+                            summon->GetThreatManager().AddThreat(target, 5000000.0f);
                         }
                     break;
                 }

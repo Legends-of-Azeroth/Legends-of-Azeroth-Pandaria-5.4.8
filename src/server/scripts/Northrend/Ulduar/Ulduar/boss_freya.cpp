@@ -342,7 +342,8 @@ class boss_freya : public CreatureScript
                 me->AttackStop();
                 me->SetFaction(35);
                 DoCastAOE(SPELL_KNOCK_ON_WOOD_CREDIT, true); // Requires friendly targets, but must be used before CombatStop in which the boss will reset its encounter state
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
 
                 // getting back to nature achievement
@@ -359,7 +360,8 @@ class boss_freya : public CreatureScript
                         Elder[n]->RemoveAllAuras();
                         Elder[n]->AttackStop();
                         Elder[n]->CombatStop(true);
-                        Elder[n]->DeleteThreatList();
+                        Elder[n]->GetThreatManager().RemoveMeFromThreatLists();
+                        Elder[n]->GetThreatManager().ClearAllThreat();
                         Elder[n]->GetAI()->DoAction(ACTION_ELDER_FREYA_KILLED);
                     }
                 }
@@ -384,7 +386,7 @@ class boss_freya : public CreatureScript
                     {
                         _elderCount++;
                         Brightleaf->AI()->AttackStart(who);
-                        Brightleaf->AddThreat(who, 250.0f);
+                        Brightleaf->GetThreatManager().AddThreat(who, 250.0f);
                         Brightleaf->SetInCombatWith(who);
                         Brightleaf->CastSpell(Brightleaf, SPELL_DRAINED_OF_POWER, true);
                         Brightleaf->CastSpell(me, Is25ManRaid() ? SPELL_BRIGHTLEAF_ESSENCE_25 : SPELL_BRIGHTLEAF_ESSENCE, true);
@@ -396,7 +398,7 @@ class boss_freya : public CreatureScript
                     {
                         _elderCount++;
                         Ironbranch->AI()->AttackStart(who);
-                        Ironbranch->AddThreat(who, 250.0f);
+                        Ironbranch->GetThreatManager().AddThreat(who, 250.0f);
                         Ironbranch->SetInCombatWith(who);
                         Ironbranch->CastSpell(Ironbranch, SPELL_DRAINED_OF_POWER, true);
                         Ironbranch->CastSpell(me, Is25ManRaid() ? SPELL_IRONBRANCH_ESSENCE_25 : SPELL_IRONBRANCH_ESSENCE, true);
@@ -408,7 +410,7 @@ class boss_freya : public CreatureScript
                     {
                         _elderCount++;
                         Stonebark->AI()->AttackStart(who);
-                        Stonebark->AddThreat(who, 250.0f);
+                        Stonebark->GetThreatManager().AddThreat(who, 250.0f);
                         Stonebark->SetInCombatWith(who);
                         Stonebark->CastSpell(Stonebark, SPELL_DRAINED_OF_POWER, true);
                         Stonebark->CastSpell(me, Is25ManRaid() ? SPELL_STONEBARK_ESSENCE_25 : SPELL_STONEBARK_ESSENCE, true);
@@ -701,7 +703,7 @@ class boss_freya : public CreatureScript
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250.0f, true))
                 {
                     summoned->AI()->AttackStart(target);
-                    summoned->AddThreat(target, 250.0f);
+                    summoned->GetThreatManager().AddThreat(target, 250.0f);
                     DoZoneInCombat(summoned);
                 }
             }
@@ -1354,7 +1356,7 @@ class npc_detonating_lasher : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
                             {
                                 // Switching to other target - modify aggro of new target by 20% from current target's aggro
-                                me->AddThreat(target, me->GetThreatManager().getThreat(me->GetVictim(), false) * 1.2f);
+                                me->GetThreatManager().AddThreat(target, me->GetThreatManager().GetThreat(me->GetVictim(), false) * 1.2f);
                                 me->AI()->AttackStart(target);
                             }
                             _events.ScheduleEvent(EVENT_CHANGE_TARGET, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));

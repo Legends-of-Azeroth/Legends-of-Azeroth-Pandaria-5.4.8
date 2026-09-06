@@ -526,11 +526,11 @@ class boss_garajal : public CreatureScript
                                         soulCutter->SetPhaseMask(i == 0 ? 4 : 6, true);
                                         soulCutter->AI()->AttackStart(target);
                                         soulCutter->SetInCombatWith(target);
-                                        soulCutter->GetThreatManager().addThreat(target, 10000.0f);
+                                        soulCutter->GetThreatManager().AddThreat(target, 10000.0f);
                                     }
                                 }
 
-                                me->GetThreatManager().addThreat(target, 0.0f);
+                                me->GetThreatManager().AddThreat(target, 0.0f);
                             }
 
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
@@ -1179,7 +1179,7 @@ class spell_garajal_voodoo_doll_fixate : public SpellScriptLoader
                     GetCaster()->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                     GetCaster()->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
 
-                    GetCaster()->GetThreatManager().addThreat(GetOwner()->ToUnit(), 10000.0f);
+                    GetCaster()->GetThreatManager().AddThreat(GetOwner()->ToUnit(), 10000.0f);
                 }
             }
 

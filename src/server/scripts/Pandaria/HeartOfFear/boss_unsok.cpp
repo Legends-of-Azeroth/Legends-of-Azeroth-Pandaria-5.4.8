@@ -579,8 +579,8 @@ class npc_amber_monstrosity : public CreatureScript
             {
                 if (target && spell->Id == SPELL_GRAB)
                 {
-                    if (me->GetThreatManager().getThreat(target))
-                        me->GetThreatManager().modifyThreatPercent(target, -100);
+                    if (me->GetThreatManager().GetThreat(target))
+                        me->GetThreatManager().ModifyThreatByPercent(target, -100);
                 }
             }
 
@@ -807,7 +807,7 @@ class npc_amber_scalpel : public CreatureScript
                 ownerGUID = summoner->GetGUID();
                 AttackStart(summoner);
                 me->SetInCombatWith(summoner);
-                me->GetThreatManager().addThreat(summoner, 300.0f);
+                me->GetThreatManager().AddThreat(summoner, 300.0f);
                 me->GetMotionMaster()->MoveChase(summoner);
                 me->DespawnOrUnsummon(11 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_RISE_AMBER, 3 * IN_MILLISECONDS);
@@ -876,13 +876,13 @@ class npc_living_amber : public CreatureScript
 
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankSpecTargetSelector()))
                 {
-                    me->GetThreatManager().addThreat(target, 10000.0f);
+                    me->GetThreatManager().AddThreat(target, 10000.0f);
                     me->GetMotionMaster()->MoveChase(target, 0, me->GetAngle(target));
                     me->Attack(target, true);
                 }
                 else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true))
                 {
-                    me->GetThreatManager().addThreat(target, 10000.0f);
+                    me->GetThreatManager().AddThreat(target, 10000.0f);
                     me->GetMotionMaster()->MoveChase(target, 0, me->GetAngle(target));
                     me->Attack(target, true);
                 }

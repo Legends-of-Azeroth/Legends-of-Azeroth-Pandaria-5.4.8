@@ -86,8 +86,8 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/, float maxRangeToN
             if (Unit* summoner = creature->ToTempSummon()->GetSummoner())
             {
                 Unit* target = summoner->getAttackerForHelper();
-                if (!target && summoner->CanHaveThreatList() && !summoner->GetThreatManager().isThreatListEmpty())
-                    target = summoner->GetThreatManager().getHostilTarget();
+                if (!target && summoner->CanHaveThreatList() && !summoner->GetThreatManager().IsThreatListEmpty())
+                    target = summoner->GetThreatManager().GetCurrentVictim();
                 if (target && (creature->IsFriendlyTo(summoner) || creature->IsHostileTo(target)))
                     creature->AI()->AttackStart(target);
             }
@@ -118,7 +118,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/, float maxRangeToN
             {
                 creature->SetInCombatWith(player);
                 player->SetInCombatWith(creature);
-                creature->AddThreat(player, 0.0f);
+                creature->GetThreatManager().AddThreat(player, 0.0f);
             }
 
             /* Causes certain things to never leave the threat list (Priest Lightwell, etc):
@@ -126,7 +126,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/, float maxRangeToN
             {
                 creature->SetInCombatWith(*itr);
                 (*itr)->SetInCombatWith(creature);
-                creature->AddThreat(*itr, 0.0f);
+                creature->GetThreatManager().AddThreat(*itr, 0.0f);
             }*/
         }
     }
@@ -145,7 +145,7 @@ void CreatureAI::DoAttackerAreaInCombat(Unit* attacker, float range, Unit* pUnit
     if (!map->IsDungeon())
         return;
 
-    if (!pUnit->CanHaveThreatList() || pUnit->GetThreatManager().isThreatListEmpty())
+    if (!pUnit->CanHaveThreatList() || pUnit->GetThreatManager().IsThreatListEmpty())
         return;
 
     Map::PlayerList const& PlayerList = map->GetPlayers();
@@ -156,7 +156,7 @@ void CreatureAI::DoAttackerAreaInCombat(Unit* attacker, float range, Unit* pUnit
             {
                 pUnit->SetInCombatWith(i_pl);
                 i_pl->SetInCombatWith(pUnit);
-                pUnit->AddThreat(i_pl, 0.0f);
+                pUnit->GetThreatManager().AddThreat(i_pl, 0.0f);
             }
     }
 }
@@ -175,7 +175,7 @@ void CreatureAI::DoAttackerGroupInCombat(Player* attacker)
                 {
                     me->SetInCombatWith(pGroupGuy);
                     pGroupGuy->SetInCombatWith(me);
-                    me->AddThreat(pGroupGuy, 0.0f);
+                    me->GetThreatManager().AddThreat(pGroupGuy, 0.0f);
                 }
             }
         }
@@ -406,7 +406,7 @@ bool CreatureAI::UpdateVictim()
             AttackStart(victim);
         return me->GetVictim();
     }
-    else if (me->GetThreatManager().isThreatListEmpty())
+    else if (me->GetThreatManager().IsThreatListEmpty())
     {
         EnterEvadeMode();
         return false;
@@ -429,7 +429,8 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason why)
         me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE, SPELL_AURA_CLONE_CASTER);
 
     // sometimes bosses stuck in combat?
-    me->DeleteThreatList();
+    me->GetThreatManager().RemoveMeFromThreatLists();
+    me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
     me->LoadCreaturesAddon();
     me->ApplyInstanceAuraIfNeeded();

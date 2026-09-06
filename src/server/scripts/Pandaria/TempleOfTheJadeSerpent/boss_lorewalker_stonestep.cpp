@@ -506,7 +506,7 @@ class npc_haunting_sha : public CreatureScript
                     {
                         if (Creature* zao = Unit::GetCreature(*me, instance->GetGuidData(DATA_ZAO)))
                         {
-                            me->GetThreatManager().addThreat(zao, 1000000.f);
+                            me->GetThreatManager().AddThreat(zao, 1000000.f);
                             me->AI()->AttackStart(zao);
                         }
                     }
@@ -532,7 +532,7 @@ class npc_haunting_sha : public CreatureScript
                             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                             {
                                 if (Player* plr = i->GetSource())
-                                    me->GetThreatManager().addThreat(plr, 1.0f);
+                                    me->GetThreatManager().AddThreat(plr, 1.0f);
                             }
                         }
                     }

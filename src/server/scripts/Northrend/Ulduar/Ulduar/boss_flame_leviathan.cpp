@@ -410,7 +410,8 @@ class boss_flame_leviathan : public CreatureScript
                 instance->SetBossState(BOSS_LEVIATHAN, FAIL);
                 me->InterruptNonMeleeSpells(true);
                 me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE);
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PURSUED);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BATTERING_RAM);

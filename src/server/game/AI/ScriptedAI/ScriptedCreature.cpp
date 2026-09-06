@@ -274,17 +274,17 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
 
 void ScriptedAI::DoResetThreat()
 {
-    if (!me->CanHaveThreatList() || me->GetThreatManager().isThreatListEmpty())
+    if (!me->CanHaveThreatList() || me->GetThreatManager().IsThreatListEmpty())
     {
         TC_LOG_ERROR("scripts", "DoResetThreat called for creature that either cannot have threat list or has empty threat list (me entry = %d)", me->GetEntry());
         return;
     }
 
-    ThreatContainer::StorageType threatlist = me->GetThreatManager().getThreatList();
+    auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
 
-    for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+    for (ThreatReference const* ref : threatlist)
     {
-        Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+        Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
         if (unit && DoGetThreat(unit))
             DoModifyThreatPercent(unit, -100);
     }
@@ -294,14 +294,14 @@ float ScriptedAI::DoGetThreat(Unit* unit)
 {
     if (!unit)
         return 0.0f;
-    return me->GetThreatManager().getThreat(unit);
+    return me->GetThreatManager().GetThreat(unit);
 }
 
 void ScriptedAI::DoModifyThreatPercent(Unit* unit, int32 pct)
 {
     if (!unit)
         return;
-    me->GetThreatManager().modifyThreatPercent(unit, pct);
+    me->GetThreatManager().ModifyThreatByPercent(unit, pct);
 }
 
 void ScriptedAI::AddThreat(Unit* victim, float amount, Unit* who)
@@ -312,7 +312,7 @@ void ScriptedAI::AddThreat(Unit* victim, float amount, Unit* who)
         who = me;
     if (!who->CanHaveThreatList())
         return;
-    who->AddThreat(victim, amount);
+    who->GetThreatManager().AddThreat(victim, amount);
 }
 
 void ScriptedAI::ModifyThreatByPercent(Unit* victim, int32 pct, Unit* who)
@@ -321,7 +321,7 @@ void ScriptedAI::ModifyThreatByPercent(Unit* victim, int32 pct, Unit* who)
         return;
     if (!who)
         who = me;
-    who->GetThreatManager().modifyThreatPercent(victim, pct);
+    who->GetThreatManager().ModifyThreatByPercent(victim, pct);
 }
 
 void ScriptedAI::ResetThreat(Unit* victim, Unit* who)
@@ -330,14 +330,14 @@ void ScriptedAI::ResetThreat(Unit* victim, Unit* who)
         return;
     if (!who)
         who = me;
-    who->GetThreatManager().modifyThreatPercent(victim, -100);
+    who->GetThreatManager().ModifyThreatByPercent(victim, -100);
 }
 
 void ScriptedAI::ResetThreatList(Unit* who)
 {
     if (!who)
         who = me;
-    who->GetThreatManager().resetAllAggro();
+    who->GetThreatManager().ResetAllThreat();
 }
 
 float ScriptedAI::GetThreat(Unit* victim, Unit* who)
@@ -346,7 +346,7 @@ float ScriptedAI::GetThreat(Unit* victim, Unit* who)
         return 0.0f;
     if (!who)
         who = me;
-    return who->GetThreatManager().getThreat(victim);
+    return who->GetThreatManager().GetThreat(victim);
 }
 
 void ScriptedAI::ForceCombatStop(Creature* who, bool reset)
@@ -717,9 +717,9 @@ void BossAI::TeleportCheaters()
     float x, y, z;
     me->GetPosition(x, y, z);
 
-    ThreatContainer::StorageType threatList = me->GetThreatManager().getThreatList();
-    for (ThreatContainer::StorageType::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
-        if (Unit* target = (*itr)->getTarget())
+    auto threatList = me->GetThreatManager().GetUnsortedThreatList();
+    for (ThreatReference const* ref : threatList)
+        if (Unit* target = ref->GetVictim())
             if (target->GetTypeId() == TYPEID_PLAYER && !CheckBoundary(target))
                 target->NearTeleportTo(x, y, z, 0);
 }

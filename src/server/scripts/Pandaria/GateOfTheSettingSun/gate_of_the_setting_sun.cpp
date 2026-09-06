@@ -78,8 +78,9 @@ struct gss_trash_generic_baseAI : public ScriptedAI
         {
             if ((me->GetVictim() && me->GetVictim()->GetTypeId() != TYPEID_PLAYER) || !me->IsInCombat())
             {
-                me->DeleteThreatList();
-                me->GetThreatManager().addThreat(who, 100.0f);
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
+                me->GetThreatManager().AddThreat(who, 100.0f);
                 AttackStart(who);
             }
         }
@@ -92,7 +93,7 @@ struct gss_trash_generic_baseAI : public ScriptedAI
             if (me->GetHealthPct() <= randHealth || me->GetHealth() <= damage)
             {
                 damage = 0;
-                me->GetThreatManager().addThreat(attacker, 0.f);
+                me->GetThreatManager().AddThreat(attacker, 0.f);
             }
         }
     }
@@ -100,8 +101,9 @@ struct gss_trash_generic_baseAI : public ScriptedAI
     void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
-        me->GetThreatManager().resetAllAggro();
-        me->DeleteThreatList();
+        me->GetThreatManager().ResetAllThreat();
+        me->GetThreatManager().RemoveMeFromThreatLists();
+        me->GetThreatManager().ClearAllThreat();
     }
 };
 
@@ -260,7 +262,7 @@ class npc_kirkthik_conscript : public CreatureScript
                     if (me->GetHealth() < me->GetMaxHealth() || me->GetHealth() <= damage)
                     {
                         damage = 0;
-                        me->GetThreatManager().addThreat(attacker, 0.f);
+                        me->GetThreatManager().AddThreat(attacker, 0.f);
                     }
                 }
 

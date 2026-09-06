@@ -2694,7 +2694,7 @@ void Player::SetInWater(bool apply)
     // remove auras that need water/land
     RemoveAurasWithInterruptFlags(apply ? AURA_INTERRUPT_FLAG_NOT_ABOVEWATER : AURA_INTERRUPT_FLAG_NOT_UNDERWATER);
 
-    getHostileRefManager().updateThreatTables();
+    GetThreatManager().EvaluateSuppressed(true);
 }
 
 bool Player::IsInAreaTrigger(const AreaTriggerEntry *areaTrigger) const
@@ -2746,13 +2746,11 @@ void Player::SetGameMaster(bool on)
         if (Pet* pet = GetPet())
         {
             pet->SetFaction(35);
-            pet->getHostileRefManager().setOnlineOfflineState(false);
         }
 
         RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
         ResetContestedPvP();
 
-        getHostileRefManager().setOnlineOfflineState(false);
         CombatStopWithPets();
 
         SetPhaseMask(uint32(PHASEMASK_ANYWHERE), false);    // see and visible in all phases
@@ -2768,7 +2766,7 @@ void Player::SetGameMaster(bool on)
         if (Pet* pet = GetPet())
         {
             pet->SetFaction(GetFaction());
-            pet->getHostileRefManager().setOnlineOfflineState(true);
+            pet->GetThreatManager().EvaluateSuppressed(true);
         }
 
         // restore FFA PvP Server state
@@ -2778,7 +2776,7 @@ void Player::SetGameMaster(bool on)
         // restore FFA PvP area state, remove not allowed for GM mounts
         UpdateArea(m_areaUpdateId);
 
-        getHostileRefManager().setOnlineOfflineState(true);
+        GetThreatManager().EvaluateSuppressed(true);
         m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_PLAYER);
 
         phaseMgr.AddUpdateFlag(PHASE_UPDATE_FLAG_SERVERSIDE_CHANGED);
@@ -23552,7 +23550,7 @@ void Player::CleanupAfterTaxiFlight()
     m_taxi.ClearTaxiDestinations();        // not destinations, clear source node
     Dismount();
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
-    getHostileRefManager().setOnlineOfflineState(true);
+    GetThreatManager().EvaluateSuppressed(true);
 }
 
 void Player::ContinueTaxiFlight()
@@ -31037,7 +31035,7 @@ void Player::RestoreCombatWithPlayer(Player* player)
         return;
 
     SetInCombatState(player->GetPvPCombatTimer() > 0);
-    player->getHostileRefManager().threatAssist(this, 0.0f);
+    player->GetThreatManager().ForwardThreatForAssistingMe(this, 0.0f);
 }
 
 void Player::SetCanTurnWhileFalling(bool on)

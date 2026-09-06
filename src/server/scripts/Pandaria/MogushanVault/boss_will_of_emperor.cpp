@@ -993,7 +993,7 @@ class npc_woe_add_generic : public CreatureScript
                                 if (Player* itr = Trinity::Containers::SelectRandomContainerElement(PlayerOnTerracota))
                                 {
                                     me->AI()->AttackStart(itr);
-                                    me->GetThreatManager().addThreat(itr, 10000.0f);
+                                    me->GetThreatManager().AddThreat(itr, 10000.0f);
 
                                     me->CastSpell(itr, SPELL_FOCALISED_ASSAULT, true);
                                     me->GetMotionMaster()->MoveChase(itr);
@@ -1005,7 +1005,7 @@ class npc_woe_add_generic : public CreatureScript
                                 if (Player* itr = me->FindNearestPlayer(VISIBLE_RANGE))
                                 {
                                     me->AI()->AttackStart(itr);
-                                    me->GetThreatManager().addThreat(itr, 10000.0f);
+                                    me->GetThreatManager().AddThreat(itr, 10000.0f);
 
                                     me->CastSpell(itr, SPELL_FOCALISED_ASSAULT, true);
                                     me->GetMotionMaster()->MoveChase(itr);
@@ -1022,14 +1022,14 @@ class npc_woe_add_generic : public CreatureScript
                                 if (Player* itr = Trinity::Containers::SelectRandomContainerElement(PlayerOnTerracota))
                                 {
                                     me->AI()->AttackStart(itr);
-                                    me->GetThreatManager().addThreat(itr, 300.0f);
+                                    me->GetThreatManager().AddThreat(itr, 300.0f);
                                 }
                             }
                             else 
                                 if (Player* itr = me->FindNearestPlayer(VISIBLE_RANGE))
                                 {
                                     me->AI()->AttackStart(itr);
-                                    me->GetThreatManager().addThreat(itr, 300.0f);
+                                    me->GetThreatManager().AddThreat(itr, 300.0f);
                                 }
 
                             break;
@@ -1048,13 +1048,13 @@ class npc_woe_add_generic : public CreatureScript
                                 if (Player* itr = PlayerOnTerracota.back())
                                 {
                                     me->AI()->AttackStart(itr);
-                                    me->GetThreatManager().addThreat(itr, 10000.0f);
+                                    me->GetThreatManager().AddThreat(itr, 10000.0f);
                                 }
                             }
                             else if (Player* itr = me->FindNearestPlayer(VISIBLE_RANGE))
                             {
                                 me->AI()->AttackStart(itr);
-                                me->GetThreatManager().addThreat(itr, 10000.0f);
+                                me->GetThreatManager().AddThreat(itr, 10000.0f);
                             }
                             break;
                         }
@@ -1272,14 +1272,14 @@ class npc_woe_titan_spark : public CreatureScript
                         if (target->IsAlive())
                         {
                             me->RemoveChanneledCast(targetGuid);
-                            me->GetThreatManager().addThreat(target, 3000.0f);
+                            me->GetThreatManager().AddThreat(target, 3000.0f);
                         }
                         // If our main target not alive - too select new.
                         else if (Unit* newTarget = ObjectAccessor::GetUnit(*me, GetTargetGUID()))
                         {
                             targetGuid = newTarget->GetGUID();
                             me->RemoveChanneledCast(targetGuid);
-                            me->GetThreatManager().addThreat(target, 3000.0f);
+                            me->GetThreatManager().AddThreat(target, 3000.0f);
                         }
                     }
                     // If not found - select new
@@ -1287,7 +1287,7 @@ class npc_woe_titan_spark : public CreatureScript
                     {
                         targetGuid = target->GetGUID();
                         me->RemoveChanneledCast(targetGuid);
-                        me->GetThreatManager().addThreat(target, 3000.0f);
+                        me->GetThreatManager().AddThreat(target, 3000.0f);
                     }
 
                     canExplode = true;

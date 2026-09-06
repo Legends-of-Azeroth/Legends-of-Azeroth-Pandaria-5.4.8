@@ -1675,7 +1675,7 @@ public:
 
         void DamageTaken(Unit* attacker, uint32& damage) override
         {
-            me->GetThreatManager().addThreat(attacker, damage);
+            me->GetThreatManager().AddThreat(attacker, damage);
 
             if (Player* owner = attacker->GetCharmerOrOwnerPlayerOrPlayerItself())
                 clearAttackerCombat[owner->GetGUID()] = time(NULL) + 5;
@@ -1720,7 +1720,7 @@ public:
                 if (now > clearTime)
                 {
                     if (Unit* attacker = ObjectAccessor::GetUnit(*me, attackerGuid))
-                        attacker->getHostileRefManager().deleteReference(me);
+                        me->GetThreatManager().ClearThreat(attacker);
 
                     itr = clearAttackerCombat.erase(itr);
                 }

@@ -448,7 +448,7 @@ class boss_shade_of_akama : public CreatureScript
                 if (IsBanished)
                 {
                     // Akama is set in the threatlist so when we reset, we make sure that he is not included in our check
-                    if (me->GetThreatManager().getThreatList().size() < 2)
+                    if (me->GetThreatManager().GetThreatListSize() < 2)
                     {
                         EnterEvadeMode();
                         return;
@@ -500,8 +500,8 @@ class boss_shade_of_akama : public CreatureScript
                                 Akama->GetMotionMaster()->MoveIdle();
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 // Crazy amount of threat
-                                me->AddThreat(Akama, 10000000.0f);
-                                Akama->AddThreat(me, 10000000.0f);
+                                me->GetThreatManager().AddThreat(Akama, 10000000.0f);
+                                Akama->GetThreatManager().AddThreat(me, 10000000.0f);
                                 me->Attack(Akama, true);
                                 Akama->Attack(me, true);
                             }
@@ -530,7 +530,8 @@ class boss_shade_of_akama : public CreatureScript
                         {
                             HasKilledAkamaAndReseting = true;
                             me->RemoveAllAuras();
-                            me->DeleteThreatList();
+                            me->GetThreatManager().RemoveMeFromThreatLists();
+                            me->GetThreatManager().ClearAllThreat();
                             me->CombatStop();
                             //me->SetFullHealth();
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -692,13 +693,13 @@ class npc_akama_shade : public CreatureScript
                     CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, shade->AI())->SetSelectableChannelers();
                     CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, shade->AI())->StartCombat = true;
                     me->CombatStart(shade);
-                    shade->AddThreat(me, 1000000.0f);
-                    //shade->AddThreat(me, 1000000.0f);
+                    shade->GetThreatManager().AddThreat(me, 1000000.0f);
+                    //shade->GetThreatManager().AddThreat(me, 1000000.0f);
                     //me->CombatStart(shade);
                     shade->HandleEmoteStateCommand(EMOTE_STATE_NONE);
                     shade->SetTarget(me->GetGUID());
                     if (player)
-                        shade->AddThreat(player, 1.0f);
+                        shade->GetThreatManager().AddThreat(player, 1.0f);
                     DoZoneInCombat(shade);
                     EventBegun = true;
                 }
@@ -804,7 +805,7 @@ class npc_akama_shade : public CreatureScript
                             }
                             if (Shade && Shade->IsAlive())
                             {
-                                if (Shade->GetThreatManager().getThreatList().size() < 2)
+                                if (Shade->GetThreatManager().GetThreatListSize() < 2)
                                     Shade->AI()->EnterEvadeMode();
                             }
                         }

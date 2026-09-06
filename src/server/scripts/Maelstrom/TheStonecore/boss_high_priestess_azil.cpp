@@ -114,7 +114,7 @@ class boss_high_priestess_azil : public CreatureScript
                     case NPC_ADVOUT_FOLLOWER:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                         {
-                            summon->AddThreat(target, 10.0f);
+                            summon->GetThreatManager().AddThreat(target, 10.0f);
                             summon->Attack(target, true);
                             summon->GetMotionMaster()->MoveChase(target);
                         }

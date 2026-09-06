@@ -255,7 +255,8 @@ class boss_tortos : public CreatureScript
 
                 me->RemoveAllAuras();
                 Reset();
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
                 me->GetMotionMaster()->MovementExpired();
                 me->GetMotionMaster()->MoveTargetedHome();
@@ -308,11 +309,11 @@ class boss_tortos : public CreatureScript
                     }
                     else
                     {
-                        ThreatContainer::StorageType threatList = me->GetThreatManager().getThreatList();
+                        auto threatList = me->GetThreatManager().GetUnsortedThreatList();
 
-                        for (ThreatContainer::StorageType::const_iterator itr = threatList.cbegin(); itr != threatList.cend(); ++itr)
+                        for (ThreatReference const* ref : threatList)
                         {
-                            if (Unit* target = (*itr)->getTarget())
+                            if (Unit* target = ref->GetVictim())
                             {
                                 if (me->IsWithinMeleeRange(target))
                                 {

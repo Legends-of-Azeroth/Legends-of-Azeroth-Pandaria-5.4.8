@@ -226,14 +226,14 @@ class TC_GAME_API UnitAI
         // order, if <targetType> is SelectTargetMethod::Random) are skipped.
         template <class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE const& predicate)
         {
-            ThreatContainer::StorageType const& threatlist = me->GetThreatManager().getThreatList();
-            if (position >= threatlist.size())
+            auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+            if (position >= me->GetThreatManager().GetThreatListSize())
                 return NULL;
 
             std::list<Unit*> targetList;
-            for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                if (predicate((*itr)->getTarget()))
-                    targetList.push_back((*itr)->getTarget());
+            for (ThreatReference const* ref : threatlist)
+                if (predicate(ref->GetVictim()))
+                    targetList.push_back(ref->GetVictim());
 
             if (position >= targetList.size())
                 return NULL;
@@ -287,13 +287,13 @@ class TC_GAME_API UnitAI
         // order, if <targetType> is SelectTargetMethod::Random) are skipped.
         template <class PREDICATE> void SelectTargetList(std::list<Unit*>& targetList, PREDICATE const& predicate, uint32 maxTargets, SelectAggroTarget targetType)
         {
-            ThreatContainer::StorageType const& threatlist = me->GetThreatManager().getThreatList();
-            if (threatlist.empty())
+            auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+            if (me->GetThreatManager().IsThreatListEmpty())
                 return;
 
-            for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                if (predicate((*itr)->getTarget()))
-                    targetList.push_back((*itr)->getTarget());
+            for (ThreatReference const* ref : threatlist)
+                if (predicate(ref->GetVictim()))
+                    targetList.push_back(ref->GetVictim());
 
             if (targetList.size() < maxTargets)
                 return;

@@ -989,7 +989,7 @@ class BombTargetSelector
         bool operator()(WorldObject* object) const
         {
             if (Unit* target = object->ToUnit())
-                if (target == _victim && _me->GetThreatManager().getThreatList().size() > 1)
+                if (target == _victim && _me->GetThreatManager().GetThreatListSize() > 1)
                     return true;
 
             return false;

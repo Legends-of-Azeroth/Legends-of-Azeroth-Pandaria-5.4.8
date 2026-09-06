@@ -2353,7 +2353,7 @@ void Creature::SetInCombatWithZone()
             {
                 this->SetInCombatWith(player);
                 player->SetInCombatWith(this);
-                AddThreat(player, 0.0f);
+                GetThreatManager().AddThreat(player, 0.0f);
             }
         }
     }

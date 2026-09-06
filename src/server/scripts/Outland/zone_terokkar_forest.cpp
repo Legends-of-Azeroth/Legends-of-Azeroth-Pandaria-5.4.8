@@ -88,7 +88,8 @@ struct npc_unkor_the_ruthless : public ScriptedAI
         me->SetFaction(FACTION_FRIENDLY);
         me->SetStandState(UNIT_STAND_STATE_SIT);
         me->RemoveAllAuras();
-        me->DeleteThreatList();
+        me->GetThreatManager().RemoveMeFromThreatLists();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
         UnkorUnfriendly_Timer = 60000;
     }

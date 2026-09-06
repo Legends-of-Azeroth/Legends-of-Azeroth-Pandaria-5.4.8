@@ -151,7 +151,8 @@ class boss_xuen : public CreatureScript
                     me->SetHealth(391000000/*me->GetMaxHealth()*/);
 
                     me->SetFacingTo(MIDDLE_FACING_ANGLE);
-                    me->DeleteThreatList();
+                    me->GetThreatManager().RemoveMeFromThreatLists();
+                    me->GetThreatManager().ClearAllThreat();
 
                     events.Reset();
                     nonCombatEvents.ScheduleEvent(EVENT_SHAO_DO_OUTRO, 10000);

@@ -981,7 +981,7 @@ class npc_ravenous_creeper : public CreatureScript
                                 me->GetExactDist2d(&conclaveHomePositions[0]) > 90.0f)
                             {
                                 if (me->GetVictim())
-                                    me->GetThreatManager().modifyThreatPercent(me->GetVictim(), -100);
+                                    me->GetThreatManager().ModifyThreatByPercent(me->GetVictim(), -100);
                                 me->GetMotionMaster()->Clear();
                                 Player* target = me->FindNearestPlayer(90);
                                 if (target && target->GetExactDist2d(&conclaveHomePositions[0]) <= 90.0f)

@@ -260,8 +260,8 @@ public:
         {
             if (me->GetVictim() && me->GetDistanceOrder(who, me->GetVictim()) && me->IsValidAttackTarget(who))
             {
-                me->GetThreatManager().modifyThreatPercent(me->GetVictim(), -100);
-                me->AddThreat(who, 1000000.0f);
+                me->GetThreatManager().ModifyThreatByPercent(me->GetVictim(), -100);
+                me->GetThreatManager().AddThreat(who, 1000000.0f);
             }
         }
 

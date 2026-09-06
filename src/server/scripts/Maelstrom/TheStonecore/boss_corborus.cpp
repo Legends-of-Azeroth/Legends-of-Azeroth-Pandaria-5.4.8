@@ -117,7 +117,7 @@ class boss_corborus : public CreatureScript
                     case NPC_ROCK_BORER:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                         {
-                            summon->AddThreat(target, 10.0f);
+                            summon->GetThreatManager().AddThreat(target, 10.0f);
                             summon->Attack(target, true);
                             summon->GetMotionMaster()->MoveChase(target);
                         }
@@ -125,7 +125,7 @@ class boss_corborus : public CreatureScript
                     case NPC_CRYSTAL_SHARD:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                         {
-                            summon->AddThreat(target, 10.0f);
+                            summon->GetThreatManager().AddThreat(target, 10.0f);
                             summon->Attack(target, true);
                             summon->GetMotionMaster()->MoveChase(target);
                         }

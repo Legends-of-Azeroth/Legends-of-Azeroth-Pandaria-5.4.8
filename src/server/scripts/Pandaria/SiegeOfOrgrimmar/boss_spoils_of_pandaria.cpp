@@ -1010,7 +1010,7 @@ struct spoils_baseAI : public ScriptedAI
     {
         if (victim && (!me->IsWithinLOS(victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ()) || victim->GetPositionZ() > -274.5f))
         {
-            me->GetThreatManager().doAddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
+            me->GetThreatManager().AddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
 
             // try select near target and attack him if possible
             if (Player* target = me->FindNearestPlayer(30.0f))
@@ -1853,7 +1853,7 @@ struct npc_spoils_ancient_brewmaster_spirit : public ScriptedAI
     {
         if (victim && (!me->IsWithinLOS(victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ()) || victim->GetPositionZ() > -274.5f))
         {
-            me->GetThreatManager().doAddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
+            me->GetThreatManager().AddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
 
             // try select near target and attack him if possible
             if (Player* target = me->FindNearestPlayer(30.0f))
@@ -1987,7 +1987,7 @@ struct npc_spoils_wise_mistweaver_spirit : public ScriptedAI
     {
         if (victim && (!me->IsWithinLOS(victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ()) || victim->GetPositionZ() > -274.5f))
         {
-            me->GetThreatManager().doAddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
+            me->GetThreatManager().AddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
 
             // try select near target and attack him if possible
             if (Player* target = me->FindNearestPlayer(30.0f))
@@ -2085,7 +2085,7 @@ struct npc_spoils_nameless_windwalker_spirit : public ScriptedAI
     {
         if (victim && (!me->IsWithinLOS(victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ()) || victim->GetPositionZ() > -274.5f))
         {
-            me->GetThreatManager().doAddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
+            me->GetThreatManager().AddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
 
             // try select near target and attack him if possible
             if (Player* target = me->FindNearestPlayer(30.0f))
@@ -2312,7 +2312,7 @@ struct npc_spoils_zarthik_swarmer : public ScriptedAI
     {
         if (victim && (!me->IsWithinLOS(victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ()) || victim->GetPositionZ() > -274.5f))
         {
-            me->GetThreatManager().doAddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
+            me->GetThreatManager().AddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
 
             // try select near target and attack him if possible
             if (Player* target = me->FindNearestPlayer(30.0f))

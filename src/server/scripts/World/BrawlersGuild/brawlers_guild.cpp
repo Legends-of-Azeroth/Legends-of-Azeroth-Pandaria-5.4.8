@@ -2202,7 +2202,7 @@ struct npc_brawlers_guild_blat : public brawlers_guild_encounter_typeAI
             summons.Summon(summon);
             summon->SetInCombatWith(target);
             target->SetInCombatWith(summon);
-            summon->AddThreat(target, 0.0f);
+            summon->GetThreatManager().AddThreat(target, 0.0f);
 
             if (summon->AI())
                 summon->AI()->AttackStart(target);
@@ -2664,7 +2664,7 @@ struct npc_brawlers_guild_leona_earthwind : public brawlers_guild_encounter_type
             summons.Summon(summon);
             summon->SetInCombatWith(target);
             target->SetInCombatWith(summon);
-            summon->AddThreat(target, 0.0f);
+            summon->GetThreatManager().AddThreat(target, 0.0f);
         }
     }
 
@@ -2745,7 +2745,7 @@ struct npc_brawlers_guild_dominika_the_illusionist : public brawlers_guild_encou
             summons.Summon(summon);
             summon->SetInCombatWith(target);
             target->SetInCombatWith(summon);
-            summon->AddThreat(target, 0.0f);
+            summon->GetThreatManager().AddThreat(target, 0.0f);
             
             if (summon->AI())
                 summon->AI()->AttackStart(target);
@@ -4535,7 +4535,7 @@ struct npc_brawlers_guild_blingtron_3000 : public brawlers_guild_encounter_typeA
             summons.Summon(summon);
             summon->SetInCombatWith(target);
             target->SetInCombatWith(summon);
-            summon->AddThreat(target, 0.0f);
+            summon->GetThreatManager().AddThreat(target, 0.0f);
 
             if (summon->AI())
                 summon->AI()->AttackStart(target);

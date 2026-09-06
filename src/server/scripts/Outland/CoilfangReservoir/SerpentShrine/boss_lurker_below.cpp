@@ -224,7 +224,7 @@ public:
                 return;
             }
 
-            if (me->GetThreatManager().getThreatList().empty()) // check if should evade
+            if (me->GetThreatManager().IsThreatListEmpty()) // check if should evade
             {
                 if (me->IsInCombat())
                     EnterEvadeMode();
@@ -345,7 +345,7 @@ public:
                     return;
                 } else PhaseTimer-=diff;
 
-                if (me->GetThreatManager().getThreatList().empty()) // check if should evade
+                if (me->GetThreatManager().IsThreatListEmpty()) // check if should evade
                 {
                     EnterEvadeMode();
                     return;

@@ -198,15 +198,14 @@ public:
             if (!summonedUnit)
                 return;
 
-            ThreatContainer::StorageType const &threatlist = me->GetThreatManager().getThreatList();
-            ThreatContainer::StorageType::const_iterator i = threatlist.begin();
-            for (i = threatlist.begin(); i != threatlist.end(); ++i)
+            auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+            for (ThreatReference const* ref : threatlist)
             {
-                Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
+                Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                 if (unit && unit->IsAlive())
                 {
-                    float threat = me->GetThreatManager().getThreat(unit);
-                    summonedUnit->AddThreat(unit, threat);
+                    float threat = me->GetThreatManager().GetThreat(unit);
+                    summonedUnit->GetThreatManager().AddThreat(unit, threat);
                 }
             }
         }
@@ -216,11 +215,10 @@ public:
             float x = KaelLocations[0][0];
             float y = KaelLocations[0][1];
             me->SetPosition(x, y, LOCATION_Z, 0.0f);
-            ThreatContainer::StorageType threatlist = me->GetThreatManager().getThreatList();
-            ThreatContainer::StorageType::const_iterator i = threatlist.begin();
-            for (i = threatlist.begin(); i != threatlist.end(); ++i)
+            auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+            for (ThreatReference const* ref : threatlist)
             {
-                Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
+                Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                 if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                     unit->CastSpell(unit, SPELL_TELEPORT_CENTER, true);
             }
@@ -229,11 +227,10 @@ public:
 
         void CastGravityLapseKnockUp()
         {
-            ThreatContainer::StorageType threatlist = me->GetThreatManager().getThreatList();
-            ThreatContainer::StorageType::const_iterator i = threatlist.begin();
-            for (i = threatlist.begin(); i != threatlist.end(); ++i)
+            auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+            for (ThreatReference const* ref : threatlist)
             {
-                Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
+                Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                 if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                     // Knockback into the air
                     unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_DOT, true, 0, 0, me->GetGUID());
@@ -242,11 +239,10 @@ public:
 
         void CastGravityLapseFly()                              // Use Fly Packet hack for now as players can't cast "fly" spells unless in map 530. Has to be done a while after they get knocked into the air...
         {
-            ThreatContainer::StorageType threatlist = me->GetThreatManager().getThreatList();
-            ThreatContainer::StorageType::const_iterator i = threatlist.begin();
-            for (i = threatlist.begin(); i != threatlist.end(); ++i)
+            auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+            for (ThreatReference const* ref : threatlist)
             {
-                Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
+                Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                 if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                 {
                     // Also needs an exception in spell system.
@@ -261,11 +257,10 @@ public:
 
         void RemoveGravityLapse()
         {
-            ThreatContainer::StorageType threatlist = me->GetThreatManager().getThreatList();
-            ThreatContainer::StorageType::const_iterator i = threatlist.begin();
-            for (i = threatlist.begin(); i != threatlist.end(); ++i)
+            auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+            for (ThreatReference const* ref : threatlist)
             {
-                Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
+                Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                 if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                 {
                     unit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_FLY);
@@ -405,7 +400,7 @@ public:
                                     if (Orb && target)
                                     {
                                         Orb->SetSpeed(MOVE_RUN, 0.5f);
-                                        Orb->AddThreat(target, 1000000.0f);
+                                        Orb->GetThreatManager().AddThreat(target, 1000000.0f);
                                         Orb->AI()->AttackStart(target);
                                     }
                                 }
@@ -666,8 +661,8 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
-                    me->AddThreat(target, 1.0f);
-                    me->TauntApply(target);
+                    me->GetThreatManager().AddThreat(target, 1.0f);
+                    me->GetThreatManager().TauntUpdate();
                     AttackStart(target);
                 }
 

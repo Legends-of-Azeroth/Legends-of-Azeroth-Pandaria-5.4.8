@@ -234,7 +234,7 @@ class boss_keleseth : public CreatureScript
                             {
                                 Skeleton->SetWalk(false);
                                 Skeleton->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY() , me->GetPositionZ());
-                                Skeleton->AddThreat(me->GetVictim(), 0.0f);
+                                Skeleton->GetThreatManager().AddThreat(me->GetVictim(), 0.0f);
                                 DoZoneInCombat(Skeleton);
                             }
                         }

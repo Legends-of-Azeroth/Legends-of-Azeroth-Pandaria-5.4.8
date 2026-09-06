@@ -132,7 +132,7 @@ class boss_grilek : public CreatureScript
                             break;
                         case EVENT_PURSUIT_END:
                             events.RemovePhase(PHASE_PURSUIT);
-                            me->GetThreatManager().resetAllAggro();
+                            me->GetThreatManager().ResetAllThreat();
                             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
                             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
                             break;
@@ -168,8 +168,8 @@ class boss_grilek : public CreatureScript
             {
                 if (target && spell->Id == SPELL_PURSUIT)
                 {
-                    me->GetThreatManager().resetAllAggro();
-                    me->GetThreatManager().addThreat(target, 100000);
+                    me->GetThreatManager().ResetAllThreat();
+                    me->GetThreatManager().AddThreat(target, 100000);
                     me->SetTarget(target->GetGUID());
                     me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MoveChase(target);

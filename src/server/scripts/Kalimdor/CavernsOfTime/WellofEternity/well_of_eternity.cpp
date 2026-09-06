@@ -1380,13 +1380,13 @@ class npc_well_of_eternity_illidan_1 : public CreatureScript
                         if (player->IsInCombat())
                         {
                             player->CombatStop();
-                            player->getHostileRefManager().deleteReferences();
+                            player->GetThreatManager().RemoveMeFromThreatLists();
                             if (Guardian* pet = player->GetGuardianPet())
                             {
                                 if (pet->IsInCombat())
                                 {
                                     pet->CombatStop();
-                                    pet->getHostileRefManager().deleteReferences();
+                                    pet->GetThreatManager().RemoveMeFromThreatLists();
                                 }
                             }
                         }
@@ -1481,7 +1481,7 @@ class npc_well_of_eternity_legion_demon_preevent : CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 me->CombatStop(true);
-                me->getHostileRefManager().deleteReferences();
+                me->GetThreatManager().RemoveMeFromThreatLists();
             }
 
             void MoveInLineOfSight(Unit* who) override
@@ -1691,7 +1691,7 @@ class npc_well_of_eternity_guardian_demon : CreatureScript
                 if (who->HasAura(SPELL_SHADOW_WALK_AURA) || who->HasAura(SPELL_SHADOWCLOAK_PETS))
                 {
                     me->CombatStop(true);
-                    me->getHostileRefManager().deleteReferences();
+                    me->GetThreatManager().RemoveMeFromThreatLists();
                 }
                 else
                     SetGUID(who->GetGUID(), 0);
@@ -2139,7 +2139,7 @@ class npc_well_of_eternity_portal_trash : public CreatureScript
                 if (who->HasAura(SPELL_SHADOW_WALK_AURA) || who->HasAura(SPELL_SHADOWCLOAK_PETS))
                 {
                     me->CombatStop(true);
-                    me->getHostileRefManager().deleteReferences();
+                    me->GetThreatManager().RemoveMeFromThreatLists();
                     return;
                 }
 
@@ -2592,7 +2592,7 @@ class spell_well_of_eternity_shadow_walk : public SpellScriptLoader
                 Unit* target = GetTarget();
 
                 target->CombatStop(true);
-                target->getHostileRefManager().deleteReferences();
+                target->GetThreatManager().RemoveMeFromThreatLists();
 
                 target->CastSpell(target, SPELL_SHADOWCLOAK_PLAYERS);
                 target->CastSpell(target, SPELL_SHADOWCLOAK_AGGRO);

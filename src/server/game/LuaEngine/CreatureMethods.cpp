@@ -616,7 +616,7 @@ namespace LuaCreature
 
     int GetAITargetsCount(lua_State* L, Creature* creature)
     {
-        sEluna->Push(L, creature->GetThreatManager().getThreatList().size());
+        sEluna->Push(L, creature->GetThreatManager().GetThreatListSize());
         return 1;
     }
 

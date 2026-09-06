@@ -321,7 +321,7 @@ class npc_snobold_vassal : public CreatureScript
             void JustEngagedWith(Unit* who) override
             {
                 _targetGUID = who->GetGUID();
-                me->TauntApply(who);
+                me->GetThreatManager().TauntUpdate();
                 DoCast(who, SPELL_SNOBOLLED);
 
                 if (_instance)

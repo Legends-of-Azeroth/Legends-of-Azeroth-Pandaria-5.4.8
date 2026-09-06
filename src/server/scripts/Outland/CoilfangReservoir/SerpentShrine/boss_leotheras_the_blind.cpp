@@ -143,7 +143,7 @@ public:
                 Unit* owner = Unit::GetUnit(*me, victimGUID);
                 if (owner && owner->IsAlive())
                 {
-                    me->AddThreat(owner, 999999);
+                    me->GetThreatManager().AddThreat(owner, 999999);
                     AttackStart(owner);
                 } else if (owner && owner->isDead())
                 {
@@ -323,7 +323,7 @@ public:
                     Unit* victim = NULL;
                     victim = Unit::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER));
                     if (victim)
-                        me->GetThreatManager().addThreat(victim, 1);
+                        me->GetThreatManager().AddThreat(victim, 1);
                     StartEvent();
                 }
             }
@@ -516,11 +516,11 @@ public:
                 //Summon Inner Demon
                 if (InnerDemons_Timer <= diff)
                 {
-                    ThreatContainer::StorageType const & ThreatList = me->GetThreatManager().getThreatList();
+                    auto ThreatList = me->GetThreatManager().GetUnsortedThreatList();
                     std::vector<Unit*> TargetList;
-                    for (ThreatContainer::StorageType::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
+                    for (ThreatReference const* ref : ThreatList)
                     {
-                        Unit* tempTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                        Unit* tempTarget = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                         if (tempTarget && tempTarget->GetTypeId() == TYPEID_PLAYER && tempTarget->GetGUID() != me->GetVictim()->GetGUID() && TargetList.size()<5)
                             TargetList.push_back(tempTarget);
                     }

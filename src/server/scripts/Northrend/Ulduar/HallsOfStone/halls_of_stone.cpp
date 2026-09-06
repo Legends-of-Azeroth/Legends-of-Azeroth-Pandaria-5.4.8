@@ -399,7 +399,7 @@ public:
         void JustSummoned(Creature* summoned) override
         {
             lDwarfGUIDList.push_back(summoned->GetGUID());
-            summoned->AddThreat(me, 0.0f);
+            summoned->GetThreatManager().AddThreat(me, 0.0f);
             summoned->AI()->AttackStart(me);
         }
 

@@ -831,7 +831,7 @@ class npc_lightning_elemental : public CreatureScript
                 DoCast(me, SPELL_LIGHTNING_ELEMENTAL_PASSIVE);      // TODO: Check if both this spell and the other one below are required
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                 {
-                    me->AddThreat(target, 99999.9f);
+                    me->GetThreatManager().AddThreat(target, 99999.9f);
                     AttackStart(target);
                 }
             }
@@ -1197,7 +1197,7 @@ class boss_stormcaller_brundir : public CreatureScript
                                 DoStartMovement(me->GetVictim());
                             else
                                 AttackStart(SelectTarget(SELECT_TARGET_TOPAGGRO));
-                            me->GetThreatManager().resetAllAggro();
+                            me->GetThreatManager().ResetAllThreat();
                             events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS_START, urand(40000, 80000));
                             break;
                         default:

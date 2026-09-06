@@ -28,7 +28,6 @@
 #include "SpellDefines.h"
 #include "ThreatManager.h"
 #include "CombatManager.h"
-#include "HostileRefManager.h"
 #include "MoveSplineInit.h"
 #include "SpellMgr.h"
 #include "TimeValue.h"
@@ -2166,24 +2165,10 @@ public:
 
     // Threat related methods
     bool CanHaveThreatList() const;
-    void AddThreat(Unit* victim, float fThreat, SpellSchoolMask schoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* threatSpell = NULL);
-    void DeleteThreatList();
-    void TauntApply(Unit* victim);
-    void TauntFadeOut(Unit* taunter);
     ThreatManager& GetThreatManager() { return m_ThreatManager; }
     ThreatManager const& GetThreatManager() const { return m_ThreatManager; }
     CombatManager& GetCombatManager() { return m_CombatManager; }
     CombatManager const& GetCombatManager() const { return m_CombatManager; }
-    void addHatedBy(HostileReference* /*pHostileReference*/)
-    { /* nothing to do yet */
-    }
-    void removeHatedBy(HostileReference* /*pHostileReference*/)
-    { /* nothing to do yet */
-    }
-    HostileRefManager& getHostileRefManager()
-    {
-        return m_HostileRefManager;
-    }
 
     VisibleAuraMap const* GetVisibleAuras()
     {
@@ -2726,8 +2711,6 @@ private:
     TimeTrackerSmall m_splineSyncTimer;
 
     Diminishing m_Diminishing;
-
-    HostileRefManager m_HostileRefManager;
 
     std::set<AbstractFollower*> _followers;
 

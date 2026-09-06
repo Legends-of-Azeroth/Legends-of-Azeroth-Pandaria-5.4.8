@@ -265,8 +265,8 @@ class boss_warmaster_blackhorn: public CreatureScript
                     if (Creature* pShip = me->FindNearestCreature(NPC_SKYFIRE, 300.0f))
                     {
                         pShip->SetInCombatWith(me);
-                        pShip->AddThreat(me, 0.0f);
-                        me->AddThreat(pShip, 0.0f);
+                        pShip->GetThreatManager().AddThreat(me, 0.0f);
+                        me->GetThreatManager().AddThreat(pShip, 0.0f);
                     }
                     if (Creature* pGoriona = me->FindNearestCreature(NPC_GORIONA, 300.0f))
                         DoZoneInCombat(pGoriona);

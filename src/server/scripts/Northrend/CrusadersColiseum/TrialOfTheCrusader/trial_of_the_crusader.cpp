@@ -507,7 +507,7 @@ class npc_fizzlebang_toc : public CreatureScript
                                 //1-shot Fizzlebang
                                 temp->CastSpell(me, 67888, false);
                                 me->SetInCombatWith(temp);
-                                temp->AddThreat(me, 1000.0f);
+                                temp->GetThreatManager().AddThreat(me, 1000.0f);
                                 temp->AI()->AttackStart(me);
                             }
                             _instance->SetData(TYPE_EVENT, 1160);
@@ -635,7 +635,7 @@ class npc_tirion_toc : public CreatureScript
                             break;
                         case 400:
                             Talk(SAY_STAGE_0_06);
-                            me->GetThreatManager().clearReferences();
+                            me->GetThreatManager().ClearAllThreat();
                             _updateTimer = 5*IN_MILLISECONDS;
                             _instance->SetData(TYPE_EVENT, 0);
                             break;

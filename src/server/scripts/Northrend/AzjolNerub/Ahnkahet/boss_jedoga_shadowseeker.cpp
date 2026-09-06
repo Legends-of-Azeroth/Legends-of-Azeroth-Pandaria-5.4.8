@@ -235,7 +235,7 @@ class boss_jedoga_shadowseeker : public CreatureScript
                         else if (me->GetMap()->IsDungeon())
                         {
                             who->SetInCombatWith(me);
-                            me->AddThreat(who, 0.0f);
+                            me->GetThreatManager().AddThreat(who, 0.0f);
                         }
                     }
                 }

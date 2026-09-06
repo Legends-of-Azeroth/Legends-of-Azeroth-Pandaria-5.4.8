@@ -119,7 +119,7 @@ class npc_blackfathom_deeps_event : public CreatureScript
                         {
                             me->SetInCombatWith(player);
                             player->SetInCombatWith(me);
-                            me->AddThreat(player, 0.0f);
+                            me->GetThreatManager().AddThreat(player, 0.0f);
                         }
                     }
                 }

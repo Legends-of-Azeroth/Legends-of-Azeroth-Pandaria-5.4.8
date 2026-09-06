@@ -269,7 +269,7 @@ struct advisorbase_ai : public ScriptedAI
                 AttackStart(Target);
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveChase(Target);
-                me->AddThreat(Target, 0.0f);
+                me->GetThreatManager().AddThreat(Target, 0.0f);
             } else DelayRes_Timer -= diff;
         }
     }
@@ -424,7 +424,7 @@ class boss_kaelthas : public CreatureScript
                                 StartEvent();
 
                             who->SetInCombatWith(me);
-                            me->AddThreat(who, 0.0f);
+                            me->GetThreatManager().AddThreat(who, 0.0f);
                         }
                     }
                 }
@@ -802,7 +802,7 @@ class boss_kaelthas : public CreatureScript
 
                             if (MindControl_Timer <= diff)
                             {
-                                if (me->GetThreatManager().getThreatList().size() >= 2)
+                                if (me->GetThreatManager().GetThreatListSize() >= 2)
                                     for (uint32 i = 0; i < 3; ++i)
                                 {
                                     TC_LOG_DEBUG("scripts", "Kael'Thas mind control not supported.");
@@ -900,8 +900,7 @@ class boss_kaelthas : public CreatureScript
                             //GravityLapse_Timer
                             if (GravityLapse_Timer <= diff)
                             {
-                                ThreatContainer::StorageType threatlist = me->GetThreatManager().getThreatList();
-                                ThreatContainer::StorageType::const_iterator i = threatlist.begin();
+                                auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
 
                                 switch (GravityLapse_Phase)
                                 {
@@ -913,9 +912,9 @@ class boss_kaelthas : public CreatureScript
                                         me->MonsterMoveWithSpeed(afGravityPos[0], afGravityPos[1], afGravityPos[2], 0);
 
                                         // 1) Kael'thas will portal the whole raid right into his body
-                                        for (i = threatlist.begin(); i != threatlist.end(); ++i)
+                                        for (ThreatReference const* ref : threatlist)
                                         {
-                                            Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
+                                            Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                                             if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                                             {
                                                 //Use work around packet to prevent player from being dropped from combat
@@ -934,9 +933,9 @@ class boss_kaelthas : public CreatureScript
                                         Talk(SAY_GRAVITYLAPSE);
 
                                         // 2) At that point he will put a Gravity Lapse debuff on everyone
-                                        for (i = threatlist.begin(); i != threatlist.end(); ++i)
+                                        for (ThreatReference const* ref : threatlist)
                                         {
-                                            if (Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid()))
+                                            if (Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID()))
                                             {
                                                 DoCast(unit, SPELL_KNOCKBACK, true);
                                                 //Gravity lapse - needs an exception in Spell system to work
@@ -960,9 +959,9 @@ class boss_kaelthas : public CreatureScript
 
                                     case 3:
                                         //Remove flight
-                                        for (i = threatlist.begin(); i != threatlist.end(); ++i)
+                                        for (ThreatReference const* ref : threatlist)
                                         {
-                                            if (Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid()))
+                                            if (Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID()))
                                             {
                                                 // Using packet workaround
                                                 WorldPacket data(SMSG_MOVE_UNSET_CAN_FLY, 8 + 4);
@@ -1053,7 +1052,7 @@ class boss_thaladred_the_darkener : public CreatureScript
                     return;
 
                 Talk(SAY_THALADRED_AGGRO);
-                me->AddThreat(who, 5000000.0f);
+                me->GetThreatManager().AddThreat(who, 5000000.0f);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -1080,7 +1079,7 @@ class boss_thaladred_the_darkener : public CreatureScript
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         DoResetThreat();
-                        me->AddThreat(target, 5000000.0f);
+                        me->GetThreatManager().AddThreat(target, 5000000.0f);
                         Talk(EMOTE_THALADRED_GAZE, target);
                         Gaze_Timer = 8500;
                     }
@@ -1226,7 +1225,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
 
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
 
@@ -1297,10 +1296,10 @@ class boss_grand_astromancer_capernian : public CreatureScript
                 {
                     bool InMeleeRange = false;
                     Unit* target = NULL;
-                    ThreatContainer::StorageType const &threatlist = me->GetThreatManager().getThreatList();
-                    for (ThreatContainer::StorageType::const_iterator i = threatlist.begin(); i!= threatlist.end(); ++i)
+                    auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+                    for (ThreatReference const* ref : threatlist)
                     {
-                        Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
+                        Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                                                                     //if in melee range
                         if (unit && unit->IsWithinDistInMap(me, 5))
                         {
@@ -1570,7 +1569,7 @@ class npc_phoenix_egg_tk : public CreatureScript
 
             void JustSummoned(Creature* summoned) override
             {
-                summoned->AddThreat(me->GetVictim(), 0.0f);
+                summoned->GetThreatManager().AddThreat(me->GetVictim(), 0.0f);
                 summoned->CastSpell(summoned, SPELL_REBIRTH, false);
             }
 

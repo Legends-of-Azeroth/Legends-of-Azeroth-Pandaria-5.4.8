@@ -298,7 +298,7 @@ class npc_little_ooze : public CreatureScript
                 events.ScheduleEvent(EVENT_STICKY_OOZE, 5000);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
-                me->AddThreat(summoner, 500000.0f);
+                me->GetThreatManager().AddThreat(summoner, 500000.0f);
             }
 
             void JustDied(Unit* /*killer*/) override

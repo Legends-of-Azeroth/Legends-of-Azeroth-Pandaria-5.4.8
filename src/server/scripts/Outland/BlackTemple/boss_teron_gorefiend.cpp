@@ -159,14 +159,13 @@ class npc_shadowy_construct : public CreatureScript
 
             void CheckPlayers()
             {
-                ThreatContainer::StorageType const& threatlist = me->GetThreatManager().getThreatList();
-                if (threatlist.empty())
+                auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+                if (me->GetThreatManager().IsThreatListEmpty())
                     return;                                         // No threat list. Don't continue.
-                ThreatContainer::StorageType::const_iterator itr = threatlist.begin();
                 std::list<Unit*> targets;
-                for (; itr != threatlist.end(); ++itr)
+                for (ThreatReference const* ref : threatlist)
                 {
-                    Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                    Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                     if (unit && unit->IsAlive())
                         targets.push_back(unit);
                 }
@@ -309,15 +308,14 @@ class boss_teron_gorefiend : public CreatureScript
             {
                 if (!blossom) return;
 
-                ThreatContainer::StorageType const& threatlist = me->GetThreatManager().getThreatList();
-                ThreatContainer::StorageType::const_iterator i = threatlist.begin();
-                for (i = threatlist.begin(); i != threatlist.end(); ++i)
+                auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+                for (ThreatReference const* ref : threatlist)
                 {
-                    Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
+                    Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                     if (unit && unit->IsAlive())
                     {
                         float threat = DoGetThreat(unit);
-                        blossom->AddThreat(unit, threat);
+                        blossom->GetThreatManager().AddThreat(unit, threat);
                     }
                 }
             }
@@ -432,7 +430,7 @@ class boss_teron_gorefiend : public CreatureScript
                         {
                             doomBlossom->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             doomBlossom->SetFaction(me->GetFaction());
-                            doomBlossom->AddThreat(target, 1.0f);
+                            doomBlossom->GetThreatManager().AddThreat(target, 1.0f);
                             CAST_AI(npc_doom_blossom::npc_doom_blossomAI, doomBlossom->AI())->SetTeronGUID(me->GetGUID());
                             target->CombatStart(doomBlossom);
                             SetThreatList(doomBlossom);

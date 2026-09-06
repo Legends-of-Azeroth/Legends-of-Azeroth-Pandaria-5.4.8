@@ -319,7 +319,7 @@ public:
 
             if (Unit* Summon = DoSummon(creature_entry, pos, 30000ms, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT))
                 if (Unit* temp = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_MEDIVH) : ObjectGuid::Empty))
-                    Summon->AddThreat(temp, 0.0f);
+                    Summon->GetThreatManager().AddThreat(temp, 0.0f);
         }
 
         void DoSelectSummon()

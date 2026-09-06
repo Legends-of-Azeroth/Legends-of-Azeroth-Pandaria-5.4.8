@@ -213,7 +213,8 @@ class boss_hodir : public CreatureScript
             {
                 cacheReset = true;
                 instance->SetBossState(BOSS_HODIR, FAIL);
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
                 me->RemoveAllAuras();
                 me->GetMotionMaster()->MoveTargetedHome();
@@ -451,8 +452,8 @@ class boss_hodir : public CreatureScript
 
                 if (gettingColdInHereTimer <= diff && gettingColdInHere)
                 {
-                    for (auto&& itr : me->GetThreatManager().getThreatList())
-                        if (Unit* target = ObjectAccessor::GetUnit(*me, itr->getUnitGuid()))
+                    for (auto&& ref : me->GetThreatManager().GetUnsortedThreatList())
+                        if (Unit* target = ObjectAccessor::GetUnit(*me, ref->GetVictim()->GetGUID()))
                             if (Aura* BitingColdAura = target->GetAura(SPELL_BITING_COLD_TRIGGERED))
                                 if ((target->GetTypeId() == TYPEID_PLAYER) && (BitingColdAura->GetStackAmount() > 2))
                                 {

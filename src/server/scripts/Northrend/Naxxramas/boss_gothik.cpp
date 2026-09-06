@@ -480,10 +480,10 @@ class boss_gothik : public CreatureScript
                                 else
                                     DoTeleportTo(PosGroundLiveSide);
 
-                                me->GetThreatManager().resetAggro(NotOnSameSide(me));
+                                me->GetThreatManager().ResetAllThreat();
                                 if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
                                 {
-                                    me->GetThreatManager().addThreat(target, 100.0f);
+                                    me->GetThreatManager().AddThreat(target, 100.0f);
                                     AttackStart(target);
                                 }
 

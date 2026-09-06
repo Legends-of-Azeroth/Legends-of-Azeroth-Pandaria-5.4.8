@@ -191,7 +191,8 @@ class boss_kalecgos : public CreatureScript
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
                         me->InterruptNonMeleeSpells(true);
                         me->RemoveAllAuras();
-                        me->DeleteThreatList();
+                        me->GetThreatManager().RemoveMeFromThreatLists();
+                        me->GetThreatManager().ClearAllThreat();
                         me->CombatStop();
                         ++talkSequence;
                     }
@@ -591,7 +592,7 @@ class boss_sathrovarr : public CreatureScript
                 {
                     kalecGUID = kalec->GetGUID();
                     me->CombatStart(kalec);
-                    me->AddThreat(kalec, 100.0f);
+                    me->GetThreatManager().AddThreat(kalec, 100.0f);
                     kalec->setActive(true);
                 }
                 Talk(SAY_SATH_AGGRO);
@@ -724,11 +725,11 @@ class boss_sathrovarr : public CreatureScript
 
                 if (resetThreat <= diff)
                 {
-                    for (auto&& itr : me->GetThreatManager().getThreatList())
+                    for (auto&& ref : me->GetThreatManager().GetUnsortedThreatList())
                     {
-                        if (Unit* unit = Unit::GetUnit(*me, itr->getUnitGuid()))
+                        if (Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID()))
                             if (unit->GetPositionZ() > me->GetPositionZ()+5)
-                                me->GetThreatManager().modifyThreatPercent(unit,-100);
+                                me->GetThreatManager().ModifyThreatByPercent(unit,-100);
                     }
                     resetThreat = 1000;
                 } else resetThreat -= diff;

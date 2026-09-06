@@ -185,11 +185,10 @@ class boss_supremus : public CreatureScript
                 uint32 health = 0;
                 Unit* target = nullptr;
 
-                ThreatContainer::StorageType const& threatlist = me->GetThreatManager().getThreatList();
-                ThreatContainer::StorageType::const_iterator i = threatlist.begin();
-                for (i = threatlist.begin(); i!= threatlist.end(); ++i)
+                auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+                for (ThreatReference const* ref : threatlist)
                 {
-                    Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
+                    Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                     if (unit && me->IsWithinMeleeRange(unit))
                     {
                         if (unit->GetHealth() > health)
@@ -232,7 +231,7 @@ class boss_supremus : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                             {
                                 DoResetThreat();
-                                me->AddThreat(target, 5000000.0f);
+                                me->GetThreatManager().AddThreat(target, 5000000.0f);
                                 Talk(EMOTE_NEW_TARGET);
                             }
                             events.ScheduleEvent(EVENT_SWITCH_TARGET, 10000, 0, PHASE_CHASE);

@@ -71,31 +71,7 @@ class SpellInfo;
  \********************************************************************************************************************************************************/
 
 class ThreatReference;
-class HostileReference;
 
-/* Legacy compatibility container. The ThreatManager rebuilds these on demand
-   from the new ThreatReference implementation; see ThreatManager.cpp. */
-class ThreatContainer
-{
-    public:
-        typedef std::list<HostileReference*> StorageType;
-
-        StorageType const& getThreatList() const { return iThreatList; }
-
-        bool empty() const { return iThreatList.empty(); }
-
-        void modifyThreatPercent(Unit* victim, int32 percent);
-
-        void addThreatPercent(int32 percent);
-
-    private:
-        void ResetDeprecatedWrappers();
-
-        StorageType iThreatList;
-
-    friend class ThreatManager;
-    friend class HostileReference;
-};
 struct CompareThreatLessThan
 {
     CompareThreatLessThan() {}
@@ -159,15 +135,6 @@ class TC_GAME_API ThreatManager
         // is there a threat list entry on who's threat list for this.owner?
         bool IsThreateningTo(Unit const* who, bool includeOffline = false) const;
         auto const& GetThreatenedByMeList() const { return _threatenedByMe; }
-        // Legacy: value-copied view of the threatened-by-me list (for old callers that iterated by value)
-        std::vector<ThreatReference*> GetThreatedByMeList() const
-        {
-            std::vector<ThreatReference*> result;
-            result.reserve(_threatenedByMe.size());
-            for (auto const& pair : _threatenedByMe)
-                result.push_back(pair.second);
-            return result;
-        }
 
         // Notify the ThreatManager that its owner may now be suppressed on others' threat lists (immunity or damage-breakable CC being applied)
         void EvaluateSuppressed(bool canExpire = false);
@@ -213,33 +180,6 @@ class TC_GAME_API ThreatManager
         void UnregisterRedirectThreat(uint32 spellId);
         // Unregister a redirection effect for a specific victim
         void UnregisterRedirectThreat(uint32 spellId, ObjectGuid const& victim);
-
-        // ---- Legacy compatibility API (deprecated; mirrors the removed Pandaria
-        // threat classes). New code should use the TC 3.3.5 style API above. ----
-        ThreatContainer& getOnlineContainer() { return GetCompatContainer(true); }
-        ThreatContainer& getOfflineContainer() { return GetCompatContainer(false); }
-        ThreatContainer::StorageType const& getThreatList() { return getOnlineContainer().getThreatList(); }
-        ThreatContainer::StorageType const& getThreatList() const { return const_cast<ThreatManager*>(this)->getThreatList(); }
-        ThreatContainer::StorageType const& getOfflineThreatList() { return getOfflineContainer().getThreatList(); }
-        bool isThreatListEmpty() const { return IsThreatListEmpty(); }
-        bool isNeedUpdateToClient(uint32 /*p_time*/) const { return false; }
-        uint32 getThreatListPlayerCount() const { return GetThreatListPlayerCount(); }
-        Unit* getHostilTarget() { return GetCurrentVictim(); }
-        void addThreat(Unit* victim, float threat, SpellSchoolMask schoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* threatSpell = nullptr);
-        void doAddThreat(Unit* victim, float threat) { AddThreat(victim, threat, nullptr, true, true); }
-        void modifyThreatPercent(Unit* victim, int32 percent) { ModifyThreatByPercent(victim, percent); }
-        void resetAllAggro() { ResetAllThreat(); }
-        template<class PREDICATE>
-        void resetAggro(PREDICATE predicate);
-        float getThreat(Unit* victim, bool alsoSearchOfflineList = false) const;
-        void clearReferences() { ClearAllThreat(); }
-        void tauntApply(Unit* taunter);
-        void tauntFadeOut(Unit* taunter);
-
-    private:
-        ThreatContainer& GetCompatContainer(bool online);
-        mutable ThreatContainer _compatOnlineContainer;
-        mutable ThreatContainer _compatOfflineContainer;
 
     private:
         Unit* const _owner;
@@ -379,48 +319,6 @@ class TC_GAME_API ThreatReference
     friend struct CompareThreatLessThan;
 };
 
-template<class PREDICATE>
-void ThreatManager::resetAggro(PREDICATE predicate)
-{
-    for (auto const& pair : _myThreatListEntries)
-        if (Unit* victim = pair.second->GetVictim())
-            if (predicate(victim))
-                ResetThreat(victim);
-}
-
 inline bool CompareThreatLessThan::operator()(ThreatReference const* a, ThreatReference const* b) const { return ThreatManager::CompareReferencesLT(a, b, 1.0f); }
-
-/* Legacy compatibility wrapper around ThreatReference. Used by old-style scripts
-   and deprecated callers that iterated ThreatContainer lists. */
-class HostileReference
-{
-    public:
-        explicit HostileReference(ThreatReference* ref) : _ref(ref) {}
-
-        ThreatManager* GetSource() const { return &_ref->GetThreatManager(); }
-        Unit* GetSourceUnit() const { return _ref->GetThreatManager().GetOwner(); }
-        Unit* GetVictim() const { return _ref->GetVictim(); }
-        Unit* getTarget() const { return GetVictim(); }
-        ObjectGuid getUnitGuid() const;
-        float getThreat() const { return _ref->GetThreat(); }
-        float getEscalation() const { return 0.0f; }
-        bool getOnline() const { return _ref->IsOnline(); }
-        bool IsOnline() const { return _ref->IsOnline(); }
-
-        void setThreat(float threat) { _ref->AddThreat(threat - getThreat()); }
-        void addThreat(float amount) { _ref->AddThreat(amount); }
-        void addThreatPercent(int32 percent) { _ref->ModifyThreatByPercent(percent); }
-        void modifyThreatPercent(int32 percent) { _ref->ModifyThreatByPercent(percent); }
-
-        ThreatReference* GetThreatReference() const { return _ref; }
-
-        void removeReference() { _ref->ClearThreat(); }
-
-        bool operator==(HostileReference const& other) const { return other.getUnitGuid() == getUnitGuid(); }
-        bool operator!=(HostileReference const& other) const { return !(*this == other); }
-
-    private:
-        ThreatReference* _ref;
-};
 
 #endif

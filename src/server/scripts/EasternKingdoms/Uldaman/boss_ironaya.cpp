@@ -80,7 +80,7 @@ class boss_ironaya : public CreatureScript
                         target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
 
                     if (target)
-                        me->TauntApply(target);
+                        me->GetThreatManager().TauntUpdate();
 
                     //Shouldn't cast this agian
                     bHasCastedKnockaway = true;

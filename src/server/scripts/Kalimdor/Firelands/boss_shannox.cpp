@@ -678,7 +678,7 @@ class npc_shannox_rageface : public CreatureScript
                         me->InterruptSpell(CURRENT_CHANNELED_SPELL, false);
                         DoResetThreat();
                         DoCast(attacker, SPELL_RAGE, true);
-                        me->AddThreat(attacker, 10000000.0f);
+                        me->GetThreatManager().AddThreat(attacker, 10000000.0f);
                         AttackStart(attacker);
                         events.ScheduleEvent(EVENT_FACE_RAGE, 27000);
                         me->RemoveAurasDueToSpell(SPELL_FACE_RAGE_DUMMY);
@@ -743,7 +743,7 @@ class npc_shannox_rageface : public CreatureScript
                                 {
                                     if (Unit* target = pShannox->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                                     {
-                                        me->AddThreat(target, 10000000.0f);
+                                        me->GetThreatManager().AddThreat(target, 10000000.0f);
                                         AttackStart(target);
                                     }
                                 }
@@ -752,7 +752,7 @@ class npc_shannox_rageface : public CreatureScript
                                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                                     {
 
-                                        me->AddThreat(target, 10000000.0f);
+                                        me->GetThreatManager().AddThreat(target, 10000000.0f);
                                         AttackStart(target);
                                     }
                                 }

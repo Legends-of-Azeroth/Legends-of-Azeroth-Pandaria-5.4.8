@@ -1086,7 +1086,7 @@ void Battleground::EndBattleground(uint32 winner)
         {
             //needed cause else in av some creatures will kill the players at the end
             player->CombatStop();
-            player->getHostileRefManager().deleteReferences();
+            player->GetThreatManager().RemoveMeFromThreatLists();
         }
 
         // per player calculation

@@ -1883,10 +1883,10 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
             {
                 if (Creature* caster = GetCaster()->ToCreature())
                 {
-                    ThreatContainer::StorageType const& m_threatlist = caster->GetThreatManager().getThreatList();
-                    for (ThreatContainer::StorageType::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+                    auto m_threatlist = caster->GetThreatManager().GetUnsortedThreatList();
+                    for (ThreatReference const* ref : m_threatlist)
                     {
-                        if (Unit* target = (*itr)->getTarget())
+                        if (Unit* target = ref->GetVictim())
                         {
                             Player* targetPlayer = target->ToPlayer();
                             if (!targetPlayer || targetPlayer->IsGameMaster())

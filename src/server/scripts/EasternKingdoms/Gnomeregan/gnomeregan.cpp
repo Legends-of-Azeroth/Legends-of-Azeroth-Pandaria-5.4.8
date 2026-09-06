@@ -253,7 +253,7 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
                         {
                             temp->SetInCombatWith(player);
                             player->SetInCombatWith(temp);
-                            temp->AddThreat(player, 0.0f);
+                            temp->GetThreatManager().AddThreat(player, 0.0f);
                         }
                     }
                 }

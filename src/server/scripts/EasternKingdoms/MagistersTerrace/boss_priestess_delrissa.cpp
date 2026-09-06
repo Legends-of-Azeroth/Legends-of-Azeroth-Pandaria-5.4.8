@@ -167,7 +167,7 @@ public:
                     if (!pAdd->GetVictim())
                     {
                         who->SetInCombatWith(pAdd);
-                        pAdd->AddThreat(who, 0.0f);
+                        pAdd->GetThreatManager().AddThreat(who, 0.0f);
                     }
                 }
             }
@@ -401,7 +401,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
                     if (!pAdd->GetVictim() && pAdd != me)
                     {
                         who->SetInCombatWith(pAdd);
-                        pAdd->AddThreat(who, 0.0f);
+                        pAdd->GetThreatManager().AddThreat(who, 0.0f);
                     }
                 }
             }
@@ -411,7 +411,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
                 if (pDelrissa->IsAlive() && !pDelrissa->GetVictim())
                 {
                     who->SetInCombatWith(pDelrissa);
-                    pDelrissa->AddThreat(who, 0.0f);
+                    pDelrissa->GetThreatManager().AddThreat(who, 0.0f);
                 }
             }
         }
@@ -547,7 +547,7 @@ public:
                 DoResetThreat();
 
                 if (unit)
-                    me->AddThreat(unit, 1000.0f);
+                    me->GetThreatManager().AddThreat(unit, 1000.0f);
 
                 InVanish = true;
                 Vanish_Timer = 30000;
@@ -845,10 +845,10 @@ public:
             if (Blink_Timer <= diff)
             {
                 bool InMeleeRange = false;
-                ThreatContainer::StorageType const &t_list = me->GetThreatManager().getThreatList();
-                for (ThreatContainer::StorageType::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                auto t_list = me->GetThreatManager().GetUnsortedThreatList();
+                for (ThreatReference const* ref : t_list)
                 {
-                    if (Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (Unit* target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID()))
                     {
                         //if in melee range
                         if (target->IsWithinDistInMap(me, 5))
@@ -931,10 +931,10 @@ public:
             if (Intercept_Stun_Timer <= diff)
             {
                 bool InMeleeRange = false;
-                ThreatContainer::StorageType const &t_list = me->GetThreatManager().getThreatList();
-                for (ThreatContainer::StorageType::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                auto t_list = me->GetThreatManager().GetUnsortedThreatList();
+                for (ThreatReference const* ref : t_list)
                 {
-                    if (Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (Unit* target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID()))
                     {
                         //if in melee range
                         if (target->IsWithinDistInMap(me, ATTACK_DISTANCE))

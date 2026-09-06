@@ -1101,7 +1101,7 @@ class npc_war_god_jalak : public CreatureScript
                     if (!playerList.empty() && playerList.front())
                     {
                         Player *pFirst = playerList.front();
-                        me->AddThreat(pFirst, 100000.0f);
+                        me->GetThreatManager().AddThreat(pFirst, 100000.0f);
                         ScriptedAI::AttackStart(pFirst);
                     }
                 }
@@ -1445,13 +1445,13 @@ struct npc_horridon_trashs : public horridon_tribeAI
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankSpecTargetSelector()))
                     {
                         DoResetThreat();
-                        me->AddThreat(target, 100000.0f);
+                        me->GetThreatManager().AddThreat(target, 100000.0f);
                         ScriptedAI::AttackStart(target);
                     }
                     else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
                     {
                         DoResetThreat();
-                        me->AddThreat(target, 100000.0f);
+                        me->GetThreatManager().AddThreat(target, 100000.0f);
                         ScriptedAI::AttackStart(target);
                     }
                 

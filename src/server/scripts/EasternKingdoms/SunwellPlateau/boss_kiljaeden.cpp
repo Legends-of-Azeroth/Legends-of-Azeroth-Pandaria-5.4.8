@@ -412,7 +412,7 @@ class npc_kiljaeden_controller : public CreatureScript
                             if (!summon->IsInCombat())
                                 summon->AI()->EnterEvadeMode();
                         });
-                        //summon->AddThreat(me->GetVictim(), 1.0f);
+                        //summon->GetThreatManager().AddThreat(me->GetVictim(), 1.0f);
                         break;
                 }
                 summons.Summon(summon);
@@ -941,7 +941,7 @@ class npc_hand_of_the_deceiver : public CreatureScript
                 {
                     instance->SetData(DATA_KILJAEDEN_EVENT, IN_PROGRESS);
                     //if (Creature* сontrol = Unit::GetCreature(*me, instance->GetGuidData(DATA_KILJAEDEN_CONTROLLER)))
-                    //    сontrol->AddThreat(who, 1.0f);
+                    //    сontrol->GetThreatManager().AddThreat(who, 1.0f);
                 }
                 me->InterruptNonMeleeSpells(true);
             }
@@ -981,12 +981,11 @@ class npc_hand_of_the_deceiver : public CreatureScript
                 {
                     if (Creature* portal = DoSpawnCreature(NPC_FELFIRE_PORTAL, 0, 0,0, 0, TEMPSUMMON_TIMED_DESPAWN, 20000ms))
                     {
-                        std::list<HostileReference*>::iterator itr;
-                        for (auto&& itr : me->GetThreatManager().getThreatList())
+                        for (auto&& ref : me->GetThreatManager().GetUnsortedThreatList())
                         {
-                            Unit* unit = Unit::GetUnit(*me, itr->getUnitGuid());
+                            Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                             if (unit)
-                                portal->AddThreat(unit, 1.0f);
+                                portal->GetThreatManager().AddThreat(unit, 1.0f);
                         }
                     }
                     felfirePortalTimer = 20000;
@@ -1037,7 +1036,7 @@ class npc_felfire_portal : public CreatureScript
                 if (spawnFiendTimer <= diff)
                 {
                     if (Creature* pFiend = DoSpawnCreature(NPC_VOLATILE_FELFIRE_FIEND, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000ms))
-                        pFiend->AddThreat(SelectTarget(SELECT_TARGET_RANDOM,0), 100000.0f);
+                        pFiend->GetThreatManager().AddThreat(SelectTarget(SELECT_TARGET_RANDOM,0), 100000.0f);
                     spawnFiendTimer = urand(4000,8000);
                 } else spawnFiendTimer -= diff;
             }
@@ -1082,7 +1081,7 @@ class npc_volatile_felfire_fiend : public CreatureScript
 
                 if (!lockedTarget)
                 {
-                    me->AddThreat(me->GetVictim(), 10000000.0f);
+                    me->GetThreatManager().AddThreat(me->GetVictim(), 10000000.0f);
                     lockedTarget = true;
                 }
 

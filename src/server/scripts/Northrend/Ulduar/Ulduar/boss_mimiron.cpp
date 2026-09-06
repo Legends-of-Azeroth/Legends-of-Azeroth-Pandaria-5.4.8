@@ -419,7 +419,8 @@ class boss_mimiron : public CreatureScript
                 me->RemoveAllAuras();
                 me->AttackStop();
                 me->SetFaction(35);
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
 
                 if (_gotHardMode)
@@ -2264,7 +2265,7 @@ class npc_mimiron_bomb_bot : public CreatureScript
                     if (Unit* target = me->FindNearestPlayer(100.0f))
                     {
                         AttackStart(target);
-                        me->AddThreat(target, 100000000.0f);
+                        me->GetThreatManager().AddThreat(target, 100000000.0f);
                         me->GetMotionMaster()->MoveFollow(target, 0.01f, 0.0f);
                     }
                 });

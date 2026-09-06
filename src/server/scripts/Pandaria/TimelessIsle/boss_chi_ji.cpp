@@ -157,7 +157,8 @@ class boss_chi_ji : public CreatureScript
                     me->SetHealth(391000000/*me->GetMaxHealth()*/);
 
                     me->SetFacingTo(MIDDLE_FACING_ANGLE);
-                    me->DeleteThreatList();
+                    me->GetThreatManager().RemoveMeFromThreatLists();
+                    me->GetThreatManager().ClearAllThreat();
 
                     events.Reset();
                     summons.DespawnAll();

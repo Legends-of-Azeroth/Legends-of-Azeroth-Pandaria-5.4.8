@@ -119,11 +119,11 @@ class boss_void_reaver : public CreatureScript
                 if (ArcaneOrb_Timer <= diff)
                 {
                     Unit* target = NULL;
-                    std::list<HostileReference*> t_list = me->GetThreatManager().getThreatList();
+                    auto t_list = me->GetThreatManager().GetUnsortedThreatList();
                     std::vector<Unit*> target_list;
-                    for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                    for (ThreatReference const* ref : t_list)
                     {
-                        target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                        target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                         if (!target)
                             continue;
                         // exclude pets & totems, 18 yard radius minimum

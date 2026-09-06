@@ -207,7 +207,7 @@ class npc_ragin_flames : public CreatureScript
                     if (inferno_Timer <= diff)
                     {
                         DoCastVictim(SPELL_INFERNO);
-                        me->TauntApply(me->GetVictim());
+                        me->GetThreatManager().TauntUpdate();
                         inferno_Timer = 10000;
                     } else inferno_Timer -= diff;
 

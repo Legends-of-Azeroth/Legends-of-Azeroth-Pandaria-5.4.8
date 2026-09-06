@@ -865,11 +865,11 @@ class boss_sha_of_fear : public CreatureScript
                             {
                                 if (me->GetVictim() && me->GetVictim()->GetGUID() != target->GetGUID())
                                 {
-                                    me->TauntFadeOut(me->GetVictim());
+                                    me->GetThreatManager().TauntUpdate();
                                     DoResetThreat();
                                     AttackStart(target);
-                                    me->TauntApply(target);
-                                    me->AddThreat(target, 5000000.0f);
+                                    me->GetThreatManager().TauntUpdate();
+                                    me->GetThreatManager().AddThreat(target, 5000000.0f);
                                 }
                             }
 

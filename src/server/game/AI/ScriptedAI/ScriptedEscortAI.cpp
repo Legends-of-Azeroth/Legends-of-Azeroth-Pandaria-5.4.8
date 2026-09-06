@@ -96,7 +96,7 @@ bool npc_escortAI::AssistPlayerInCombat(Unit* who)
         else
         {
             who->SetInCombatWith(me);
-            me->AddThreat(who, 0.0f);
+            me->GetThreatManager().AddThreat(who, 0.0f);
             return true;
         }
     }
@@ -127,7 +127,7 @@ void npc_escortAI::MoveInLineOfSight(Unit* who)
                 else if (me->GetMap()->IsDungeon())
                 {
                     who->SetInCombatWith(me);
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                 }
             }
         }
@@ -182,7 +182,8 @@ void npc_escortAI::ReturnToLastPoint()
 void npc_escortAI::EnterEvadeMode(EvadeReason why)
 {
     me->RemoveAllAuras();
-    me->DeleteThreatList();
+    me->GetThreatManager().RemoveMeFromThreatLists();
+    me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
     me->SetLootRecipient(NULL);
 

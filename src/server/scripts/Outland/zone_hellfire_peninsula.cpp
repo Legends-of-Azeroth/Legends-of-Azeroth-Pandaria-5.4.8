@@ -90,7 +90,8 @@ public:
                 me->SetFaction(FACTION_FRIENDLY);
                 me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);   // UNIT_NPC_FLAGS
                 me->RemoveAllAuras();
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
                 Talk(SAY_FREE);
                 return;
@@ -950,7 +951,8 @@ enum Aledis
 //                 _events.Reset();
 //                 me->RestoreFaction();
 //                 me->RemoveAllAuras();
-//                 me->DeleteThreatList();
+//                 me->GetThreatManager().RemoveMeFromThreatLists();
+//                  me->GetThreatManager().ClearAllThreat();
 //                 me->CombatStop(true);
 //                 //me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
 //                 //me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);

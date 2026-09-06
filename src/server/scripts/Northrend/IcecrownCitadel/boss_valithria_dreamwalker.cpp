@@ -619,8 +619,8 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                 if (!me->IsInCombat() || _isEvading)
                     return;
 
-                std::list<HostileReference*> const& threatList = me->GetThreatManager().getThreatList();
-                if (threatList.empty())
+                auto threatList = me->GetThreatManager().GetUnsortedThreatList();
+                if (me->GetThreatManager().IsThreatListEmpty())
                 {
                     EnterEvadeMode();
                     return;
@@ -632,8 +632,8 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                     return;
 
                 // Check if there is any player on threatlist, if not - evade
-                for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
-                    if (Unit* target = (*itr)->getTarget())
+                for (ThreatReference const* ref : threatList)
+                    if (Unit* target = ref->GetVictim())
                         if (target->GetTypeId() == TYPEID_PLAYER)
                             if (target->GetInstanceId() == me->GetInstanceId())
                                 // Found any player in same instance, return

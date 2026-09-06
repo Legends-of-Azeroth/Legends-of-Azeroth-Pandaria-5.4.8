@@ -254,7 +254,7 @@ void FlightPathMovementGenerator::DoFinalize(Player* player, bool, bool)
 
     if (player->m_taxi.empty())
     {
-        player->getHostileRefManager().setOnlineOfflineState(true);
+        player->GetThreatManager().EvaluateSuppressed(true);
         // update z position to ground and orientation for landing point
         // this prevent cheating with landing  point at lags
         // when client side flight end early in comparison server side
@@ -268,7 +268,6 @@ void FlightPathMovementGenerator::DoFinalize(Player* player, bool, bool)
 
 bool FlightPathMovementGenerator::DoReset(Player* player)
 {
-    player->getHostileRefManager().setOnlineOfflineState(false);
     player->AddUnitState(UNIT_STATE_IN_FLIGHT);
     player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
 

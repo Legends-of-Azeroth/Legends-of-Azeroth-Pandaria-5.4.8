@@ -394,7 +394,8 @@ class boss_norushen : public CreatureScript
                     case ACTION_FINISHED_EVENT:
                         events.Reset();
                         scheduler.CancelAll();
-                        me->DeleteThreatList();
+                        me->GetThreatManager().RemoveMeFromThreatLists();
+                        me->GetThreatManager().ClearAllThreat();
                         me->CombatStop(true);
 
                         if (instance)
@@ -423,7 +424,8 @@ class boss_norushen : public CreatureScript
                 me->RemoveAllAuras();
 
                 Reset();
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
 
                 me->GetMotionMaster()->MovementExpired();
@@ -723,7 +725,8 @@ class boss_amalgam_of_corruption : public CreatureScript
                 me->RemoveAllAreasTrigger();
 
                 berserkerEvents.Reset();
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
                 summons.DespawnAll();
 
@@ -746,7 +749,8 @@ class boss_amalgam_of_corruption : public CreatureScript
 
                     if (Creature* quarantinMeasure = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_QUARANTINE_MEASURES)))
                     {
-                        quarantinMeasure->DeleteThreatList();
+                        quarantinMeasure->GetThreatManager().RemoveMeFromThreatLists();
+                        quarantinMeasure->GetThreatManager().ClearAllThreat();
                         quarantinMeasure->CombatStop(true);
                     }
 
@@ -786,7 +790,8 @@ class boss_amalgam_of_corruption : public CreatureScript
 
                     if (Creature* quarantinMeasure = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_QUARANTINE_MEASURES)))
                     {
-                        quarantinMeasure->DeleteThreatList();
+                        quarantinMeasure->GetThreatManager().RemoveMeFromThreatLists();
+                        quarantinMeasure->GetThreatManager().ClearAllThreat();
                         quarantinMeasure->CombatStop(true);
                     }
 
@@ -1022,7 +1027,8 @@ struct npc_manifestation_of_corruption : public ScriptedAI
             if (target->IsAlive())
                 return;
 
-        me->DeleteThreatList();
+        me->GetThreatManager().RemoveMeFromThreatLists();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
     }
 
@@ -1136,7 +1142,8 @@ struct npc_essence_of_corruption : public ScriptedAI
             if (target->IsAlive())
                 return;
 
-        me->DeleteThreatList();
+        me->GetThreatManager().RemoveMeFromThreatLists();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
     }
 
@@ -1251,7 +1258,8 @@ struct npc_greater_corruption : public ScriptedAI
 
         Reset();
         me->RemoveAllAreasTrigger();
-        me->DeleteThreatList();
+        me->GetThreatManager().RemoveMeFromThreatLists();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
     }
 
@@ -1398,7 +1406,8 @@ struct npc_titanic_corruption : public ScriptedAI
                 return;
 
         Reset();
-        me->DeleteThreatList();
+        me->GetThreatManager().RemoveMeFromThreatLists();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
     }
 

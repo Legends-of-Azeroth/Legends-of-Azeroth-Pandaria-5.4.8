@@ -233,7 +233,7 @@ class boss_olm_the_summoner : public CreatureScript
     
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
     
@@ -525,11 +525,11 @@ class boss_krosh_firehand : public CreatureScript
                 if (BlastWave_Timer <= diff)
                 {
                     Unit* target = NULL;
-                    std::list<HostileReference*> t_list = me->GetThreatManager().getThreatList();
+                    auto t_list = me->GetThreatManager().GetUnsortedThreatList();
                     std::vector<Unit*> target_list;
-                    for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                    for (ThreatReference const* ref : t_list)
                     {
-                        target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                        target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                                                                     //15 yard radius minimum
                         if (target && target->IsWithinDist(me, 15, false))
                             target_list.push_back(target);

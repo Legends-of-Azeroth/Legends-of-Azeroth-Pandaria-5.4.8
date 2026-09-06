@@ -177,15 +177,15 @@ class boss_shade_of_aran : public CreatureScript
             void FlameWreathEffect()
             {
                 std::vector<Unit*> targets;
-                std::list<HostileReference *> t_list = me->GetThreatManager().getThreatList();
+                auto t_list = me->GetThreatManager().GetUnsortedThreatList();
 
-                if (t_list.empty())
+                if (me->GetThreatManager().IsThreatListEmpty())
                     return;
 
                 // store the threat list in a different container
-                for (auto&& itr : t_list)
+                for (auto&& ref : t_list)
                 {
-                    Unit* target = Unit::GetUnit(*me, itr->getUnitGuid());
+                    Unit* target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                     // only on alive players
                     if (target && target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
                         targets.push_back(target);

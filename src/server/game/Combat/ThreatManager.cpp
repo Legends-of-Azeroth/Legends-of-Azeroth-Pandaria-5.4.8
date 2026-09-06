@@ -200,8 +200,6 @@ ThreatManager::~ThreatManager()
     ASSERT(_myThreatListEntries.empty(), "ThreatManager::~ThreatManager - %s: we still have %zu things threatening us, one of them is %s.", _owner->GetGUID().ToString().c_str(), _myThreatListEntries.size(), _myThreatListEntries.begin()->first.ToString().c_str());
     ASSERT(_sortedThreatList->empty(), "ThreatManager::~ThreatManager - %s: we still have %zu things threatening us, one of them is %s.", _owner->GetGUID().ToString().c_str(), _sortedThreatList->size(), (*_sortedThreatList->begin())->GetVictim()->GetGUID().ToString().c_str());
     ASSERT(_threatenedByMe.empty(), "ThreatManager::~ThreatManager - %s: we are still threatening %zu things, one of them is %s.", _owner->GetGUID().ToString().c_str(), _threatenedByMe.size(), _threatenedByMe.begin()->first.ToString().c_str());
-    _compatOnlineContainer.ResetDeprecatedWrappers();
-    _compatOfflineContainer.ResetDeprecatedWrappers();
 }
 
 void ThreatManager::Initialize()
@@ -906,65 +904,5 @@ void ThreatManager::UpdateRedirectInfo()
         }
 }
 
-//==================================================
-//  Legacy compatibility API implementations
-//==================================================
-
-void ThreatContainer::ResetDeprecatedWrappers()
-{
-    for (HostileReference* ref : iThreatList)
-        delete ref;
-    iThreatList.clear();
-}
-
-void ThreatContainer::modifyThreatPercent(Unit* victim, int32 percent)
-{
-    for (HostileReference* ref : iThreatList)
-        if (ref && ref->getUnitGuid() == victim->GetGUID())
-            ref->modifyThreatPercent(percent);
-}
-
-void ThreatContainer::addThreatPercent(int32 percent)
-{
-    for (HostileReference* ref : iThreatList)
-        if (ref)
-            ref->addThreatPercent(percent);
-}
-
-ObjectGuid HostileReference::getUnitGuid() const
-{
-    return GetVictim() ? GetVictim()->GetGUID() : ObjectGuid();
-}
-
-ThreatContainer& ThreatManager::GetCompatContainer(bool online)
-{
-    ThreatContainer& container = online ? _compatOnlineContainer : _compatOfflineContainer;
-    container.ResetDeprecatedWrappers();
-    for (auto const& pair : _myThreatListEntries)
-    {
-        ThreatReference* ref = pair.second;
-        if (ref->IsAvailable() == online)
-            container.iThreatList.push_back(new HostileReference(ref));
-    }
-    return container;
-}
-
-void ThreatManager::addThreat(Unit* victim, float threat, SpellSchoolMask /*schoolMask*/, SpellInfo const* threatSpell)
-{
-    AddThreat(victim, threat, threatSpell);
-}
-
-float ThreatManager::getThreat(Unit* victim, bool alsoSearchOfflineList) const
-{
-    return GetThreat(victim, alsoSearchOfflineList);
-}
-
-void ThreatManager::tauntApply(Unit* /*taunter*/)
-{
-    TauntUpdate();
-}
-
-void ThreatManager::tauntFadeOut(Unit* /*taunter*/)
-{
-    TauntUpdate();
-}
+// (legacy compatibility threat API removed; all callers now use the
+//  ThreatReference/ThreatManager API directly)

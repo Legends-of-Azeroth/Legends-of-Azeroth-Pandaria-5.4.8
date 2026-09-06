@@ -338,7 +338,7 @@ class boss_warbringer_omrogg : public CreatureScript
                     {
                         DoYellForThreat();
                         DoResetThreat();
-                        me->AddThreat(target, 0.0f);
+                        me->GetThreatManager().AddThreat(target, 0.0f);
                     }
                     ResetThreat_Timer = 25000+rand()%15000;
                 }

@@ -469,15 +469,15 @@ class boss_sinestra : public CreatureScript
                         {
                             std::list<Unit*> targetList;
 
-                            const std::list<HostileReference*> &threatlist = me->GetThreatManager().getThreatList();
+                            auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
 
-                            if (threatlist.empty())
+                            if (me->GetThreatManager().IsThreatListEmpty())
                                 return;
 
                             DefaultTargetSelector targetSelector(me, 0.0f, true, 0);
-                            for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                                if (targetSelector((*itr)->getTarget()) && me->GetVictim() != (*itr)->getTarget())
-                                    targetList.push_back((*itr)->getTarget());
+                            for (ThreatReference const* ref : threatlist)
+                                if (targetSelector(ref->GetVictim()) && me->GetVictim() != ref->GetVictim())
+                                    targetList.push_back(ref->GetVictim());
 
                             if (targetList.size() < 2)
                                 return;

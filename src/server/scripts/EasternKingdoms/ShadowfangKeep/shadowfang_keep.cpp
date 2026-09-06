@@ -624,8 +624,8 @@ class npc_apothecary_frye : public CreatureScript
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                         {
-                            me->GetThreatManager().modifyThreatPercent(me->GetVictim(), -100);
-                            me->AddThreat(target, 9999999.9f);
+                            me->GetThreatManager().ModifyThreatByPercent(me->GetVictim(), -100);
+                            me->GetThreatManager().AddThreat(target, 9999999.9f);
                         }
                         _targetSwitchTimer = urand(5000, 10000);
                     }

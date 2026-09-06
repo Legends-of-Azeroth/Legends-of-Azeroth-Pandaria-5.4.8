@@ -105,7 +105,7 @@ class boss_xevozz : public CreatureScript
                 summon->SetSpeed(MOVE_RUN, 0.5f);
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    summon->AddThreat(target, 0.00f);
+                    summon->GetThreatManager().AddThreat(target, 0.00f);
                     summon->AI()->AttackStart(target);
                 }
             }
@@ -117,7 +117,7 @@ class boss_xevozz : public CreatureScript
 
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
                     DoStartMovement(who);

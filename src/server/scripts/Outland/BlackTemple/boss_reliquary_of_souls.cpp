@@ -198,7 +198,7 @@ class boss_reliquary_of_souls : public CreatureScript
                     return;
                 }
 
-                me->AddThreat(who, 10000.0f);
+                me->GetThreatManager().AddThreat(who, 10000.0f);
                 me->SetInCombatWithZone();
                 if (instance)
                     instance->SetData(DATA_RELIQUARY_OF_SOULS_EVENT, IN_PROGRESS);
@@ -244,15 +244,15 @@ class boss_reliquary_of_souls : public CreatureScript
                 if (!target)
                     return;
 
-                ThreatContainer::StorageType threatlist = target->GetThreatManager().getThreatList();
-                for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+                auto threatlist = target->GetThreatManager().GetUnsortedThreatList();
+                for (ThreatReference const* ref : threatlist)
                 {
-                    Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                    Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                     if (unit)
                     {
                         DoModifyThreatPercent(unit, -100);
-                        float threat = target->GetThreatManager().getThreat(unit);
-                        me->AddThreat(unit, threat);       // This makes it so that the unit has the same amount of threat in Reliquary's threatlist as in the target creature's (One of the Essences).
+                        float threat = target->GetThreatManager().GetThreat(unit);
+                        me->GetThreatManager().AddThreat(unit, threat);       // This makes it so that the unit has the same amount of threat in Reliquary's threatlist as in the target creature's (One of the Essences).
                     }
                 }
             }
@@ -274,7 +274,7 @@ class boss_reliquary_of_souls : public CreatureScript
 
                 scheduler.Update(diff);
 
-                if (me->GetThreatManager().getThreatList().empty()) // Reset if event is begun and we don't have a threatlist
+                if (me->GetThreatManager().IsThreatListEmpty()) // Reset if event is begun and we don't have a threatlist
                 {
                     scheduler.CancelAll();
                     EnterEvadeMode();
@@ -329,7 +329,8 @@ class boss_reliquary_of_souls : public CreatureScript
                                     {
                                         MergeThreatList(Essence);
                                         Essence->RemoveAllAuras();
-                                        Essence->DeleteThreatList();
+                                        Essence->GetThreatManager().RemoveMeFromThreatLists();
+                                        Essence->GetThreatManager().ClearAllThreat();
                                         Essence->GetMotionMaster()->MoveFollow(me, 0.0f, 0.0f);
                                     }
                                     else
@@ -351,7 +352,8 @@ class boss_reliquary_of_souls : public CreatureScript
                                 {
                                     MergeThreatList(Essence);
                                     Essence->RemoveAllAuras();
-                                    Essence->DeleteThreatList();
+                                    Essence->GetThreatManager().RemoveMeFromThreatLists();
+                                    Essence->GetThreatManager().ClearAllThreat();
                                     Essence->GetMotionMaster()->MoveFollow(me, 0, 0);
                                     return;
                                 }
@@ -473,14 +475,13 @@ class boss_essence_of_suffering : public CreatureScript
 
             void CastFixate()
             {
-                ThreatContainer::StorageType const& threatlist = me->GetThreatManager().getThreatList();
-                if (threatlist.empty())
+                auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+                if (me->GetThreatManager().IsThreatListEmpty())
                     return; // No point continuing if empty threatlist.
                 std::list<Unit*> targets;
-                ThreatContainer::StorageType::const_iterator itr = threatlist.begin();
-                for (; itr != threatlist.end(); ++itr)
+                for (ThreatReference const* ref : threatlist)
                 {
-                    Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                    Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                     if (unit && unit->IsAlive() && (unit->GetTypeId() == TYPEID_PLAYER)) // Only alive players
                         targets.push_back(unit);
                 }
@@ -492,7 +493,7 @@ class boss_essence_of_suffering : public CreatureScript
                 if (target)
                     target->CastSpell(me, SPELL_FIXATE_TAUNT, true);
                 DoResetThreat();
-                me->AddThreat(target,1000000);
+                me->GetThreatManager().AddThreat(target,1000000);
             }
 
             void UpdateAI(uint32 diff) override

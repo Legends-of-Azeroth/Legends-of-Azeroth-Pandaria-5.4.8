@@ -360,15 +360,14 @@ public:
             if (victim && me->IsWithinDistInMap(victim, me->GetAttackDistance(victim)))
                 return false;
 
-            ThreatContainer::StorageType const &threatlist = me->GetThreatManager().getThreatList();
-            if (threatlist.empty())
+            auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+            if (me->GetThreatManager().IsThreatListEmpty())
                 return false;
 
             std::list<Unit*> targets;
-            ThreatContainer::StorageType::const_iterator itr = threatlist.begin();
-            for (; itr != threatlist.end(); ++itr)
+            for (ThreatReference const* ref : threatlist)
             {
-                Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                 if (unit && unit->IsAlive())
                     targets.push_back(unit);
             }
@@ -383,7 +382,7 @@ public:
                 if (!me->IsWithinDistInMap(target, me->GetAttackDistance(target)))
                     return true;                                // Cast Finger of Death
                 else                                            // This target is closest, he is our new tank
-                    me->AddThreat(target, me->GetThreatManager().getThreat(me->GetVictim()));
+                    me->GetThreatManager().AddThreat(target, me->GetThreatManager().GetThreat(me->GetVictim()));
             }
 
             return false;

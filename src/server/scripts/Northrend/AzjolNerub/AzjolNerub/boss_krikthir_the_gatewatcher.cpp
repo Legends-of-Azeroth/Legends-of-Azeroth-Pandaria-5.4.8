@@ -265,7 +265,7 @@ class npc_anub_ar_skirmisher : public CreatureScript
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
                         DoResetThreat();
-                        me->AddThreat(target, 1.0f);
+                        me->GetThreatManager().AddThreat(target, 1.0f);
                         DoCast(target, SPELL_CHARGE, true);
                     }
                     uiChargeTimer = 15 * IN_MILLISECONDS;

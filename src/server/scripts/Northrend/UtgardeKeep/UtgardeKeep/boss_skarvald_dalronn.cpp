@@ -131,7 +131,7 @@ class boss_skarvald_the_constructor : public CreatureScript
 
                     if (Creature* dalronn = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DALRONN)))
                         if (dalronn->IsAlive() && !dalronn->GetVictim())
-                            dalronn->GetThreatManager().addThreat(who, 0.0f);
+                            dalronn->GetThreatManager().AddThreat(who, 0.0f);
 
                     instance->SetData(DATA_SKARVALD_DALRONN_EVENT, IN_PROGRESS);
                 }
@@ -301,7 +301,7 @@ class boss_dalronn_the_controller : public CreatureScript
                 {
                     if (Creature* skarvald = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SKARVALD)))
                         if (skarvald->IsAlive() && !skarvald->GetVictim())
-                            skarvald->GetThreatManager().addThreat(who,0.0f);
+                            skarvald->GetThreatManager().AddThreat(who,0.0f);
 
                     AggroYell_Timer = 5000;
 

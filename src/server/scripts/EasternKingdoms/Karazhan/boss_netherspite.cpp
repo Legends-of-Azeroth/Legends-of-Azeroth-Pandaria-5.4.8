@@ -211,7 +211,7 @@ class boss_netherspite : public CreatureScript
                         }
                         // aggro target if Red Beam
                         if (j == RED_PORTAL && me->GetVictim() != target && target->GetTypeId() == TYPEID_PLAYER)
-                            me->GetThreatManager().addThreat(target, 100000.0f + DoGetThreat(me->GetVictim()));
+                            me->GetThreatManager().AddThreat(target, 100000.0f + DoGetThreat(me->GetVictim()));
                     }
             }
 

@@ -460,7 +460,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 if (summon->GetEntry() == NPC_VENGEFUL_SHADE)
                 {
                     target = ObjectAccessor::GetUnit(*me, _nextVengefulShadeTargetGUID);
-                    summon->AddThreat(target, 100000000.0f);
+                    summon->GetThreatManager().AddThreat(target, 100000000.0f);
                     _nextVengefulShadeTargetGUID = ObjectGuid::Empty;
                 }
                 else
@@ -543,7 +543,7 @@ class boss_lady_deathwhisper : public CreatureScript
                                     }
                                     me->SetInCombatWith(_dominateMindTarget);
                                     _dominateMindTarget->SetInCombatWith(me);
-                                    me->AddThreat(_dominateMindTarget, 0.0f);
+                                    me->GetThreatManager().AddThreat(_dominateMindTarget, 0.0f);
                                 }
                                 _dominateMindTargets[i] = nullptr;
                             }

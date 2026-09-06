@@ -1501,7 +1501,7 @@ struct npc_embodied_misery : public ScriptedAI
                     {
                         me->SetInCombatState(player);
                         player->SetInCombatWith(me);
-                        me->AddThreat(player, 0.0f);
+                        me->GetThreatManager().AddThreat(player, 0.0f);
                     }
                 }
             }
@@ -1611,7 +1611,7 @@ struct npc_embodied_sorrow : public ScriptedAI
                     {
                         me->SetInCombatState(player);
                         player->SetInCombatWith(me);
-                        me->AddThreat(player, 0.0f);
+                        me->GetThreatManager().AddThreat(player, 0.0f);
                     }
                 }
             }
@@ -1720,7 +1720,7 @@ struct npc_embodied_gloom : public ScriptedAI
                     {
                         me->SetInCombatState(player);
                         player->SetInCombatWith(me);
-                        me->AddThreat(player, 0.0f);
+                        me->GetThreatManager().AddThreat(player, 0.0f);
                     }
                 }
             }

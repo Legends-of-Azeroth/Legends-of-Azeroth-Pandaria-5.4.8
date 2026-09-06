@@ -784,7 +784,8 @@ struct megaeraHeadsBaseAI : public ScriptedAI
 
         me->SetVisible(true);
         me->RemoveAllAuras();
-        me->DeleteThreatList();
+        me->GetThreatManager().RemoveMeFromThreatLists();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
 
         if (Creature* megaera = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_MEGAERA) : ObjectGuid::Empty))

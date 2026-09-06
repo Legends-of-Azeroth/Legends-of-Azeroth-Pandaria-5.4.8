@@ -1355,7 +1355,7 @@ class npc_theramore_gatecrusher : public CreatureScript
                         case EVENT_SIGHTS:
                             if (Unit* target = ObjectAccessor::GetUnit(*me, GetNextFixateTarget()))
                             {
-                                me->GetThreatManager().addThreat(target, 10000.0f);
+                                me->GetThreatManager().AddThreat(target, 10000.0f);
                                 me->CastSpell(target, SPELL_WAR_ENGINE_SIGHTS, true);
 
                                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);

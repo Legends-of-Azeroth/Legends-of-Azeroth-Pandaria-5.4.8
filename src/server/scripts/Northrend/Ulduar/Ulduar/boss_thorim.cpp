@@ -683,7 +683,7 @@ class boss_thorim : public CreatureScript
 
                 if (phase == PHASE_ARENA_ADDS && me->GetVictim() && ArenaAreaCheck(false)(me->GetVictim()))
                 {
-                    me->GetVictim()->getHostileRefManager().deleteReference(me);
+                    me->GetThreatManager().ClearThreat(me->GetVictim());
                     return;
                 }
 
@@ -1334,7 +1334,7 @@ class npc_thorim_arena_phase_add : public CreatureScript
 
                 if (me->GetVictim() && !IsOnSameSide(me->GetVictim()))
                 {
-                    me->GetVictim()->getHostileRefManager().deleteReference(me);
+                    me->GetThreatManager().ClearThreat(me->GetVictim());
                     return;
                 }
 
@@ -1789,7 +1789,7 @@ class npc_sif : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
                             {
                                 DoResetThreat();
-                                me->AddThreat(target, 5000000.0f);
+                                me->GetThreatManager().AddThreat(target, 5000000.0f);
                                 DoCast(target, SPELL_FROSTBOLT_VOLLEY, true);
                                 _events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             }

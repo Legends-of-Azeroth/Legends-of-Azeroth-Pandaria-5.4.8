@@ -472,9 +472,9 @@ static void RewardPlayers(Creature* me)
 {
     std::set<uint32> rewardedGuilds;
 
-    for (auto&& itr : me->GetThreatManager().getThreatList())
+    for (auto&& ref : me->GetThreatManager().GetUnsortedThreatList())
     {
-        if (Player* target = ObjectAccessor::GetPlayer(*me, itr->getUnitGuid()))
+        if (Player* target = ObjectAccessor::GetPlayer(*me, ref->GetVictim()->GetGUID()))
         {
             target->KilledMonsterCredit(me->GetEntry());
             if (Guild* guild = target->GetGuild())
@@ -508,8 +508,8 @@ static void HandleDoor(Creature* me, uint32 go, bool open)
 static void UpdateHealth(Creature* me)
 {
     uint8 count = 0;
-    for (auto&& threat : me->GetThreatManager().getThreatList())
-        if (Player* player = Unit::GetPlayer(*me, threat->getUnitGuid()))
+    for (auto&& threat : me->GetThreatManager().GetUnsortedThreatList())
+        if (Player* player = Unit::GetPlayer(*me, threat->GetVictim()->GetGUID()))
             if (player->IsWithinDist(me, 100.0f))
                 count++;
 

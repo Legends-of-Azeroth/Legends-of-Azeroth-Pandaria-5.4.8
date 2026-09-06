@@ -370,7 +370,7 @@ class boss_kologarn : public CreatureScript
                                 if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, [this](Unit* t) { return me->IsWithinMeleeRange(t) && !t->GetVehicle(); }))
                                 {
                                     if (me->GetVictim())
-                                        me->GetThreatManager().modifyThreatPercent(me->GetVictim(), -100);
+                                        me->GetThreatManager().ModifyThreatByPercent(me->GetVictim(), -100);
                                     AttackStart(target);
                                 }
                                 else

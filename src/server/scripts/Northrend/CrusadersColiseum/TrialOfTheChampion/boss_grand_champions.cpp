@@ -168,7 +168,7 @@ void AggroAllPlayers(Creature* source)
                     source->SetInCombatWith(vehicle);
                     player->SetInCombatWith(source);
                     vehicle->SetInCombatWith(source);
-                    source->AddThreat(vehicle, 0.0f);
+                    source->GetThreatManager().AddThreat(vehicle, 0.0f);
                  }
             }
             else if (player->IsAlive())
@@ -177,7 +177,7 @@ void AggroAllPlayers(Creature* source)
                 source->SetReactState(REACT_AGGRESSIVE);
                 source->SetInCombatWith(player);
                 player->SetInCombatWith(source);
-                source->AddThreat(player, 0.0f);
+                source->GetThreatManager().AddThreat(player, 0.0f);
             }
         }
     }
@@ -277,7 +277,7 @@ class npc_faction_champion_toc5 : public CreatureScript
                             if (Unit* target = GetRangedTarget(8.0f, 25.0f, me))
                             {
                                 DoResetThreat();
-                                me->AddThreat(target, 100.0f);
+                                me->GetThreatManager().AddThreat(target, 100.0f);
                                 me->GetMotionMaster()->MoveChase(me->GetVictim());
                                 DoCast(target, SPELL_CHARGE);
                             }
@@ -619,7 +619,7 @@ class boss_grand_champion_toc5 : public CreatureScript
                             if (Unit* target = GetRangedTarget(8.0f, 25.0f, me))
                             {
                                 DoResetThreat();
-                                me->AddThreat(target, 100.0f);
+                                me->GetThreatManager().AddThreat(target, 100.0f);
                                 me->GetMotionMaster()->MoveChase(me->GetVictim());
                                 DoCast(target, SPELL_CHARGE);
                             }

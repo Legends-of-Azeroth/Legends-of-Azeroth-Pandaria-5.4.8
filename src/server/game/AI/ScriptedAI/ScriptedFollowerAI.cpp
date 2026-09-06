@@ -47,7 +47,7 @@ void FollowerAI::AttackStart(Unit* who)
 
     if (me->Attack(who, true))
     {
-        me->AddThreat(who, 0.0f);
+        me->GetThreatManager().AddThreat(who, 0.0f);
         me->SetInCombatWith(who);
         who->SetInCombatWith(me);
 
@@ -91,7 +91,7 @@ bool FollowerAI::AssistPlayerInCombat(Unit* who)
         else
         {
             who->SetInCombatWith(me);
-            me->AddThreat(who, 0.0f);
+            me->GetThreatManager().AddThreat(who, 0.0f);
             return true;
         }
     }
@@ -122,7 +122,7 @@ void FollowerAI::MoveInLineOfSight(Unit* who)
                 else if (me->GetMap()->IsDungeon())
                 {
                     who->SetInCombatWith(me);
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                 }
             }
         }
@@ -172,7 +172,8 @@ void FollowerAI::JustAppeared()
 void FollowerAI::EnterEvadeMode(EvadeReason why)
 {
     me->RemoveAllAuras();
-    me->DeleteThreatList();
+    me->GetThreatManager().RemoveMeFromThreatLists();
+    me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
     me->SetLootRecipient(NULL);
 

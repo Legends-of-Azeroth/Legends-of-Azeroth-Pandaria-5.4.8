@@ -555,12 +555,12 @@ class boss_siegecrafter_blackfuse : public CreatureScript
 
                 ObjectGuid getSawbladeTargetGUID()
                 {
-                    ThreatContainer::StorageType const& threatlist = me->GetThreatManager().getThreatList();
+                    auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
                     std::list<Unit*> targetList, tempTargetList;
 
-                    for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                        if ((*itr)->getTarget())
-                            targetList.push_back((*itr)->getTarget());
+                    for (ThreatReference const* ref : threatlist)
+                        if (ref->GetVictim())
+                            targetList.push_back(ref->GetVictim());
 
                     tempTargetList = targetList;
 

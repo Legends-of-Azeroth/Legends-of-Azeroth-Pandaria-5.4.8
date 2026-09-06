@@ -601,10 +601,10 @@ public:
                         case EVENT_DETONATE:
                         {
                             std::vector<Unit*> unitList;
-                            ThreatContainer::StorageType const &threatList = me->GetThreatManager().getThreatList();
-                            for (ThreatContainer::StorageType::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
+                            auto threatList = me->GetThreatManager().GetUnsortedThreatList();
+                            for (ThreatReference const* ref : threatList)
                             {
-                                Unit* const target = (*itr)->getTarget();
+                                Unit* const target = ref->GetVictim();
 
                                 if (target->GetTypeId() == TYPEID_PLAYER
                                         && target->GetPowerType() == POWER_MANA

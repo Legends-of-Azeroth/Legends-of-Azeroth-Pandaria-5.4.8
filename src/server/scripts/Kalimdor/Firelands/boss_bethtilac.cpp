@@ -793,7 +793,7 @@ class npc_bethtilac_cinderweb_drone : public CreatureScript
                                 DoResetThreat();
                                 DoCast(me, SPELL_FIXATE_SELF, true);
                                 DoCast(target, SPELL_FIXATE, true);
-                                me->AddThreat(target, 1000000.0f);
+                                me->GetThreatManager().AddThreat(target, 1000000.0f);
                                 AttackStart(target);
                                 events.ScheduleEvent(EVENT_FIXATE_OFF, 10000);
                             }

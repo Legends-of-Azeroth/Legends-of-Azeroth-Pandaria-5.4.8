@@ -471,7 +471,7 @@ class spell_common_inherit_masters_threat_list : public SpellScript
         targets.remove_if([this](WorldObject* obj)
         {
             if (Unit* target = obj->ToUnit())
-                if (target->IsInCombat() && target->CanHaveThreatList() && target->GetThreatManager().getThreat(master) > 0)
+                if (target->IsInCombat() && target->CanHaveThreatList() && target->GetThreatManager().GetThreat(master) > 0)
                     return false;
 
             return true;
@@ -480,8 +480,8 @@ class spell_common_inherit_masters_threat_list : public SpellScript
 
     void HandleHit()
     {
-        float threat = GetHitUnit()->GetThreatManager().getThreat(master);
-        GetHitUnit()->GetThreatManager().addThreat(GetCaster(), threat);
+        float threat = GetHitUnit()->GetThreatManager().GetThreat(master);
+        GetHitUnit()->GetThreatManager().AddThreat(GetCaster(), threat);
     }
 
     void Register() override

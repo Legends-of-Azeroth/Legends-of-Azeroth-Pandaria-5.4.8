@@ -838,7 +838,8 @@ class npc_thrall_arcurion : public CreatureScript
                     case ACTION_TALK_ARCURION_DEATH:
                         summons.DespawnEntry(NPC_ICY_TOMB);
                         events.Reset();
-                        me->DeleteThreatList();
+                        me->GetThreatManager().RemoveMeFromThreatLists();
+                        me->GetThreatManager().ClearAllThreat();
 
                         if (instance)
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);

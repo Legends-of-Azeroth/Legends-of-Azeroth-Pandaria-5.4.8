@@ -288,7 +288,7 @@ struct boss_twinemperorsAI : public ScriptedAI
                 {
                     //DoYell(nearu->GetName(), LANG_UNIVERSAL, 0);
                     AttackStart(nearu);
-                    me->AddThreat(nearu, 10000);
+                    me->GetThreatManager().AddThreat(nearu, 10000);
                 }
                 return true;
             }
@@ -461,7 +461,7 @@ class boss_veknilash : public CreatureScript
             void CastSpellOnBug(Creature* target) override
             {
                 target->SetFaction(14);
-                target->AI()->AttackStart(me->GetThreatManager().getHostilTarget());
+                target->AI()->AttackStart(me->GetThreatManager().GetCurrentVictim());
                 target->AddAura(SPELL_MUTATE_BUG, target);
                 target->SetFullHealth();
             }
@@ -651,7 +651,7 @@ class boss_veklor : public CreatureScript
                     if (me->Attack(who, false))
                     {
                         me->GetMotionMaster()->MoveChase(who, VEKLOR_DIST, 0);
-                        me->AddThreat(who, 0.0f);
+                        me->GetThreatManager().AddThreat(who, 0.0f);
                     }
                 }
             }

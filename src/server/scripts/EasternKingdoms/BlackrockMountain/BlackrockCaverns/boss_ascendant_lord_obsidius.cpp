@@ -205,7 +205,7 @@ class npc_shadow_of_obsidius : public CreatureScript
                 if (me->GetVictim() != attacker)
                 {
                     DoResetThreat();
-                    me->AddThreat(attacker, 1000000.0f);
+                    me->GetThreatManager().AddThreat(attacker, 1000000.0f);
                     me->Attack(attacker, true);
                     me->GetMotionMaster()->MoveChase(attacker);
                 }

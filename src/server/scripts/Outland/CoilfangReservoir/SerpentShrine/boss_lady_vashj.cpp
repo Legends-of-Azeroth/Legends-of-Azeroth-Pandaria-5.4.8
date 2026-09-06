@@ -349,7 +349,7 @@ public:
                     // Shock Burst
                     // Randomly used in Phases 1 and 3 on Vashj's target, it's a Shock spell doing 8325-9675 nature damage and stunning the target for 5 seconds, during which she will not attack her target but switch to the next person on the aggro list.
                     DoCastVictim(SPELL_SHOCK_BLAST);
-                    me->TauntApply(me->GetVictim());
+                    me->GetThreatManager().TauntUpdate();
 
                     ShockBlastTimer = 1000+rand()%14000;       // random cooldown
                 } else ShockBlastTimer -= diff;
@@ -433,10 +433,10 @@ public:
                 if (CheckTimer <= diff)
                 {
                     bool inMeleeRange = false;
-                    std::list<HostileReference*> t_list = me->GetThreatManager().getThreatList();
-                    for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                    auto t_list = me->GetThreatManager().GetUnsortedThreatList();
+                    for (ThreatReference const* ref : t_list)
                     {
-                        Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                        Unit* target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                         if (target && target->IsWithinDistInMap(me, 5)) // if in melee range
                         {
                             inMeleeRange = true;
@@ -680,7 +680,7 @@ public:
 
         void JustEngagedWith(Unit* who) override
         {
-            me->AddThreat(who, 0.1f);
+            me->GetThreatManager().AddThreat(who, 0.1f);
         }
 
         void UpdateAI(uint32 diff) override

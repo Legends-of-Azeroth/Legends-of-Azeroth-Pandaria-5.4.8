@@ -574,17 +574,17 @@ struct boss_faction_championsAI : public BossAI
 
     void UpdateThreat()
     {
-        std::list<HostileReference*> const& tList = me->GetThreatManager().getThreatList();
-        for (std::list<HostileReference*>::const_iterator itr = tList.begin(); itr != tList.end(); ++itr)
+        auto tList = me->GetThreatManager().GetUnsortedThreatList();
+        for (ThreatReference const* ref : tList)
         {
-            Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-            if (unit && me->GetThreatManager().getThreat(unit))
+            Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
+            if (unit && me->GetThreatManager().GetThreat(unit))
             {
                 if (unit->GetTypeId() == TYPEID_PLAYER)
                 {
                     float threat = CalculateThreat(me->GetDistance2d(unit), (float)unit->GetArmor(), unit->GetHealth());
-                    me->GetThreatManager().modifyThreatPercent(unit, -100);
-                    me->AddThreat(unit, 1000000.0f * threat);
+                    me->GetThreatManager().ModifyThreatByPercent(unit, -100);
+                    me->GetThreatManager().AddThreat(unit, 1000000.0f * threat);
                 }
             }
         }
@@ -663,12 +663,11 @@ struct boss_faction_championsAI : public BossAI
 
     Unit* SelectEnemyCaster(bool /*casting*/)
     {
-        std::list<HostileReference*> const& tList = me->GetThreatManager().getThreatList();
-        std::list<HostileReference*>::const_iterator iter;
+        auto tList = me->GetThreatManager().GetUnsortedThreatList();
         Unit* target;
-        for (iter = tList.begin(); iter!=tList.end(); ++iter)
+        for (ThreatReference const* ref : tList)
         {
-            target = Unit::GetUnit(*me, (*iter)->getUnitGuid());
+            target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
             if (target && target->GetPowerType() == POWER_MANA)
                 return target;
         }
@@ -677,13 +676,12 @@ struct boss_faction_championsAI : public BossAI
 
     uint32 EnemiesInRange(float distance)
     {
-        std::list<HostileReference*> const& tList = me->GetThreatManager().getThreatList();
-        std::list<HostileReference*>::const_iterator iter;
+        auto tList = me->GetThreatManager().GetUnsortedThreatList();
         uint32 count = 0;
         Unit* target;
-        for (iter = tList.begin(); iter != tList.end(); ++iter)
+        for (ThreatReference const* ref : tList)
         {
-            target = Unit::GetUnit(*me, (*iter)->getUnitGuid());
+            target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                 if (target && me->GetDistance2d(target) < distance)
                     ++count;
         }
@@ -697,7 +695,7 @@ struct boss_faction_championsAI : public BossAI
 
         if (me->Attack(who, true))
         {
-            me->AddThreat(who, 10.0f);
+            me->GetThreatManager().AddThreat(who, 10.0f);
             me->SetInCombatWith(who);
             who->SetInCombatWith(me);
 
