@@ -324,8 +324,10 @@ class boss_algalon_the_observer : public CreatureScript
                 _Reset();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetCanDualWield(true);
-                me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, me->GetCreatureTemplate()->mindmg);
-                me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, me->GetCreatureTemplate()->maxdmg);
+                const CreatureTemplate* cinfo = me->GetCreatureTemplate();
+                float basedmg = sObjectMgr->GetCreatureBaseStats(me->GetLevel(), cinfo->unit_class)->GenerateBaseDamage(cinfo);
+                me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, basedmg);
+                me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, basedmg * 1.5f);
                 me->UpdateDamagePhysical(OFF_ATTACK);
                 _phaseTwo = false;
                 _fightWon = false;

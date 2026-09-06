@@ -77,8 +77,10 @@ class boss_moorabi : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_LESS_RABI, 1);
 
                 me->SetCanDualWield(true);
-                me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, me->GetCreatureTemplate()->mindmg);
-                me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, me->GetCreatureTemplate()->maxdmg);
+                const CreatureTemplate* cinfo = me->GetCreatureTemplate();
+                float basedmg = sObjectMgr->GetCreatureBaseStats(me->GetLevel(), cinfo->unit_class)->GenerateBaseDamage(cinfo);
+                me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, basedmg);
+                me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, basedmg * 1.5f);
                 me->UpdateDamagePhysical(OFF_ATTACK);
 
                 events.Reset();

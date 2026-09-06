@@ -872,12 +872,6 @@ struct CreatureDifficultyInfo
     uint8 LevelMax;
     float DamageMod;
     float HealthMod;
-    float MinDamage;
-    float MaxDamage;
-    float MinRangeDamage;
-    float MaxRangeDamage;
-    uint32 AttackPower;
-    uint32 RangedAttackPower;
 };
 
 typedef std::unordered_map<uint32, ResearchProjectRequirements> ResearchProjectRequirementContainer;

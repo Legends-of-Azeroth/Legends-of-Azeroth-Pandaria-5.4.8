@@ -1246,12 +1246,11 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
     float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE);
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
 
-    /* difference in AP between current attack power and base value from DB */
+    /* per-creature/per-difficulty damage multiplier (from difficulty table, default 1.0)
+       combined with any runtime override (e.g. world events) */
     float dmg_multiplier = GetCreatureTemplate()->dmg_multiplier;
-
-    if (GetMap()->GetDifficulty() > REGULAR_DIFFICULTY || GetMap()->IsBattleground())
-        if (auto mod = sObjectMgr->SelectDifficultyInfo(GetMap(), GetEntry()))
-            dmg_multiplier = mod->DamageMod;
+    if (auto mod = sObjectMgr->SelectDifficultyInfo(GetMap(), GetEntry()))
+        dmg_multiplier *= mod->DamageMod;
 
     float att_pwr_change = GetTotalAttackPowerValue(attType);
 
