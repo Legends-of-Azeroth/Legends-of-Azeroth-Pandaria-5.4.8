@@ -659,7 +659,7 @@ void ThreatManager::ProcessAIUpdates()
     if (!ai)
         return;
     for (ObjectGuid const& guid : v)
-        if (ThreatReference* ref = *Trinity::Containers::MapGetValuePtr(_myThreatListEntries, guid))
+        if (ThreatReference const* ref = Trinity::Containers::MapGetValuePtr(_myThreatListEntries, guid))
             ai->JustStartedThreateningMe(ref->GetVictim());
 }
 

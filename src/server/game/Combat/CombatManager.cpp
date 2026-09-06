@@ -184,13 +184,13 @@ Unit* CombatManager::GetAnyTarget() const
 bool CombatManager::SetInCombatWith(Unit* who, bool addSecondUnitSuppressed)
 {
     // Are we already in combat? If yes, refresh pvp combat
-    if (PvPCombatReference* existingPvpRef = *Trinity::Containers::MapGetValuePtr(_pvpRefs, who->GetGUID()))
+    if (PvPCombatReference* existingPvpRef = Trinity::Containers::MapGetValuePtr(_pvpRefs, who->GetGUID()))
     {
         existingPvpRef->RefreshTimer();
         existingPvpRef->Refresh();
         return true;
     }
-    if (CombatReference* existingPveRef = *Trinity::Containers::MapGetValuePtr(_pveRefs, who->GetGUID()))
+    if (CombatReference* existingPveRef = Trinity::Containers::MapGetValuePtr(_pveRefs, who->GetGUID()))
     {
         existingPveRef->Refresh();
         return true;
