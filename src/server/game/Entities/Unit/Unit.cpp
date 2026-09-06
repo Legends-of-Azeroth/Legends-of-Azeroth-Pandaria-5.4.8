@@ -8846,6 +8846,8 @@ void Unit::CombatStop(bool includingCast)
     RemoveAllAttackers();
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->SendAttackSwingCancelAttack();     // melee and ranged forced attack cancel
+    m_CombatManager.EndAllPvECombat();
+    m_CombatManager.SuppressPvPCombat();
     ClearInCombat();
 }
 
