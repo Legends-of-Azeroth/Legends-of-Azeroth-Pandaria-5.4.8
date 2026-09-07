@@ -23,6 +23,7 @@
 #include "MovementGenerator.h"
 #include "Object.h"
 #include "MoveSplineInitArgs.h"
+#include "SplineChain.h"
 #include <deque>
 #include <functional>
 #include <set>
@@ -158,6 +159,7 @@ class TC_GAME_API MotionMaster
         void MoveTargetedHome();
         void MoveRandom(float wanderDistance = 0.0f);
         void MoveFollow(Unit* target, float dist, float angle, MovementSlot slot = MOTION_SLOT_ACTIVE);
+        void MoveFormation(Unit* leader, float range, float angle, uint32 point1, uint32 point2);
         void MoveChase(Unit* target, float dist = 0.0f, float angle = 0.0f);
         void MoveConfused();
         void MoveFleeing(Unit* enemy, uint32 time = 0);
@@ -187,6 +189,14 @@ class TC_GAME_API MotionMaster
         void MovePath(uint32 path_id, bool repeatable);
         void MoveSplinePath(const Position* path, uint32 count, bool fly = false, bool walk = false, float speed = 0.0f, bool cyclic = false, bool catmullrom = true, bool uncompressed = true);
         void MoveRotate(uint32 time, RotateDirection direction);
+
+        void MoveFace(float orientation, uint32 id = EVENT_FACE);
+        void MoveFace(WorldObject const* object, uint32 id = EVENT_FACE);
+        void MoveCloserAndStop(uint32 id, Unit* target, float distance);
+
+        void MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool walk = false);
+        void MoveAlongSplineChain(uint32 pointId, std::vector<SplineChainLink> const& chain, bool walk = false);
+        void ResumeSplineChain(SplineChainResumeInfo const& info);
 
         void MoveKnockbackFromForPlayer(float srcX, float srcY, float speedXY, float speedZ);
         void MovePointBackwards(uint32 id, float x, float y, float z, bool generatePath = true, bool forceDestination = true, MovementSlot slot = MOTION_SLOT_ACTIVE, float orientation = 0.0f);

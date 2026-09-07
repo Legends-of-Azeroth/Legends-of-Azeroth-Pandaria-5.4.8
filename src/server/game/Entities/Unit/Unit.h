@@ -2059,6 +2059,7 @@ public:
     // delayed+channeled spells are always accounted as casted
     // we can skip channeled or delayed checks using flags
     bool IsNonMeleeSpellCasted(bool withDelayed, bool skipChanneled = false, bool skipAutorepeat = false, bool isAutoshoot = false, bool skipInstant = true) const;
+    bool IsMovementPreventedByCasting() const;
 
     // set withDelayed to true to interrupt delayed spells too
     // delayed+channeled spells are always interrupted
@@ -2164,7 +2165,10 @@ public:
     uint32 m_lastSanctuaryTime;
 
     // Threat related methods
-    bool CanHaveThreatList() const;
+    bool CanHaveThreatList() const { return m_ThreatManager.CanHaveThreatList(); }
+    bool IsThreatenedBy(Unit const* who) const { return who && m_ThreatManager.IsThreatenedBy(who, true); }
+    bool IsInCombatWith(Unit const* who) const { return who && m_CombatManager.IsInCombatWith(who); }
+    bool IsEngagedBy(Unit const* who) const { return CanHaveThreatList() ? IsThreatenedBy(who) : IsInCombatWith(who); }
     ThreatManager& GetThreatManager() { return m_ThreatManager; }
     ThreatManager const& GetThreatManager() const { return m_ThreatManager; }
     CombatManager& GetCombatManager() { return m_CombatManager; }

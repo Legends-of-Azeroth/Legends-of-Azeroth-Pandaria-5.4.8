@@ -1,5 +1,5 @@
 /*
-* This file is part of the Legends of Azeroth Pandaria Project Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -160,11 +160,11 @@ void CreatureGroup::RemoveMember(Creature* member)
 
 void CreatureGroup::MemberEngagingTarget(Creature* member, Unit* target)
 {
-    uint8 groupAI = sFormationMgr->CreatureGroupMap[member->GetDBTableGUIDLow()].groupAI;
+    uint32 groupAI = sFormationMgr->CreatureGroupMap[member->GetDBTableGUIDLow()].groupAI;
     if (!groupAI)
         return;
 
-    if (groupAI == 1 && member != m_leader)
+    if (groupAI == FLAG_MEMBERS_ASSIST_LEADER && member != m_leader)
         return;
 
     for (CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
@@ -248,5 +248,24 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
 
         member->GetMotionMaster()->MovePoint(0, dx, dy, dz);
         member->SetHomePosition(dx, dy, dz, pathangle);
+    }
+}
+
+void CreatureGroup::LeaderStartedMoving()
+{
+    if (!m_leader)
+        return;
+
+    for (auto const& pair : m_members)
+    {
+        Creature* member = pair.first;
+        if (member == m_leader || !member->IsAlive() || member->GetVictim() || !(pair.second.groupAI & FLAG_IDLE_IN_FORMATION))
+            continue;
+
+        float angle = pair.second.follow_angle + float(M_PI); // for some reason, someone thought it was a great idea to invert relativ angles...
+        float dist = pair.second.follow_dist;
+
+        if (!member->HasUnitState(UNIT_STATE_FOLLOW_FORMATION))
+            member->GetMotionMaster()->MoveFormation(m_leader, dist, angle, pair.second.point_1, pair.second.point_2);
     }
 }

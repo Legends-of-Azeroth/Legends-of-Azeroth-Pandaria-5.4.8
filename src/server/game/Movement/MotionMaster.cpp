@@ -28,13 +28,18 @@
 #include "PointMovementGenerator.h"
 #include "ChaseMovementGenerator.h"
 #include "FollowMovementGenerator.h"
+#include "FormationMovementGenerator.h"
 #include "WaypointMovementGenerator.h"
 #include "RandomMovementGenerator.h"
+#include "SplineChainMovementGenerator.h"
+#include "ScriptSystem.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "PathGenerator.h"
+#include "ObjectAccessor.h"
 #include <cassert>
 #include <algorithm>
+#include <cmath>
 #include <iterator>
 
 inline bool isStatic(MovementGenerator *mv)
@@ -649,6 +654,15 @@ void MotionMaster::MoveFollow(Unit* target, float dist, float angle, MovementSlo
     }
 }
 
+void MotionMaster::MoveFormation(Unit* leader, float range, float angle, uint32 point1, uint32 point2)
+{
+    if (_owner->GetTypeId() == TYPEID_UNIT && leader)
+    {
+        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFormation: '{}', started to move in a formation with leader {}", _owner->GetGUID().ToString(), leader->GetGUID().ToString());
+        Add(new FormationMovementGenerator(leader, range, angle, point1, point2), MOTION_SLOT_DEFAULT);
+    }
+}
+
 void MotionMaster::MovePoint(uint32 id, float x, float y, float z, bool generatePath, MovementSlot slot)
 {
     if (_owner->GetTypeId() == TYPEID_PLAYER)
@@ -1089,6 +1103,87 @@ void MotionMaster::LaunchMoveSpline(std::function<void(Movement::MoveSplineInit&
 
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::LaunchMoveSpline: '%u', initiates spline Id: %u (Type: %u, Slot: %u)", _owner->GetGUID().GetCounter(), id, type, slot);
     Mutate(new GenericMovementGenerator(std::move(initializer), type, id), slot);
+}
+
+void MotionMaster::MoveFace(float orientation, uint32 id)
+{
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFace: '{}', faces '{}'", _owner->GetGUID(), orientation);
+
+    LaunchMoveSpline([owner = _owner, orientation](Movement::MoveSplineInit& init)
+    {
+        init.MoveTo(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), false);
+        if (owner->GetTransport())
+            init.DisableTransportPathTransformations();     // It makes no sense to target global orientation
+        init.SetFacing(orientation);
+    }, id, MOTION_SLOT_ACTIVE, FACE_MOTION_TYPE);
+}
+
+void MotionMaster::MoveFace(WorldObject const* object, uint32 id)
+{
+    if (!object)
+        return;
+
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFace: '{}', faces '{}'", _owner->GetGUID(), object->GetGUID());
+
+    LaunchMoveSpline([owner = _owner, object](Movement::MoveSplineInit& init)
+    {
+        init.MoveTo(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), false);
+        init.SetFacing(owner->GetAbsoluteAngle(object->GetPositionX(), object->GetPositionY()));
+    }, id, MOTION_SLOT_ACTIVE, FACE_MOTION_TYPE);
+}
+
+void MotionMaster::MoveCloserAndStop(uint32 id, Unit* target, float distance)
+{
+    float distanceToTravel = _owner->GetExactDist2d(target) - distance;
+    if (distanceToTravel > 0.0f)
+    {
+        float angle = _owner->GetAbsoluteAngle(target->GetPositionX(), target->GetPositionY());
+        float destx = _owner->GetPositionX() + distanceToTravel * std::cos(angle);
+        float desty = _owner->GetPositionY() + distanceToTravel * std::sin(angle);
+        MovePoint(id, destx, desty, target->GetPositionZ());
+    }
+    else
+    {
+        // We are already close enough. We just need to turn toward the target without changing position.
+        LaunchMoveSpline([owner = _owner, target = target->GetGUID()](Movement::MoveSplineInit& init)
+        {
+            init.MoveTo(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ());
+            if (Unit const* refreshedTarget = ObjectAccessor::GetUnit(*owner, target))
+                init.SetFacing(refreshedTarget);
+        }, id, MOTION_SLOT_ACTIVE, EFFECT_MOTION_TYPE);
+    }
+}
+
+void MotionMaster::MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool walk)
+{
+    Creature* owner = _owner->ToCreature();
+    if (!owner)
+    {
+        TC_LOG_ERROR("movement.motionmaster", "MotionMaster::MoveAlongSplineChain: '{}', tried to walk along DB spline chain. Ignoring.", _owner->GetGUID());
+        return;
+    }
+    std::vector<SplineChainLink> const* chain = sScriptSystemMgr->GetSplineChain(owner, dbChainId);
+    if (!chain)
+    {
+        TC_LOG_ERROR("movement.motionmaster", "MotionMaster::MoveAlongSplineChain: '{}', tried to walk along non-existing spline chain with DB Id: {}.", _owner->GetGUID(), dbChainId);
+        return;
+    }
+    MoveAlongSplineChain(pointId, *chain, walk);
+}
+
+void MotionMaster::MoveAlongSplineChain(uint32 pointId, std::vector<SplineChainLink> const& chain, bool walk)
+{
+    Add(new SplineChainMovementGenerator(pointId, chain, walk));
+}
+
+void MotionMaster::ResumeSplineChain(SplineChainResumeInfo const& info)
+{
+    if (info.Empty())
+    {
+        TC_LOG_ERROR("movement.motionmaster", "MotionMaster::ResumeSplineChain: '{}', tried to resume a spline chain from empty info.", _owner->GetGUID());
+        return;
+    }
+    Add(new SplineChainMovementGenerator(info));
 }
 
 /******************** Private methods ********************/

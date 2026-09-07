@@ -3647,6 +3647,27 @@ bool Unit::IsNonMeleeSpellCasted(bool withDelayed, bool skipChanneled, bool skip
     return false;
 }
 
+bool Unit::IsMovementPreventedByCasting() const
+{
+    // can always move when not casting
+    if (!HasUnitState(UNIT_STATE_CASTING))
+        return false;
+
+    if (Spell* spell = m_currentSpells[CURRENT_GENERIC_SPELL])
+        if (spell->getState() == SPELL_STATE_FINISHED ||
+            !(spell->m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT))
+            return false;
+
+    // channeled spells during channel stage (after the initial cast timer) allow movement if not interrupted by move/turn
+    if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
+        if (spell->getState() != SPELL_STATE_FINISHED && spell->IsChannelActive())
+            if (!(spell->m_spellInfo->ChannelInterruptFlags & (AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING)))
+                return false;
+
+    // prohibit movement for all other spell casts
+    return true;
+}
+
 void Unit::InterruptNonMeleeSpells(bool withDelayed, uint32 spell_id, bool withInstant)
 {
     // generic spells are interrupted if they are not finished or delayed
@@ -6689,6 +6710,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                                 if (!target)
                                     return false;
                             }
+
                             if (IsFriendlyTo(target))
                                 return false;
                         }
@@ -12515,30 +12537,6 @@ void Unit::setDeathState(DeathState s)
 ########       AGGRO SYSTEM       ########
 ########                          ########
 ########################################*/
-bool Unit::CanHaveThreatList() const
-{
-    // only creatures can have threat list
-    if (GetTypeId() != TYPEID_UNIT)
-        return false;
-
-    // only alive units can have threat list
-    if (!IsAlive() || isDying())
-        return false;
-
-    // totems can not have threat list
-    if (ToCreature()->IsTotem())
-        return false;
-
-    // vehicles can not have threat list
-    //if (ToCreature()->IsVehicle())
-    //    return false;
-
-    // summons can not have a threat list, unless they are controlled by a creature
-    if (HasUnitTypeMask(UNIT_MASK_MINION | UNIT_MASK_GUARDIAN | UNIT_MASK_CONTROLABLE_GUARDIAN) && ((Pet*)this)->GetOwnerGUID().IsPlayer())
-        return false;
-
-    return true;
-}
 
 //======================================================================
 

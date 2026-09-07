@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -162,6 +162,7 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
     time_passed = 0;
     vertical_acceleration = 0.f;
     effect_start_time = 0;
+    velocity = args.velocity;
 
     // Check if its a stop spline
     if (args.flags.done)
@@ -187,7 +188,7 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
 
 MoveSpline::MoveSpline() : m_Id(0), time_passed(0),
     vertical_acceleration(0.f), initialOrientation(0.f), effect_start_time(0), point_Idx(0), point_Idx_offset(0),
-    onTransport(false)
+    velocity(0.f), onTransport(false)
 {
     splineflags.done = true;
 }

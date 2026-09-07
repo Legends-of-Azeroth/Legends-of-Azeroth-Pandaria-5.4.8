@@ -261,10 +261,10 @@ void CreatureAI::SetGazeOn(Unit* target)
     }
 }
 
-void CreatureAI::JustEnteredCombat(Unit* victim)
+void CreatureAI::JustEnteredCombat(Unit* who)
 {
-    UnitAI::JustEnteredCombat(victim);
-    EngagementStart(victim);
+    if (!IsEngaged() && !me->CanHaveThreatList())
+        EngagementStart(who);
 }
 
 void CreatureAI::EngagementStart(Unit* who)

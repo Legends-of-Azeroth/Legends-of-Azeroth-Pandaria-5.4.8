@@ -15,8 +15,8 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SF_COMBATMANAGER_H
-#define SF_COMBATMANAGER_H
+#ifndef TRINITY_COMBATMANAGER_H
+#define TRINITY_COMBATMANAGER_H
 
 #include "Common.h"
 #include "ObjectGuid.h"

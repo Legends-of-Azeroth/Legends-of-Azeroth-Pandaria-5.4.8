@@ -1550,6 +1550,8 @@ bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint3
 
     SetSheath(SHEATH_STATE_MELEE);
 
+    GetThreatManager().Initialize();
+
     return true;
 }
 

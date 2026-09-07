@@ -19,6 +19,13 @@
 #define TRINITY_MOVEMENTDEFINES_H
 
 #include "Common.h"
+#include "Duration.h"
+#include "ObjectGuid.h"
+#include "Optional.h"
+#include "Position.h"
+#include <variant>
+
+class Unit;
 
 #define SPEED_CHARGE 42.0f // assume it is 25 yard per 0.6 second
 
@@ -108,6 +115,60 @@ struct TC_GAME_API ChaseAngle
     float UpperBound() const;
     float LowerBound() const;
     bool IsAngleOkay(float relativeAngle) const;
+};
+
+enum class MovementWalkRunSpeedSelectionMode : uint8
+{
+    Default,
+    ForceRun,
+    ForceWalk
+};
+
+enum class MovementStopReason : uint8
+{
+    Finished,       // Movement finished either by arriving at location or successfully continuing it for requested duration
+    Interrupted
+};
+
+struct JumpArrivalCastArgs
+{
+    uint32 SpellId = 0;
+    ObjectGuid Target;
+};
+
+struct JumpChargeParams
+{
+    union
+    {
+        float Speed;
+        float MoveTimeInSec;
+    };
+
+    bool TreatSpeedAsMoveTimeSeconds = false;
+    bool UnlimitedSpeed = false;
+
+    Optional<float> MinHeight;
+    Optional<float> MaxHeight;
+
+    Optional<uint32> SpellVisualId;
+    Optional<uint32> ProgressCurveId;
+    Optional<uint32> ParabolicCurveId;
+    Optional<uint32> TriggerSpellId;
+};
+
+using MovementFacingTarget = std::variant<std::monostate, Position, Unit const*, float>;
+
+struct MovementFadeObject
+{
+    constexpr MovementFadeObject() = default;
+
+    template <typename DurationRep, typename DurationPeriod>
+    constexpr MovementFadeObject(std::chrono::duration<DurationRep, DurationPeriod> duration) : Duration(duration) { }
+
+    template <typename DurationRep, typename DurationPeriod>
+    constexpr MovementFadeObject(Optional<std::chrono::duration<DurationRep, DurationPeriod>> duration) : Duration(duration) { }
+
+    Optional<Milliseconds> Duration;
 };
 
 inline bool IsInvalidMovementGeneratorType(uint8 const type) { return type == MAX_DB_MOTION_TYPE || type >= MAX_MOTION_TYPE; }

@@ -4308,7 +4308,7 @@ void AuraEffect::HandleAuraModIncreaseHealth2(AuraApplication const* aurApp, uin
     {
         float healthPct = target->GetHealthPct();
         target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(GetAmount()), apply);
-        if (target->IsAlive() && GetSpellInfo()->Id != 106922)   // Might of Ursoc
+        if (target->IsAlive() && GetSpellInfo()->Id != 106922 && GetSpellInfo()->Id != 113072)   // Might of Ursoc
         {
             if (GetSpellInfo()->Id == 31616) // Nature's Guardian
             {
