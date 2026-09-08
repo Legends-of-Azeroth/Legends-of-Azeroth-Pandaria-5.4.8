@@ -12,10 +12,10 @@
 # Set build-directive (used in core to tell which buildtype we used)
 add_compile_options(-D_BUILD_DIRECTIVE="$<CONFIG>")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17") # clang issue
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wno-non-pod-varargs") # clang issue
 
 if(WITH_WARNINGS)
-  set(WARNING_FLAGS "-W -Wall -Wextra -Winit-self -Wfatal-errors")
+  set(WARNING_FLAGS "-W -Wall -Wextra -Winit-self -Wfatal-errors -Wno-non-pod-varargs")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNING_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS} -Woverloaded-virtual")
   message(STATUS "Clang: All warnings enabled")

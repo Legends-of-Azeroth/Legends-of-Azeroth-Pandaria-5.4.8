@@ -23,7 +23,7 @@ namespace LuaUnit
 
     int ClearThreatList(lua_State* L, Unit* unit)
     {
-        unit->GetThreatManager().clearReferences();
+        unit->GetThreatManager().ClearAllThreat();
         return 0;
     }
 

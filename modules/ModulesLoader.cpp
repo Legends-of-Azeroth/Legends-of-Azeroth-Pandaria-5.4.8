@@ -20,6 +20,7 @@
 
 // Includes list
 void AddSC_mod_exemple();
+void AddSC_mod_playerbots();
 
 
 #include "ModulesLoader.h"
@@ -29,5 +30,6 @@ void AddModulesScripts()
 {
     // Modules
         AddSC_mod_exemple();
+    AddSC_mod_playerbots();
 
 }
