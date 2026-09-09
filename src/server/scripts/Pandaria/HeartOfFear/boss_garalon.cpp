@@ -779,7 +779,7 @@ class spell_garalon_damaged : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_garalon_damaged::HandleScript, EFFECT_0, SPELL_EFFECT_REMOVE_AURA);
+        OnEffectHitTarget += SpellEffectFn(spell_garalon_damaged::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 

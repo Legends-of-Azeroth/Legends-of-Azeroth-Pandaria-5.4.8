@@ -964,7 +964,7 @@ class spell_sc_cleave : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_sc_cleave_SpellScript::RecalculateDamage, EFFECT_0, SPELL_EFFECT_WEAPON_DAMAGE);
+                OnEffectHitTarget += SpellEffectFn(spell_sc_cleave_SpellScript::RecalculateDamage, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
             }
         };
 

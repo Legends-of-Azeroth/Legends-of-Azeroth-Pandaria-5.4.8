@@ -137,6 +137,10 @@ enum MageSpells
     SPELL_MAGE_INVISIBILITY                      = 32612,
     SPELL_MAGE_UNBOUND_WATER_ELEMENTAL_TRANSFORM = 147358,
     SPELL_MAGE_TEMPORAL_SHIELD_HEAL              = 115611,
+    ICON_MAGE_IMPROVED_FREEZE                    = 94,
+    SPELL_MAGE_TEMPORAL_DISPLACEMENT             = 80354,
+    SPELL_SHAMAN_SATED                           = 57724,
+    SPELL_HUNTER_INSANITY                        = 95809,
 
     SPELL_FROZEN_ORB_DUMMY                       = 123605,
     SPELL_FROZEN_ORB_PERIODIC                    = 84717,
@@ -961,7 +965,7 @@ class spell_mage_mirror_image : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_mage_mirror_image::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_mage_mirror_image::HandleDummy, EFFECT_ALL, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -3076,6 +3080,54 @@ class spell_mage_dragons_breath : public AuraScript
     }
 };
 
+// 44544 - Fingers of Frost (Improved Freeze)
+class spell_mage_water_elemental_freeze : public AuraScript
+{
+    PrepareAuraScript(spell_mage_water_elemental_freeze);
+
+    void Register() override
+    {
+    }
+};
+
+// 12043 - Alter Time (Time Warp)
+class spell_mage_time_warp : public SpellScript
+{
+    PrepareSpellScript(spell_mage_time_warp);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sSpellMgr->GetSpellInfo(SPELL_MAGE_TEMPORAL_DISPLACEMENT);
+    }
+
+    void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([=](WorldObject const* target)
+        {
+            Unit const* unit = target->ToUnit();
+            if (!unit)
+                return true;
+            return unit->HasAura(SPELL_SHAMAN_SATED) ||
+                   unit->HasAura(SPELL_HUNTER_INSANITY) ||
+                   unit->HasAura(SPELL_MAGE_TEMPORAL_DISPLACEMENT);
+        });
+    }
+
+    void ApplyDebuff()
+    {
+        if (Unit* target = GetHitUnit())
+            target->CastSpell(target, SPELL_MAGE_TEMPORAL_DISPLACEMENT, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp::RemoveInvalidTargets, EFFECT_2, TARGET_UNIT_CASTER_AREA_RAID);
+        AfterHit += SpellHitFn(spell_mage_time_warp::ApplyDebuff);
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_flamestrike();
@@ -3163,4 +3215,6 @@ void AddSC_mage_spell_scripts()
     new aura_script<spell_mage_exclusive_polymorph>("spell_mage_exclusive_polymorph");
     new aura_script<spell_mage_glyph_of_armors>("spell_mage_glyph_of_armors");
     new aura_script<spell_mage_dragons_breath>("spell_mage_dragons_breath");
+    new aura_script<spell_mage_water_elemental_freeze>("spell_mage_water_elemental_freeze");
+    new spell_script<spell_mage_time_warp>("spell_mage_time_warp");
 }

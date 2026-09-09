@@ -133,6 +133,7 @@ enum DeathKnightSpells
     SPELL_SANCTUARY                             = 54661,
     SPELL_BLOOD_BURST                           = 81280,
     SPELL_BLOOD_GORGED                          = 81277,
+    SPELL_DK_BLOOD_GORGED_HEAL                  = 50454,
 
     SPELL_ROGUE_TRICKS_OF_THE_TRADE             = 57933,
 
@@ -3357,6 +3358,43 @@ class spell_dk_death_gate_eff : public SpellScript
     }
 };
 
+// 81277 - Blood Gorged
+class spell_dk_blood_gorged : public AuraScript
+{
+    PrepareAuraScript(spell_dk_blood_gorged);
+
+    Unit* _procTarget = nullptr;
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sSpellMgr->GetSpellInfo(SPELL_DK_BLOOD_GORGED_HEAL);
+    }
+
+    bool Load() override
+    {
+        _procTarget = nullptr;
+        return true;
+    }
+
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    {
+        _procTarget = GetTarget()->GetOwner();
+        return _procTarget;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        int32 heal = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), 150));
+        GetTarget()->CastCustomSpell(SPELL_DK_BLOOD_GORGED_HEAL, SPELLVALUE_BASE_POINT0, heal, _procTarget, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_dk_blood_gorged::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_dk_blood_gorged::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_script<spell_dk_gorefiends_grasp>("spell_dk_gorefiends_grasp");
@@ -3450,4 +3488,5 @@ void AddSC_deathknight_spell_scripts()
     new atrigger_script<sat_dk_anti_magic_zone>("sat_dk_anti_magic_zone");
     new spell_script<spell_dk_death_gate_eff>("spell_dk_death_gate_eff");
     new aura_script<aura_glyph_of_the_geist>("aura_glyph_of_the_geist");
+    new aura_script<spell_dk_blood_gorged>("spell_dk_blood_gorged");
 }

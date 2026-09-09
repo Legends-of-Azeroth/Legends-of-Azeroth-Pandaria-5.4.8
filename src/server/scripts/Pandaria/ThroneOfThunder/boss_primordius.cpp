@@ -912,7 +912,7 @@ class spell_mutation_primordius : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_mutation_primordius_SpellScript::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_mutation_primordius_SpellScript::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_ENERGIZE);
             }
         };
 

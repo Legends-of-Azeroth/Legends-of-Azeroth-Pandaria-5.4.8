@@ -2099,7 +2099,7 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHit += SpellEffectFn(spell_icc_sprit_alarm_SpellScript::HandleEvent, EFFECT_2, SPELL_EFFECT_SEND_EVENT);
+                OnEffectHit += SpellEffectFn(spell_icc_sprit_alarm_SpellScript::HandleEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
             }
         };
 
@@ -2107,7 +2107,7 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
         {
             return new spell_icc_sprit_alarm_SpellScript();
         }
-};
+    };
 
 class spell_icc_geist_alarm : public SpellScriptLoader
 {
@@ -2138,7 +2138,7 @@ class spell_icc_geist_alarm : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHit += SpellEffectFn(spell_icc_geist_alarm_SpellScript::HandleEvent, EFFECT_2, SPELL_EFFECT_SEND_EVENT);
+                OnEffectHit += SpellEffectFn(spell_icc_geist_alarm_SpellScript::HandleEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
             }
         };
 
@@ -2146,7 +2146,7 @@ class spell_icc_geist_alarm : public SpellScriptLoader
         {
             return new spell_icc_geist_alarm_SpellScript();
         }
-};
+    };
 
 class go_icc_trap : public GameObjectScript
 {

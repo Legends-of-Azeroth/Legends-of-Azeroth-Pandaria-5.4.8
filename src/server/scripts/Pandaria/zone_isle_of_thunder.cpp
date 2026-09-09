@@ -3845,7 +3845,7 @@ class spell_incantation_of_gura : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_incantation_of_gura_SpellScript::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_incantation_of_gura_SpellScript::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_SEND_EVENT);
             }
         };
 

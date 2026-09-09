@@ -2660,6 +2660,57 @@ class spell_pal_glyph_of_contemplation : public SpellScriptLoader
         }
 };
 
+// 85256 / 138165 - Templar's Verdict
+class spell_pal_templar_s_verdict : public SpellScript
+{
+    PrepareSpellScript(spell_pal_templar_s_verdict);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_PURPOSE);
+    }
+
+    bool Load() override
+    {
+        if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+            return false;
+        if (GetCaster()->ToPlayer()->GetClass() != CLASS_PALADIN)
+            return false;
+        return true;
+    }
+
+    void ChangeDamage(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        int32 damage = GetHitDamage();
+
+        if (caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE))
+            damage *= 7.5;
+        else
+        {
+            switch (caster->GetPower(POWER_HOLY_POWER))
+            {
+            case 0:
+                damage = damage;
+                break;
+            case 1:
+                damage *= 3;
+                break;
+            case 2:
+                damage *= 7.5;
+                break;
+            }
+        }
+
+        SetHitDamage(damage);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pal_templar_s_verdict::ChangeDamage, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_glyph_of_devotian_aura();
@@ -2747,4 +2798,5 @@ void AddSC_paladin_spell_scripts()
     new aura_script<spell_pal_hand_of_sacrifice>("spell_pal_hand_of_sacrifice");
     new aura_script<spell_pal_glyph_of_bladed_judgement>("spell_pal_glyph_of_bladed_judgement");
     new spell_pal_glyph_of_contemplation();
+    new spell_script<spell_pal_templar_s_verdict>("spell_pal_templar_s_verdict");
 }

@@ -1616,7 +1616,7 @@ class spell_terracota_spawn : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuracript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_terracota_spawn_AuraScript();
         }

@@ -2764,6 +2764,16 @@ class spell_rog_shadowstep : public SpellScript
     }
 };
 
+// 31665 - Master of Subtlety
+class spell_rog_master_of_subtlety : public AuraScript
+{
+    PrepareAuraScript(spell_rog_master_of_subtlety);
+
+    void Register() override
+    {
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_glyph_of_expose_armor();
@@ -2843,4 +2853,5 @@ void AddSC_rogue_spell_scripts()
     new spell_script<spell_rog_distract>("spell_rog_distract");
     new spell_script<spell_rog_duration_check>("spell_rog_duration_check");
     new spell_script<spell_rog_shadowstep>("spell_rog_shadowstep");
+    new aura_script<spell_rog_master_of_subtlety>("spell_rog_master_of_subtlety");
 }

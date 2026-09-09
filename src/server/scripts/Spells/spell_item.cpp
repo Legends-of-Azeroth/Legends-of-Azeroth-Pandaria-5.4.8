@@ -4505,7 +4505,7 @@ class spell_item_loot_a_rang : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_item_loot_a_rang::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_item_loot_a_rang::HandleDummy, EFFECT_0, SPELL_EFFECT_CREATE_ITEM);
     }
 };
 

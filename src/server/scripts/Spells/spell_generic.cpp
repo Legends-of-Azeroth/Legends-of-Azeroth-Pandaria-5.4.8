@@ -672,7 +672,6 @@ class spell_gen_clone : public SpellScript
         }
         else
         {
-            OnEffectHitTarget += SpellEffectFn(spell_gen_clone::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             OnEffectHitTarget += SpellEffectFn(spell_gen_clone::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     }
@@ -2349,10 +2348,7 @@ class spell_gen_replenishment : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_REPLENISHMENT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_INFINITE_REPLENISHMENT))
-                    return false;
-                return true;
+                return sSpellMgr->GetSpellInfo(SPELL_REPLENISHMENT);
             }
 
             bool Load() override

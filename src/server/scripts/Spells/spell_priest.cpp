@@ -3887,6 +3887,29 @@ class spell_pri_glyph_of_inspired_hymns : public AuraScript
     }
 };
 
+// 77484 - Mastery: Discipline (Shield)
+class spell_mastery_shield_discipline : public AuraScript
+{
+    PrepareAuraScript(spell_mastery_shield_discipline);
+
+    void CalculateAmount(AuraEffect const*, float& amount, bool&)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            if (caster->HasAura(SPELL_PRIEST_SHIELD_DISCIPLINE) && caster->GetLevel() >= 80)
+            {
+                float mastery = 1.0f + (caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f / 100.0f);
+                amount = amount * mastery;
+            }
+        }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_shield_discipline::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_power_word_fortitude();
@@ -4012,4 +4035,5 @@ void AddSC_priest_spell_scripts()
     new aura_script<spell_pri_prayer_of_mending_proc>("spell_pri_prayer_of_mending_proc");
     new aura_script<spell_pri_chakra_chastise>("spell_pri_chakra_chastise");
     new aura_script<spell_pri_glyph_of_inspired_hymns>("spell_pri_glyph_of_inspired_hymns");
+    new aura_script<spell_mastery_shield_discipline>("spell_mastery_shield_discipline");
 }
