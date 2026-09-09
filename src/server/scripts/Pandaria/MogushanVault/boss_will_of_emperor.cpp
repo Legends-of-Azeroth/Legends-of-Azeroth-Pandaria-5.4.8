@@ -1801,7 +1801,7 @@ class spell_titan_gas final : public SpellScriptLoader
 
             void Register() override final
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_titan_gas_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_titan_gas_SpellScript::FilterTargets, EFFECT_0, TARGET_DEST_DB);
             }
         };
 

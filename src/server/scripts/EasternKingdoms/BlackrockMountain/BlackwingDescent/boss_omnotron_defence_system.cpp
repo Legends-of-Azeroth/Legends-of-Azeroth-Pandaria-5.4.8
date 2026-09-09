@@ -1331,7 +1331,7 @@ class spell_omnotron_flamethower : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_omnotron_flamethower::SelectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_omnotron_flamethower::SelectTargets, EFFECT_1, TARGET_UNIT_TARGET_ENEMY);
     }
 };
 

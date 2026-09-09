@@ -659,7 +659,7 @@ class spell_light_wall_cosmetic : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_light_wall_cosmetic_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_light_wall_cosmetic_SpellScript::FilterTargets, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
             }
         };
 

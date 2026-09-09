@@ -628,12 +628,6 @@ class spell_mage_incanters_absorbtion_base_AuraScript : public AuraScript
             SPELL_MAGE_INCANTERS_ABSORBTION_R1 = 44394,
         };
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return sSpellMgr->GetSpellInfo(SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED)
-                && sSpellMgr->GetSpellInfo(SPELL_MAGE_INCANTERS_ABSORBTION_R1);
-        }
-
         void Trigger(AuraEffect *aurEff, DamageInfo& /*dmgInfo*/, uint32& absorbAmount)
         {
             Unit* target = GetTarget();

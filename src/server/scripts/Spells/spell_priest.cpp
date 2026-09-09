@@ -202,7 +202,9 @@ enum PriestSpells
     SPELL_PRIEST_GLYPH_OF_INSPIRED_HYMNS            = 147072,
     SPELL_PRIEST_GLYPH_OF_INSPIRED_HYMNS_VISUAL     = 147065,
     SPELL_PRIEST_GLYPH_OF_SHADOWY_FRIENDS           = 126745,
-    SPELL_PRIEST_GLYPH_OF_CONFESSION                = 126123
+    SPELL_PRIEST_GLYPH_OF_CONFESSION                = 126123,
+    SPELL_PRIEST_BODY_AND_SOUL_PASSIVE              = 64129,
+    SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081
 };
 
 // Power Word : Fortitude - 21562
@@ -666,7 +668,11 @@ class spell_pri_leap_of_faith : public SpellScript
 
     void HandleHit()
     {
-        GetHitUnit()->CastSpell(GetCaster(), PRIEST_LEAP_OF_FAITH_JUMP, true);
+        Unit* target = GetHitUnit();
+        target->CastSpell(GetCaster(), PRIEST_LEAP_OF_FAITH_JUMP, true);
+
+        if (AuraEffect const* bodyAndSoul = GetCaster()->GetAuraEffectOfRankedSpell(SPELL_PRIEST_BODY_AND_SOUL_PASSIVE, EFFECT_0))
+            target->CastCustomSpell(SPELL_PRIEST_BODY_AND_SOUL_SPEED, SPELLVALUE_BASE_POINT0, bodyAndSoul->GetAmount(), NULL, true);
     }
 
     void Register() override
@@ -1096,11 +1102,25 @@ class spell_pri_power_word_shield : public AuraScript
         }
     }
 
+    void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+    {
+        if (mode & AURA_EFFECT_HANDLE_REAL)
+        {
+            Unit* target = GetUnitOwner();
+            target->CastSpell(target, PRIEST_WEAKENED_SOUL, true);
+
+            if (Unit* caster = GetCaster())
+                if (AuraEffect const* bodyAndSoul = caster->GetAuraEffectOfRankedSpell(SPELL_PRIEST_BODY_AND_SOUL_PASSIVE, EFFECT_0))
+                    target->CastCustomSpell(SPELL_PRIEST_BODY_AND_SOUL_SPEED, SPELLVALUE_BASE_POINT0, bodyAndSoul->GetAmount(), NULL, true, NULL, aurEff);
+        }
+    }
+
     void Register() override
     {
         AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield::ReflectDamage, EFFECT_0);
         AfterEffectRemove += AuraEffectRemoveFn(spell_pri_power_word_shield::AfterRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
         AfterEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectApply += AuraEffectApplyFn(spell_pri_power_word_shield::HandleEffectApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 };
 
