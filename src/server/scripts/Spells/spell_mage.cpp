@@ -961,7 +961,7 @@ class spell_mage_mirror_image : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_mage_mirror_image::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_mage_mirror_image::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -2958,7 +2958,6 @@ class spell_mage_frostbolt : public SpellScript
     void Register() override
     {
         OnCheckCast += SpellCheckCastFn(spell_mage_frostbolt::CheckCast);
-        OnEffectLaunchTarget += SpellEffectFn(spell_mage_frostbolt::HandleDamage, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
         OnEffectLaunchTarget += SpellEffectFn(spell_mage_frostbolt::HandleDamage, EFFECT_ALL, SPELL_EFFECT_SCHOOL_DAMAGE);
         OnEffectHitTarget += SpellEffectFn(spell_mage_frostbolt::HandleHeal, EFFECT_ALL, SPELL_EFFECT_SCRIPT_EFFECT);
     }
