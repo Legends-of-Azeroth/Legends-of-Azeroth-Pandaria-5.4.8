@@ -58,6 +58,7 @@ class NullCreatureAI : public CreatureAI
         void UpdateAI(uint32) { }
         void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) { }
         void OnCharmed(bool /*apply*/) { }
+        void JustAppeared() override { }
 
         static int Permissible(const Creature*) { return PERMIT_BASE_IDLE;  }
 };

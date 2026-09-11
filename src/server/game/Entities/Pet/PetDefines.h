@@ -108,6 +108,9 @@ enum PetTameError
 
 #define PET_FOLLOW_DIST  1.0f
 #define PET_FOLLOW_ANGLE (M_PI/2)
+#define DEFAULT_FOLLOW_DISTANCE 2.5f
+#define DEFAULT_FOLLOW_DISTANCE_PET 3.0f
+#define DEFAULT_FOLLOW_ANGLE M_PI
 
 // Currently used only for the hunter's pet list
 // But it will be cool if I ever move all pets to the one loading to memory and avoid all asynchronous shit with DB

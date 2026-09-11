@@ -51,6 +51,7 @@ class PetAI : public CreatureAI
 
         void SpellRequiresMovement(Unit* target, Spell* spell) override;
         void OnPetCommand(CommandStates) override;
+        void JustAppeared() override { } // we will control following manually
 
     private:
         bool _needToStop(void);

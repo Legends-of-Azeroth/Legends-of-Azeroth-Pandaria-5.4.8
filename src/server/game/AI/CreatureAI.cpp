@@ -19,6 +19,9 @@
 #include "AreaBoundary.h"
 #include "CreatureAIImpl.h"
 #include "Creature.h"
+#include "DBCEnums.h"
+#include "PetDefines.h"
+#include "TemporarySummon.h"
 #include "World.h"
 #include "SpellMgr.h"
 #include "Vehicle.h"
@@ -31,9 +34,71 @@
 #include "CellImpl.h"
 #include "InstanceScript.h"
 
+namespace
+{
+bool ShouldFollowOnSpawn(SummonPropertiesEntry const* properties)
+{
+    if (!properties)
+        return false;
+
+    switch (properties->Category)
+    {
+        case SUMMON_CATEGORY_PET:
+            return true;
+        case SUMMON_CATEGORY_WILD:
+        case SUMMON_CATEGORY_ALLY:
+        case SUMMON_CATEGORY_UNK:
+            if (properties->Flags & SUMMON_PROP_FLAG_UNK10)
+                return true;
+
+            // Guides. They have their own movement
+            if (properties->Flags & SUMMON_PROP_FLAG_UNK14)
+                return false;
+
+            switch (static_cast<SummonType>(properties->Type))
+            {
+                case SUMMON_TYPE_PET:
+                case SUMMON_TYPE_GUARDIAN:
+                case SUMMON_TYPE_MINION:
+                case SUMMON_TYPE_MINIPET:
+                case SUMMON_TYPE_GUARDIAN2:
+                    return true;
+                default:
+                    return false;
+            }
+        default:
+            return false;
+    }
+}
+}
+
+void CreatureAI::JustAppeared()
+{
+    Reset();
+
+    if (!IsEngaged())
+    {
+        if (TempSummon* summon = me->ToTempSummon())
+        {
+            if (!summon->GetVehicle() && summon->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE && ShouldFollowOnSpawn(summon->m_Properties))
+            {
+                if (Unit* owner = summon->GetCharmerOrOwner())
+                {
+                    float followDist = DEFAULT_FOLLOW_DISTANCE_PET;
+                    if (summon->m_Properties->Slot == SUMMON_SLOT_QUEST || summon->m_Properties->Slot == SUMMON_SLOT_MINIPET)
+                        followDist = DEFAULT_FOLLOW_DISTANCE;
+
+                    summon->GetMotionMaster()->Clear();
+                    summon->GetMotionMaster()->MoveFollow(owner, followDist, DEFAULT_FOLLOW_ANGLE);
+                }
+            }
+        }
+    }
+}
+
 CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), _negateBoundary(false), m_MoveInLineOfSight_locked(false), m_canSeeEvenInPassiveMode(false), _isEngaged(false)
 { 
-
+ 
 }
 
 CreatureAI::~CreatureAI() 
