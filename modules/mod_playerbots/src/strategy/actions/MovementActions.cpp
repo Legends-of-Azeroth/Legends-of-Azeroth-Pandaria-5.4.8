@@ -1431,7 +1431,7 @@ bool TankFaceAction::Execute(Event event)
     float dist = std::max(bot->GetExactDist(target), bot->GetMeleeRange(target) / 2) - bot->GetCombatReach() - target->GetCombatReach();
     std::vector<Position> availablePos;
     float x, y, z;
-    target->GetNearPoint(bot, x, y, z, 0.0f, dist, goodAngle1);
+    target->GetNearPoint(bot, x, y, z, dist, goodAngle1);
     if (bot->GetMap()->CheckCollisionAndGetValidCoords(bot, bot->GetPositionX(), bot->GetPositionY(), bot->GetPositionZ(),
         x, y, z))
     {
@@ -1444,7 +1444,7 @@ bool TankFaceAction::Execute(Event event)
             availablePos.push_back(Position(x, y, z));
         }
     }
-    target->GetNearPoint(bot, x, y, z, 0.0f, dist, goodAngle2);
+    target->GetNearPoint(bot, x, y, z, dist, goodAngle2);
     if (bot->GetMap()->CheckCollisionAndGetValidCoords(bot, bot->GetPositionX(), bot->GetPositionY(), bot->GetPositionZ(),
         x, y, z))
     {

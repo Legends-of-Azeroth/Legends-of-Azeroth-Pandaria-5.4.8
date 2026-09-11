@@ -400,7 +400,7 @@ class npc_shockwave_stalker : public CreatureScript
                         float x, y, _x, _y, z = me->GetPositionZ();
                         summoner->GetPosition(_x, _y);
                         pos.Relocate(_x, _y, z);
-                        me->GetNearPoint2D(x, y, 40.0f, M_PI - me->GetAngle(_x, _y));
+                        me->GetNearPoint2D(nullptr, x, y, 40.0f, M_PI - me->GetAngle(_x, _y));
                         me->GetMotionMaster()->MovePoint(0, x, y, z);
                     }
             }
@@ -458,7 +458,7 @@ class npc_shockwave_stalker : public CreatureScript
                         {
                             float dist = me->GetDistance(pos);
                             float _x, _y, _z = me->GetPositionZ();
-                            me->GetNearPoint2D(_x, _y, dist - 4.0f, me->GetAngle(&pos));
+                            me->GetNearPoint2D(nullptr, _x, _y, dist - 4.0f, me->GetAngle(&pos));
                             me->CastSpell(_x, _y, _z, SPELL_SUMMON_SHOCKWAVE, true);
                         }
                     }

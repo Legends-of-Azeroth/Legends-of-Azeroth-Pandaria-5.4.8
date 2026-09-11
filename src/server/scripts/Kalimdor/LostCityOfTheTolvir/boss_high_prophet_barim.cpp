@@ -868,7 +868,7 @@ class spell_repentance_pull_player : public SpellScriptLoader
                 if (caster->GetDistance2d(_x, _y) < 9.0f)
                     return;
 
-                caster->GetNearPoint2D(x, y, frand(5.0f, 9.0f), caster->GetAngle(_x, _y));
+                caster->GetNearPoint2D(nullptr, x, y, frand(5.0f, 9.0f), caster->GetAngle(_x, _y));
                 float z = caster->GetMap()->GetHeight(x, y, MAX_HEIGHT);
                 float speedZ = (float)(GetSpellInfo()->Effects[effIndex].CalcValue() / 10);
                 float speedXY = (float)(GetSpellInfo()->Effects[effIndex].MiscValue / 10);

@@ -284,7 +284,7 @@ class npc_faction_champion_toc5 : public CreatureScript
                             else if (!GetRangedTarget(8.0f, 200.0f, me)) // all targets below 8 yd distance, try to get range
                             {
                                 float x, y, z;
-                                me->GetNearPoint(me, x, y, z, 1.0f, 12.0f, float(M_PI * 2 * rand_norm()));
+                                me->GetNearPoint(me, x, y, z, 12.0f, float(M_PI * 2 * rand_norm()));
                                 me->GetMotionMaster()->MovePoint(POINT_RANGE, x, y, z);
                             }
                             else if (me->GetVictim())
@@ -626,7 +626,7 @@ class boss_grand_champion_toc5 : public CreatureScript
                             else if (!GetRangedTarget(8.0f, 200.0f, me)) // all targets below 8 yd distance, try to get range
                             {
                                 float x, y, z;
-                                me->GetNearPoint(me, x, y, z, 1.0f, 12.0f, float(M_PI*2*rand_norm()));
+                                me->GetNearPoint(me, x, y, z, 12.0f, float(M_PI*2*rand_norm()));
                                 me->GetMotionMaster()->MovePoint(POINT_RANGE, x, y, z);
                             }
                             else if (me->GetVictim())

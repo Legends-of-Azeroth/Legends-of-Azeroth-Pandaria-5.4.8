@@ -1400,7 +1400,7 @@ class npc_vengeful_fleshreapert_icc : public CreatureScript
             void DoAction(int32 action) override
             {
                 float x, y;
-                me->GetNearPoint2D(x, y, frand(10.0f, 20.0f), me->GetOrientation());
+                me->GetNearPoint2D(nullptr, x, y, frand(10.0f, 20.0f), me->GetOrientation());
                 me->GetMotionMaster()->MovePoint(POINT_ALERT, x, y, me->GetPositionZ());
                 if (!action)
                     Talk(SAY_ALERT);

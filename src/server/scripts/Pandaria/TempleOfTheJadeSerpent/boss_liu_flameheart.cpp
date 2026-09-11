@@ -221,7 +221,7 @@ class boss_liu_flameheart : public CreatureScript
                                  {
                                      float x, y, z;
                                      z = me->GetPositionZ();
-                                     me->GetNearPoint2D(x, y, 7.5f, Position::NormalizeOrientation(wAngle + i * (M_PI / 2)));
+                                     me->GetNearPoint2D(nullptr, x, y, 7.5f, Position::NormalizeOrientation(wAngle + i * (M_PI / 2)));
                                      if (Creature* trigger = me->SummonCreature(NPC_TRIGGER_WAVE, x, y, z, me->GetAngle(x, y)))
                                          trigger->AI()->DoAction(ACTION_SERPENT);
                                   }
@@ -250,7 +250,7 @@ class boss_liu_flameheart : public CreatureScript
                                  {
                                      float x, y, z;
                                      z = me->GetPositionZ();
-                                     me->GetNearPoint2D(x, y, 7.5f, Position::NormalizeOrientation(wAngle + i * (M_PI / 2)));
+                                     me->GetNearPoint2D(nullptr, x, y, 7.5f, Position::NormalizeOrientation(wAngle + i * (M_PI / 2)));
                                      if (Creature* trigger = me->SummonCreature(NPC_TRIGGER_WAVE, x, y, z, me->GetAngle(x, y)))
                                          trigger->AI()->DoAction(ACTION_JADE);
                                  }

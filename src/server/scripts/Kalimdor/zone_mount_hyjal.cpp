@@ -478,7 +478,7 @@ class npc_flamewaker_sentinel : public CreatureScript
                                 if (Unit* bunny = GetClosestCreatureWithEntry(me, NPC_WAVE_GENESIS_BUNNY, 50.0f))
                                 {
                                     float x, y, z;
-                                    bunny->GetNearPoint(me, x, y, z, 0, 2.5f, bunny->GetAngle(me));
+                                    bunny->GetNearPoint(me, x, y, z, 2.5f, bunny->GetAngle(me));
                                     z += 5;
                                     me->UpdateAllowedPositionZ(x, y, z);
                                     me->SetWalk(true);

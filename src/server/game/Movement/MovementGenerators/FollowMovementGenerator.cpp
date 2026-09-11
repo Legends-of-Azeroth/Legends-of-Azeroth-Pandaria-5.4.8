@@ -135,7 +135,7 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
                     tAngle = _angle.LowerBound();
             }
 
-            target->GetNearPoint(owner, x, y, z, 0.0f, _range, target->ToAbsoluteAngle(tAngle));
+            target->GetNearPoint(owner, x, y, z, _range, target->ToAbsoluteAngle(tAngle));
 
             bool success = _path->CalculatePath(x, y, z, false);
             if (!success || (_path->GetPathType() & PATHFIND_NOPATH))
