@@ -1487,7 +1487,7 @@ ThreatRadius = 60
 #                     1.5 - (Enabled, 150%)
 #                     0   - (Disabled, 0%)
 
-Rate.Creature.Aggro = 0.5
+Rate.Creature.Aggro = 1
 
 #
 #    CreatureFamilyFleeAssistanceRadius

@@ -2002,10 +2002,35 @@ struct npc_mountain_horse_summoned : public ScriptedAI
     npc_mountain_horse_summoned(Creature* creature) : ScriptedAI(creature) { }
 
     EventMap events;
+    ObjectGuid followTargetGuid;
+
+    Unit* GetFollowTarget()
+    {
+        if (Unit* owner = me->GetCharmerOrOwner())
+        {
+            if (Unit* vehicle = owner->GetVehicleBase())
+            {
+                if (vehicle != me && vehicle->IsInWorld())
+                    return vehicle;
+            }
+            return owner;
+        }
+        return nullptr;
+    }
 
     void IsSummonedBy(Unit* summoner) override
     {
-        me->GetMotionMaster()->MoveFollow(summoner, 6.0f, 0);
+        if (!summoner)
+            return;
+
+        Unit* followTarget = summoner;
+        if (Unit* vehicle = summoner->GetVehicleBase())
+        {
+            if (vehicle != me && vehicle->IsInWorld())
+                followTarget = vehicle;
+        }
+        me->GetMotionMaster()->MoveFollow(followTarget, 6.0f, 0);
+        followTargetGuid = followTarget->GetGUID();
         me->CastSpell(summoner, SPELL_ROPE_CHANNEL, true);
         me->ClearUnitState(UNIT_STATE_CASTING);
         events.ScheduleEvent(EVENT_CHECK_LORNA, 2s);
@@ -2017,6 +2042,15 @@ struct npc_mountain_horse_summoned : public ScriptedAI
     void UpdateAI(uint32 diff) override
     {
         events.Update(diff);
+
+        if (Unit* followTarget = GetFollowTarget())
+        {
+            if (followTarget->IsInWorld() && followTargetGuid != followTarget->GetGUID())
+            {
+                me->GetMotionMaster()->MoveFollow(followTarget, 6.0f, 0);
+                followTargetGuid = followTarget->GetGUID();
+            }
+        }
 
         while (uint32 eventId = events.ExecuteEvent())
         {
@@ -2042,7 +2076,7 @@ struct npc_mountain_horse_summoned : public ScriptedAI
                 {
                     if (Unit* owner = me->GetCharmerOrOwner())
                     {
-                        if (!owner->IsAlive() || !owner->IsInWorld() || !owner->GetVehicleBase())
+                        if (!owner->IsAlive() || !owner->IsInWorld())
                             me->DespawnOrUnsummon(1);
 
                         events.CancelEvent(EVENT_CHECK_OWNER);
