@@ -77,7 +77,7 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium< Crea
         // now path movement implmementation
         void LoadPath(Creature*);
 
-        bool GetResetPosition(Creature*, float& x, float& y, float& z);
+        bool GetResetPosition(Unit*, float& x, float& y, float& z) override;
 
     private:
 
@@ -132,7 +132,7 @@ class FlightPathMovementGenerator : public MovementGeneratorMedium< Player, Flig
         void SkipCurrentNode() { ++i_currentNode; }
         void DoEventIfAny(Player* player, TaxiPathNodeEntry const& node, bool departure);
 
-        bool GetResetPosition(Player*, float& x, float& y, float& z);
+        bool GetResetPosition(Unit*, float& x, float& y, float& z) override;
 
         void InitEndGridInfo();
         void PreloadEndGrid();

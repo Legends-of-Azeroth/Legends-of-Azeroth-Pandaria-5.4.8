@@ -208,7 +208,7 @@ void WaypointMovementGenerator<Creature>::MovementInform(Creature* creature)
         creature->AI()->MovementInform(WAYPOINT_MOTION_TYPE, i_currentNode);
 }
 
-bool WaypointMovementGenerator<Creature>::GetResetPosition(Creature*, float& x, float& y, float& z)
+bool WaypointMovementGenerator<Creature>::GetResetPosition(Unit*, float& x, float& y, float& z)
 {
     // prevent a crash at empty waypoint path.
     if (!i_path || i_path->empty())
@@ -343,7 +343,7 @@ void FlightPathMovementGenerator::DoEventIfAny(Player* player, TaxiPathNodeEntry
     }
 }
 
-bool FlightPathMovementGenerator::GetResetPosition(Player*, float& x, float& y, float& z)
+bool FlightPathMovementGenerator::GetResetPosition(Unit*, float& x, float& y, float& z)
 {
     const TaxiPathNodeEntry& node = (*i_path)[i_currentNode];
     x = node.LocX; y = node.LocY; z = node.LocZ;
