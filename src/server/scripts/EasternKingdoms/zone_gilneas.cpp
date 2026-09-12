@@ -2006,7 +2006,11 @@ struct npc_mountain_horse_summoned : public ScriptedAI
 
     Unit* GetFollowTarget()
     {
-        if (Unit* owner = me->GetCharmerOrOwner())
+        Unit* owner = me->GetCharmerOrOwner();
+        if (!owner && me->ToTempSummon())
+            owner = me->ToTempSummon()->GetSummoner();
+
+        if (owner)
         {
             if (Unit* vehicle = owner->GetVehicleBase())
             {
@@ -2023,20 +2027,30 @@ struct npc_mountain_horse_summoned : public ScriptedAI
         if (!summoner)
             return;
 
-        Unit* followTarget = summoner;
-        if (Unit* vehicle = summoner->GetVehicleBase())
-        {
-            if (vehicle != me && vehicle->IsInWorld())
-                followTarget = vehicle;
-        }
+        Unit* followTarget = GetFollowTarget();
+        if (!followTarget)
+            followTarget = summoner;
+
         me->GetMotionMaster()->MoveFollow(followTarget, 6.0f, 0);
         followTargetGuid = followTarget->GetGUID();
-        me->CastSpell(summoner, SPELL_ROPE_CHANNEL, true);
-        me->ClearUnitState(UNIT_STATE_CASTING);
         events.ScheduleEvent(EVENT_CHECK_LORNA, 2s);
         events.ScheduleEvent(EVENT_CHECK_OWNER, 2s);
         me->SetWalk(false);
         me->SetSpeed(MOVE_RUN, 2.0f, true);
+    }
+
+    void JustAppeared() override
+    {
+        ScriptedAI::JustAppeared();
+
+        if (Unit* followTarget = GetFollowTarget())
+        {
+            if (followTarget->IsInWorld())
+            {
+                me->GetMotionMaster()->MoveFollow(followTarget, 6.0f, 0);
+                followTargetGuid = followTarget->GetGUID();
+            }
+        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -2045,7 +2059,7 @@ struct npc_mountain_horse_summoned : public ScriptedAI
 
         if (Unit* followTarget = GetFollowTarget())
         {
-            if (followTarget->IsInWorld() && followTargetGuid != followTarget->GetGUID())
+            if (followTarget->IsInWorld() && (followTargetGuid != followTarget->GetGUID() || me->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE))
             {
                 me->GetMotionMaster()->MoveFollow(followTarget, 6.0f, 0);
                 followTargetGuid = followTarget->GetGUID();
