@@ -16515,9 +16515,10 @@ void Player::CompleteQuest(uint32 quest_id, bool completely, bool fromCommand)
             if (qInfo->HasFlag(QUEST_FLAGS_TRACKING_EVENT))
                 RewardQuest(qInfo, 0, this, false);
             else
+            {
                 SendQuestComplete(qInfo);
-
-            sScriptMgr->OnPlayerQuestCompleted(this, qInfo);
+                SendQuestGiverStatusMultiple();
+            }
         }
     }
 }
@@ -16827,6 +16828,8 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
     sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, QUEST_STATUS_REWARDED);
     sScriptMgr->OnPlayerQuestRewarded(this, quest);
+
+    SendQuestGiverStatusMultiple();
 
     SetSaveTimer(1);
 
