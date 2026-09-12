@@ -2033,6 +2033,8 @@ struct npc_mountain_horse_summoned : public ScriptedAI
 
         me->GetMotionMaster()->MoveFollow(followTarget, 6.0f, 0);
         followTargetGuid = followTarget->GetGUID();
+        me->CastSpell(summoner, SPELL_ROPE_CHANNEL, true);
+        me->ClearUnitState(UNIT_STATE_CASTING);
         events.ScheduleEvent(EVENT_CHECK_LORNA, 2s);
         events.ScheduleEvent(EVENT_CHECK_OWNER, 2s);
         me->SetWalk(false);
