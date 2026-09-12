@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -70,12 +70,18 @@ void RotateMovementGenerator::Finalize(Unit* unit, bool, bool)
 bool DistractMovementGenerator::Initialize(Unit* owner)
 {
     owner->AddUnitState(UNIT_STATE_DISTRACTED);
+    if (!owner->IsStandState())
+        owner->SetStandState(UNIT_STAND_STATE_STAND);
+    m_originalOrientation = owner->GetOrientation();
+    owner->SetFacingTo(m_orientation);
     return true;
 }
 
-void DistractMovementGenerator::Finalize(Unit* owner, bool, bool)
+void DistractMovementGenerator::Finalize(Unit* owner, bool, bool movementInform)
 {
     owner->ClearUnitState(UNIT_STATE_DISTRACTED);
+    if (movementInform && owner->GetTypeId() == TYPEID_UNIT)
+        owner->SetFacingTo(m_originalOrientation);
 }
 
 bool DistractMovementGenerator::Update(Unit* owner, uint32 time_diff)
@@ -90,8 +96,8 @@ bool DistractMovementGenerator::Update(Unit* owner, uint32 time_diff)
     return true;
 }
 
-void AssistanceDistractMovementGenerator::Finalize(Unit* unit, bool, bool)
+void AssistanceDistractMovementGenerator::Finalize(Unit* unit, bool, bool movementInform)
 {
-    unit->ClearUnitState(UNIT_STATE_DISTRACTED);
+    DistractMovementGenerator::Finalize(unit, false, movementInform);
     unit->ToCreature()->SetReactState(REACT_AGGRESSIVE);
 }

@@ -185,7 +185,7 @@ class TC_GAME_API MotionMaster
         void MoveSeekAssistance(float x, float y, float z);
         void MoveSeekAssistanceDistract(uint32 timer);
         void MoveTaxiFlight(uint32 path, uint32 pathnode);
-        void MoveDistract(uint32 time);
+        void MoveDistract(uint32 time, float orientation);
         void MovePath(uint32 path_id, bool repeatable);
         void MoveSplinePath(const Position* path, uint32 count, bool fly = false, bool walk = false, float speed = 0.0f, bool cyclic = false, bool catmullrom = true, bool uncompressed = true);
         void MoveRotate(uint32 time, RotateDirection direction);

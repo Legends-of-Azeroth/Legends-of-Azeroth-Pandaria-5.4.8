@@ -917,7 +917,7 @@ void MotionMaster::MoveSeekAssistanceDistract(uint32 time)
     {
         TC_LOG_DEBUG("misc", "Creature (Entry: %u GUID: %u) is distracted after assistance call (Time: %u)",
             _owner->GetEntry(), _owner->GetGUID().GetCounter(), time);
-        Mutate(new AssistanceDistractMovementGenerator(time), MOTION_SLOT_ACTIVE);
+        Mutate(new AssistanceDistractMovementGenerator(time, _owner->GetOrientation()), MOTION_SLOT_ACTIVE);
     }
 }
 
@@ -973,7 +973,7 @@ void MotionMaster::MoveTaxiFlight(uint32 path, uint32 pathnode)
     }
 }
 
-void MotionMaster::MoveDistract(uint32 timer)
+void MotionMaster::MoveDistract(uint32 timer, float orientation)
 {
     if (GetMotionSlot(MOTION_SLOT_CONTROLLED) || GetMotionSlot(MOTION_SLOT_CRITICAL))
         return;
@@ -988,7 +988,7 @@ void MotionMaster::MoveDistract(uint32 timer)
             _owner->GetEntry(), _owner->GetGUID().GetCounter(), timer);
     }
 
-    DistractMovementGenerator* mgen = new DistractMovementGenerator(timer);
+    DistractMovementGenerator* mgen = new DistractMovementGenerator(timer, orientation);
     Mutate(mgen, MOTION_SLOT_CONTROLLED);
 }
 

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -54,7 +54,7 @@ class RotateMovementGenerator : public MovementGenerator
 class DistractMovementGenerator : public MovementGenerator
 {
     public:
-        explicit DistractMovementGenerator(uint32 timer) : m_timer(timer) { }
+        explicit DistractMovementGenerator(uint32 timer, float orientation) : m_timer(timer), m_orientation(orientation), m_originalOrientation(0.0f) { }
 
         bool Initialize(Unit*) override;
         bool Reset(Unit* owner) override { Initialize(owner); return true; }
@@ -63,6 +63,10 @@ class DistractMovementGenerator : public MovementGenerator
         void Finalize(Unit*, bool, bool) override;
         MovementGeneratorType GetMovementGeneratorType() const override { return DISTRACT_MOTION_TYPE; }
 
+    protected:
+        float m_orientation;
+        float m_originalOrientation;
+
     private:
         uint32 m_timer;
 };
@@ -70,8 +74,8 @@ class DistractMovementGenerator : public MovementGenerator
 class AssistanceDistractMovementGenerator : public DistractMovementGenerator
 {
     public:
-        explicit AssistanceDistractMovementGenerator(uint32 timer) :
-            DistractMovementGenerator(timer) { }
+        explicit AssistanceDistractMovementGenerator(uint32 timer, float orientation) :
+            DistractMovementGenerator(timer, orientation) { }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return ASSISTANCE_DISTRACT_MOTION_TYPE; }
         void Finalize(Unit*, bool, bool) override;

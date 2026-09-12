@@ -34,6 +34,28 @@
 #include "CellImpl.h"
 #include "InstanceScript.h"
 
+// Distract creature, if player gets too close while stealthed/prowling
+void CreatureAI::TriggerAlert(Unit const* who) const
+{
+    // If there's no target, or target isn't a player do nothing
+    if (!who || who->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    // If this unit isn't an NPC, is already distracted, is fighting, is confused, stunned or fleeing, do nothing
+    if (me->GetTypeId() != TYPEID_UNIT || IsEngaged() || me->HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_STUNNED | UNIT_STATE_FLEEING | UNIT_STATE_DISTRACTED))
+        return;
+
+    // Only alert for hostiles that can actually engage the target.
+    if (me->IsCivilian() || me->HasReactState(REACT_PASSIVE) || me->IsImmuneToPC() || !me->IsHostileTo(who) || !me->_IsTargetAcceptable(who))
+        return;
+
+    // Send alert sound (if any) for this creature
+    me->SendAIReaction(AI_REACTION_ALERT);
+
+    // Face the unit (stealthed player) and set distracted state for 5 seconds
+    me->GetMotionMaster()->MoveDistract(5 * IN_MILLISECONDS, me->GetAbsoluteAngle(who));
+}
+
 namespace
 {
 bool ShouldFollowOnSpawn(SummonPropertiesEntry const* properties)
@@ -74,22 +96,17 @@ bool ShouldFollowOnSpawn(SummonPropertiesEntry const* properties)
 
 void CreatureAI::JustAppeared()
 {
-    Reset();
-
     if (!IsEngaged())
     {
         if (TempSummon* summon = me->ToTempSummon())
         {
-            if (!summon->GetVehicle() && summon->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE && ShouldFollowOnSpawn(summon->m_Properties))
+            // Only apply this to specific types of summons
+            if (!summon->GetVehicle() && ShouldFollowOnSpawn(summon->m_Properties) && summon->CanFollowOwner())
             {
                 if (Unit* owner = summon->GetCharmerOrOwner())
                 {
-                    float followDist = DEFAULT_FOLLOW_DISTANCE_PET;
-                    if (summon->m_Properties->Slot == SUMMON_SLOT_QUEST || summon->m_Properties->Slot == SUMMON_SLOT_MINIPET)
-                        followDist = DEFAULT_FOLLOW_DISTANCE;
-
                     summon->GetMotionMaster()->Clear();
-                    summon->GetMotionMaster()->MoveFollow(owner, followDist, DEFAULT_FOLLOW_ANGLE);
+                    summon->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, summon->GetFollowAngle());
                 }
             }
         }

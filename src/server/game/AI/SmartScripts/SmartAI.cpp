@@ -588,6 +588,11 @@ bool SmartAI::AssistPlayerInCombat(Unit* who)
 
 void SmartAI::JustAppeared()
 {
+    CreatureAI::JustAppeared();
+
+    if (me->isDead())
+        return;
+
     mDespawnTime = 0;
     mDespawnState = 0;
     mEscortState = SMART_ESCORT_NONE;
