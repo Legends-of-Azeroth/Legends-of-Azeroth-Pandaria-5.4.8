@@ -7,3 +7,5 @@ build/
 .idea/
 /bin-clang
 /bin
+bin/
+obj/

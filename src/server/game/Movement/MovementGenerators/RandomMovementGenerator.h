@@ -32,7 +32,7 @@ class RandomMovementGenerator : public MovementGeneratorMedium< T, RandomMovemen
         bool DoReset(T*);
         bool DoUpdate(T*, const uint32);
         void DoDeactivate(T*) { }
-        bool GetResetPosition(T*, float& x, float& y, float& z);
+        bool GetResetPosition(Unit*, float& x, float& y, float& z) override;
         MovementGeneratorType GetMovementGeneratorType() const { return RANDOM_MOTION_TYPE; }
     private:
         TimeTrackerSmall i_nextMoveTime;
