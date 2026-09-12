@@ -41,6 +41,8 @@ namespace Connection_Patcher
                             patcher.Patch(Patches.Windows.x86.User, Patterns.Windows.x86.User);
                             patcher.Patch(Patches.Windows.x86.RaF, Patterns.Windows.x86.RaF);
                             patcher.Patch(Patches.Windows.x86.Rcv, Patterns.Windows.x86.Rcv);
+                            patcher.Patch(Patches.Windows.x86.LoginEvent1, Patterns.Windows.x86.LoginEvent1);
+                            patcher.Patch(Patches.Windows.x86.LoginEvent2, Patterns.Windows.x86.LoginEvent2);
 
                             patcher.Binary = patcher.Binary.Replace(".exe", "") + "_Patched.exe";
 
@@ -52,6 +54,8 @@ namespace Connection_Patcher
                             patcher.Patch(Patches.Windows.x64.User, Patterns.Windows.x64.User);
                             patcher.Patch(Patches.Windows.x64.RaF, Patterns.Windows.x64.RaF);
                             patcher.Patch(Patches.Windows.x64.Rcv, Patterns.Windows.x64.Rcv);
+                            patcher.Patch(Patches.Windows.x64.LoginEvent1, Patterns.Windows.x64.LoginEvent1);
+                            patcher.Patch(Patches.Windows.x64.LoginEvent2, Patterns.Windows.x64.LoginEvent2);
 
                             patcher.Binary = patcher.Binary.Replace(".exe", "") + "_Patched.exe";
 
