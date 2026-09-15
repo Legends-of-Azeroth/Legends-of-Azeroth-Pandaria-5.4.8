@@ -396,10 +396,13 @@ class boss_council_of_elders_baseAI : public ScriptedAI
         // Override JustEngagedWith to send the DoAction to the helper
         void JustEngagedWith(Unit* /*who*/) override 
         {
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+            if (instance)
+            {
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
-            if (Creature* pGarajal = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_COUNCIL_OF_ELDERS) : ObjectGuid::Empty))
-                pGarajal->AI()->DoAction(ACTION_FIGHT_BEGIN);
+                if (Creature* pGarajal = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_COUNCIL_OF_ELDERS)))
+                    pGarajal->AI()->DoAction(ACTION_FIGHT_BEGIN);
+            }
 
             Talk(TALK_AGGRO);
 
@@ -542,7 +545,8 @@ class boss_council_of_elders_baseAI : public ScriptedAI
     
         void JustDied(Unit* killer) override
         {
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+            if (instance)
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
             switch (me->GetEntry())
             {
@@ -1465,7 +1469,7 @@ class npc_garajal : public CreatureScript
 
             void BeginFight()
             {
-                if (instance && instance->GetBossState(DATA_COUNCIL_OF_ELDERS) == IN_PROGRESS)
+                if (!instance || instance->GetBossState(DATA_COUNCIL_OF_ELDERS) == IN_PROGRESS)
                     return;
 
                 m_uiDeadCouncillors = 0;

@@ -1027,12 +1027,15 @@ struct npc_wrathion_suen_celestial : public ScriptedAI
 
     void IsSummonedBy(Unit* summoner) override
     {
+        if (!summoner)
+            return;
+
         delay = 0;
         me->SetPhaseMask(4, true);
         me->ToTempSummon()->SetPrivateObjectOwner(summoner->GetGUID());
         ownerGUID = summoner->GetGUID();
 
-        if (summoner && summoner->ToPlayer())
+        if (summoner->ToPlayer())
             summoner->ToPlayer()->KilledMonsterCredit(NPC_XUEN_CREDIT);
 
         scheduler
@@ -1238,12 +1241,15 @@ struct npc_wrathion_chiji_celestial : public ScriptedAI
 
     void IsSummonedBy(Unit* summoner) override
     {
+        if (!summoner)
+            return;
+
         delay = 0;
         me->SetPhaseMask(4, true);
         me->ToTempSummon()->SetPrivateObjectOwner(summoner->GetGUID());
         ownerGUID = summoner->GetGUID();
 
-        if (summoner && summoner->ToPlayer())
+        if (summoner->ToPlayer())
             summoner->ToPlayer()->KilledMonsterCredit(NPC_CHIJI_CREDIT);
 
         scheduler
@@ -1402,12 +1408,15 @@ struct npc_wrathion_niuzao_celestial : public ScriptedAI
 
     void IsSummonedBy(Unit* summoner) override
     {
+        if (!summoner)
+            return;
+
         delay = 0;
         me->SetPhaseMask(4, true);
         me->ToTempSummon()->SetPrivateObjectOwner(summoner->GetGUID());
         ownerGUID = summoner->GetGUID();
 
-        if (summoner && summoner->ToPlayer())
+        if (summoner->ToPlayer())
             summoner->ToPlayer()->KilledMonsterCredit(NPC_NIUZAO_CREDIT);
 
         scheduler

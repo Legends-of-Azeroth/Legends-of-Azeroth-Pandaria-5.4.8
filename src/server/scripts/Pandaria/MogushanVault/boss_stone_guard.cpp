@@ -328,8 +328,7 @@ class boss_stone_guard_controller : public CreatureScript
                                         me->RemoveAllDynObjects();
 
                                         // Removing buff
-                                        if (instance)
-                                            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TILES_AURA_EFFECT);
+                                        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TILES_AURA_EFFECT);
 
                                         HandleResetTiles();
 
@@ -1216,9 +1215,16 @@ class spell_jasper_chains : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 Unit* target = GetTarget();
                 const SpellInfo* spell = GetSpellInfo();
+
+                if (!caster || !target || !spell)
+                {
+                    Remove();
+                    return;
+                }
+
                 Player* linkedPlayer = ObjectAccessor::GetPlayer(*target, playerLinkedGuid);
 
-                if (!caster || !target || !spell || !linkedPlayer || !linkedPlayer->IsAlive() || !linkedPlayer->HasAura(spell->Id))
+                if (!linkedPlayer || !linkedPlayer->IsAlive() || !linkedPlayer->HasAura(spell->Id))
                 {
                     Remove();
                     return;

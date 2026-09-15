@@ -1241,9 +1241,12 @@ class AreaTrigger_at_behind_tzu : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
         {
+            if (!player)
+                return false;
+
             if (InstanceScript* instance = player->GetInstanceScript())
             {
-                if (player && player->IsOnVehicle() && player->GetVehicleBase() && player->GetVehicleBase()->ToCreature())
+                if (player->IsOnVehicle() && player->GetVehicleBase() && player->GetVehicleBase()->ToCreature())
                 {
                     player->CastSpell(player->GetVehicleBase(), SPELL_KEG_DELIVERY_CREDIT, false);
 

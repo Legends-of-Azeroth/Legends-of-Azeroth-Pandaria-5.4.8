@@ -892,8 +892,7 @@ class npc_snowdrift_novice : public CreatureScript
                        if (referee->IsAIEnabled)
                             referee->AI()->DoAction(3); // ACTION_NOVICE_DEFEAT
 
-                    if (instance)
-                        instance->SetData(DATA_DEFEATED_NOVICE, 1);
+                    instance->SetData(DATA_DEFEATED_NOVICE, 1);
                 }
             }
 

@@ -2233,8 +2233,8 @@ class spell_norushen_lingering_corruption : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if([=](WorldObject* target) { return target->GetEntry() != NPC_SUN_TENDERHEART_GC && target->GetEntry() != NPC_LEVEN_DAWNBLADE_GC && target->GetEntry() != NPC_ROOK_STONETOE_GC 
-            || GetCaster() && GetCaster()->ToCreature() && target && target->ToPlayer() && GetCaster()->ToCreature()->AI()->GetGUID() != target->ToPlayer()->GetGUID(); });
+        targets.remove_if([=](WorldObject* target) { return !target || (target->GetEntry() != NPC_SUN_TENDERHEART_GC && target->GetEntry() != NPC_LEVEN_DAWNBLADE_GC && target->GetEntry() != NPC_ROOK_STONETOE_GC
+            || GetCaster() && GetCaster()->ToCreature() && target->ToPlayer() && GetCaster()->ToCreature()->AI()->GetGUID() != target->ToPlayer()->GetGUID()); });
 
         if (targets.size() > 1)
             Trinity::Containers::RandomResizeList(targets, 1);

@@ -3664,7 +3664,9 @@ class RitualLightningPredicate
     
         bool operator()(WorldObject* object)
         {
-            return object && object->ToPlayer() && _spell_id == SPELL_LONG_RANGE_RITUAL_LIGHTNING ? _caster->GetExactDist2d(object->ToPlayer()) < 30.0f : _caster->GetExactDist2d(object->ToPlayer()) > 30.0f;
+            if (!object || !object->ToPlayer())
+                return true;
+            return _spell_id == SPELL_LONG_RANGE_RITUAL_LIGHTNING ? _caster->GetExactDist2d(object->ToPlayer()) < 30.0f : _caster->GetExactDist2d(object->ToPlayer()) > 30.0f;
         }
     
     private:

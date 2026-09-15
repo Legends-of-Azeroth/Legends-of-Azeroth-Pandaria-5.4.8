@@ -217,7 +217,7 @@ void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 
 
     memberInfo->Rating += mod;
 
-    if (player && GetSlot() != PVP_SLOT_RATED_BG)
+    if (GetSlot() != PVP_SLOT_RATED_BG)
         player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING, memberInfo->Rating, GetTypeBySlot(memberInfo->Slot));
 
     if (memberInfo->Rating > memberInfo->SeasonBest)

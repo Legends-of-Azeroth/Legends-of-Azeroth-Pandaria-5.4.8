@@ -603,8 +603,7 @@ class boss_wavebinder_kardris : public CreatureScript
 
                 me->SetReactState(REACT_AGGRESSIVE);
 
-                if (instance)
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
                 me->ExitVehicle();
 

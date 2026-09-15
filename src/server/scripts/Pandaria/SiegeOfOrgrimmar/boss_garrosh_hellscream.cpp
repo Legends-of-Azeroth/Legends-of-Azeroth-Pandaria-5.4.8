@@ -3597,8 +3597,11 @@ class sat_garrosh_desecrated_weapon : public IAreaTriggerAura
 {
     bool CheckTriggering(WorldObject* triggering) override
     {
+        if (!triggering)
+            return false;
+
         if (Creature* garrosh = ObjectAccessor::GetCreature(*triggering, triggering->GetInstanceScript() ? triggering->GetInstanceScript()->GetGuidData(DATA_GARROSH_HELLSCREAM) : ObjectGuid::Empty))
-            return triggering && triggering->ToPlayer() && triggering->ToPlayer()->IsAlive() && !triggering->ToPlayer()->HasAura(SPELL_TOUCH_OH_YSHAARJ) && !triggering->ToPlayer()->HasAura(SPELL_TOUCH_OF_YSHAARJ_PLAYER_EFF) && !triggering->ToPlayer()->HasAura(SPELL_EMPOWERED_TOUCH_OF_YSHAARJ) && !triggering->ToPlayer()->HasAura(SPELL_EMP_TOUCH_OF_YSHAARJ_PLAYER_EFF) && !triggering->ToPlayer()->HasAura(SPELL_ENTER_REALM_OF_GARROSH) && !garrosh->AI()->GetData(TYPE_GARROSH_REALM); // prevent hit from AT if already in transition.
+            return triggering->ToPlayer() && triggering->ToPlayer()->IsAlive() && !triggering->ToPlayer()->HasAura(SPELL_TOUCH_OH_YSHAARJ) && !triggering->ToPlayer()->HasAura(SPELL_TOUCH_OF_YSHAARJ_PLAYER_EFF) && !triggering->ToPlayer()->HasAura(SPELL_EMPOWERED_TOUCH_OF_YSHAARJ) && !triggering->ToPlayer()->HasAura(SPELL_EMP_TOUCH_OF_YSHAARJ_PLAYER_EFF) && !triggering->ToPlayer()->HasAura(SPELL_ENTER_REALM_OF_GARROSH) && !garrosh->AI()->GetData(TYPE_GARROSH_REALM); // prevent hit from AT if already in transition.
 
         return false;
     }

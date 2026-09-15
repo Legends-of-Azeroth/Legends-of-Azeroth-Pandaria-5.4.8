@@ -401,11 +401,13 @@ class npc_raigonn_weak_spot : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 if (instance)
+                {
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     if (Creature* raigonn = Unit::GetCreature(*me, instance->GetGuidData(DATA_RAIGONN)))
                         if (raigonn->IsAIEnabled)
                             raigonn->AI()->DoAction(ACTION_WEAK_SPOT_DEAD);
+                }
             }
 
             // Just fucking bunch of hacks
