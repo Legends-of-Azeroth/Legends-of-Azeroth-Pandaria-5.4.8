@@ -51,8 +51,8 @@ public:
         static std::vector<ChatCommand> accountSetCommandTable =
         {
             { "addon",          &HandleAccountSetAddonCommand,    rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_ADDON,    Trinity::ChatCommands::Console::Yes },
-            { "sec",            SEC_ADMINISTRATOR,      true,  accountSetSecTable                   },
-            { "gmlevel",        SEC_GAMEMASTER,         true,  &HandleAccountSetGmLevelCommand,     },
+            { "sec", accountSetSecTable, rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC, Trinity::ChatCommands::Console::Yes },
+            { "gmlevel", &HandleAccountSetGmLevelCommand, rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_GMLEVEL, Trinity::ChatCommands::Console::Yes },
             { "password",       &HandleAccountSetPasswordCommand, rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD, Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> accountCommandTable =
@@ -61,11 +61,11 @@ public:
             { "create",         &HandleAccountCreateCommand,     rbac::RBAC_PERM_COMMAND_ACCOUNT_CREATE,     Trinity::ChatCommands::Console::Yes },
             { "delete",         &HandleAccountDeleteCommand,     rbac::RBAC_PERM_COMMAND_ACCOUNT_DELETE,     Trinity::ChatCommands::Console::Yes },
             { "email",          &HandleAccountEmailCommand,      rbac::RBAC_PERM_COMMAND_ACCOUNT_EMAIL,      Trinity::ChatCommands::Console::No },
-            { "onlinelist",     SEC_ADMINISTRATOR,      true,  &HandleAccountOnlineListCommand,     },
+            { "onlinelist", &HandleAccountOnlineListCommand, rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINELIST, Trinity::ChatCommands::Console::Yes },
             { "lock",           accountLockCommandTable,         rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK,       Trinity::ChatCommands::Console::No },
             { "set",            accountSetCommandTable,          rbac::RBAC_PERM_COMMAND_ACCOUNT_SET,        Trinity::ChatCommands::Console::Yes },
             { "password",       &HandleAccountPasswordCommand,   rbac::RBAC_PERM_COMMAND_ACCOUNT_PASSWORD,   Trinity::ChatCommands::Console::No },
-            { "boost",          SEC_ADMINISTRATOR,      true,  &HandleAccountBoostCommand,          },
+            { "boost", &HandleAccountBoostCommand, rbac::RBAC_PERM_COMMAND_ACCOUNT_BOOST, Trinity::ChatCommands::Console::Yes },
             { "",               &HandleAccountCommand,           rbac::RBAC_PERM_COMMAND_ACCOUNT,            Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> commandTable =

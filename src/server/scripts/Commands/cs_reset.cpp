@@ -48,15 +48,14 @@ public:
             { "stats",          &HandleResetStatsCommand,           rbac::RBAC_PERM_COMMAND_RESET_STATS,          Trinity::ChatCommands::Console::Yes },
             { "talents",        &HandleResetTalentsCommand,         rbac::RBAC_PERM_COMMAND_RESET_TALENTS,        Trinity::ChatCommands::Console::Yes },
             { "all",            &HandleResetAllCommand,             rbac::RBAC_PERM_COMMAND_RESET_ALL,            Trinity::ChatCommands::Console::Yes },
-            { "pvpstat",        SEC_GAMEMASTER,  false,  &HandleResetPvpStat                 },
+            { "pvpstat", &HandleResetPvpStat, rbac::RBAC_PERM_COMMAND_RESET_PVPSTAT, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> commandTable =
         {
             { "reset",          resetCommandTable,                  rbac::RBAC_PERM_COMMAND_RESET,                Trinity::ChatCommands::Console::Yes },
-            { "arena",          SEC_CONSOLE,    true,
-            {
-                { "disband",    SEC_CONSOLE,    true,   &HandleArenaDisband                 },
-            } },
+            { "arena", {
+                { "disband", &HandleArenaDisband, rbac::RBAC_PERM_COMMAND_ARENA_DISBAND, Trinity::ChatCommands::Console::Yes },
+            }, rbac::RBAC_PERM_COMMAND_ARENA, Trinity::ChatCommands::Console::Yes },
         };
         return commandTable;
     }

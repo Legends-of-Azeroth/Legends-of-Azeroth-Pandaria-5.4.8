@@ -78,7 +78,6 @@ class ChatHandler
         bool hasStringAbbr(const char* name, const char* part);
 
         bool IsConsole() const { return !m_session; }
-        bool HasLegacySecurity(AccountTypes sec) const { return !m_session || m_session->GetSecurity() >= sec; }
         virtual bool HasPermission(uint32 permission) const;
 
         virtual std::string GetNameLink() const { return GetNameLink(m_session->GetPlayer()); }

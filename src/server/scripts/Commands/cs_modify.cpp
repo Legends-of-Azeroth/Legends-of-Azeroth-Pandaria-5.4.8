@@ -61,7 +61,7 @@ public:
             { "money",      &HandleModifyMoneyCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_MONEY,      Trinity::ChatCommands::Console::No },
             { "mount",      &HandleModifyMountCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_MOUNT,      Trinity::ChatCommands::Console::No },
             { "phase",      &HandleModifyPhaseCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_PHASE,      Trinity::ChatCommands::Console::No },
-            { "phaseid",    SEC_GAMEMASTER, false,  &HandleModifyPhaseIDCommand,    },
+            { "phaseid", &HandleModifyPhaseIDCommand, rbac::RBAC_PERM_COMMAND_MODIFY_PHASEID, Trinity::ChatCommands::Console::No },
             { "rage",       &HandleModifyRageCommand,       rbac::RBAC_PERM_COMMAND_MODIFY_RAGE,       Trinity::ChatCommands::Console::No },
             { "reputation", &HandleModifyRepCommand,        rbac::RBAC_PERM_COMMAND_MODIFY_REPUTATION, Trinity::ChatCommands::Console::No },
             { "runicpower", &HandleModifyRunicPowerCommand, rbac::RBAC_PERM_COMMAND_MODIFY_RUNICPOWER, Trinity::ChatCommands::Console::No },

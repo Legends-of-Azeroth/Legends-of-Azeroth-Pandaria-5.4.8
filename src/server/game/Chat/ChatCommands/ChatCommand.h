@@ -64,8 +64,6 @@ namespace ChatCommands
     {
         rbac::RBACPermissions RequiredPermission = static_cast<rbac::RBACPermissions>(0);
         Console AllowConsole = Console::No;
-        AccountTypes LegacySecurity = SEC_PLAYER;
-        bool UseLegacySecurity = false;
     };
 
     class ChatCommandBuilder;
@@ -81,18 +79,10 @@ namespace ChatCommands
         std::variant<std::monostate, TrinityStrings, std::string> _help;
         ChatCommandTable _childCommands;
 
-        void SetLegacyPermission(AccountTypes security, bool allowConsole)
-        {
-            _permissions.LegacySecurity = security;
-            _permissions.AllowConsole = allowConsole ? Console::Yes : Console::No;
-            _permissions.UseLegacySecurity = true;
-        }
-
         void SetRbacPermission(rbac::RBACPermissions permission, Console allowConsole)
         {
             _permissions.RequiredPermission = permission;
             _permissions.AllowConsole = allowConsole;
-            _permissions.UseLegacySecurity = false;
         }
 
         void SetInvokerFromLegacyHandler(bool (*handler)(ChatHandler*, char const*))
@@ -124,45 +114,6 @@ namespace ChatCommands
         ChatCommandBuilder(ChatCommandBuilder const&) = default;
         ChatCommandBuilder& operator=(ChatCommandBuilder&&) = default;
         ChatCommandBuilder& operator=(ChatCommandBuilder const&) = default;
-
-        ChatCommandBuilder(char const* name, AccountTypes security, bool allowConsole, bool (*handler)(ChatHandler*, char const*))
-        {
-            _name = name ? name : "";
-            SetLegacyPermission(security, allowConsole);
-            SetInvokerFromLegacyHandler(handler);
-        }
-
-        ChatCommandBuilder(char const* name, AccountTypes security, bool allowConsole, bool (*handler)(ChatHandler*, char const*), std::string const& help)
-        {
-            _name = name ? name : "";
-            SetLegacyPermission(security, allowConsole);
-            SetInvokerFromLegacyHandler(handler);
-            SetHelp(help);
-        }
-
-        ChatCommandBuilder(char const* name, AccountTypes security, bool allowConsole, bool (*handler)(ChatHandler*, char const*), std::string const& help, ChatCommandTable const& childCommands)
-        {
-            _name = name ? name : "";
-            SetLegacyPermission(security, allowConsole);
-            SetInvokerFromLegacyHandler(handler);
-            SetHelp(help);
-            _childCommands = childCommands;
-        }
-
-        ChatCommandBuilder(char const* name, AccountTypes security, bool allowConsole, ChatCommandTable const& childCommands)
-        {
-            _name = name ? name : "";
-            SetLegacyPermission(security, allowConsole);
-            _childCommands = childCommands;
-        }
-
-        ChatCommandBuilder(char const* name, AccountTypes security, bool allowConsole, ChatCommandTable const& childCommands, std::string const& help)
-        {
-            _name = name ? name : "";
-            SetLegacyPermission(security, allowConsole);
-            SetHelp(help);
-            _childCommands = childCommands;
-        }
 
         ChatCommandBuilder(char const* name, bool (*handler)(ChatHandler*, char const*), rbac::RBACPermissions permission, Console allowConsole)
         {
@@ -275,12 +226,6 @@ namespace ChatCommands
         std::string const& GetName() const { return _name; }
         CommandMap const& GetSubCommands() const { return _subCommands; }
         CommandMap& GetSubCommands() { return _subCommands; }
-
-        void SetLegacySecurity(AccountTypes security)
-        {
-            if (_permissions.UseLegacySecurity)
-                _permissions.LegacySecurity = security;
-        }
 
         void SetHelpFromDatabase(std::string const& help)
         {

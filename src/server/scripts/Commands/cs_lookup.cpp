@@ -44,7 +44,7 @@ public:
             { "ip",         &HandleLookupPlayerIpCommand,       rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_IP,       Trinity::ChatCommands::Console::Yes },
             { "account",    &HandleLookupPlayerAccountCommand,  rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_ACCOUNT,  Trinity::ChatCommands::Console::Yes },
             { "email",      &HandleLookupPlayerEmailCommand,    rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_EMAIL,    Trinity::ChatCommands::Console::Yes },
-            { "hwid",       SEC_GAMEMASTER, true,   &HandleLookupPlayerHWIDCommand,     },
+            { "hwid", &HandleLookupPlayerHWIDCommand, rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_HWID, Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> lookupSpellCommandTable =

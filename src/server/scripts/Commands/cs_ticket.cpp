@@ -49,7 +49,7 @@ public:
             { "list",           &HandleTicketListCommand<BugTicket>,        rbac::RBAC_PERM_COMMAND_TICKET_BUG_LIST,      Trinity::ChatCommands::Console::Yes },
             { "unassign",       &HandleTicketUnAssignCommand<BugTicket>,    rbac::RBAC_PERM_COMMAND_TICKET_BUG_UNASSIGN,  Trinity::ChatCommands::Console::Yes },
             { "view",           &HandleTicketGetByIdCommand<BugTicket>,     rbac::RBAC_PERM_COMMAND_TICKET_BUG_VIEW,      Trinity::ChatCommands::Console::Yes },
-            { "reset",          SEC_GAMEMASTER, true,   &HandleTicketResetCommand<BugTicket>,       },
+            { "reset", &HandleTicketResetCommand<BugTicket>, rbac::RBAC_PERM_COMMAND_TICKET_BUG_RESET, Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> ticketResponseCommandTable =

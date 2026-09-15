@@ -67,7 +67,7 @@ public:
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "ahbot",          SEC_GAMEMASTER,  false, nullptr,    "", ahbotCommandTable },
+            { "ahbot", ahbotCommandTable, rbac::RBAC_PERM_COMMAND_AHBOT, Trinity::ChatCommands::Console::No },
         };
 
         return commandTable;

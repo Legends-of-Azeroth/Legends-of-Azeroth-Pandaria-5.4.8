@@ -59,70 +59,70 @@ public:
     {
         static std::vector<ChatCommand> badWordCommandTable =
         {
-            { "add",                SEC_ADMINISTRATOR,      true,  &HandleBadWordAddCommand, },
-            { "remove",             SEC_ADMINISTRATOR,      true,  &HandleBadWordRemoveCommand, },
-            { "list",               SEC_ADMINISTRATOR,      true,  &HandleBadWordListCommand, }
+            { "add", &HandleBadWordAddCommand, rbac::RBAC_PERM_COMMAND_WORDFILTER_BADWORD_ADD, Trinity::ChatCommands::Console::Yes },
+            { "remove", &HandleBadWordRemoveCommand, rbac::RBAC_PERM_COMMAND_WORDFILTER_BADWORD_REMOVE, Trinity::ChatCommands::Console::Yes },
+            { "list", &HandleBadWordListCommand, rbac::RBAC_PERM_COMMAND_WORDFILTER_BADWORD_LIST, Trinity::ChatCommands::Console::Yes }
         };
         static std::vector<ChatCommand> wordFilterCommandTable =
         {
-            { "badword",            SEC_ADMINISTRATOR,      true,  badWordCommandTable },
-            { "mod",                SEC_ADMINISTRATOR,      true,  &HandleWordFilterModCommand,}
+            { "badword", badWordCommandTable, rbac::RBAC_PERM_COMMAND_WORDFILTER_BADWORD, Trinity::ChatCommands::Console::Yes },
+            { "mod", &HandleWordFilterModCommand, rbac::RBAC_PERM_COMMAND_WORDFILTER_MOD, Trinity::ChatCommands::Console::Yes }
         };
 
         static std::vector<ChatCommand> toolCommandTable =
         {
-            { "move",           SEC_GAMEMASTER,     false, &HandleToolMoveCommand,              },
-            { "jump",           SEC_GAMEMASTER,     false, &HandleToolJumpCommand,              },
-            { "facing",         SEC_GAMEMASTER,     false, &HandleToolFacingCommand,            },
-            { "teleport",       SEC_GAMEMASTER,     false, &HandleToolTeleportCommand,          },
-            { "xy",             SEC_GAMEMASTER,     false, &HandleToolXYCommand,                },
-            { "xyz",            SEC_GAMEMASTER,     false, &HandleToolXYZCommand,               },
-            { "distance",       SEC_GAMEMASTER,     false, &HandleToolDistanceCommand,          },
-            { "angle",          SEC_GAMEMASTER,     false, &HandleToolAngleCommand,             },
-            { "neargo",         SEC_GAMEMASTER,     false, &HandleToolNearGOCommand,            },
-            { "spawncreature",  SEC_GAMEMASTER,     false, &HandleToolSpawnCreatureCommand,     },
-            { "spawngo",        SEC_GAMEMASTER,     false, &HandleToolSpawnGOCommand,           },
-            { "los",            SEC_GAMEMASTER,     false, &HandleToolLOSCommand,               },
-            { "mmaps",          SEC_GAMEMASTER,     false, &HandleToolMMapsCommand,             },
+            { "move", &HandleToolMoveCommand, rbac::RBAC_PERM_COMMAND_TOOL_MOVE, Trinity::ChatCommands::Console::No },
+            { "jump", &HandleToolJumpCommand, rbac::RBAC_PERM_COMMAND_TOOL_JUMP, Trinity::ChatCommands::Console::No },
+            { "facing", &HandleToolFacingCommand, rbac::RBAC_PERM_COMMAND_TOOL_FACING, Trinity::ChatCommands::Console::No },
+            { "teleport", &HandleToolTeleportCommand, rbac::RBAC_PERM_COMMAND_TOOL_TELEPORT, Trinity::ChatCommands::Console::No },
+            { "xy", &HandleToolXYCommand, rbac::RBAC_PERM_COMMAND_TOOL_XY, Trinity::ChatCommands::Console::No },
+            { "xyz", &HandleToolXYZCommand, rbac::RBAC_PERM_COMMAND_TOOL_XYZ, Trinity::ChatCommands::Console::No },
+            { "distance", &HandleToolDistanceCommand, rbac::RBAC_PERM_COMMAND_TOOL_DISTANCE, Trinity::ChatCommands::Console::No },
+            { "angle", &HandleToolAngleCommand, rbac::RBAC_PERM_COMMAND_TOOL_ANGLE, Trinity::ChatCommands::Console::No },
+            { "neargo", &HandleToolNearGOCommand, rbac::RBAC_PERM_COMMAND_TOOL_NEARGO, Trinity::ChatCommands::Console::No },
+            { "spawncreature", &HandleToolSpawnCreatureCommand, rbac::RBAC_PERM_COMMAND_TOOL_SPAWNCREATURE, Trinity::ChatCommands::Console::No },
+            { "spawngo", &HandleToolSpawnGOCommand, rbac::RBAC_PERM_COMMAND_TOOL_SPAWNGO, Trinity::ChatCommands::Console::No },
+            { "los", &HandleToolLOSCommand, rbac::RBAC_PERM_COMMAND_TOOL_LOS, Trinity::ChatCommands::Console::No },
+            { "mmaps", &HandleToolMMapsCommand, rbac::RBAC_PERM_COMMAND_TOOL_MMAPS, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> visualizeCommandTable =
         {
-            { "position",       SEC_ADMINISTRATOR,      false, &HandleVisualizePositionCommand,     },
-            { "combatreach",    SEC_ADMINISTRATOR,      false, &HandleVisualizeCombatReachCommand,  },
+            { "position", &HandleVisualizePositionCommand, rbac::RBAC_PERM_COMMAND_VISUALIZE_POSITION, Trinity::ChatCommands::Console::No },
+            { "combatreach", &HandleVisualizeCombatReachCommand, rbac::RBAC_PERM_COMMAND_VISUALIZE_COMBATREACH, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> bgCommandTable =
         {
             { "start",          &HandleBattlegroundStartCommand,     rbac::RBAC_PERM_COMMAND_BG_START,    Trinity::ChatCommands::Console::No },
-            { "regrated",       SEC_ADMINISTRATOR,  false,  &HandleBattlegroundRegRatedCommand  },
+            { "regrated", &HandleBattlegroundRegRatedCommand, rbac::RBAC_PERM_COMMAND_BG_REGRATED, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> visibilityCommandTable =
         {
-            { "active",         SEC_ADMINISTRATOR,  false,  &HandleVisibilityActiveCommand,      },
-            { "activego",       SEC_ADMINISTRATOR,  false,  &HandleVisibilityActiveGOCommand,    },
-            { "get",            SEC_ADMINISTRATOR,  false,  &HandleVisibilityGetCommand,         },
-            { "getgo",          SEC_ADMINISTRATOR,  false,  &HandleVisibilityGetGOCommand,       },
-            { "set",            SEC_ADMINISTRATOR,  false,  &HandleVisibilitySetCommand,         },
-            { "setgo",          SEC_ADMINISTRATOR,  false,  &HandleVisibilitySetGOCommand,       },
-            { "reload",         SEC_ADMINISTRATOR,  false,  &HandleVisibilityReloadCommand,      },
-            { "reloadgo",       SEC_ADMINISTRATOR,  false,  &HandleVisibilityReloadGOCommand,    },
-            { "reloadall",      SEC_ADMINISTRATOR,  true,   &HandleVisibilityReloadAllCommand,   },
-            { "stats",          SEC_ADMINISTRATOR,  false,  &HandleVisibilityStatsCommand,       },
-            { "update",         SEC_ADMINISTRATOR,  false,  &HandleVisibilityUpdateCommand,      },
+            { "active", &HandleVisibilityActiveCommand, rbac::RBAC_PERM_COMMAND_VISIBILITY_ACTIVE, Trinity::ChatCommands::Console::No },
+            { "activego", &HandleVisibilityActiveGOCommand, rbac::RBAC_PERM_COMMAND_VISIBILITY_ACTIVEGO, Trinity::ChatCommands::Console::No },
+            { "get", &HandleVisibilityGetCommand, rbac::RBAC_PERM_COMMAND_VISIBILITY_GET, Trinity::ChatCommands::Console::No },
+            { "getgo", &HandleVisibilityGetGOCommand, rbac::RBAC_PERM_COMMAND_VISIBILITY_GETGO, Trinity::ChatCommands::Console::No },
+            { "set", &HandleVisibilitySetCommand, rbac::RBAC_PERM_COMMAND_VISIBILITY_SET, Trinity::ChatCommands::Console::No },
+            { "setgo", &HandleVisibilitySetGOCommand, rbac::RBAC_PERM_COMMAND_VISIBILITY_SETGO, Trinity::ChatCommands::Console::No },
+            { "reload", &HandleVisibilityReloadCommand, rbac::RBAC_PERM_COMMAND_VISIBILITY_RELOAD, Trinity::ChatCommands::Console::No },
+            { "reloadgo", &HandleVisibilityReloadGOCommand, rbac::RBAC_PERM_COMMAND_VISIBILITY_RELOADGO, Trinity::ChatCommands::Console::No },
+            { "reloadall", &HandleVisibilityReloadAllCommand, rbac::RBAC_PERM_COMMAND_VISIBILITY_RELOADALL, Trinity::ChatCommands::Console::Yes },
+            { "stats", &HandleVisibilityStatsCommand, rbac::RBAC_PERM_COMMAND_VISIBILITY_STATS, Trinity::ChatCommands::Console::No },
+            { "update", &HandleVisibilityUpdateCommand, rbac::RBAC_PERM_COMMAND_VISIBILITY_UPDATE, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> mutelistCommandTable =
         {
-            { "account",        SEC_MODERATOR,  true,  HandleMuteListAccountCommand          },
-            { "character",      SEC_MODERATOR,  true,  HandleMuteListCharacterCommand        },
+            { "account", HandleMuteListAccountCommand, rbac::RBAC_PERM_COMMAND_MUTELIST_ACCOUNT, Trinity::ChatCommands::Console::Yes },
+            { "character", HandleMuteListCharacterCommand, rbac::RBAC_PERM_COMMAND_MUTELIST_CHARACTER, Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> replaceCommandTable =
         {
-            { "skill",          SEC_ADMINISTRATOR, true, HandleReplaceCommand                },
+            { "skill", HandleReplaceCommand, rbac::RBAC_PERM_COMMAND_REPLACE_SKILL, Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> commandTable =
         {
             { "additem",        &HandleAddItemCommand,      rbac::RBAC_PERM_COMMAND_ADDITEM,      Trinity::ChatCommands::Console::No },
             { "additemset",     &HandleAddItemSetCommand,   rbac::RBAC_PERM_COMMAND_ADDITEMSET,   Trinity::ChatCommands::Console::No },
-            { "goname",         SEC_GAMEMASTER,  false,  &HandleAppearCommand,       },
+            { "goname", &HandleAppearCommand, rbac::RBAC_PERM_COMMAND_GONAME, Trinity::ChatCommands::Console::No },
             { "appear",         &HandleAppearCommand,       rbac::RBAC_PERM_COMMAND_APPEAR,       Trinity::ChatCommands::Console::No },
             { "aura",           &HandleAuraCommand,         rbac::RBAC_PERM_COMMAND_AURA,         Trinity::ChatCommands::Console::No },
             { "bank",           &HandleBankCommand,         rbac::RBAC_PERM_COMMAND_BANK,         Trinity::ChatCommands::Console::No },
@@ -148,9 +148,9 @@ public:
             { "maxskill",       &HandleMaxSkillCommand,     rbac::RBAC_PERM_COMMAND_MAXSKILL,     Trinity::ChatCommands::Console::No },
             { "movegens",       &HandleMovegensCommand,     rbac::RBAC_PERM_COMMAND_MOVEGENS,     Trinity::ChatCommands::Console::No },
             { "mute",           &HandleMuteCommand,         rbac::RBAC_PERM_COMMAND_MUTE,         Trinity::ChatCommands::Console::Yes },
-            { "mutelist",       SEC_MODERATOR,  true,   mutelistCommandTable        },
+            { "mutelist", mutelistCommandTable, rbac::RBAC_PERM_COMMAND_MUTELIST, Trinity::ChatCommands::Console::Yes },
             { "neargrave",      &HandleNearGraveCommand,    rbac::RBAC_PERM_COMMAND_NEARGRAVE,    Trinity::ChatCommands::Console::No },
-            { "nearareatrigger",SEC_GAMEMASTER, false,  &HandleNearAreaTriggerCommand, },
+            { "nearareatrigger", &HandleNearAreaTriggerCommand, rbac::RBAC_PERM_COMMAND_NEARAREATRIGGER, Trinity::ChatCommands::Console::No },
             { "pinfo",          &HandlePInfoCommand,        rbac::RBAC_PERM_COMMAND_PINFO,        Trinity::ChatCommands::Console::Yes },
             { "playall",        &HandlePlayAllCommand,      rbac::RBAC_PERM_COMMAND_PLAYALL,      Trinity::ChatCommands::Console::No },
             { "possess",        &HandlePossessCommand,      rbac::RBAC_PERM_COMMAND_POSSESS,      Trinity::ChatCommands::Console::No },
@@ -162,7 +162,7 @@ public:
             { "save",           &HandleSaveCommand,         rbac::RBAC_PERM_COMMAND_SAVE,         Trinity::ChatCommands::Console::No },
             { "setskill",       &HandleSetSkillCommand,     rbac::RBAC_PERM_COMMAND_SETSKILL,     Trinity::ChatCommands::Console::No },
             { "showarea",       &HandleShowAreaCommand,     rbac::RBAC_PERM_COMMAND_SHOWAREA,     Trinity::ChatCommands::Console::No },
-            { "namego",         SEC_GAMEMASTER,  false,  &HandleSummonCommand,       },
+            { "namego", &HandleSummonCommand, rbac::RBAC_PERM_COMMAND_NAMEGO, Trinity::ChatCommands::Console::No },
             { "summon",         &HandleSummonCommand,       rbac::RBAC_PERM_COMMAND_SUMMON,       Trinity::ChatCommands::Console::No },
             { "unaura",         &HandleUnAuraCommand,       rbac::RBAC_PERM_COMMAND_UNAURA,       Trinity::ChatCommands::Console::No },
             { "unbindsight",    &HandleUnbindSightCommand,  rbac::RBAC_PERM_COMMAND_UNBINDSIGHT,  Trinity::ChatCommands::Console::No },
@@ -171,35 +171,31 @@ public:
             { "unpossess",      &HandleUnPossessCommand,    rbac::RBAC_PERM_COMMAND_UNPOSSESS,    Trinity::ChatCommands::Console::No },
             { "unstuck",        &HandleUnstuckCommand,      rbac::RBAC_PERM_COMMAND_UNSTUCK,      Trinity::ChatCommands::Console::Yes },
             { "wchange",        &HandleChangeWeather,       rbac::RBAC_PERM_COMMAND_WCHANGE,      Trinity::ChatCommands::Console::No },
-            { "tool",           SEC_GAMEMASTER, false,  toolCommandTable            },
-            { "visualize",      SEC_ADMINISTRATOR,  true,   visualizeCommandTable       },
-            { "itemspecs",      SEC_ADMINISTRATOR,  true,   &HandleItemSpecsCommand,    },
-            { "loot",           SEC_ADMINISTRATOR,  true,   
-            {
-                { "cooldown",   SEC_ADMINISTRATOR,  true,   &HandleLootCooldownCommand, },
-                { "show",       SEC_ADMINISTRATOR,  true, 
-                {
-                    { "personal",SEC_ADMINISTRATOR, true,   &HandleLootShowPersonalCommand, },
-                    { "bonus",  SEC_ADMINISTRATOR,  true,   &HandleLootShowBonusCommand,    },
-                } },
-                { "get",        SEC_ADMINISTRATOR,  false,
-                {
-                    { "personal",SEC_ADMINISTRATOR, true,   &HandleLootGetPersonalCommand,  },
-                    { "bonus",  SEC_ADMINISTRATOR,  true,   &HandleLootGetBonusCommand,     },
-                } },
-            } },
-            { "bg",             SEC_ADMINISTRATOR,  false,  bgCommandTable              },
-            { "itemdelete",     SEC_GAMEMASTER, true,   &HandleItemDeleteCommand    },
-            { "removeitem",     SEC_GAMEMASTER, false,  &HandleRemoveItemCommand    },
-            { "visibility",     SEC_ADMINISTRATOR,  true,   visibilityCommandTable      },
-            { "replace",        SEC_ADMINISTRATOR, true, replaceCommandTable        },
-            { "checkladder",    SEC_ADMINISTRATOR,  true,   &HandleCheckLadderCommand   },
-            { "wordfilter",         SEC_ADMINISTRATOR,      false, wordFilterCommandTable },
-            { "deleteditem",    SEC_ADMINISTRATOR,  true,
-            {
-                { "list",      SEC_ADMINISTRATOR,   true,   &HandleDeletedItemListCommand,    },
-                { "restore",   SEC_ADMINISTRATOR,   true,   &HandleDeletedItemRestoreCommand, },
-            } },
+            { "tool", toolCommandTable, rbac::RBAC_PERM_COMMAND_TOOL, Trinity::ChatCommands::Console::No },
+            { "visualize", visualizeCommandTable, rbac::RBAC_PERM_COMMAND_VISUALIZE, Trinity::ChatCommands::Console::Yes },
+            { "itemspecs", &HandleItemSpecsCommand, rbac::RBAC_PERM_COMMAND_ITEMSPECS, Trinity::ChatCommands::Console::Yes },
+            { "loot", {
+                { "cooldown", &HandleLootCooldownCommand, rbac::RBAC_PERM_COMMAND_LOOT_COOLDOWN, Trinity::ChatCommands::Console::Yes },
+                { "show", {
+                    { "personal", &HandleLootShowPersonalCommand, rbac::RBAC_PERM_COMMAND_LOOT_SHOW_PERSONAL, Trinity::ChatCommands::Console::Yes },
+                    { "bonus", &HandleLootShowBonusCommand, rbac::RBAC_PERM_COMMAND_LOOT_SHOW_BONUS, Trinity::ChatCommands::Console::Yes },
+                }, rbac::RBAC_PERM_COMMAND_LOOT_SHOW, Trinity::ChatCommands::Console::Yes },
+                { "get", {
+                    { "personal", &HandleLootGetPersonalCommand, rbac::RBAC_PERM_COMMAND_LOOT_GET_PERSONAL, Trinity::ChatCommands::Console::Yes },
+                    { "bonus", &HandleLootGetBonusCommand, rbac::RBAC_PERM_COMMAND_LOOT_GET_BONUS, Trinity::ChatCommands::Console::Yes },
+                }, rbac::RBAC_PERM_COMMAND_LOOT_GET, Trinity::ChatCommands::Console::No },
+            }, rbac::RBAC_PERM_COMMAND_LOOT, Trinity::ChatCommands::Console::Yes },
+            { "bg", bgCommandTable, rbac::RBAC_PERM_COMMAND_BG, Trinity::ChatCommands::Console::No },
+            { "itemdelete", &HandleItemDeleteCommand, rbac::RBAC_PERM_COMMAND_ITEMDELETE, Trinity::ChatCommands::Console::Yes },
+            { "removeitem", &HandleRemoveItemCommand, rbac::RBAC_PERM_COMMAND_REMOVEITEM, Trinity::ChatCommands::Console::No },
+            { "visibility", visibilityCommandTable, rbac::RBAC_PERM_COMMAND_VISIBILITY, Trinity::ChatCommands::Console::Yes },
+            { "replace", replaceCommandTable, rbac::RBAC_PERM_COMMAND_REPLACE, Trinity::ChatCommands::Console::Yes },
+            { "checkladder", &HandleCheckLadderCommand, rbac::RBAC_PERM_COMMAND_CHECKLADDER, Trinity::ChatCommands::Console::Yes },
+            { "wordfilter", wordFilterCommandTable, rbac::RBAC_PERM_COMMAND_WORDFILTER, Trinity::ChatCommands::Console::No },
+            { "deleteditem", {
+                { "list", &HandleDeletedItemListCommand, rbac::RBAC_PERM_COMMAND_DELETEDITEM_LIST, Trinity::ChatCommands::Console::Yes },
+                { "restore", &HandleDeletedItemRestoreCommand, rbac::RBAC_PERM_COMMAND_DELETEDITEM_RESTORE, Trinity::ChatCommands::Console::Yes },
+            }, rbac::RBAC_PERM_COMMAND_DELETEDITEM, Trinity::ChatCommands::Console::Yes },
         };
         return commandTable;
     }

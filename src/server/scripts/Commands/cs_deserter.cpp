@@ -58,12 +58,12 @@ public:
 
         static std::vector<ChatCommand> deserterCommandTable =
         {
-            { "instance",   SEC_GAMEMASTER, false,  deserterInstanceCommandTable    },
-            { "bg",         SEC_GAMEMASTER, false,  deserterBGCommandTable          },
+            { "instance", deserterInstanceCommandTable, rbac::RBAC_PERM_COMMAND_DESERTER_INSTANCE, Trinity::ChatCommands::Console::No },
+            { "bg", deserterBGCommandTable, rbac::RBAC_PERM_COMMAND_DESERTER_BG, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "deserter", SEC_GAMEMASTER,   false, deserterCommandTable             },
+            { "deserter", deserterCommandTable, rbac::RBAC_PERM_COMMAND_DESERTER, Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

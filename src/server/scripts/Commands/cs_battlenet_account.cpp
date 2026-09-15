@@ -37,11 +37,11 @@ public:
         static std::vector<ChatCommand> accountCommandTable =
         {
             { "create",            &HandleAccountCreateCommand,       rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_CREATE,         Trinity::ChatCommands::Console::Yes },
-            //{ "gameaccountcreate", SEC_ADMINISTRATOR, true,  &HandleGameAccountCreateCommand  },
+            //{ "gameaccountcreate", &HandleGameAccountCreateCommand, rbac::RBAC_PERM_COMMAND_BNETACCOUNT_GAMEACCOUNTCREATE, Trinity::ChatCommands::Console::Yes },
             { "set",               accountSetCommandTable,             rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_SET,            Trinity::ChatCommands::Console::Yes },
-            //{ "password",          SEC_ADMINISTRATOR, false, &HandleAccountPasswordCommand    },
-            //{ "link",              SEC_ADMINISTRATOR, true,  &HandleAccountLinkCommand        },
-            //{ "unlink",            SEC_ADMINISTRATOR, true,  &HandleAccountUnlinkCommand      },
+            //{ "password", &HandleAccountPasswordCommand, rbac::RBAC_PERM_COMMAND_BNETACCOUNT_PASSWORD, Trinity::ChatCommands::Console::No },
+            //{ "link", &HandleAccountLinkCommand, rbac::RBAC_PERM_COMMAND_BNETACCOUNT_LINK, Trinity::ChatCommands::Console::Yes },
+            //{ "unlink", &HandleAccountUnlinkCommand, rbac::RBAC_PERM_COMMAND_BNETACCOUNT_UNLINK, Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> commandTable =

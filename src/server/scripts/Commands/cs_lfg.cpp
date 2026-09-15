@@ -61,18 +61,17 @@ public:
             { "queue",      &HandleLfgQueueInfoCommand,     rbac::RBAC_PERM_COMMAND_LFG_QUEUE,   Trinity::ChatCommands::Console::No },
             { "clean",      &HandleLfgCleanCommand,         rbac::RBAC_PERM_COMMAND_LFG_CLEAN,   Trinity::ChatCommands::Console::No },
             { "options",    &HandleLfgOptionsCommand,       rbac::RBAC_PERM_COMMAND_LFG_OPTIONS, Trinity::ChatCommands::Console::No },
-            { "profiling",  SEC_ADMINISTRATOR,  true,   &HandleLfgProfilingCommand      },
-            { "bug",        SEC_ADMINISTRATOR,  false,  &HandleLfgBugCommand            },
-            { "flex",       SEC_ADMINISTRATOR,  false,
-            {
-                { "reg",    SEC_ADMINISTRATOR,  false,  &HandleLfgFlexRegCommand,       },
-                { "scale",  SEC_ADMINISTRATOR,  false,  &HandleLfgFlexScaleCommand,     },
-            } },
+            { "profiling", &HandleLfgProfilingCommand, rbac::RBAC_PERM_COMMAND_LFG_PROFILING, Trinity::ChatCommands::Console::Yes },
+            { "bug", &HandleLfgBugCommand, rbac::RBAC_PERM_COMMAND_LFG_BUG, Trinity::ChatCommands::Console::No },
+            { "flex", {
+                { "reg", &HandleLfgFlexRegCommand, rbac::RBAC_PERM_COMMAND_LFG_FLEX_REG, Trinity::ChatCommands::Console::No },
+                { "scale", &HandleLfgFlexScaleCommand, rbac::RBAC_PERM_COMMAND_LFG_FLEX_SCALE, Trinity::ChatCommands::Console::No },
+            }, rbac::RBAC_PERM_COMMAND_LFG_FLEX, Trinity::ChatCommands::Console::No },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "lfg",        SEC_ADMINISTRATOR,  false,  lfgCommandTable                 },
+            { "lfg", lfgCommandTable, rbac::RBAC_PERM_COMMAND_LFG, Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

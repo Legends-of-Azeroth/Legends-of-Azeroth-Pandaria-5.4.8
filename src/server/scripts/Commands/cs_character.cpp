@@ -55,26 +55,26 @@ public:
 
         static std::vector<ChatCommand> characterCommandTable =
         {
-            { "antierror",      SEC_GAMEMASTER, true,   &HandleAntierrorCommand,                },
+            { "antierror", &HandleAntierrorCommand, rbac::RBAC_PERM_COMMAND_CHARACTER_ANTIERROR, Trinity::ChatCommands::Console::Yes },
             { "customize",      &HandleCharacterCustomizeCommand,       rbac::RBAC_PERM_COMMAND_CHARACTER_CUSTOMIZE,       Trinity::ChatCommands::Console::Yes },
             { "changefaction",  &HandleCharacterChangeFactionCommand,   rbac::RBAC_PERM_COMMAND_CHARACTER_CHANGEFACTION,   Trinity::ChatCommands::Console::Yes },
-            { "changerace",     SEC_GAMEMASTER, true,   &HandleCharacterChangeRaceCommand,      },
-            { "deleted",        SEC_GAMEMASTER, true,   characterDeletedCommandTable            },
+            { "changerace", &HandleCharacterChangeRaceCommand, rbac::RBAC_PERM_COMMAND_CHARACTER_CHANGERACE, Trinity::ChatCommands::Console::Yes },
+            { "deleted", characterDeletedCommandTable, rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED, Trinity::ChatCommands::Console::Yes },
             { "erase",          &HandleCharacterEraseCommand,           rbac::RBAC_PERM_COMMAND_CHARACTER_ERASE,           Trinity::ChatCommands::Console::Yes },
             { "level",          &HandleCharacterLevelCommand,           rbac::RBAC_PERM_COMMAND_CHARACTER_LEVEL,           Trinity::ChatCommands::Console::Yes },
             { "rename",         &HandleCharacterRenameCommand,          rbac::RBAC_PERM_COMMAND_CHARACTER_RENAME,          Trinity::ChatCommands::Console::Yes },
             { "reputation",     &HandleCharacterReputationCommand,      rbac::RBAC_PERM_COMMAND_CHARACTER_REPUTATION,      Trinity::ChatCommands::Console::Yes },
             { "titles",         &HandleCharacterTitlesCommand,          rbac::RBAC_PERM_COMMAND_CHARACTER_TITLES,          Trinity::ChatCommands::Console::Yes },
-            { "changeclass",    SEC_GAMEMASTER, true,   &HandleCharacterChangeClassCommand      },
+            { "changeclass", &HandleCharacterChangeClassCommand, rbac::RBAC_PERM_COMMAND_CHARACTER_CHANGECLASS, Trinity::ChatCommands::Console::Yes },
             { "changeaccount",  &HandleChangeAccount,                   rbac::RBAC_PERM_COMMAND_CHARACTER_CHANGEACCOUNT,   Trinity::ChatCommands::Console::Yes },
-            { "boost",          SEC_ADMINISTRATOR,  true,   &HandleCharacterBoostCommand            },
+            { "boost", &HandleCharacterBoostCommand, rbac::RBAC_PERM_COMMAND_CHARACTER_BOOST, Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "character",      SEC_GAMEMASTER, true,   characterCommandTable                   },
+            { "character", characterCommandTable, rbac::RBAC_PERM_COMMAND_CHARACTER, Trinity::ChatCommands::Console::Yes },
             { "levelup",        &HandleLevelUpCommand,                  rbac::RBAC_PERM_COMMAND_LEVELUP,                  Trinity::ChatCommands::Console::No },
-            { "pdump",          SEC_GAMEMASTER, true,   pdumpCommandTable                       },
+            { "pdump", pdumpCommandTable, rbac::RBAC_PERM_COMMAND_PDUMP, Trinity::ChatCommands::Console::Yes },
         };
         return commandTable;
     }

@@ -48,7 +48,7 @@ public:
         static std::vector<ChatCommand> gobjectSetCommandTable =
         {
             { "phase",      &HandleGameObjectSetPhaseCommand,   rbac::RBAC_PERM_COMMAND_GOBJECT_SET_PHASE, Trinity::ChatCommands::Console::No },
-            { "phaseid",    SEC_GAMEMASTER, false,  &HandleGameObjectSetPhaseIDCommand, },
+            { "phaseid", &HandleGameObjectSetPhaseIDCommand, rbac::RBAC_PERM_COMMAND_GOBJECT_SET_PHASEID, Trinity::ChatCommands::Console::No },
             { "state",      &HandleGameObjectSetStateCommand,   rbac::RBAC_PERM_COMMAND_GOBJECT_SET_STATE, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> gobjectCommandTable =
@@ -61,12 +61,12 @@ public:
             { "target",     &HandleGameObjectTargetCommand,     rbac::RBAC_PERM_COMMAND_GOBJECT_TARGET,   Trinity::ChatCommands::Console::No },
             { "turn",       &HandleGameObjectTurnCommand,       rbac::RBAC_PERM_COMMAND_GOBJECT_TURN,     Trinity::ChatCommands::Console::No },
             { "add",        gobjectAddCommandTable,              rbac::RBAC_PERM_COMMAND_GOBJECT_ADD,      Trinity::ChatCommands::Console::No },
-            { "set",        SEC_GAMEMASTER, false,  gobjectSetCommandTable              },
+            { "set", gobjectSetCommandTable, rbac::RBAC_PERM_COMMAND_GOBJECT_SET, Trinity::ChatCommands::Console::No },
 
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "gobject",    SEC_GAMEMASTER, false,  gobjectCommandTable                 },
+            { "gobject", gobjectCommandTable, rbac::RBAC_PERM_COMMAND_GOBJECT, Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

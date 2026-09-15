@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -63,12 +63,12 @@ public:
         };
         static std::vector<ChatCommand> disableCommandTable =
         {
-            { "add",                  SEC_ADMINISTRATOR,  true,   addDisableCommandTable                        },
-            { "remove",               SEC_ADMINISTRATOR,  true,   removeDisableCommandTable                     },
+            { "add", addDisableCommandTable, rbac::RBAC_PERM_COMMAND_DISABLE_ADD, Trinity::ChatCommands::Console::Yes },
+            { "remove", removeDisableCommandTable, rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE, Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "disable",              SEC_ADMINISTRATOR,  false,  disableCommandTable                           },
+            { "disable", disableCommandTable, rbac::RBAC_PERM_COMMAND_DISABLE, Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

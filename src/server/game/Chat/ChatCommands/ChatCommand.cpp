@@ -82,7 +82,6 @@ namespace ChatCommands
         {
             Field* fields = result->Fetch();
             std::string name = fields[0].GetString();
-            uint32 security = fields[1].GetUInt8();
             std::string help = fields[2].GetString();
 
             std::vector<std::string> tokens = SplitBySpace(name);
@@ -103,7 +102,6 @@ namespace ChatCommands
 
                 if (i == tokens.size() - 1)
                 {
-                    it->second.SetLegacySecurity(AccountTypes(security));
                     it->second.SetHelpFromDatabase(help);
                 }
 
@@ -216,9 +214,6 @@ namespace ChatCommands
 
         if (who.IsConsole() && node._permissions.AllowConsole == Console::No)
             return false;
-
-        if (node._permissions.UseLegacySecurity)
-            return who.HasLegacySecurity(node._permissions.LegacySecurity);
 
         return who.HasPermission(static_cast<uint32>(node._permissions.RequiredPermission));
     }

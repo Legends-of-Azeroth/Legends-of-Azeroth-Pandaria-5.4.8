@@ -41,10 +41,10 @@ public:
         static std::vector<ChatCommand> learnAllMyCommandTable =
         {
             { "class",      &HandleLearnAllMyClassCommand,       rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_CLASS,     Trinity::ChatCommands::Console::No },
-            { "pettalents", SEC_GAMEMASTER, false, &HandleLearnAllMyPetTalentsCommand,  },
+            { "pettalents", &HandleLearnAllMyPetTalentsCommand, rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_PETTALENTS, Trinity::ChatCommands::Console::No },
             { "spells",     &HandleLearnAllMySpellsCommand,      rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_SPELLS,    Trinity::ChatCommands::Console::No },
-            { "talents",    SEC_GAMEMASTER, false, &HandleLearnAllMyTalentsCommand,     },
-            { "glyphs",     SEC_GAMEMASTER, false, &HandleLearnAllMyGlyphsCommand,      },
+            { "talents", &HandleLearnAllMyTalentsCommand, rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_TALENTS, Trinity::ChatCommands::Console::No },
+            { "glyphs", &HandleLearnAllMyGlyphsCommand, rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_GLYPHS, Trinity::ChatCommands::Console::No },
         };
 
         static std::vector<ChatCommand> learnAllCommandTable =
@@ -59,7 +59,7 @@ public:
 
         static std::vector<ChatCommand> learnCommandTable =
         {
-            { "all",        SEC_GAMEMASTER, false,  learnAllCommandTable                },
+            { "all", learnAllCommandTable, rbac::RBAC_PERM_COMMAND_LEARN_ALL, Trinity::ChatCommands::Console::No },
             { "",           &HandleLearnCommand,                rbac::RBAC_PERM_COMMAND_LEARN,                  Trinity::ChatCommands::Console::No },
         };
 

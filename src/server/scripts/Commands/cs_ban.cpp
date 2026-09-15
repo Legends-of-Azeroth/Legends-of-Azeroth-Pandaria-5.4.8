@@ -45,7 +45,7 @@ public:
             { "character",      &HandleUnBanCharacterCommand,       rbac::RBAC_PERM_COMMAND_UNBAN_CHARACTER,     Trinity::ChatCommands::Console::Yes },
             { "playeraccount",  &HandleUnBanAccountByCharCommand,   rbac::RBAC_PERM_COMMAND_UNBAN_PLAYERACCOUNT, Trinity::ChatCommands::Console::Yes },
             { "ip",             &HandleUnBanIPCommand,              rbac::RBAC_PERM_COMMAND_UNBAN_IP,            Trinity::ChatCommands::Console::Yes },
-            { "solo",           SEC_GAMEMASTER,  true,   &HandleUnBanSoloCommand             },
+            { "solo", &HandleUnBanSoloCommand, rbac::RBAC_PERM_COMMAND_UNBAN_SOLO, Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> banlistCommandTable =
         {
@@ -67,14 +67,14 @@ public:
             { "character",      &HandleBanCharacterCommand,         rbac::RBAC_PERM_COMMAND_BAN_CHARACTER,       Trinity::ChatCommands::Console::Yes },
             { "playeraccount",  &HandleBanAccountByCharCommand,     rbac::RBAC_PERM_COMMAND_BAN_PLAYERACCOUNT,   Trinity::ChatCommands::Console::Yes },
             { "ip",             &HandleBanIPCommand,                rbac::RBAC_PERM_COMMAND_BAN_IP,              Trinity::ChatCommands::Console::Yes },
-            { "solo",           SEC_GAMEMASTER,  true,   &HandleBanSoloCommand               },
+            { "solo", &HandleBanSoloCommand, rbac::RBAC_PERM_COMMAND_BAN_SOLO, Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "ban",            SEC_GAMEMASTER,  true,   banCommandTable                     },
-            { "baninfo",        SEC_GAMEMASTER,  true,   baninfoCommandTable                 },
-            { "banlist",        SEC_GAMEMASTER,  true,   banlistCommandTable                 },
-            { "unban",          SEC_GAMEMASTER,  true,   unbanCommandTable                   },
+            { "ban", banCommandTable, rbac::RBAC_PERM_COMMAND_BAN, Trinity::ChatCommands::Console::Yes },
+            { "baninfo", baninfoCommandTable, rbac::RBAC_PERM_COMMAND_BANINFO, Trinity::ChatCommands::Console::Yes },
+            { "banlist", banlistCommandTable, rbac::RBAC_PERM_COMMAND_BANLIST, Trinity::ChatCommands::Console::Yes },
+            { "unban", unbanCommandTable, rbac::RBAC_PERM_COMMAND_UNBAN, Trinity::ChatCommands::Console::Yes },
         };
         return commandTable;
     }

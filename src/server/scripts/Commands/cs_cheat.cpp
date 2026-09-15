@@ -50,7 +50,7 @@ public:
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "cheat",          SEC_GAMEMASTER,  false, cheatCommandTable                },
+            { "cheat", cheatCommandTable, rbac::RBAC_PERM_COMMAND_CHEAT, Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

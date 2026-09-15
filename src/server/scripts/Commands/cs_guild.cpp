@@ -45,7 +45,7 @@ public:
             { "invite",     &HandleGuildInviteCommand,      rbac::RBAC_PERM_COMMAND_GUILD_INVITE,  Trinity::ChatCommands::Console::Yes },
             { "uninvite",   &HandleGuildUninviteCommand,    rbac::RBAC_PERM_COMMAND_GUILD_UNINVITE, Trinity::ChatCommands::Console::Yes },
             { "rank",       &HandleGuildRankCommand,        rbac::RBAC_PERM_COMMAND_GUILD_RANK,    Trinity::ChatCommands::Console::Yes },
-            { "level",      SEC_ADMINISTRATOR,  true,   &HandleGuildLevelCommand,       },
+            { "level", &HandleGuildLevelCommand, rbac::RBAC_PERM_COMMAND_GUILD_LEVEL, Trinity::ChatCommands::Console::Yes },
             { "rename",     &HandleGuildRenameCommand,      rbac::RBAC_PERM_COMMAND_GUILD_RENAME,  Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> commandTable =

@@ -184,9 +184,9 @@ public:
             { "model",           &HandleNpcSetModelCommand,          rbac::RBAC_PERM_COMMAND_NPC_SET_MODEL,     Trinity::ChatCommands::Console::No },
             { "movetype",        &HandleNpcSetMoveTypeCommand,       rbac::RBAC_PERM_COMMAND_NPC_SET_MOVETYPE,  Trinity::ChatCommands::Console::No },
             { "phase",           &HandleNpcSetPhaseCommand,          rbac::RBAC_PERM_COMMAND_NPC_SET_PHASE,     Trinity::ChatCommands::Console::No },
-            { "phaseid",         SEC_ADMINISTRATOR,  false,  &HandleNpcSetPhaseIDCommand,        },
-            { "phasegroup",      SEC_ADMINISTRATOR,  false,  &HandleNpcSetPhaseGroup,            },
-            { "wanderdistance",  SEC_ADMINISTRATOR,  false,  &HandleNpcSetWanderDistanceCommand, },
+            { "phaseid", &HandleNpcSetPhaseIDCommand, rbac::RBAC_PERM_COMMAND_NPC_SET_PHASEID, Trinity::ChatCommands::Console::No },
+            { "phasegroup", &HandleNpcSetPhaseGroup, rbac::RBAC_PERM_COMMAND_NPC_SET_PHASEGROUP, Trinity::ChatCommands::Console::No },
+            { "wanderdistance", &HandleNpcSetWanderDistanceCommand, rbac::RBAC_PERM_COMMAND_NPC_SET_WANDERDISTANCE, Trinity::ChatCommands::Console::No },
             { "spawntime",       &HandleNpcSetSpawnTimeCommand,      rbac::RBAC_PERM_COMMAND_NPC_SET_SPAWNTIME, Trinity::ChatCommands::Console::No },
             { "data",            &HandleNpcSetDataCommand,           rbac::RBAC_PERM_COMMAND_NPC_SET_DATA,      Trinity::ChatCommands::Console::No },
         };
@@ -201,7 +201,7 @@ public:
             { "whisper",         &HandleNpcWhisperCommand,           rbac::RBAC_PERM_COMMAND_NPC_WHISPER,       Trinity::ChatCommands::Console::No },
             { "yell",            &HandleNpcYellCommand,              rbac::RBAC_PERM_COMMAND_NPC_YELL,          Trinity::ChatCommands::Console::No },
             { "tame",            &HandleNpcTameCommand,              rbac::RBAC_PERM_COMMAND_NPC_TAME,          Trinity::ChatCommands::Console::No },
-            { "scale",           SEC_ADMINISTRATOR,  false,  &HandleNpcScaleCommand,             },
+            { "scale", &HandleNpcScaleCommand, rbac::RBAC_PERM_COMMAND_NPC_SCALE, Trinity::ChatCommands::Console::No },
             { "add",             npcAddCommandTable,                  rbac::RBAC_PERM_COMMAND_NPC_ADD,           Trinity::ChatCommands::Console::No },
             { "delete",          npcDeleteCommandTable,               rbac::RBAC_PERM_COMMAND_NPC_DELETE,        Trinity::ChatCommands::Console::No },
             { "follow",          npcFollowCommandTable,               rbac::RBAC_PERM_COMMAND_NPC_FOLLOW,        Trinity::ChatCommands::Console::No },
@@ -210,7 +210,7 @@ public:
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "npc",             SEC_ADMINISTRATOR,  false,  npcCommandTable                     },
+            { "npc", npcCommandTable, rbac::RBAC_PERM_COMMAND_NPC, Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -47,7 +47,7 @@ public:
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "instance",   SEC_ADMINISTRATOR,  true,   instanceCommandTable                },
+            { "instance", instanceCommandTable, rbac::RBAC_PERM_COMMAND_INSTANCE, Trinity::ChatCommands::Console::Yes },
         };
 
         return commandTable;
