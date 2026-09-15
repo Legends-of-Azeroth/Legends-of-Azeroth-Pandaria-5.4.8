@@ -22,6 +22,7 @@
 #include "ObjectGuid.h"
 #include <atomic>
 
+#include "ChatCommand.h"
 #include "DBCStores.h"
 #include "ObjectMgr.h"
 #include "SharedDefines.h"
@@ -36,7 +37,6 @@ class AuraScript;
 class Battleground;
 class BattlegroundMap;
 class Channel;
-class ChatCommand;
 class Creature;
 class CreatureAI;
 class DynamicObject;
@@ -569,7 +569,7 @@ protected:
 public:
 
     // Should return a pointer to a valid command table (ChatCommand array) to be used by ChatHandler.
-    virtual std::vector<ChatCommand> GetCommands() const = 0;
+    virtual ChatCommandTable GetCommands() const = 0;
 };
 
 class WeatherScript : public ScriptObject, public UpdatableScript<Weather>
@@ -1129,7 +1129,7 @@ public: /* OutdoorPvPScript */
 
 public: /* CommandScript */
 
-    std::vector<ChatCommand> GetChatCommands();
+    ChatCommandTable GetChatCommands();
 
 public: /* WeatherScript */
 

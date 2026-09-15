@@ -42,16 +42,16 @@ public:
     {
         static std::vector<ChatCommand> gmCommandTable =
         {
-            { "chat",       SEC_MODERATOR,  false,  &HandleGMChatCommand,       },
-            { "fly",        SEC_GAMEMASTER,  false,  &HandleGMFlyCommand,        },
-            { "ingame",     SEC_PLAYER,     true,   &HandleGMListIngameCommand, },
-            { "list",       SEC_PLAYER,     true,   &HandleGMListFullCommand,   },
-            { "visible",    SEC_GAMEMASTER,  false,  &HandleGMVisibleCommand,    },
-            { "",           SEC_GAMEMASTER,  false,  &HandleGMCommand,           },
+            { "chat",       &HandleGMChatCommand,       rbac::RBAC_PERM_COMMAND_GM_CHAT,   Trinity::ChatCommands::Console::No },
+            { "fly",        &HandleGMFlyCommand,        rbac::RBAC_PERM_COMMAND_GM_FLY,    Trinity::ChatCommands::Console::No },
+            { "ingame",     &HandleGMListIngameCommand, rbac::RBAC_PERM_COMMAND_GM_INGAME, Trinity::ChatCommands::Console::Yes },
+            { "list",       &HandleGMListFullCommand,   rbac::RBAC_PERM_COMMAND_GM_LIST,   Trinity::ChatCommands::Console::Yes },
+            { "visible",    &HandleGMVisibleCommand,    rbac::RBAC_PERM_COMMAND_GM_VISIBLE, Trinity::ChatCommands::Console::No },
+            { "",           &HandleGMCommand,           rbac::RBAC_PERM_COMMAND_GM,        Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "gm",         SEC_GAMEMASTER,  false,  gmCommandTable              },
+            { "gm",         gmCommandTable,              rbac::RBAC_PERM_COMMAND_GM,        Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

@@ -40,12 +40,12 @@ public:
     {
         static std::vector<ChatCommand> listCommandTable =
         {
-            { "creature",   SEC_ADMINISTRATOR,  true,   &HandleListCreatureCommand, },
-            { "item",       SEC_ADMINISTRATOR,  true,   &HandleListItemCommand,     },
-            { "object",     SEC_ADMINISTRATOR,  true,   &HandleListObjectCommand,   },
-            { "auras",      SEC_ADMINISTRATOR,  false,  &HandleListAurasCommand,    },
-            { "mail",       SEC_ADMINISTRATOR,  true,   &HandleListMailCommand,     },
-            { "scenes",     SEC_ADMINISTRATOR,  false,  &HandleListScenesCommand,   },
+            { "creature",   &HandleListCreatureCommand, rbac::RBAC_PERM_COMMAND_LIST_CREATURE, Trinity::ChatCommands::Console::Yes },
+            { "item",       &HandleListItemCommand,     rbac::RBAC_PERM_COMMAND_LIST_ITEM,     Trinity::ChatCommands::Console::Yes },
+            { "object",     &HandleListObjectCommand,   rbac::RBAC_PERM_COMMAND_LIST_OBJECT,   Trinity::ChatCommands::Console::Yes },
+            { "auras",      &HandleListAurasCommand,    rbac::RBAC_PERM_COMMAND_LIST_AURAS,    Trinity::ChatCommands::Console::No },
+            { "mail",       &HandleListMailCommand,     rbac::RBAC_PERM_COMMAND_LIST_MAIL,     Trinity::ChatCommands::Console::Yes },
+            { "scenes",     &HandleListScenesCommand,   rbac::RBAC_PERM_COMMAND_LIST_SCENES,   Trinity::ChatCommands::Console::No },
             { "aggro",      SEC_ADMINISTRATOR,  false,  &HandleListAggroCommand,    },
             { "hostiles",   SEC_ADMINISTRATOR,  false,  &HandleListHostilesCommand, },
             { "threat",     SEC_ADMINISTRATOR,  false,  &HandleListThreatCommand,   },

@@ -26,11 +26,12 @@
 #include "Opcodes.h"
 #include "PacketLog.h"
 #include "Random.h"
-//#include "RBAC.h"
+#include "RBAC.h"
 #include "Realm.h"
 #include "ScriptMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+#include <functional>
 #include <memory>
 #include <zlib.h>
 //#include "ServerPktHeader.h"
@@ -980,31 +981,24 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     }
 
     _authed = true;
-    _worldSession = new WorldSession(account.Id, shared_from_this(), account.Security, account.Expansion, account.MuteTime, account.Locale, account.Recruiter, account.Flags, account.IsRecruiter, account.HasBoost);
+    _worldSession = new WorldSession(account.Id, authSession->Account, shared_from_this(), account.Security, account.Expansion, account.MuteTime, account.Locale, account.Recruiter, account.Flags, account.IsRecruiter, account.HasBoost);
     _worldSession->SetMute({ account.OnlineMuteTimer, account.MutedBy, account.MuteReason, account.MutedInPublicChannelsOnly });
     _worldSession->ReadAddonsInfo(authSession->addonsData);
-    sWorld->AddSession(_worldSession);
+    _queryProcessor.AddCallback(_worldSession->LoadPermissionsAsync().WithPreparedCallback(std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1)));
 
     // Initialize Warden system only if it is enabled by config
     if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
         _worldSession->InitWarden(&k, account.OS);
 
-    // Sleep this Network thread for
-    // uint32 sleepTime = sWorld->getIntConfig(CONFIG_SESSION_ADD_DELAY);
-    // std::this_thread::sleep_for(Microseconds(sleepTime));
-    
-
-    //_queryProcessor.AddCallback(_worldSession->LoadPermissionsAsync().WithPreparedCallback(std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1)));
-    
     AsyncRead();
 }
 
 void WorldSocket::LoadSessionPermissionsCallback(PreparedQueryResult result)
 {
     // RBAC must be loaded before adding session to check for skip queue permission
-    //_worldSession->GetRBACData()->LoadFromDBCallback(result);
+    _worldSession->GetRBACData()->LoadFromDBCallback(result);
 
-    //sWorld->AddSession(_worldSession);
+    sWorld->AddSession(_worldSession);
 }
 
 void WorldSocket::HandleAuthContinuedSession(WorldPacket& recvPacket)
@@ -1151,8 +1145,7 @@ bool WorldSocket::HandlePing(WorldPackets::Auth::Ping& ping)
             {
                 std::unique_lock<std::mutex> sessionGuard(_worldSessionLock);
 
-                //if (_worldSession && !_worldSession->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_OVERSPEED_PING))
-                if (_worldSession && _worldSession->GetSecurity() == SEC_PLAYER)
+                if (_worldSession && !_worldSession->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_OVERSPEED_PING))
                 {
                     TC_LOG_ERROR("network", "WorldSocket::HandlePing: %s kicked for over-speed pings (address: %s)",
                         _worldSession->GetPlayerInfo().c_str(), GetRemoteIpAddress().to_string().c_str());

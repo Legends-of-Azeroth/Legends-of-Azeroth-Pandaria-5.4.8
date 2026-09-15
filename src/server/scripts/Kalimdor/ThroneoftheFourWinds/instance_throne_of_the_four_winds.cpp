@@ -149,7 +149,7 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const override
             {
-                if (player && player->IsGameMaster())
+                if (_SkipCheckRequiredBosses(player))
                     return true;
 
                 if (bossId == DATA_ALAKIR)

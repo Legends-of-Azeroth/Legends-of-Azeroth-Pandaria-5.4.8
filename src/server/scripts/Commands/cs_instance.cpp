@@ -39,10 +39,10 @@ public:
     {
         static std::vector<ChatCommand> instanceCommandTable =
         {
-            { "listbinds",  SEC_ADMINISTRATOR,  false,  &HandleInstanceListBindsCommand,    },
-            { "unbind",     SEC_ADMINISTRATOR,  false,  &HandleInstanceUnbindCommand,       },
-            { "stats",      SEC_ADMINISTRATOR,  true,   &HandleInstanceStatsCommand,        },
-            { "savedata",   SEC_ADMINISTRATOR,  false,  &HandleInstanceSaveDataCommand,     },
+            { "listbinds",  &HandleInstanceListBindsCommand,    rbac::RBAC_PERM_COMMAND_INSTANCE_LISTBINDS,    Trinity::ChatCommands::Console::No  },
+            { "unbind",     &HandleInstanceUnbindCommand,       rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,       Trinity::ChatCommands::Console::No  },
+            { "stats",      &HandleInstanceStatsCommand,        rbac::RBAC_PERM_COMMAND_INSTANCE_STATS,        Trinity::ChatCommands::Console::Yes },
+            { "savedata",   &HandleInstanceSaveDataCommand,     rbac::RBAC_PERM_COMMAND_INSTANCE_SAVEDATA,     Trinity::ChatCommands::Console::No  },
         };
 
         static std::vector<ChatCommand> commandTable =

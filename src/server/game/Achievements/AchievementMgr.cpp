@@ -32,6 +32,7 @@
 #include "GuildMgr.h"
 #include "InstanceScript.h"
 #include "Language.h"
+#include "RBAC.h"
 #include "Map.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
@@ -524,7 +525,7 @@ void PlayerAchievementMgrBase::ResetAchievementCriteria(AchievementCriteriaTypes
     TC_LOG_DEBUG("achievement", "ResetAchievementCriteria(%u, " UI64FMTD ", " UI64FMTD ")", type, miscValue1, miscValue2);
 
     // disable for gamemasters with GM-mode enabled
-    if (GetOwner()->IsGameMaster())
+    if (GetOwner()->IsGameMaster() || GetOwner()->GetSession()->HasPermission(rbac::RBAC_PERM_CANNOT_EARN_ACHIEVEMENTS))
         return;
 
     for (auto&& criteria : sAchievementMgr->GetAchievementCriteriaByType(type, m_type))
@@ -1483,7 +1484,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
     }
 
     // disable for gamemasters with GM-mode enabled
-    if (referencePlayer->IsGameMaster())
+    if (referencePlayer->IsGameMaster() || referencePlayer->GetSession()->HasPermission(rbac::RBAC_PERM_CANNOT_EARN_ACHIEVEMENTS))
     {
         TC_LOG_DEBUG("achievement", "UpdateAchievementCriteria: [Player %s GM mode on] %s, %s (%u), " UI64FMTD ", " UI64FMTD ", " UI64FMTD,
             referencePlayer->GetName().c_str(), GetGUID().GetTypeName(), AchievementGlobalMgr::GetCriteriaTypeString(type), type, miscValue1, miscValue2, miscValue3);
@@ -1957,6 +1958,9 @@ bool AchievementMgr::CanCompleteCriteriaTree(CriteriaTreeNode const* tree, Playe
 
     if (achievement->Flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
     {
+        if (referencePlayer->GetSession()->HasPermission(rbac::RBAC_PERM_CANNOT_EARN_REALM_FIRST_ACHIEVEMENTS))
+            return false;
+
         // someone on this realm has already completed that achievement
         if (sAchievementMgr->IsRealmCompleted(achievement))
             return false;
@@ -2388,7 +2392,7 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement, P
     }
 
     // disable for gamemasters with GM-mode enabled
-    if (referencePlayer->IsGameMaster())
+    if (referencePlayer->IsGameMaster() || referencePlayer->GetSession()->HasPermission(rbac::RBAC_PERM_CANNOT_EARN_ACHIEVEMENTS))
         return;
 
     if (achievement->Flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(achievement->ID))

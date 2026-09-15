@@ -283,7 +283,7 @@ struct MuteInfo
 class TC_GAME_API WorldSession 
 {
     public:
-        WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, uint32 flags, bool isARecruiter, bool hasBoost, bool isBot = false);
+        WorldSession(uint32 id, std::string const& accountName, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, uint32 flags, bool isARecruiter, bool hasBoost, bool isBot = false);
         ~WorldSession();
 
         bool PlayerLoading() const { return m_playerLoading; }
@@ -321,6 +321,7 @@ class TC_GAME_API WorldSession
 
         AccountTypes GetSecurity() const { return _security; }
         uint32 GetAccountId() const { return _accountId; }
+        std::string const& GetAccountName() const { return _accountName; }
         Player* GetPlayer() const { return _player; }
         GameClient* GetGameClient() const { return _gameClient; }
         std::string const& GetPlayerName() const;
@@ -331,7 +332,12 @@ class TC_GAME_API WorldSession
 
         ObjectGuid GetGUID() const;
         uint32 GetGuidLow() const;
-        void SetSecurity(AccountTypes security) { _security = security; }
+
+        rbac::RBACData* GetRBACData() const { return _RBACData; }
+        bool HasPermission(uint32 permissionId);
+        void LoadPermissions();
+        QueryCallback LoadPermissionsAsync();
+        void InvalidateRBACData();
         std::string const& GetRemoteAddress() { return m_Address; }
         void SetPlayer(Player* player);
         uint8 Expansion() const { return m_expansion; }
@@ -785,6 +791,8 @@ class TC_GAME_API WorldSession
         void HandleAuctionPlaceBid(WorldPacket& recvData);
         void HandleAuctionListPendingSales(WorldPacket& recvData);
         void HandleReplicateItems(WorldPackets::AuctionHouse::AuctionReplicateItems& packet);
+
+        bool CanOpenMailBox(ObjectGuid guid);
 
         void HandleGetMailList(WorldPacket& recvData);
         void HandleSendMail(WorldPacket& recvData);
@@ -1272,6 +1280,8 @@ class TC_GAME_API WorldSession
 
         AccountTypes _security;
         uint32 _accountId;
+        std::string _accountName;
+        rbac::RBACData* _RBACData;
         uint8 m_expansion;
 
         CharacterBooster* m_charBooster;

@@ -94,7 +94,7 @@ public:
             { "los",            SEC_ADMINISTRATOR,  false,  &HandleDebugLoSCommand,                 },
             { "moveflags",      SEC_ADMINISTRATOR,  false,  &HandleDebugMoveflagsCommand,           },
             { "transport",      SEC_ADMINISTRATOR,  false,  &HandleDebugTransportCommand,           },
-            { "phase",          SEC_ADMINISTRATOR,  false,  &HandleDebugPhaseCommand,               },
+            { "phase",          &HandleDebugPhaseCommand,               rbac::RBAC_PERM_COMMAND_DEBUG_PHASE, Trinity::ChatCommands::Console::No },
             { "casterror",      SEC_ADMINISTRATOR,  false,  &HandleDebugCastErrorCommand,           },
             { "set",            SEC_ADMINISTRATOR,  false,  {
                 { "ap",         SEC_ADMINISTRATOR,  false,  &HandleDebugSetAttackPower              },
@@ -106,11 +106,11 @@ public:
             } },
             { "vignette",       SEC_ADMINISTRATOR,  false,  &HandleDebugVignette,                   },
             { "value",          SEC_ADMINISTRATOR,  true,   &HandleDebugValueCommand,               },
-            { "",               SEC_ADMINISTRATOR,  true,   &HandleDebugValueCommand,               },
+            { "",               &HandleDebugValueCommand,               rbac::RBAC_PERM_COMMAND_DEBUG,       Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "debug",          SEC_ADMINISTRATOR,  true,   debugCommandTable                       },
+            { "debug",          debugCommandTable,                       rbac::RBAC_PERM_COMMAND_DEBUG,       Trinity::ChatCommands::Console::Yes },
             { "wpgps",          SEC_ADMINISTRATOR,  false,  &HandleWPGPSCommand,                    },
         };
         return commandTable;

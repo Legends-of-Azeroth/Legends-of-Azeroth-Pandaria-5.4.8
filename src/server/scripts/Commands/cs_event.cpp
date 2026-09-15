@@ -37,10 +37,10 @@ public:
     {
         static std::vector<ChatCommand> eventCommandTable =
         {
-            { "activelist", SEC_GAMEMASTER, true,   &HandleEventActiveListCommand,  },
-            { "start",      SEC_GAMEMASTER, true,   &HandleEventStartCommand,       },
-            { "stop",       SEC_GAMEMASTER, true,   &HandleEventStopCommand,        },
-            { "",           SEC_GAMEMASTER, true,   &HandleEventInfoCommand,        },
+            { "activelist", &HandleEventActiveListCommand,  rbac::RBAC_PERM_COMMAND_EVENT_ACTIVELIST,  Trinity::ChatCommands::Console::Yes },
+            { "start",      &HandleEventStartCommand,       rbac::RBAC_PERM_COMMAND_EVENT_START,       Trinity::ChatCommands::Console::Yes },
+            { "stop",       &HandleEventStopCommand,        rbac::RBAC_PERM_COMMAND_EVENT_STOP,        Trinity::ChatCommands::Console::Yes },
+            { "",           SEC_GAMEMASTER, true,           &HandleEventInfoCommand,                   },
         };
         static std::vector<ChatCommand> commandTable =
         {

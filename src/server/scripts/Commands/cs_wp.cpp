@@ -38,17 +38,17 @@ public:
     {
         static std::vector<ChatCommand> wpCommandTable =
         {
-            { "add",    SEC_ADMINISTRATOR,  false,  &HandleWpAddCommand,    },
-            { "event",  SEC_ADMINISTRATOR,  false,  &HandleWpEventCommand,  },
-            { "load",   SEC_ADMINISTRATOR,  false,  &HandleWpLoadCommand,   },
-            { "modify", SEC_ADMINISTRATOR,  false,  &HandleWpModifyCommand, },
-            { "unload", SEC_ADMINISTRATOR,  false,  &HandleWpUnLoadCommand, },
-            { "reload", SEC_ADMINISTRATOR,  false,  &HandleWpReloadCommand, },
-            { "show",   SEC_ADMINISTRATOR,  false,  &HandleWpShowCommand,   },
+            { "add",    &HandleWpAddCommand,    rbac::RBAC_PERM_COMMAND_WP_ADD,    Trinity::ChatCommands::Console::No },
+            { "event",  &HandleWpEventCommand,  rbac::RBAC_PERM_COMMAND_WP_EVENT,  Trinity::ChatCommands::Console::No },
+            { "load",   &HandleWpLoadCommand,   rbac::RBAC_PERM_COMMAND_WP_LOAD,   Trinity::ChatCommands::Console::No },
+            { "modify", &HandleWpModifyCommand, rbac::RBAC_PERM_COMMAND_WP_MODIFY, Trinity::ChatCommands::Console::No },
+            { "unload", &HandleWpUnLoadCommand, rbac::RBAC_PERM_COMMAND_WP_UNLOAD, Trinity::ChatCommands::Console::No },
+            { "reload", &HandleWpReloadCommand, rbac::RBAC_PERM_COMMAND_WP_RELOAD, Trinity::ChatCommands::Console::No },
+            { "show",   &HandleWpShowCommand,   rbac::RBAC_PERM_COMMAND_WP_SHOW,   Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "wp",     SEC_ADMINISTRATOR,  false,  wpCommandTable          },
+            { "wp",     wpCommandTable,          rbac::RBAC_PERM_COMMAND_WP,        Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

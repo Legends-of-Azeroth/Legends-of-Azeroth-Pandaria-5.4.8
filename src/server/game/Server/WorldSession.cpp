@@ -26,6 +26,7 @@
 #include <cmath>
 #include "DatabaseEnv.h"
 #include "AccountMgr.h"
+#include "RBAC.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "WorldPacket.h"
@@ -104,7 +105,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, uint32 flags, bool isARecruiter, bool hasBoost, bool isBot):
+WorldSession::WorldSession(uint32 id, std::string const& accountName, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, uint32 flags, bool isARecruiter, bool hasBoost, bool isBot):
     m_muteTime(mute_time),
     m_timeOutTime(0),
     AntiDOS(this),
@@ -113,6 +114,8 @@ WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, Account
     m_Socket(sock),
     _security(sec),
     _accountId(id),
+    _accountName(accountName),
+    _RBACData(nullptr),
     m_expansion(expansion),
     m_charBooster(new CharacterBooster(this)),
     _warden(nullptr),
@@ -162,6 +165,7 @@ WorldSession::~WorldSession()
         m_Socket.reset();
     }
 
+    delete _RBACData;
     delete _warden;
     delete m_charBooster;
     delete _gameClient;
@@ -172,7 +176,55 @@ WorldSession::~WorldSession()
         delete packet;
 
     LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());     // One-time query
+}
 
+bool WorldSession::HasPermission(uint32 permissionId)
+{
+    if (!_RBACData)
+        LoadPermissions();
+
+    bool hasPermission = _RBACData->HasPermission(permissionId);
+    TC_LOG_DEBUG("rbac", "WorldSession::HasPermission [AccountId: %u, Name: %s, realmId: %d]",
+        _RBACData->GetId(), _RBACData->GetName().c_str(), int32(realm.Id.Realm));
+
+    return hasPermission;
+}
+
+void WorldSession::LoadPermissions()
+{
+    uint32 id = GetAccountId();
+    uint8 secLevel = GetSecurity();
+    std::string accountName = _accountName;
+    if (accountName.empty())
+        sAccountMgr->GetName(id, accountName);
+
+    _RBACData = new rbac::RBACData(id, accountName, realm.Id.Realm, secLevel);
+    _RBACData->LoadFromDB();
+}
+
+QueryCallback WorldSession::LoadPermissionsAsync()
+{
+    uint32 id = GetAccountId();
+    uint8 secLevel = GetSecurity();
+    std::string accountName = _accountName;
+    if (accountName.empty())
+        sAccountMgr->GetName(id, accountName);
+
+    TC_LOG_DEBUG("rbac", "WorldSession::LoadPermissions [AccountId: %u, Name: %s, realmId: %d, secLevel: %u]",
+        id, accountName.c_str(), int32(realm.Id.Realm), secLevel);
+
+    _RBACData = new rbac::RBACData(id, accountName, realm.Id.Realm, secLevel);
+    return _RBACData->LoadFromDBAsync();
+}
+
+void WorldSession::InvalidateRBACData()
+{
+    if (_RBACData)
+        TC_LOG_DEBUG("rbac", "WorldSession::InvalidateRBACData [AccountId: %u, Name: %s, realmId: %d]",
+            _RBACData->GetId(), _RBACData->GetName().c_str(), int32(realm.Id.Realm));
+
+    delete _RBACData;
+    _RBACData = nullptr;
 }
 
 std::string const & WorldSession::GetPlayerName() const
@@ -342,7 +394,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     ///- Before we process anything:
     /// If necessary, kick the player from the character select screen
-    if (IsConnectionIdle() && m_Socket)
+    if (IsConnectionIdle() && !HasPermission(rbac::RBAC_PERM_IGNORE_IDLE_CONNECTION) && m_Socket)
         m_Socket->CloseSocket();
 
     ///- Retrieve packets from the receive queue and call the appropriate handlers

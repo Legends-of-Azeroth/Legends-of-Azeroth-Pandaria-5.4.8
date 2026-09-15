@@ -92,7 +92,7 @@ public:
         };
         static std::vector<ChatCommand> bgCommandTable =
         {
-            { "start",          SEC_ADMINISTRATOR,  false,  &HandleBattlegroundStartCommand     },
+            { "start",          &HandleBattlegroundStartCommand,     rbac::RBAC_PERM_COMMAND_BG_START,    Trinity::ChatCommands::Console::No },
             { "regrated",       SEC_ADMINISTRATOR,  false,  &HandleBattlegroundRegRatedCommand  },
         };
         static std::vector<ChatCommand> visibilityCommandTable =
@@ -120,57 +120,57 @@ public:
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "additem",        SEC_GAMEMASTER, false,  &HandleAddItemCommand,      },
-            { "additemset",     SEC_GAMEMASTER, false,  &HandleAddItemSetCommand,   },
+            { "additem",        &HandleAddItemCommand,      rbac::RBAC_PERM_COMMAND_ADDITEM,      Trinity::ChatCommands::Console::No },
+            { "additemset",     &HandleAddItemSetCommand,   rbac::RBAC_PERM_COMMAND_ADDITEMSET,   Trinity::ChatCommands::Console::No },
             { "goname",         SEC_GAMEMASTER,  false,  &HandleAppearCommand,       },
-            { "appear",         SEC_GAMEMASTER,  false,  &HandleAppearCommand,       },
-            { "aura",           SEC_GAMEMASTER, false,  &HandleAuraCommand,         },
-            { "bank",           SEC_MODERATOR,  false,  &HandleBankCommand,         },
-            { "bindsight",      SEC_GAMEMASTER, false,  &HandleBindSightCommand,    },
-            { "combatstop",     SEC_GAMEMASTER, true,   &HandleCombatStopCommand,   },
-            { "cometome",       SEC_GAMEMASTER,  false,  &HandleComeToMeCommand,     },
-            { "commands",       SEC_PLAYER,     true,   &HandleCommandsCommand,     },
-            { "cooldown",       SEC_GAMEMASTER, false,  &HandleCooldownCommand,     },
-            { "damage",         SEC_GAMEMASTER, false,  &HandleDamageCommand,       },
-            { "dev",            SEC_ADMINISTRATOR,  false,  &HandleDevCommand,          },
-            { "die",            SEC_GAMEMASTER, false,  &HandleDieCommand,          },
-            { "dismount",       SEC_PLAYER,     false,  &HandleDismountCommand,     },
-            { "distance",       SEC_GAMEMASTER, false,  &HandleGetDistanceCommand,  },
-            { "freeze",         SEC_GAMEMASTER,  false,  &HandleFreezeCommand,       },
-            { "gps",            SEC_GAMEMASTER, false,  &HandleGPSCommand,          },
-            { "guid",           SEC_GAMEMASTER, false,  &HandleGUIDCommand,         },
-            { "help",           SEC_PLAYER,     true,   &HandleHelpCommand,         },
-            { "hidearea",       SEC_GAMEMASTER, false,  &HandleHideAreaCommand,     },
-            { "itemmove",       SEC_GAMEMASTER, false,  &HandleItemMoveCommand,     },
-            { "kick",           SEC_GAMEMASTER,  true,   &HandleKickPlayerCommand,   },
-            { "linkgrave",      SEC_GAMEMASTER, false,  &HandleLinkGraveCommand,    },
-            { "listfreeze",     SEC_GAMEMASTER, false,  &HandleListFreezeCommand,   },
-            { "maxskill",       SEC_GAMEMASTER, false,  &HandleMaxSkillCommand,     },
-            { "movegens",       SEC_GAMEMASTER, false,  &HandleMovegensCommand,     },
-            { "mute",           SEC_MODERATOR,  true,   &HandleMuteCommand,         },
+            { "appear",         &HandleAppearCommand,       rbac::RBAC_PERM_COMMAND_APPEAR,       Trinity::ChatCommands::Console::No },
+            { "aura",           &HandleAuraCommand,         rbac::RBAC_PERM_COMMAND_AURA,         Trinity::ChatCommands::Console::No },
+            { "bank",           &HandleBankCommand,         rbac::RBAC_PERM_COMMAND_BANK,         Trinity::ChatCommands::Console::No },
+            { "bindsight",      &HandleBindSightCommand,    rbac::RBAC_PERM_COMMAND_BINDSIGHT,    Trinity::ChatCommands::Console::No },
+            { "combatstop",     &HandleCombatStopCommand,   rbac::RBAC_PERM_COMMAND_COMBATSTOP,   Trinity::ChatCommands::Console::Yes },
+            { "cometome",       &HandleComeToMeCommand,     rbac::RBAC_PERM_COMMAND_COMETOME,     Trinity::ChatCommands::Console::No },
+            { "commands",       &HandleCommandsCommand,     rbac::RBAC_PERM_COMMAND_COMMANDS,     Trinity::ChatCommands::Console::Yes },
+            { "cooldown",       &HandleCooldownCommand,     rbac::RBAC_PERM_COMMAND_COOLDOWN,     Trinity::ChatCommands::Console::No },
+            { "damage",         &HandleDamageCommand,       rbac::RBAC_PERM_COMMAND_DAMAGE,       Trinity::ChatCommands::Console::No },
+            { "dev",            &HandleDevCommand,          rbac::RBAC_PERM_COMMAND_DEV,          Trinity::ChatCommands::Console::No },
+            { "die",            &HandleDieCommand,          rbac::RBAC_PERM_COMMAND_DIE,          Trinity::ChatCommands::Console::No },
+            { "dismount",       &HandleDismountCommand,     rbac::RBAC_PERM_COMMAND_DISMOUNT,     Trinity::ChatCommands::Console::No },
+            { "distance",       &HandleGetDistanceCommand,  rbac::RBAC_PERM_COMMAND_DISTANCE,     Trinity::ChatCommands::Console::No },
+            { "freeze",         &HandleFreezeCommand,       rbac::RBAC_PERM_COMMAND_FREEZE,       Trinity::ChatCommands::Console::No },
+            { "gps",            &HandleGPSCommand,          rbac::RBAC_PERM_COMMAND_GPS,          Trinity::ChatCommands::Console::No },
+            { "guid",           &HandleGUIDCommand,         rbac::RBAC_PERM_COMMAND_GUID,         Trinity::ChatCommands::Console::No },
+            { "help",           &HandleHelpCommand,         rbac::RBAC_PERM_COMMAND_HELP,         Trinity::ChatCommands::Console::Yes },
+            { "hidearea",       &HandleHideAreaCommand,     rbac::RBAC_PERM_COMMAND_HIDEAREA,     Trinity::ChatCommands::Console::No },
+            { "itemmove",       &HandleItemMoveCommand,     rbac::RBAC_PERM_COMMAND_ITEMMOVE,     Trinity::ChatCommands::Console::No },
+            { "kick",           &HandleKickPlayerCommand,   rbac::RBAC_PERM_COMMAND_KICK,         Trinity::ChatCommands::Console::Yes },
+            { "linkgrave",      &HandleLinkGraveCommand,    rbac::RBAC_PERM_COMMAND_LINKGRAVE,    Trinity::ChatCommands::Console::No },
+            { "listfreeze",     &HandleListFreezeCommand,   rbac::RBAC_PERM_COMMAND_LISTFREEZE,   Trinity::ChatCommands::Console::No },
+            { "maxskill",       &HandleMaxSkillCommand,     rbac::RBAC_PERM_COMMAND_MAXSKILL,     Trinity::ChatCommands::Console::No },
+            { "movegens",       &HandleMovegensCommand,     rbac::RBAC_PERM_COMMAND_MOVEGENS,     Trinity::ChatCommands::Console::No },
+            { "mute",           &HandleMuteCommand,         rbac::RBAC_PERM_COMMAND_MUTE,         Trinity::ChatCommands::Console::Yes },
             { "mutelist",       SEC_MODERATOR,  true,   mutelistCommandTable        },
-            { "neargrave",      SEC_GAMEMASTER, false,  &HandleNearGraveCommand,    },
+            { "neargrave",      &HandleNearGraveCommand,    rbac::RBAC_PERM_COMMAND_NEARGRAVE,    Trinity::ChatCommands::Console::No },
             { "nearareatrigger",SEC_GAMEMASTER, false,  &HandleNearAreaTriggerCommand, },
-            { "pinfo",          SEC_GAMEMASTER,  true,   &HandlePInfoCommand,        },
-            { "playall",        SEC_GAMEMASTER, false,  &HandlePlayAllCommand,      },
-            { "possess",        SEC_GAMEMASTER, false,  &HandlePossessCommand,      },
-            { "recall",         SEC_GAMEMASTER,  false,  &HandleRecallCommand,       },
-            { "repairitems",    SEC_GAMEMASTER, true,   &HandleRepairitemsCommand,  },
-            { "respawn",        SEC_GAMEMASTER, false,  &HandleRespawnCommand,      },
-            { "revive",         SEC_GAMEMASTER, true,   &HandleReviveCommand,       },
-            { "saveall",        SEC_GAMEMASTER, true,   &HandleSaveAllCommand,      },
-            { "save",           SEC_PLAYER,     false,  &HandleSaveCommand,         },
-            { "setskill",       SEC_GAMEMASTER, false,  &HandleSetSkillCommand,     },
-            { "showarea",       SEC_GAMEMASTER, false,  &HandleShowAreaCommand,     },
+            { "pinfo",          &HandlePInfoCommand,        rbac::RBAC_PERM_COMMAND_PINFO,        Trinity::ChatCommands::Console::Yes },
+            { "playall",        &HandlePlayAllCommand,      rbac::RBAC_PERM_COMMAND_PLAYALL,      Trinity::ChatCommands::Console::No },
+            { "possess",        &HandlePossessCommand,      rbac::RBAC_PERM_COMMAND_POSSESS,      Trinity::ChatCommands::Console::No },
+            { "recall",         &HandleRecallCommand,       rbac::RBAC_PERM_COMMAND_RECALL,       Trinity::ChatCommands::Console::No },
+            { "repairitems",    &HandleRepairitemsCommand,  rbac::RBAC_PERM_COMMAND_REPAIRITEMS,  Trinity::ChatCommands::Console::Yes },
+            { "respawn",        &HandleRespawnCommand,      rbac::RBAC_PERM_COMMAND_RESPAWN,      Trinity::ChatCommands::Console::No },
+            { "revive",         &HandleReviveCommand,       rbac::RBAC_PERM_COMMAND_REVIVE,       Trinity::ChatCommands::Console::Yes },
+            { "saveall",        &HandleSaveAllCommand,      rbac::RBAC_PERM_COMMAND_SAVEALL,      Trinity::ChatCommands::Console::Yes },
+            { "save",           &HandleSaveCommand,         rbac::RBAC_PERM_COMMAND_SAVE,         Trinity::ChatCommands::Console::No },
+            { "setskill",       &HandleSetSkillCommand,     rbac::RBAC_PERM_COMMAND_SETSKILL,     Trinity::ChatCommands::Console::No },
+            { "showarea",       &HandleShowAreaCommand,     rbac::RBAC_PERM_COMMAND_SHOWAREA,     Trinity::ChatCommands::Console::No },
             { "namego",         SEC_GAMEMASTER,  false,  &HandleSummonCommand,       },
-            { "summon",         SEC_GAMEMASTER,  false,  &HandleSummonCommand,       },
-            { "unaura",         SEC_GAMEMASTER, false,  &HandleUnAuraCommand,       },
-            { "unbindsight",    SEC_GAMEMASTER, false,  &HandleUnbindSightCommand,  },
-            { "unfreeze",       SEC_GAMEMASTER,  false,  &HandleUnFreezeCommand,     },
-            { "unmute",         SEC_MODERATOR,  true,   &HandleUnmuteCommand,       },
-            { "unpossess",      SEC_GAMEMASTER, false,  &HandleUnPossessCommand,    },
-            { "unstuck",        SEC_GAMEMASTER, true,   &HandleUnstuckCommand,      },
-            { "wchange",        SEC_GAMEMASTER, false,  &HandleChangeWeather,       },
+            { "summon",         &HandleSummonCommand,       rbac::RBAC_PERM_COMMAND_SUMMON,       Trinity::ChatCommands::Console::No },
+            { "unaura",         &HandleUnAuraCommand,       rbac::RBAC_PERM_COMMAND_UNAURA,       Trinity::ChatCommands::Console::No },
+            { "unbindsight",    &HandleUnbindSightCommand,  rbac::RBAC_PERM_COMMAND_UNBINDSIGHT,  Trinity::ChatCommands::Console::No },
+            { "unfreeze",       &HandleUnFreezeCommand,     rbac::RBAC_PERM_COMMAND_UNFREEZE,     Trinity::ChatCommands::Console::No },
+            { "unmute",         &HandleUnmuteCommand,       rbac::RBAC_PERM_COMMAND_UNMUTE,       Trinity::ChatCommands::Console::Yes },
+            { "unpossess",      &HandleUnPossessCommand,    rbac::RBAC_PERM_COMMAND_UNPOSSESS,    Trinity::ChatCommands::Console::No },
+            { "unstuck",        &HandleUnstuckCommand,      rbac::RBAC_PERM_COMMAND_UNSTUCK,      Trinity::ChatCommands::Console::Yes },
+            { "wchange",        &HandleChangeWeather,       rbac::RBAC_PERM_COMMAND_WCHANGE,      Trinity::ChatCommands::Console::No },
             { "tool",           SEC_GAMEMASTER, false,  toolCommandTable            },
             { "visualize",      SEC_ADMINISTRATOR,  true,   visualizeCommandTable       },
             { "itemspecs",      SEC_ADMINISTRATOR,  true,   &HandleItemSpecsCommand,    },
@@ -784,7 +784,7 @@ public:
 
     static bool HandleCommandsCommand(ChatHandler* handler, char const* /*args*/)
     {
-        handler->ShowHelpForCommand(handler->getCommandTable(), "");
+        Trinity::ChatCommands::SendCommandHelpFor(*handler, "");
         return true;
     }
 
@@ -880,12 +880,11 @@ public:
         char const* cmd = strtok((char*)args, " ");
         if (!cmd)
         {
-            handler->ShowHelpForCommand(handler->getCommandTable(), "help");
-            handler->ShowHelpForCommand(handler->getCommandTable(), "");
+            Trinity::ChatCommands::SendCommandHelpFor(*handler, "");
         }
         else
         {
-            if (!handler->ShowHelpForCommand(handler->getCommandTable(), cmd))
+            if (!Trinity::ChatCommands::SendCommandHelpFor(*handler, cmd))
                 handler->SendSysMessage(LANG_NO_HELP_CMD);
         }
 

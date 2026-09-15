@@ -31,14 +31,14 @@ public:
     {
         static std::vector<ChatCommand> accountSetCommandTable =
         {
-            { "password",          SEC_ADMINISTRATOR, true,  &HandleAccountSetPasswordCommand },
+            { "password",          &HandleAccountSetPasswordCommand,  rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_SET_PASSWORD,  Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> accountCommandTable =
         {
-            { "create",            SEC_ADMINISTRATOR, true,  &HandleAccountCreateCommand        },
+            { "create",            &HandleAccountCreateCommand,       rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_CREATE,         Trinity::ChatCommands::Console::Yes },
             //{ "gameaccountcreate", SEC_ADMINISTRATOR, true,  &HandleGameAccountCreateCommand  },
-            { "set",               SEC_ADMINISTRATOR, true,  accountSetCommandTable             },
+            { "set",               accountSetCommandTable,             rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_SET,            Trinity::ChatCommands::Console::Yes },
             //{ "password",          SEC_ADMINISTRATOR, false, &HandleAccountPasswordCommand    },
             //{ "link",              SEC_ADMINISTRATOR, true,  &HandleAccountLinkCommand        },
             //{ "unlink",            SEC_ADMINISTRATOR, true,  &HandleAccountUnlinkCommand      },
@@ -46,7 +46,7 @@ public:
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "bnetaccount",       SEC_ADMINISTRATOR, true,  accountCommandTable },
+            { "bnetaccount",       accountCommandTable,               rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT,                Trinity::ChatCommands::Console::Yes },
         };
 
         return commandTable;

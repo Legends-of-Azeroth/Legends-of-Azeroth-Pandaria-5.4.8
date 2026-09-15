@@ -1,25 +1,12 @@
--- --------------------------------------------------------
--- Host:                         127.0.0.1
--- Server version:               8.0.31 - MySQL Community Server - GPL
--- Server OS:                    Win64
--- HeidiSQL Version:             12.5.0.6677
--- --------------------------------------------------------
+-- RBAC command permissions seed (auth DB)
+-- Self-contained and idempotent: safe to apply on a fresh or existing install.
+-- Generated from 'rbac-for all.sql'. Permission `id` values match the rbac::RBAC_PERM_* enum.
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET NAMES utf8 */;
-/*!50503 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
-
--- Dumping database structure for auth
-CREATE DATABASE IF NOT EXISTS `auth` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `auth`;
 
--- Dumping structure for table auth.rbac_account_permissions
+-- --------------------------------------------------------
+-- Table structures (created if missing)
+-- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `rbac_account_permissions` (
   `accountId` int unsigned NOT NULL COMMENT 'Account id',
   `permissionId` int unsigned NOT NULL COMMENT 'Permission id',
@@ -31,9 +18,6 @@ CREATE TABLE IF NOT EXISTS `rbac_account_permissions` (
   CONSTRAINT `fk__rbac_account_roles__rbac_permissions` FOREIGN KEY (`permissionId`) REFERENCES `rbac_permissions` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='Account-Permission relation';
 
--- Dumping data for table auth.rbac_account_permissions: ~0 rows (approximately)
-
--- Dumping structure for table auth.rbac_default_permissions
 CREATE TABLE IF NOT EXISTS `rbac_default_permissions` (
   `secId` int unsigned NOT NULL COMMENT 'Security Level id',
   `permissionId` int unsigned NOT NULL COMMENT 'permission id',
@@ -43,14 +27,6 @@ CREATE TABLE IF NOT EXISTS `rbac_default_permissions` (
   CONSTRAINT `fk__rbac_default_permissions__rbac_permissions` FOREIGN KEY (`permissionId`) REFERENCES `rbac_permissions` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='Default permission to assign to different account security levels';
 
-DELETE FROM `rbac_default_permissions`;
-REPLACE INTO `rbac_default_permissions` (`secId`, `permissionId`, `realmId`) VALUES
-	(3, 192, -1),
-	(2, 193, -1),
-	(1, 194, -1),
-	(0, 195, -1);
-
--- Dumping structure for table auth.rbac_linked_permissions
 CREATE TABLE IF NOT EXISTS `rbac_linked_permissions` (
   `id` int unsigned NOT NULL COMMENT 'Permission id',
   `linkedId` int unsigned NOT NULL COMMENT 'Linked Permission id',
@@ -61,8 +37,22 @@ CREATE TABLE IF NOT EXISTS `rbac_linked_permissions` (
   CONSTRAINT `fk__rbac_linked_permissions__rbac_permissions2` FOREIGN KEY (`linkedId`) REFERENCES `rbac_permissions` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='Permission - Linked Permission relation';
 
-DELETE FROM `rbac_linked_permissions`;
-REPLACE INTO `rbac_linked_permissions` (`id`, `linkedId`) VALUES
+CREATE TABLE IF NOT EXISTS `rbac_permissions` (
+  `id` int unsigned NOT NULL DEFAULT '0' COMMENT 'Permission id',
+  `name` varchar(100) NOT NULL COMMENT 'Permission name',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='Permission List';
+
+-- --------------------------------------------------------
+-- Data
+-- --------------------------------------------------------
+INSERT INTO `rbac_default_permissions` (`secId`, `permissionId`, `realmId`) VALUES
+	(3, 192, -1),
+	(2, 193, -1),
+	(1, 194, -1),
+	(0, 195, -1) ON DUPLICATE KEY UPDATE `permissionId` = VALUES(`permissionId`);
+
+INSERT INTO `rbac_linked_permissions` (`id`, `linkedId`) VALUES
 	(192, 7),
 	(192, 21),
 	(192, 42),
@@ -761,17 +751,9 @@ REPLACE INTO `rbac_linked_permissions` (`id`, `linkedId`) VALUES
 	(199, 507),
 	(199, 525),
 	(199, 534),
-	(199, 797);
+	(199, 797) ON DUPLICATE KEY UPDATE `linkedId` = VALUES(`linkedId`);
 
--- Dumping structure for table auth.rbac_permissions
-CREATE TABLE IF NOT EXISTS `rbac_permissions` (
-  `id` int unsigned NOT NULL DEFAULT '0' COMMENT 'Permission id',
-  `name` varchar(100) NOT NULL COMMENT 'Permission name',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='Permission List';
-
-DELETE FROM `rbac_permissions`;
-REPLACE INTO `rbac_permissions` (`id`, `name`) VALUES
+INSERT INTO `rbac_permissions` (`id`, `name`) VALUES
 	(1,'Instant logout'),
 	(2,'Skip Queue'),
 	(3,'Join Normal Battleground'),
@@ -1488,16 +1470,13 @@ REPLACE INTO `rbac_permissions` (`id`, `name`) VALUES
 	(1041,'Command: .reload blackmarket_template'),
 	(1042,'Command: .account boost'),
 	(1043,'Command: .account boost add'),
-	(1044,'Command: .account boost delete');
+	(1044,'Command: .account boost delete') ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
--- Dumping structure for view auth.vw_rbac
+-- --------------------------------------------------------
+-- Admin view
+-- --------------------------------------------------------
 DROP VIEW IF EXISTS `vw_rbac`;
 CREATE ALGORITHM=UNDEFINED SQL SECURITY INVOKER VIEW `vw_rbac` AS
 select `t1`.`linkedId` AS `Permission ID`,`t1`.`id` AS `Permission Group`,ifnull(`t2`.`secId`,'linked') AS `Security Level`,`t3`.`name` AS `Permission`
 from ((`rbac_linked_permissions` `t1` left join `rbac_default_permissions` `t2` on((`t1`.`id` = `t2`.`permissionId`))) left join `rbac_permissions` `t3` on((`t1`.`linkedId` = `t3`.`id`)));
 
-/*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
-/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
-/*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;

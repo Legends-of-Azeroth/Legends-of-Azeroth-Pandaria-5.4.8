@@ -48,12 +48,12 @@ public:
             { "zonexy",     SEC_GAMEMASTER,  false,  &HandleGoZoneXYCommand,     },
             { "xyz",        SEC_GAMEMASTER,  false,  &HandleGoXYZCommand,        },
             { "ticket",     SEC_GAMEMASTER,  false,  &HandleGoTicketCommand,     },
-            { "",           SEC_GAMEMASTER,  false,  &HandleGoXYZCommand,        },
+            { "",           &HandleGoXYZCommand,        rbac::RBAC_PERM_COMMAND_GO,        Trinity::ChatCommands::Console::No },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "go",         SEC_GAMEMASTER,  false,  goCommandTable              },
+            { "go",         goCommandTable,              rbac::RBAC_PERM_COMMAND_GO,        Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

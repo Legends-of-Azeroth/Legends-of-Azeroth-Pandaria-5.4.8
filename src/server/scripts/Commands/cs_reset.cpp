@@ -41,18 +41,18 @@ public:
     {
         static std::vector<ChatCommand> resetCommandTable =
         {
-            { "achievements",   SEC_GAMEMASTER, true,   &HandleResetAchievementsCommand,    },
-            { "honor",          SEC_GAMEMASTER, true,   &HandleResetHonorCommand,           },
-            { "level",          SEC_GAMEMASTER, true,   &HandleResetLevelCommand,           },
-            { "spells",         SEC_GAMEMASTER, true,   &HandleResetSpellsCommand,          },
-            { "stats",          SEC_GAMEMASTER, true,   &HandleResetStatsCommand,           },
-            { "talents",        SEC_GAMEMASTER, true,   &HandleResetTalentsCommand,         },
-            { "all",            SEC_GAMEMASTER, true,   &HandleResetAllCommand,             },
+            { "achievements",   &HandleResetAchievementsCommand,    rbac::RBAC_PERM_COMMAND_RESET_ACHIEVEMENTS, Trinity::ChatCommands::Console::Yes },
+            { "honor",          &HandleResetHonorCommand,           rbac::RBAC_PERM_COMMAND_RESET_HONOR,          Trinity::ChatCommands::Console::Yes },
+            { "level",          &HandleResetLevelCommand,           rbac::RBAC_PERM_COMMAND_RESET_LEVEL,          Trinity::ChatCommands::Console::Yes },
+            { "spells",         &HandleResetSpellsCommand,          rbac::RBAC_PERM_COMMAND_RESET_SPELLS,         Trinity::ChatCommands::Console::Yes },
+            { "stats",          &HandleResetStatsCommand,           rbac::RBAC_PERM_COMMAND_RESET_STATS,          Trinity::ChatCommands::Console::Yes },
+            { "talents",        &HandleResetTalentsCommand,         rbac::RBAC_PERM_COMMAND_RESET_TALENTS,        Trinity::ChatCommands::Console::Yes },
+            { "all",            &HandleResetAllCommand,             rbac::RBAC_PERM_COMMAND_RESET_ALL,            Trinity::ChatCommands::Console::Yes },
             { "pvpstat",        SEC_GAMEMASTER,  false,  &HandleResetPvpStat                 },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "reset",          SEC_GAMEMASTER, true,   resetCommandTable },
+            { "reset",          resetCommandTable,                  rbac::RBAC_PERM_COMMAND_RESET,                Trinity::ChatCommands::Console::Yes },
             { "arena",          SEC_CONSOLE,    true,
             {
                 { "disband",    SEC_CONSOLE,    true,   &HandleArenaDisband                 },

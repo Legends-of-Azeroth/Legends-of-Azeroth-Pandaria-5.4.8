@@ -31,14 +31,14 @@ public:
     {
         static std::vector<ChatCommand> petCommandTable =
         {
-            { "create",     SEC_ADMINISTRATOR,  false,  &HandlePetCreateCommand,    },
-            { "learn",      SEC_ADMINISTRATOR,  false,  &HandlePetLearnCommand,     },
-            { "unlearn",    SEC_ADMINISTRATOR,  false,  &HandlePetUnlearnCommand,   },
+            { "create",     &HandlePetCreateCommand,    rbac::RBAC_PERM_COMMAND_PET_CREATE,  Trinity::ChatCommands::Console::No },
+            { "learn",      &HandlePetLearnCommand,     rbac::RBAC_PERM_COMMAND_PET_LEARN,   Trinity::ChatCommands::Console::No },
+            { "unlearn",    &HandlePetUnlearnCommand,   rbac::RBAC_PERM_COMMAND_PET_UNLEARN, Trinity::ChatCommands::Console::No },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "pet",        SEC_ADMINISTRATOR,  false,  petCommandTable             },
+            { "pet",        petCommandTable,             rbac::RBAC_PERM_COMMAND_PET,         Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

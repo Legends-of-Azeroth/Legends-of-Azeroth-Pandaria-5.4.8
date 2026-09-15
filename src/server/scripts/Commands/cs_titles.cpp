@@ -37,18 +37,18 @@ public:
     {
         static std::vector<ChatCommand> titlesSetCommandTable =
         {
-            { "mask",       SEC_ADMINISTRATOR,  false,  &HandleTitlesSetMaskCommand,    },
+            { "mask",       &HandleTitlesSetMaskCommand,    rbac::RBAC_PERM_COMMAND_TITLES_SET_MASK, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> titlesCommandTable =
         {
-            { "add",        SEC_ADMINISTRATOR,  false,  &HandleTitlesAddCommand,        },
-            { "current",    SEC_ADMINISTRATOR,  false,  &HandleTitlesCurrentCommand,    },
-            { "remove",     SEC_ADMINISTRATOR,  false,  &HandleTitlesRemoveCommand,     },
-            { "set",        SEC_ADMINISTRATOR,  false,  titlesSetCommandTable           },
+            { "add",        &HandleTitlesAddCommand,        rbac::RBAC_PERM_COMMAND_TITLES_ADD,      Trinity::ChatCommands::Console::No },
+            { "current",    &HandleTitlesCurrentCommand,    rbac::RBAC_PERM_COMMAND_TITLES_CURRENT,  Trinity::ChatCommands::Console::No },
+            { "remove",     &HandleTitlesRemoveCommand,     rbac::RBAC_PERM_COMMAND_TITLES_REMOVE,   Trinity::ChatCommands::Console::No },
+            { "set",        titlesSetCommandTable,           rbac::RBAC_PERM_COMMAND_TITLES_SET_MASK, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "titles",     SEC_ADMINISTRATOR,  false,  titlesCommandTable              },
+            { "titles",     titlesCommandTable,              rbac::RBAC_PERM_COMMAND_TITLES_ADD,      Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

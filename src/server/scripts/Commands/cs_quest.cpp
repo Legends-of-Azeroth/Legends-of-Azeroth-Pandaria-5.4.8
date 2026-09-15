@@ -37,14 +37,14 @@ public:
     {
         static std::vector<ChatCommand> questCommandTable =
         {
-            { "add",        SEC_ADMINISTRATOR,  false,  &HandleQuestAdd,        },
-            { "complete",   SEC_ADMINISTRATOR,  false,  &HandleQuestComplete,   },
-            { "remove",     SEC_ADMINISTRATOR,  false,  &HandleQuestRemove,     },
-            { "reward",     SEC_ADMINISTRATOR,  false,  &HandleQuestReward,     },
+            { "add",        &HandleQuestAdd,        rbac::RBAC_PERM_COMMAND_QUEST_ADD,      Trinity::ChatCommands::Console::No },
+            { "complete",   &HandleQuestComplete,   rbac::RBAC_PERM_COMMAND_QUEST_COMPLETE, Trinity::ChatCommands::Console::No },
+            { "remove",     &HandleQuestRemove,     rbac::RBAC_PERM_COMMAND_QUEST_REMOVE,   Trinity::ChatCommands::Console::No },
+            { "reward",     &HandleQuestReward,     rbac::RBAC_PERM_COMMAND_QUEST_REWARD,   Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "quest",      SEC_ADMINISTRATOR,  false,  questCommandTable       },
+            { "quest",      questCommandTable,     rbac::RBAC_PERM_COMMAND_QUEST,            Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

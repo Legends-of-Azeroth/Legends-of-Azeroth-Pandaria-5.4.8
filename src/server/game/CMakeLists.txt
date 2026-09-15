@@ -217,6 +217,7 @@ target_include_directories(game
     ${CMAKE_CURRENT_SOURCE_DIR}/Calendar
     ${CMAKE_CURRENT_SOURCE_DIR}/Chat
     ${CMAKE_CURRENT_SOURCE_DIR}/Chat/Channels
+    ${CMAKE_CURRENT_SOURCE_DIR}/Chat/ChatCommands
     ${CMAKE_CURRENT_SOURCE_DIR}/Combat
     ${CMAKE_CURRENT_SOURCE_DIR}/Conditions
     ${CMAKE_CURRENT_SOURCE_DIR}/CustomTransmogrification

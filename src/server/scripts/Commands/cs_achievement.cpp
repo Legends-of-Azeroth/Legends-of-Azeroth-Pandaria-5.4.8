@@ -45,7 +45,7 @@ public:
 
         static std::vector<ChatCommand> achievementCommandTable =
         {
-            { "add",            SEC_ADMINISTRATOR,  false, &HandleAchievementAddCommand,            },
+            { "add",            &HandleAchievementAddCommand,  rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_ADD,  Trinity::ChatCommands::Console::No },
             { "remove",         SEC_ADMINISTRATOR,  false, &HandleAchievementRemoveCommand,         },
             { "info",           SEC_ADMINISTRATOR,      true,  infoCommandTable                         },
         };

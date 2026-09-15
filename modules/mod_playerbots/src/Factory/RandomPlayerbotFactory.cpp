@@ -587,7 +587,7 @@ void RandomPlayerbotFactory::CreateRandomBots()
         TC_LOG_INFO("playerbots", "Creating random bot characters for account: [%u/%u]", accountNumber + 1, sPlayerbotAIConfig->randomBotAccountCount);
         RandomPlayerbotFactory factory(accountId);
 
-        WorldSession* session = new WorldSession(accountId, nullptr, AccountTypes::SEC_PLAYER, EXPANSION_MISTS_OF_PANDARIA,
+        WorldSession* session = new WorldSession(accountId, accountName, nullptr, AccountTypes::SEC_PLAYER, EXPANSION_MISTS_OF_PANDARIA,
             time_t(0), LOCALE_enUS, 0, false, false, true);
         //session->SetVirtualRealmID(1);
         sessionBots.push_back(session);

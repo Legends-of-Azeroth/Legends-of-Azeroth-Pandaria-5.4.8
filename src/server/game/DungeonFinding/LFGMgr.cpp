@@ -29,6 +29,7 @@
 #include "LFGQueue.h"
 #include "Group.h"
 #include "Player.h"
+#include "RBAC.h"
 #include "GroupMgr.h"
 #include "GameEventMgr.h"
 #include "WorldSession.h"
@@ -413,6 +414,7 @@ void LFGMgr::InitializeLockedDungeons(Player* player, uint8 level /* = 0 */)
     uint8 expansion = player->GetSession()->Expansion();
     LfgDungeonSet const& dungeons = GetDungeonsByRandom(0);
     LfgLockMap lock;
+    bool denyJoin = !player->GetSession()->HasPermission(rbac::RBAC_PERM_JOIN_DUNGEON_FINDER);
 
     float itemLevel = player->GetAverageItemLevel();
 
@@ -423,7 +425,9 @@ void LFGMgr::InitializeLockedDungeons(Player* player, uint8 level /* = 0 */)
             continue;
 
         uint32 lockStatus = 0;
-        if (dungeon->faction >= 0 && player->GetTeamId() != !dungeon->faction)
+        if (denyJoin)
+            lockStatus = LFG_LOCKSTATUS_RAID_LOCKED;
+        else if (dungeon->faction >= 0 && player->GetTeamId() != !dungeon->faction)
             lockStatus = LFG_LOCKSTATUS_INCOMPATIBLE_FACTION;
         else if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, player, dungeon->difficulty))
             lockStatus = LFG_LOCKSTATUS_RAID_LOCKED;
@@ -591,7 +595,9 @@ void LFGMgr::JoinLfg(Player* player, LfgRoles roles, LfgDungeonSet& dungeons, co
     // Check player or group member restrictions
     bool playerOnCooldown = false, partyOnCooldown = false;
     // At first check that dungeons are not empty
-    if (dungeons.empty())
+    if (!player->GetSession()->HasPermission(rbac::RBAC_PERM_JOIN_DUNGEON_FINDER))
+        joinData.result = LFG_JOIN_NOT_MEET_REQS;
+    else if (dungeons.empty())
         joinData.result = LFG_JOIN_NOT_MEET_REQS;
     // If not always check group, all checks below included for ALL group member
     else if (group)
@@ -604,7 +610,9 @@ void LFGMgr::JoinLfg(Player* player, LfgRoles roles, LfgDungeonSet& dungeons, co
             for (GroupReference* itr = group->GetFirstMember(); itr && joinData.result == LFG_JOIN_OK; itr = itr->next())
             {
                 Player* member = itr->GetSource();
-                if (member->HasAura(LFG_SPELL_DUNGEON_DESERTER))
+                if (!member->GetSession() || !member->GetSession()->HasPermission(rbac::RBAC_PERM_JOIN_DUNGEON_FINDER))
+                    joinData.result = LFG_JOIN_NOT_MEET_REQS;
+                else if (member->HasAura(LFG_SPELL_DUNGEON_DESERTER))
                     joinData.result = LFG_JOIN_PARTY_DESERTER;
                 else if (member->HasAura(LFG_SPELL_DUNGEON_COOLDOWN) && !isContinue)
                     partyOnCooldown = true; // Cooldown case is handled later, should not apply to LFR and specific dungeons

@@ -56,11 +56,11 @@ public:
     {
         static std::vector<ChatCommand> lfgCommandTable =
         {
-            { "player",     SEC_ADMINISTRATOR,  false,  &HandleLfgPlayerInfoCommand,    },
-            { "group",      SEC_ADMINISTRATOR,  false,  &HandleLfgGroupInfoCommand,     },
-            { "queue",      SEC_ADMINISTRATOR,  false,  &HandleLfgQueueInfoCommand,     },
-            { "clean",      SEC_ADMINISTRATOR,  false,  &HandleLfgCleanCommand,         },
-            { "options",    SEC_ADMINISTRATOR,  false,  &HandleLfgOptionsCommand,       },
+            { "player",     &HandleLfgPlayerInfoCommand,    rbac::RBAC_PERM_COMMAND_LFG_PLAYER,  Trinity::ChatCommands::Console::No },
+            { "group",      &HandleLfgGroupInfoCommand,     rbac::RBAC_PERM_COMMAND_LFG_GROUP,   Trinity::ChatCommands::Console::No },
+            { "queue",      &HandleLfgQueueInfoCommand,     rbac::RBAC_PERM_COMMAND_LFG_QUEUE,   Trinity::ChatCommands::Console::No },
+            { "clean",      &HandleLfgCleanCommand,         rbac::RBAC_PERM_COMMAND_LFG_CLEAN,   Trinity::ChatCommands::Console::No },
+            { "options",    &HandleLfgOptionsCommand,       rbac::RBAC_PERM_COMMAND_LFG_OPTIONS, Trinity::ChatCommands::Console::No },
             { "profiling",  SEC_ADMINISTRATOR,  true,   &HandleLfgProfilingCommand      },
             { "bug",        SEC_ADMINISTRATOR,  false,  &HandleLfgBugCommand            },
             { "flex",       SEC_ADMINISTRATOR,  false,
