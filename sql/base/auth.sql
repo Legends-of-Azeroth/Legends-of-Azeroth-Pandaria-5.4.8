@@ -2479,6 +2479,21 @@ CREATE TABLE IF NOT EXISTS `updates` (
 -- ----------------------------
 -- Records of updates
 -- ----------------------------
+INSERT INTO `updates` (`name`, `hash`, `state`, `speed`) VALUES
+('2021_03_27_BattlePay_DP.sql', '702ef317df44edb4837cf7d39d9e9311c6977d19', 'ARCHIVED', 0),
+('2021_03_27_BattlePay_log.sql', '59da241c9b1db34b1263a684e4a623b0ee8193dc', 'ARCHIVED', 0),
+('2021_03_27_WowTokens_log.sql', '1628733c3b7d08c9cccd42068d2a3f52f3f59c9f', 'ARCHIVED', 0),
+('2021_05_15_Reinicio_de_Arenas.sql', 'da9cac057a9a81390fae1254b95346812dbd0356', 'ARCHIVED', 0),
+('2021_07_17_00_autobroadcast.sql', '3ac1b3144101ef032da2a260c2c87e80073a05d6', 'ARCHIVED', 0),
+('2021_08_08_Bonus_BG.sql', 'b247424b065bc9a76cfc0bc084ca837a3a1ff980', 'ARCHIVED', 0),
+('2021_08_08_Config.sql', 'fd38520e205ba4b41bf25b80b2db208fb1ae29b6', 'ARCHIVED', 0),
+('2023_11_03_auth.sql', '3e453104907e0da5fe9397f1387c5ceb20c3d1eb', 'ARCHIVED', 0),
+('2023_11_09_auth.sql', '59eb7c9cda10821b385558efbb63b006b0a395c4', 'ARCHIVED', 0),
+('2023_11_10_auth.sql', '0e24f41caa65e29b97b23b6426758aa0215ec853', 'ARCHIVED', 0),
+('2023_11_26_auth.sql', '58913771f0fbe4f336f2d7ef005a09570385ff06', 'ARCHIVED', 0),
+('2023_11_27_auth.sql', 'c0068d70e6c6b9624ff75d9b4ef79ebf00b844f7', 'ARCHIVED', 0),
+('2023_12_04_auth.sql', '97736498bfe1e4b0ca1dc5efd412450646a00705', 'ARCHIVED', 0),
+('fusion-cms.sql', '2e3dd26cd3257982cb89dd21588d3a4384e5807a', 'ARCHIVED', 0);
 
 -- ----------------------------
 -- Table structure for updates_include
