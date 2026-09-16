@@ -156,7 +156,7 @@ void npc_escortAI::JustDied(Unit* /*killer*/)
     }
 }
 
-void npc_escortAI::JustAppeared()
+void npc_escortAI::InitializeAI()
 {
     m_uiEscortState = STATE_ESCORT_NONE;
 
@@ -170,6 +170,10 @@ void npc_escortAI::JustAppeared()
         me->RestoreFaction();
 
     Reset();
+}
+
+void npc_escortAI::JustAppeared()
+{
 }
 
 void npc_escortAI::ReturnToLastPoint()
