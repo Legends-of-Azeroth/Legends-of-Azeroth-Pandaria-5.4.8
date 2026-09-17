@@ -889,9 +889,8 @@ public:
                 player->FailQuest(Q_ALMABTRIEB);
         }
 
-        void MovementInform(uint32 type, uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
@@ -964,9 +963,8 @@ public:
             uiTakeTimer=3000;
         }
 
-        void MovementInform(uint32 type, uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;

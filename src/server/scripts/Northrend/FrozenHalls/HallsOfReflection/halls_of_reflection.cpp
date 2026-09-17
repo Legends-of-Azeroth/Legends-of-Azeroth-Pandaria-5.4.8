@@ -1563,9 +1563,8 @@ class npc_jaina_and_sylvanas_hor_part2 : public CreatureScript
                 return true;
             }
 
-            void MovementInform(uint32 type, uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                EscortAI::MovementInform(type, waypointId);
                 switch (waypointId)
                 {
                     case 2:

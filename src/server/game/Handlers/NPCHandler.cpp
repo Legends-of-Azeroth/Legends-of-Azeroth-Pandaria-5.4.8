@@ -76,7 +76,7 @@ void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket& recvData)
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TABARDDESIGNER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleTabardVendorActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", guid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandleTabardVendorActivateOpcode - Unit (GUID: {}) not found or you can not interact with him.", guid.GetCounter());
         return;
     }
 
@@ -138,7 +138,7 @@ void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BANKER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleBankerActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", guid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandleBankerActivateOpcode - Unit (GUID: {}) not found or you can not interact with him.", guid.GetCounter());
         return;
     }
 
@@ -217,7 +217,7 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle,
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: SendTrainerList - Unit (GUID: %u) not found or you can not interact with him.", guid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: SendTrainerList - Unit (GUID: {}) not found or you can not interact with him.", guid.GetCounter());
         return;
     }
 
@@ -229,14 +229,14 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle,
 
     if (!ci)
     {
-        TC_LOG_DEBUG("network", "WORLD: SendTrainerList - (GUID: %u) NO CREATUREINFO!", guid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: SendTrainerList - (GUID: {}) NO CREATUREINFO!", guid.GetCounter());
         return;
     }
 
     TrainerSpellData const* trainer_spells = multiple ? sObjectMgr->GetNpcTrainerSpells(mTrainer) : unit->GetTrainerSpells();
     if (!trainer_spells)
     {
-        TC_LOG_DEBUG("network", "WORLD: SendTrainerList - Training spells not found for creature (GUID: %u Entry: %u)",
+        TC_LOG_DEBUG("network", "WORLD: SendTrainerList - Training spells not found for creature (GUID: {} Entry: {})",
             guid.GetCounter(), unit->GetEntry());
         return;
     }
@@ -359,12 +359,12 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[6]);
     recvData.ReadByteSeq(guid[2]);
 
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_TRAINER_BUY_SPELL NpcGUID=%u, learn spell id is: %u", guid.GetCounter(), spellId);
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_TRAINER_BUY_SPELL NpcGUID={}, learn spell id is: {}", guid.GetCounter(), spellId);
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleTrainerBuySpellOpcode - Unit (GUID: %u) not found or you can not interact with him.", guid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandleTrainerBuySpellOpcode - Unit (GUID: {}) not found or you can not interact with him.", guid.GetCounter());
         return;
     }
 
@@ -469,7 +469,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_GOSSIP); // UNIT_NPC_FLAG_NONE
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleGossipHelloOpcode - Unit (GUID: %u) not found or you can not interact with him.", guid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandleGossipHelloOpcode - Unit (GUID: {}) not found or you can not interact with him.", guid.GetCounter());
         return;
     }
 
@@ -527,13 +527,13 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
     {
         TC_LOG_DEBUG("network", "reading string");
         recvData >> code;
-        TC_LOG_DEBUG("network", "string read: %s", code.c_str());
+        TC_LOG_DEBUG("network", "string read: {}", code.c_str());
     }
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - Unit (GUID: %u) not found or you can't interact with him.", guid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - Unit (GUID: {}) not found or you can't interact with him.", guid.GetCounter());
         return;
     }
 
@@ -580,7 +580,7 @@ void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket& recvData)
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(UnitGUID, UNIT_NPC_FLAG_SPIRITHEALER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleSpiritHealerActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", UnitGUID.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandleSpiritHealerActivateOpcode - Unit (GUID: {}) not found or you can not interact with him.", UnitGUID.GetCounter());
         return;
     }
 
@@ -653,7 +653,7 @@ void WorldSession::HandleBinderActivateOpcode(WorldPacket& recvData)
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_INNKEEPER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleBinderActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", npcGuid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandleBinderActivateOpcode - Unit (GUID: {}) not found or you can not interact with him.", npcGuid.GetCounter());
         return;
     }
 
@@ -1162,7 +1162,7 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_REPAIR);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleRepairItemOpcode - Unit (GUID: %u) not found or you can not interact with him.", npcGuid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandleRepairItemOpcode - Unit (GUID: {}) not found or you can not interact with him.", npcGuid.GetCounter());
         return;
     }
 
@@ -1175,7 +1175,7 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
 
     if (itemGuid)
     {
-        TC_LOG_DEBUG("network", "ITEM: Repair item, itemGUID = %u, npcGUID = %u", itemGuid.GetCounter(), npcGuid.GetCounter());
+        TC_LOG_DEBUG("network", "ITEM: Repair item, itemGUID = {}, npcGUID = {}", itemGuid.GetCounter(), npcGuid.GetCounter());
 
         Item* item = _player->GetItemByGuid(itemGuid);
         if (item)
@@ -1183,7 +1183,7 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
     }
     else
     {
-        TC_LOG_DEBUG("network", "ITEM: Repair all items, npcGUID = %u", npcGuid.GetCounter());
+        TC_LOG_DEBUG("network", "ITEM: Repair all items, npcGUID = {}", npcGuid.GetCounter());
         _player->DurabilityRepairAll(true, discountMod, guildBank);
     }
 }

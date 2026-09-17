@@ -90,9 +90,8 @@ class npc_wind_vehicle : public CreatureScript
                 IntroTimer = 100;
             }
 
-            void MovementInform(uint32 type, uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                EscortAI::MovementInform(type, waypointId);
                 if (waypointId == 6)
                 {
                     if (me->GetVehicleKit())
@@ -174,9 +173,8 @@ class npc_aysa_wind_temple_escort : public CreatureScript
                 SetEscortPaused(false);
             }
 
-            void MovementInform(uint32 type, uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                EscortAI::MovementInform(type, waypointId);
                 switch (waypointId)
                 {
                     case 2:
@@ -611,9 +609,8 @@ class npc_master_shang_xi_after_zhao_escort : public CreatureScript
                 playerGuid = guid;
             }
 
-            void MovementInform(uint32 type, uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                EscortAI::MovementInform(type, waypointId);
                 switch (waypointId)
                 {
                     case 1:
@@ -846,9 +843,8 @@ class npc_shang_xi_air_balloon : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 type, uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                EscortAI::MovementInform(type, waypointId);
                 switch (waypointId)
                 {
                     case 11:
@@ -1405,9 +1401,8 @@ public:
             events.ScheduleEvent(EVENT_1, 1000);
         }
 
-        void MovementInform(uint32 type, uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, waypointId);
             switch (waypointId)
             {
                 case 8:

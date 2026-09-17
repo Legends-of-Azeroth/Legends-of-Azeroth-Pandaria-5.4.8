@@ -214,13 +214,13 @@ void Group::LoadGroupFromDB(Field* fields)
     m_slot = GroupSlot(fields[18].GetUInt8());
     if (m_slot >= GroupSlot::Max)
     {
-        TC_LOG_ERROR("shitlog", "Group::LoadGroupFromDB invalid group slot (%u) for group %u", fields[13].GetUInt8(), m_dbStoreId);
+        TC_LOG_ERROR("shitlog", "Group::LoadGroupFromDB invalid group slot ({}) for group {}", fields[13].GetUInt8(), m_dbStoreId);
         m_slot = GroupSlot::Original;
     }
     if (m_slot == GroupSlot::Original && isLFGGroup())
-        TC_LOG_ERROR("shitlog", "Group::LoadGroupFromDB group is original group but it is lfg group %u", m_dbStoreId);
+        TC_LOG_ERROR("shitlog", "Group::LoadGroupFromDB group is original group but it is lfg group {}", m_dbStoreId);
     if (m_slot == GroupSlot::Instance && !isLFGGroup()) // Only lfg groups are stored to db
-        TC_LOG_ERROR("shitlog", "Group::LoadGroupFromDB group is instance group but it is not lfg group %u", m_dbStoreId);
+        TC_LOG_ERROR("shitlog", "Group::LoadGroupFromDB group is instance group but it is not lfg group {}", m_dbStoreId);
 }
 
 void Group::LoadMemberFromDB(ObjectGuid::LowType guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles)
@@ -254,7 +254,7 @@ void Group::LoadMemberFromDB(ObjectGuid::LowType guidLow, uint8 memberFlags, uin
 void Group::SaveRolesToDB()
 {
     for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
-        CharacterDatabase.PExecute("UPDATE group_member SET roles='%u' WHERE guid='%u' AND memberGuid='%u'", itr->roles, m_dbStoreId, itr->guid.GetCounter());
+        CharacterDatabase.PExecute("UPDATE group_member SET roles='{}' WHERE guid='{}' AND memberGuid='{}'", itr->roles, m_dbStoreId, itr->guid.GetCounter());
 }
 
 void Group::ChangeFlagEveryoneAssistant(bool apply)
@@ -445,7 +445,7 @@ bool Group::AddMember(Player* player)
 
     if (player->GetGroup(m_slot))
     {
-        TC_LOG_ERROR("shitlog", "Group::AddMember player %s already in group of this type (%u)", player->GetSession()->GetPlayerInfo().c_str(), uint32(m_slot));
+        TC_LOG_ERROR("shitlog", "Group::AddMember player {} already in group of this type ({})", player->GetSession()->GetPlayerInfo().c_str(), uint32(m_slot));
         return false;
     }
 
@@ -1247,7 +1247,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         item = sObjectMgr->GetItemTemplate(i->itemid);
         if (!item)
         {
-            //TC_LOG_DEBUG("misc", "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
+            //TC_LOG_DEBUG("misc", "Group::GroupLoot: missing item prototype for item with id: {}", i->itemid);
             continue;
         }
 
@@ -1333,7 +1333,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         item = sObjectMgr->GetItemTemplate(i->itemid);
         if (!item)
         {
-            //TC_LOG_DEBUG("misc", "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
+            //TC_LOG_DEBUG("misc", "Group::GroupLoot: missing item prototype for item with id: {}", i->itemid);
             continue;
         }
 
@@ -2816,7 +2816,7 @@ InstanceGroupBind* Group::BindToInstance(InstanceSave* save, bool permanent, boo
     bind.save = save;
     bind.perm = permanent;
     if (!load)
-        TC_LOG_DEBUG("maps", "Group::BindToInstance: Group (guid: %u, storage id: %u) is now bound to map %d, instance %d, difficulty %d",
+        TC_LOG_DEBUG("maps", "Group::BindToInstance: Group (guid: {}, storage id: {}) is now bound to map {}, instance {}, difficulty {}",
         GetGUID().GetCounter(), m_dbStoreId, save->GetMapId(), save->GetInstanceId(), save->GetDifficulty());
 
     return &bind;
@@ -2859,7 +2859,7 @@ void Group::BroadcastGroupUpdate(void)
         {
             pp->ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2);
             pp->ForceValuesUpdateAtIndex(UNIT_FIELD_FACTION_TEMPLATE);
-            TC_LOG_DEBUG("misc", "-- Forced group value update for '%s'", pp->GetName().c_str());
+            TC_LOG_DEBUG("misc", "-- Forced group value update for '{}'", pp->GetName().c_str());
         }
     }
 }

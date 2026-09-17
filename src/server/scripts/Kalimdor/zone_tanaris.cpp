@@ -189,9 +189,8 @@ struct npc_custodian_of_time : public EscortAI
 {
     npc_custodian_of_time(Creature* creature) : EscortAI(creature) { }
 
-    void MovementInform(uint32 type, uint32 waypointId) override
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
     {
-        EscortAI::MovementInform(type, waypointId);
         if (Player* player = GetPlayerForEscort())
         {
             switch (waypointId)
@@ -376,9 +375,8 @@ public:
     {
         npc_OOX17AI(Creature* creature) : EscortAI(creature) { }
 
-        void MovementInform(uint32 type, uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, waypointId);
             if (Player* player = GetPlayerForEscort())
             {
                 switch (waypointId)
@@ -617,10 +615,9 @@ public:
 
         void OnCharmed(bool apply) override { }
 
-        void MovementInform(uint32 type, uint32 point) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, point);
-            switch (point)
+            switch (waypointId)
             {
                 case 3:
                 {

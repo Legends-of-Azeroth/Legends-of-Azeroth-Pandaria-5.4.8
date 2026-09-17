@@ -463,7 +463,7 @@ class instance_karazhan : public InstanceMapScript
                             square = GetClosestCreatureWithEntry(chessPiece, NPC_SQUARE_WHITE, 2.0f);
                         if (!square)
                         {
-                            TC_LOG_ERROR("scripts", "Instance Karazhan: ERROR Failed to properly load the Chess square for %u.", chessPiece->GetDBTableGUIDLow());
+                            TC_LOG_ERROR("scripts", "Instance Karazhan: ERROR Failed to properly load the Chess square for {}.", chessPiece->GetDBTableGUIDLow());
                             return;
                         }
 
@@ -483,7 +483,7 @@ class instance_karazhan : public InstanceMapScript
                             square = GetClosestCreatureWithEntry(chessPiece, NPC_SQUARE_WHITE, 2.0f);
                         if (!square)
                         {
-                            TC_LOG_ERROR("scripts", "Instance Karazhan: ERROR Failed to properly load the Chess square for %u.", chessPiece->GetDBTableGUIDLow());
+                            TC_LOG_ERROR("scripts", "Instance Karazhan: ERROR Failed to properly load the Chess square for {}.", chessPiece->GetDBTableGUIDLow());
                             return;
                         }
 

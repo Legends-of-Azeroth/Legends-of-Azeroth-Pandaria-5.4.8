@@ -19,6 +19,7 @@
 #define ObjectGuid_h__
 
 #include "Define.h"
+#include "StringFormatFwd.h"
 #include <array>
 #include <deque>
 #include <functional>
@@ -376,5 +377,12 @@ namespace std
             }
     };
 }
+
+template <>
+struct fmt::formatter<ObjectGuid, char, void> : Trinity::NoArgFormatterBase
+{
+    template <typename FormatContext>
+    auto format(ObjectGuid const& guid, FormatContext& ctx) const -> decltype(ctx.out());
+};
 
 #endif // ObjectGuid_h__

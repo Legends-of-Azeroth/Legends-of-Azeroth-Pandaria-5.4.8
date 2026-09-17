@@ -136,7 +136,7 @@ void EscortAI::MoveInLineOfSight(Unit* who)
 
 void EscortAI::JustDied(Unit* /*killer*/)
 {
-    if (!HasEscortState(STATE_ESCORT_ESCORTING) || !m_uiPlayerGUID || !m_pQuestForEscort ||!HasEscortState(STATE_ESCORT_JUMPING))
+    if ((!HasEscortState(STATE_ESCORT_ESCORTING) && !HasEscortState(STATE_ESCORT_JUMPING)) || !m_uiPlayerGUID || !m_pQuestForEscort)
         return;
 
     if (Player* player = GetPlayerForEscort())
@@ -247,7 +247,7 @@ void EscortAI::UpdateAI(uint32 diff)
 
                         m_uiWPWaitTimer = 0;
 
-                        TC_LOG_DEBUG("scripts", "EscortAI are returning home to spawn location: %u, %f, %f, %f", POINT_HOME, fRetX, fRetY, fRetZ);
+                        TC_LOG_DEBUG("scripts", "EscortAI are returning home to spawn location: {}, {}, {}, {}", POINT_HOME, fRetX, fRetY, fRetZ);
                         return;
                     }
 
@@ -275,12 +275,12 @@ void EscortAI::UpdateAI(uint32 diff)
                 {
                     me->SetWalk(!(CurrentWP->run || m_bIsRunning));
                     me->GetMotionMaster()->MovePoint(CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
-                    TC_LOG_DEBUG("scripts", "TSCR: EscortAI start waypoint %u (%f, %f, %f).", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
+                    TC_LOG_DEBUG("scripts", "TSCR: EscortAI start waypoint {} ({}, {}, {}).", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
                 }
                 else if (HasEscortState(STATE_ESCORT_JUMPING))
                 {
                     me->GetMotionMaster()->MoveJump(CurrentWP->x, CurrentWP->y, CurrentWP->z, speedXY, speedZ, CurrentWP->id);
-                    TC_LOG_DEBUG("scripts", "TSCR: EscortAI jump to waypoint %u (%f, %f, %f) speedXY: %f, speedZ: %f.", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z, speedXY, speedZ);
+                    TC_LOG_DEBUG("scripts", "TSCR: EscortAI jump to waypoint {} ({}, {}, {}) speedXY: {}, speedZ: {}.", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z, speedXY, speedZ);
                 }
 
                 WaypointStart(CurrentWP->id);
@@ -356,13 +356,13 @@ void EscortAI::MovementInform(uint32 moveType, uint32 pointId)
         //Make sure that we are still on the right waypoint
         if (CurrentWP->id != pointId)
         {
-            TC_LOG_ERROR("misc", "TSCR ERROR: EscortAI reached waypoint out of order %u, expected %u, creature entry %u", pointId, CurrentWP->id, me->GetEntry());
+            TC_LOG_ERROR("misc", "TSCR ERROR: EscortAI reached waypoint out of order {}, expected {}, creature entry {}", pointId, CurrentWP->id, me->GetEntry());
             return;
         }
 
-        TC_LOG_DEBUG("scripts", "EscortAI Waypoint %u reached", CurrentWP->id);
+        TC_LOG_DEBUG("scripts", "EscortAI Waypoint {} reached", CurrentWP->id);
 
-        WaypointReached(CurrentWP->id);
+        WaypointReached(CurrentWP->id, me->GetWaypointPath());
 
         m_uiWPWaitTimer = CurrentWP->WaitTimeMs + 1;
 
@@ -452,13 +452,13 @@ void EscortAI::Start(bool isActiveAttacker, ObjectGuid playerGUID, Quest const* 
 {
     if (me->GetVictim())
     {
-        TC_LOG_ERROR("misc", "TSCR ERROR: EscortAI (script: %s, creature entry: %u) attempts to Start while in combat", me->GetScriptName().c_str(), me->GetEntry());
+        TC_LOG_ERROR("misc", "TSCR ERROR: EscortAI (script: {}, creature entry: {}) attempts to Start while in combat", me->GetScriptName().c_str(), me->GetEntry());
         return;
     }
 
     if (HasEscortState(STATE_ESCORT_ESCORTING))
     {
-        TC_LOG_ERROR("scripts", "EscortAI (script: %s, creature entry: %u) attempts to Start while already escorting", me->GetScriptName().c_str(), me->GetEntry());
+        TC_LOG_ERROR("scripts", "EscortAI (script: {}, creature entry: {}) attempts to Start while already escorting", me->GetScriptName().c_str(), me->GetEntry());
         return;
     }
 
@@ -471,7 +471,7 @@ void EscortAI::Start(bool isActiveAttacker, ObjectGuid playerGUID, Quest const* 
 
     if (WaypointList.empty())
     {
-        TC_LOG_ERROR("scripts", "EscortAI (script: %s, creature entry: %u) starts with 0 waypoints (possible missing entry in script_waypoint. Quest: %u).",
+        TC_LOG_ERROR("scripts", "EscortAI (script: {}, creature entry: {}) starts with 0 waypoints (possible missing entry in script_waypoint. Quest: {}).",
             me->GetScriptName().c_str(), me->GetEntry(), quest ? quest->GetQuestId() : 0);
         return;
     }
@@ -503,7 +503,7 @@ void EscortAI::Start(bool isActiveAttacker, ObjectGuid playerGUID, Quest const* 
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
     }
 
-    TC_LOG_DEBUG("scripts", "EscortAI started with " UI64FMTD " waypoints. ActiveAttacker = %d, Run = %d, PlayerGUID = " UI64FMTD "", uint64(WaypointList.size()), m_bIsActiveAttacker, m_bIsRunning, m_uiPlayerGUID.GetRawValue());
+    TC_LOG_DEBUG("scripts", "EscortAI started with " "{}" " waypoints. ActiveAttacker = %d, Run = %d, PlayerGUID = " "{}" "", uint64(WaypointList.size()), m_bIsActiveAttacker, m_bIsRunning, m_uiPlayerGUID.GetRawValue());
 
     CurrentWP = WaypointList.begin();
 

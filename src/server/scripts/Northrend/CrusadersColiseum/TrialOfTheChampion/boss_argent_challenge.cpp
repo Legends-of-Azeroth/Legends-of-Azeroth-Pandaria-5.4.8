@@ -847,10 +847,9 @@ class npc_argent_soldier : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 type, uint32 point) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                EscortAI::MovementInform(type, point);
-                if (point == 0)
+                if (waypointId == 0)
                 {
                     switch (_waypoint)
                     {

@@ -4391,7 +4391,7 @@ class spell_gen_portal_to_isle_of_thunder : public SpellScript
             }
             else
             {
-                TC_LOG_ERROR("shit", "spell_gen_portal_to_isle_of_thunder: Player %u, team %u, spell %u.", player->GetGUID().GetCounter(), player->GetTeam(), GetSpellInfo()->Id);
+                TC_LOG_ERROR("shit", "spell_gen_portal_to_isle_of_thunder: Player {}, team {}, spell {}.", player->GetGUID().GetCounter(), player->GetTeam(), GetSpellInfo()->Id);
                 return;
             }
             dest._position.m_mapId = 1064;

@@ -319,7 +319,7 @@ void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, const Qu
 
     me->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
-    TC_LOG_DEBUG("scripts", "FollowerAI start follow %s (GUID " UI64FMTD ")", player->GetName().c_str(), m_uiLeaderGUID.GetRawValue());
+    TC_LOG_DEBUG("scripts", "FollowerAI start follow {} (GUID " "{}" ")", player->GetName().c_str(), m_uiLeaderGUID.GetRawValue());
 }
 
 Player* FollowerAI::GetLeaderForFollower()

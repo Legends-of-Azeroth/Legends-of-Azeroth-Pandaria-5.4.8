@@ -163,17 +163,17 @@ class npc_barnes : public CreatureScript
                 case GOSSIP_ACTION_INFO_DEF + 3:
                     player->CLOSE_GOSSIP_MENU();
                     barnesAI->m_uiEventId = EVENT_OZ;
-                    TC_LOG_DEBUG("scripts", "TSCR: player (%s) manually set Opera event to EVENT_OZ", player->GetGUID().ToString().c_str());
+                    TC_LOG_DEBUG("scripts", "TSCR: player ({}) manually set Opera event to EVENT_OZ", player->GetGUID().ToString().c_str());
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 4:
                     player->CLOSE_GOSSIP_MENU();
                     barnesAI->m_uiEventId = EVENT_HOOD;
-                    TC_LOG_DEBUG("scripts", "TSCR: player (%s) manually set Opera event to EVENT_HOOD", player->GetGUID().ToString().c_str());
+                    TC_LOG_DEBUG("scripts", "TSCR: player ({}) manually set Opera event to EVENT_HOOD", player->GetGUID().ToString().c_str());
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 5:
                     player->CLOSE_GOSSIP_MENU();
                     barnesAI->m_uiEventId = EVENT_RAJ;
-                    TC_LOG_DEBUG("scripts", "TSCR: player (%s) manually set Opera event to EVENT_RAJ", player->GetGUID().ToString().c_str());
+                    TC_LOG_DEBUG("scripts", "TSCR: player ({}) manually set Opera event to EVENT_RAJ", player->GetGUID().ToString().c_str());
                     break;
             }
 
@@ -231,13 +231,12 @@ class npc_barnes : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override { }
 
-            void MovementInform(uint32 type, uint32 i) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                EscortAI::MovementInform(type, i);
                 if (!instance)
                     return;
 
-                switch (i)
+                switch (waypointId)
                 {
                     case 0:
                         DoCast(me, SPELL_TUXEDO, false);
@@ -297,7 +296,7 @@ class npc_barnes : public CreatureScript
 
             void PrepareEncounter()
             {
-                TC_LOG_DEBUG("scripts", "TSCR: Barnes Opera Event - Introduction complete - preparing encounter %d", m_uiEventId);
+                TC_LOG_DEBUG("scripts", "TSCR: Barnes Opera Event - Introduction complete - preparing encounter {}", m_uiEventId);
                 uint8 index = 0;
                 uint8 count = 0;
 

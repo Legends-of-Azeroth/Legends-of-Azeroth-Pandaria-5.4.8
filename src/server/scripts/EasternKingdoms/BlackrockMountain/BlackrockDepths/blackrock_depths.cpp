@@ -181,9 +181,8 @@ public:
             MobDeath_Timer = 2500;
         }
 
-        void MovementInform(uint32 type, uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, waypointId);
             switch (waypointId)
             {
                 case 0:
@@ -616,9 +615,8 @@ public:
     {
         npc_dughal_stormwingAI(Creature* creature) : EscortAI(creature) { }
 
-        void MovementInform(uint32 type, uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, waypointId);
             switch (waypointId)
             {
                 case 0:
@@ -745,9 +743,8 @@ public:
             instance = creature->GetInstanceScript();
         }
 
-        void MovementInform(uint32 type, uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, waypointId);
             switch (waypointId)
             {
                 case 1:
@@ -929,9 +926,8 @@ public:
         {
         }
 
-        void MovementInform(uint32 type, uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, waypointId);
             wp = waypointId;
             switch (waypointId)
             {
@@ -1145,9 +1141,8 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, waypointId);
             switch (waypointId)
             {
                 case 0:
@@ -1272,9 +1267,8 @@ public:
                 go->SetGoState((GOState)state);
         }
 
-        void MovementInform(uint32 type, uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, waypointId);
             if (!instance)
                 return;
 

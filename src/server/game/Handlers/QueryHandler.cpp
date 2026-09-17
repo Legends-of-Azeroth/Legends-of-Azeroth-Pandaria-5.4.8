@@ -167,7 +167,7 @@ void WorldSession::HandleNameQueryOpcode(WorldPacket& recvData)
         recvData >> unk1;
 
     // This is disable by default to prevent lots of console spam
-    // TC_LOG_INFO("network", "HandleNameQueryOpcode %u", guid);
+    // TC_LOG_INFO("network", "HandleNameQueryOpcode {}", guid);
 
     SendNameQueryOpcode(guid);
 }
@@ -320,7 +320,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
             }
         }
 
-        TC_LOG_DEBUG("network", "WORLD: CMSG_CREATURE_QUERY '%s' - Entry: %u.", creatureInfo->Name.c_str(), entry);
+        TC_LOG_DEBUG("network", "WORLD: CMSG_CREATURE_QUERY '{}' - Entry: {}.", creatureInfo->Name.c_str(), entry);
 
         data.WriteBits(Title.length() ? Title.length() + 1 : 0, 11);
         data.WriteBits(qItemsSize, 22);                       // Quest items
@@ -383,7 +383,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
     else
     {
         data.FlushBits();
-        TC_LOG_DEBUG("network", "WORLD: CMSG_CREATURE_QUERY - NO CREATURE INFO! (ENTRY: %u)", entry);
+        TC_LOG_DEBUG("network", "WORLD: CMSG_CREATURE_QUERY - NO CREATURE INFO! (ENTRY: {})", entry);
     }
 
     SendPacket(&data);
@@ -398,7 +398,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
 
     if (GameObjectTemplate const* gameObjectInfo = sObjectMgr->GetGameObjectTemplate(packet.GameObjectID))
     {
-        TC_LOG_DEBUG("network", "WORLD: CMSG_GAMEOBJECT_QUERY '%s' - Entry: %u. ", gameObjectInfo->name.c_str(), gameObjectInfo->entry);
+        TC_LOG_DEBUG("network", "WORLD: CMSG_GAMEOBJECT_QUERY '{}' - Entry: {}. ", gameObjectInfo->name.c_str(), gameObjectInfo->entry);
 
         response.Allow = true;
         WorldPackets::Query::GameObjectStats& stats = response.Stats;
@@ -431,7 +431,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
     }
     else
     {
-        TC_LOG_DEBUG("network", "WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (%s, ENTRY: %u)",
+        TC_LOG_DEBUG("network", "WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for ({}, ENTRY: {})",
                      packet.Guid.ToString().c_str(), packet.GameObjectID);
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
     }
@@ -518,7 +518,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& recvData)
 
     recvData >> textID;
 
-    TC_LOG_DEBUG("network", "WORLD: CMSG_NPC_TEXT_QUERY ID '%u'", textID);
+    TC_LOG_DEBUG("network", "WORLD: CMSG_NPC_TEXT_QUERY ID '{}'", textID);
 
     guid[4] = recvData.ReadBit();
     guid[5] = recvData.ReadBit();

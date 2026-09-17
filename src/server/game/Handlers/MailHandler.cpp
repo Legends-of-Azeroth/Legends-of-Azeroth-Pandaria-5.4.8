@@ -149,16 +149,16 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     if (!receiverGuid)
     {
-        TC_LOG_INFO("network", "Player %u is sending mail to %s (GUID: not existed!) with subject %s "
-            "and body %s includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with unk1 = %u, unk2 = %u",
+        TC_LOG_INFO("network", "Player {} is sending mail to {} (GUID: not existed!) with subject {} "
+            "and body %s includes %u items, " "{}" " copper and " "{}" " COD copper with unk1 = %u, unk2 = %u",
             player->GetGUID().GetCounter(), receiverName.c_str(), subject.c_str(), body.c_str(),
             itemCount, money, COD, unk1, unk2);
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_NOT_FOUND);
         return;
     }
 
-    TC_LOG_INFO("network", "Player %u is sending mail to %s (GUID: %u) with subject %s and body %s "
-        "includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with unk1 = %u, unk2 = %u",
+    TC_LOG_INFO("network", "Player {} is sending mail to {} (GUID: {}) with subject {} and body {} "
+        "includes %u items, " "{}" " copper and " "{}" " COD copper with unk1 = %u, unk2 = %u",
         player->GetGUID().GetCounter(), receiverName.c_str(), receiverGuid.GetCounter(), subject.c_str(),
         body.c_str(), itemCount, money, COD, unk1, unk2);
 
@@ -338,7 +338,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
                 Item* item = items[i];
                 if (log)
                 {
-                    sLog->outCommand(GetAccountId(), "GM %s (GUID: %u) (Account: %u) mail item: %s (Entry: %u Count: %u) "
+                    sLog->OutCommand(GetAccountId(), "GM {} (GUID: {}) (Account: {}) mail item: {} (Entry: {} Count: {}) "
                         "to player: %s (GUID: %u) (Account: %u)", GetPlayerName().c_str(), GetGuidLow(), GetAccountId(),
                         item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetCount(),
                         receiverName.c_str(), receiverGuid.GetCounter(), receiverAccountId);
@@ -366,7 +366,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
         if (log && money > 0)
         {
-            sLog->outCommand(GetAccountId(), "GM %s (GUID: %u) (Account: %u) mail money: " UI64FMTD " to player: %s (GUID: %u) (Account: %u)",
+            sLog->OutCommand(GetAccountId(), "GM {} (GUID: {}) (Account: {}) mail money: " "{}" " to player: {} (GUID: {}) (Account: {})",
                 GetPlayerName().c_str(), GetGuidLow(), GetAccountId(), money, receiverName.c_str(), receiverGuid.GetCounter(), receiverAccountId);
         }
     }
@@ -630,7 +630,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
                     if (!sObjectMgr->GetPlayerNameByGUID(sender_guid, sender_name))
                         sender_name = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
                 }
-                sLog->outCommand(GetAccountId(), "GM %s (Account: %u) receiver mail item: %s (Entry: %u Count: %u) and send COD money: " UI64FMTD " to player: %s (Account: %u)",
+                sLog->OutCommand(GetAccountId(), "GM {} (Account: {}) receiver mail item: {} (Entry: {} Count: {}) and send COD money: " "{}" " to player: {} (Account: {})",
                     GetPlayerName().c_str(), GetAccountId(), it->GetTemplate()->Name1.c_str(), it->GetEntry(), it->GetCount(), m->COD, sender_name.c_str(), sender_accId);
             }
             else if (!receiver)
@@ -1010,7 +1010,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     bodyItem->SetUInt32Value(ITEM_FIELD_CREATOR, m->sender);
     bodyItem->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_MAIL_TEXT_MASK);
 
-    TC_LOG_INFO("network", "HandleMailCreateTextItem mailid=%u", mailId);
+    TC_LOG_INFO("network", "HandleMailCreateTextItem mailid={}", mailId);
 
     ItemPosCountVec dest;
     uint8 msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, bodyItem, false);

@@ -472,9 +472,8 @@ class npc_nourished_yak : public CreatureScript
                     IntroTimer = 0;
             }
 
-            void MovementInform(uint32 type, uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                EscortAI::MovementInform(type, waypointId);
                 if (waypointId == waypointToEject)
                 {
                     if (Creature* vehicle = GetClosestCreatureWithEntry(me, 57208, 50.0f))

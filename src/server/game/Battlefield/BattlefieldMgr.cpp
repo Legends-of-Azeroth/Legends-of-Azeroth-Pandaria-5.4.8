@@ -85,7 +85,7 @@ void BattlefieldMgr::HandlePlayerEnterZone(Player* player, uint32 zoneid)
         return;
 
     bf->HandlePlayerEnterZone(player, zoneid);
-    TC_LOG_DEBUG("bg.battlefield", "Player %u entered outdoorpvp id %u", player->GetGUID().GetCounter(), bf->GetTypeId());
+    TC_LOG_DEBUG("bg.battlefield", "Player {} entered outdoorpvp id {}", player->GetGUID().GetCounter(), bf->GetTypeId());
 }
 
 void BattlefieldMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
@@ -98,7 +98,7 @@ void BattlefieldMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
     if (!itr->second->HasPlayer(player))
         return;
     itr->second->HandlePlayerLeaveZone(player, zoneid);
-    TC_LOG_DEBUG("bg.battlefield", "Player %u left outdoorpvp id %u", player->GetGUID().GetCounter(), itr->second->GetTypeId());
+    TC_LOG_DEBUG("bg.battlefield", "Player {} left outdoorpvp id {}", player->GetGUID().GetCounter(), itr->second->GetTypeId());
 }
 
 Battlefield *BattlefieldMgr::GetBattlefieldToZoneId(uint32 zoneid)

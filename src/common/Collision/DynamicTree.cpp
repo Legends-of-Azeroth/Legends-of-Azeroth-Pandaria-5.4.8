@@ -166,7 +166,7 @@ struct DynamicTreeIntersectionCallback_WithLogger
     }
     bool operator()(const G3D::Ray& r, const GameObjectModel& obj, float& distance)
     {
-        TC_LOG_DEBUG("maps", "testing intersection with %s", obj.name.c_str());
+        TC_LOG_DEBUG("maps", "testing intersection with {}", obj.name.c_str());
         bool hit = obj.intersectRay(r, distance, true, phase_mask, VMAP::ModelIgnoreFlags::Nothing);
         if (hit)
         {

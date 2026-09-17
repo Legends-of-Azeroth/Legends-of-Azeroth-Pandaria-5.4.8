@@ -56,10 +56,10 @@ class TC_DATABASE_API TransactionBase
         virtual ~TransactionBase() { Cleanup(); }
 
         void Append(char const* sql);
-        template<typename Format, typename... Args>
-        void PAppend(Format&& sql, Args&&... args)
+        template<typename... Args>
+        void PAppend(Trinity::FormatString<Args...> sql, Args&&... args)
         {
-            Append(Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
+            Append(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str());
         }
 
         std::size_t GetSize() const { return m_queries.size(); }

@@ -316,7 +316,7 @@ protected:
             : _mapEntry(sMapStore.LookupEntry(mapId))
         {
             if (!_mapEntry)
-                TC_LOG_ERROR("scripts", "Invalid MapScript for %u; no such map ID.", mapId);
+                TC_LOG_ERROR("scripts", "Invalid MapScript for {}; no such map ID.", mapId);
         }
 
 public:
@@ -1452,7 +1452,7 @@ public:
         {
             if (it->second == script)
             {
-                TC_LOG_ERROR("scripts", "Script '%s' has same memory pointer as '%s'.",
+                TC_LOG_ERROR("scripts", "Script '{}' has same memory pointer as '{}'.",
                     script->GetName().c_str(), it->second->GetName().c_str());
 
                 return;
@@ -1493,7 +1493,7 @@ public:
             else
             {
                 // If the script is already assigned -> delete it!
-                TC_LOG_ERROR("scripts", "Script '%s' already assigned with the same script name, so the script can't work.",
+                TC_LOG_ERROR("scripts", "Script '{}' already assigned with the same script name, so the script can't work.",
                     script->GetName().c_str());
 
                 ASSERT(false); // Error that should be fixed ASAP.

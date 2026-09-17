@@ -150,25 +150,25 @@ void LFGMgr::LoadRewards()
 
         if (!GetLFGDungeonEntry(dungeonId))
         {
-            TC_LOG_ERROR("sql.sql", "Dungeon %u specified in table `lfg_dungeon_rewards` does not exist!", dungeonId);
+            TC_LOG_ERROR("sql.sql", "Dungeon {} specified in table `lfg_dungeon_rewards` does not exist!", dungeonId);
             continue;
         }
 
         if (!maxLevel || maxLevel > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         {
-            TC_LOG_ERROR("sql.sql", "Level %u specified for dungeon %u in table `lfg_dungeon_rewards` can never be reached!", maxLevel, dungeonId);
+            TC_LOG_ERROR("sql.sql", "Level {} specified for dungeon {} in table `lfg_dungeon_rewards` can never be reached!", maxLevel, dungeonId);
             maxLevel = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
         }
 
         if (!firstQuestId || !sObjectMgr->GetQuestTemplate(firstQuestId))
         {
-            TC_LOG_ERROR("sql.sql", "First quest %u specified for dungeon %u in table `lfg_dungeon_rewards` does not exist!", firstQuestId, dungeonId);
+            TC_LOG_ERROR("sql.sql", "First quest {} specified for dungeon {} in table `lfg_dungeon_rewards` does not exist!", firstQuestId, dungeonId);
             continue;
         }
 
         if (otherQuestId && !sObjectMgr->GetQuestTemplate(otherQuestId))
         {
-            TC_LOG_ERROR("sql.sql", "Other quest %u specified for dungeon %u in table `lfg_dungeon_rewards` does not exist!", otherQuestId, dungeonId);
+            TC_LOG_ERROR("sql.sql", "Other quest {} specified for dungeon {} in table `lfg_dungeon_rewards` does not exist!", otherQuestId, dungeonId);
             otherQuestId = 0;
         }
 
@@ -177,7 +177,7 @@ void LFGMgr::LoadRewards()
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u lfg dungeon rewards in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} lfg dungeon rewards in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 LFGDungeonData const* LFGMgr::GetLFGDungeon(uint32 id)
@@ -229,7 +229,7 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
         LFGDungeonContainer::iterator dungeonItr = LfgDungeonStore.find(dungeonId);
         if (dungeonItr == LfgDungeonStore.end())
         {
-            TC_LOG_ERROR("sql.sql", "table `lfg_dungeon_template` contains coordinates for wrong dungeon %u", dungeonId);
+            TC_LOG_ERROR("sql.sql", "table `lfg_dungeon_template` contains coordinates for wrong dungeon {}", dungeonId);
             continue;
         }
 
@@ -244,7 +244,7 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u lfg entrance positions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} lfg entrance positions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 
     // Fill all other teleport coords from areatriggers
     for (LFGDungeonContainer::iterator itr = LfgDungeonStore.begin(); itr != LfgDungeonStore.end(); ++itr)
@@ -258,7 +258,7 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
             AreaTriggerStruct const* at = sObjectMgr->GetMapEntranceTrigger(dungeon.map);
             if (!at)
             {
-                TC_LOG_ERROR("lfg", "LFGMgr::LoadLFGDungeons: Failed to load dungeon %s (Id: %u), cant find areatrigger for map %u", dungeon.name.c_str(), dungeon.id, dungeon.map);
+                TC_LOG_ERROR("lfg", "LFGMgr::LoadLFGDungeons: Failed to load dungeon {} (Id: {}), cant find areatrigger for map {}", dungeon.name.c_str(), dungeon.id, dungeon.map);
                 continue;
             }
 
@@ -528,7 +528,7 @@ void LFGMgr::JoinLfg(Player* player, LfgRoles roles, LfgDungeonSet& dungeons, co
                 case LFG_TYPE_DUNGEON:
                     break;
                 default:
-                    TC_LOG_ERROR("lfg", "Wrong dungeon type %u for dungeon %u", dungeon->type, *it);
+                    TC_LOG_ERROR("lfg", "Wrong dungeon type {} for dungeon {}", dungeon->type, *it);
                     joinData.result = LFG_JOIN_DUNGEON_INVALID;
                     break;
             }
@@ -672,7 +672,7 @@ void LFGMgr::JoinLfg(Player* player, LfgRoles roles, LfgDungeonSet& dungeons, co
     // Can't join. Send result
     if (joinData.result != LFG_JOIN_OK)
     {
-        TC_LOG_DEBUG("lfg", "LFGMgr::Join: [" UI64FMTD "] joining with %u members. result: %u", GetGuidForLog(guid), group ? group->GetMembersCount() : 1, joinData.result);
+        TC_LOG_DEBUG("lfg", "LFGMgr::Join: [" "{}" "] joining with %u members. result: %u", GetGuidForLog(guid), group ? group->GetMembersCount() : 1, joinData.result);
         if (!dungeons.empty())                             // Only should show lockmap when have no dungeons available
             joinData.lockmap.clear();
         player->GetSession()->SendLfgJoinResult(0, joinData);
@@ -731,7 +731,7 @@ void LFGMgr::JoinLfg(Player* player, LfgRoles roles, LfgDungeonSet& dungeons, co
             {
                 if (oldGroup != gguid)
                 {
-                    AlmostAssert("LFGMgr::JoinLfg oldGroup != gguid, player: %u, oldGroup: " UI64FMTD ", gguid: " UI64FMTD, member->GetGUID().GetCounter(), oldGroup.GetRawValue(), gguid.GetRawValue());
+                    AlmostAssert("LFGMgr::JoinLfg oldGroup != gguid, player: %u, oldGroup: " "{}" ", gguid: " UI64FMTD, member->GetGUID().GetCounter(), oldGroup.GetRawValue(), gguid.GetRawValue());
                     RemovePlayerFromGroup(oldGroup, queueId, pguid);
                 }
             }
@@ -806,7 +806,7 @@ void LFGMgr::JoinLfg(Player* player, LfgRoles roles, LfgDungeonSet& dungeons, co
         std::ostringstream o;
         o << "LFGMgr::Join: [" << GetGuidForLog(guid) << "] joined (" << (group ? "group" : "player") << ") Members: " << debugNames.c_str()
           << ". Dungeons (" << uint32(dungeons.size()) << "): " << ConcatenateDungeons(dungeons);
-        TC_LOG_DEBUG("lfg", "%s", o.str().c_str());
+        TC_LOG_DEBUG("lfg", "{}", o.str().c_str());
     }
 }
 
@@ -842,11 +842,11 @@ void LFGMgr::RemoveGroupQueues(ObjectGuid guid)
 */
 void LFGMgr::LeaveLfg(ObjectGuid guid, uint32 queueId)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::LeaveLfg: [" UI64FMTD "] queue: %u", GetGuidForLog(guid), queueId);
+    TC_LOG_DEBUG("lfg", "LFGMgr::LeaveLfg: [" "{}" "] queue: %u", GetGuidForLog(guid), queueId);
 
     if (!HasQueueId(guid, queueId))
     {
-        TC_LOG_ERROR("lfg", "LFGMgr::LeaveLfg: [" UI64FMTD "] doesn't have queue: %u", GetGuidForLog(guid), queueId);
+        TC_LOG_ERROR("lfg", "LFGMgr::LeaveLfg: [" "{}" "] doesn't have queue: %u", GetGuidForLog(guid), queueId);
         return;
     }
 
@@ -1414,7 +1414,7 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
             if (reuseGroup)
                 newQueueId = queueId;
             else
-                AlmostAssert("LFGMgr::MakeNewGroup lfgGroup: [" UI64FMTD "] not reused", lfgGroup->GetGUID());
+                AlmostAssert("LFGMgr::MakeNewGroup lfgGroup: [" "{}" "] not reused", lfgGroup->GetGUID());
         }
     }
 
@@ -1430,7 +1430,7 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
         lfgGroup = nullptr;
     }
 
-    TC_LOG_DEBUG("lfg", "LFGMgr::MakeNewGroup: isContinue: %u, newQueueId: %u", uint32(isContinue), newQueueId);
+    TC_LOG_DEBUG("lfg", "LFGMgr::MakeNewGroup: isContinue: {}, newQueueId: {}", uint32(isContinue), newQueueId);
 
     std::vector<std::pair<ObjectGuid, uint32>> groupsToRemove;
 
@@ -1442,7 +1442,7 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
         Player* player = ObjectAccessor::FindConnectedPlayer(pguid);
         if (!player)
         {
-            TC_LOG_DEBUG("lfg", "LFGMgr::MakeNewGroup: Player [%u] not found", pguid.GetCounter());
+            TC_LOG_DEBUG("lfg", "LFGMgr::MakeNewGroup: Player [{}] not found", pguid.GetCounter());
             continue;
         }
 
@@ -1456,7 +1456,7 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
             if (lfgGroup)
             {
                 if (lfgGroup != instanceGroup)
-                    AlmostAssert("LFGMgr::MakeNewGroup grp != group, player %u, lfgGroup: [" UI64FMTD "], instanceGroup: [" UI64FMTD "]", player->GetGUID().GetCounter(), lfgGroup->GetGUID().GetRawValue(), instanceGroup->GetGUID().GetRawValue());
+                    AlmostAssert("LFGMgr::MakeNewGroup grp != group, player %u, lfgGroup: [" "{}" "], instanceGroup: [" "{}" "]", player->GetGUID().GetCounter(), lfgGroup->GetGUID().GetRawValue(), instanceGroup->GetGUID().GetRawValue());
             }
         }
 
@@ -1477,7 +1477,7 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
             lfgGroup->ConvertToLFG(dungeon->difficulty == RAID_DIFFICULTY_1025MAN_FLEX);
             lfgGroup->Create(player);
             ObjectGuid gguid = lfgGroup->GetGUID();
-            TC_LOG_DEBUG("lfg", "LFGMgr::MakeNewGroup: new group created: [" UI64FMTD "]", gguid.GetRawValue());
+            TC_LOG_DEBUG("lfg", "LFGMgr::MakeNewGroup: new group created: [" "{}" "]", gguid.GetRawValue());
             AddQueue(gguid, newQueueId);
             SetState(gguid, newQueueId, LFG_STATE_DUNGEON);
         }
@@ -1617,7 +1617,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, ObjectGuid guid, bool accept)
     LfgProposalPlayer& player = itProposalPlayer->second;
     player.accept = LfgAnswer(accept);
 
-    TC_LOG_DEBUG("lfg", "LFGMgr::UpdateProposal: Player [%u] of proposal %u selected: %u", guid.GetCounter(), proposalId, accept);
+    TC_LOG_DEBUG("lfg", "LFGMgr::UpdateProposal: Player [{}] of proposal {} selected: {}", guid.GetCounter(), proposalId, accept);
     if (!accept)
     {
         RemoveProposal(itProposal, LFG_UPDATETYPE_PROPOSAL_DECLINED);
@@ -1693,7 +1693,7 @@ void LFGMgr::RemoveProposal(LfgProposalContainer::iterator itProposal, LfgUpdate
     LfgProposal& proposal = itProposal->second;
     proposal.state = LFG_PROPOSAL_FAILED;
 
-    TC_LOG_DEBUG("lfg", "LFGMgr::RemoveProposal: Proposal %u, state FAILED, UpdateType %u", itProposal->first, type);
+    TC_LOG_DEBUG("lfg", "LFGMgr::RemoveProposal: Proposal {}, state FAILED, UpdateType {}", itProposal->first, type);
     // Mark all people that didn't answered as no accept
     if (type == LFG_UPDATETYPE_PROPOSAL_FAILED)
         for (LfgProposalPlayerContainer::iterator it = proposal.players.begin(); it != proposal.players.end(); ++it)
@@ -1744,12 +1744,12 @@ void LFGMgr::RemoveProposal(LfgProposalContainer::iterator itProposal, LfgUpdate
             auto updateType = type;
             if (itr.second.accept == LFG_ANSWER_DENY)
             {
-                TC_LOG_DEBUG("lfg", "LFGMgr::RemoveProposal: [" UI64FMTD "] didn't accept. Removing from queue and compatible cache", GetGuidForLog(guid));
+                TC_LOG_DEBUG("lfg", "LFGMgr::RemoveProposal: [" "{}" "] didn't accept. Removing from queue and compatible cache", GetGuidForLog(guid));
             }
             else
             {
                 updateType = LFG_UPDATETYPE_REMOVED_FROM_QUEUE;
-                TC_LOG_DEBUG("lfg", "LFGMgr::RemoveProposal: [" UI64FMTD "] in same group that someone that didn't accept. Removing from queueData and compatible cache", GetGuidForLog(guid));
+                TC_LOG_DEBUG("lfg", "LFGMgr::RemoveProposal: [" "{}" "] in same group that someone that didn't accept. Removing from queueData and compatible cache", GetGuidForLog(guid));
             }
 
             // Send update before RestoreState call, bacause queue will be removed if old state == LFG_STATE_NONE
@@ -1764,7 +1764,7 @@ void LFGMgr::RemoveProposal(LfgProposalContainer::iterator itProposal, LfgUpdate
         }
         else
         {
-            TC_LOG_DEBUG("lfg", "LFGMgr::RemoveProposal: Readding [" UI64FMTD "] to queue (%u).", GetGuidForLog(guid), queueId);
+            TC_LOG_DEBUG("lfg", "LFGMgr::RemoveProposal: Readding [" "{}" "] to queue (%u).", GetGuidForLog(guid), queueId);
             SetState(guid, queueId, LFG_STATE_QUEUED);
             if (gguid != guid && GetState(gguid, queueId) != LFG_STATE_QUEUED)
                 SetState(gguid, queueId, LFG_STATE_QUEUED);
@@ -1844,14 +1844,14 @@ void LFGMgr::UpdateBoot(ObjectGuid guid, bool accept)
     uint32 queueId = GetActiveQueueId(guid);
     if (!queueId)
     {
-        TC_LOG_ERROR("lfg", "LFGMgr::UpdateBoot Active queue not found [" UI64FMTD "]", GetGuidForLog(guid));
+        TC_LOG_ERROR("lfg", "LFGMgr::UpdateBoot Active queue not found [" "{}" "]", GetGuidForLog(guid));
         return;
     }
 
     ObjectGuid gguid = GetGroup(guid, queueId);
     if (!gguid)
     {
-        TC_LOG_ERROR("lfg", "LFGMgr::UpdateBoot Group not found [" UI64FMTD "], queue id: %u", GetGuidForLog(guid), queueId);
+        TC_LOG_ERROR("lfg", "LFGMgr::UpdateBoot Group not found [" "{}" "], queue id: %u", GetGuidForLog(guid), queueId);
         return;
     }
 
@@ -1924,7 +1924,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
 
     if (!dungeon)
     {
-        TC_LOG_ERROR("lfg", "TeleportPlayer: Player %s (%u) not in group/lfggroup or dungeon not found! (group: " UI64FMTD ", dungeon: %u)",
+        TC_LOG_ERROR("lfg", "TeleportPlayer: Player {} ({}) not in group/lfggroup or dungeon not found! (group: " "{}" ", dungeon: %u)",
             player->GetName().c_str(), player->GetGUID().GetCounter(), group ? GetGuidForLog(group->GetGUID()) : 0, group ? GetDungeon(group->GetGUID()) : 0);
         player->GetSession()->SendLfgTeleportError(uint8(LFG_TELEPORTERROR_INVALID_LOCATION));
         return;
@@ -1932,7 +1932,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
 
     if (out)
     {
-        TC_LOG_DEBUG("lfg", "TeleportPlayer: Player %s (%u) is being teleported out. Current Map %u - Expected Map %u",
+        TC_LOG_DEBUG("lfg", "TeleportPlayer: Player {} ({}) is being teleported out. Current Map {} - Expected Map {}",
             player->GetName().c_str(), player->GetGUID().GetCounter(), player->GetMapId(), uint32(dungeon->map));
         if (player->GetMapId() == uint32(dungeon->map))
             player->TeleportToBGEntryPoint();
@@ -2008,7 +2008,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
     if (error != LFG_TELEPORTERROR_OK)
         player->GetSession()->SendLfgTeleportError(uint8(error));
 
-    TC_LOG_DEBUG("lfg", "TeleportPlayer: Player %s is being teleported in to map %u "
+    TC_LOG_DEBUG("lfg", "TeleportPlayer: Player {} is being teleported in to map {} "
         "(x: %f, y: %f, z: %f) Result: %u", player->GetName().c_str(), dungeon->map,
         dungeon->x, dungeon->y, dungeon->z, error);
 }
@@ -2024,7 +2024,7 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, uint32 dungeonId, Map* map)
     uint32 queueId = GetActiveQueueId(gguid);
     if (!queueId)
     {
-        TC_LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [" UI64FMTD "] Finished dungeon %u but group has no active queue", gguid.GetRawValue(), dungeonId);
+        TC_LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [" "{}" "] Finished dungeon %u but group has no active queue", gguid.GetRawValue(), dungeonId);
         return;
     }
 
@@ -2034,13 +2034,13 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, uint32 dungeonId, Map* map)
     uint32 gDungeonId = GetDungeon(gguid);
     if (gDungeonId != dungeonId)
     {
-        TC_LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [" UI64FMTD "] Finished dungeon %u but group queued for %u. Ignoring", gguid.GetRawValue(), dungeonId, gDungeonId);
+        TC_LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [" "{}" "] Finished dungeon %u but group queued for %u. Ignoring", gguid.GetRawValue(), dungeonId, gDungeonId);
         return;
     }
 
     if (GetState(gguid, queueId) == LFG_STATE_FINISHED_DUNGEON) // Shouldn't happen. Do not reward multiple times
     {
-        TC_LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [" UI64FMTD "] Already rewarded group. Ignoring", gguid.GetRawValue());
+        TC_LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [" "{}" "] Already rewarded group. Ignoring", gguid.GetRawValue());
         return;
     }
 
@@ -2061,7 +2061,7 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, uint32 dungeonId, Map* map)
 
         if (queueData.State == LFG_STATE_FINISHED_DUNGEON)
         {
-            TC_LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [" UI64FMTD "] Already rewarded player. Ignoring", guid.GetRawValue());
+            TC_LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [" "{}" "] Already rewarded player. Ignoring", guid.GetRawValue());
             continue;
         }
 
@@ -2082,13 +2082,13 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, uint32 dungeonId, Map* map)
         Player* player = ObjectAccessor::FindPlayer(guid);
         if (!player || !player->IsInWorld())
         {
-            TC_LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [%u] not found in world", guid.GetCounter());
+            TC_LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [{}] not found in world", guid.GetCounter());
             continue;
         }
 
         if (player->GetMap() != map)
         {
-            TC_LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [%u] is in map %u and should be in %u to get reward", guid.GetCounter(), player->GetMapId(), mapId);
+            TC_LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [{}] is in map {} and should be in {} to get reward", guid.GetCounter(), player->GetMapId(), mapId);
             continue;
         }
 
@@ -2106,7 +2106,7 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, uint32 dungeonId, Map* map)
                 LfgPlayerRewardData data = LfgPlayerRewardData(dungeon->Entry(), GetDungeon(gguid, false), false, NULL, NULL);
                 player->GetSession()->SendLfgPlayerReward(data);
             }
-            TC_LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [%u] dungeon %u is not random or seasonal", guid.GetCounter(), rDungeonId);
+            TC_LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [{}] dungeon {} is not random or seasonal", guid.GetCounter(), rDungeonId);
             continue;
         }
 
@@ -2158,7 +2158,7 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, uint32 dungeonId, Map* map)
         }
 
         // Give rewards
-        TC_LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [%u] done dungeon %u, %s previously done.", player->GetGUID().GetCounter(), GetDungeon(gguid), done? " " : " not");
+        TC_LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [{}] done dungeon {}, {} previously done.", player->GetGUID().GetCounter(), GetDungeon(gguid), done? " " : " not");
         LfgPlayerRewardData data = LfgPlayerRewardData(dungeon->Entry(), GetDungeon(gguid, false), done, quest, ctaQuest);
         player->GetSession()->SendLfgPlayerReward(data);
         player->RemoveAurasDueToSpell(LFG_SPELL_DUNGEON_COOLDOWN);
@@ -2199,7 +2199,7 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, uint32 dungeonId, Map* map)
             case LFG_STATE_DUNGEON:
             case LFG_STATE_FINISHED_DUNGEON:
             default:
-                TC_LOG_ERROR("lfg", "LFGMgr::FinishDungeon: Prior to finishing dungeon group %u state was %s", gguid.GetCounter(), GetStateString(oldState).c_str());
+                TC_LOG_ERROR("lfg", "LFGMgr::FinishDungeon: Prior to finishing dungeon group {} state was {}", gguid.GetCounter(), GetStateString(oldState).c_str());
                 break;
         }
     }
@@ -2270,7 +2270,7 @@ uint32 LFGMgr::ConvertToServerQueueId(ObjectGuid guid, uint32 clientQueueId) con
 
 void LFGMgr::AddQueue(ObjectGuid guid, uint32 queueId, ObjectGuid originalGroup)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::AddQueue %s [" UI64FMTD "] queue: %u", guid.IsGroup() ? "Group" : "Player", GetGuidForLog(guid), queueId);
+    TC_LOG_DEBUG("lfg", "LFGMgr::AddQueue {} [" "{}" "] queue: %u", guid.IsGroup() ? "Group" : "Player", GetGuidForLog(guid), queueId);
 
     if (guid.IsGroup())
     {
@@ -2283,7 +2283,7 @@ void LFGMgr::AddQueue(ObjectGuid guid, uint32 queueId, ObjectGuid originalGroup)
 
 void LFGMgr::RemoveQueue(ObjectGuid guid, uint32 queueId)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::RemoveQueue: %s [" UI64FMTD "] queueId: %u. Queue removed", guid.IsGroup() ? "Group" : "Player", GetGuidForLog(guid), queueId);
+    TC_LOG_DEBUG("lfg", "LFGMgr::RemoveQueue: {} [" "{}" "] queueId: %u. Queue removed", guid.IsGroup() ? "Group" : "Player", GetGuidForLog(guid), queueId);
 
     if (guid.IsGroup())
     {
@@ -2355,7 +2355,7 @@ LfgState LFGMgr::GetState(ObjectGuid guid, uint32 queueId) const
         state = it != PlayersStore.end() ? it->second.GetState(queueId) : LFG_STATE_NONE;
     }
 
-    TC_LOG_TRACE("lfg", "LFGMgr::GetState: [" UI64FMTD "] = %u", GetGuidForLog(guid), state);
+    TC_LOG_TRACE("lfg", "LFGMgr::GetState: [" "{}" "] = %u", GetGuidForLog(guid), state);
     return state;
 }
 
@@ -2367,7 +2367,7 @@ LfgState LFGMgr::GetOldState(ObjectGuid guid, uint32 queueId)
     else
         state = PlayersStore[guid].GetOldState(queueId);
 
-    TC_LOG_TRACE("lfg", "LFGMgr::GetOldState: [" UI64FMTD "] = %u, queueId: %u", GetGuidForLog(guid), state, queueId);
+    TC_LOG_TRACE("lfg", "LFGMgr::GetOldState: [" "{}" "] = %u, queueId: %u", GetGuidForLog(guid), state, queueId);
     return state;
 }
 
@@ -2379,7 +2379,7 @@ uint32 LFGMgr::GetDungeon(ObjectGuid guid, bool asId /*= true */)
     if (itr != GroupsStore.end())
         dungeon = itr->second.GetDungeon(asId);
 
-    TC_LOG_TRACE("lfg", "LFGMgr::GetDungeon: [" UI64FMTD "] asId: %u = %u", GetGuidForLog(guid), asId, dungeon);
+    TC_LOG_TRACE("lfg", "LFGMgr::GetDungeon: [" "{}" "] asId: %u = %u", GetGuidForLog(guid), asId, dungeon);
     return dungeon;
 }
 
@@ -2391,33 +2391,33 @@ uint32 LFGMgr::GetDungeonMapId(ObjectGuid guid)
         if (LFGDungeonData const* dungeon = GetLFGDungeon(dungeonId))
             mapId = dungeon->map;
 
-    TC_LOG_TRACE("lfg", "LFGMgr::GetDungeonMapId: [" UI64FMTD "] = %u (DungeonId = %u)", GetGuidForLog(guid), mapId, dungeonId);
+    TC_LOG_TRACE("lfg", "LFGMgr::GetDungeonMapId: [" "{}" "] = %u (DungeonId = %u)", GetGuidForLog(guid), mapId, dungeonId);
     return mapId;
 }
 
 uint8 LFGMgr::GetRoles(ObjectGuid guid, uint32 queueId)
 {
     uint8 roles = PlayersStore[guid].GetRoles(queueId);
-    TC_LOG_TRACE("lfg", "LFGMgr::GetRoles: [" UI64FMTD "] = %u, queueId: %u", GetGuidForLog(guid), roles, queueId);
+    TC_LOG_TRACE("lfg", "LFGMgr::GetRoles: [" "{}" "] = %u, queueId: %u", GetGuidForLog(guid), roles, queueId);
     return roles;
 }
 
 LfgDungeonSet const& LFGMgr::GetSelectedDungeons(ObjectGuid guid, uint32 queueId)
 {
-    TC_LOG_TRACE("lfg", "LFGMgr::GetSelectedDungeons: [" UI64FMTD "]", GetGuidForLog(guid));
+    TC_LOG_TRACE("lfg", "LFGMgr::GetSelectedDungeons: [" "{}" "]", GetGuidForLog(guid));
     return PlayersStore[guid].GetSelectedDungeons(queueId);
 }
 
 LfgLockMap const& LFGMgr::GetLockedDungeons(ObjectGuid guid)
 {
-    TC_LOG_TRACE("lfg", "LFGMgr::GetLockedDungeons: [" UI64FMTD "]", GetGuidForLog(guid));
+    TC_LOG_TRACE("lfg", "LFGMgr::GetLockedDungeons: [" "{}" "]", GetGuidForLog(guid));
     return PlayersStore[guid].GetLockedDungeons();
 }
 
 uint8 LFGMgr::GetKicksLeft(ObjectGuid guid)
 {
     uint8 kicks = GroupsStore[guid].GetKicksLeft();
-    TC_LOG_TRACE("lfg", "LFGMgr::GetKicksLeft: [" UI64FMTD "] = %u", GetGuidForLog(guid), kicks);
+    TC_LOG_TRACE("lfg", "LFGMgr::GetKicksLeft: [" "{}" "] = %u", GetGuidForLog(guid), kicks);
     return kicks;
 }
 
@@ -2430,7 +2430,7 @@ void LFGMgr::RestoreState(ObjectGuid guid, uint32 queueId, char const* debugMsg)
         {
             std::string const& ps = GetStateString(data.GetState(queueId));
             std::string const& os = GetStateString(data.GetOldState(queueId));
-            TC_LOG_DEBUG("lfg", "LFGMgr::RestoreState: Group: [" UI64FMTD "] (%s) queueId: %u state: %s, oldState: %s",
+            TC_LOG_DEBUG("lfg", "LFGMgr::RestoreState: Group: [" "{}" "] (%s) queueId: %u state: %s, oldState: %s",
                 guid.GetRawValue(), debugMsg, queueId, ps.c_str(), os.c_str());
         }
 
@@ -2443,7 +2443,7 @@ void LFGMgr::RestoreState(ObjectGuid guid, uint32 queueId, char const* debugMsg)
         {
             std::string const& ps = GetStateString(data.GetState(queueId));
             std::string const& os = GetStateString(data.GetOldState(queueId));
-            TC_LOG_DEBUG("lfg", "LFGMgr::RestoreState: Player: [" UI64FMTD "] (%s) queueId: %u, state: %s, oldState: %s",
+            TC_LOG_DEBUG("lfg", "LFGMgr::RestoreState: Player: [" "{}" "] (%s) queueId: %u, state: %s, oldState: %s",
                 GetGuidForLog(guid), debugMsg, queueId, ps.c_str(), os.c_str());
         }
         data.RestoreState(queueId);
@@ -2459,7 +2459,7 @@ void LFGMgr::SetState(ObjectGuid guid, uint32 queueId, LfgState state)
         {
             std::ostringstream ss;
             Queuer(guid, queueId).OutDebug(ss, nullptr);
-            TC_LOG_ERROR("lfg", "LFGMgr::SetState(" UI64FMTD " (%s), state: %u, queueId: %u) while queuer still in queues, stack trace:\n", GetGuidForLog(guid), ss.str().c_str(), (uint32)state, queueId);
+            TC_LOG_ERROR("lfg", "LFGMgr::SetState(" "{}" " (%s), state: %u, queueId: %u) while queuer still in queues, stack trace:\n", GetGuidForLog(guid), ss.str().c_str(), (uint32)state, queueId);
         }
     }
 
@@ -2471,7 +2471,7 @@ void LFGMgr::SetState(ObjectGuid guid, uint32 queueId, LfgState state)
             std::string const& ns = GetStateString(state);
             std::string const& ps = GetStateString(data.GetState(queueId));
             std::string const& os = GetStateString(data.GetOldState(queueId));
-            TC_LOG_DEBUG("lfg", "LFGMgr::SetState: Group: [" UI64FMTD "] queueId: %u, newState: %s, previous: %s, oldState: %s",
+            TC_LOG_DEBUG("lfg", "LFGMgr::SetState: Group: [" "{}" "] queueId: %u, newState: %s, previous: %s, oldState: %s",
                 guid.GetRawValue(), queueId, ns.c_str(), ps.c_str(), os.c_str());
         }
         data.SetState(queueId, state);
@@ -2484,7 +2484,7 @@ void LFGMgr::SetState(ObjectGuid guid, uint32 queueId, LfgState state)
             std::string const& ns = GetStateString(state);
             std::string const& ps = GetStateString(data.GetState(queueId));
             std::string const& os = GetStateString(data.GetOldState(queueId));
-            TC_LOG_DEBUG("lfg", "LFGMgr::SetState: Player: [" UI64FMTD "] queueId: %u, newState: %s, previous: %s, oldState: %s",
+            TC_LOG_DEBUG("lfg", "LFGMgr::SetState: Player: [" "{}" "] queueId: %u, newState: %s, previous: %s, oldState: %s",
                 GetGuidForLog(guid), queueId, ns.c_str(), ps.c_str(), os.c_str());
         }
         data.SetState(queueId, state);
@@ -2493,13 +2493,13 @@ void LFGMgr::SetState(ObjectGuid guid, uint32 queueId, LfgState state)
 
 void LFGMgr::SetDungeon(ObjectGuid guid, uint32 dungeon)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::SetDungeon: [" UI64FMTD "] dungeon %u", GetGuidForLog(guid), dungeon);
+    TC_LOG_DEBUG("lfg", "LFGMgr::SetDungeon: [" "{}" "] dungeon %u", GetGuidForLog(guid), dungeon);
     GroupsStore[guid].SetDungeon(dungeon);
 }
 
 void LFGMgr::SetRoles(ObjectGuid guid, uint32 queueId, LfgRoles roles)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::SetRoles: [" UI64FMTD "] queueId: %u, roles: %u", GetGuidForLog(guid), queueId, roles);
+    TC_LOG_DEBUG("lfg", "LFGMgr::SetRoles: [" "{}" "] queueId: %u, roles: %u", GetGuidForLog(guid), queueId, roles);
     PlayersStore[guid].SetRoles(queueId, roles);
 }
 
@@ -2510,7 +2510,7 @@ void LFGMgr::SetJoinTime(ObjectGuid guid, uint32 queueId, time_t time)
 
 void LFGMgr::SetSelectedDungeons(ObjectGuid guid, uint32 queueId, LfgDungeonSet const& dungeons)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::SetSelectedDungeons: [" UI64FMTD "] Queue Id: %u, Dungeons: %s", GetGuidForLog(guid), queueId, ConcatenateDungeons(dungeons).c_str());
+    TC_LOG_DEBUG("lfg", "LFGMgr::SetSelectedDungeons: [" "{}" "] Queue Id: %u, Dungeons: %s", GetGuidForLog(guid), queueId, ConcatenateDungeons(dungeons).c_str());
     PlayersStore[guid].SetSelectedDungeons(queueId, dungeons);
 }
 
@@ -2523,7 +2523,7 @@ uint32 LFGMgr::GetRandomDungeon(ObjectGuid guid, uint32 queueId) const
 
 void LFGMgr::SetRandomDungeon(ObjectGuid guid, uint32 queueId, uint32 dungeon)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::SetRandomDungeon: [" UI64FMTD "] Queue Id: %u, Dungeon: %u", GetGuidForLog(guid), queueId, dungeon);
+    TC_LOG_DEBUG("lfg", "LFGMgr::SetRandomDungeon: [" "{}" "] Queue Id: %u, Dungeon: %u", GetGuidForLog(guid), queueId, dungeon);
 
     auto itr = PlayersStore.find(guid);
     ASSERT(itr != PlayersStore.end());
@@ -2532,25 +2532,25 @@ void LFGMgr::SetRandomDungeon(ObjectGuid guid, uint32 queueId, uint32 dungeon)
 
 void LFGMgr::SetLockedDungeons(ObjectGuid guid, LfgLockMap const& lock)
 {
-    TC_LOG_TRACE("lfg", "LFGMgr::SetLockedDungeons: [" UI64FMTD "]", GetGuidForLog(guid));
+    TC_LOG_TRACE("lfg", "LFGMgr::SetLockedDungeons: [" "{}" "]", GetGuidForLog(guid));
     PlayersStore[guid].SetLockedDungeons(lock);
 }
 
 void LFGMgr::SetKicksLeft(ObjectGuid guid, uint8 kicksLeft)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::SetKicksLeft: [%u] KicksLeft: %u", guid.GetCounter(), kicksLeft);
+    TC_LOG_DEBUG("lfg", "LFGMgr::SetKicksLeft: [{}] KicksLeft: {}", guid.GetCounter(), kicksLeft);
     GroupsStore[guid].SetKicksLeft(kicksLeft);
 }
 
 void LFGMgr::DecreaseKicksLeft(ObjectGuid guid)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::DecreaseKicksLeft: [%u]", guid.GetCounter());
+    TC_LOG_DEBUG("lfg", "LFGMgr::DecreaseKicksLeft: [{}]", guid.GetCounter());
     GroupsStore[guid].DecreaseKicksLeft();
 }
 
 void LFGMgr::RemovePlayerData(ObjectGuid guid)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::RemovePlayerData: [%u]", guid.GetCounter());
+    TC_LOG_DEBUG("lfg", "LFGMgr::RemovePlayerData: [{}]", guid.GetCounter());
     LfgPlayerDataContainer::iterator it = PlayersStore.find(guid);
     if (it != PlayersStore.end())
         PlayersStore.erase(it);
@@ -2558,7 +2558,7 @@ void LFGMgr::RemovePlayerData(ObjectGuid guid)
 
 void LFGMgr::ReformQueue(ObjectGuid guid, uint32 oldQueueId, uint32 newQueueId)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::ReformQueue: [%u] old queue: %u, new queue: %u", guid.GetCounter(), oldQueueId, newQueueId);
+    TC_LOG_DEBUG("lfg", "LFGMgr::ReformQueue: [{}] old queue: {}, new queue: {}", guid.GetCounter(), oldQueueId, newQueueId);
 
     auto itr = PlayersStore.find(guid);
     ASSERT(itr != PlayersStore.end());
@@ -2575,7 +2575,7 @@ void LFGMgr::RemoveFinishedDungeons(ObjectGuid guid)
             {
                 if (itr.second.State == LFG_STATE_FINISHED_DUNGEON)
                 {
-                    TC_LOG_DEBUG("lfg", "LFGMgr::RemoveFinishedDungeons: Group [" UI64FMTD "] Queue %u removed", GetGuidForLog(guid), itr.first);
+                    TC_LOG_DEBUG("lfg", "LFGMgr::RemoveFinishedDungeons: Group [" "{}" "] Queue %u removed", GetGuidForLog(guid), itr.first);
                     RemoveQueue(guid, itr.first);
                 }
             }
@@ -2589,7 +2589,7 @@ void LFGMgr::RemoveFinishedDungeons(ObjectGuid guid)
             {
                 if (itr.second.State == LFG_STATE_FINISHED_DUNGEON)
                 {
-                    TC_LOG_DEBUG("lfg", "LFGMgr::RemoveFinishedDungeons: Player [" UI64FMTD "] Queue %u removed", GetGuidForLog(guid), itr.first);
+                    TC_LOG_DEBUG("lfg", "LFGMgr::RemoveFinishedDungeons: Player [" "{}" "] Queue %u removed", GetGuidForLog(guid), itr.first);
                     RemoveQueue(guid, itr.first);
                 }
             }
@@ -2602,7 +2602,7 @@ void LFGMgr::RemoveGroupData(ObjectGuid group)
     auto it = GroupsStore.find(group);
     if (it == GroupsStore.end())
     {
-        TC_LOG_DEBUG("lfg", "LFGMgr::RemoveGroupData: group not found [" UI64FMTD "]", group.GetRawValue());
+        TC_LOG_DEBUG("lfg", "LFGMgr::RemoveGroupData: group not found [" "{}" "]", group.GetRawValue());
         return;
     }
 
@@ -2626,7 +2626,7 @@ void LFGMgr::RemoveGroupData(ObjectGuid group)
     }
 
     GroupsStore.erase(it);
-    TC_LOG_DEBUG("lfg", "LFGMgr::RemoveGroupData: Group removed [" UI64FMTD "]", group.GetRawValue());
+    TC_LOG_DEBUG("lfg", "LFGMgr::RemoveGroupData: Group removed [" "{}" "]", group.GetRawValue());
 }
 
 uint8 LFGMgr::GetTeam(ObjectGuid guid)
@@ -2639,12 +2639,12 @@ int32 LFGMgr::RemovePlayerFromGroup(ObjectGuid gguid, uint32 queueId, ObjectGuid
     auto itr = GroupsStore.find(gguid);
     if (itr == GroupsStore.end())
     {
-        TC_LOG_DEBUG("lfg", "LFGMgr::RemovePlayerFromGroup: group not found [" UI64FMTD "]", gguid.GetRawValue());
+        TC_LOG_DEBUG("lfg", "LFGMgr::RemovePlayerFromGroup: group not found [" "{}" "]", gguid.GetRawValue());
         return -1;
     }
 
     bool hasAnotherQueues = false;
-    TC_LOG_DEBUG("lfg", "LFGMgr::RemovePlayerFromGroup: player [%u] group [" UI64FMTD "]", guid.GetCounter(), gguid.GetRawValue());
+    TC_LOG_DEBUG("lfg", "LFGMgr::RemovePlayerFromGroup: player [{}] group [" "{}" "]", guid.GetCounter(), gguid.GetRawValue());
     // FIXME: Stupid logic right now. We don't remove player in LeaveLfg or whatever
     if (auto queues = GetPlayerQueues(guid))
     {
@@ -2663,7 +2663,7 @@ int32 LFGMgr::RemovePlayerFromGroup(ObjectGuid gguid, uint32 queueId, ObjectGuid
     // Currently should not occur
     if (hasAnotherQueues)
     {
-        TC_LOG_ERROR("lfg", "LFGMgr::RemovePlayerFromGroup hasAnotherQueues guid [%u] group [" UI64FMTD "]", guid.GetCounter(), gguid.GetRawValue());
+        TC_LOG_ERROR("lfg", "LFGMgr::RemovePlayerFromGroup hasAnotherQueues guid [{}] group [" "{}" "]", guid.GetCounter(), gguid.GetRawValue());
         return itr->second.GetPlayerCount();
     }
 
@@ -2675,11 +2675,11 @@ void LFGMgr::RemovePlayerFromGroup(ObjectGuid gguid, ObjectGuid guid)
     auto itr = GroupsStore.find(gguid);
     if (itr == GroupsStore.end())
     {
-        TC_LOG_DEBUG("lfg", "LFGMgr::RemovePlayerFromGroup: group not found [" UI64FMTD "]", gguid.GetRawValue());
+        TC_LOG_DEBUG("lfg", "LFGMgr::RemovePlayerFromGroup: group not found [" "{}" "]", gguid.GetRawValue());
         return;
     }
 
-    TC_LOG_DEBUG("lfg", "LFGMgr::RemovePlayerFromGroup: player [%u] group [" UI64FMTD "]", guid.GetCounter(), gguid.GetRawValue());
+    TC_LOG_DEBUG("lfg", "LFGMgr::RemovePlayerFromGroup: player [{}] group [" "{}" "]", guid.GetCounter(), gguid.GetRawValue());
 
     if (auto queues = GetPlayerQueues(guid))
     {
@@ -2696,7 +2696,7 @@ void LFGMgr::RemovePlayerFromGroup(ObjectGuid gguid, ObjectGuid guid)
 
 void LFGMgr::AddPlayerToGroup(ObjectGuid gguid, uint32 queueId, ObjectGuid guid)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::AddPlayerToGroup: player [%u] group [" UI64FMTD "] queue: %u", guid.GetCounter(), gguid.GetRawValue(), queueId);
+    TC_LOG_DEBUG("lfg", "LFGMgr::AddPlayerToGroup: player [{}] group [" "{}" "] queue: %u", guid.GetCounter(), gguid.GetRawValue(), queueId);
     SetGroup(guid, queueId, gguid);
     GroupsStore[gguid].AddPlayer(guid);
 }
@@ -2706,7 +2706,7 @@ void LFGMgr::SetLeader(ObjectGuid gguid, ObjectGuid leader)
     auto itr = GroupsStore.find(gguid);
     if (itr == GroupsStore.end())
     {
-        AlmostAssert("LFGMgr::SetLeader group [" UI64FMTD "] not found", gguid);
+        AlmostAssert("LFGMgr::SetLeader group [" "{}" "] not found", gguid);
         return;
     }
     itr->second.SetLeader(leader);
@@ -2867,7 +2867,7 @@ void LFGMgr::SetupGroupMember(ObjectGuid guid, ObjectGuid gguid)
 {
     if (GroupsStore.find(gguid) == GroupsStore.end())
     {
-        TC_LOG_ERROR("lfg", "LFGMgr::SetupGroupMember: group [" UI64FMTD "] not found (player " UI64FMTD ")", gguid.GetRawValue(), guid.GetRawValue());
+        TC_LOG_ERROR("lfg", "LFGMgr::SetupGroupMember: group [" "{}" "] not found (player " "{}" ")", gguid.GetRawValue(), guid.GetRawValue());
         return;
     }
     LfgDungeonSet dungeons;
@@ -2941,7 +2941,7 @@ LfgDungeonSet LFGMgr::GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion)
 
 void LFGMgr::SetRolesForCTAReward(ObjectGuid guid, uint32 queueId, LfgRoles roles)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::SetRolesForCTAReward [%u] queue %u roles %u", guid.GetCounter(), queueId, uint32(roles));
+    TC_LOG_DEBUG("lfg", "LFGMgr::SetRolesForCTAReward [{}] queue {} roles {}", guid.GetCounter(), queueId, uint32(roles));
 
     PlayersStore[guid].SetCTARoles(queueId, roles);
 }

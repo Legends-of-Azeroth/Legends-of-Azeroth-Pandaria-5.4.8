@@ -109,7 +109,7 @@ void WardenCheckMgr::LoadWardenChecks(bool reload)
         // Check if action value is in range (0-3, see WardenActions enum)
         if (action >= MAX_WARDEN_ACTION)
         {
-            TC_LOG_INFO("server.loading", "Warden check action out of range (ID: %u, action: %u)", id, uint32(action));
+            TC_LOG_INFO("server.loading", "Warden check action out of range (ID: {}, action: {})", id, uint32(action));
             continue;
         }
 
@@ -193,7 +193,7 @@ void WardenCheckMgr::LoadWardenChecks(bool reload)
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u warden checks.", count);
+    TC_LOG_INFO("server.loading", ">> Loaded {} warden checks.", count);
 }
 
 WardenCheck* WardenCheckMgr::GetWardenDataById(uint16 Id)

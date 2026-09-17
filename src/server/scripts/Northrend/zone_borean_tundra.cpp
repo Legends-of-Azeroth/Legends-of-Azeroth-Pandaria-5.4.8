@@ -685,9 +685,8 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, waypointId);
             switch (waypointId)
             {
                 case 0:
@@ -1000,9 +999,8 @@ public:
             phaseTimer = 0;
         }
 
-        void MovementInform(uint32 type, uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
@@ -1820,9 +1818,8 @@ public:
                 player->FailQuest(QUEST_ESCAPING_THE_MIST);
         }
 
-        void MovementInform(uint32 type, uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
@@ -1918,9 +1915,8 @@ public:
             else Bonker_agro=0;
         }
 
-        void MovementInform(uint32 type, uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;

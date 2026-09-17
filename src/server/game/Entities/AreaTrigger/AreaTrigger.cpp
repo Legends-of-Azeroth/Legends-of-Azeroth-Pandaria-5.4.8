@@ -258,7 +258,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     Relocate(pos);
     if (!IsPositionValid())
     {
-        TC_LOG_ERROR("misc", "AreaTrigger (spell %u) not created. Invalid coordinates (X: %f Y: %f)", spell->Id, GetPositionX(), GetPositionY());
+        TC_LOG_ERROR("misc", "AreaTrigger (spell {}) not created. Invalid coordinates (X: {} Y: {})", spell->Id, GetPositionX(), GetPositionY());
         return false;
     }
 
@@ -376,7 +376,7 @@ void AreaTrigger::Remove()
             Unit* auraOwner = ObjectAccessor::GetUnit(*this, m_auraOwner);
             if (!auraOwner)
             {
-                TC_LOG_ERROR("shitlog", "!auraOwner, spell %u, owner " UI64FMTD ", caster " UI64FMTD "\n", GetSpellId(), m_auraOwner.GetRawValue(), GetCasterGUID().GetRawValue());
+                TC_LOG_ERROR("shitlog", "!auraOwner, spell {}, owner " "{}" ", caster " "{}" "\n", GetSpellId(), m_auraOwner.GetRawValue(), GetCasterGUID().GetRawValue());
             }
             else
             {
@@ -418,13 +418,13 @@ void AreaTrigger::InitSpline(std::vector<Position> const& path, int32 duration)
 {
     if (path.size() < 2)
     {
-        TC_LOG_ERROR("entities.areatrigger", "AreaTrigger::InitSpline - Size of path < 2 (entry: %u)", GetEntry());
+        TC_LOG_ERROR("entities.areatrigger", "AreaTrigger::InitSpline - Size of path < 2 (entry: {})", GetEntry());
         return;
     }
 
     if (duration < 0)
     {
-        TC_LOG_ERROR("entities.areatrigger", "AreaTrigger::InitSpline - duration < 0 (entry: %u)", GetEntry());
+        TC_LOG_ERROR("entities.areatrigger", "AreaTrigger::InitSpline - duration < 0 (entry: {})", GetEntry());
         return;
     }
 
@@ -483,7 +483,7 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
         float progress = sDB2Manager.GetCurveValueAt(GetMiscTemplate()->MoveCurveId, currentTimePercent);
         if (progress < 0.f || progress > 1.f)
         {
-            TC_LOG_ERROR("entities.areatrigger", "AreaTrigger (Id: %u, SpellMiscId: %u) has wrong progress (%f) caused by curve calculation (MoveCurveId: %u)",
+            TC_LOG_ERROR("entities.areatrigger", "AreaTrigger (Id: {}, SpellMiscId: {}) has wrong progress ({}) caused by curve calculation (MoveCurveId: {})",
                 GetTemplate()->Id, GetMiscTemplate()->MiscId, progress, GetMiscTemplate()->MorphCurveId);
         }
         else

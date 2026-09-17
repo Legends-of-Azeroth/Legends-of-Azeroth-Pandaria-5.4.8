@@ -66,7 +66,7 @@ void PlayerbotHolder::AddPlayerBot(ObjectGuid playerGuid, uint32 masterAccountId
     // bot is loading
     if (botLoading.find(playerGuid) != botLoading.end())
     {
-        TC_LOG_DEBUG("playerbots", "Bot %u is already loading", playerGuid.GetCounter());
+        TC_LOG_DEBUG("playerbots", "Bot {} is already loading", playerGuid.GetCounter());
         return;
     }
 
@@ -74,14 +74,14 @@ void PlayerbotHolder::AddPlayerBot(ObjectGuid playerGuid, uint32 masterAccountId
     Player* bot = ObjectAccessor::FindPlayer(playerGuid);
     if (bot && bot->IsInWorld())
     {
-        TC_LOG_DEBUG("playerbots", "Bot %u is already in game", playerGuid.GetCounter());
+        TC_LOG_DEBUG("playerbots", "Bot {} is already in game", playerGuid.GetCounter());
         return;
     }
 
     uint32 accountId = sCharacterCache->GetCharacterAccountIdByGuid(playerGuid);
     if (!accountId)
     {
-        TC_LOG_DEBUG("playerbots", "Bot %u has invalid accountid", playerGuid.GetCounter());
+        TC_LOG_DEBUG("playerbots", "Bot {} has invalid accountid", playerGuid.GetCounter());
         return;
     }
 
@@ -116,7 +116,7 @@ void PlayerbotHolder::HandlePlayerBotLoginCallback(PlayerbotLoginQueryHolder con
     if (!bot)
     {
         // Debug log
-        TC_LOG_DEBUG("playerbots", "Bot player could not be loaded for account ID: %u", botAccountId);
+        TC_LOG_DEBUG("playerbots", "Bot player could not be loaded for account ID: {}", botAccountId);
         botSession->LogoutPlayer(true);
         delete botSession;
         botLoading.erase(botGUID);
@@ -130,7 +130,7 @@ void PlayerbotHolder::HandlePlayerBotLoginCallback(PlayerbotLoginQueryHolder con
     Player* masterPlayer = masterSession ? masterSession->GetPlayer() : nullptr;
     if (masterSession && !masterPlayer)
     {
-        TC_LOG_DEBUG("playerbots", "Master session found but no player is associated for master account ID: %u", masterAccount);
+        TC_LOG_DEBUG("playerbots", "Master session found but no player is associated for master account ID: {}", masterAccount);
     }
 
     std::ostringstream out;
@@ -158,7 +158,7 @@ void PlayerbotHolder::HandlePlayerBotLoginCallback(PlayerbotLoginQueryHolder con
         PlayerbotMgr* mgr = GET_PLAYERBOT_MGR(masterPlayer);
         if (!mgr)
         {
-            TC_LOG_DEBUG("playerbots", "PlayerbotMgr not found for master player with GUID: %u", masterPlayer->GetGUID().GetCounter());
+            TC_LOG_DEBUG("playerbots", "PlayerbotMgr not found for master player with GUID: {}", masterPlayer->GetGUID().GetCounter());
         }
 
         uint32 count = mgr->GetPlayerbotsCount();
@@ -180,11 +180,11 @@ void PlayerbotHolder::HandlePlayerBotLoginCallback(PlayerbotLoginQueryHolder con
         sRandomPlayerbotMgr->OnPlayerLogin(bot);
         OnBotLogin(bot);
 
-        TC_LOG_DEBUG("playerbots", "Player logged: %s", bot->GetName().c_str());
+        TC_LOG_DEBUG("playerbots", "Player logged: {}", bot->GetName().c_str());
     }
     else
     {
-        TC_LOG_ERROR("playerbots", "Bot error on logging: %s", out.str().c_str());
+        TC_LOG_ERROR("playerbots", "Bot error on logging: {}", out.str().c_str());
         botSession->LogoutPlayer(true);
         delete botSession;
     }
@@ -308,7 +308,7 @@ void PlayerbotHolder::LogoutPlayerBot(ObjectGuid guid)
             //sPlayerbotDbStore->Save(botAI);
         }
 
-        TC_LOG_INFO("playerbots", "Bot %s logging out", bot->GetName().c_str());
+        TC_LOG_INFO("playerbots", "Bot {} logging out", bot->GetName().c_str());
         bot->SaveToDB(false);
 
         WorldSession* botWorldSessionPtr = bot->GetSession();
@@ -410,7 +410,7 @@ void PlayerbotHolder::DisablePlayerBot(ObjectGuid guid)
             //sPlayerbotDbStore->Save(botAI);
         }
 
-        TC_LOG_DEBUG("playerbots", "Bot %s logged out", bot->GetName().c_str());
+        TC_LOG_DEBUG("playerbots", "Bot {} logged out", bot->GetName().c_str());
 
         bot->SaveToDB(false);
 
@@ -456,7 +456,7 @@ void PlayerbotHolder::OnBotLogin(Player* const bot)
     if (!botAI)
     {
         // Log a warning here to indicate that the botAI is null
-        //TC_LOG_DEBUG("playerbots", "PlayerbotAI is null for bot with GUID: %u", bot->GetGUID());
+        //TC_LOG_DEBUG("playerbots", "PlayerbotAI is null for bot with GUID: {}", bot->GetGUID());
         return;
     }
 
@@ -464,7 +464,7 @@ void PlayerbotHolder::OnBotLogin(Player* const bot)
     if (!master)
     {
         // Log a warning to indicate that the master is null
-        //TC_LOG_DEBUG("playerbots", "Master is null for bot with GUID: %u", bot->GetGUID());
+        //TC_LOG_DEBUG("playerbots", "Master is null for bot with GUID: {}", bot->GetGUID());
         return;
     }
 
@@ -1125,7 +1125,7 @@ void PlayerbotMgr::OnBotLoginInternal(Player* const bot)
     botAI->SetMaster(master);
     //botAI->ResetStrategies();
 
-    TC_LOG_INFO("playerbots", "Bot %s logged in - Active spec tab: %u Spec: %u ", bot->GetName().c_str(), (uint32)bot->GetActiveSpec(), (uint32)bot->GetSpecialization());
+    TC_LOG_INFO("playerbots", "Bot {} logged in - Active spec tab: {} Spec: {} ", bot->GetName().c_str(), (uint32)bot->GetActiveSpec(), (uint32)bot->GetSpecialization());
 }
 
 void PlayerbotMgr::OnPlayerLogin(Player* player)
@@ -1170,7 +1170,7 @@ void PlayerbotMgr::TellError(std::string const botName, std::string const text)
     {
         names.insert(botName);
     }
-    TC_LOG_DEBUG("playerbots", "TellErro: %s: %s", botName.c_str(), text.c_str());
+    TC_LOG_DEBUG("playerbots", "TellErro: {}: {}", botName.c_str(), text.c_str());
     errors[text] = names;
 }
 

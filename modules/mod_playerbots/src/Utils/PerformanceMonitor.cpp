@@ -131,7 +131,7 @@ void PerformanceMonitor::PrintStats(bool perTick, bool fullStack)
                 if (perc >= 0.1f || avg >= 0.25f || pd->maxTime > 1000)
                 {
                     TC_LOG_INFO("playerbots",
-                                "%7.3f%% %10.3fs | %7.1f .. %7.1f (%10.3f of %10d) - %-6s : %s", perc, time,
+                                "{}% {}s | {} .. {} ({} of {}) - {} : {}", perc, time,
                              minTime, maxTime, avg, pd->count, key.c_str(), disName.c_str());
                 }
             }
@@ -140,7 +140,7 @@ void PerformanceMonitor::PrintStats(bool perTick, bool fullStack)
             float tMinTime = (float)typeMinTime / 1000.0f;
             float tMaxTime = (float)typeMaxTime / 1000.0f;
             float tAvg = (float)typeTotalTime / (float)typeCount / 1000.0f;
-            TC_LOG_INFO("playerbots", "%7.3f%% %10.3fs | %7.1f .. %7.1f (%10.3f of %10d) - %-6s : %s", tPerc,
+            TC_LOG_INFO("playerbots", "{}% {}s | {} .. {} ({} of {}) - {} : {}", tPerc,
                      tTime, tMinTime, tMaxTime, tAvg, typeCount, key.c_str(), "Total");
             TC_LOG_INFO("playerbots", " ");
         }
@@ -222,7 +222,7 @@ void PerformanceMonitor::PrintStats(bool perTick, bool fullStack)
                 if (perc >= 0.1f || avg >= 0.25f || pd->maxTime > 1000)
                 {
                     TC_LOG_INFO("playerbots",
-                                "%7.3f%% %9.3fms | %7.1f .. %7.1f (%10.3f of %10.2f) - %-6s : %s", perc,
+                                "{}% {}ms | {} .. {} ({} of {}) - {} : {}", perc,
                              time, minTime, maxTime, avg, amount, key.c_str(), disName.c_str());
                 }
             }
@@ -234,7 +234,7 @@ void PerformanceMonitor::PrintStats(bool perTick, bool fullStack)
                 float tMaxTime = (float)typeMaxTime / 1000.0f;
                 float tAvg = (float)typeTotalTime / (float)typeCount / 1000.0f;
                 float tAmount = (float)typeCount / fullTickCount;
-                TC_LOG_INFO("playerbots", "%7.3f%% %9.3fms | %7.1f .. %7.1f (%10.3f of %10.2f) - %-6s : %s",
+                TC_LOG_INFO("playerbots", "{}% {}ms | {} .. {} ({} of {}) - {} : {}",
                          tPerc, tTime, tMinTime, tMaxTime, tAvg, tAmount, key.c_str(), "Total");
             }
             TC_LOG_INFO("playerbots", " ");

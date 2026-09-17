@@ -76,7 +76,7 @@ bool Corpse::Create(uint32 guidlow, Player* owner)
 
     if (!IsPositionValid())
     {
-        TC_LOG_ERROR("entities.player", "Corpse (guidlow %d, owner %s) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
+        TC_LOG_ERROR("entities.player", "Corpse (guidlow {}, owner {}) not created. Suggested coordinates isn't valid (X: {} Y: {})",
             guidlow, owner->GetName().c_str(), owner->GetPositionX(), owner->GetPositionY());
         return false;
     }
@@ -175,7 +175,7 @@ bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
 
     if (!IsPositionValid())
     {
-        TC_LOG_ERROR("entities.player", "Corpse (guid: %u, owner: %u) is not created, given coordinates are not valid (X: %f, Y: %f, Z: %f)",
+        TC_LOG_ERROR("entities.player", "Corpse (guid: {}, owner: {}) is not created, given coordinates are not valid (X: {}, Y: {}, Z: {})",
             GetGUID().GetCounter(), GetOwnerGUID().GetCounter(), posX, posY, posZ);
         return false;
     }

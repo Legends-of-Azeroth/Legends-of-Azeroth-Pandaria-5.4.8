@@ -333,9 +333,8 @@ struct npc_kservant : public EscortAI
 public:
     npc_kservant(Creature* creature) : EscortAI(creature) { }
 
-    void MovementInform(uint32 type, uint32 waypointId) override
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
     {
-        EscortAI::MovementInform(type, waypointId);
         Player* player = GetPlayerForEscort();
         if (!player)
             return;

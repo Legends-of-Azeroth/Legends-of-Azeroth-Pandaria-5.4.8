@@ -94,7 +94,7 @@ public:
         ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(player->GetClass());
         if (!classEntry)
         {
-            TC_LOG_ERROR("misc", "Class %u not found in DBC (Wrong DBC files?)", player->GetClass());
+            TC_LOG_ERROR("misc", "Class {} not found in DBC (Wrong DBC files?)", player->GetClass());
             return false;
         }
 
@@ -339,7 +339,7 @@ public:
         if (info)
         {
             if (handler->GetSession())
-                sLog->outCommand(handler->GetSession()->GetAccountId(), "Pvp stat (slot: %u) for %u: Rating %u, MatchmakerRating %u, SeasonGames %u, SeasonWins %u, SeasonBest %u, WeekGames %u, WeekWins %u, WeekBest %u",
+                sLog->OutCommand(handler->GetSession()->GetAccountId(), "Pvp stat (slot: {}) for {}: Rating {}, MatchmakerRating {}, SeasonGames {}, SeasonWins {}, SeasonBest {}, WeekGames {}, WeekWins {}, WeekBest {}",
                     uint32(slot), guid.GetCounter(), info->Rating, info->MatchmakerRating, info->SeasonGames, info->SeasonWins, info->SeasonBest, info->WeekGames, info->WeekWins, info->WeekBest);
 
             info->Rating = 0;

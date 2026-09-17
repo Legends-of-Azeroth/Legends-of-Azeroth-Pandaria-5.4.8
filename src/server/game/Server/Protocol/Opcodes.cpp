@@ -83,20 +83,20 @@ void OpcodeTable::ValidateAndSetClientOpcode(OpcodeClient opcode, char const* na
 {
     if (uint32(opcode) == NULL_OPCODE)
     {
-        TC_LOG_ERROR("network", "Opcode %s does not have a value", name);
+        TC_LOG_ERROR("network", "Opcode {} does not have a value", name);
         return;
     }
 
     if (uint32(opcode) >= NUM_OPCODE_HANDLERS)
     {
         // Shaohao: temp disable spam
-        //TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode %d", opcode);
+        //TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode {}", opcode);
         return;
     }
 
     if (_internalTableClient[opcode] != nullptr)
     {
-        TC_LOG_ERROR("network", "Tried to override client handler of %s with %s (opcode %u)", opcodeTable[opcode]->Name, name, opcode);
+        TC_LOG_ERROR("network", "Tried to override client handler of {} with {} (opcode {})", opcodeTable[opcode]->Name, name, opcode);
         return;
     }
 
@@ -107,20 +107,20 @@ void OpcodeTable::ValidateAndSetServerOpcode(OpcodeServer opcode, char const* na
 {
     if (uint32(opcode) == NULL_OPCODE)
     {
-        TC_LOG_ERROR("network", "Opcode %s does not have a value", name);
+        TC_LOG_ERROR("network", "Opcode {} does not have a value", name);
         return;
     }
 
     if (uint32(opcode) >= NUM_OPCODE_HANDLERS)
     {
         // Shaohao: temp disable spam
-        //TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode %d", opcode);
+        //TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode {}", opcode);
         return;
     }
 
     if (_internalTableServer[opcode] != nullptr)
     {
-        TC_LOG_ERROR("network", "Tried to override server handler of %s with %s (opcode %u)", opcodeTable[opcode]->Name, name, opcode);
+        TC_LOG_ERROR("network", "Tried to override server handler of {} with {} (opcode {})", opcodeTable[opcode]->Name, name, opcode);
         return;
     }
 

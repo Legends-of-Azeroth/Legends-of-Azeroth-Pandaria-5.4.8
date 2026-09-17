@@ -233,7 +233,7 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[5]);
     recvData.ReadByteSeq(guid[3]);
 
-    TC_LOG_DEBUG("misc", "HandleQueueInviteResponse: GUID:" UI64FMTD " Accepted:%u", (uint64)guid, accepted);
+    TC_LOG_DEBUG("misc", "HandleQueueInviteResponse: GUID:" "{}" " Accepted:%u", (uint64)guid, accepted);
 
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
     if (!bf)
@@ -268,7 +268,7 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[7]);
     recvData.ReadByteSeq(guid[0]);
 
-    TC_LOG_DEBUG("misc", "HandleBattlefieldInviteResponse: GUID:" UI64FMTD " Accepted:%u", (uint64) guid, accepted);
+    TC_LOG_DEBUG("misc", "HandleBattlefieldInviteResponse: GUID:" "{}" " Accepted:%u", (uint64) guid, accepted);
 
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
     if (!bf)
@@ -303,7 +303,7 @@ void WorldSession::HandleBfQueueRequest(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[7]);
     recvData.ReadByteSeq(guid[3]);
 
-    TC_LOG_DEBUG("misc", "HandleBfQueueRequest: GUID:" UI64FMTD " ", (uint64) guid);
+    TC_LOG_DEBUG("misc", "HandleBfQueueRequest: GUID:" "{}" " ", (uint64) guid);
 
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
     if (!bf)

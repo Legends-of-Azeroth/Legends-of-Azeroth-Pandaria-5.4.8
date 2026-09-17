@@ -31,9 +31,9 @@ RandomBotBacketManager::RandomBotBacketManager()
         totalHordePercent += _HordeLevelRanges[i].desiredPercent;
     }
     if (totalAlliancePercent != 100)
-        TC_LOG_ERROR("server.loading", "[BotLevelBrackets] totalAlliancePercent Sum of percentages is %u (expected 100).", totalAlliancePercent);
+        TC_LOG_ERROR("server.loading", "[BotLevelBrackets] totalAlliancePercent Sum of percentages is {} (expected 100).", totalAlliancePercent);
     if (totalHordePercent != 100)
-        TC_LOG_ERROR("server.loading", "[BotLevelBrackets] totalHordePercent Sum of percentages is %u (expected 100).", totalHordePercent);
+        TC_LOG_ERROR("server.loading", "[BotLevelBrackets] totalHordePercent Sum of percentages is {} (expected 100).", totalHordePercent);
 }
 
 int RandomBotBacketManager::GetLevelRangeIndex(uint8 level)
@@ -70,7 +70,7 @@ void RandomBotBacketManager::AdjustBotToRange(Player* bot, int targetRangeIndex,
             if (_BotDistDebugMode)
             {
                 //std::string playerFaction = IsAlliancePlayerBot(bot) ? "Alliance" : "Horde";
-                //TC_LOG_DEBUG("playerbots", "[BotLevelBrackets] AdjustBotToRange: Cannot assign Death Knight '%s' (%u) to range %u-%u (below level 55).", bot->GetName().c_str(), botOriginalLevel, lowerBound, upperBound);
+                //TC_LOG_DEBUG("playerbots", "[BotLevelBrackets] AdjustBotToRange: Cannot assign Death Knight '{}' ({}) to range {}-{} (below level 55).", bot->GetName().c_str(), botOriginalLevel, lowerBound, upperBound);
             }
             return;
         }
@@ -89,7 +89,7 @@ void RandomBotBacketManager::AdjustBotToRange(Player* bot, int targetRangeIndex,
     if (_BotDistDebugMode)
     {
         std::string playerClassName = bot ? ClassToString((Classes)bot->GetClass()) : "Unknown";
-        //TC_LOG_DEBUG("playerbots", "[BotLevelBrackets] AdjustBotToRange: Bot '%s' - %s (%u) adjusted to level %u (target range %u-%u).", bot->GetName().c_str(), playerClassName.c_str(), botOriginalLevel, newLevel, _LevelRanges[targetRangeIndex].lower, _LevelRanges[targetRangeIndex].upper);
+        //TC_LOG_DEBUG("playerbots", "[BotLevelBrackets] AdjustBotToRange: Bot '{}' - {} ({}) adjusted to level {} (target range {}-{}).", bot->GetName().c_str(), playerClassName.c_str(), botOriginalLevel, newLevel, _LevelRanges[targetRangeIndex].lower, _LevelRanges[targetRangeIndex].upper);
     }
 }
 
@@ -132,7 +132,7 @@ void RandomBotBacketManager::Update(uint32 diff)
             }
             else if (_BotDistDebugMode)
             {
-                TC_LOG_DEBUG("server.loading", "[BotLevelBrackets] Alliance bot '%s' with level %u does not fall into any defined range.",
+                TC_LOG_DEBUG("server.loading", "[BotLevelBrackets] Alliance bot '{}' with level {} does not fall into any defined range.",
                             player->GetName().c_str(), player->GetLevel());
             }
         }
@@ -147,7 +147,7 @@ void RandomBotBacketManager::Update(uint32 diff)
             }
             else if (_BotDistDebugMode)
             {
-                TC_LOG_DEBUG("server.loading", "[BotLevelBrackets] Horde bot '%s' with level %u does not fall into any defined range.",
+                TC_LOG_DEBUG("server.loading", "[BotLevelBrackets] Horde bot '{}' with level {} does not fall into any defined range.",
                     player->GetName().c_str(), player->GetLevel());
             }
         }
@@ -162,7 +162,7 @@ void RandomBotBacketManager::Update(uint32 diff)
             allianceDesiredCounts[i] = static_cast<int>(round((_AllianceLevelRanges[i].desiredPercent / 100.0) * totalAllianceBots));
             if (_BotDistDebugMode)
             {
-                TC_LOG_INFO("server.loading", "[BotLevelBrackets] Alliance Range %u (%u-%u): Desired = %u, Actual = %u.",
+                TC_LOG_INFO("server.loading", "[BotLevelBrackets] Alliance Range {} ({}-{}): Desired = {}, Actual = {}.",
                          i + 1, _AllianceLevelRanges[i].lower, _AllianceLevelRanges[i].upper,
                          allianceDesiredCounts[i], allianceActualCounts[i]);
             }
@@ -215,7 +215,7 @@ void RandomBotBacketManager::Update(uint32 diff)
             hordeDesiredCounts[i] = static_cast<int>(round((_HordeLevelRanges[i].desiredPercent / 100.0) * totalHordeBots));
             if (_BotDistDebugMode)
             {
-                TC_LOG_INFO("server.loading", "[BotLevelBrackets] Horde Range %u (%u-%u): Desired = %u, Actual = %u.",
+                TC_LOG_INFO("server.loading", "[BotLevelBrackets] Horde Range {} ({}-{}): Desired = {}, Actual = {}.",
                          i + 1, _HordeLevelRanges[i].lower, _HordeLevelRanges[i].upper,
                          hordeDesiredCounts[i], hordeActualCounts[i]);
             }
@@ -260,7 +260,7 @@ void RandomBotBacketManager::Update(uint32 diff)
 
     if (_BotDistDebugMode)
     {
-        TC_LOG_INFO("server.loading", "[BotLevelBrackets] Distribution adjustment complete. Alliance bots: %u, Horde bots: %u.",
+        TC_LOG_INFO("server.loading", "[BotLevelBrackets] Distribution adjustment complete. Alliance bots: {}, Horde bots: {}.",
                  totalAllianceBots, totalHordeBots);
     }
 }

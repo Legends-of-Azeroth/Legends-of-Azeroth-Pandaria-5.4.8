@@ -532,9 +532,8 @@ class npc_azure_saboteur : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void MovementInform(uint32 type, uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                EscortAI::MovementInform(type, waypointId);
                 switch (uiBoss)
                 {
                     case 1:
@@ -786,33 +785,32 @@ struct violet_hold_trashAI : public EscortAI
         uint32 portalLocationID;
         uint32 secondPortalRouteID;
 
-    void MovementInform(uint32 type, uint32 uiPointId) override
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
     {
-        EscortAI::MovementInform(type, uiPointId);
         switch (portalLocationID)
         {
             case 0:
-                if (uiPointId == 5)
+                if (waypointId == 5)
                    CreatureStartAttackDoor();
                 break;
             case 1:
-                if ((uiPointId == 8 && secondPortalRouteID == 0) || (uiPointId == 7 && secondPortalRouteID == 1))
+                if ((waypointId == 8 && secondPortalRouteID == 0) || (waypointId == 7 && secondPortalRouteID == 1))
                     CreatureStartAttackDoor();
                 break;
             case 2:
-                if (uiPointId == 7)
+                if (waypointId == 7)
                    CreatureStartAttackDoor();
                 break;
             case 3:
-                if (uiPointId == 8)
+                if (waypointId == 8)
                     CreatureStartAttackDoor();
                 break;
             case 4:
-                if (uiPointId == 5)
+                if (waypointId == 5)
                     CreatureStartAttackDoor();
                 break;
             case 5:
-                if (uiPointId == 3)
+                if (waypointId == 3)
                     CreatureStartAttackDoor();
                 break;
         }

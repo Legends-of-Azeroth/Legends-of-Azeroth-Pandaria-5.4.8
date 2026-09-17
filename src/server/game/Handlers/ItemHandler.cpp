@@ -457,7 +457,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleSellItemOpcode - Unit (GUID: %u) not found or you can not interact with him.", vendorGuid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandleSellItemOpcode - Unit (GUID: {}) not found or you can not interact with him.", vendorGuid.GetCounter());
         _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, itemGuid);
         return;
     }
@@ -535,7 +535,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
                     Item* pNewItem = pItem->CloneItem(count, _player);
                     if (!pNewItem)
                     {
-                        TC_LOG_ERROR("network", "WORLD: HandleSellItemOpcode - could not create clone of item %u; count = %u", pItem->GetEntry(), count);
+                        TC_LOG_ERROR("network", "WORLD: HandleSellItemOpcode - could not create clone of item {}; count = {}", pItem->GetEntry(), count);
                         _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemGuid);
                         return;
                     }
@@ -599,7 +599,7 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleBuybackItem - Unit (GUID: %u) not found or you can not interact with him.", vendorGuid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandleBuybackItem - Unit (GUID: {}) not found or you can not interact with him.", vendorGuid.GetCounter());
         _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, ObjectGuid::Empty);
         return;
     }
@@ -738,7 +738,7 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
     else if (itemType == ITEM_VENDOR_TYPE_CURRENCY)
         GetPlayer()->BuyCurrencyFromVendorSlot(vendorGuid, slot, item, count);
     else
-        TC_LOG_DEBUG("network", "WORLD: received wrong itemType (%u) in HandleBuyItemOpcode", itemType);
+        TC_LOG_DEBUG("network", "WORLD: received wrong itemType ({}) in HandleBuyItemOpcode", itemType);
 
     GetPlayer()->SetSaveTimer(1);
 }
@@ -780,7 +780,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid, uint32 vendorEntry)
     Creature* vendor = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
     if (!vendor)
     {
-        TC_LOG_DEBUG("network", "WORLD: SendListInventory - Unit (GUID: %u) not found or you can not interact with him.", vendorGuid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: SendListInventory - Unit (GUID: {}) not found or you can not interact with him.", vendorGuid.GetCounter());
         _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, ObjectGuid::Empty);
         return;
     }
@@ -841,7 +841,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid, uint32 vendorEntry)
 
             if (!sConditionMgr->IsObjectMeetingVendorItemConditions(vendor->GetEntry(), vendorItem->item, _player, vendor))
             {
-                TC_LOG_DEBUG("condition", "SendListInventory: conditions not met for creature entry %u item %u", vendor->GetEntry(), vendorItem->item);
+                TC_LOG_DEBUG("condition", "SendListInventory: conditions not met for creature entry {} item {}", vendor->GetEntry(), vendorItem->item);
                 continue;
             }
 
@@ -1058,7 +1058,7 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvData)
     // next slot
     ++slot;
 
-    TC_LOG_INFO("network", "PLAYER: Buy bank bag slot, slot number = %u", slot);
+    TC_LOG_INFO("network", "PLAYER: Buy bank bag slot, slot number = {}", slot);
 
     BankBagSlotPricesEntry const* slotEntry = sBankBagSlotPricesStore.LookupEntry(slot);
     if (!slotEntry)
@@ -1085,7 +1085,7 @@ void WorldSession::HandleAutoBankItemOpcode(WorldPacket& recvPacket)
     recvPacket >> srcSlot >> srcBag;
     recvPacket.rfinish();
 
-    TC_LOG_DEBUG("network", "STORAGE: receive srcbag = %u, srcslot = %u", srcBag, srcSlot);
+    TC_LOG_DEBUG("network", "STORAGE: receive srcbag = {}, srcslot = {}", srcBag, srcSlot);
 
     Item* pItem = _player->GetItemByPos(srcBag, srcSlot);
     if (!pItem)
@@ -1116,7 +1116,7 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
     uint8 srcBag, srcSlot;
 
     recvPacket >> srcSlot >> srcBag;
-    TC_LOG_DEBUG("network", "STORAGE: receive srcbag = %u, srcslot = %u", srcBag, srcSlot);
+    TC_LOG_DEBUG("network", "STORAGE: receive srcbag = {}, srcslot = {}", srcBag, srcSlot);
 
     Item* pItem = _player->GetItemByPos(srcBag, srcSlot);
     if (!pItem)
@@ -1287,7 +1287,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
     if (has_item_bag)
         recvData >> item_bag;
 
-    TC_LOG_DEBUG("network", "WRAP: receive gift_bag = %u, gift_slot = %u, item_bag = %u, item_slot = %u", gift_bag, gift_slot, item_bag, item_slot);
+    TC_LOG_DEBUG("network", "WRAP: receive gift_bag = {}, gift_slot = {}, item_bag = {}, item_slot = {}", gift_bag, gift_slot, item_bag, item_slot);
 
     Item* gift = _player->GetItemByPos(gift_bag, gift_slot);
     if (!gift)
@@ -1745,7 +1745,7 @@ void WorldSession::HandleItemTextQuery(WorldPacket& recvData)
     recvData >> g;
 
     ObjectGuid itemGuid(g);
-    TC_LOG_DEBUG("network", "CMSG_ITEM_TEXT_QUERY item guid: %u", itemGuid.GetCounter());
+    TC_LOG_DEBUG("network", "CMSG_ITEM_TEXT_QUERY item guid: {}", itemGuid.GetCounter());
 
     WorldPacket data(SMSG_ITEM_TEXT_QUERY_RESPONSE, 14);    // guess size
 
@@ -1794,7 +1794,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 
     if (count >= EQUIPMENT_SLOT_END)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) sent a wrong count (%u) when transmogrifying items.", player->GetGUID().GetCounter(), player->GetName().c_str(), count);
+        TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (GUID: {}, name: {}) sent a wrong count ({}) when transmogrifying items.", player->GetGUID().GetCounter(), player->GetName().c_str(), count);
         recvData.rfinish();
         return;
     }
@@ -1873,7 +1873,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 
     if (!player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_TRANSMOGRIFIER))
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Unit (GUID: %u) not found or player can't interact with it.", npcGuid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Unit (GUID: {}) not found or player can't interact with it.", npcGuid.GetCounter());
         return;
     }
 
@@ -1883,7 +1883,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         // slot of the transmogrified item
         if (slots[i] >= EQUIPMENT_SLOT_END)
         {
-            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify an item (lowguid: %u) with a wrong slot (%u) when transmogrifying items.", player->GetGUID().GetCounter(), player->GetName().c_str(), itemGuids[i].GetCounter(), slots[i]);
+            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (GUID: {}, name: {}) tried to transmogrify an item (lowguid: {}) with a wrong slot ({}) when transmogrifying items.", player->GetGUID().GetCounter(), player->GetName().c_str(), itemGuids[i].GetCounter(), slots[i]);
             return;
         }
 
@@ -1893,7 +1893,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
             ItemTemplate const* proto = sObjectMgr->GetItemTemplate(newEntries[i]);
             if (!proto)
             {
-                TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify to an invalid item (entry: %u).", player->GetGUID().GetCounter(), player->GetName().c_str(), newEntries[i]);
+                TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (GUID: {}, name: {}) tried to transmogrify to an invalid item (entry: {}).", player->GetGUID().GetCounter(), player->GetName().c_str(), newEntries[i]);
                 return;
             }
         }
@@ -1909,7 +1909,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 
             if (!itemTransmogrifier && !vsItem)
             {
-                TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify with an invalid item (lowguid: %u).", player->GetGUID().GetCounter(), player->GetName().c_str(), itemGuids[i].GetCounter());
+                TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (GUID: {}, name: {}) tried to transmogrify with an invalid item (lowguid: {}).", player->GetGUID().GetCounter(), player->GetName().c_str(), itemGuids[i].GetCounter());
                 return;
             }
 
@@ -1924,7 +1924,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         Item* itemTransmogrified = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slots[i]);
         if (!itemTransmogrified)
         {
-            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify an invalid item in a valid slot (slot: %u).", player->GetGUID().GetCounter(), player->GetName().c_str(), slots[i]);
+            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (GUID: {}, name: {}) tried to transmogrify an invalid item in a valid slot (slot: {}).", player->GetGUID().GetCounter(), player->GetName().c_str(), slots[i]);
             return;
         }
 
@@ -1932,14 +1932,14 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         //// has to be able to equip item transmogrified item
         //if (!player->CanEquipItem(slots[i], tempDest, itemTransmogrified, true, true))
         //{
-        //    TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) can't equip the item to be transmogrified (slot: %u, entry: %u).", player->GetGUID().GetCounter(), player->GetName().c_str(), slots[i], itemTransmogrified->GetEntry());
+        //    TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (GUID: {}, name: {}) can't equip the item to be transmogrified (slot: {}, entry: {}).", player->GetGUID().GetCounter(), player->GetName().c_str(), slots[i], itemTransmogrified->GetEntry());
         //    return;
         //}
         //
         //// has to be able to equip item transmogrifier item
         //if (!player->CanEquipItem(slots[i], tempDest, itemTransmogrifier, true, true))
         //{
-        //    TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) can't equip the transmogrifier item (slot: %u, entry: %u).", player->GetGUID().GetCounter(), player->GetName().c_str(), slots[i], itemTransmogrifier->GetEntry());
+        //    TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (GUID: {}, name: {}) can't equip the transmogrifier item (slot: {}, entry: {}).", player->GetGUID().GetCounter(), player->GetName().c_str(), slots[i], itemTransmogrifier->GetEntry());
         //    return;
         //}
 
@@ -1952,7 +1952,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         {
             if (!sObjectMgr->CanTransmogrifyItemWithItem(itemTransmogrified->GetTemplate(), itemTransmogrifier ? itemTransmogrifier->GetTemplate() : sObjectMgr->GetItemTemplate(vsItem->ItemEntry)))
             {
-                TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) failed CanTransmogrifyItemWithItem (%u with %u).", player->GetGUID().GetCounter(), player->GetName().c_str(), itemTransmogrified->GetEntry(), itemTransmogrifier->GetEntry());
+                TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (GUID: {}, name: {}) failed CanTransmogrifyItemWithItem ({} with {}).", player->GetGUID().GetCounter(), player->GetName().c_str(), itemTransmogrified->GetEntry(), itemTransmogrifier->GetEntry());
                 return;
             }
 
@@ -2015,7 +2015,7 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
 
     if (!player->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_REFORGER))
     {
-        TC_LOG_INFO("network", "WORLD: HandleReforgeItemOpcode - Unit (GUID: %u) not found or player can't interact with it.", guid.GetCounter());
+        TC_LOG_INFO("network", "WORLD: HandleReforgeItemOpcode - Unit (GUID: {}) not found or player can't interact with it.", guid.GetCounter());
         SendReforgeResult(false);
         return;
     }
@@ -2023,7 +2023,7 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
     Item* item = player->GetItemByPos(bag, slot);
     if (!item)
     {
-        TC_LOG_INFO("network", "WORLD: HandleReforgeItemOpcode - Player (Guid: %u Name: %s) tried to reforge an invalid/non-existant item.", player->GetGUID().GetCounter(), player->GetName().c_str());
+        TC_LOG_INFO("network", "WORLD: HandleReforgeItemOpcode - Player (Guid: {} Name: {}) tried to reforge an invalid/non-existant item.", player->GetGUID().GetCounter(), player->GetName().c_str());
         SendReforgeResult(false);
         return;
     }
@@ -2042,7 +2042,7 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
     ItemReforgeEntry const* stats = sItemReforgeStore.LookupEntry(reforgeEntry);
     if (!stats)
     {
-        TC_LOG_INFO("network", "WORLD: HandleReforgeItemOpcode - Player (Guid: %u Name: %s) tried to reforge an item with invalid reforge entry (%u).", player->GetGUID().GetCounter(), player->GetName().c_str(), reforgeEntry);
+        TC_LOG_INFO("network", "WORLD: HandleReforgeItemOpcode - Player (Guid: {} Name: {}) tried to reforge an item with invalid reforge entry ({}).", player->GetGUID().GetCounter(), player->GetName().c_str(), reforgeEntry);
         SendReforgeResult(false);
         return;
     }
@@ -2165,7 +2165,7 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
 
     if (!player->GetNPCIfCanInteractWithFlag2(npcGuid, UNIT_NPC_FLAG2_ITEM_UPGRADE))
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItemOpcode - Unit (GUID: %u) not found or player can't interact with it.", npcGuid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItemOpcode - Unit (GUID: {}) not found or player can't interact with it.", npcGuid.GetCounter());
         SendItemUpgradeResult(false);
         return;
     }
@@ -2173,7 +2173,7 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
     Item* item = player->GetItemByGuid(itemGuid);
     if (!item)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItemOpcode - Item (GUID: %u) not found.", itemGuid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItemOpcode - Item (GUID: {}) not found.", itemGuid.GetCounter());
         SendItemUpgradeResult(false);
         return;
     }
@@ -2183,14 +2183,14 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
     {
         if (item != tempItem)
         {
-            TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItemOpcode - Item (GUID: %u) not found.", itemGuid.GetCounter());
+            TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItemOpcode - Item (GUID: {}) not found.", itemGuid.GetCounter());
             SendItemUpgradeResult(false);
             return;
         }
     }
     else
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItemOpcode - Item (GUID: %u) not found.", itemGuid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItemOpcode - Item (GUID: {}) not found.", itemGuid.GetCounter());
         SendItemUpgradeResult(false);
         return;
     }
@@ -2198,7 +2198,7 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
     ItemUpgradeEntry const* itemUpEntry = sItemUpgradeStore.LookupEntry(upgradeEntry);
     if (!itemUpEntry)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItemOpcode - ItemUpgradeEntry (%u) not found.", upgradeEntry);
+        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItemOpcode - ItemUpgradeEntry ({}) not found.", upgradeEntry);
         SendItemUpgradeResult(false);
         return;
     }
@@ -2206,7 +2206,7 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
     // Check if player has enough currency
     if (player->GetCurrency(itemUpEntry->CurrencyID, false) < itemUpEntry->CurrencyCost)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItemOpcode - Player has not enougth currency (ID: %u, Cost: %u) not found.", itemUpEntry->CurrencyID, itemUpEntry->CurrencyCost);
+        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItemOpcode - Player has not enougth currency (ID: {}, Cost: {}) not found.", itemUpEntry->CurrencyID, itemUpEntry->CurrencyCost);
         SendItemUpgradeResult(false);
         return;
     }
@@ -2214,7 +2214,7 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
     uint32 actualUpgrade = item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, ITEM_MODIFIER_INDEX_UPGRADE);
     if (actualUpgrade != itemUpEntry->PrevItemUpgradeID)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItemOpcode - ItemUpgradeEntry (%u) is not related to this ItemUpgradePath (%u).", itemUpEntry->ID, actualUpgrade);
+        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItemOpcode - ItemUpgradeEntry ({}) is not related to this ItemUpgradePath ({}).", itemUpEntry->ID, actualUpgrade);
         SendItemUpgradeResult(false);
         return;
     }
@@ -2401,13 +2401,13 @@ void WorldSession::HandleSetLootSpecialization(WorldPacket& recvData)
         auto specializationEntry = sChrSpecializationStore.LookupEntry(lootSpecialization);
         if (!specializationEntry)
         {
-            TC_LOG_DEBUG("network", "Player tried to set their loot specialization to %u which doesn't exist!", lootSpecialization);
+            TC_LOG_DEBUG("network", "Player tried to set their loot specialization to {} which doesn't exist!", lootSpecialization);
             return;
         }
 
         if (GetPlayer()->GetClass() != specializationEntry->classId)
         {
-            TC_LOG_DEBUG("network", "Player tried to set their loot specialization to %u which isn't valid for their class!", lootSpecialization);
+            TC_LOG_DEBUG("network", "Player tried to set their loot specialization to {} which isn't valid for their class!", lootSpecialization);
             return;
         }
     }

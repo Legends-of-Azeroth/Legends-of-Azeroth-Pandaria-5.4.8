@@ -100,7 +100,7 @@ void PetAI::_stopAttack()
 {
     if (!me->IsAlive())
     {
-        TC_LOG_DEBUG("misc", "Creature stoped attacking cuz his dead [guid=%u]", me->GetGUID().GetCounter());
+        TC_LOG_DEBUG("misc", "Creature stoped attacking cuz his dead [guid={}]", me->GetGUID().GetCounter());
         me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveIdle();
         me->CombatStop();
@@ -202,7 +202,7 @@ void PetAI::UpdateAI(uint32 diff)
 
         if (_needToStop())
         {
-            TC_LOG_DEBUG("misc", "Pet AI stopped attacking [guid=%u]", me->GetGUID().GetCounter());
+            TC_LOG_DEBUG("misc", "Pet AI stopped attacking [guid={}]", me->GetGUID().GetCounter());
             _stopAttack();
             return;
         }

@@ -234,9 +234,8 @@ class npc_onyx_flamecaller : public CreatureScript
                     zarithrian->AI()->JustSummoned(me);
             }
 
-            void MovementInform(uint32 type, uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                EscortAI::MovementInform(type, waypointId);
                 if (waypointId == MAX_PATH_FLAMECALLER_WAYPOINTS || waypointId == MAX_PATH_FLAMECALLER_WAYPOINTS*2)
                 {
                     DoZoneInCombat();

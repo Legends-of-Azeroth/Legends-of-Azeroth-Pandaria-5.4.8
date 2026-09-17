@@ -293,9 +293,8 @@ public:
         bool LowHp;
         bool HadMount;
 
-        void MovementInform(uint32 type, uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, waypointId);
             if (!instance)
                 return;
 
@@ -584,7 +583,7 @@ enum Taretha
 
 //     InstanceScript* instance;
 
-//     void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
+//     void WaypointReached(uint32 waypointId, uint32 pathId) override
 //     {
 //         switch (waypointId)
 //         {
@@ -698,9 +697,8 @@ public:
 
         InstanceScript* instance;
 
-        void MovementInform(uint32 type, uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, waypointId);
             switch (waypointId)
             {
                 case 6:

@@ -1963,7 +1963,7 @@ struct npc_soo_laser_target_bunny : public ScriptedAI
                     float dist = me->GetExactDist2d(siegecrafterHelper);
                     if (dist < 0.5f)
                     {
-                        TC_LOG_ERROR("shitlog", "npc_soo_laser_target_bunny, dist %f", dist);
+                        TC_LOG_ERROR("shitlog", "npc_soo_laser_target_bunny, dist {}", dist);
                         dist = 0.5f;
                     }
                     float mod = dist > 50.0f ? (1.82 * dist) / 15.68 : (1.2 * dist) / 15.68;

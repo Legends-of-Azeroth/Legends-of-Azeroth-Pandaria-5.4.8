@@ -155,7 +155,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/, float maxRangeToN
     Map* map = creature->GetMap();
     if (!map->IsDungeon())                                  //use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
     {
-        TC_LOG_ERROR("misc", "DoZoneInCombat call for map that isn't an instance (creature entry = %d)", creature->GetTypeId() == TYPEID_UNIT ? creature->ToCreature()->GetEntry() : 0);
+        TC_LOG_ERROR("misc", "DoZoneInCombat call for map that isn't an instance (creature entry = {})", creature->GetTypeId() == TYPEID_UNIT ? creature->ToCreature()->GetEntry() : 0);
         return;
     }
 
@@ -180,7 +180,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/, float maxRangeToN
     // If it can't find a suitable attack target then we should error out.
     if (!creature->HasReactState(REACT_PASSIVE) && !creature->GetVictim())
     {
-        TC_LOG_ERROR("misc", "DoZoneInCombat called for creature that has empty threat list (creature entry = %u)", creature->GetEntry());
+        TC_LOG_ERROR("misc", "DoZoneInCombat called for creature that has empty threat list (creature entry = {})", creature->GetEntry());
         return;
     }
 
@@ -277,7 +277,7 @@ void CreatureAI::MoveInLineOfSight_Safe(Unit* who)
 
 void CreatureAI::SpellRequiresMovement(Unit* /*target*/, Spell* spell)
 {
-    TC_LOG_ERROR("shitlog", "CreatureAI::SpellRequiresMovement me %u",  me->GetEntry());
+    TC_LOG_ERROR("shitlog", "CreatureAI::SpellRequiresMovement me {}",  me->GetEntry());
 
     spell->finish(false);
     delete spell;
@@ -304,7 +304,7 @@ void CreatureAI::EnterEvadeMode(EvadeReason why)
     if (!_EnterEvadeMode(why))
         return;
 
-    TC_LOG_DEBUG("entities.unit", "Creature %u enters evade mode.", me->GetEntry());
+    TC_LOG_DEBUG("entities.unit", "Creature {} enters evade mode.", me->GetEntry());
 
     if (!me->GetVehicle()) // otherwise me will be in evade mode forever
     {
@@ -380,7 +380,7 @@ bool CreatureAI::CheckInRoom()
     if (IsInBoundary())
         return true;
 
-    TC_LOG_DEBUG("scripts", "Creature %s (unit %s) has left its designated room area!", me->GetName().c_str(), me->GetGUID().ToString().c_str());
+    TC_LOG_DEBUG("scripts", "Creature {} (unit {}) has left its designated room area!", me->GetName().c_str(), me->GetGUID().ToString().c_str());
     EnterEvadeMode();
     return false;
 }

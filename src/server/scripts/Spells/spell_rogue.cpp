@@ -661,7 +661,7 @@ class spell_rog_deadly_poison : public SpellScriptLoader
                             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(enchant->SpellID[s]);
                             if (!spellInfo)
                             {
-                                TC_LOG_ERROR("spells", "Player::CastItemCombatSpell Enchant %i, player (Name: %s, GUID: %u) cast unknown spell %i",
+                                TC_LOG_ERROR("spells", "Player::CastItemCombatSpell Enchant {}, player (Name: {}, GUID: {}) cast unknown spell {}",
                                              enchant->ID, player->GetName().c_str(), player->GetGUID().GetCounter(), enchant->SpellID[s]);
                                 continue;
                             }

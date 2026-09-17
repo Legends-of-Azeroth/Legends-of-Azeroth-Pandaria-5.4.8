@@ -158,7 +158,7 @@ void RandomPlayerbotMgr::UpdateAIInternal(uint32 elapsed, bool /*minimal*/)
             loginBots += updateBots;
             loginBots = std::min(loginBots, maxNewBots);
 
-            TC_LOG_INFO("playerbots", "%d new bots", loginBots);
+            TC_LOG_INFO("playerbots", "{} new bots", loginBots);
 
             // Log in bots
             for (auto bot : availableBots)
@@ -281,10 +281,10 @@ bool RandomPlayerbotMgr::ProcessBot(uint32 bot)
             if (player)
             {
                 auto side = (player->GetTeamId() == TeamId::TEAM_ALLIANCE ? "A" : "H");
-                TC_LOG_INFO("playerbots", "Bot #%u %s:%u <%s>: log out", bot, side, player->GetLevel(), player->GetName().c_str());
+                TC_LOG_INFO("playerbots", "Bot #{} {}:{} <{}>: log out", bot, side, player->GetLevel(), player->GetName().c_str());
             }
             else
-                TC_LOG_INFO("playerbots", "Bot #%u: log out", bot);
+                TC_LOG_INFO("playerbots", "Bot #{}: log out", bot);
 
             SetEventValue(bot, "add", 0, 0);
             _currentBots.erase(std::remove(_currentBots.begin(), _currentBots.end(), bot), _currentBots.end());
@@ -372,7 +372,7 @@ bool RandomPlayerbotMgr::ProcessBot(uint32 bot)
     if (player && !logout && !isValid)
     {
         auto side = (player->GetTeamId() == TeamId::TEAM_ALLIANCE ? "A" : "H");
-        TC_LOG_INFO("playerbots", "Bot #%u %s:%u <%s>: log out", bot, side, player->GetLevel(), player->GetName().c_str());
+        TC_LOG_INFO("playerbots", "Bot #{} {}:{} <{}>: log out", bot, side, player->GetLevel(), player->GetName().c_str());
         LogoutPlayerBot(botGUID);
         for (auto it = _currentBots.begin(); it != _currentBots.end();)
         {
@@ -409,7 +409,7 @@ bool RandomPlayerbotMgr::ProcessBot(Player* player)
         if (!GetEventValue(bot, "dead"))
         {
             uint32 randomTime = urand(60/*sPlayerbotAIConfig->minRandomBotReviveTime*/, 300/*sPlayerbotAIConfig->maxRandomBotReviveTime*/);
-            TC_LOG_DEBUG("playerbots", "Mark bot %s as dead, will be revived in %us.", player->GetName().c_str(), randomTime);
+            TC_LOG_DEBUG("playerbots", "Mark bot {} as dead, will be revived in {}s.", player->GetName().c_str(), randomTime);
             SetEventValue(bot, "dead", 1, sPlayerbotAIConfig->maxRandomBotInWorldTime);
             SetEventValue(bot, "revive", 1, randomTime);
             return false;
@@ -452,7 +452,7 @@ bool RandomPlayerbotMgr::ProcessBot(Player* player)
         {
             PerformanceMonitorOperation* pmo = sPerformanceMonitor->start(PERF_MON_RNDBOT, "Randomize");
             Randomize(player);
-            TC_LOG_DEBUG("playerbots", "Bot #%u %s:%u <%s>: randomized", bot.GetCounter(), player->GetTeamId() == TEAM_ALLIANCE ? "A" : "H", player->GetLevel(), player->GetName().c_str());
+            TC_LOG_DEBUG("playerbots", "Bot #{} {}:{} <{}>: randomized", bot.GetCounter(), player->GetTeamId() == TEAM_ALLIANCE ? "A" : "H", player->GetLevel(), player->GetName().c_str());
             if (pmo)
                 pmo->finish();
             return true;
@@ -462,7 +462,7 @@ bool RandomPlayerbotMgr::ProcessBot(Player* player)
         if (!teleport)
         {
             PerformanceMonitorOperation* pmo = sPerformanceMonitor->start(PERF_MON_RNDBOT, "RandomTeleportByLocations");
-            TC_LOG_DEBUG("playerbots", "Bot #%u <%s>: teleport for level and refresh", bot.GetCounter(), player->GetName().c_str());
+            TC_LOG_DEBUG("playerbots", "Bot #{} <{}>: teleport for level and refresh", bot.GetCounter(), player->GetName().c_str());
             Refresh(player);
             RandomTeleportForLevel(player);
             uint32 time = urand(sPlayerbotAIConfig->minRandomBotTeleportInterval, sPlayerbotAIConfig->maxRandomBotTeleportInterval);
@@ -599,7 +599,7 @@ void RandomPlayerbotMgr::Refresh(Player* bot)
     if (bot->InBattleground())
         return;
 
-    TC_LOG_INFO("playerbots", "Refreshing bot #%u <%s>", bot->GetGUID().GetCounter(), bot->GetName().c_str());
+    TC_LOG_INFO("playerbots", "Refreshing bot #{} <{}>", bot->GetGUID().GetCounter(), bot->GetName().c_str());
     PerformanceMonitorOperation* pmo = sPerformanceMonitor->start(PERF_MON_RNDBOT, "Refresh");
 
     botAI->Reset();
@@ -807,7 +807,7 @@ void RandomPlayerbotMgr::OnPlayerLogout(Player* player)
 void RandomPlayerbotMgr::OnBotLoginInternal(Player* const bot)
 {
     auto maxAllowed = sRandomPlayerbotMgr->GetMaxAllowedBotCount();
-    TC_LOG_INFO("playerbots", "%u/%u Bot %s logged in - Active spec tab: %u Spec: %u", playerBots.size(), maxAllowed, bot->GetName().c_str(), (uint32)bot->GetActiveSpec(), (uint32)bot->GetSpecialization());
+    TC_LOG_INFO("playerbots", "{}/{} Bot {} logged in - Active spec tab: {} Spec: {}", playerBots.size(), maxAllowed, bot->GetName().c_str(), (uint32)bot->GetActiveSpec(), (uint32)bot->GetSpecialization());
 
     // If this player has been created recently and is not assign horde / alliance as pandaren
     if (bot->GetRace() == RACE_PANDAREN_NEUTRAL)
@@ -824,7 +824,7 @@ void RandomPlayerbotMgr::OnBotLoginInternal(Player* const bot)
             WorldSession* session = bot->GetSession();
             session->HandleSelectFactionOpcode(packet);
 
-            TC_LOG_INFO("playerbots", "%s Assigned to faction: %s", bot->GetName().c_str(), (bot->GetTeamId() ? "Alliance" : "Horde"));
+            TC_LOG_INFO("playerbots", "{} Assigned to faction: {}", bot->GetName().c_str(), (bot->GetTeamId() ? "Alliance" : "Horde"));
         });        
     }
     if (bot->GetRace() == RACE_GOBLIN && bot->GetLevel() == 1)
@@ -955,7 +955,7 @@ void RandomPlayerbotMgr::OnPlayerLogin(Player* player)
     if (!IsRandomBot(player))
     {
         _players.push_back(player);
-        TC_LOG_DEBUG("playerbots", "Including non-random bot player %s into random bot update", player->GetName().c_str());
+        TC_LOG_DEBUG("playerbots", "Including non-random bot player {} into random bot update", player->GetName().c_str());
     }
 }
 
@@ -1012,7 +1012,7 @@ void RandomPlayerbotMgr::PrepareAddclassCache()
             } while (results->NextRow());
         }
     }
-    TC_LOG_INFO("playerbots", ">> %u characters collected for addclass command.", collected);
+    TC_LOG_INFO("playerbots", ">> {} characters collected for addclass command.", collected);
 }
 
 void RandomPlayerbotMgr::PrepareTeleportCache()
@@ -1121,7 +1121,7 @@ void RandomPlayerbotMgr::PrepareTeleportCache()
 
             if (map_id == UINT32_MAX)
             {
-                TC_LOG_ERROR("server.loading", "City {%u} in ZoneId {%u} is not found in zone cache", city_id, ZoneId);
+                TC_LOG_ERROR("server.loading", "City {} in ZoneId {} is not found in zone cache", city_id, ZoneId);
                 continue;
             }
 
@@ -1180,8 +1180,8 @@ void RandomPlayerbotMgr::PrepareTeleportCache()
         } while (results->NextRow());
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u cache zone for %u farm spot", zone_count, farm_spot_count);
-    TC_LOG_INFO("server.loading", ">> Loaded %u city zone", city_count);
+    TC_LOG_INFO("server.loading", ">> Loaded {} cache zone for {} farm spot", zone_count, farm_spot_count);
+    TC_LOG_INFO("server.loading", ">> Loaded {} city zone", city_count);
 }
 
 void RandomPlayerbotMgr::RandomTeleportForLevel(Player* bot)
@@ -1196,14 +1196,14 @@ void RandomPlayerbotMgr::RandomTeleportForLevel(Player* bot)
             Map* map = sMapMgr->FindMap(city_data->map_id, 0);
 
             bot->TeleportTo(city_data->map_id, city_data->x, city_data->y, city_data->z, 0.0f, 0);
-            TC_LOG_INFO("playerbots", "Bot #%u <%s> teleported to City: map{%u} %f:%f:%f", bot->GetGUID().GetCounter(), bot->GetName().c_str(), city_data->map_id, city_data->x, city_data->y, city_data->z);
+            TC_LOG_INFO("playerbots", "Bot #{} <{}> teleported to City: map{} {}:{}:{}", bot->GetGUID().GetCounter(), bot->GetName().c_str(), city_data->map_id, city_data->x, city_data->y, city_data->z);
         }
         else if (const auto farm_spot = GetFarmZoneForPlayer(bot))
         {
             Map* map = sMapMgr->FindMap(farm_spot->map_id, 0);
 
             bot->TeleportTo(farm_spot->map_id, farm_spot->x, farm_spot->y, farm_spot->z, 0.0f, 0);
-            TC_LOG_INFO("playerbots", "Bot #%u <%s> teleported to FarmSpot: map{%u} %f:%f:%f", bot->GetGUID().GetCounter(), bot->GetName().c_str(), farm_spot->map_id, farm_spot->x, farm_spot->y, farm_spot->z);
+            TC_LOG_INFO("playerbots", "Bot #{} <{}> teleported to FarmSpot: map{} {}:{}:{}", bot->GetGUID().GetCounter(), bot->GetName().c_str(), farm_spot->map_id, farm_spot->x, farm_spot->y, farm_spot->z);
         }
     }
     else
@@ -1213,7 +1213,7 @@ void RandomPlayerbotMgr::RandomTeleportForLevel(Player* bot)
             Map* map = sMapMgr->FindMap(farm_zone->map_id, 0);
 
             bot->TeleportTo(farm_zone->map_id, farm_zone->x, farm_zone->y, farm_zone->z, 0.0f, 0);
-            TC_LOG_INFO("playerbots", "Bot #%u <%s> teleported to FarmZone: map{%u} %f:%f:%f", bot->GetGUID().GetCounter(), bot->GetName().c_str(), farm_zone->map_id, farm_zone->x, farm_zone->y, farm_zone->z);
+            TC_LOG_INFO("playerbots", "Bot #{} <{}> teleported to FarmZone: map{} {}:{}:{}", bot->GetGUID().GetCounter(), bot->GetName().c_str(), farm_zone->map_id, farm_zone->x, farm_zone->y, farm_zone->z);
         }
     }
 }
@@ -1267,7 +1267,7 @@ const RandomPlayerbotMgr::farm_spot* RandomPlayerbotMgr::GetFarmZoneForPlayer(Pl
 
             if (zone.max_player <= playercount)
             {
-                TC_LOG_DEBUG("playerbots", "Zone {%u} has too many players for: %s {%u} : %u/%u", zone.zone_id, player->GetName().c_str(), player->GetLevel(), playercount, zone.max_player);
+                TC_LOG_DEBUG("playerbots", "Zone {} has too many players for: {} {} : {}/{}", zone.zone_id, player->GetName().c_str(), player->GetLevel(), playercount, zone.max_player);
 
                 continue;
             }
@@ -1280,12 +1280,12 @@ const RandomPlayerbotMgr::farm_spot* RandomPlayerbotMgr::GetFarmZoneForPlayer(Pl
             if (player->GetLevel() >= spot.min_level && player->GetLevel() <= spot.max_level)
             {
                 // -- 
-                TC_LOG_DEBUG("playerbots", "Farm spot found for : %s - level: %u", player->GetName().c_str(), player->GetLevel());
+                TC_LOG_DEBUG("playerbots", "Farm spot found for : {} - level: {}", player->GetName().c_str(), player->GetLevel());
                 return &spot;
             }
         }
     }
 
-    TC_LOG_WARN("playerbots", "No valid zone farm found for %s level: %u", player->GetName().c_str(), player->GetLevel());
+    TC_LOG_WARN("playerbots", "No valid zone farm found for {} level: {}", player->GetName().c_str(), player->GetLevel());
     return nullptr;
 }

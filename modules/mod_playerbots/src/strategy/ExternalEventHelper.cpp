@@ -50,7 +50,7 @@ void ExternalEventHelper::HandlePacket(std::map<uint16, std::string>& handlers, 
     Trigger* trigger = aiObjectContext->GetTrigger(name);
     if (!trigger)
     {
-        TC_LOG_ERROR("playerbots", "No trigger defined for packet: %s", name.c_str());
+        TC_LOG_ERROR("playerbots", "No trigger defined for packet: {}", name.c_str());
         return;
     }
 

@@ -126,7 +126,7 @@ void BlackMarketMgr::LoadTemplates()
         } while (result->NextRow());
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u BlackMarket templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} BlackMarket templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void BlackMarketMgr::LoadAuctions()
@@ -170,7 +170,7 @@ void BlackMarketMgr::LoadAuctions()
         CharacterDatabase.CommitTransaction(trans);
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u BlackMarket Auctions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} BlackMarket Auctions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void BlackMarketMgr::Update()
@@ -312,7 +312,7 @@ void BlackMarketMgr::BuildBlackMarketRequestItemsResult(WorldPacket& data, uint3
     data.append(auctionData);
     data.PutBits(count_pos, count, 18);
 
-    TC_LOG_DEBUG("network", ">> Sent %u Black Market Auctions", count);
+    TC_LOG_DEBUG("network", ">> Sent {} Black Market Auctions", count);
 }
 
 void BlackMarketMgr::UpdateAuction(BlackMarketAuction* auction, uint64 newPrice, uint64 requiredIncrement, Player* newBidder)
@@ -343,7 +343,7 @@ BlackMarketAuctionTemplate* BlackMarketMgr::GetTemplate(uint32 templateId) const
         if (itr.second->Id == templateId)
             return itr.second;
 
-    TC_LOG_DEBUG("blackMarket", "BlackMarketMgr::GetTemplate: [%u] not found!", templateId);
+    TC_LOG_DEBUG("blackMarket", "BlackMarketMgr::GetTemplate: [{}] not found!", templateId);
     return nullptr;
 }
 
@@ -353,7 +353,7 @@ BlackMarketAuction* BlackMarketMgr::GetAuction(uint32 auctionId) const
         if (itr.second->GetAuctionId() == auctionId)
             return itr.second;
 
-    TC_LOG_DEBUG("blackMarket", "BlackMarketMgr::GetAuction: [%u] not found!", auctionId);
+    TC_LOG_DEBUG("blackMarket", "BlackMarketMgr::GetAuction: [{}] not found!", auctionId);
     return nullptr;
 }
 

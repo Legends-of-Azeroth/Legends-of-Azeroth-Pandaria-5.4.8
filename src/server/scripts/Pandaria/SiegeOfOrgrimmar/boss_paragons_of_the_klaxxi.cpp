@@ -548,7 +548,7 @@ class boss_paragon_of_the_klaxxi : public CreatureScript
                     {
                         if (paragonSequence.size() < 4)
                         {
-                            TC_LOG_ERROR("shitlog", "boss_paragon_of_the_klaxxi paragonSequence.size() %u, boss state %u\n", uint32(paragonSequence.size()), instance ? instance->GetBossState(DATA_PARAGONS_OF_THE_KLAXXI) : 0);
+                            TC_LOG_ERROR("shitlog", "boss_paragon_of_the_klaxxi paragonSequence.size() {}, boss state {}\n", uint32(paragonSequence.size()), instance ? instance->GetBossState(DATA_PARAGONS_OF_THE_KLAXXI) : 0);
                             return;
                         }
 

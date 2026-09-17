@@ -393,10 +393,9 @@ public:
             StartNextDialogueText(SAY_PRIESTESS_ALTAR_3);
         }
 
-        void MovementInform(uint32 type, uint32 pointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, pointId);
-            switch (pointId)
+            switch (waypointId)
             {
                 case 3:
                     Talk(SAY_ENTER_OWL_THICKET);

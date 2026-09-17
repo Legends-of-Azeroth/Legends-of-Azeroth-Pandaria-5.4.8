@@ -1875,7 +1875,7 @@ class spell_sha_windfury_weapon : public AuraScript
         SpellInfo const* windfurySpellInfo = sSpellMgr->GetSpellInfo(8232);
         if (!windfurySpellInfo)
         {
-            TC_LOG_ERROR("server", "spell_sha_windfurry_weapon::HandleProc Windfury (%u) spell not found", spellId);
+            TC_LOG_ERROR("server", "spell_sha_windfurry_weapon::HandleProc Windfury ({}) spell not found", spellId);
             return;
         }
 

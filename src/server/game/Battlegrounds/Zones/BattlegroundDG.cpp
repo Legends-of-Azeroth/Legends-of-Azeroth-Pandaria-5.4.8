@@ -836,7 +836,7 @@ void BattlegroundDG::HandleAreaTrigger(Player* player, uint32 triggerId, bool en
         case 9301: // on the roof
         case 9302: // flying => should tp outside the mine when triggered
         case 9303: // flying => should tp outside the mine when triggered
-            TC_LOG_DEBUG("bg.battleground", "BattlegroundDG : Handled AreaTrigger(ID : %u) have been activated by Player %s (ID : %u)",
+            TC_LOG_DEBUG("bg.battleground", "BattlegroundDG : Handled AreaTrigger(ID : {}) have been activated by Player {} (ID : {})",
                 triggerId, player->GetName().c_str(), player->GetGUID().GetCounter());
             break;
         default:

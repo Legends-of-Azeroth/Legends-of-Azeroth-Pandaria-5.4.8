@@ -78,9 +78,8 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
@@ -370,9 +369,8 @@ public:
 
         uint32 m_uiChatTimer;
 
-        void MovementInform(uint32 type, uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
 
             switch (waypointId)

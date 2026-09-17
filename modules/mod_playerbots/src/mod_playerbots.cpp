@@ -62,27 +62,27 @@ public:
             std::string conf_file = boost::filesystem::absolute(_PLAYERBOT_CONFIG).generic_string();
 
             TC_LOG_INFO("playerbots", " ");
-            TC_LOG_INFO("playerbots", "Loading Playerbots Config at %s ...", conf_file.c_str());
+            TC_LOG_INFO("playerbots", "Loading Playerbots Config at {} ...", conf_file.c_str());
 
             std::string err;
             if (!sConfigMgr->LoadAdditionalFile(conf_file, true, err))
             {
-                TC_LOG_FATAL("playerbots", ">> Load playerbots failed, %s", err.c_str());
+                TC_LOG_FATAL("playerbots", ">> Load playerbots failed, {}", err.c_str());
                 std::this_thread::sleep_for(std::chrono::seconds(5));
                 sWorld->StopNow(1);
                 return;
             }
             sPlayerbotAIConfig->Initialize();
 
-            TC_LOG_INFO("playerbots", ">> Loaded playerbots config in %u ms", GetMSTimeDiffToNow(oldMSTime));
+            TC_LOG_INFO("playerbots", ">> Loaded playerbots config in {} ms", GetMSTimeDiffToNow(oldMSTime));
             TC_LOG_INFO("playerbots", " ");
 
             sRandomPlayerbotMgr->Reserve(sPlayerbotAIConfig->maxRandomBots);
             sRandomItemMgr->Init();
 
-            TC_LOG_INFO("playerbots", "Playerbots enabled: %s", sPlayerbotAIConfig->enabled ? "Yes" : "No");
-            TC_LOG_INFO("playerbots", "Playerbots min/max to load: %u/%u", sPlayerbotAIConfig->minRandomBots, sPlayerbotAIConfig->maxRandomBots);
-            TC_LOG_INFO("playerbots", "Playerbots autologin: %s", sPlayerbotAIConfig->randomBotAutologin ? "Yes" : "No");
+            TC_LOG_INFO("playerbots", "Playerbots enabled: {}", sPlayerbotAIConfig->enabled ? "Yes" : "No");
+            TC_LOG_INFO("playerbots", "Playerbots min/max to load: {}/{}", sPlayerbotAIConfig->minRandomBots, sPlayerbotAIConfig->maxRandomBots);
+            TC_LOG_INFO("playerbots", "Playerbots autologin: {}", sPlayerbotAIConfig->randomBotAutologin ? "Yes" : "No");
         }
     }
     void OnUpdate(uint32 diff) override

@@ -67,7 +67,7 @@ void LoadRandomEnchantmentsTable()
 
             if (chance < 0.000001f || chance > 100.0f)
             {
-                TC_LOG_ERROR("sql.sql", "Random item enchantment for entry %u type %u ench %u has invalid chance %f", entry, uint32(type), ench, chance);
+                TC_LOG_ERROR("sql.sql", "Random item enchantment for entry {} type {} ench {} has invalid chance {}", entry, uint32(type), ench, chance);
                 continue;
             }
 
@@ -80,14 +80,14 @@ void LoadRandomEnchantmentsTable()
                     RandomSuffixItemEnch[entry].push_back(EnchStoreItem(ench, chance));
                     break;
                 default:
-                    TC_LOG_ERROR("sql.sql", "Invalid random enchantment type specified in `item_enchantment_template` table for `entry` %u `ench` %u", entry, ench);
+                    TC_LOG_ERROR("sql.sql", "Invalid random enchantment type specified in `item_enchantment_template` table for `entry` {} `ench` {}", entry, ench);
                     break;
             }
 
             ++count;
         } while (result->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded %u Item Enchantment definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded {} Item Enchantment definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
     else
         TC_LOG_ERROR("server.loading", ">> Loaded 0 Item Enchantment definitions. DB table `item_enchantment_template` is empty.");
@@ -104,7 +104,7 @@ uint32 GetItemEnchantMod(int32 entry, ItemRandomEnchantmentType type)
     EnchantmentStore::const_iterator tab = type == ItemRandomEnchantmentType::Property ? RandomPropertyItemEnch.find(entry) : RandomSuffixItemEnch.find(entry);
     if (tab == (type == ItemRandomEnchantmentType::Property ? RandomPropertyItemEnch.end() : RandomSuffixItemEnch.end()))
     {
-        TC_LOG_ERROR("sql.sql", "Item RandomProperty / RandomSuffix id #%u used in `item_template` but it does not have records in `item_enchantment_template` table.", entry);
+        TC_LOG_ERROR("sql.sql", "Item RandomProperty / RandomSuffix id #{} used in `item_template` but it does not have records in `item_enchantment_template` table.", entry);
         return 0;
     }
 

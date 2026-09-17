@@ -259,9 +259,8 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 type, uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                EscortAI::MovementInform(type, waypointId);
                 //just in case
                 if (GetPlayerForEscort())
                     if (me->GetFaction() != GetPlayerForEscort()->GetFaction())

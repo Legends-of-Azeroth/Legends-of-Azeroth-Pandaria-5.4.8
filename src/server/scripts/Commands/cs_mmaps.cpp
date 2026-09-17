@@ -450,7 +450,10 @@ public:
             index += 2;
         }
 
-        WorldDatabase.PExecute(disable ? "INSERT INTO disables (sourceType, entry, `comment`) VALUES (%u, %u, \"%s\")" : "DELETE FROM disables WHERE sourceType=%u AND entry=%u", uint32(type), entry, comment.c_str());
+        if (disable)
+            WorldDatabase.PExecute("INSERT INTO disables (sourceType, entry, `comment`) VALUES ({}, {}, \"{}\")", uint32(type), entry, comment.c_str());
+        else
+            WorldDatabase.PExecute("DELETE FROM disables WHERE sourceType={} AND entry={}", uint32(type), entry);
         handler->PSendSysMessage("%sabled pathfinding for %s %u", disable ? "Dis" : "En", name, entry);
         DisableMgr::LoadDisables();
         return true;

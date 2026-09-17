@@ -787,13 +787,13 @@ void PlayerbotAI::ChangeEngine(BotState type)
         switch (type)
         {
         case BOT_STATE_COMBAT:
-            //TC_LOG_DEBUG("playerbots",  "=== %s COMBAT ===", bot->GetName().c_str());
+            //TC_LOG_DEBUG("playerbots",  "=== {} COMBAT ===", bot->GetName().c_str());
             break;
         case BOT_STATE_NON_COMBAT:
-            //TC_LOG_DEBUG("playerbots",  "=== %s NON-COMBAT ===", bot->GetName().c_str());
+            //TC_LOG_DEBUG("playerbots",  "=== {} NON-COMBAT ===", bot->GetName().c_str());
             break;
         case BOT_STATE_DEAD:
-            //TC_LOG_DEBUG("playerbots",  "=== %s DEAD ===", bot->GetName().c_str());
+            //TC_LOG_DEBUG("playerbots",  "=== {} DEAD ===", bot->GetName().c_str());
             break;
         default:
             break;
@@ -1079,7 +1079,7 @@ void PlayerbotAI::HandleBotOutgoingPacket(WorldPacket const& packet)
         return;
     }
 
-    //TC_LOG_INFO("playerbots", "Player: %s Received packet %s", bot->GetName().c_str(), GetOpcodeNameForLogging((OpcodeServer)packet->GetOpcode()).c_str());
+    //TC_LOG_INFO("playerbots", "Player: {} Received packet {}", bot->GetName().c_str(), GetOpcodeNameForLogging((OpcodeServer)packet->GetOpcode()).c_str());
 
     switch (packet.GetOpcode())
     {
@@ -1918,7 +1918,7 @@ bool PlayerbotAI::CanCastSpell(uint32 spellid, Unit* target, bool checkHasSpell,
     {
         //if (!sPlayerbotAIConfig->logInGroupOnly || (bot->GetGroup() && HasRealPlayerMaster()))
         {
-            //TC_LOG_DEBUG("playerbots", "Can cast spell failed. No spellid. - spellid: %u, bot name: %s", spellid, bot->GetName().c_str());
+            //TC_LOG_DEBUG("playerbots", "Can cast spell failed. No spellid. - spellid: {}, bot name: {}", spellid, bot->GetName().c_str());
         }
         return false;
     }
@@ -1927,7 +1927,7 @@ bool PlayerbotAI::CanCastSpell(uint32 spellid, Unit* target, bool checkHasSpell,
     {
         //if (!sPlayerbotAIConfig->logInGroupOnly || (bot->GetGroup() && HasRealPlayerMaster()))
         {
-            //TC_LOG_DEBUG("playerbots", "Can cast spell failed. Unit state lost control. - spellid: %u, bot name: %s", spellid, bot->GetName().c_str());
+            //TC_LOG_DEBUG("playerbots", "Can cast spell failed. Unit state lost control. - spellid: {}, bot name: {}", spellid, bot->GetName().c_str());
         }
         return false;
     }
@@ -1936,7 +1936,7 @@ bool PlayerbotAI::CanCastSpell(uint32 spellid, Unit* target, bool checkHasSpell,
         target = bot;
 
     // if (!sPlayerbotAIConfig->logInGroupOnly || (bot->GetGroup() && HasRealPlayerMaster()))
-    //TC_LOG_DEBUG("playerbots", "Can cast spell? - target name: %s, spellid: %u, bot name: %s", target->GetName().c_str(), spellid, bot->GetName().c_str());
+    //TC_LOG_DEBUG("playerbots", "Can cast spell? - target name: {}, spellid: {}, bot name: {}", target->GetName().c_str(), spellid, bot->GetName().c_str());
 
     if (Pet* pet = bot->GetPet())
         if (pet->HasSpell(spellid))
@@ -1946,7 +1946,7 @@ bool PlayerbotAI::CanCastSpell(uint32 spellid, Unit* target, bool checkHasSpell,
     {
         //if (!sPlayerbotAIConfig->logInGroupOnly || (bot->GetGroup() && HasRealPlayerMaster()))
         {
-            //TC_LOG_DEBUG("playerbots", "Can cast spell failed. Bot not has spell. - target name: %s, spellid: %u, bot name: %s", target->GetName().c_str(), spellid, bot->GetName().c_str());
+            //TC_LOG_DEBUG("playerbots", "Can cast spell failed. Bot not has spell. - target name: {}, spellid: {}, bot name: {}", target->GetName().c_str(), spellid, bot->GetName().c_str());
         }
         return false;
     }
@@ -1955,7 +1955,7 @@ bool PlayerbotAI::CanCastSpell(uint32 spellid, Unit* target, bool checkHasSpell,
     {
         //if (!sPlayerbotAIConfig->logInGroupOnly || (bot->GetGroup() && HasRealPlayerMaster()))
         {
-            //TC_LOG_DEBUG("playerbots", "CanCastSpell() target name: %d, spellid: %u, bot name: %s, failed because has current channeled spell", target->GetName().c_str(), spellid, bot->GetName().c_str());
+            //TC_LOG_DEBUG("playerbots", "CanCastSpell() target name: {}, spellid: {}, bot name: {}, failed because has current channeled spell", target->GetName().c_str(), spellid, bot->GetName().c_str());
         }
         return false;
     }
@@ -1964,7 +1964,7 @@ bool PlayerbotAI::CanCastSpell(uint32 spellid, Unit* target, bool checkHasSpell,
     {
         //if (!sPlayerbotAIConfig->logInGroupOnly || (bot->GetGroup() && HasRealPlayerMaster()))
         {
-            //TC_LOG_DEBUG("playerbots", "Can cast spell failed. Spell not has cooldown. - target name: %s, spellid: %u, bot name: %s", target->GetName().c_str(), spellid, bot->GetName().c_str());
+            //TC_LOG_DEBUG("playerbots", "Can cast spell failed. Spell not has cooldown. - target name: {}, spellid: {}, bot name: {}", target->GetName().c_str(), spellid, bot->GetName().c_str());
         }
         return false;
     }
@@ -1974,7 +1974,7 @@ bool PlayerbotAI::CanCastSpell(uint32 spellid, Unit* target, bool checkHasSpell,
     {
         //if (!sPlayerbotAIConfig->logInGroupOnly || (bot->GetGroup() && HasRealPlayerMaster()))
         {
-            //TC_LOG_DEBUG("playerbots", "Can cast spell failed. No spellInfo. - target name: %s, spellid: %u, bot name: %s", target->GetName().c_str(), spellid, bot->GetName().c_str());
+            //TC_LOG_DEBUG("playerbots", "Can cast spell failed. No spellInfo. - target name: {}, spellid: {}, bot name: {}", target->GetName().c_str(), spellid, bot->GetName().c_str());
         }
         return false;
     }
@@ -1985,7 +1985,7 @@ bool PlayerbotAI::CanCastSpell(uint32 spellid, Unit* target, bool checkHasSpell,
     {
         //if (!sPlayerbotAIConfig->logInGroupOnly || (bot->GetGroup() && HasRealPlayerMaster()))
         {
-            //TC_LOG_DEBUG("playerbots", "Casting time and bot is moving - target name: %s, spellid: %u, bot name: %s", target->GetName().c_str(), spellid, bot->GetName().c_str());
+            //TC_LOG_DEBUG("playerbots", "Casting time and bot is moving - target name: {}, spellid: {}, bot name: {}", target->GetName().c_str(), spellid, bot->GetName().c_str());
         }
         return false;
     }
@@ -2013,7 +2013,7 @@ bool PlayerbotAI::CanCastSpell(uint32 spellid, Unit* target, bool checkHasSpell,
         {
             //if (!sPlayerbotAIConfig->logInGroupOnly || (bot->GetGroup() && HasRealPlayerMaster()))
             {
-                //TC_LOG_DEBUG("playerbots", "target is immuned to spell - target name: %s, spellid: %u, bot name: %s", target->GetName(), spellid, bot->GetName());
+                //TC_LOG_DEBUG("playerbots", "target is immuned to spell - target name: {}, spellid: {}, bot name: {}", target->GetName(), spellid, bot->GetName());
             }
             return false;
         }
@@ -2037,7 +2037,7 @@ bool PlayerbotAI::CanCastSpell(uint32 spellid, Unit* target, bool checkHasSpell,
         {
             //if (!sPlayerbotAIConfig->logInGroupOnly || (bot->GetGroup() && HasRealPlayerMaster()))
             {
-                //TC_LOG_DEBUG("playerbots", "target is out of sight distance - target name: %s, spellid: %u, bot name: %s", target->GetName(), spellid, bot->GetName());
+                //TC_LOG_DEBUG("playerbots", "target is out of sight distance - target name: {}, spellid: {}, bot name: {}", target->GetName(), spellid, bot->GetName());
             }
             return false;
         }
@@ -2077,7 +2077,7 @@ bool PlayerbotAI::CanCastSpell(uint32 spellid, Unit* target, bool checkHasSpell,
         //if (!sPlayerbotAIConfig->logInGroupOnly || (bot->GetGroup() && HasRealPlayerMaster()))
         //{
             //if (result != SPELL_FAILED_NOT_READY && result != SPELL_CAST_OK)
-                //TC_LOG_DEBUG("playerbots", "CanCastSpell Check Failed. - target name: %s, spellid: %u, bot name: %s, result: %u", target->GetName().c_str(), spellid, bot->GetName().c_str(), (uint32)result);
+                //TC_LOG_DEBUG("playerbots", "CanCastSpell Check Failed. - target name: {}, spellid: {}, bot name: {}, result: {}", target->GetName().c_str(), spellid, bot->GetName().c_str(), (uint32)result);
         //}
         return false;
     }
@@ -2202,10 +2202,10 @@ bool PlayerbotAI::CanCastSpell(uint32 spellid, float x, float y, float z, uint8 
 
 bool PlayerbotAI::CastSpell(std::string const name, Unit* target, Item* itemTarget)
 {
-    TC_LOG_DEBUG("playerbots", "%s cast: %s", bot->GetName().c_str(), name.c_str());
+    TC_LOG_DEBUG("playerbots", "{} cast: {}", bot->GetName().c_str(), name.c_str());
     bool result = CastSpell(_aiObjectContext->GetValue<uint32>("spell id", name)->Get(), target, itemTarget);
     //const std::string res = result ? "success" : "failed";
-    //TC_LOG_DEBUG("playerbots", "%s cast: %s => %s", bot->GetName().c_str(), name.c_str(), res.c_str());
+    //TC_LOG_DEBUG("playerbots", "{} cast: {} => {}", bot->GetName().c_str(), name.c_str(), res.c_str());
     if (result)
     {
         _aiObjectContext->GetValue<time_t>("last spell cast time", name)->Set(time(nullptr));
@@ -2339,7 +2339,7 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target, Item* itemTarget)
     if (result != SPELL_CAST_OK)
     {
         // if (!sPlayerbotAIConfig->logInGroupOnly || (bot->GetGroup() && HasRealPlayerMaster())) {
-        TC_LOG_DEBUG("playerbots", "Spell cast failed. - target name: %s, spellid: %u, bot name: %s, result: %u", target->GetName().c_str(), spellId, bot->GetName().c_str(), result);
+        TC_LOG_DEBUG("playerbots", "Spell cast failed. - target name: {}, spellid: {}, bot name: {}, result: {}", target->GetName().c_str(), spellId, bot->GetName().c_str(), result);
         // }
         return false;
     }
@@ -2725,7 +2725,7 @@ InventoryResult PlayerbotAI::CanEquipItem(uint8 slot, uint16& dest, Item* pItem,
     dest = 0;
     if (pItem)
     {
-        //TC_LOG_DEBUG("playerbots", "STORAGE: CanEquipItem slot = %u, item = %u, count = %u", slot, pItem->GetEntry(), pItem->GetCount());
+        //TC_LOG_DEBUG("playerbots", "STORAGE: CanEquipItem slot = {}, item = {}, count = {}", slot, pItem->GetEntry(), pItem->GetCount());
         ItemTemplate const* pProto = pItem->GetTemplate();
         if (pProto)
         {

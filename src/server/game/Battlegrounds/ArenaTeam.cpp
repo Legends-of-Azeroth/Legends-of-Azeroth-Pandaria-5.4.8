@@ -91,7 +91,7 @@ uint8 ArenaTeam::GetSlotByType(uint32 type)
         default:
             break;
     }
-    TC_LOG_ERROR("bg.arena", "FATAL: Unknown arena team type %u for some arena team", type);
+    TC_LOG_ERROR("bg.arena", "FATAL: Unknown arena team type {} for some arena team", type);
     return 0xFF;
 }
 
@@ -105,7 +105,7 @@ uint8 ArenaTeam::GetTypeBySlot(uint8 slot)
         default:
             break;
     }
-    TC_LOG_ERROR("bg.arena", "FATAL: Unknown arena team slot %u for some arena team", slot);
+    TC_LOG_ERROR("bg.arena", "FATAL: Unknown arena team slot {} for some arena team", slot);
     return 0xFF;
 }
 

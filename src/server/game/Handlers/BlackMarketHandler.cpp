@@ -137,7 +137,7 @@ void WorldSession::HandleBlackMarketBidOnItem(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[0]);
     recvData.ReadByteSeq(guid[2]);
 
-    TC_LOG_DEBUG("blackMarket", ">> HandleBlackMarketBid >> MarketID : %u, BidAmount : " UI64FMTD ", ItemID : %u", auctionId, bidAmount, itemId);
+    TC_LOG_DEBUG("blackMarket", ">> HandleBlackMarketBid >> MarketID : {}, BidAmount : " "{}" ", ItemID : %u", auctionId, bidAmount, itemId);
 
     if (!bidAmount)
         return;
@@ -145,21 +145,21 @@ void WorldSession::HandleBlackMarketBidOnItem(WorldPacket& recvData)
     BlackMarketAuction* auction = sBlackMarketMgr->GetAuction(auctionId);
     if (!auction)
     {
-        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Auction (MarketID: %u) not found.", auctionId);
+        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Auction (MarketID: {}) not found.", auctionId);
         SendBlackMarketBidOnItemResult(auctionId, itemId, ERR_BMAH_ITEM_NOT_FOUND);
         return;
     }
 
     if (auction->GetCurrentBidder() == GetPlayer()->GetGUID().GetCounter())
     {
-        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: %u) is already the highest bidder.", GetPlayer()->GetGUID().GetCounter());
+        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: {}) is already the highest bidder.", GetPlayer()->GetGUID().GetCounter());
         SendBlackMarketBidOnItemResult(auctionId, itemId, ERR_BMAH_ALREADY_BID);
         return;
     }
 
     if (auction->GetCurrentBid() > bidAmount && bidAmount != auction->GetTemplate()->MinBid)
     {
-        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: %u) could not bid. The current bid (" UI64FMTD ") is higher than the given amount (" UI64FMTD ").", GetPlayer()->GetGUID().GetCounter(), auction->GetCurrentBid(), bidAmount);
+        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: {}) could not bid. The current bid (" "{}" ") is higher than the given amount (" "{}" ").", GetPlayer()->GetGUID().GetCounter(), auction->GetCurrentBid(), bidAmount);
         SendBlackMarketBidOnItemResult(auctionId, itemId, ERR_BMAH_HIGHER_BID);
         return;
     }
@@ -167,7 +167,7 @@ void WorldSession::HandleBlackMarketBidOnItem(WorldPacket& recvData)
     uint64 currentRequiredIncrement = !auction->GetNumBids() ? auction->GetCurrentBid() : (auction->GetCurrentBid() + auction->GetMinIncrement());
     if (currentRequiredIncrement > bidAmount)
     {
-        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: %u) could not bid. The BidAmount (" UI64FMTD ") is lower than the current requiredIncrement (" UI64FMTD ").", GetPlayer()->GetGUID().GetCounter(), bidAmount, currentRequiredIncrement);
+        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: {}) could not bid. The BidAmount (" "{}" ") is lower than the current requiredIncrement (" "{}" ").", GetPlayer()->GetGUID().GetCounter(), bidAmount, currentRequiredIncrement);
         SendBlackMarketBidOnItemResult(auctionId, itemId, ERR_BMAH_DATABASE_ERROR);
         return;
     }
@@ -175,7 +175,7 @@ void WorldSession::HandleBlackMarketBidOnItem(WorldPacket& recvData)
     uint64 newIncrement = bidAmount - currentRequiredIncrement;
     if (!GetPlayer()->HasEnoughMoney(bidAmount))
     {
-        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: %u) has not enough money to bid.", GetPlayer()->GetGUID().GetCounter());
+        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: {}) has not enough money to bid.", GetPlayer()->GetGUID().GetCounter());
         SendBlackMarketBidOnItemResult(auctionId, itemId, ERR_BMAH_NOT_ENOUGH_MONEY);
         return;
     }

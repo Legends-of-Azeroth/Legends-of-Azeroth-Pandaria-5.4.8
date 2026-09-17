@@ -112,7 +112,7 @@ void WordFilterMgr::LoadLetterAnalogs()
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("misc", ">> Loaded %u letter analogs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("misc", ">> Loaded {} letter analogs in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 
@@ -160,7 +160,7 @@ void WordFilterMgr::LoadBadWords()
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("misc", ">> Loaded %u bad words in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("misc", ">> Loaded {} bad words in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 inline void WordFilterMgr::ConvertLettersToAnalogs(std::string& text)
@@ -236,7 +236,7 @@ bool WordFilterMgr::AddBadWord(const std::string& badWord, bool toDB)
     m_badWords[convertedBadWord] = _badWord;
 
     if (toDB)
-        WorldDatabase.PQuery("REPLACE INTO bad_word VALUES ('%s')", _badWord.c_str()); 
+        WorldDatabase.PQuery("REPLACE INTO bad_word VALUES ('{}')", _badWord.c_str()); 
 
     return true;
 }
@@ -257,7 +257,7 @@ bool WordFilterMgr::AddBadWordMail(const std::string& badWord, bool toDB)
     m_badWordsMail[convertedBadWord] = _badWord;
 
     if (toDB)
-        WorldDatabase.PQuery("REPLACE INTO bad_word_mail VALUES ('%s')", _badWord.c_str());
+        WorldDatabase.PQuery("REPLACE INTO bad_word_mail VALUES ('{}')", _badWord.c_str());
 
     return true;
 }
@@ -279,7 +279,7 @@ bool WordFilterMgr::RemoveBadWord(const std::string& badWord, bool fromDB)
     m_badWords.erase(it);
 
     if (fromDB)
-        WorldDatabase.PExecute("DELETE FROM bad_word WHERE `bad_word` = '%s'", _badWord.c_str()); 
+        WorldDatabase.PExecute("DELETE FROM bad_word WHERE `bad_word` = '{}'", _badWord.c_str()); 
 
     return true;
 }

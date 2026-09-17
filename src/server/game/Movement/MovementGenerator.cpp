@@ -25,7 +25,7 @@ MovementGenerator::~MovementGenerator() { }
 
 std::string MovementGenerator::GetDebugInfo() const
 {
-    return Trinity::StringFormat("Priority: %u, Flags: %u, BaseUnitState: %u", Priority, Flags, BaseUnitState);
+    return Trinity::StringFormat("Priority: {}, Flags: {}, BaseUnitState: {}", Priority, Flags, BaseUnitState);
 }
 
 IdleMovementFactory::IdleMovementFactory() : MovementGeneratorCreator(IDLE_MOTION_TYPE) { }

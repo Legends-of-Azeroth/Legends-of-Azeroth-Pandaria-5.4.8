@@ -57,7 +57,7 @@ namespace VMAP
             void operator()(Vector3 const& point, uint32 entry)
             {
 #ifdef VMAP_DEBUG
-                TC_LOG_DEBUG("maps", "AreaInfoCallback: trying to intersect '%s'", prims[entry].name.c_str());
+                TC_LOG_DEBUG("maps", "AreaInfoCallback: trying to intersect '{}'", prims[entry].name.c_str());
 #endif
                 prims[entry].intersectPoint(point, aInfo);
             }
@@ -73,7 +73,7 @@ namespace VMAP
             void operator()(Vector3 const& point, uint32 entry)
             {
 #ifdef VMAP_DEBUG
-                TC_LOG_DEBUG("maps", "LocationInfoCallback: trying to intersect '%s'", prims[entry].name.c_str());
+                TC_LOG_DEBUG("maps", "LocationInfoCallback: trying to intersect '{}'", prims[entry].name.c_str());
 #endif
                 if (prims[entry].GetLocationInfo(point, locInfo))
                     result = true;
@@ -300,7 +300,7 @@ namespace VMAP
         // only non-tiled maps have them, and if so exactly one (so far at least...)
         ModelSpawn spawn;
 #ifdef VMAP_DEBUG
-        TC_LOG_DEBUG("maps", "StaticMapTree::InitMap() : map isTiled: %u", static_cast<uint32>(iIsTiled));
+        TC_LOG_DEBUG("maps", "StaticMapTree::InitMap() : map isTiled: {}", static_cast<uint32>(iIsTiled));
 #endif
         if (!iIsTiled && ModelSpawn::readFromFile(rf, spawn))
         {
@@ -401,7 +401,7 @@ namespace VMAP
                             if (iTreeValues[referencedVal].ID != spawn.ID)
                                 TC_LOG_DEBUG("maps", "StaticMapTree::LoadMapTile() : trying to load wrong spawn in node");
                             else if (iTreeValues[referencedVal].name != spawn.name)
-                                TC_LOG_DEBUG("maps", "StaticMapTree::LoadMapTile() : name collision on GUID=%u", spawn.ID);
+                                TC_LOG_DEBUG("maps", "StaticMapTree::LoadMapTile() : name collision on GUID={}", spawn.ID);
 #endif
                         }
                     }

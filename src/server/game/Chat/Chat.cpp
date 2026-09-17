@@ -349,7 +349,7 @@ bool ChatHandler::ExecuteCommandInTable(std::vector<ChatCommand> const& table, c
                         zoneName = zone->area_name[sObjectMgr->GetDBCLocaleIndex()];
                 }
 
-                sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (Guid: %u) (Account: %u) X: %f Y: %f Z: %f Map: %u (%s) Area: %u (%s) Zone: %s Selected %s: %s (GUID: %u)]",
+                sLog->OutCommand(m_session->GetAccountId(), "Command: {} [Player: {} (Guid: {}) (Account: {}) X: {} Y: {} Z: {} Map: {} ({}) Area: {} ({}) Zone: {} Selected {}: {} (GUID: {})]",
                     fullcmd.c_str(), player->GetName().c_str(), player->GetGUID().GetCounter(),
                     m_session->GetAccountId(), player->GetPositionX(), player->GetPositionY(),
                     player->GetPositionZ(), player->GetMapId(),
@@ -405,12 +405,12 @@ bool ChatHandler::SetDataForCommandInTable(std::vector<ChatCommand>& table, char
         // expected subcommand by full name DB content
         else if (*text)
         {
-            TC_LOG_ERROR("sql.sql", "Table `command` have unexpected subcommand '%s' in command '%s', skip.", text, fullcommand.c_str());
+            TC_LOG_ERROR("sql.sql", "Table `command` have unexpected subcommand '{}' in command '{}', skip.", text, fullcommand.c_str());
             return false;
         }
 
         if (table[i].SecurityLevel != security)
-            TC_LOG_INFO("misc", "Table `command` overwrite for command '%s' default permission (%u) by %u", fullcommand.c_str(), table[i].SecurityLevel, security);
+            TC_LOG_INFO("misc", "Table `command` overwrite for command '{}' default permission ({}) by {}", fullcommand.c_str(), table[i].SecurityLevel, security);
 
         table[i].SecurityLevel = security;
         table[i].Help          = help;
@@ -421,9 +421,9 @@ bool ChatHandler::SetDataForCommandInTable(std::vector<ChatCommand>& table, char
     if (!cmd.empty())
     {
         if (&table == &getCommandTable())
-            TC_LOG_ERROR("sql.sql", "Table `command` have not existed command '%s', skip.", cmd.c_str());
+            TC_LOG_ERROR("sql.sql", "Table `command` have not existed command '{}', skip.", cmd.c_str());
         else
-            TC_LOG_ERROR("sql.sql", "Table `command` have not existed subcommand '%s' in command '%s', skip.", cmd.c_str(), fullcommand.c_str());
+            TC_LOG_ERROR("sql.sql", "Table `command` have not existed subcommand '{}' in command '{}', skip.", cmd.c_str(), fullcommand.c_str());
     }
 
     return false;

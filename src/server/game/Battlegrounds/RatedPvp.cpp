@@ -98,7 +98,7 @@ void RatedPvpMgr::OnConfigLoad()
 
         if (reward.GamesCount && !sObjectMgr->GetItemTemplate(reward.ItemId))
         {
-            TC_LOG_ERROR("server.loading", "RatedPvpMgr::OnConfigLoad invalid item id %u", reward.ItemId);
+            TC_LOG_ERROR("server.loading", "RatedPvpMgr::OnConfigLoad invalid item id {}", reward.ItemId);
             reward.GamesCount = 0;
         }
     }
@@ -229,7 +229,7 @@ static CharTitlesEntry const* GetTitle(uint32 id)
 {
     CharTitlesEntry const* title = sCharTitlesStore.LookupEntry(id);
     if (!title)
-        TC_LOG_ERROR("server.loading", "Title %u not found", id);
+        TC_LOG_ERROR("server.loading", "Title {} not found", id);
     return title;
 }
 
@@ -237,7 +237,7 @@ static AchievementEntry const* GetAchievement(uint32 id)
 {
     AchievementEntry const* ach = sAchievementStore.LookupEntry(id);
     if (!ach)
-        TC_LOG_ERROR("server.loading", "Achievement %u not found", id);
+        TC_LOG_ERROR("server.loading", "Achievement {} not found", id);
     return ach;
 }
 
@@ -245,7 +245,7 @@ static ItemTemplate const* GetItem(uint32 id)
 {
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(id);
     if (!proto)
-        TC_LOG_ERROR("server.loading", "Item template %u not found", id);
+        TC_LOG_ERROR("server.loading", "Item template {} not found", id);
     return proto;
 }
 
@@ -260,14 +260,14 @@ static Reward LoadReward(uint32 rank, ArenaType type)
     std::string name = "Arena.SeasonReward.Rank" + std::to_string(rank) + ".Titles";
     std::string config = sConfigMgr->GetStringDefault(name.c_str(), "");
     if (config.empty())
-        TC_LOG_ERROR("server.loading", "Achievement %s not specified in config", name.c_str());
+        TC_LOG_ERROR("server.loading", "Achievement {} not specified in config", name.c_str());
 
     std::size_t sp = config.find(";");
     if (sp != config.npos)
     {
         Tokenizer tok{ config, ';' };
         if (tok.size() != 3)
-            TC_LOG_ERROR("server.loading", "Invalid config format for %s", name.c_str());
+            TC_LOG_ERROR("server.loading", "Invalid config format for {}", name.c_str());
         switch (type)
         {
         case ARENA_TEAM_2v2: config = tok[0]; break;
@@ -284,14 +284,14 @@ static Reward LoadReward(uint32 rank, ArenaType type)
     name = "Arena.SeasonReward.Rank" + std::to_string(rank) + ".Achievements";
     config = sConfigMgr->GetStringDefault(name.c_str(), "");
     if (config.empty())
-        TC_LOG_ERROR("server.loading", "Invalid config format for %s", name.c_str());
+        TC_LOG_ERROR("server.loading", "Invalid config format for {}", name.c_str());
 
     sp = config.find(";");
     if (sp != config.npos)
     {
         Tokenizer tok{ config, ';' };
         if (tok.size() != 3)
-            TC_LOG_ERROR("server.loading", "Invalid config format for %s", name.c_str());
+            TC_LOG_ERROR("server.loading", "Invalid config format for {}", name.c_str());
         switch (type)
         {
         case ARENA_TEAM_2v2: config = tok[0]; break;
@@ -313,7 +313,7 @@ static Reward LoadReward(uint32 rank, ArenaType type)
     {
         Tokenizer tok{ config, ';' };
         if (tok.size() != 3)
-            TC_LOG_ERROR("server.loading", "Invalid config format for %s", name.c_str());
+            TC_LOG_ERROR("server.loading", "Invalid config format for {}", name.c_str());
         switch (type)
         {
         case ARENA_TEAM_2v2: config = tok[0]; break;
@@ -427,7 +427,7 @@ static void PrintResults(std::ostream& out, std::vector<RatedPvpInfo*>& teams, A
     }
 
     uint32 slot = ArenaTeam::GetSlotByType(type);
-    QueryResult result = CharacterDatabase.PQuery("SELECT COUNT(*) FROM rated_pvp_info WHERE rating > %i AND season = %u AND slot = %u", threshold, sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID), slot);
+    QueryResult result = CharacterDatabase.PQuery("SELECT COUNT(*) FROM rated_pvp_info WHERE rating > {} AND season = {} AND slot = {}", threshold, sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID), slot);
     size_t size = result ? (*result)[0].GetUInt32() : 0;
     if (teams.empty() || !size)
     {
@@ -509,7 +509,7 @@ void RatedPvpMgr::LoadPvpInfoStore(uint32 season)
     uint32 count = 0;
     uint32 start = getMSTime();
     //                                                       0       1       2        3           4                    5            6             7              8              9              10            11              12
-    QueryResult result = CharacterDatabase.PQuery("SELECT r.guid, r.slot, r.rank, r.rating, r.matchmaker_rating, r.week_best, r.week_games, r.week_wins, r.season_best, r.season_games, r.season_wins, r.last_week_best, r.win_streak FROM rated_pvp_info r JOIN characters c ON r.guid = c.guid WHERE r.season = %u AND c.`deleteDate` IS NULL ORDER BY r.slot", season);
+    QueryResult result = CharacterDatabase.PQuery("SELECT r.guid, r.slot, r.rank, r.rating, r.matchmaker_rating, r.week_best, r.week_games, r.week_wins, r.season_best, r.season_games, r.season_wins, r.last_week_best, r.win_streak FROM rated_pvp_info r JOIN characters c ON r.guid = c.guid WHERE r.season = {} AND c.`deleteDate` IS NULL ORDER BY r.slot", season);
     if (result)
     {
         do
@@ -535,7 +535,7 @@ void RatedPvpMgr::LoadPvpInfoStore(uint32 season)
         } while (result->NextRow());
     }
 
-    TC_LOG_INFO("server.loading", "Loaded %u rated PvP info in %u ms", count, GetMSTimeDiffToNow(start));
+    TC_LOG_INFO("server.loading", "Loaded {} rated PvP info in {} ms", count, GetMSTimeDiffToNow(start));
 }
 
 void RatedPvpMgr::RecalcuateRank(RatedPvpInfoMap const& map)
@@ -609,7 +609,7 @@ bool RatedPvpMgr::RewardTeams(std::ostream& log, RewardMap& map, std::vector<Rat
     }
 
     uint32 slot = ArenaTeam::GetSlotByType(type);
-    QueryResult result = CharacterDatabase.PQuery("SELECT COUNT(*) FROM rated_pvp_info WHERE rating > %i AND season = %u AND slot = %u", threshold, season, slot);
+    QueryResult result = CharacterDatabase.PQuery("SELECT COUNT(*) FROM rated_pvp_info WHERE rating > {} AND season = {} AND slot = {}", threshold, season, slot);
     size_t size = result ? (*result)[0].GetUInt32() : 0;
 
     if (teams.empty() || !size)
@@ -663,7 +663,7 @@ bool RatedPvpMgr::SendRewards(std::ostream& log, RewardMap& map, CharacterDataba
     for (auto&& playerIter : map)
     {
         uint32 guid = playerIter.first;
-        QueryResult result = CharacterDatabase.PQuery("SELECT knownTitles, name FROM characters WHERE guid = %u", guid);
+        QueryResult result = CharacterDatabase.PQuery("SELECT knownTitles, name FROM characters WHERE guid = {}", guid);
         if (!result)
         {
             log << guid << " not found in DB" << std::endl;
@@ -699,7 +699,7 @@ bool RatedPvpMgr::SendRewards(std::ostream& log, RewardMap& map, CharacterDataba
         strbuf.str("");
         for (auto&& it : playerTitles)
             strbuf << it << ' ';
-        trans->PAppend("UPDATE characters SET knownTitles = '%s' WHERE guid = %u", strbuf.str().c_str(), guid);
+        trans->PAppend("UPDATE characters SET knownTitles = '{}' WHERE guid = {}", strbuf.str().c_str(), guid);
 
         if (!playerIter.second.Achievs.empty())
         {
@@ -709,7 +709,7 @@ bool RatedPvpMgr::SendRewards(std::ostream& log, RewardMap& map, CharacterDataba
                 strbuf << "(" << guid << "," << it->ID << "," << time(nullptr) << "),";
             str = strbuf.str();
             str.pop_back();
-            trans->PAppend(str.c_str());
+            trans->Append(str.c_str());
         }
 
         MailDraft mail("PvP награда за завершение сезона арены",
@@ -750,7 +750,7 @@ void RatedPvpMgr::SeasonCleanup(CharacterDatabaseTransaction trans)
             sstr << GetAchievement(ToInt(it))->ID << ',';     // Ensures what achievement is real
         str = sstr.str();
         str.pop_back();
-        QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM character_achievement WHERE achievement IN (%s)", str.c_str());
+        QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM character_achievement WHERE achievement IN ({})", str.c_str());
         if (result)
         {
             do
@@ -827,7 +827,7 @@ void RatedPvpMgr::SeasonCleanup(CharacterDatabaseTransaction trans)
                 {
                     ++count;
                     playerTitles[pos] &= ~flag;
-                    TC_LOG_INFO("server", "Title %u was removed from player: %u", title->ID, guid);
+                    TC_LOG_INFO("server", "Title {} was removed from player: {}", title->ID, guid);
                 }
             }
 
@@ -836,7 +836,7 @@ void RatedPvpMgr::SeasonCleanup(CharacterDatabaseTransaction trans)
                 sstr.str("");
                 for (auto&& it : playerTitles)
                     sstr << it << ' ';
-                trans->PAppend("UPDATE characters SET knownTitles = '%s' WHERE guid = %u", sstr.str().c_str(), guid);
+                trans->PAppend("UPDATE characters SET knownTitles = '{}' WHERE guid = {}", sstr.str().c_str(), guid);
             }
         } while (result->NextRow());
     }
@@ -874,7 +874,7 @@ void RatedPvpMgr::RewardSeason()
     std::error_code c;
     if (!std::filesystem::create_directories(path, c) && c.value() != 0)
     {
-        TC_LOG_ERROR("server", "RatedPvpMgr::CheckSeasonEnd Couldn't create directory %s, errno %u", dir.c_str(), c.value());
+        TC_LOG_ERROR("server", "RatedPvpMgr::CheckSeasonEnd Couldn't create directory {}, errno {}", dir.c_str(), c.value());
         return;
     }
 
@@ -884,7 +884,7 @@ void RatedPvpMgr::RewardSeason()
     std::fstream out(path.c_str(), std::ios::out | std::ios::trunc);
     if (!out)
     {
-        TC_LOG_ERROR("server", "Coudn't open file, errno %u", errno);
+        TC_LOG_ERROR("server", "Coudn't open file, errno {}", errno);
         return;
     }
 
@@ -893,7 +893,7 @@ void RatedPvpMgr::RewardSeason()
     std::ofstream misclog{ path.c_str() };
     if (!misclog.is_open())
     {
-        TC_LOG_ERROR("server", "RatedPvpMgr::CheckSeasonEnd Couldn't create file %s, errno %u", p.c_str(), c.value());
+        TC_LOG_ERROR("server", "RatedPvpMgr::CheckSeasonEnd Couldn't create file {}, errno {}", p.c_str(), c.value());
         return;
     }
 
@@ -909,7 +909,7 @@ void RatedPvpMgr::RewardSeason()
     }
 
     /*
-    QueryResult result = CharacterDatabase.PQuery("SELECT `guid`, `currency`, `total_count` FROM `character_currency` WHERE `currency` IN(%u,%u) ORDER BY `guid` ASC, `currency` DESC", CURRENCY_TYPE_CONQUEST_POINTS, CURRENCY_TYPE_HONOR_POINTS);
+    QueryResult result = CharacterDatabase.PQuery("SELECT `guid`, `currency`, `total_count` FROM `character_currency` WHERE `currency` IN({},{}) ORDER BY `guid` ASC, `currency` DESC", CURRENCY_TYPE_CONQUEST_POINTS, CURRENCY_TYPE_HONOR_POINTS);
     if (result)
     {
         struct Currency
@@ -950,14 +950,14 @@ void RatedPvpMgr::RewardSeason()
             }
             misclog << "Player " << itr.first << ":" << "conquest (" << itr.second.Conquest << "), honor (" << itr.second.Honor << ") -> honor (" << itr.second.Honor + honor << "), money (" << money << ")" << std::endl;
             if (honor)
-                trans->PAppend("UPDATE character_currency SET total_count = %u WHERE guid = %u AND currency = %u", itr.second.Honor + honor, itr.first, CURRENCY_TYPE_HONOR_POINTS);
+                trans->PAppend("UPDATE character_currency SET total_count = {} WHERE guid = {} AND currency = {}", itr.second.Honor + honor, itr.first, CURRENCY_TYPE_HONOR_POINTS);
             if (money)
-                trans->PAppend("UPDATE characters SET money = money + %u WHERE guid = %u", money, itr.first);
+                trans->PAppend("UPDATE characters SET money = money + {} WHERE guid = {}", money, itr.first);
         }
     }
     */
 
-    QueryResult result = CharacterDatabase.PQuery("SELECT itemEntry, guid, owner_guid FROM item_instance WHERE flags & %u", ITEM_FLAG_REFUNDABLE);
+    QueryResult result = CharacterDatabase.PQuery("SELECT itemEntry, guid, owner_guid FROM item_instance WHERE flags & {}", ITEM_FLAG_REFUNDABLE);
     if (result)
     {
         do
@@ -968,17 +968,17 @@ void RatedPvpMgr::RewardSeason()
                 if (itemTemplate->IsPvPItem())
                 {
                     misclog << "Removing ITEM_FLAG_REFUNDABLE for item " << fields[1].GetUInt32() << " of player " << fields[2].GetUInt32() << std::endl;
-                    trans->PAppend("UPDATE item_instance SET flags = flags & ~%u WHERE guid = %u", ITEM_FLAG_REFUNDABLE, fields[1].GetUInt32());
+                    trans->PAppend("UPDATE item_instance SET flags = flags & ~{} WHERE guid = {}", ITEM_FLAG_REFUNDABLE, fields[1].GetUInt32());
                 }
             }
         } while (result->NextRow());
     }
 
-    trans->PAppend("UPDATE character_currency SET season_count = 0, week_count = 0 WHERE currency = %u", CURRENCY_TYPE_HONOR_POINTS);
-    trans->PAppend("UPDATE character_currency SET season_count = 0, week_count = 0 WHERE currency = %u", CURRENCY_TYPE_CONQUEST_POINTS);
-    trans->PAppend("UPDATE character_currency SET season_count = 0, week_count = 0 WHERE currency = %u", CURRENCY_TYPE_CONQUEST_META_RANDOG_BG);
-    trans->PAppend("UPDATE character_currency SET season_count = 0, week_count = 0 WHERE currency = %u", CURRENCY_TYPE_CONQUEST_META_RATED_BG);
-    trans->PAppend("UPDATE character_currency SET season_count = 0, week_count = 0 WHERE currency = %u", CURRENCY_TYPE_CONQUEST_META_ARENA);
+    trans->PAppend("UPDATE character_currency SET season_count = 0, week_count = 0 WHERE currency = {}", CURRENCY_TYPE_HONOR_POINTS);
+    trans->PAppend("UPDATE character_currency SET season_count = 0, week_count = 0 WHERE currency = {}", CURRENCY_TYPE_CONQUEST_POINTS);
+    trans->PAppend("UPDATE character_currency SET season_count = 0, week_count = 0 WHERE currency = {}", CURRENCY_TYPE_CONQUEST_META_RANDOG_BG);
+    trans->PAppend("UPDATE character_currency SET season_count = 0, week_count = 0 WHERE currency = {}", CURRENCY_TYPE_CONQUEST_META_RATED_BG);
+    trans->PAppend("UPDATE character_currency SET season_count = 0, week_count = 0 WHERE currency = {}", CURRENCY_TYPE_CONQUEST_META_ARENA);
     sWorld->setWorldState(WS_ARENA_SEASON_ID, curseason);
     sWorld->setWorldState(WS_ARENA_SEASON_WEEK, 0);
     CharacterDatabase.CommitTransaction(trans);

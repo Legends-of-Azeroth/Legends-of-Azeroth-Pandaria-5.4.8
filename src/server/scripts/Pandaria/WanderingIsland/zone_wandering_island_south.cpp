@@ -124,9 +124,8 @@ class npc_mandori_escort : public CreatureScript
                 return me->GetEntry() == npc_entry;
             }
 
-            void MovementInform(uint32 type, uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                EscortAI::MovementInform(type, waypointId);
                 switch (waypointId)
                 {
                     case 7:
@@ -303,24 +302,21 @@ class npc_ji_forest_escort : public CreatureScript
                 playerGuid = guid;
             }
 
-            void WaypointReached(uint32 /*waypointId*/) override { }
-
             void LastWaypointReached()
             {
                 if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
                     player->AddAura(68483, player); // Phase 16384
             }
 
-            void MovementInform(uint32 type, uint32 pointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                if (pointId == 100)
+                if (waypointId == 100)
                 {
                     SetRun(true);
                     Start(false);
                 }
                 else
                 {
-                    EscortAI::MovementInform(type, pointId);
                 }
             }
 
@@ -758,7 +754,7 @@ public:
 
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             if (waypointId == 18)
             {

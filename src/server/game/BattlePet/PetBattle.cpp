@@ -365,7 +365,7 @@ BattlePet* PetBattleTeam::GetPet(uint32 index)
 {
     if (index >= PET_BATTLE_MAX_TEAM_PETS)
     {
-        TC_LOG_ERROR("battlepets", "PetBattleTeam::GetPet invalid pet index %u", index);
+        TC_LOG_ERROR("battlepets", "PetBattleTeam::GetPet invalid pet index {}", index);
         return nullptr;
     }
     return BattlePets[index];

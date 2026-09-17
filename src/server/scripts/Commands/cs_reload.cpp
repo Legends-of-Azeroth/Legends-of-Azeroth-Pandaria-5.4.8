@@ -473,7 +473,7 @@ public:
                 continue;
             }
 
-            TC_LOG_INFO("misc", "Reloading creature template entry %u", entry);
+            TC_LOG_INFO("misc", "Reloading creature template entry {}", entry);
 
             Field* fields = result->Fetch();
             sObjectMgr->LoadCreatureTemplate(fields);

@@ -208,7 +208,7 @@ bool PlayerbotAIConfig::Initialize()
                     }
                 }
 
-                TC_LOG_DEBUG("playerbots", "Premade spec loaded: %s - %s", loadSpec.c_str(), premadeSpecLinkLoader[cls][spec].c_str());
+                TC_LOG_DEBUG("playerbots", "Premade spec loaded: {} - {}", loadSpec.c_str(), premadeSpecLinkLoader[cls][spec].c_str());
             }
             os.str("");
             os.clear();

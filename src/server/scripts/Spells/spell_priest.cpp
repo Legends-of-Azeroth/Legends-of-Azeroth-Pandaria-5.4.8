@@ -1570,7 +1570,7 @@ class spell_pri_spirit_of_redemption : public AuraScript
                 if (attacker)
                     attackerType = attacker->GetTypeId() == TYPEID_PLAYER ? "player" : "creature";
 
-                TC_LOG_ERROR("shitlog", "spell_pri_spirit_of_redemption, owner: %u, attacker: %u (%s), spell: %u", priest->GetGUIDLow(), attackerId, attackerType, dmgInfo.GetSpellInfo() ? dmgInfo.GetSpellInfo()->Id : 0);
+                TC_LOG_ERROR("shitlog", "spell_pri_spirit_of_redemption, owner: {}, attacker: {} ({}), spell: {}", priest->GetGUIDLow(), attackerId, attackerType, dmgInfo.GetSpellInfo() ? dmgInfo.GetSpellInfo()->Id : 0);
                 */
                 absorbAmount = dmgInfo.GetDamage();
                 return;

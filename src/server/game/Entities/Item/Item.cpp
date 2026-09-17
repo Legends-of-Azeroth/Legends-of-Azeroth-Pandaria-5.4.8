@@ -39,7 +39,7 @@ void AddItemsSetItem(Player* player, Item* item)
 
     if (!set)
     {
-        TC_LOG_ERROR("sql.sql", "Item set %u for item (id %u) not found, mods not applied.", setid, proto->ItemId);
+        TC_LOG_ERROR("sql.sql", "Item set {} for item (id {}) not found, mods not applied.", setid, proto->ItemId);
         return;
     }
 
@@ -99,7 +99,7 @@ void AddItemsSetItem(Player* player, Item* item)
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(set->spells[x]);
                 if (!spellInfo)
                 {
-                    TC_LOG_ERROR("entities.player.items", "WORLD: unknown spell id %u in items set %u effects", set->spells[x], setid);
+                    TC_LOG_ERROR("entities.player.items", "WORLD: unknown spell id {} in items set {} effects", set->spells[x], setid);
                     break;
                 }
 
@@ -120,7 +120,7 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
 
     if (!set)
     {
-        TC_LOG_ERROR("sql.sql", "Item set #%u for item #%u not found, mods not removed.", setid, proto->ItemId);
+        TC_LOG_ERROR("sql.sql", "Item set #{} for item #{} not found, mods not removed.", setid, proto->ItemId);
         return;
     }
 
@@ -321,7 +321,7 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
     if (!GetUInt32Value(ITEM_FIELD_EXPIRATION))
         return;
 
-    TC_LOG_DEBUG("entities.player.items", "Item::UpdateDuration Item (Entry: %u Duration %u Diff %u)", GetEntry(), GetUInt32Value(ITEM_FIELD_EXPIRATION), diff);
+    TC_LOG_DEBUG("entities.player.items", "Item::UpdateDuration Item (Entry: {} Duration {} Diff {})", GetEntry(), GetUInt32Value(ITEM_FIELD_EXPIRATION), diff);
 
     if (GetUInt32Value(ITEM_FIELD_EXPIRATION) <= diff)
     {
@@ -434,7 +434,7 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
 bool Item::LoadFromDB(uint32 guid, ObjectGuid ownerGuid, Field* fields, uint32 entry, Player* owner)
 {
     //                                                    0                1      2         3        4      5             6                 7  8          9                 10          11          12        13     14       15     16       17 
-    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, reforgeId, transmogrifyId, upgradeID, durability, playedTime, text, species, breed, quality, level FROM item_instance WHERE guid = '%u'", guid);
+    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, reforgeId, transmogrifyId, upgradeID, durability, playedTime, text, species, breed, quality, level FROM item_instance WHERE guid = '{}'", guid);
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
@@ -683,7 +683,7 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
     // item can have not null only one from field values
     if ((itemProto->RandomProperty) && (itemProto->RandomSuffix))
     {
-        TC_LOG_ERROR("sql.sql", "Item template %u have RandomProperty == %u and RandomSuffix == %u, but must have one from field =0", itemProto->ItemId, itemProto->RandomProperty, itemProto->RandomSuffix);
+        TC_LOG_ERROR("sql.sql", "Item template {} have RandomProperty == {} and RandomSuffix == {}, but must have one from field =0", itemProto->ItemId, itemProto->RandomProperty, itemProto->RandomSuffix);
         return 0;
     }
 
@@ -694,7 +694,7 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
         ItemRandomPropertiesEntry const* random_id = sItemRandomPropertiesStore.LookupEntry(randomPropId);
         if (!random_id)
         {
-            TC_LOG_ERROR("sql.sql", "Enchantment id #%u used but it doesn't have records in 'ItemRandomProperties.dbc'", randomPropId);
+            TC_LOG_ERROR("sql.sql", "Enchantment id #{} used but it doesn't have records in 'ItemRandomProperties.dbc'", randomPropId);
             return 0;
         }
 
@@ -707,7 +707,7 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
         ItemRandomSuffixEntry const* random_id = sItemRandomSuffixStore.LookupEntry(randomPropId);
         if (!random_id)
         {
-            TC_LOG_ERROR("sql.sql", "Enchantment id #%u used but it doesn't have records in sItemRandomSuffixStore.", randomPropId);
+            TC_LOG_ERROR("sql.sql", "Enchantment id #{} used but it doesn't have records in sItemRandomSuffixStore.", randomPropId);
             return 0;
         }
 
@@ -799,7 +799,7 @@ void Item::AddToUpdateQueueOf(Player* player)
 
     if (player->GetGUID() != GetOwnerGUID())
     {
-        TC_LOG_DEBUG("entities.player.items", "Item::AddToUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GetOwnerGUID().GetCounter(), player->GetGUID().GetCounter());
+        TC_LOG_DEBUG("entities.player.items", "Item::AddToUpdateQueueOf - Owner's guid ({}) and player's guid ({}) don't match!", GetOwnerGUID().GetCounter(), player->GetGUID().GetCounter());
         return;
     }
 
@@ -819,7 +819,7 @@ void Item::RemoveFromUpdateQueueOf(Player* player)
 
     if (player->GetGUID() != GetOwnerGUID())
     {
-        TC_LOG_DEBUG("entities.player.items", "Item::RemoveFromUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GetOwnerGUID().GetCounter(), player->GetGUID().GetCounter());
+        TC_LOG_DEBUG("entities.player.items", "Item::RemoveFromUpdateQueueOf - Owner's guid ({}) and player's guid ({}) don't match!", GetOwnerGUID().GetCounter(), player->GetGUID().GetCounter());
         return;
     }
 
@@ -1886,7 +1886,7 @@ void Item::AddToUpdate()
     {
         if (GetOwnerGUID() != 0) // TODO: this is guild bank...no complaints...so, no need to update ?
         {
-            TC_LOG_ERROR("shitlog", "Item::AddToUpdate - owner not found, guid %u, entry %u, owner %u\n",
+            TC_LOG_ERROR("shitlog", "Item::AddToUpdate - owner not found, guid {}, entry {}, owner {}\n",
                 GetGUID().GetCounter(), GetEntry(), GetOwnerGUID().GetCounter());
         }
         return;
@@ -1894,14 +1894,14 @@ void Item::AddToUpdate()
 
     if (!owner->FindMap())
     {
-        TC_LOG_ERROR("shitlog", "Item::AddToUpdate - owner hasn't map, guid %u, entry %u, owner %u\n",
+        TC_LOG_ERROR("shitlog", "Item::AddToUpdate - owner hasn't map, guid {}, entry {}, owner {}\n",
             GetGUID().GetCounter(), GetEntry(), GetOwnerGUID().GetCounter());
         return;
     }
 
     // if (owner->FindMap() != CurrentMap && CurrentMap)
     // {
-    //     TC_LOG_ERROR("shitlog", "Item::AddToUpdate - invalid map, m_currMap ID %u, CurrentMap ID: %u. Object type: %u, entry: %u, GUID: %u, owner: %u (InWorld: %u).\nStack trace:\n%s",
+    //     TC_LOG_ERROR("shitlog", "Item::AddToUpdate - invalid map, m_currMap ID {}, CurrentMap ID: {}. Object type: {}, entry: {}, GUID: {}, owner: {} (InWorld: {}).\nStack trace:\n{}",
     //         owner->FindMap()->GetId(), CurrentMap->GetId(), uint32(GetTypeId()), GetEntry(), GetGUIDLow(), GUID_LOPART(GetOwnerGUID()), owner->IsInWorld());
     //     return;
     // }
@@ -1915,21 +1915,21 @@ void Item::RemoveFromUpdate()
     Player* owner = ObjectAccessor::FindPlayer(GetOwnerGUID());   // player can be out of world - logout, teleport to cross-server
     if (!owner)
     {
-        TC_LOG_ERROR("shitlog", "Item::RemoveFromUpdate - owner not found, guid %u, entry %u, owner %u\n",
+        TC_LOG_ERROR("shitlog", "Item::RemoveFromUpdate - owner not found, guid {}, entry {}, owner {}\n",
             GetGUID().GetCounter(), GetEntry(), GetOwnerGUID().GetCounter());
         return;
     }
 
     if (!owner->FindMap())
     {
-        TC_LOG_ERROR("shitlog", "Item::RemoveFromUpdate - owner hasn't map, guid %u, entry %u, owner %u\n",
+        TC_LOG_ERROR("shitlog", "Item::RemoveFromUpdate - owner hasn't map, guid {}, entry {}, owner {}\n",
             GetGUID().GetCounter(), GetEntry(), GetOwnerGUID().GetCounter());
         return;
     }
 
     // if (owner->FindMap() != CurrentMap && CurrentMap)
     // {
-    //     TC_LOG_ERROR("shitlog", "Item::RemoveFromUpdate - invalid map, m_currMap ID %u, CurrentMap ID: %u. Object type: %u, entry: %u, GUID: %u, owner: %u (InWorld: %u).\nStack trace:\n",
+    //     TC_LOG_ERROR("shitlog", "Item::RemoveFromUpdate - invalid map, m_currMap ID {}, CurrentMap ID: {}. Object type: {}, entry: {}, GUID: {}, owner: {} (InWorld: {}).\nStack trace:\n",
     //         owner->FindMap()->GetId(), CurrentMap->GetId(), uint32(GetTypeId()), GetEntry(), GetGUIDLow(), GUID_LOPART(GetOwnerGUID()), owner->IsInWorld());
     //     return;
     // }

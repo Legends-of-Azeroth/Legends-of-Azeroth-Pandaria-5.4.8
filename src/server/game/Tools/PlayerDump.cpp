@@ -318,7 +318,7 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
         else                                                // not set case, get single guid string
             wherestr = GenerateWhereStr(fieldname, guid);
 
-        QueryResult result = CharacterDatabase.PQuery("SELECT * FROM %s WHERE %s", tableFrom, wherestr.c_str());
+        QueryResult result = CharacterDatabase.PQuery("SELECT * FROM {} WHERE {}", tableFrom, wherestr.c_str());
         if (!result)
             return true;
 
@@ -491,7 +491,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
     uint8 level = 1;
     DeclinedName* declinedName = NULL;
 
-    QueryResult result = CharacterDatabase.PQuery("SELECT spell FROM account_spell WHERE account = %u", account);
+    QueryResult result = CharacterDatabase.PQuery("SELECT spell FROM account_spell WHERE account = {}", account);
     if (result)
     {
         do
@@ -537,7 +537,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
         std::string tn = gettablename(line);
         if (tn.empty())
         {
-            TC_LOG_ERROR("misc", "LoadPlayerDump: Can't extract table name from line: '%s'!", line.c_str());
+            TC_LOG_ERROR("misc", "LoadPlayerDump: Can't extract table name from line: '{}'!", line.c_str());
             ROLLBACK(DUMP_FILE_BROKEN);
         }
 
@@ -554,7 +554,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
 
         if (i == DUMP_TABLE_COUNT)
         {
-            TC_LOG_ERROR("misc", "LoadPlayerDump: Unknown table: '%s'!", tn.c_str());
+            TC_LOG_ERROR("misc", "LoadPlayerDump: Unknown table: '{}'!", tn.c_str());
             ROLLBACK(DUMP_FILE_BROKEN);
         }
 
@@ -770,7 +770,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
                 break;
             }
             default:
-                TC_LOG_ERROR("misc", "Unknown dump table type: %u", type);
+                TC_LOG_ERROR("misc", "Unknown dump table type: {}", type);
                 break;
         }
 

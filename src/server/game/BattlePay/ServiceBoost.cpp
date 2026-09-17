@@ -49,7 +49,7 @@ void LoadBoostItems()
 
         if (!sObjectMgr->GetItemTemplate(items->itemId))
         {
-            TC_LOG_ERROR("sql.sql", "Item %u specified in `battle_pay_boost_items` does not exist, skipped.", items->itemId);
+            TC_LOG_ERROR("sql.sql", "Item {} specified in `battle_pay_boost_items` does not exist, skipped.", items->itemId);
             continue;
         }
 
@@ -57,7 +57,7 @@ void LoadBoostItems()
         count++;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u boost items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} boost items in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 CharacterBooster::CharacterBooster(WorldSession* session) : m_session(session), m_timer(0), m_boosting(false), m_sendPacket(false) { }
@@ -256,7 +256,7 @@ void CharacterBooster::_SendMail(CharacterDatabaseTransaction trans, PreparedIte
             trans->Append(stmt);
         }
         else
-            TC_LOG_ERROR("sql.sql", "Can't create item %u for _SendMail in Boost. Skip.", itr.second);
+            TC_LOG_ERROR("sql.sql", "Can't create item {} for _SendMail in Boost. Skip.", itr.second);
     }
 }
 
@@ -455,7 +455,7 @@ std::string CharacterBooster::_EquipItems(CharacterDatabaseTransaction trans, Pr
             }
             else
             {
-                TC_LOG_ERROR("sql.sql", "Can't create item %u for _EquipItems in Boost. Skip.", itr->second);
+                TC_LOG_ERROR("sql.sql", "Can't create item {} for _EquipItems in Boost. Skip.", itr->second);
 
                 items << "0 0 ";
             }
@@ -654,7 +654,7 @@ void CharacterBooster::_HandleCharacterBoost() const
 
     if (sWorld->getBoolConfig(CONFIG_BOOST_PROMOTION))
     {
-        auto paid = LoginDatabase.PQuery("SELECT counter FROM account_boost WHERE id = '%d' AND realmid = '%d' AND counter > 0", GetSession()->GetAccountId(), realm.Id.Realm);
+        auto paid = LoginDatabase.PQuery("SELECT counter FROM account_boost WHERE id = '{}' AND realmid = '{}' AND counter > 0", GetSession()->GetAccountId(), realm.Id.Realm);
         if (!paid)
             return;
     }

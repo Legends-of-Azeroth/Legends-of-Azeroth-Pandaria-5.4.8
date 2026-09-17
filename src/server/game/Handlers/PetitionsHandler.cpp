@@ -77,13 +77,13 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     recvData.ReadByteSeq(guidNPC[2]);
     recvData.ReadByteSeq(guidNPC[3]);
 
-    TC_LOG_DEBUG("network", "Petitioner with GUID %u tried sell petition: name %s", guidNPC.GetCounter(), name.c_str());
+    TC_LOG_DEBUG("network", "Petitioner with GUID {} tried sell petition: name {}", guidNPC.GetCounter(), name.c_str());
 
     // prevent cheating
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guidNPC, UNIT_NPC_FLAG_PETITIONER);
     if (!creature)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandlePetitionBuyOpcode - Unit (GUID: %u) not found or you can't interact with him.", guidNPC.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandlePetitionBuyOpcode - Unit (GUID: {}) not found or you can't interact with him.", guidNPC.GetCounter());
         return;
     }
 
@@ -177,11 +177,11 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     // delete petitions with the same guid as this one
     ssInvalidPetitionGUIDs << '\'' << charter->GetGUID().GetCounter() << '\'';
 
-    TC_LOG_DEBUG("network", "Invalid petition GUIDs: %s", ssInvalidPetitionGUIDs.str().c_str());
+    TC_LOG_DEBUG("network", "Invalid petition GUIDs: {}", ssInvalidPetitionGUIDs.str().c_str());
     CharacterDatabase.EscapeString(name);
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-    trans->PAppend("DELETE FROM petition WHERE petitionguid IN (%s)",  ssInvalidPetitionGUIDs.str().c_str());
-    trans->PAppend("DELETE FROM petition_sign WHERE petitionguid IN (%s)", ssInvalidPetitionGUIDs.str().c_str());
+    trans->PAppend("DELETE FROM petition WHERE petitionguid IN ({})",  ssInvalidPetitionGUIDs.str().c_str());
+    trans->PAppend("DELETE FROM petition_sign WHERE petitionguid IN ({})", ssInvalidPetitionGUIDs.str().c_str());
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PETITION);
     stmt->setUInt32(0, _player->GetGUID().GetCounter());
@@ -231,7 +231,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
 
     if (!result)
     {
-        TC_LOG_DEBUG("entities.player.items", "Petition %u is not found for player %u %s", petitionGuid.GetCounter(), GetPlayer()->GetGUID().GetCounter(), GetPlayer()->GetName().c_str());
+        TC_LOG_DEBUG("entities.player.items", "Petition {} is not found for player {} {}", petitionGuid.GetCounter(), GetPlayer()->GetGUID().GetCounter(), GetPlayer()->GetName().c_str());
         return;
     }
 
@@ -252,7 +252,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
     if (result)
         playerCount = uint8(result->GetRowCount());
 
-    TC_LOG_DEBUG("network", "CMSG_PETITION_SHOW_SIGNATURES petition entry: '%u'", petitionGuidLow);
+    TC_LOG_DEBUG("network", "CMSG_PETITION_SHOW_SIGNATURES petition entry: '{}'", petitionGuidLow);
 
     ObjectGuid playerGuid = _player->GetGUID();
     ObjectGuid* playerGuids = new ObjectGuid[playerCount];
@@ -360,7 +360,7 @@ void WorldSession::HandlePetitionQueryOpcode(WorldPacket& recvData)
     recvData.ReadByteSeq(petitionGuid[3]);
     recvData.ReadByteSeq(petitionGuid[2]);
 
-    TC_LOG_DEBUG("network", "CMSG_PETITION_QUERY Petition GUID %u Guild GUID %u", petitionGuid.GetCounter(), guildguid);
+    TC_LOG_DEBUG("network", "CMSG_PETITION_QUERY Petition GUID {} Guild GUID {}", petitionGuid.GetCounter(), guildguid);
 
     SendPetitionQueryOpcode(petitionGuid);
 }
@@ -386,7 +386,7 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionGuid)
     }
     else
     {
-        TC_LOG_DEBUG("network", "CMSG_PETITION_QUERY failed for petition (GUID: %u)", petitionGuid.GetCounter());
+        TC_LOG_DEBUG("network", "CMSG_PETITION_QUERY failed for petition (GUID: {})", petitionGuid.GetCounter());
         return;
     }
 
@@ -482,7 +482,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket& recvData)
     }
     else
     {
-        TC_LOG_DEBUG("network", "CMSG_PETITION_QUERY failed for petition (GUID: %u)", petitionGuid.GetCounter());
+        TC_LOG_DEBUG("network", "CMSG_PETITION_QUERY failed for petition (GUID: {})", petitionGuid.GetCounter());
         return;
     }
 
@@ -511,7 +511,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket& recvData)
 
     CharacterDatabase.Execute(stmt);
 
-    TC_LOG_DEBUG("network", "Petition (GUID: %u) renamed to '%s'", petitionGuid.GetCounter(), newName.c_str());
+    TC_LOG_DEBUG("network", "Petition (GUID: {}) renamed to '{}'", petitionGuid.GetCounter(), newName.c_str());
 
     WorldPacket data(SMSG_PETITION_RENAME_RESULT, (9 + 1 + newName.size()));
     data.WriteBits(newName.length(), 7);
@@ -571,7 +571,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
 
     if (!result)
     {
-        TC_LOG_ERROR("network", "Petition %u is not found for player %u %s", petitionGuid.GetCounter(), GetPlayer()->GetGUID().GetCounter(), GetPlayer()->GetName().c_str());
+        TC_LOG_ERROR("network", "Petition {} is not found for player {} {}", petitionGuid.GetCounter(), GetPlayer()->GetGUID().GetCounter(), GetPlayer()->GetName().c_str());
         return;
     }
 
@@ -631,7 +631,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
 
     CharacterDatabase.Execute(stmt);
 
-    TC_LOG_DEBUG("network", "PETITION SIGN: GUID %u by player: %s (GUID: %u Account: %u)", petitionGuid.GetCounter(), _player->GetName().c_str(), playerGuid, GetAccountId());
+    TC_LOG_DEBUG("network", "PETITION SIGN: GUID {} by player: {} (GUID: {} Account: {})", petitionGuid.GetCounter(), _player->GetName().c_str(), playerGuid, GetAccountId());
 
     // close at signer side
     SendPetitionSignResults(petitionGuid, _player->GetGUID(), PETITION_SIGN_OK);
@@ -671,7 +671,7 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket& recvData)
     recvData.ReadByteSeq(petitionGuid[4]);
     recvData.ReadByteSeq(petitionGuid[3]);
 
-    TC_LOG_DEBUG("network", "Petition %u declined by %u", petitionGuid.GetCounter(), _player->GetGUID().GetCounter());
+    TC_LOG_DEBUG("network", "Petition {} declined by {}", petitionGuid.GetCounter(), _player->GetGUID().GetCounter());
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_OWNER_BY_GUID);
 
@@ -751,7 +751,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket& recvData)
     Field* fields = result->Fetch();
     type = fields[0].GetUInt8();
 
-    TC_LOG_DEBUG("network", "OFFER PETITION: type %u, GUID1 %u, to player id: %u", type, petitionGuid.GetCounter(), playerGuid.GetCounter());
+    TC_LOG_DEBUG("network", "OFFER PETITION: type {}, GUID1 {}, to player id: {}", type, petitionGuid.GetCounter(), playerGuid.GetCounter());
 
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && GetPlayer()->GetTeam() != player->GetTeam())
     {
@@ -890,7 +890,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
     if (!item)
         return;
 
-    TC_LOG_DEBUG("network", "Petition %u turned in by %u", petitionGuid.GetCounter(), _player->GetGUID().GetCounter());
+    TC_LOG_DEBUG("network", "Petition {} turned in by {}", petitionGuid.GetCounter(), _player->GetGUID().GetCounter());
 
     // Get petition data from db
     uint32 ownerguidlo;
@@ -910,7 +910,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
     }
     else
     {
-        TC_LOG_ERROR("network", "Player %s (guid: %u) tried to turn in petition (guid: %u) that is not present in the database", _player->GetName().c_str(), _player->GetGUID().GetCounter(), petitionGuid.GetCounter());
+        TC_LOG_ERROR("network", "Player {} (guid: {}) tried to turn in petition (guid: {}) that is not present in the database", _player->GetName().c_str(), _player->GetGUID().GetCounter(), petitionGuid.GetCounter());
         return;
     }
 
@@ -1004,7 +1004,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
     CharacterDatabase.CommitTransaction(trans);
 
     // created
-    TC_LOG_DEBUG("network", "TURN IN PETITION GUID %u", petitionGuid.GetCounter());
+    TC_LOG_DEBUG("network", "TURN IN PETITION GUID {}", petitionGuid.GetCounter());
 
     data.Initialize(SMSG_TURN_IN_PETITION_RESULTS, 1);
     data.WriteBits(PETITION_TURN_OK, 4);
@@ -1039,7 +1039,7 @@ void WorldSession::HandlePetitionShowListOpcode(WorldPacket& recvData)
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_PETITIONER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandlePetitionerShowListOpcode - Unit (GUID: %u) not found or you can't interact with him.", guid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandlePetitionerShowListOpcode - Unit (GUID: {}) not found or you can't interact with him.", guid.GetCounter());
         return;
     }
 
@@ -1051,7 +1051,7 @@ void WorldSession::SendPetitionShowList(ObjectGuid guid)
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_PETITIONER);
     if (!creature)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandlePetitionShowListOpcode - Unit (GUID: %u) not found or you can't interact with him.", guid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandlePetitionShowListOpcode - Unit (GUID: {}) not found or you can't interact with him.", guid.GetCounter());
         return;
     }
 

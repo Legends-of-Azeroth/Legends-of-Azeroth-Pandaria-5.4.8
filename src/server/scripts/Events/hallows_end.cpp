@@ -565,7 +565,7 @@ struct npc_headless_horseman_fire : public ScriptedAI
             me->AddAura(RangoFire[0], me);
             if (id >= 242)
             {
-                TC_LOG_ERROR("scripts", "npc_headless_horseman_fire::SpellHit Shit happend! id: %u", id);
+                TC_LOG_ERROR("scripts", "npc_headless_horseman_fire::SpellHit Shit happend! id: {}", id);
                 return;
             }
             PostionEventoHallowends[id].AlreadyFired = true;

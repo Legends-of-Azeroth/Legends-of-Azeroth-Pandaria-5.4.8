@@ -102,25 +102,25 @@ void BattlePayMgr::LoadProductsFromDb()
 
         if (GetProductId(id))
         {
-            TC_LOG_ERROR("sql.sql", "Product id %u defined in `battle_pay_product` already exists, skipped!", id);
+            TC_LOG_ERROR("sql.sql", "Product id {} defined in `battle_pay_product` already exists, skipped!", id);
             continue;
         }
 
         if (title.size() > MAX_BATTLE_PAY_PRODUCT_TITLE_SIZE)
         {
-            TC_LOG_ERROR("sql.sql", "Title for product id %u defined in `battle_pay_product` is too large (max %d), skipped!", id, MAX_BATTLE_PAY_PRODUCT_TITLE_SIZE);
+            TC_LOG_ERROR("sql.sql", "Title for product id {} defined in `battle_pay_product` is too large (max {}), skipped!", id, MAX_BATTLE_PAY_PRODUCT_TITLE_SIZE);
             continue;
         }
 
         if (description.size() > MAX_BATTLE_PAY_PRODUCT_DESCRIPTION_SIZE)
         {
-            TC_LOG_ERROR("sql.sql", "Description for product id %u defined in `battle_pay_product` is too large (max %d), skipped!", id, MAX_BATTLE_PAY_PRODUCT_DESCRIPTION_SIZE);
+            TC_LOG_ERROR("sql.sql", "Description for product id {} defined in `battle_pay_product` is too large (max {}), skipped!", id, MAX_BATTLE_PAY_PRODUCT_DESCRIPTION_SIZE);
             continue;
         }
 
         if (discount > 99)
         {
-            TC_LOG_ERROR("sql.sql", "Product id %u defined in `battle_pay_product` has to large discount %u (max 99), skipped!", id, discount);
+            TC_LOG_ERROR("sql.sql", "Product id {} defined in `battle_pay_product` has to large discount {} (max 99), skipped!", id, discount);
             discount = 0;
             continue;
         }
@@ -129,7 +129,7 @@ void BattlePayMgr::LoadProductsFromDb()
         count++;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u Battle Pay store products in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} Battle Pay store products in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void BattlePayMgr::LoadProductLocalesFromDb()
@@ -156,7 +156,7 @@ void BattlePayMgr::LoadProductLocalesFromDb()
 
         if (!GetProductId(id))
         {
-            TC_LOG_ERROR("sql.sql", "Table `locales_battle_pay_product` (Entry: %u) has locale strings for non-existing Battle Pay product.", id);
+            TC_LOG_ERROR("sql.sql", "Table `locales_battle_pay_product` (Entry: {}) has locale strings for non-existing Battle Pay product.", id);
             continue;
         }
 
@@ -170,7 +170,7 @@ void BattlePayMgr::LoadProductLocalesFromDb()
         }
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %lu Battle Pay store products locale strings in %u ms", (unsigned long)m_productLocalesMap.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} Battle Pay store products locale strings in {} ms", (unsigned long)m_productLocalesMap.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void BattlePayMgr::LoadProductItemsFromDb()
@@ -198,13 +198,13 @@ void BattlePayMgr::LoadProductItemsFromDb()
 
         if (!GetProductId(productId))
         {
-            TC_LOG_ERROR("sql.sql", "Product id %u defined in `battle_pay_product_items` not exists, skipped!", productId);
+            TC_LOG_ERROR("sql.sql", "Product id {} defined in `battle_pay_product_items` not exists, skipped!", productId);
             continue;
         }
 
         if (itemId && !sObjectMgr->GetItemTemplate(itemId))
         {
-            TC_LOG_ERROR("sql.sql", "Item id %u for product id %u defined in `battle_pay_product_items` doesn't exist, skipped!", itemId, productId);
+            TC_LOG_ERROR("sql.sql", "Item id {} for product id {} defined in `battle_pay_product_items` doesn't exist, skipped!", itemId, productId);
             continue;
         }
 
@@ -212,7 +212,7 @@ void BattlePayMgr::LoadProductItemsFromDb()
         count++;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u Battle Pay store product items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} Battle Pay store product items in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void BattlePayMgr::LoadGroupsFromDb()
@@ -241,19 +241,19 @@ void BattlePayMgr::LoadGroupsFromDb()
 
         if (HasGroupId(id))
         {
-            TC_LOG_ERROR("sql.sql", "Group id %u defined in `battle_pay_group` already exists, skipped!", id);
+            TC_LOG_ERROR("sql.sql", "Group id {} defined in `battle_pay_group` already exists, skipped!", id);
             continue;
         }
 
         if (HasGroupName(name))
         {
-            TC_LOG_ERROR("sql.sql", "Group name %s defined in `battle_pay_group` is invalid because a group of the same name already exists, skipped!", name.c_str());
+            TC_LOG_ERROR("sql.sql", "Group name {} defined in `battle_pay_group` is invalid because a group of the same name already exists, skipped!", name.c_str());
             continue;
         }
 
         if (name.size() > MAX_BATTLE_PAY_GROUP_NAME_SIZE)
         {
-            TC_LOG_ERROR("sql.sql", "Name for group id %u defined in `battle_pay_group` is too large (max %d), skipped!",
+            TC_LOG_ERROR("sql.sql", "Name for group id {} defined in `battle_pay_group` is too large (max {}), skipped!",
                 id, MAX_BATTLE_PAY_GROUP_NAME_SIZE);
 
             continue;
@@ -261,7 +261,7 @@ void BattlePayMgr::LoadGroupsFromDb()
 
         if (type >= BATTLE_PAY_GROUP_TYPE_END)
         {
-            TC_LOG_ERROR("sql.sql", "Group id %u defined in `battle_pay_group` has invalid group type %u, skipped!", id, type);
+            TC_LOG_ERROR("sql.sql", "Group id {} defined in `battle_pay_group` has invalid group type {}, skipped!", id, type);
             continue;
         }
 
@@ -269,7 +269,7 @@ void BattlePayMgr::LoadGroupsFromDb()
         count++;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u Battle Pay store groups in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} Battle Pay store groups in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void BattlePayMgr::LoadGroupLocalesFromDb()
@@ -295,7 +295,7 @@ void BattlePayMgr::LoadGroupLocalesFromDb()
 
         if (!HasGroupId(id))
         {
-            TC_LOG_ERROR("sql.sql", "Table `locales_battle_pay_group` (Entry: %u) has locale strings for non-existing Battle Pay group.", id);
+            TC_LOG_ERROR("sql.sql", "Table `locales_battle_pay_group` (Entry: {}) has locale strings for non-existing Battle Pay group.", id);
             continue;
         }
 
@@ -306,7 +306,7 @@ void BattlePayMgr::LoadGroupLocalesFromDb()
 
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %lu Battle Pay store groups locale strings in %u ms", (unsigned long)m_groupLocalesMap.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} Battle Pay store groups locale strings in {} ms", (unsigned long)m_groupLocalesMap.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void BattlePayMgr::LoadEntriesFromDb()
@@ -340,25 +340,25 @@ void BattlePayMgr::LoadEntriesFromDb()
 
         if (HasEntryId(id))
         {
-            TC_LOG_ERROR("sql.sql", "Entry id %u defined in `battle_pay_entry` already exists, skipped!", id);
+            TC_LOG_ERROR("sql.sql", "Entry id {} defined in `battle_pay_entry` already exists, skipped!", id);
             continue;
         }
 
         if (!HasGroupId(groupId))
         {
-            TC_LOG_ERROR("sql.sql", "Group id %u for entry id %u defined in `battle_pay_entry` is invalid because the group doesn't exists, skipped!", groupId, id);
+            TC_LOG_ERROR("sql.sql", "Group id {} for entry id {} defined in `battle_pay_entry` is invalid because the group doesn't exists, skipped!", groupId, id);
             continue;
         }
 
         if (!GetProductId(productId))
         {
-            TC_LOG_ERROR("sql.sql", "Product id %u for entry id %u defined in `battle_pay_entry` is invalid because the group doesn't exists, skipped!", productId, id);
+            TC_LOG_ERROR("sql.sql", "Product id {} for entry id {} defined in `battle_pay_entry` is invalid because the group doesn't exists, skipped!", productId, id);
             continue;
         }
 
         if (banner >= BATTLE_PAY_BANNER_TYPE_END)
         {
-            TC_LOG_ERROR("sql.sql", "Entry id %u defined in `battle_pay_entry` has invalid banner type %u, skipped!", id, banner);
+            TC_LOG_ERROR("sql.sql", "Entry id {} defined in `battle_pay_entry` has invalid banner type {}, skipped!", id, banner);
             continue;
         }
 
@@ -366,7 +366,7 @@ void BattlePayMgr::LoadEntriesFromDb()
         count++;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u Battle Pay store entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} Battle Pay store entries in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void BattlePayMgr::LoadEntryLocalesFromDb()
@@ -393,7 +393,7 @@ void BattlePayMgr::LoadEntryLocalesFromDb()
 
         if (!HasEntryId(id))
         {
-            TC_LOG_ERROR("sql.sql", "Table `locales_battle_pay_entry` (Entry: %u) has locale strings for non-existing Battle Pay entry.", id);
+            TC_LOG_ERROR("sql.sql", "Table `locales_battle_pay_entry` (Entry: {}) has locale strings for non-existing Battle Pay entry.", id);
             continue;
         }
 
@@ -407,7 +407,7 @@ void BattlePayMgr::LoadEntryLocalesFromDb()
         }
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %lu Battle Pay store entries locale strings in %u ms", (unsigned long)m_shopEntryLocalesMap.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} Battle Pay store entries locale strings in {} ms", (unsigned long)m_shopEntryLocalesMap.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 BattlePayProduct* BattlePayMgr::GetProductId(uint32 id)
@@ -514,7 +514,7 @@ bool BattlePayMgr::HasPointsBalance(WorldSession* session, uint64 points)
 void BattlePayMgr::RegisterPurchase(PurchaseInfo* purchase, uint32 item, uint64 price)
 {
   // Register Purchase
-    LoginDatabase.PExecute("INSERT INTO battlepay_log (accountId, characterGuid, realm, item, price) VALUES (%u, %u, %u, %u, %u);", purchase->GetSession()->GetAccountId(), purchase->SelectedPlayer.GetCounter(), realm.Id.Realm, item, price);
+    LoginDatabase.PExecute("INSERT INTO battlepay_log (accountId, characterGuid, realm, item, price) VALUES ({}, {}, {}, {}, {});", purchase->GetSession()->GetAccountId(), purchase->SelectedPlayer.GetCounter(), realm.Id.Realm, item, price);
 }
 
 void BattlePayMgr::Update(uint32 diff)
@@ -601,7 +601,7 @@ void BattlePayMgr::SendBattlePayProductList(WorldSession* session)
                         }
                         else
                         {
-                            if (CharacterDatabase.PQuery("SELECT spell FROM account_spell WHERE account = '%u' AND spell = '%u'", session->GetAccountId(), productSpell))
+                            if (CharacterDatabase.PQuery("SELECT spell FROM account_spell WHERE account = '{}' AND spell = '{}'", session->GetAccountId(), productSpell))
                                 hasProduct = true;
                         }
                     }
@@ -615,7 +615,7 @@ void BattlePayMgr::SendBattlePayProductList(WorldSession* session)
                         }
                         else
                         {
-                            if (CharacterDatabase.PQuery("SELECT species FROM account_battle_pet WHERE accountId = '%u' AND species = '%u'", session->GetAccountId(), speciesId))
+                            if (CharacterDatabase.PQuery("SELECT species FROM account_battle_pet WHERE accountId = '{}' AND species = '{}'", session->GetAccountId(), speciesId))
                                 hasProduct = true;
                         }
                     }

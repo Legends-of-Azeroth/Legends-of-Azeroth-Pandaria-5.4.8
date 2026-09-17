@@ -124,7 +124,7 @@ void WorldSession::HandleMoveWorldportAck()
 
     if (GetPlayer()->IsInWorld())
     {
-        TC_LOG_ERROR("network", "Player %s (GUID: %u) is still in world when teleported from map %s (%u) to new map %s (%u)", GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter(), oldMap->GetMapName(), oldMap->GetId(), newMap ? newMap->GetMapName() : "Unknown", loc.GetMapId());
+        TC_LOG_ERROR("network", "Player {} (GUID: {}) is still in world when teleported from map {} ({}) to new map {} ({})", GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter(), oldMap->GetMapName(), oldMap->GetId(), newMap ? newMap->GetMapName() : "Unknown", loc.GetMapId());
         oldMap->RemovePlayerFromMap(GetPlayer(), false);
     }
 
@@ -134,7 +134,7 @@ void WorldSession::HandleMoveWorldportAck()
     if (!newMap || !newMap->CanEnter(GetPlayer()))
     {
         GetPlayer()->SetrSemaphoreTeleportForcedFar(false);
-        TC_LOG_ERROR("network", "Map %d (%s) could not be created for player %d (%s), porting player to homebind", loc.GetMapId(), newMap ? newMap->GetMapName() : "Unknown", GetPlayer()->GetGUID().GetCounter(), GetPlayer()->GetName().c_str());
+        TC_LOG_ERROR("network", "Map {} ({}) could not be created for player {} ({}), porting player to homebind", loc.GetMapId(), newMap ? newMap->GetMapName() : "Unknown", GetPlayer()->GetGUID().GetCounter(), GetPlayer()->GetName().c_str());
         GetPlayer()->TeleportTo(GetPlayer()->m_homebindMapId, GetPlayer()->m_homebindX, GetPlayer()->m_homebindY, GetPlayer()->m_homebindZ, GetPlayer()->GetOrientation());
         return;
     }
@@ -149,14 +149,14 @@ void WorldSession::HandleMoveWorldportAck()
     bool invalidZ = false;
     if (GetPlayer()->GetPositionZ() > 500000.0f || GetPlayer()->GetPositionZ() <= -200000.0f)
     {
-        TC_LOG_ERROR("shitlog", "WorldSession::HandleMoveWorldportAckOpcode z coordinate fucked: %s, map %u, z %f\n", GetPlayerInfo().c_str(), newMap->GetId(), GetPlayer()->GetPositionZ());
+        TC_LOG_ERROR("shitlog", "WorldSession::HandleMoveWorldportAckOpcode z coordinate fucked: {}, map {}, z {}\n", GetPlayerInfo().c_str(), newMap->GetId(), GetPlayer()->GetPositionZ());
         invalidZ = true;
     }
 
     GetPlayer()->SendInitialPacketsBeforeAddToMap();
     if (invalidZ || !GetPlayer()->GetMap()->AddPlayerToMap(GetPlayer()))
     {
-        TC_LOG_ERROR("network", "WORLD: failed to teleport player %s (%d) to map %d (%s) because of unknown reason!",
+        TC_LOG_ERROR("network", "WORLD: failed to teleport player {} ({}) to map {} ({}) because of unknown reason!",
             GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter(), loc.GetMapId(), newMap ? newMap->GetMapName() : "Unknown");
         GetPlayer()->ResetMap();
         GetPlayer()->SetMap(oldMap);
@@ -260,7 +260,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck
     TC_LOG_DEBUG("network", "CMSG_MOVE_TELEPORT_ACK");
 
     TC_LOG_DEBUG("network", "Guid " UI64FMTD, uint64(packet.MoverGUID));
-    TC_LOG_DEBUG("network", "Flags %u, time %u", packet.Flags, packet.MoveTime/IN_MILLISECONDS);
+    TC_LOG_DEBUG("network", "Flags {}, time {}", packet.Flags, packet.MoveTime/IN_MILLISECONDS);
 
     Player* plMover = _player->m_mover->ToPlayer();
 
@@ -511,7 +511,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPackets::Movement::MoveSpeedCh
         case CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK: move_type = MOVE_FLIGHT_BACK; break;
         case CMSG_MOVE_FORCE_PITCH_RATE_CHANGE_ACK:        move_type = MOVE_PITCH_RATE;  break;
         default:
-            TC_LOG_ERROR("network", "WorldSession::HandleForceSpeedChangeAck: Unknown move type opcode: %u", opcode);
+            TC_LOG_ERROR("network", "WorldSession::HandleForceSpeedChangeAck: Unknown move type opcode: {}", opcode);
             return;
     }
 
@@ -528,13 +528,13 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPackets::Movement::MoveSpeedCh
     {
         if (_player->GetSpeed(move_type) > newspeed)         // must be greater - just correct
         {
-            TC_LOG_ERROR("network", "%sSpeedChange player %s is NOT correct (must be %f instead %f), force set to correct value",
+            TC_LOG_ERROR("network", "{}SpeedChange player {} is NOT correct (must be {} instead {}), force set to correct value",
                 move_type_name[move_type], _player->GetName().c_str(), _player->GetSpeed(move_type), newspeed);
             _player->SetSpeed(move_type, _player->GetSpeedRate(move_type), true);
         }
         else                                                // must be lesser - cheating
         {
-            TC_LOG_DEBUG("misc", "Player %s from account id %u kicked for incorrect speed (must be %f instead %f)",
+            TC_LOG_DEBUG("misc", "Player {} from account id {} kicked for incorrect speed (must be {} instead {})",
                 _player->GetName().c_str(), _player->GetSession()->GetAccountId(), _player->GetSpeed(move_type), newspeed);
             _player->GetSession()->KickPlayer();
         }
@@ -633,7 +633,7 @@ void WorldSession::HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCo
 
 void WorldSession::HandleMovementForceAck(WorldPackets::Movement::MovementForceAck& packet)
 {
-    TC_LOG_DEBUG("network", "%s", packet.GetOpcode() == CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK ? "CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK" : "CMSG_MOVE_REMOVE_MOVEMENT_FORCE_ACK");
+    TC_LOG_DEBUG("network", "{}", packet.GetOpcode() == CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK ? "CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK" : "CMSG_MOVE_REMOVE_MOVEMENT_FORCE_ACK");
 }
 
 void WorldSession::HandleMoveSetCanTurnWhileFallingAck(WorldPackets::Movement::MoveSetCanTurnWhileFallingAck& /*packet*/)

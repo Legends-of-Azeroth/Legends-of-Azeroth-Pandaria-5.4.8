@@ -161,13 +161,13 @@ extern int main(int argc, char** argv)
     Trinity::Banner::Show("worldserver-daemon",
         [](char const* text)
         {
-            TC_LOG_INFO("server.worldserver", "%s", text);
+            TC_LOG_INFO("server.worldserver", "{}", text);
         },
         []()
         {
-            TC_LOG_INFO("server.worldserver", "Using configuration file %s.", sConfigMgr->GetFilename().c_str());
-            TC_LOG_INFO("server.worldserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, OpenSSL_version(OPENSSL_VERSION));
-            TC_LOG_INFO("server.worldserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+            TC_LOG_INFO("server.worldserver", "Using configuration file {}.", sConfigMgr->GetFilename().c_str());
+            TC_LOG_INFO("server.worldserver", "Using SSL version: {} (library: {})", OPENSSL_VERSION_TEXT, OpenSSL_version(OPENSSL_VERSION));
+            TC_LOG_INFO("server.worldserver", "Using Boost version: {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
         }
     );
 
@@ -185,10 +185,10 @@ extern int main(int argc, char** argv)
     if (!pidFile.empty())
     {
         if (uint32 pid = CreatePIDFile(pidFile))
-            TC_LOG_INFO("server.worldserver", "Daemon PID: %u\n", pid);
+            TC_LOG_INFO("server.worldserver", "Daemon PID: {}\n", pid);
         else
         {
-            TC_LOG_ERROR("server.worldserver", "Cannot create PID file %s.\n", pidFile.c_str());
+            TC_LOG_ERROR("server.worldserver", "Cannot create PID file {}.\n", pidFile.c_str());
             return 1;
         }
     }
@@ -301,7 +301,7 @@ extern int main(int argc, char** argv)
     {
         freezeDetector = std::make_shared<FreezeDetector>(*ioContext, coreStuckTime * 1000);
         FreezeDetector::Start(freezeDetector);
-        TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", coreStuckTime);
+        TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread ({} seconds max stuck time)...", coreStuckTime);
     }
 
     sScriptMgr->OnStartup();
@@ -359,7 +359,7 @@ void ShutdownCLIThread(std::thread* cliThread)
             if (!formatReturnCode)
                 errorBuffer = "Unknown error";
 
-            TC_LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code %u, detail: %s", uint32(errorCode), errorBuffer);
+            TC_LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code {}, detail: {}", uint32(errorCode), errorBuffer);
 
             if (!formatReturnCode)
                 LocalFree((LPSTR)errorBuffer);
@@ -433,7 +433,7 @@ void WorldUpdateLoop()
         {
             uint32 sleepTime = minUpdateDiff - diff;
             if (sleepTime >= halfMaxCoreStuckTime)
-                TC_LOG_ERROR("server.worldserver", "WorldUpdateLoop() waiting for %u ms with MaxCoreStuckTime set to %u ms", sleepTime, maxCoreStuckTime);
+                TC_LOG_ERROR("server.worldserver", "WorldUpdateLoop() waiting for {} ms with MaxCoreStuckTime set to {} ms", sleepTime, maxCoreStuckTime);
             // sleep until enough time passes that we can update all timers
             std::this_thread::sleep_for(Milliseconds(sleepTime));
             continue;
@@ -485,7 +485,7 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
                 uint32 msTimeDiff = getMSTimeDiff(freezeDetector->_lastChangeMsTime, curtime);
                 if (msTimeDiff > freezeDetector->_maxCoreStuckTimeInMs)
                 {
-                    TC_LOG_ERROR("server.worldserver", "World Thread hangs for %u ms, forcing a crash!", msTimeDiff);
+                    TC_LOG_ERROR("server.worldserver", "World Thread hangs for {} ms, forcing a crash!", msTimeDiff);
                     ABORT_MSG("World Thread hangs for %u ms, forcing a crash!", msTimeDiff);
                 }
             }
@@ -518,7 +518,7 @@ AsyncAcceptor* StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext)
 
 bool LoadRealmInfo(Trinity::Asio::IoContext& ioContext)
 {
-    QueryResult result = LoginDatabase.PQuery("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE id = %u", realm.Id.Realm);
+    QueryResult result = LoginDatabase.PQuery("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE id = {}", realm.Id.Realm);
     if (!result)
         return false;
 
@@ -529,7 +529,7 @@ bool LoadRealmInfo(Trinity::Asio::IoContext& ioContext)
     Optional<boost::asio::ip::tcp::endpoint> externalAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[2].GetString(), "");
     if (!externalAddress)
     {
-        TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[2].GetString().c_str());
+        TC_LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[2].GetString().c_str());
         return false;
     }
 
@@ -538,7 +538,7 @@ bool LoadRealmInfo(Trinity::Asio::IoContext& ioContext)
     Optional<boost::asio::ip::tcp::endpoint> localAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[3].GetString(), "");
     if (!localAddress)
     {
-        TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[3].GetString().c_str());
+        TC_LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[3].GetString().c_str());
         return false;
     }
 
@@ -547,7 +547,7 @@ bool LoadRealmInfo(Trinity::Asio::IoContext& ioContext)
     Optional<boost::asio::ip::tcp::endpoint> localSubmask = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[4].GetString(), "");
     if (!localSubmask)
     {
-        TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[4].GetString().c_str());
+        TC_LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[4].GetString().c_str());
         return false;
     }
 
@@ -601,17 +601,17 @@ bool StartDB()
         while (result->NextRow());
     }
 
-    TC_LOG_INFO("server.worldserver", "Realm running as realm ID %d", realm.Id.Realm);
+    TC_LOG_INFO("server.worldserver", "Realm running as realm ID {}", realm.Id.Realm);
 
     ///- Clean the database before starting
     ClearOnlineAccounts();
 
     ///- Insert version info into DB
-    WorldDatabase.PExecute("UPDATE version SET core_version = '%s', core_revision = '%s'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
+    WorldDatabase.PExecute("UPDATE version SET core_version = '{}', core_revision = '{}'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
 
     sWorld->LoadDBVersion();
 
-    TC_LOG_INFO("server.worldserver", "Using World DB: %s", sWorld->GetDBVersion());
+    TC_LOG_INFO("server.worldserver", "Using World DB: {}", sWorld->GetDBVersion());
     return true;
 }
 

@@ -95,7 +95,7 @@ static int CreateChildProcess(T waiter, std::string const& executable,
 
     if (!secure)
     {
-        TC_LOG_TRACE(logger, "Starting process \"%s\" with arguments: \"%s\".",
+        TC_LOG_TRACE(logger, "Starting process \"{}\" with arguments: \"{}\".",
                 executable.c_str(), boost::algorithm::join(argsVector, " ").c_str());
     }
 
@@ -154,7 +154,7 @@ static int CreateChildProcess(T waiter, std::string const& executable,
 
     if (!secure)
     {
-        TC_LOG_TRACE(logger, ">> Process \"%s\" finished with return value %i.",
+        TC_LOG_TRACE(logger, ">> Process \"{}\" finished with return value {}.",
                 executable.c_str(), result);
     }
 

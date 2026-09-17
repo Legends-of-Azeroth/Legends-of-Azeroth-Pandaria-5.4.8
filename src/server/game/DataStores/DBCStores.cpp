@@ -308,7 +308,7 @@ DBCManager& DBCManager::Instance()
 
 static bool LoadDBC_assert_print(uint32 fsize, uint32 rsize, const std::string& filename)
 {
-    TC_LOG_ERROR("misc", "Size of '%s' set by format string (%u) not equal size of C++ structure (%u).", filename.c_str(), fsize, rsize);
+    TC_LOG_ERROR("misc", "Size of '{}' set by format string ({}) not equal size of C++ structure ({}).", filename.c_str(), fsize, rsize);
 
     // ASSERT must fail after function call
     return false;
@@ -909,7 +909,7 @@ void DBCManager::LoadDBCStores(const std::string& dataPath, uint32 defaultLocale
     // error checks
     if (bad_dbc_files.size() >= DBCFileCount)
     {
-        TC_LOG_ERROR("misc", "Incorrect DataDir value in worldserver.conf or ALL required *.dbc files (%d) not found by path: %sdbc", DBCFileCount, dataPath.c_str());
+        TC_LOG_ERROR("misc", "Incorrect DataDir value in worldserver.conf or ALL required *.dbc files ({}) not found by path: {}dbc", DBCFileCount, dataPath.c_str());
         exit(1);
     }
     else if (!bad_dbc_files.empty())
@@ -918,7 +918,7 @@ void DBCManager::LoadDBCStores(const std::string& dataPath, uint32 defaultLocale
         for (StoreProblemList::iterator i = bad_dbc_files.begin(); i != bad_dbc_files.end(); ++i)
             str += *i + "\n";
 
-        TC_LOG_ERROR("misc", "Some required *.dbc files (%u from %d) not found or not compatible:\n%s", (uint32)bad_dbc_files.size(), DBCFileCount, str.c_str());
+        TC_LOG_ERROR("misc", "Some required *.dbc files ({} from {}) not found or not compatible:\n{}", (uint32)bad_dbc_files.size(), DBCFileCount, str.c_str());
         exit(1);
     }
 
@@ -933,7 +933,7 @@ void DBCManager::LoadDBCStores(const std::string& dataPath, uint32 defaultLocale
         exit(1);
     }
 
-    TC_LOG_INFO("server.loading", ">> Initialized %d DBC data stores in %u ms", DBCFileCount, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Initialized {} DBC data stores in {} ms", DBCFileCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
 std::string const& DBCManager::GetRandomCharacterName(uint8 race, uint8 gender)

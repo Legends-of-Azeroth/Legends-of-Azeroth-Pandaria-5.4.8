@@ -82,7 +82,7 @@ Channel::Channel(std::string const& name, uint32 channelId, uint32 team):
                         ObjectGuid banned_guid(HighGuid::Player, uint32(atol(*i)));
                         if (banned_guid)
                         {
-                            TC_LOG_DEBUG("chat.system", "Channel(%s) loaded bannedStore guid:" UI64FMTD "", name.c_str(), banned_guid.GetRawValue());
+                            TC_LOG_DEBUG("chat.system", "Channel({}) loaded bannedStore guid:" "{}" "", name.c_str(), banned_guid.GetRawValue());
                             bannedStore.insert(banned_guid);
                         }
                     }
@@ -94,7 +94,7 @@ Channel::Channel(std::string const& name, uint32 channelId, uint32 team):
                 stmt->setString(0, name);
                 stmt->setUInt32(1, _Team);
                 CharacterDatabase.Execute(stmt);
-                TC_LOG_DEBUG("chat.system", "Channel(%s) saved in database", name.c_str());
+                TC_LOG_DEBUG("chat.system", "Channel({}) saved in database", name.c_str());
             }
 
             _IsSaved = true;
@@ -122,7 +122,7 @@ void Channel::UpdateChannelInDB() const
         stmt->setUInt32(5, _Team);
         CharacterDatabase.Execute(stmt);
 
-        TC_LOG_DEBUG("chat.system", "Channel(%s) updated in database", _name.c_str());
+        TC_LOG_DEBUG("chat.system", "Channel({}) updated in database", _name.c_str());
     }
 }
 
@@ -526,7 +526,7 @@ void Channel::List(Player const* player)
         return;
     }
 
-    TC_LOG_DEBUG("chat.system", "SMSG_CHANNEL_LIST %s Channel: %s",
+    TC_LOG_DEBUG("chat.system", "SMSG_CHANNEL_LIST {} Channel: {}",
         player->GetSession()->GetPlayerInfo().c_str(), GetName().c_str());
 
     WorldPacket data(SMSG_CHANNEL_LIST, 1+(GetName().size()+1)+1+4+playersStore.size()*(8+1));

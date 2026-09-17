@@ -145,13 +145,13 @@ void ServiceMgr::HandleReplaceSkill(Player* player, uint32 oldSkill, uint32 newS
 
     if (!oldProf || !newProf)
     {
-        TC_LOG_ERROR("misc", "ServiceManager::HandleReplaceSkill - Unknown profession skill: %u (GUID: %u)", oldProf ? newSkill : oldSkill, player->GetGUID().GetCounter());
+        TC_LOG_ERROR("misc", "ServiceManager::HandleReplaceSkill - Unknown profession skill: {} (GUID: {})", oldProf ? newSkill : oldSkill, player->GetGUID().GetCounter());
         return;
     }
 
     if (!player->HasSkill(oldSkill))
     {
-        TC_LOG_ERROR("misc", "ServiceManager::HandleReplaceSkill - Player (%u) hasn't skill: %u", player->GetGUID().GetCounter(), oldSkill);
+        TC_LOG_ERROR("misc", "ServiceManager::HandleReplaceSkill - Player ({}) hasn't skill: {}", player->GetGUID().GetCounter(), oldSkill);
         return;
     }
 
@@ -179,7 +179,7 @@ void ServiceMgr::InsertServiceEntry(uint32 guid, uint32 service, uint32 data1, u
 
 void ServiceMgr::SetExecuted(uint32 id)
 {
-    CharacterDatabase.PExecute("UPDATE character_service SET execution_data = UNIX_TIMESTAMP() WHERE id = %u", id);
+    CharacterDatabase.PExecute("UPDATE character_service SET execution_data = UNIX_TIMESTAMP() WHERE id = {}", id);
 }
 
 std::set<uint32> const* ServiceMgr::GetClassSpells(uint8 classID, uint32 team)
@@ -278,8 +278,8 @@ void ServiceMgr::RemoveOldSkillsFromDB(uint32 guid, uint8 classID)
     {
         if (iter->flag == 15)
         {
-            trans->PAppend("DELETE FROM character_spell WHERE guid = %u AND spell = %u;", guid, iter->entry);
-            trans->PAppend("DELETE FROM character_skills WHERE guid = %u and skill = %u;", guid, iter->data);
+            trans->PAppend("DELETE FROM character_spell WHERE guid = {} AND spell = {};", guid, iter->entry);
+            trans->PAppend("DELETE FROM character_skills WHERE guid = {} and skill = {};", guid, iter->data);
         }
     }
     CharacterDatabase.CommitTransaction(trans);
@@ -289,7 +289,7 @@ void ServiceMgr::ApplyRetroactiveFixes(Player* player)
 {
     for (auto&& fix : _retroactiveFixes)
         if (fix->IsActive() && fix->IsApplicable(player) && fix->Execute(player))
-            TC_LOG_INFO("retroactivefix", "Performed fix on player %s (GUID: %u): %s", player->GetName().c_str(), player->GetGUID().GetCounter(), fix->GetDescription());
+            TC_LOG_INFO("retroactivefix", "Performed fix on player {} (GUID: {}): {}", player->GetName().c_str(), player->GetGUID().GetCounter(), fix->GetDescription());
 }
 
 void ServiceMgr::LoadSpells()
@@ -312,14 +312,14 @@ void ServiceMgr::LoadSpells()
         uint32 spell = fields[1].GetUInt32();
         if (!classID || classID > CLASS_DRUID)
         {
-            TC_LOG_ERROR("misc", "ServiceManager::LoadSpells - Invalid class (%u) for spell %u.", classID, spell);
+            TC_LOG_ERROR("misc", "ServiceManager::LoadSpells - Invalid class ({}) for spell {}.", classID, spell);
             continue;
         }
 
         SpellInfo const* info = sSpellMgr->GetSpellInfo(spell);
         if (!info)
         {
-            TC_LOG_ERROR("misc", "ServiceManager::LoadSpells - Not existing spell %u.", spell);
+            TC_LOG_ERROR("misc", "ServiceManager::LoadSpells - Not existing spell {}.", spell);
             continue;
         }
 
@@ -344,7 +344,7 @@ void ServiceMgr::ExecutedServices(uint32 guid, uint8 type, std::string oldData, 
     if (!sWorld->getBoolConfig(CONFIG_EXECUTED_SERVICES_LOG))
         return;
 
-    CharacterDatabase.PQuery("INSERT INTO executed_services (type, guid, old_data, new_data, execute_date) VALUES ('%u', '%u', '%s', '%s', '%s')",
+    CharacterDatabase.PQuery("INSERT INTO executed_services (type, guid, old_data, new_data, execute_date) VALUES ('{}', '{}', '{}', '{}', '{}')",
         uint8(type), guid, oldData.c_str(), newData.c_str(), TimeToTimestampStr(time(NULL)).c_str());
 }
 
@@ -586,7 +586,7 @@ void ServiceMgr::_LoadPremium()
         int32 j = 0;
         while (auctioneers[i][j] != 0)
         {
-            if (QueryResult result = WorldDatabase.PQuery("SELECT guid FROM creature WHERE id = %u;", auctioneers[i][j]))
+            if (QueryResult result = WorldDatabase.PQuery("SELECT guid FROM creature WHERE id = {};", auctioneers[i][j]))
             {
                 Field* fields = result->Fetch();
                 uint32 guid = fields[0].GetUInt32();
@@ -775,7 +775,7 @@ void ServiceMgr::DeletedItemNotify(uint32 guidLow, Item* item, uint8 type)
     if (!checkQuality || (!checkEquip && !checkOther) || hasReputationReq)
         return;
 
-    CharacterDatabase.PQuery("INSERT INTO item_deleted (owner_guid, old_item_guid, item_entry, item_count, delete_date, delete_type) VALUES ('%u', '%u', '%u', '%u', '%u', '%u')",
+    CharacterDatabase.PQuery("INSERT INTO item_deleted (owner_guid, old_item_guid, item_entry, item_count, delete_date, delete_type) VALUES ('{}', '{}', '{}', '{}', '{}', '{}')",
         guidLow, item->GetGUID().GetCounter(), item->GetEntry(), item->GetCount(), uint32(time(NULL)), uint32(type));
 
     item->SetHasDeletedItemRecord(true); // If the player will buy this item back after being saved - it will be removed from item_deleted table

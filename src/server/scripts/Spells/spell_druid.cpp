@@ -3331,7 +3331,7 @@ class spell_dru_shooting_stars_proc : public AuraScript
                 AddTarget(itr->GetUnitOwner());
         if (uniqueTargets.empty())
         {
-            TC_LOG_ERROR("misc", "spell_dru_shooting_stars_proc::CheckProc - Shit happened! GUID: %u", druid->GetGUID().GetCounter());
+            TC_LOG_ERROR("misc", "spell_dru_shooting_stars_proc::CheckProc - Shit happened! GUID: {}", druid->GetGUID().GetCounter());
             return false;
         }
         size_t targetCount = uniqueTargets.size();

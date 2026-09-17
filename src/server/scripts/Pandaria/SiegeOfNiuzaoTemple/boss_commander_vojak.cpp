@@ -839,7 +839,7 @@ struct npc_vojak_addAI : public ScriptedAI
         {
             me->SetReactState(REACT_PASSIVE);
             triggerTimer = TRIGGER_TIMER;
-            //TC_LOG_FATAL("script", "Triggering %s, %u seconds", me->GetName().c_str(), triggerTimer);
+            //TC_LOG_FATAL("script", "Triggering {}, {} seconds", me->GetName().c_str(), triggerTimer);
         }
     }
 

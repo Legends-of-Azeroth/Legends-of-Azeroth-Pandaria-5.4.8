@@ -85,13 +85,13 @@ void CharacterCache::LoadCharacterCacheStorage()
         } while (mailCountResult->NextRow());
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded Character Infos For %u Characters in %u ms", _characterCacheStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded Character Infos For {} Characters in {} ms", _characterCacheStore.size(), GetMSTimeDiffToNow(oldMSTime));
     TC_LOG_INFO("server.loading", " ");
 }
 
 void CharacterCache::RefreshCacheEntry(uint32 lowGuid)
 {
-    QueryResult result = CharacterDatabase.PQuery("SELECT guid, name, account, race, gender, class, level FROM characters WHERE guid = %u", lowGuid);
+    QueryResult result = CharacterDatabase.PQuery("SELECT guid, name, account, race, gender, class, level FROM characters WHERE guid = {}", lowGuid);
     if (!result)
     {
         return;
@@ -105,7 +105,7 @@ void CharacterCache::RefreshCacheEntry(uint32 lowGuid)
             fields[5].GetUInt8() /*class*/, fields[6].GetUInt8() /*level*/);
     } while (result->NextRow());
 
-    QueryResult mailCountResult = CharacterDatabase.PQuery("SELECT receiver, COUNT(receiver) FROM mail WHERE receiver = %u GROUP BY receiver", lowGuid);
+    QueryResult mailCountResult = CharacterDatabase.PQuery("SELECT receiver, COUNT(receiver) FROM mail WHERE receiver = {} GROUP BY receiver", lowGuid);
     if (mailCountResult)
     {
         do

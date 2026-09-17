@@ -1433,12 +1433,11 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 i) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, i);
             Player* player = GetPlayerForEscort();
 
-            switch(i)
+            switch(waypointId)
             {
                 case 1:
                 {
@@ -1714,7 +1713,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             if (waypointId == 1)
                 if (me->IsSummon())
@@ -1729,7 +1728,7 @@ public:
 
                         me->m_Events.AddLambdaEventAtOffset([this, summoner]()
                         {
-                            TC_LOG_INFO("scripts", "[Wahl] 800ms lambda: summonerAlive=%d hasVictim=%d",
+                            TC_LOG_INFO("scripts", "[Wahl] 800ms lambda: summonerAlive={} hasVictim={}",
                                 summoner && !summoner->isDead(), me->GetVictim() != NULL);
                             if (summoner && !summoner->isDead())
                             {
@@ -2244,10 +2243,9 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 point) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            EscortAI::MovementInform(type, point);
-            switch (point)
+            switch (waypointId)
             {
                 case 16:
                 {

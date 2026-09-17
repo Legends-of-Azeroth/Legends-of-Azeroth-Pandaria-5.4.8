@@ -44,7 +44,7 @@ void SpellHistory::LoadFromDB(PreparedQueryResult&& result, PreparedQueryResult&
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
             if (!spellInfo)
             {
-                TC_LOG_ERROR("entities.player.loading", "%s %u has unknown spell %u in `character_spell_cooldown`, skipping.",
+                TC_LOG_ERROR("entities.player.loading", "{} {} has unknown spell {} in `character_spell_cooldown`, skipping.",
                     _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Pet", _owner->GetGUID().GetCounter(), spellId);
                 continue;
             }

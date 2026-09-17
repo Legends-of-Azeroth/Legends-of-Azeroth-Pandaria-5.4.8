@@ -97,7 +97,7 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
 {
     // compatibility format and C++ structure sizes
     ASSERT(DB2FileLoader::GetFormatRecordSize(storage->GetFormat()) == sizeof(T),
-        "Size of '%s' set by format string (%u) not equal size of C++ structure (" SZFMTD ").",
+        "Size of '%s' set by format string (%u) not equal size of C++ structure (" "{}" ").",
         storage->GetFileName().c_str(), DB2FileLoader::GetFormatRecordSize(storage->GetFormat()), sizeof(T));
 
     ++DB2FilesCount;
@@ -245,7 +245,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     // error checks
     if (bad_db2_files.size() >= DB2FilesCount)
     {
-        TC_LOG_ERROR("misc", "\nIncorrect DataDir value in worldserver.conf or ALL required *.db2 files (%d) not found by path: %sdbc", DB2FilesCount, dataPath.c_str());
+        TC_LOG_ERROR("misc", "\nIncorrect DataDir value in worldserver.conf or ALL required *.db2 files ({}) not found by path: {}dbc", DB2FilesCount, dataPath.c_str());
         exit(1);
     }
     else if (!bad_db2_files.empty())
@@ -254,7 +254,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         for (std::list<std::string>::iterator i = bad_db2_files.begin(); i != bad_db2_files.end(); ++i)
             str += *i + "\n";
 
-        TC_LOG_ERROR("misc", "\nSome required *.db2 files (%u from %d) not found or not compatible:\n%s", (uint32)bad_db2_files.size(), DB2FilesCount, str.c_str());
+        TC_LOG_ERROR("misc", "\nSome required *.db2 files ({} from {}) not found or not compatible:\n{}", (uint32)bad_db2_files.size(), DB2FilesCount, str.c_str());
         exit(1);
     }
 
@@ -273,7 +273,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         exit(1);
     }
 
-    TC_LOG_INFO("server.loading", ">> Initialized %d DB2 data stores in %u ms", DB2FilesCount, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Initialized {} DB2 data stores in {} ms", DB2FilesCount, GetMSTimeDiffToNow(oldMSTime));
 
     return availableDb2Locales;
 }

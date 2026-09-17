@@ -354,7 +354,7 @@ void BattlegroundBFG::SendNodeUpdate(uint8 node)
 void BattlegroundBFG::NodeOccupied(uint8 node, Team team)
 {
     if (!AddSpiritGuide(node, BG_BFG_SpiritGuidePos[node][0], BG_BFG_SpiritGuidePos[node][1], BG_BFG_SpiritGuidePos[node][2], BG_BFG_SpiritGuidePos[node][3], team))
-        TC_LOG_ERROR("bg.battleground", "Failed to spawn spirit guide! point: %u, team: %u, ", node, team);
+        TC_LOG_ERROR("bg.battleground", "Failed to spawn spirit guide! point: {}, team: {}, ", node, team);
 
     uint8 capturedNodes = 0;
     for (uint8 i = 0; i < BG_BFG_DYNAMIC_NODES_COUNT; ++i)

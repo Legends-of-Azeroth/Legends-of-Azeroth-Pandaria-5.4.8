@@ -358,7 +358,7 @@ class boss_shade_of_akama : public CreatureScript
                 if (guid)
                 {
                     if (Sorcerers.empty())
-                        TC_LOG_ERROR("misc", "SD2 ERROR: Shade of Akama - attempt to remove guid " UI64FMTD " from Sorcerers list but list is already empty", guid.GetRawValue());
+                        TC_LOG_ERROR("misc", "SD2 ERROR: Shade of Akama - attempt to remove guid " "{}" " from Sorcerers list but list is already empty", guid.GetRawValue());
                     else
                         Sorcerers.remove(guid);
                 }
@@ -417,7 +417,7 @@ class boss_shade_of_akama : public CreatureScript
                     {
                         CAST_AI(npc_ashtongue_channeler::npc_ashtongue_channelerAI, (*itr)->AI())->ShadeGUID = me->GetGUID();
                         Channelers.push_back((*itr)->GetGUID());
-                        TC_LOG_DEBUG("misc", "TSCR: Shade of Akama Grid Search found channeler " UI64FMTD ". Adding to list", (*itr)->GetGUID().GetRawValue());
+                        TC_LOG_DEBUG("misc", "TSCR: Shade of Akama Grid Search found channeler " "{}" ". Adding to list", (*itr)->GetGUID().GetRawValue());
                     }
                 }
                 else

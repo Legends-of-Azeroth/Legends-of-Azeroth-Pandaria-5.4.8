@@ -524,10 +524,9 @@ class npc_black_knight_skeletal_gryphon : public CreatureScript
                 me->UpdateObjectVisibility();
             }
 
-            void MovementInform(uint32 type, uint32 uiPointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                EscortAI::MovementInform(type, uiPointId);
-                switch (uiPointId)
+                switch (waypointId)
                 {
                         case 1:
                             me->SetSpeed(MOVE_RUN , 2.0f);
@@ -607,10 +606,9 @@ class npc_gr : public CreatureScript
 
             InstanceScript* instance;
 
-            void MovementInform(uint32 type, uint32 uiPointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                EscortAI::MovementInform(type, uiPointId);
-                switch (uiPointId)
+                switch (waypointId)
                 {
                         case 1:
                             if (instance)

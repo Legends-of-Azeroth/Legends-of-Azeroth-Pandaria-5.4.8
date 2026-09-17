@@ -1905,7 +1905,7 @@ struct spell_monk_specific_damage_base
         auto it = map.find(spellId);
         if (it == map.end())
         {
-            TC_LOG_ERROR("sql.sql", "spell_monk_specific_damage specifief in DB for spell %u but modificator not found", spellId);
+            TC_LOG_ERROR("sql.sql", "spell_monk_specific_damage specifief in DB for spell {} but modificator not found", spellId);
             return 0.0f;
         }
 

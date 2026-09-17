@@ -152,21 +152,21 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
             Optional<boost::asio::ip::tcp::endpoint> externalAddress = _resolver->Resolve(boost::asio::ip::tcp::v4(), externalAddressString, "");
             if (!externalAddress)
             {
-                TC_LOG_ERROR("server.authserver", "Could not resolve address %s for realm \"%s\" id %u", externalAddressString.c_str(), name.c_str(), realmId);
+                TC_LOG_ERROR("server.authserver", "Could not resolve address {} for realm \"{}\" id {}", externalAddressString.c_str(), name.c_str(), realmId);
                 continue;
             }
 
             Optional<boost::asio::ip::tcp::endpoint> localAddress = _resolver->Resolve(boost::asio::ip::tcp::v4(), localAddressString, "");
             if (!localAddress)
             {
-                TC_LOG_ERROR("server.authserver", "Could not resolve localAddress %s for realm \"%s\" id %u", localAddressString.c_str(), name.c_str(), realmId);
+                TC_LOG_ERROR("server.authserver", "Could not resolve localAddress {} for realm \"{}\" id {}", localAddressString.c_str(), name.c_str(), realmId);
                 continue;
             }
 
             Optional<boost::asio::ip::tcp::endpoint> localSubmask = _resolver->Resolve(boost::asio::ip::tcp::v4(), localSubmaskString, "");
             if (!localSubmask)
             {
-                TC_LOG_ERROR("server.authserver", "Could not resolve localSubnetMask %s for realm \"%s\" id %u", localSubmaskString.c_str(), name.c_str(), realmId);
+                TC_LOG_ERROR("server.authserver", "Could not resolve localSubnetMask {} for realm \"{}\" id {}", localSubmaskString.c_str(), name.c_str(), realmId);
                 continue;
             }
 
@@ -188,11 +188,11 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                 timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop);            
             if (!existingRealms.count(id))
             {
-                TC_LOG_INFO("server.authserver", "Added realm \"%s\" at %s:%u.", name.c_str(), externalAddressString.c_str(), port);
+                TC_LOG_INFO("server.authserver", "Added realm \"{}\" at {}:{}.", name.c_str(), externalAddressString.c_str(), port);
             }
             else
             {
-                TC_LOG_DEBUG("server.authserver", "Updating realm \"%s\" at %s:%u.", name.c_str(), externalAddressString.c_str(), port);
+                TC_LOG_DEBUG("server.authserver", "Updating realm \"{}\" at {}:{}.", name.c_str(), externalAddressString.c_str(), port);
             }
 
             existingRealms.erase(id);
@@ -202,7 +202,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
     }
 
     for (auto itr = existingRealms.begin(); itr != existingRealms.end(); ++itr)
-        TC_LOG_INFO("server.authserver", "Removed realm \"%s\".", itr->second.c_str());
+        TC_LOG_INFO("server.authserver", "Removed realm \"{}\".", itr->second.c_str());
 
     if (_updateInterval)
     {

@@ -77,9 +77,8 @@ class npc_torek : public CreatureScript
             uint32 Thunderclap_Timer;
             bool Completed;
 
-            void MovementInform(uint32 type, uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                EscortAI::MovementInform(type, waypointId);
                 if (Player* player = GetPlayerForEscort())
                 {
                     switch (waypointId)
@@ -203,9 +202,8 @@ class npc_ruul_snowhoof : public CreatureScript
         {
             npc_ruul_snowhoofAI(Creature* creature) : EscortAI(creature) { }
 
-            void MovementInform(uint32 type, uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                EscortAI::MovementInform(type, waypointId);
                 Player* player = GetPlayerForEscort();
                 if (!player)
                     return;
@@ -334,9 +332,8 @@ class npc_muglash : public CreatureScript
                 summoned->AI()->AttackStart(me);
             }
 
-            void MovementInform(uint32 type, uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                EscortAI::MovementInform(type, waypointId);
                 if (Player* player = GetPlayerForEscort())
                 {
                     switch (waypointId)

@@ -65,7 +65,7 @@ void WorldSession::HandleDismissCritter(WorldPacket& recvData)
 
     if (!pet)
     {
-        TC_LOG_DEBUG("network", "Vanitypet (guid: %u) does not exist - player '%s' (guid: %u / account: %u) attempted to dismiss it (possibly lagged out)",
+        TC_LOG_DEBUG("network", "Vanitypet (guid: {}) does not exist - player '{}' (guid: {} / account: {}) attempted to dismiss it (possibly lagged out)",
             uint32(guid.GetCounter()), GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter(), GetAccountId());
         return;
     }
@@ -161,17 +161,17 @@ void WorldSession::HandlePetAction(WorldPacket& recvData) //  sub_68C8FD [5.4.8 
 
     // used also for charmed creature
     Unit* pet = ObjectAccessor::GetUnit(*_player, petGUID);
-    TC_LOG_DEBUG("network", "HandlePetAction: Pet (GUID: %u) - flag: %u, spellID: %u, Target: %u.", petGUID.GetCounter(), uint32(flag), spellID, targetGUID.GetCounter());
+    TC_LOG_DEBUG("network", "HandlePetAction: Pet (GUID: {}) - flag: {}, spellID: {}, Target: {}.", petGUID.GetCounter(), uint32(flag), spellID, targetGUID.GetCounter());
 
     if (!pet)
     {
-        TC_LOG_ERROR("network", "HandlePetAction: Pet (GUID: %u) doesn't exist for player %s (GUID: %u)", petGUID.GetCounter(), GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter());
+        TC_LOG_ERROR("network", "HandlePetAction: Pet (GUID: {}) doesn't exist for player {} (GUID: {})", petGUID.GetCounter(), GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter());
         return;
     }
 
     if (pet != GetPlayer()->GetFirstControlled())
     {
-        TC_LOG_ERROR("network", "HandlePetAction: Pet (GUID: %u) does not belong to player %s (GUID: %u)", petGUID.GetCounter(), GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter());
+        TC_LOG_ERROR("network", "HandlePetAction: Pet (GUID: {}) does not belong to player {} (GUID: {})", petGUID.GetCounter(), GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter());
         return;
     }
 
@@ -224,19 +224,19 @@ void WorldSession::HandlePetStopAttack(WorldPacket &recvData)
     recvData.ReadByteSeq(guid[6]);
     recvData.ReadByteSeq(guid[3]);
 
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_PET_STOP_ATTACK for GUID " UI64FMTD "", (uint64)guid);
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_PET_STOP_ATTACK for GUID " "{}" "", (uint64)guid);
 
     Unit* pet = ObjectAccessor::GetUnit(*_player, guid);
 
     if (!pet)
     {
-        TC_LOG_ERROR("network", "HandlePetStopAttack: Pet %u does not exist", uint32(guid.GetCounter()));
+        TC_LOG_ERROR("network", "HandlePetStopAttack: Pet {} does not exist", uint32(guid.GetCounter()));
         return;
     }
 
     if (pet != GetPlayer()->GetPet() && pet != GetPlayer()->GetCharm())
     {
-        TC_LOG_ERROR("network", "HandlePetStopAttack: Pet GUID %u isn't a pet or charmed creature of player %s",
+        TC_LOG_ERROR("network", "HandlePetStopAttack: Pet GUID {} isn't a pet or charmed creature of player {}",
             uint32(guid.GetCounter()), GetPlayer()->GetName().c_str());
         return;
     }
@@ -252,7 +252,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
     CharmInfo* charmInfo = pet->GetCharmInfo();
     if (!charmInfo)
     {
-        TC_LOG_ERROR("network", "WorldSession::HandlePetAction(petGuid: " UI64FMTD ", tagGuid: " UI64FMTD ", spellId: %u, flag: %u): object (entry: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!",
+        TC_LOG_ERROR("network", "WorldSession::HandlePetAction(petGuid: " "{}" ", tagGuid: " "{}" ", spellId: %u, flag: %u): object (entry: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!",
             guid1.GetRawValue(), guid2.GetRawValue(), spellid, flag, pet->GetGUID().GetCounter(), pet->GetTypeId());
         return;
     }
@@ -410,7 +410,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                     }
                     break;
                 default:
-                    TC_LOG_ERROR("network", "WORLD: unknown PET flag Action %i and spellid %i.", uint32(flag), spellid);
+                    TC_LOG_ERROR("network", "WORLD: unknown PET flag Action {} and spellid {}.", uint32(flag), spellid);
             }
             if (pet->GetTypeId() == TYPEID_UNIT)
                 pet->ToCreature()->AI()->OnPetCommand(CommandStates(spellid));
@@ -439,7 +439,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
             if (!spellInfo)
             {
-                TC_LOG_ERROR("network", "WORLD: unknown PET spell id %i", spellid);
+                TC_LOG_ERROR("network", "WORLD: unknown PET spell id {}", spellid);
                 return;
             }
 
@@ -601,7 +601,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
             break;
         }
         default:
-            TC_LOG_ERROR("network", "WORLD: unknown PET flag Action %i and spellid %i.", uint32(flag), spellid);
+            TC_LOG_ERROR("network", "WORLD: unknown PET flag Action {} and spellid {}.", uint32(flag), spellid);
     }
 }
 
@@ -698,7 +698,7 @@ bool WorldSession::CheckStableMaster(ObjectGuid guid)
     {
         if (!GetPlayer()->IsGameMaster() && !GetPlayer()->HasAuraType(SPELL_AURA_OPEN_STABLE))
         {
-            TC_LOG_DEBUG("network", "Player (GUID:%u) attempt open stable in cheating way.", guid.GetCounter());
+            TC_LOG_DEBUG("network", "Player (GUID:{}) attempt open stable in cheating way.", guid.GetCounter());
             return false;
         }
     }
@@ -707,7 +707,7 @@ bool WorldSession::CheckStableMaster(ObjectGuid guid)
     {
         if (!GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_STABLEMASTER))
         {
-            TC_LOG_DEBUG("network", "Stablemaster (GUID:%u) not found or you can't interact with him.", guid.GetCounter());
+            TC_LOG_DEBUG("network", "Stablemaster (GUID:{}) not found or you can't interact with him.", guid.GetCounter());
             return false;
         }
     }
@@ -745,14 +745,14 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
 
     if (!pet || pet != _player->GetFirstControlled())
     {
-        TC_LOG_ERROR("network", "HandlePetSetAction: Unknown pet (GUID: %u) or pet owner (GUID: %u)", petguid.GetCounter(), _player->GetGUID().GetCounter());
+        TC_LOG_ERROR("network", "HandlePetSetAction: Unknown pet (GUID: {}) or pet owner (GUID: {})", petguid.GetCounter(), _player->GetGUID().GetCounter());
         return;
     }
 
     CharmInfo* charmInfo = pet->GetCharmInfo();
     if (!charmInfo)
     {
-        TC_LOG_ERROR("network", "WorldSession::HandlePetSetAction: object (GUID: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!", pet->GetGUID().GetCounter(), pet->GetTypeId());
+        TC_LOG_ERROR("network", "WorldSession::HandlePetSetAction: object (GUID: {} TypeId: {}) is considered pet-like but doesn't have a charminfo!", pet->GetGUID().GetCounter(), pet->GetTypeId());
         return;
     }
 
@@ -930,7 +930,7 @@ void WorldSession::HandlePetAbandon(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[4]);
     recvData.ReadByteSeq(guid[3]);
 
-    TC_LOG_INFO("network", "HandlePetAbandon. CMSG_PET_ABANDON pet guid is %u", guid.GetCounter());
+    TC_LOG_INFO("network", "HandlePetAbandon. CMSG_PET_ABANDON pet guid is {}", guid.GetCounter());
 
     if (!_player->IsInWorld())
         return;
@@ -988,7 +988,7 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
 
     if (!pet || (pet != _player->GetGuardianPet() && pet != _player->GetCharm()))
     {
-        TC_LOG_ERROR("network", "HandlePetSpellAutocastOpcode.Pet %u isn't pet of player %s (GUID: %u).", PetGUID.GetCounter(), GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter());
+        TC_LOG_ERROR("network", "HandlePetSpellAutocastOpcode.Pet {} isn't pet of player {} (GUID: {}).", PetGUID.GetCounter(), GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter());
         return;
     }
 
@@ -1000,7 +1000,7 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
     CharmInfo* charmInfo = pet->GetCharmInfo();
     if (!charmInfo)
     {
-        TC_LOG_ERROR("network", "WorldSession::HandlePetSpellAutocastOpcod: object (GUID: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!", pet->GetGUID().GetCounter(), pet->GetTypeId());
+        TC_LOG_ERROR("network", "WorldSession::HandlePetSpellAutocastOpcod: object (GUID: {} TypeId: {}) is considered pet-like but doesn't have a charminfo!", pet->GetGUID().GetCounter(), pet->GetTypeId());
         return;
     }
 
@@ -1334,7 +1334,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     if (hasSpellId)
         spellId = recvPacket.read<uint32>();
 
-    TC_LOG_DEBUG("network", "WORLD: CMSG_PET_CAST_SPELL, guid: " UI64FMTD ", castCount: %u, spellId %u, castFlags %u", uint64(petGuid), castCount, spellId, castFlags);
+    TC_LOG_DEBUG("network", "WORLD: CMSG_PET_CAST_SPELL, guid: " "{}" ", castCount: %u, spellId %u, castFlags %u", uint64(petGuid), castCount, spellId, castFlags);
 
     // This opcode is also sent from charmed and possessed units (players and creatures)
     if (!_player->GetGuardianPet() && !_player->GetCharm())
@@ -1344,14 +1344,14 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
 
     if (!caster || (caster != _player->GetGuardianPet() && caster != _player->GetCharm()))
     {
-        TC_LOG_ERROR("network", "HandlePetCastSpellOpcode: Pet %u isn't pet of player %s (GUID: %u).", petGuid.GetCounter(), GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter());
+        TC_LOG_ERROR("network", "HandlePetCastSpellOpcode: Pet {} isn't pet of player {} (GUID: {}).", petGuid.GetCounter(), GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter());
         return;
     }
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
     {
-        TC_LOG_ERROR("network", "WORLD: unknown PET spell id %i", spellId);
+        TC_LOG_ERROR("network", "WORLD: unknown PET spell id {}", spellId);
         return;
     }
 

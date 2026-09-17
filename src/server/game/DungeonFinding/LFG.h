@@ -139,6 +139,11 @@ std::string GetStateString(LfgState state);
 uint32 GetGroupSize(bool raid);
 float GetShortagePercent();
 
+// allow implicit enum to int conversions for formatting
+inline int32 format_as(LfgUpdateType e) { return e; }
+inline uint8 format_as(LfgState e) { return e; }
+inline uint8 format_as(LfgRoles e) { return e; }
+
 } // namespace lfg
 
 #endif

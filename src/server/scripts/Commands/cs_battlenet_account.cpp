@@ -82,7 +82,7 @@ public:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName);
                 if (handler->GetSession())
                 {
-                    TC_LOG_INFO("entities.player.character", "Battle.net account: %u (IP: %s) Character:[%s] (" UI64FMTD ") created Account %s",
+                    TC_LOG_INFO("entities.player.character", "Battle.net account: {} (IP: {}) Character:[{}] (" "{}" ") created Account %s",
                         handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                         handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetRawValue(),
                         accountName);
@@ -135,7 +135,7 @@ public:
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
             handler->SetSentErrorMessage(true);
-            TC_LOG_INFO("entities.player.character", "Battle.net account: %u (IP: %s) Character:[%s] (" UI64FMTD ") Tried to change password, but the provided old password is wrong.",
+            TC_LOG_INFO("entities.player.character", "Battle.net account: {} (IP: {}) Character:[{}] (" "{}" ") Tried to change password, but the provided old password is wrong.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                 handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID());
             return false;
@@ -155,7 +155,7 @@ public:
         {
             case AccountOpResult::AOR_OK:
                 handler->SendSysMessage(LANG_COMMAND_PASSWORD);
-                TC_LOG_INFO("entities.player.character", "Battle.net account: %u (IP: %s) Character:[%s] (" UI64FMTD ") Changed Password.",
+                TC_LOG_INFO("entities.player.character", "Battle.net account: {} (IP: {}) Character:[{}] (" "{}" ") Changed Password.",
                     handler->GetSession()->GetBattlenetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                     handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID());
                 break;
@@ -329,7 +329,7 @@ public:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName.c_str());
                 if (handler->GetSession())
                 {
-                    TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (" UI64FMTD ") created Account %s (Email: '%s')",
+                    TC_LOG_INFO("entities.player.character", "Account: {} (IP: {}) Character:[{}] (" "{}" ") created Account %s (Email: '%s')",
                         handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                         handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetRawValue(),
                         accountName.c_str(), bnetAccountName.c_str());

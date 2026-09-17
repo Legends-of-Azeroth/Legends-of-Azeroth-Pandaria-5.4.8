@@ -318,7 +318,7 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
 
         if (group->GetLeaderGUID() == GetPlayer()->GetGUID())
         {
-            TC_LOG_ERROR("network", "HandleGroupAcceptOpcode: player %s(%d) tried to accept an invite to his own group", GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter());
+            TC_LOG_ERROR("network", "HandleGroupAcceptOpcode: player {}({}) tried to accept an invite to his own group", GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter());
             return;
         }
 
@@ -403,7 +403,7 @@ void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket& recvData)
     //can't uninvite yourself
     if (guid == GetPlayer()->GetGUID())
     {
-        TC_LOG_ERROR("network", "WorldSession::HandleGroupUninviteGuidOpcode: leader %s(%d) tried to uninvite himself from the group.",
+        TC_LOG_ERROR("network", "WorldSession::HandleGroupUninviteGuidOpcode: leader {}({}) tried to uninvite himself from the group.",
             GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter());
         return;
     }
@@ -688,7 +688,7 @@ void WorldSession::HandleMinimapPingOpcode(WorldPacket& recvData)
     recvData >> x;
     recvData.read_skip<uint8>();
 
-    //TC_LOG_DEBUG("misc", "Received opcode MSG_MINIMAP_PING X: %f, Y: %f", x, y);
+    //TC_LOG_DEBUG("misc", "Received opcode MSG_MINIMAP_PING X: {}, Y: {}", x, y);
 
     /** error handling **/
     /********************/
@@ -738,7 +738,7 @@ void WorldSession::HandleRandomRollOpcode(WorldPacket& recvData)
     // everything's fine, do it
     roll = urand(minimum, maximum);
 
-    //TC_LOG_DEBUG("misc", "ROLL: MIN: %u, MAX: %u, ROLL: %u", minimum, maximum, roll);
+    //TC_LOG_DEBUG("misc", "ROLL: MIN: {}, MAX: {}, ROLL: {}", minimum, maximum, roll);
 
     ObjectGuid guid = GetPlayer()->GetGUID();
 

@@ -710,7 +710,7 @@ class boss_kaelthas : public CreatureScript
                                 Advisor = Unit::GetCreature(*me, m_auiAdvisorGuid[i]);
 
                                 if (!Advisor)
-                                    TC_LOG_ERROR("scripts", "SD2: Kael'Thas Advisor %u does not exist. Possibly despawned? Incorrectly Killed?", i);
+                                    TC_LOG_ERROR("scripts", "SD2: Kael'Thas Advisor {} does not exist. Possibly despawned? Incorrectly Killed?", i);
                                 else
                                     CAST_AI(advisorbase_ai, Advisor->AI())->Revive(target);
                             }

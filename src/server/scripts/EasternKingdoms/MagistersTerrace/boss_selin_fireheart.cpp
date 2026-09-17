@@ -83,7 +83,7 @@ public:
                 {
                     instance->SetData64(DATA_FEL_CRYSTAL, i);
                     ObjectGuid guid = instance->GetGuidData(DATA_FEL_CRYSTAL);
-                    TC_LOG_DEBUG("scripts", "Selin: Adding Fel Crystal " UI64FMTD " to list", guid.GetRawValue());
+                    TC_LOG_DEBUG("scripts", "Selin: Adding Fel Crystal " "{}" " to list", guid.GetRawValue());
                     Crystals.push_back(guid);
                 }
             }

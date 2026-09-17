@@ -102,7 +102,7 @@ inline Player* Map::_GetScriptPlayerSourceOrTarget(Object* source, Object* targe
 {
     Player* player = NULL;
     if (!source && !target)
-        TC_LOG_ERROR("scripts", "%s source and target objects are NULL.", scriptInfo->GetDebugInfo().c_str());
+        TC_LOG_ERROR("scripts", "{} source and target objects are NULL.", scriptInfo->GetDebugInfo().c_str());
     else
     {
         // Check target first, then source.
@@ -112,7 +112,7 @@ inline Player* Map::_GetScriptPlayerSourceOrTarget(Object* source, Object* targe
             player = source->ToPlayer();
 
         if (!player)
-            TC_LOG_ERROR("scripts", "%s neither source nor target object is player (source: TypeId: %u, Entry: %u, GUID: %u; target: TypeId: %u, Entry: %u, GUID: %u), skipping.",
+            TC_LOG_ERROR("scripts", "{} neither source nor target object is player (source: TypeId: {}, Entry: {}, GUID: {}; target: TypeId: {}, Entry: {}, GUID: {}), skipping.",
                 scriptInfo->GetDebugInfo().c_str(),
                 source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUID().GetCounter() : 0,
                 target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUID().GetCounter() : 0);
@@ -124,7 +124,7 @@ inline Creature* Map::_GetScriptCreatureSourceOrTarget(Object* source, Object* t
 {
     Creature* creature = NULL;
     if (!source && !target)
-        TC_LOG_ERROR("scripts", "%s source and target objects are NULL.", scriptInfo->GetDebugInfo().c_str());
+        TC_LOG_ERROR("scripts", "{} source and target objects are NULL.", scriptInfo->GetDebugInfo().c_str());
     else
     {
         if (bReverse)
@@ -145,7 +145,7 @@ inline Creature* Map::_GetScriptCreatureSourceOrTarget(Object* source, Object* t
         }
 
         if (!creature)
-            TC_LOG_ERROR("scripts", "%s neither source nor target are creatures (source: TypeId: %u, Entry: %u, GUID: %u; target: TypeId: %u, Entry: %u, GUID: %u), skipping.",
+            TC_LOG_ERROR("scripts", "{} neither source nor target are creatures (source: TypeId: {}, Entry: {}, GUID: {}; target: TypeId: {}, Entry: {}, GUID: {}), skipping.",
                 scriptInfo->GetDebugInfo().c_str(),
                 source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUID().GetCounter() : 0,
                 target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUID().GetCounter() : 0);
@@ -157,15 +157,15 @@ inline Unit* Map::_GetScriptUnit(Object* obj, bool isSource, const ScriptInfo* s
 {
     Unit* unit = NULL;
     if (!obj)
-        TC_LOG_ERROR("scripts", "%s %s object is NULL.", scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
+        TC_LOG_ERROR("scripts", "{} {} object is NULL.", scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
     else if (!obj->isType(TYPEMASK_UNIT))
-        TC_LOG_ERROR("scripts", "%s %s object is not unit (TypeId: %u, Entry: %u, GUID: %u), skipping.",
+        TC_LOG_ERROR("scripts", "{} {} object is not unit (TypeId: {}, Entry: {}, GUID: {}), skipping.",
             scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUID().GetCounter());
     else
     {
         unit = obj->ToUnit();
         if (!unit)
-            TC_LOG_ERROR("scripts", "%s %s object could not be casted to unit.",
+            TC_LOG_ERROR("scripts", "{} {} object could not be casted to unit.",
                 scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
     }
     return unit;
@@ -175,12 +175,12 @@ inline Player* Map::_GetScriptPlayer(Object* obj, bool isSource, const ScriptInf
 {
     Player* player = NULL;
     if (!obj)
-        TC_LOG_ERROR("scripts", "%s %s object is NULL.", scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
+        TC_LOG_ERROR("scripts", "{} {} object is NULL.", scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
     else
     {
         player = obj->ToPlayer();
         if (!player)
-            TC_LOG_ERROR("scripts", "%s %s object is not a player (TypeId: %u, Entry: %u, GUID: %u).",
+            TC_LOG_ERROR("scripts", "{} {} object is not a player (TypeId: {}, Entry: {}, GUID: {}).",
                 scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUID().GetCounter());
     }
     return player;
@@ -190,12 +190,12 @@ inline Creature* Map::_GetScriptCreature(Object* obj, bool isSource, const Scrip
 {
     Creature* creature = NULL;
     if (!obj)
-        TC_LOG_ERROR("scripts", "%s %s object is NULL.", scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
+        TC_LOG_ERROR("scripts", "{} {} object is NULL.", scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
     else
     {
         creature = obj->ToCreature();
         if (!creature)
-            TC_LOG_ERROR("scripts", "%s %s object is not a creature (TypeId: %u, Entry: %u, GUID: %u).", scriptInfo->GetDebugInfo().c_str(),
+            TC_LOG_ERROR("scripts", "{} {} object is not a creature (TypeId: {}, Entry: {}, GUID: {}).", scriptInfo->GetDebugInfo().c_str(),
                 isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUID().GetCounter());
     }
     return creature;
@@ -205,13 +205,13 @@ inline WorldObject* Map::_GetScriptWorldObject(Object* obj, bool isSource, const
 {
     WorldObject* pWorldObject = NULL;
     if (!obj)
-        TC_LOG_ERROR("scripts", "%s %s object is NULL.",
+        TC_LOG_ERROR("scripts", "{} {} object is NULL.",
             scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
     else
     {
         pWorldObject = dynamic_cast<WorldObject*>(obj);
         if (!pWorldObject)
-            TC_LOG_ERROR("scripts", "%s %s object is not a world object (TypeId: %u, Entry: %u, GUID: %u).",
+            TC_LOG_ERROR("scripts", "{} {} object is not a world object (TypeId: {}, Entry: {}, GUID: {}).",
                 scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUID().GetCounter());
     }
     return pWorldObject;
@@ -227,29 +227,29 @@ inline void Map::_ScriptProcessDoor(Object* source, Object* target, const Script
         case SCRIPT_COMMAND_OPEN_DOOR: bOpen = true; break;
         case SCRIPT_COMMAND_CLOSE_DOOR: break;
         default:
-            TC_LOG_ERROR("scripts", "%s unknown command for _ScriptProcessDoor.", scriptInfo->GetDebugInfo().c_str());
+            TC_LOG_ERROR("scripts", "{} unknown command for _ScriptProcessDoor.", scriptInfo->GetDebugInfo().c_str());
             return;
     }
     if (!guid)
-        TC_LOG_ERROR("scripts", "%s door guid is not specified.", scriptInfo->GetDebugInfo().c_str());
+        TC_LOG_ERROR("scripts", "{} door guid is not specified.", scriptInfo->GetDebugInfo().c_str());
     else if (!source)
-        TC_LOG_ERROR("scripts", "%s source object is NULL.", scriptInfo->GetDebugInfo().c_str());
+        TC_LOG_ERROR("scripts", "{} source object is NULL.", scriptInfo->GetDebugInfo().c_str());
     else if (!source->isType(TYPEMASK_UNIT))
-        TC_LOG_ERROR("scripts", "%s source object is not unit (TypeId: %u, Entry: %u, GUID: %u), skipping.", scriptInfo->GetDebugInfo().c_str(),
+        TC_LOG_ERROR("scripts", "{} source object is not unit (TypeId: {}, Entry: {}, GUID: {}), skipping.", scriptInfo->GetDebugInfo().c_str(),
             source->GetTypeId(), source->GetEntry(), source->GetGUID().GetCounter());
     else
     {
         WorldObject* wSource = dynamic_cast <WorldObject*> (source);
         if (!wSource)
-            TC_LOG_ERROR("scripts", "%s source object could not be casted to world object (TypeId: %u, Entry: %u, GUID: %u), skipping.",
+            TC_LOG_ERROR("scripts", "{} source object could not be casted to world object (TypeId: {}, Entry: {}, GUID: {}), skipping.",
                 scriptInfo->GetDebugInfo().c_str(), source->GetTypeId(), source->GetEntry(), source->GetGUID().GetCounter());
         else
         {
             GameObject* pDoor = _FindGameObject(wSource, guid);
             if (!pDoor)
-                TC_LOG_ERROR("scripts", "%s gameobject was not found (guid: %u).", scriptInfo->GetDebugInfo().c_str(), guid);
+                TC_LOG_ERROR("scripts", "{} gameobject was not found (guid: {}).", scriptInfo->GetDebugInfo().c_str(), guid);
             else if (pDoor->GetGoType() != GAMEOBJECT_TYPE_DOOR)
-                TC_LOG_ERROR("scripts", "%s gameobject is not a door (GoType: %u, Entry: %u, GUID: %u).",
+                TC_LOG_ERROR("scripts", "{} gameobject is not a door (GoType: {}, Entry: {}, GUID: {}).",
                     scriptInfo->GetDebugInfo().c_str(), pDoor->GetGoType(), pDoor->GetEntry(), pDoor->GetGUID().GetCounter());
             else if (bOpen == (pDoor->GetGoState() == GO_STATE_READY))
             {
@@ -318,7 +318,7 @@ void Map::ScriptsProcess()
                     source = GetTransport(step.sourceGUID);
                     break;
                 default:
-                    TC_LOG_ERROR("scripts", "%s source with unsupported high guid (GUID: " UI64FMTD ", high guid: %u).",
+                    TC_LOG_ERROR("scripts", "{} source with unsupported high guid (GUID: " "{}" ", high guid: %u).",
                         step.script->GetDebugInfo().c_str(), step.sourceGUID.GetRawValue(), step.sourceGUID.GetHigh());
                     break;
             }
@@ -350,7 +350,7 @@ void Map::ScriptsProcess()
                     target = GetTransport(step.targetGUID);
                     break;
                 default:
-                    TC_LOG_ERROR("scripts", "%s target with unsupported high guid (GUID: " UI64FMTD ", high guid: %u).",
+                    TC_LOG_ERROR("scripts", "{} target with unsupported high guid (GUID: " "{}" ", high guid: %u).",
                         step.script->GetDebugInfo().c_str(), step.targetGUID.GetRawValue(), step.targetGUID.GetHigh());
                     break;
             }
@@ -361,7 +361,7 @@ void Map::ScriptsProcess()
             case SCRIPT_COMMAND_TALK:
                 if (step.script->Talk.ChatType > CHAT_TYPE_BOSS_WHISPER)
                 {
-                    TC_LOG_ERROR("scripts", "%s invalid chat type (%u) specified, skipping.", step.script->GetDebugInfo().c_str(), step.script->Talk.ChatType);
+                    TC_LOG_ERROR("scripts", "{} invalid chat type ({}) specified, skipping.", step.script->GetDebugInfo().c_str(), step.script->Talk.ChatType);
                     break;
                 }
 
@@ -375,7 +375,7 @@ void Map::ScriptsProcess()
                     Unit* sourceUnit = source->ToUnit();
                     if (!sourceUnit)
                     {
-                        TC_LOG_ERROR("scripts", "%s source object (%s) is not an unit, skipping.", step.script->GetDebugInfo().c_str(), source->GetGUID().ToString().c_str());
+                        TC_LOG_ERROR("scripts", "{} source object ({}) is not an unit, skipping.", step.script->GetDebugInfo().c_str(), source->GetGUID().ToString().c_str());
                         break;
                     }
 
@@ -396,7 +396,7 @@ void Map::ScriptsProcess()
                         {
                             Player* receiver = target ? target->ToPlayer() : nullptr;
                             if (!receiver)
-                                TC_LOG_ERROR("scripts", "%s attempt to whisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
+                                TC_LOG_ERROR("scripts", "{} attempt to whisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
                             else
                                 sourceUnit->Whisper(step.script->Talk.TextID, receiver, step.script->Talk.ChatType == CHAT_TYPE_BOSS_WHISPER);
                             break;
@@ -424,7 +424,7 @@ void Map::ScriptsProcess()
                 {
                     // Validate field number.
                     if (step.script->FieldSet.FieldID <= OBJECT_FIELD_ENTRY_ID || step.script->FieldSet.FieldID >= cSource->GetValuesCount())
-                        TC_LOG_ERROR("scripts", "%s wrong field %u (max count: %u) in object (TypeId: %u, Entry: %u, GUID: %u) specified, skipping.",
+                        TC_LOG_ERROR("scripts", "{} wrong field {} (max count: {}) in object (TypeId: {}, Entry: {}, GUID: {}) specified, skipping.",
                             step.script->GetDebugInfo().c_str(), step.script->FieldSet.FieldID,
                             cSource->GetValuesCount(), cSource->GetTypeId(), cSource->GetEntry(), cSource->GetGUID().GetCounter());
                     else
@@ -453,7 +453,7 @@ void Map::ScriptsProcess()
                 {
                     // Validate field number.
                     if (step.script->FlagToggle.FieldID <= OBJECT_FIELD_ENTRY_ID || step.script->FlagToggle.FieldID >= cSource->GetValuesCount())
-                        TC_LOG_ERROR("scripts", "%s wrong field %u (max count: %u) in object (TypeId: %u, Entry: %u, GUID: %u) specified, skipping.",
+                        TC_LOG_ERROR("scripts", "{} wrong field {} (max count: {}) in object (TypeId: {}, Entry: {}, GUID: {}) specified, skipping.",
                             step.script->GetDebugInfo().c_str(), step.script->FlagToggle.FieldID,
                             source->GetValuesCount(), source->GetTypeId(), source->GetEntry(), source->GetGUID().GetCounter());
                     else
@@ -467,7 +467,7 @@ void Map::ScriptsProcess()
                 {
                     // Validate field number.
                     if (step.script->FlagToggle.FieldID <= OBJECT_FIELD_ENTRY_ID || step.script->FlagToggle.FieldID >= cSource->GetValuesCount())
-                        TC_LOG_ERROR("scripts", "%s wrong field %u (max count: %u) in object (TypeId: %u, Entry: %u, GUID: %u) specified, skipping.",
+                        TC_LOG_ERROR("scripts", "{} wrong field {} (max count: {}) in object (TypeId: {}, Entry: {}, GUID: {}) specified, skipping.",
                             step.script->GetDebugInfo().c_str(), step.script->FlagToggle.FieldID,
                             source->GetValuesCount(), source->GetTypeId(), source->GetEntry(), source->GetGUID().GetCounter());
                     else
@@ -494,12 +494,12 @@ void Map::ScriptsProcess()
             {
                 if (!source)
                 {
-                    TC_LOG_ERROR("scripts", "%s source object is NULL.", step.script->GetDebugInfo().c_str());
+                    TC_LOG_ERROR("scripts", "{} source object is NULL.", step.script->GetDebugInfo().c_str());
                     break;
                 }
                 if (!target)
                 {
-                    TC_LOG_ERROR("scripts", "%s target object is NULL.", step.script->GetDebugInfo().c_str());
+                    TC_LOG_ERROR("scripts", "{} target object is NULL.", step.script->GetDebugInfo().c_str());
                     break;
                 }
 
@@ -510,7 +510,7 @@ void Map::ScriptsProcess()
                 {
                     if (source->GetTypeId() != TYPEID_UNIT && source->GetTypeId() != TYPEID_GAMEOBJECT && source->GetTypeId() != TYPEID_PLAYER)
                     {
-                        TC_LOG_ERROR("scripts", "%s source is not unit, gameobject or player (TypeId: %u, Entry: %u, GUID: %u), skipping.",
+                        TC_LOG_ERROR("scripts", "{} source is not unit, gameobject or player (TypeId: {}, Entry: {}, GUID: {}), skipping.",
                             step.script->GetDebugInfo().c_str(), source->GetTypeId(), source->GetEntry(), source->GetGUID().GetCounter());
                         break;
                     }
@@ -523,7 +523,7 @@ void Map::ScriptsProcess()
                     {
                         if (target->GetTypeId() != TYPEID_UNIT && target->GetTypeId() != TYPEID_GAMEOBJECT && target->GetTypeId() != TYPEID_PLAYER)
                         {
-                            TC_LOG_ERROR("scripts", "%s target is not unit, gameobject or player (TypeId: %u, Entry: %u, GUID: %u), skipping.",
+                            TC_LOG_ERROR("scripts", "{} target is not unit, gameobject or player (TypeId: {}, Entry: {}, GUID: {}), skipping.",
                                 step.script->GetDebugInfo().c_str(), target->GetTypeId(), target->GetEntry(), target->GetGUID().GetCounter());
                             break;
                         }
@@ -531,7 +531,7 @@ void Map::ScriptsProcess()
                     }
                     else
                     {
-                        TC_LOG_ERROR("scripts", "%s neither source nor target is player (source: TypeId: %u, Entry: %u, GUID: %u; target: TypeId: %u, Entry: %u, GUID: %u), skipping.",
+                        TC_LOG_ERROR("scripts", "{} neither source nor target is player (source: TypeId: {}, Entry: {}, GUID: {}; target: TypeId: {}, Entry: {}, GUID: {}), skipping.",
                             step.script->GetDebugInfo().c_str(), source->GetTypeId(), source->GetEntry(), source->GetGUID().GetCounter(),
                             target->GetTypeId(), target->GetEntry(), target->GetGUID().GetCounter());
                         break;
@@ -562,7 +562,7 @@ void Map::ScriptsProcess()
             case SCRIPT_COMMAND_RESPAWN_GAMEOBJECT:
                 if (!step.script->RespawnGameobject.GOGuid)
                 {
-                    TC_LOG_ERROR("scripts", "%s gameobject guid (datalong) is not specified.", step.script->GetDebugInfo().c_str());
+                    TC_LOG_ERROR("scripts", "{} gameobject guid (datalong) is not specified.", step.script->GetDebugInfo().c_str());
                     break;
                 }
 
@@ -572,7 +572,7 @@ void Map::ScriptsProcess()
                     GameObject* pGO = _FindGameObject(pSummoner, step.script->RespawnGameobject.GOGuid);
                     if (!pGO)
                     {
-                        TC_LOG_ERROR("scripts", "%s gameobject was not found (guid: %u).", step.script->GetDebugInfo().c_str(), step.script->RespawnGameobject.GOGuid);
+                        TC_LOG_ERROR("scripts", "{} gameobject was not found (guid: {}).", step.script->GetDebugInfo().c_str(), step.script->RespawnGameobject.GOGuid);
                         break;
                     }
 
@@ -581,7 +581,7 @@ void Map::ScriptsProcess()
                         pGO->GetGoType() == GAMEOBJECT_TYPE_BUTTON      ||
                         pGO->GetGoType() == GAMEOBJECT_TYPE_TRAP)
                     {
-                        TC_LOG_ERROR("scripts", "%s can not be used with gameobject of type %u (guid: %u).",
+                        TC_LOG_ERROR("scripts", "{} can not be used with gameobject of type {} (guid: {}).",
                             step.script->GetDebugInfo().c_str(), uint32(pGO->GetGoType()), step.script->RespawnGameobject.GOGuid);
                         break;
                     }
@@ -604,7 +604,7 @@ void Map::ScriptsProcess()
                 if (WorldObject* pSummoner = _GetScriptWorldObject(source, true, step.script))
                 {
                     if (!step.script->TempSummonCreature.CreatureEntry)
-                        TC_LOG_ERROR("scripts", "%s creature entry (datalong) is not specified.", step.script->GetDebugInfo().c_str());
+                        TC_LOG_ERROR("scripts", "{} creature entry (datalong) is not specified.", step.script->GetDebugInfo().c_str());
                     else
                     {
                         float x = step.script->TempSummonCreature.PosX;
@@ -613,7 +613,7 @@ void Map::ScriptsProcess()
                         float o = step.script->TempSummonCreature.Orientation;
 
                         if (!pSummoner->SummonCreature(step.script->TempSummonCreature.CreatureEntry, x, y, z, o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, Milliseconds(step.script->TempSummonCreature.DespawnDelay)))
-                            TC_LOG_ERROR("scripts", "%s creature was not spawned (entry: %u).", step.script->GetDebugInfo().c_str(), step.script->TempSummonCreature.CreatureEntry);
+                            TC_LOG_ERROR("scripts", "{} creature was not spawned (entry: {}).", step.script->GetDebugInfo().c_str(), step.script->TempSummonCreature.CreatureEntry);
                     }
                 }
                 break;
@@ -631,13 +631,13 @@ void Map::ScriptsProcess()
                     // Target must be GameObject.
                     if (!target)
                     {
-                        TC_LOG_ERROR("scripts", "%s target object is NULL.", step.script->GetDebugInfo().c_str());
+                        TC_LOG_ERROR("scripts", "{} target object is NULL.", step.script->GetDebugInfo().c_str());
                         break;
                     }
 
                     if (target->GetTypeId() != TYPEID_GAMEOBJECT)
                     {
-                        TC_LOG_ERROR("scripts", "%s target object is not gameobject (TypeId: %u, Entry: %u, GUID: %u), skipping.",
+                        TC_LOG_ERROR("scripts", "{} target object is not gameobject (TypeId: {}, Entry: {}, GUID: {}), skipping.",
                             step.script->GetDebugInfo().c_str(), target->GetTypeId(), target->GetEntry(), target->GetGUID().GetCounter());
                         break;
                     }
@@ -661,7 +661,7 @@ void Map::ScriptsProcess()
                 /// @todo Allow gameobjects to be targets and casters
                 if (!source && !target)
                 {
-                    TC_LOG_ERROR("scripts", "%s source and target objects are NULL.", step.script->GetDebugInfo().c_str());
+                    TC_LOG_ERROR("scripts", "{} source and target objects are NULL.", step.script->GetDebugInfo().c_str());
                     break;
                 }
 
@@ -694,13 +694,13 @@ void Map::ScriptsProcess()
 
                 if (!uSource || !uSource->isType(TYPEMASK_UNIT))
                 {
-                    TC_LOG_ERROR("scripts", "%s no source unit found for spell %u", step.script->GetDebugInfo().c_str(), step.script->CastSpell.SpellID);
+                    TC_LOG_ERROR("scripts", "{} no source unit found for spell {}", step.script->GetDebugInfo().c_str(), step.script->CastSpell.SpellID);
                     break;
                 }
 
                 if (!uTarget || !uTarget->isType(TYPEMASK_UNIT))
                 {
-                    TC_LOG_ERROR("scripts", "%s no target unit found for spell %u", step.script->GetDebugInfo().c_str(), step.script->CastSpell.SpellID);
+                    TC_LOG_ERROR("scripts", "{} no target unit found for spell {}", step.script->GetDebugInfo().c_str(), step.script->CastSpell.SpellID);
                     break;
                 }
 
@@ -760,7 +760,7 @@ void Map::ScriptsProcess()
                 if (Unit* unit = _GetScriptUnit(source, true, step.script))
                 {
                     if (!sWaypointMgr->GetPath(step.script->LoadPath.PathID))
-                        TC_LOG_ERROR("scripts", "%s source object has an invalid path (%u), skipping.", step.script->GetDebugInfo().c_str(), step.script->LoadPath.PathID);
+                        TC_LOG_ERROR("scripts", "{} source object has an invalid path ({}), skipping.", step.script->GetDebugInfo().c_str(), step.script->LoadPath.PathID);
                     else
                         unit->GetMotionMaster()->MovePath(step.script->LoadPath.PathID, step.script->LoadPath.IsRepeatable);
                 }
@@ -770,12 +770,12 @@ void Map::ScriptsProcess()
             {
                 if (!step.script->CallScript.CreatureEntry)
                 {
-                    TC_LOG_ERROR("scripts", "%s creature entry is not specified, skipping.", step.script->GetDebugInfo().c_str());
+                    TC_LOG_ERROR("scripts", "{} creature entry is not specified, skipping.", step.script->GetDebugInfo().c_str());
                     break;
                 }
                 if (!step.script->CallScript.ScriptID)
                 {
-                    TC_LOG_ERROR("scripts", "%s script id is not specified, skipping.", step.script->GetDebugInfo().c_str());
+                    TC_LOG_ERROR("scripts", "{} script id is not specified, skipping.", step.script->GetDebugInfo().c_str());
                     break;
                 }
 
@@ -801,7 +801,7 @@ void Map::ScriptsProcess()
 
                 if (!cTarget)
                 {
-                    TC_LOG_ERROR("scripts", "%s target was not found (entry: %u)", step.script->GetDebugInfo().c_str(), step.script->CallScript.CreatureEntry);
+                    TC_LOG_ERROR("scripts", "{} target was not found (entry: {})", step.script->GetDebugInfo().c_str(), step.script->CallScript.CreatureEntry);
                     break;
                 }
 
@@ -810,7 +810,7 @@ void Map::ScriptsProcess()
                 //if no scriptmap present...
                 if (!datamap)
                 {
-                    TC_LOG_ERROR("scripts", "%s unknown scriptmap (%u) specified, skipping.", step.script->GetDebugInfo().c_str(), step.script->CallScript.ScriptType);
+                    TC_LOG_ERROR("scripts", "{} unknown scriptmap ({}) specified, skipping.", step.script->GetDebugInfo().c_str(), step.script->CallScript.ScriptType);
                     break;
                 }
 
@@ -824,7 +824,7 @@ void Map::ScriptsProcess()
                 if (Creature* cSource = _GetScriptCreatureSourceOrTarget(source, target, step.script))
                 {
                     if (cSource->isDead())
-                        TC_LOG_ERROR("scripts", "%s creature is already dead (Entry: %u, GUID: %u)",
+                        TC_LOG_ERROR("scripts", "{} creature is already dead (Entry: {}, GUID: {})",
                             step.script->GetDebugInfo().c_str(), cSource->GetEntry(), cSource->GetGUID().GetCounter());
                     else
                     {
@@ -878,7 +878,7 @@ void Map::ScriptsProcess()
                 break;
 
             default:
-                TC_LOG_ERROR("scripts", "Unknown script command %s.", step.script->GetDebugInfo().c_str());
+                TC_LOG_ERROR("scripts", "Unknown script command {}.", step.script->GetDebugInfo().c_str());
                 break;
         }
 

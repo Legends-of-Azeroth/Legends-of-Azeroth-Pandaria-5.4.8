@@ -26,7 +26,7 @@ bool WorldPackets::Movement::ReadMovementInfo(WorldPacket& data, MovementInfo& m
     MovementStatusElements const* sequence = GetMovementStatusElementsSequence(data.GetOpcode());
     if (!sequence)
     {
-        TC_LOG_ERROR("network", "ReadMovementInfo: No movement sequence found for opcode %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(data.GetOpcode())).c_str());
+        TC_LOG_ERROR("network", "ReadMovementInfo: No movement sequence found for opcode {}", GetOpcodeNameForLogging(static_cast<OpcodeClient>(data.GetOpcode())).c_str());
         return false;
     }
 

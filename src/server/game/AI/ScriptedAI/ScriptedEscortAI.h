@@ -83,7 +83,7 @@ struct EscortAI : public ScriptedAI
         bool SetNextWaypoint(uint32 pointId, bool setPosition = true, bool resetWaypointsOnFail = true);
         bool GetWaypointPosition(uint32 pointId, float& x, float& y, float& z);
         virtual void WaypointStart(uint32 /*pointId*/) { }
-        virtual void WaypointReached(uint32 pointId) { }
+        virtual void WaypointReached(uint32 waypointId, uint32 pathId) { }
 
         void SetRun(bool on = true);
         void SetEscortPaused(bool on);
