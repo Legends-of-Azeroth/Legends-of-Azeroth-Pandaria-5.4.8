@@ -1728,11 +1728,11 @@ public:
 
                         me->m_Events.AddLambdaEventAtOffset([this, summoner]()
                         {
-                            TC_LOG_INFO("scripts", "[Wahl] 800ms lambda: summonerAlive={} hasVictim={} targetable={} hostile={} canAttack={} dead={}",
+                            TC_LOG_INFO("scripts", "[Wahl] 800ms lambda: summonerAlive={} hasVictim={} targetable={} hostile={} dead={}",
                                 summoner && !summoner->isDead(), me->GetVictim() != NULL,
                                 summoner ? summoner->isTargetableForAttack() : false,
                                 summoner ? me->IsHostileTo(summoner) : false,
-                                me->CanAttack(), me->isDead());
+                                me->isDead());
                             if (summoner && !summoner->isDead())
                             {
                                 if (!me->GetVictim())
