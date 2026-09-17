@@ -1840,7 +1840,7 @@ void WorldSession::HandleRealmSplitOpcode(WorldPacket& recvData)
     data.WriteBits(split_date.size(), 7);
     data.WriteString(split_date);
     SendPacket(&data);
-    //TC_LOG_DEBUG("response sent %u", unk);
+    //TC_LOG_DEBUG("response sent {}", unk);
 }
 
 void WorldSession::HandleFarSightOpcode(WorldPackets::Misc::FarSight& packet)

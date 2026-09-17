@@ -6407,7 +6407,7 @@ bool Unit::HandleAuraProcOnPowerAmount(Unit* victim, uint32 /*damage*/, AuraEffe
     if (triggerEntry == NULL)
     {
         // Not cast unknown spell
-        // TC_LOG_ERROR("Unit::HandleAuraProcOnPowerAmount: Spell %u have 0 in EffectTriggered[%d], not handled custom case?", auraSpellInfo->Id, triggeredByAura->GetEffIndex());
+        // TC_LOG_ERROR("Unit::HandleAuraProcOnPowerAmount: Spell {} have 0 in EffectTriggered[{}], not handled custom case?", auraSpellInfo->Id, triggeredByAura->GetEffIndex());
         return false;
     }
 

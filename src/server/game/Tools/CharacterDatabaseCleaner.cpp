@@ -59,7 +59,7 @@ void CharacterDatabaseCleaner::CleanDatabase()
     // NOTE: In order to have persistentFlags be set in worldstates for the next cleanup,
     // you need to define them at least once in worldstates.
     flags &= sWorld->getIntConfig(CONFIG_PERSISTENT_CHARACTER_CLEAN_FLAGS);
-    CharacterDatabase.DirectPExecute("UPDATE worldstates SET value = %u WHERE entry = %d", flags, WS_CLEANING_FLAGS);
+    CharacterDatabase.DirectPExecute("UPDATE worldstates SET value = {} WHERE entry = {}", flags, WS_CLEANING_FLAGS);
 
     sWorld->SetCleaningFlags(flags);
 
@@ -146,7 +146,7 @@ bool CharacterDatabaseCleaner::TalentCheck(uint32 talent_id)
 
 void CharacterDatabaseCleaner::CleanCharacterTalent()
 {
-    CharacterDatabase.DirectPExecute("DELETE FROM character_talent WHERE spec > %u", MAX_TALENT_SPECS);
+    CharacterDatabase.DirectPExecute("DELETE FROM character_talent WHERE spec > {}", MAX_TALENT_SPECS);
     CheckUnique("spell", "character_talent", &TalentCheck);
 }
 

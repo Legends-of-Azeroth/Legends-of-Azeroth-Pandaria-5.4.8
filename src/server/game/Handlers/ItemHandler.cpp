@@ -43,7 +43,7 @@ void WorldSession::HandleSplitItemOpcode(WorldPacket& recvData)
     recvData >> dstBag >> srcSlot >> dstSlot;
     recvData.rfinish();
 
-    //TC_LOG_DEBUG("STORAGE: receive srcbag = %u, srcslot = %u, dstbag = %u, dstslot = %u, count = %u", srcbag, srcslot, dstbag, dstslot, count);
+    //TC_LOG_DEBUG("STORAGE: receive srcbag = {}, srcslot = {}, dstbag = {}, dstslot = {}, count = {}", srcbag, srcslot, dstbag, dstslot, count);
 
     uint16 src = ((srcBag << 8) | srcSlot);
     uint16 dst = ((dstBag << 8) | dstSlot);
@@ -212,7 +212,7 @@ void WorldSession::HandleSwapItem(WorldPacket& recvData)
     srcBag = hasBag[1] ? recvData.read<uint8>() : srcBagAlt;
     srcSlot = hasSlot[1] ? recvData.read<uint8>() : srcSlotAlt;
 
-    //TC_LOG_DEBUG("STORAGE: receive srcbag = %u, srcslot = %u, dstbag = %u, dstslot = %u", srcbag, srcslot, dstbag, dstslot);
+    //TC_LOG_DEBUG("STORAGE: receive srcbag = {}, srcslot = {}, dstbag = {}, dstslot = {}", srcbag, srcslot, dstbag, dstslot);
 
     uint16 src = ((srcBag << 8) | srcSlot);
     uint16 dst = ((dstBag << 8) | dstSlot);
@@ -243,7 +243,7 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket& recvData)
 
     recvData >> srcslot >> srcbag;
     recvData.rfinish();
-    //TC_LOG_DEBUG("STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
+    //TC_LOG_DEBUG("STORAGE: receive srcbag = {}, srcslot = {}", srcbag, srcslot);
 
     Item* pSrcItem  = _player->GetItemByPos(srcbag, srcslot);
     if (!pSrcItem)
@@ -339,7 +339,7 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket& recvData)
 
     recvData >> count;
     recvData >> slot >> bag;
-    //TC_LOG_DEBUG("STORAGE: receive bag = %u, slot = %u, count = %u", bag, slot, count);
+    //TC_LOG_DEBUG("STORAGE: receive bag = {}, slot = {}, count = {}", bag, slot, count);
 
     uint16 pos = (bag << 8) | slot;
 
@@ -974,7 +974,7 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvData)
     recvData >> srcSlot >> srcBag >> dstBag;
     recvData.rfinish();
 
-    //TC_LOG_DEBUG("STORAGE: receive srcbag = %u, srcslot = %u, dstbag = %u", srcbag, srcslot, dstbag);
+    //TC_LOG_DEBUG("STORAGE: receive srcbag = {}, srcslot = {}, dstbag = {}", srcbag, srcslot, dstbag);
 
     Item* pItem = _player->GetItemByPos(srcBag, srcSlot);
     if (!pItem)
@@ -1048,7 +1048,7 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvData)
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BANKER);
     if (!creature)
     {
-        TC_LOG_DEBUG("WORLD: HandleBuyBankSlotOpcode - Unit (GUID: %u) not found or you can't interact with him.", guid.GetCounter());
+        TC_LOG_DEBUG("WORLD: HandleBuyBankSlotOpcode - Unit (GUID: {}) not found or you can't interact with him.", guid.GetCounter());
         return;
     }
     */

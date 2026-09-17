@@ -222,7 +222,7 @@ extern int main(int argc, char** argv)
     std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
 
     // set server offline (not connectable)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
 
     LoadRealmInfo(*ioContext);
 
@@ -291,7 +291,7 @@ extern int main(int argc, char** argv)
     });
 
     // Set server online (allow connecting now)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~{}, population = 0 WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
     realm.PopulationLevel = 0.0f;
     realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_OFFLINE));
 
@@ -329,7 +329,7 @@ extern int main(int argc, char** argv)
     sScriptMgr->OnShutdown();
 
     // set server offline
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
 
     TC_LOG_INFO("server.worldserver", "Halting process...");
 
@@ -631,7 +631,7 @@ void StopDB()
 void ClearOnlineAccounts()
 {
     // Reset online status for all accounts with characters on the current realm
-    LoginDatabase.DirectPExecute("UPDATE account SET online = 0 WHERE online > 0 AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = %d)", realm.Id.Realm);
+    LoginDatabase.DirectPExecute("UPDATE account SET online = 0 WHERE online > 0 AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = {})", realm.Id.Realm);
 
     // Reset online status for all characters
     CharacterDatabase.DirectExecute("UPDATE characters SET online = 0 WHERE online <> 0");

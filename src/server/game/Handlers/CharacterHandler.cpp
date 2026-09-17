@@ -1060,7 +1060,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     }
 
     ObjectAccessor::AddObject(pCurrChar);
-    //TC_LOG_DEBUG("Player %s added to Map.", pCurrChar->GetName().c_str());
+    //TC_LOG_DEBUG("Player {} added to Map.", pCurrChar->GetName().c_str());
 
     if (pCurrChar->GetGuildId() != 0)
     {

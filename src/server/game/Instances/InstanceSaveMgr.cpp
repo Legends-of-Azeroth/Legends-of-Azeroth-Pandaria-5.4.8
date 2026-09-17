@@ -391,7 +391,7 @@ void InstanceSaveManager::LoadResetTimes()
             if (!mapDiff)
             {
                 TC_LOG_ERROR("misc", "InstanceSaveManager::LoadResetTimes: invalid mapid({})/difficulty({}) pair in instance_reset!", mapid, difficulty);
-                CharacterDatabase.DirectPExecute("DELETE FROM instance_reset WHERE mapid = '%u' AND difficulty = '%u'", mapid, difficulty);
+                CharacterDatabase.DirectPExecute("DELETE FROM instance_reset WHERE mapid = '{}' AND difficulty = '{}'", mapid, difficulty);
                 continue;
             }
 
@@ -402,7 +402,7 @@ void InstanceSaveManager::LoadResetTimes()
             time_t newresettime = mktime(&tmNext);
 
             if (oldresettime != newresettime)
-                CharacterDatabase.DirectPExecute("UPDATE instance_reset SET resettime = '%u' WHERE mapid = '%u' AND difficulty = '%u'", uint32(newresettime), mapid, difficulty);
+                CharacterDatabase.DirectPExecute("UPDATE instance_reset SET resettime = '{}' WHERE mapid = '{}' AND difficulty = '{}'", uint32(newresettime), mapid, difficulty);
 
             // Mogu'shan Vaults -- The Stone Guard weekly mechanism. Executed once per week when instances get resetted.
             if (mapid == 1008)
@@ -420,7 +420,7 @@ void InstanceSaveManager::LoadResetTimes()
                     std::shuffle(stoneGuards.begin(), stoneGuards.end(), g);                    
                     uint64 const guardExcluded = stoneGuards.back();
 
-                    WorldDatabase.DirectPExecute("INSERT INTO `instance_mogushan_system` (`creature_id`, `resettime`) VALUES (%u, %u);", guardExcluded, (uint32)newresettime);
+                    WorldDatabase.DirectPExecute("INSERT INTO `instance_mogushan_system` (`creature_id`, `resettime`) VALUES ({}, {});", guardExcluded, (uint32)newresettime);
                 }
             }
 
@@ -470,7 +470,7 @@ void InstanceSaveManager::LoadResetTimes()
             next = mktime(&tmNext);
             t = next;
 
-            CharacterDatabase.DirectPExecute("INSERT INTO instance_reset VALUES ('%u', '%u', '%u')", mapid, difficulty, (uint32)t);
+            CharacterDatabase.DirectPExecute("INSERT INTO instance_reset VALUES ('{}', '{}', '{}')", mapid, difficulty, (uint32)t);
         }
 
         if (t < now)
@@ -505,7 +505,7 @@ void InstanceSaveManager::LoadResetTimes()
                 std::shuffle(stoneGuards.begin(), stoneGuards.end(), g);
                 uint64 const guardExcluded = stoneGuards.back();
 
-                WorldDatabase.DirectPExecute("INSERT INTO `instance_mogushan_system` (`creature_id`, `resettime`) VALUES (%u, %u);", guardExcluded, (uint32)t);
+                WorldDatabase.DirectPExecute("INSERT INTO `instance_mogushan_system` (`creature_id`, `resettime`) VALUES ({}, {});", guardExcluded, (uint32)t);
             }
         }
 
@@ -739,7 +739,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
                 std::shuffle(stoneGuards.begin(), stoneGuards.end(), g);                
                 uint64 const guardExcluded = stoneGuards.back();
 
-                WorldDatabase.DirectPExecute("INSERT INTO `instance_mogushan_system` (`creature_id`, `resettime`) VALUES (%u, %u);", guardExcluded, (uint32)next_reset);
+                WorldDatabase.DirectPExecute("INSERT INTO `instance_mogushan_system` (`creature_id`, `resettime`) VALUES ({}, {});", guardExcluded, (uint32)next_reset);
             }
         }
         

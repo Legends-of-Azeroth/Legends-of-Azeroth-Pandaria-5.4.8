@@ -135,7 +135,7 @@ void StartEluna(bool restart)
             int err = lua_pcall(sEluna->L, 0, 0, 0);
             if (err != 0 && err == LUA_ERRRUN)
             {
-                TC_LOG_INFO("server.loading", "server.loading", "[Eluna]: Error loading file `%s`.", itr->c_str());
+                TC_LOG_INFO("server.loading", "server.loading", "[Eluna]: Error loading file `{}`.", itr->c_str());
                 sEluna->report(sEluna->L);
             }
         }
