@@ -1753,8 +1753,8 @@ public:
                 {
                     uiDiagTimer = 1000;
                     TC_LOG_INFO("scripts", "[Wahl] diag: inCombat={} victim={} dist={} meleeRange={} inRange={} motion={}",
-                        me->IsInCombat(), v->GetName(), me->GetDistance(*v), me->GetAttackDistance(v),
-                        me->IsWithinDist(*v, me->GetAttackDistance(v)), (int)me->GetMotionMaster()->GetCurrentMovementGeneratorType());
+                        me->IsInCombat(), v->GetName(), me->GetDistance(v), me->GetAttackDistance(v),
+                        me->IsWithinDist(v, me->GetAttackDistance(v)), (int)me->GetMotionMaster()->GetCurrentMovementGeneratorType());
                 }
             }
             else
