@@ -292,9 +292,9 @@ public:
         return true;
     }
 
-    struct npc_brann_hosAI : public npc_escortAI
+    struct npc_brann_hosAI : public EscortAI
     {
-        npc_brann_hosAI(Creature* creature) : npc_escortAI(creature)
+        npc_brann_hosAI(Creature* creature) : EscortAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -342,8 +342,9 @@ public:
             lDwarfGUIDList.clear();
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             switch (waypointId)
             {
                 case 7:

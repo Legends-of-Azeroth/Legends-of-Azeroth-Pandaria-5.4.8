@@ -910,9 +910,9 @@ class npc_garments_of_quests : public CreatureScript
 public:
     npc_garments_of_quests() : CreatureScript("npc_garments_of_quests") { }
 
-    struct npc_garments_of_questsAI : public npc_escortAI
+    struct npc_garments_of_questsAI : public EscortAI
     {
-        npc_garments_of_questsAI(Creature* creature) : npc_escortAI(creature)
+        npc_garments_of_questsAI(Creature* creature) : EscortAI(creature)
         {
             Reset();
         }
@@ -1050,8 +1050,9 @@ public:
             }
         }
 
-        void WaypointReached(uint32 /*waypointId*/) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
 
         }
 
@@ -1082,7 +1083,7 @@ public:
                                 break;
                         }
 
-                        Start(false, true, ObjectGuid(uint64(1)));
+                        SetRun(true); Start(false, ObjectGuid(uint64(1)));
                     }
                     else
                         EnterEvadeMode();                       //something went wrong
@@ -1093,7 +1094,7 @@ public:
                     RunAwayTimer -= diff;
             }
 
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
 

@@ -69,16 +69,17 @@ class npc_torek : public CreatureScript
         {
         }
 
-        struct npc_torekAI : public npc_escortAI
+        struct npc_torekAI : public EscortAI
         {
-            npc_torekAI(Creature* creature) : npc_escortAI(creature) { }
+            npc_torekAI(Creature* creature) : EscortAI(creature) { }
 
             uint32 Rend_Timer;
             uint32 Thunderclap_Timer;
             bool Completed;
 
-            void WaypointReached(uint32 waypointId) override
+            void MovementInform(uint32 type, uint32 waypointId) override
             {
+                EscortAI::MovementInform(type, waypointId);
                 if (Player* player = GetPlayerForEscort())
                 {
                     switch (waypointId)
@@ -125,7 +126,7 @@ class npc_torek : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;
@@ -157,8 +158,11 @@ class npc_torek : public CreatureScript
                 creature->AI()->Talk(SAY_READY, player);
                 creature->SetFaction(113);
 
-                if (npc_escortAI* pEscortAI = CAST_AI(npc_torekAI, creature->AI()))
-                    pEscortAI->Start(true, true, player->GetGUID());
+                if (EscortAI* pEscortAI = CAST_AI(npc_torekAI, creature->AI()))
+                {
+                    pEscortAI->SetRun(true);
+                    pEscortAI->Start(true, player->GetGUID());
+                }
             }
 
             return true;
@@ -195,12 +199,13 @@ class npc_ruul_snowhoof : public CreatureScript
     public:
         npc_ruul_snowhoof() : CreatureScript("npc_ruul_snowhoof") { }
 
-        struct npc_ruul_snowhoofAI : public npc_escortAI
+        struct npc_ruul_snowhoofAI : public EscortAI
         {
-            npc_ruul_snowhoofAI(Creature* creature) : npc_escortAI(creature) { }
+            npc_ruul_snowhoofAI(Creature* creature) : EscortAI(creature) { }
 
-            void WaypointReached(uint32 waypointId) override
+            void MovementInform(uint32 type, uint32 waypointId) override
             {
+                EscortAI::MovementInform(type, waypointId);
                 Player* player = GetPlayerForEscort();
                 if (!player)
                     return;
@@ -243,7 +248,7 @@ class npc_ruul_snowhoof : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
             }
         };
 
@@ -258,8 +263,8 @@ class npc_ruul_snowhoof : public CreatureScript
             {
                 creature->SetFaction(113);
 
-                if (npc_escortAI* pEscortAI = CAST_AI(npc_ruul_snowhoofAI, (creature->AI())))
-                    pEscortAI->Start(true, false, player->GetGUID());
+                if (EscortAI* pEscortAI = CAST_AI(npc_ruul_snowhoofAI, (creature->AI())))
+                    pEscortAI->Start(true, player->GetGUID());
             }
 
             return true;
@@ -316,9 +321,9 @@ class npc_muglash : public CreatureScript
     public:
         npc_muglash() : CreatureScript("npc_muglash") { }
 
-        struct npc_muglashAI : public npc_escortAI
+        struct npc_muglashAI : public EscortAI
         {
-            npc_muglashAI(Creature* creature) : npc_escortAI(creature) { }
+            npc_muglashAI(Creature* creature) : EscortAI(creature) { }
 
             uint8 WaveId;
             uint32 EventTimer;
@@ -329,8 +334,9 @@ class npc_muglash : public CreatureScript
                 summoned->AI()->AttackStart(me);
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void MovementInform(uint32 type, uint32 waypointId) override
             {
+                EscortAI::MovementInform(type, waypointId);
                 if (Player* player = GetPlayerForEscort())
                 {
                     switch (waypointId)
@@ -412,7 +418,7 @@ class npc_muglash : public CreatureScript
 
             void UpdateAI(uint32 uiDiff) override
             {
-                npc_escortAI::UpdateAI(uiDiff);
+                EscortAI::UpdateAI(uiDiff);
 
                 if (!me->GetVictim())
                 {
@@ -447,7 +453,7 @@ class npc_muglash : public CreatureScript
                     creature->AI()->Talk(SAY_MUG_START1);
                     creature->SetFaction(113);
 
-                    pEscortAI->Start(true, false, player->GetGUID());
+                    pEscortAI->Start(true, player->GetGUID());
                 }
             }
             return true;

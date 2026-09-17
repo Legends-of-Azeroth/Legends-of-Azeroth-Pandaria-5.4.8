@@ -19,12 +19,13 @@
 #define SC_ESCORTAI_H
 
 #include "ScriptSystem.h"
+#include "Duration.h"
 
 #define DEFAULT_MAX_PLAYER_DISTANCE 50
 
 struct Escort_Waypoint
 {
-    Escort_Waypoint(uint32 _id, float _x, float _y, float _z, uint32 _w, bool _j)
+    Escort_Waypoint(uint32 _id, float _x, float _y, float _z, uint32 _w, bool _j, bool _r)
     {
         id = _id;
         x = _x;
@@ -32,6 +33,7 @@ struct Escort_Waypoint
         z = _z;
         WaitTimeMs = _w;
         jump = _j;
+        run = _r;
     }
 
     uint32 id;
@@ -40,6 +42,7 @@ struct Escort_Waypoint
     float z;
     uint32 WaitTimeMs;
     bool jump;
+    bool run;
 };
 
 enum eEscortState : uint32
@@ -51,11 +54,11 @@ enum eEscortState : uint32
     STATE_ESCORT_JUMPING    = 0x008
 };
 
-struct npc_escortAI : public ScriptedAI
+struct EscortAI : public ScriptedAI
 {
     public:
-        explicit npc_escortAI(Creature* creature);
-        ~npc_escortAI() { }
+        explicit EscortAI(Creature* creature);
+        ~EscortAI() { }
 
         // CreatureAI functions
         void AttackStart(Unit* who) override;
@@ -67,22 +70,20 @@ struct npc_escortAI : public ScriptedAI
         void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override;
         void UpdateAI(uint32 diff) override;                   //the "internal" update, calls UpdateEscortAI()
         void MovementInform(uint32, uint32) override;
-        
-        virtual void UpdateEscortAI(uint32 const diff);     //used when it's needed to add code in update (abilities, scripted events, etc)
-        // EscortAI functions
-        void AddWaypoint(uint32 id, float x, float y, float z, uint32 waitTime = 0, bool jump = false);    // waitTime is in ms
-        //this will set the current position to x/y/z/o, and the current WP to pointId.
+
+        virtual void UpdateEscortAI(uint32 const diff);        //used when it's needed to add code in update (abilities, scripted events, etc)
+
+        // TC 3.3.5 API
+        void AddWaypoint(uint32 id, float x, float y, float z, bool run);
+        void AddWaypoint(uint32 id, float x, float y, float z, float orientation = 0.f, Milliseconds waitTime = 0s, bool run = false, bool jump = false);
+        void Start(bool isActiveAttacker = true, ObjectGuid playerGUID = ObjectGuid::Empty, Quest const* quest = NULL, bool instantRespawn = false, bool canLoopPath = false);
+
+        // LOA-specific (retained for existing scripts)
         bool SetNextWaypoint(uint32 pointId, float x, float y, float z, float orientation);
-        //this will set the current position to WP start position (if setPosition == true),
-        //and the current WP to pointId
         bool SetNextWaypoint(uint32 pointId, bool setPosition = true, bool resetWaypointsOnFail = true);
-
         bool GetWaypointPosition(uint32 pointId, float& x, float& y, float& z);
-
-        virtual void WaypointReached(uint32 pointId) = 0;
         virtual void WaypointStart(uint32 /*pointId*/) { }
-
-        void Start(bool isActiveAttacker = true, bool run = false, ObjectGuid playerGUID = ObjectGuid::Empty, Quest const* quest = NULL, bool instantRespawn = false, bool canLoopPath = false, bool resetWaypoints = true);
+        virtual void WaypointReached(uint32 pointId) { }
 
         void SetRun(bool on = true);
         void SetEscortPaused(bool on);
@@ -93,7 +94,7 @@ struct npc_escortAI : public ScriptedAI
         float GetMaxPlayerDistance() { return MaxPlayerDistance; }
         void SetDespawnAtEnd(bool despawn) { DespawnAtEnd = despawn; }
         void SetDespawnAtFar(bool despawn) { DespawnAtFar = despawn; }
-        bool GetAttack() { return m_bIsActiveAttacker; }//used in EnterEvadeMode override
+        bool GetAttack() { return m_bIsActiveAttacker; }
         void SetCanAttack(bool attack) { m_bIsActiveAttacker = attack; }
         uint64 GetEventStarterGUID() { return m_uiPlayerGUID; }
         void SetSpeedXY(float speed) { speedXY = speed; }
@@ -118,15 +119,15 @@ struct npc_escortAI : public ScriptedAI
         float speedXY;
         float speedZ;
 
-        Quest const* m_pQuestForEscort;                     //generally passed in Start() when regular escort script.
+        Quest const* m_pQuestForEscort;                        //generally passed in Start() when regular escort script.
 
         std::list<Escort_Waypoint> WaypointList;
         std::list<Escort_Waypoint>::iterator CurrentWP;
 
-        bool m_bIsActiveAttacker;                           //obsolete, determined by faction.
-        bool m_bIsRunning;                                  //all creatures are walking by default (has flag MOVEMENTFLAG_WALK)
-        bool m_bCanInstantRespawn;                          //if creature should respawn instantly after escort over (if not, database respawntime are used)
-        bool m_bCanReturnToStart;                           //if creature can walk same path (loop) without despawn. Not for regular escort quests.
+        bool m_bIsActiveAttacker;                             //obsolete, determined by faction.
+        bool m_bIsRunning;                                    //all creatures are walking by default (has flag MOVEMENTFLAG_WALK)
+        bool m_bCanInstantRespawn;                            //if creature should respawn instantly after escort over (if not, database respawntime are used)
+        bool m_bCanReturnToStart;                             //if creature can walk same path (loop) without despawn. Not for regular escort quests.
         bool DespawnAtEnd;
         bool DespawnAtFar;
         bool ScriptWP;

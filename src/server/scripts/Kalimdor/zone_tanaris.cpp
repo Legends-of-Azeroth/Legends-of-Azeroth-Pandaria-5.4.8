@@ -185,12 +185,13 @@ enum CustodianOfTime
     WHISPER_CUSTODIAN_14    = 13
 };
 
-struct npc_custodian_of_time : public npc_escortAI
+struct npc_custodian_of_time : public EscortAI
 {
-    npc_custodian_of_time(Creature* creature) : npc_escortAI(creature) { }
+    npc_custodian_of_time(Creature* creature) : EscortAI(creature) { }
 
-    void WaypointReached(uint32 waypointId) override
+    void MovementInform(uint32 type, uint32 waypointId) override
     {
+        EscortAI::MovementInform(type, waypointId);
         if (Player* player = GetPlayerForEscort())
         {
             switch (waypointId)
@@ -268,7 +269,7 @@ struct npc_custodian_of_time : public npc_escortAI
                 float Radius = 10.0f;
                 if (me->IsWithinDistInMap(who, Radius))
                 {
-                    Start(false, false, who->GetGUID());
+                    Start(false, who->GetGUID());
                 }
             }
         }
@@ -279,7 +280,7 @@ struct npc_custodian_of_time : public npc_escortAI
 
     void UpdateAI(uint32 diff) override
     {
-        npc_escortAI::UpdateAI(diff);
+        EscortAI::UpdateAI(diff);
     }
 };
 
@@ -360,8 +361,8 @@ public:
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             creature->AI()->Talk(SAY_OOX_START);
 
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_OOX17::npc_OOX17AI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
+            if (EscortAI* pEscortAI = CAST_AI(npc_OOX17::npc_OOX17AI, creature->AI()))
+                pEscortAI->Start(true, player->GetGUID());
         }
         return true;
     }
@@ -371,12 +372,13 @@ public:
         return new npc_OOX17AI(creature);
     }
 
-    struct npc_OOX17AI : public npc_escortAI
+    struct npc_OOX17AI : public EscortAI
     {
-        npc_OOX17AI(Creature* creature) : npc_escortAI(creature) { }
+        npc_OOX17AI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             if (Player* player = GetPlayerForEscort())
             {
                 switch (waypointId)
@@ -604,9 +606,9 @@ class npc_steamwheedle_balloon_escort : public CreatureScript
 public:
     npc_steamwheedle_balloon_escort() : CreatureScript("npc_steamwheedle_balloon_escort") { }
 
-    struct npc_steamwheedle_balloon_escortAI : public npc_escortAI
+    struct npc_steamwheedle_balloon_escortAI : public EscortAI
     {
-        npc_steamwheedle_balloon_escortAI(Creature* creature) : npc_escortAI(creature)
+        npc_steamwheedle_balloon_escortAI(Creature* creature) : EscortAI(creature)
         {
             playerQuester = nullptr;
         }
@@ -615,8 +617,9 @@ public:
 
         void OnCharmed(bool apply) override { }
 
-        void WaypointReached(uint32 point) override
+        void MovementInform(uint32 type, uint32 point) override
         {
+            EscortAI::MovementInform(type, point);
             switch (point)
             {
                 case 3:
@@ -651,7 +654,7 @@ public:
             {
                 case ACTION_START_WP:
                 {
-                    Start(false, true, ObjectGuid::Empty, NULL, false, true, true);
+                    SetRun(true); Start(false, ObjectGuid::Empty, NULL, false, true);
                     SetDespawnAtEnd(false);
                     break;
                 }
@@ -663,7 +666,7 @@ public:
         void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             while (uint32 eventId = events.ExecuteEvent())
             {

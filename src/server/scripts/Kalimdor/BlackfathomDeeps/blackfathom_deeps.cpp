@@ -200,17 +200,18 @@ class npc_morridune : public CreatureScript
     public:
         npc_morridune() : CreatureScript("npc_morridune") { }
 
-        struct npc_morriduneAI : public npc_escortAI
+        struct npc_morriduneAI : public EscortAI
         {
-            npc_morriduneAI(Creature* creature) : npc_escortAI(creature)
+            npc_morriduneAI(Creature* creature) : EscortAI(creature)
             {
                 Talk(SAY_MORRIDUNE_1);
                 me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                Start(false, false, ObjectGuid::Empty);
+                Start(false, ObjectGuid::Empty);
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void MovementInform(uint32 type, uint32 waypointId) override
             {
+                EscortAI::MovementInform(type, waypointId);
                 switch (waypointId)
                 {
                     case 4:

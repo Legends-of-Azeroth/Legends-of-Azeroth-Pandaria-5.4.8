@@ -208,12 +208,15 @@ public:
 
                 creature->AI()->Talk(SAY_TH_START_EVENT_PART1);
 
-                if (npc_escortAI* pEscortAI = CAST_AI(npc_thrall_old_hillsbrad::npc_thrall_old_hillsbradAI, creature->AI()))
-                    pEscortAI->Start(true, true, player->GetGUID());
+                if (EscortAI* pEscortAI = CAST_AI(npc_thrall_old_hillsbrad::npc_thrall_old_hillsbradAI, creature->AI()))
+                {
+                    pEscortAI->SetRun(true);
+                    pEscortAI->Start(true, player->GetGUID());
+                }
 
-                CAST_AI(npc_escortAI, (creature->AI()))->SetMaxPlayerDistance(100.0f);//not really needed, because it will not despawn if player is too far
-                CAST_AI(npc_escortAI, (creature->AI()))->SetDespawnAtEnd(false);
-                CAST_AI(npc_escortAI, (creature->AI()))->SetDespawnAtFar(false);
+                CAST_AI(EscortAI, (creature->AI()))->SetMaxPlayerDistance(100.0f);//not really needed, because it will not despawn if player is too far
+                CAST_AI(EscortAI, (creature->AI()))->SetDespawnAtEnd(false);
+                CAST_AI(EscortAI, (creature->AI()))->SetDespawnAtFar(false);
                 break;
 
             case GOSSIP_ACTION_INFO_DEF+2:
@@ -274,9 +277,9 @@ public:
         return true;
     }
 
-    struct npc_thrall_old_hillsbradAI : public npc_escortAI
+    struct npc_thrall_old_hillsbradAI : public EscortAI
     {
-        npc_thrall_old_hillsbradAI(Creature* creature) : npc_escortAI(creature)
+        npc_thrall_old_hillsbradAI(Creature* creature) : EscortAI(creature)
         {
             instance = creature->GetInstanceScript();
             HadMount = false;
@@ -290,8 +293,9 @@ public:
         bool LowHp;
         bool HadMount;
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             if (!instance)
                 return;
 
@@ -433,7 +437,10 @@ public:
                         if (Creature* Taretha = instance->instance->GetCreature(instance->GetGuidData(DATA_TARETHA)))
                         {
                             if (Player* player = GetPlayerForEscort())
-                                CAST_AI(npc_escortAI, (Taretha->AI()))->Start(false, true, player->GetGUID());
+                            {
+                                CAST_AI(EscortAI, (Taretha->AI()))->SetRun(true);
+                                CAST_AI(EscortAI, (Taretha->AI()))->Start(false, player->GetGUID());
+                            }
                         }
 
                         //kill credit Creature for quest
@@ -539,7 +546,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (!UpdateVictim())
                 return;
@@ -682,17 +689,18 @@ public:
         return true;
     }
 
-    struct npc_tarethaAI : public npc_escortAI
+    struct npc_tarethaAI : public EscortAI
     {
-        npc_tarethaAI(Creature* creature) : npc_escortAI(creature)
+        npc_tarethaAI(Creature* creature) : EscortAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             switch (waypointId)
             {
                 case 6:
@@ -709,7 +717,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
 

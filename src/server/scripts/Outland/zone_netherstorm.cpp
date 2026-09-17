@@ -869,7 +869,7 @@ public:
         {
             creature->SetFaction(113);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+            CAST_AI(EscortAI, (creature->AI()))->Start(true, player->GetGUID());
         }
         return true;
     }
@@ -879,9 +879,9 @@ public:
         return new npc_bessyAI(creature);
     }
 
-    struct npc_bessyAI : public npc_escortAI
+    struct npc_bessyAI : public EscortAI
     {
-        npc_bessyAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_bessyAI(Creature* creature) : EscortAI(creature) { }
 
         void JustDied(Unit* /*killer*/) override
         {
@@ -889,8 +889,9 @@ public:
                 player->FailQuest(Q_ALMABTRIEB);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
@@ -950,9 +951,9 @@ public:
         return new npc_maxx_a_million_escortAI(creature);
     }
 
-    struct npc_maxx_a_million_escortAI : public npc_escortAI
+    struct npc_maxx_a_million_escortAI : public EscortAI
     {
-        npc_maxx_a_million_escortAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_maxx_a_million_escortAI(Creature* creature) : EscortAI(creature) { }
 
         bool bTake;
         uint32 uiTakeTimer;
@@ -963,8 +964,9 @@ public:
             uiTakeTimer=3000;
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
@@ -997,7 +999,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (bTake)
             {
@@ -1026,7 +1028,7 @@ public:
             if (npc_maxx_a_million_escortAI* pEscortAI = CAST_AI(npc_maxx_a_million_escort::npc_maxx_a_million_escortAI, creature->AI()))
             {
                 creature->SetFaction(113);
-                pEscortAI->Start(false, false, player->GetGUID());
+                pEscortAI->Start(false, player->GetGUID());
             }
         }
         return true;

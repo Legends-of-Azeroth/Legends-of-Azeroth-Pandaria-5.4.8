@@ -328,13 +328,14 @@ enum KServant
 };
 
 
-struct npc_kservant : public npc_escortAI
+struct npc_kservant : public EscortAI
 {
 public:
-    npc_kservant(Creature* creature) : npc_escortAI(creature) { }
+    npc_kservant(Creature* creature) : EscortAI(creature) { }
 
-    void WaypointReached(uint32 waypointId) override
+    void MovementInform(uint32 type, uint32 waypointId) override
     {
+        EscortAI::MovementInform(type, waypointId);
         Player* player = GetPlayerForEscort();
         if (!player)
             return;
@@ -422,7 +423,7 @@ public:
             float Radius = 10.0f;
             if (me->IsWithinDistInMap(who, Radius))
             {
-                Start(false, false, who->GetGUID());
+                Start(false, who->GetGUID());
             }
         }
     }

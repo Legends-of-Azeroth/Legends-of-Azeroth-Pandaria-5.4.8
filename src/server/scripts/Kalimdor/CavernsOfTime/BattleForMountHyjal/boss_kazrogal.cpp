@@ -90,8 +90,9 @@ public:
             Talk(SAY_ONSLAY);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             if (waypointId == 7 && instance)
             {
                 Unit* target = Unit::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
@@ -112,8 +113,8 @@ public:
         {
             if (IsEvent)
             {
-                //Must update npc_escortAI
-                npc_escortAI::UpdateAI(diff);
+                //Must update EscortAI
+                EscortAI::UpdateAI(diff);
                 if (!go)
                 {
                     go = true;
@@ -127,7 +128,7 @@ public:
                         AddWaypoint(5, 5508.16f,    -2659.2f,    1480.15f);
                         AddWaypoint(6, 5489.62f,    -2704.05f,    1482.18f);
                         AddWaypoint(7, 5457.04f,    -2726.26f,    1485.10f);
-                        Start(false, true);
+                        SetRun(true); Start(false);
                         SetDespawnAtEnd(false);
                     }
                 }

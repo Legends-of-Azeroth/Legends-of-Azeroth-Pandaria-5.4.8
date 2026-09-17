@@ -64,14 +64,14 @@ public:
                     creature->SetFaction(FACTION_ESCORTEE_H);
                     break;
             }
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+            CAST_AI(EscortAI, (creature->AI()))->Start(true, player->GetGUID());
         }
         return true;
     }
 
-    struct npc_Apothecary_HanesAI : public npc_escortAI
+    struct npc_Apothecary_HanesAI : public EscortAI
     {
-        npc_Apothecary_HanesAI(Creature* creature) : npc_escortAI(creature){ }
+        npc_Apothecary_HanesAI(Creature* creature) : EscortAI(creature){ }
         uint32 PotTimer;
 
         void Reset() override
@@ -100,8 +100,9 @@ public:
                 DoMeleeAttackIfReady();
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
@@ -170,9 +171,9 @@ class npc_plaguehound_tracker : public CreatureScript
 public:
     npc_plaguehound_tracker() : CreatureScript("npc_plaguehound_tracker") { }
 
-    struct npc_plaguehound_trackerAI : public npc_escortAI
+    struct npc_plaguehound_trackerAI : public EscortAI
     {
-        npc_plaguehound_trackerAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_plaguehound_trackerAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override
         {
@@ -187,11 +188,12 @@ public:
                 return;
 
             me->SetWalk(true);
-            Start(false, false, summonerGUID);
+            Start(false, summonerGUID);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             if (waypointId != 26)
                 return;
 

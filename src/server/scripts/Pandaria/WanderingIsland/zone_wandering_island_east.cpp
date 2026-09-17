@@ -442,9 +442,9 @@ class npc_nourished_yak : public CreatureScript
     public:
         npc_nourished_yak() : CreatureScript("npc_nourished_yak") { }
 
-        struct npc_nourished_yakAI : public npc_escortAI
+        struct npc_nourished_yakAI : public EscortAI
         {
-            npc_nourished_yakAI(Creature* creature) : npc_escortAI(creature)
+            npc_nourished_yakAI(Creature* creature) : EscortAI(creature)
             { }
 
             uint32 IntroTimer;
@@ -472,8 +472,9 @@ class npc_nourished_yak : public CreatureScript
                     IntroTimer = 0;
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void MovementInform(uint32 type, uint32 waypointId) override
             {
+                EscortAI::MovementInform(type, waypointId);
                 if (waypointId == waypointToEject)
                 {
                     if (Creature* vehicle = GetClosestCreatureWithEntry(me, 57208, 50.0f))
@@ -491,14 +492,14 @@ class npc_nourished_yak : public CreatureScript
                 {
                     if (IntroTimer <= diff)
                     {
-                        Start(false, true);
+                        SetRun(true); Start(false);
                         IntroTimer = 0;
                     }
                     else
                         IntroTimer -= diff;
                 }
 
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
             }
         };
 

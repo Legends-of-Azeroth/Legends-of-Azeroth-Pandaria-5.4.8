@@ -286,7 +286,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->CLOSE_GOSSIP_MENU();
                 CAST_AI(npc_highlord_darion_mograine::npc_highlord_darion_mograineAI, creature->AI())->uiStep = 1;
-                CAST_AI(npc_highlord_darion_mograine::npc_highlord_darion_mograineAI, creature->AI())->Start(true, false, player->GetGUID());
+                CAST_AI(npc_highlord_darion_mograine::npc_highlord_darion_mograineAI, creature->AI())->Start(true, player->GetGUID());
                 break;
         }
         return true;
@@ -310,9 +310,9 @@ public:
         return new npc_highlord_darion_mograineAI(creature);
     }
 
-    struct npc_highlord_darion_mograineAI : public npc_escortAI
+    struct npc_highlord_darion_mograineAI : public EscortAI
     {
-        npc_highlord_darion_mograineAI(Creature* creature) : npc_escortAI(creature)
+        npc_highlord_darion_mograineAI(Creature* creature) : EscortAI(creature)
         {
             uiTirionGUID = ObjectGuid::Empty;
             uiKorfaxGUID = ObjectGuid::Empty;
@@ -505,8 +505,9 @@ public:
             SetEscortPaused(bOnHold);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             switch (waypointId)
             {
                 case 0:
@@ -618,12 +619,12 @@ public:
         void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
         {
             if (!bIsBattle)//do not reset self if we are in battle
-                npc_escortAI::EnterEvadeMode();
+                EscortAI::EnterEvadeMode();
         }
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (!me->IsAlive())
                 me->Respawn();

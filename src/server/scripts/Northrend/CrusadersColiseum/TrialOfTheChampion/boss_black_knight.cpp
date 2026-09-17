@@ -509,11 +509,11 @@ class npc_black_knight_skeletal_gryphon : public CreatureScript
     public:
         npc_black_knight_skeletal_gryphon() : CreatureScript("npc_black_knight_skeletal_gryphon") { }
 
-        struct npc_black_knight_skeletal_gryphonAI : public npc_escortAI
+        struct npc_black_knight_skeletal_gryphonAI : public EscortAI
         {
-            npc_black_knight_skeletal_gryphonAI(Creature* creature) : npc_escortAI(creature)
+            npc_black_knight_skeletal_gryphonAI(Creature* creature) : EscortAI(creature)
             {
-                Start(false, true, ObjectGuid::Empty, NULL);
+                SetRun(true); Start(false, ObjectGuid::Empty, NULL);
                 instance = creature->GetInstanceScript();
             }
 
@@ -524,8 +524,9 @@ class npc_black_knight_skeletal_gryphon : public CreatureScript
                 me->UpdateObjectVisibility();
             }
 
-            void WaypointReached(uint32 uiPointId) override
+            void MovementInform(uint32 type, uint32 uiPointId) override
             {
+                EscortAI::MovementInform(type, uiPointId);
                 switch (uiPointId)
                 {
                         case 1:
@@ -576,7 +577,7 @@ class npc_black_knight_skeletal_gryphon : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;
@@ -595,19 +596,20 @@ class npc_gr : public CreatureScript
     public:
         npc_gr() : CreatureScript("npc_gr") { }
 
-        struct npc_grAI : public npc_escortAI
+        struct npc_grAI : public EscortAI
         {
 
-            npc_grAI(Creature* creature) : npc_escortAI(creature)
+            npc_grAI(Creature* creature) : EscortAI(creature)
             {
-                Start(false, true, ObjectGuid::Empty, NULL);
+                SetRun(true); Start(false, ObjectGuid::Empty, NULL);
                 instance = creature->GetInstanceScript();
             }
 
             InstanceScript* instance;
 
-            void WaypointReached(uint32 uiPointId) override
+            void MovementInform(uint32 type, uint32 uiPointId) override
             {
+                EscortAI::MovementInform(type, uiPointId);
                 switch (uiPointId)
                 {
                         case 1:
@@ -648,7 +650,7 @@ class npc_gr : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;
@@ -666,23 +668,24 @@ class npc_gr : public CreatureScript
     public:
         npc_black_knight_skeletal_gryphon() : CreatureScript("npc_black_knight_skeletal_gryphon") { }
 
-        struct npc_black_knight_skeletal_gryphonAI : public npc_escortAI
+        struct npc_black_knight_skeletal_gryphonAI : public EscortAI
         {
-            npc_black_knight_skeletal_gryphonAI(Creature* creature) : npc_escortAI(creature)
+            npc_black_knight_skeletal_gryphonAI(Creature* creature) : EscortAI(creature)
             {
-                Start(false, true, 0, NULL);
+                SetRun(true); Start(false, 0, NULL);
                 me->SetFlying(true);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
             }
 
-            void WaypointReached(uint32 waypointId) override { }
+            void MovementInform(uint32 type, uint32 waypointId) override {
+                EscortAI::MovementInform(type, waypointId); }
 
             void AttackStart(Unit* who) override { }
 
             void UpdateAI(uint32 diff) override
             {
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;

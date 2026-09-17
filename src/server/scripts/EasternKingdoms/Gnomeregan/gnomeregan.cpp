@@ -93,8 +93,8 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
             player->PlayerTalkClass->ClearMenus();
             if (action == GOSSIP_ACTION_INFO_DEF+1)
             {
-                if (npc_escortAI* pEscortAI = CAST_AI(npc_blastmaster_emi_shortfuse::npc_blastmaster_emi_shortfuseAI, creature->AI()))
-                    pEscortAI->Start(true, false, player->GetGUID());
+                if (EscortAI* pEscortAI = CAST_AI(npc_blastmaster_emi_shortfuse::npc_blastmaster_emi_shortfuseAI, creature->AI()))
+                    pEscortAI->Start(true, player->GetGUID());
 
                 creature->SetFaction(player->GetFaction());
                 creature->AI()->SetData(1, 0);
@@ -116,9 +116,9 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
             return true;
         }
 
-        struct npc_blastmaster_emi_shortfuseAI : public npc_escortAI
+        struct npc_blastmaster_emi_shortfuseAI : public EscortAI
         {
-            npc_blastmaster_emi_shortfuseAI(Creature* creature) : npc_escortAI(creature)
+            npc_blastmaster_emi_shortfuseAI(Creature* creature) : EscortAI(creature)
             {
                 instance = creature->GetInstanceScript();
                 creature->RestoreFaction();
@@ -259,8 +259,9 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
                 }
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void MovementInform(uint32 type, uint32 waypointId) override
             {
+                EscortAI::MovementInform(type, waypointId);
                 //just in case
                 if (GetPlayerForEscort())
                     if (me->GetFaction() != GetPlayerForEscort()->GetFaction())

@@ -669,9 +669,9 @@ class npc_lurgglbr : public CreatureScript
 public:
     npc_lurgglbr() : CreatureScript("npc_lurgglbr") { }
 
-    struct npc_lurgglbrAI : public npc_escortAI
+    struct npc_lurgglbrAI : public EscortAI
     {
-        npc_lurgglbrAI(Creature* creature) : npc_escortAI(creature){ }
+        npc_lurgglbrAI(Creature* creature) : EscortAI(creature){ }
 
         uint32 IntroTimer;
         uint32 IntroPhase;
@@ -685,8 +685,9 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             switch (waypointId)
             {
                 case 0:
@@ -756,7 +757,7 @@ public:
                     }
                 } else IntroTimer -= diff;
             }
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (!UpdateVictim())
                 return;
@@ -779,8 +780,8 @@ public:
                 go->UseDoorOrButton(20);
             }
 
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_lurgglbr::npc_lurgglbrAI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
+            if (EscortAI* pEscortAI = CAST_AI(npc_lurgglbr::npc_lurgglbrAI, creature->AI()))
+                pEscortAI->Start(true, player->GetGUID());
 
             switch (player->GetTeam())
             {
@@ -963,9 +964,9 @@ class npc_thassarian : public CreatureScript
 public:
     npc_thassarian() : CreatureScript("npc_thassarian") { }
 
-    struct npc_thassarianAI : public npc_escortAI
+    struct npc_thassarianAI : public EscortAI
     {
-        npc_thassarianAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_thassarianAI(Creature* creature) : EscortAI(creature) { }
 
         ObjectGuid arthasGUID;
         ObjectGuid talbotGUID;
@@ -999,8 +1000,9 @@ public:
             phaseTimer = 0;
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
@@ -1034,7 +1036,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (arthasInPosition && talbotInPosition)
             {
@@ -1245,8 +1247,8 @@ public:
         switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
-                CAST_AI(npc_escortAI, (creature->AI()))->SetMaxPlayerDistance(200.0f);
+                CAST_AI(EscortAI, (creature->AI()))->Start(true, player->GetGUID());
+                CAST_AI(EscortAI, (creature->AI()))->SetMaxPlayerDistance(200.0f);
                 break;
         }
         return true;
@@ -1798,14 +1800,14 @@ public:
             }
             creature->SetStandState(UNIT_STAND_STATE_STAND);
             creature->AI()->Talk(SAY_1);
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+            CAST_AI(EscortAI, (creature->AI()))->Start(true, player->GetGUID());
         }
         return true;
     }
 
-    struct npc_mootoo_the_youngerAI : public npc_escortAI
+    struct npc_mootoo_the_youngerAI : public EscortAI
     {
-        npc_mootoo_the_youngerAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_mootoo_the_youngerAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override
         {
@@ -1818,8 +1820,9 @@ public:
                 player->FailQuest(QUEST_ESCAPING_THE_MIST);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
@@ -1879,14 +1882,14 @@ public:
         {
             creature->SetStandState(UNIT_STAND_STATE_STAND);
             creature->AI()->Talk(SAY_BONKER_2, player);
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, player->GetGUID());
+            CAST_AI(EscortAI, (creature->AI()))->SetRun(true); CAST_AI(EscortAI, (creature->AI()))->Start(true, player->GetGUID());
         }
         return true;
     }
 
-    struct npc_bonker_togglevoltAI : public npc_escortAI
+    struct npc_bonker_togglevoltAI : public EscortAI
     {
-        npc_bonker_togglevoltAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_bonker_togglevoltAI(Creature* creature) : EscortAI(creature) { }
         uint32 Bonker_agro;
 
         void Reset() override
@@ -1915,8 +1918,9 @@ public:
             else Bonker_agro=0;
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;

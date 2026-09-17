@@ -324,7 +324,7 @@ HyjalGOSpawn HordeFirePos[65] = // spawn points for the fire visuals (GO) in the
     {5545.43f,    -2647.82f,    1483.05f,    5.38848f,    0,    0,    0.432578f,    -0.901596f}
 };
 
-hyjalAI::hyjalAI(Creature* creature) : npc_escortAI(creature), Summons(me)
+hyjalAI::hyjalAI(Creature* creature) : EscortAI(creature), Summons(me)
 {
     instance = creature->GetInstanceScript();
     VeinsSpawned[0] = false;
@@ -452,7 +452,7 @@ void hyjalAI::MoveInLineOfSight(Unit* who)
     if (IsDummy)
         return;
 
-    npc_escortAI::MoveInLineOfSight(who);
+    EscortAI::MoveInLineOfSight(who);
 }
 
 void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
@@ -640,7 +640,7 @@ void hyjalAI::Retreat()
             instance->SetData(DATA_ALLIANCE_RETREAT, 1);
             AddWaypoint(0, JainaWPs[0][0], JainaWPs[0][1], JainaWPs[0][2]);
             AddWaypoint(1, JainaWPs[1][0], JainaWPs[1][1], JainaWPs[1][2]);
-            Start(false, false);
+            Start(false);
             SetDespawnAtEnd(false);//move to center of alliance base
         }
         if (Faction == 1)
@@ -654,7 +654,7 @@ void hyjalAI::Retreat()
                 DummyGuid = JainaDummy->GetGUID();
             }
             AddWaypoint(0, JainaDummySpawn[1][0], JainaDummySpawn[1][1], JainaDummySpawn[1][2]);
-            Start(false, false);
+            Start(false);
             SetDespawnAtEnd(false);//move to center of alliance base
         }
     }
@@ -959,8 +959,9 @@ void hyjalAI::RespawnNearPos(float x, float y)
     cell.Visit(p, obj_worker, *me->GetMap(), *me, me->GetGridActivationRange());
 }
 
-void hyjalAI::WaypointReached(uint32 waypointId)
+void hyjalAI::MovementInform(uint32 type, uint32 waypointId)
 {
+    EscortAI::MovementInform(type, waypointId);
     if (waypointId == 1 || (waypointId == 0 && me->GetEntry() == THRALL))
     {
         WaitForTeleport = true;
@@ -1016,7 +1017,7 @@ void hyjalAI::WaypointReached(uint32 waypointId)
 }
 void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
 {
-    npc_escortAI::UpdateAI(diff);
+    EscortAI::UpdateAI(diff);
     if (WaitForTeleport)
     {
         if (TeleportTimer <= diff)

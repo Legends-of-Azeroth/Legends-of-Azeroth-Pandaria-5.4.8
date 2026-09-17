@@ -506,9 +506,9 @@ class npc_azure_saboteur : public CreatureScript
     public:
         npc_azure_saboteur() : CreatureScript("npc_azure_saboteur") { }
 
-        struct npc_azure_saboteurAI : public npc_escortAI
+        struct npc_azure_saboteurAI : public EscortAI
         {
-            npc_azure_saboteurAI(Creature* creature):npc_escortAI(creature)
+            npc_azure_saboteurAI(Creature* creature):EscortAI(creature)
             {
                 instance = creature->GetInstanceScript();
                 bHasGotMovingPoints = false;
@@ -532,8 +532,9 @@ class npc_azure_saboteur : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void MovementInform(uint32 type, uint32 waypointId) override
             {
+                EscortAI::MovementInform(type, waypointId);
                 switch (uiBoss)
                 {
                     case 1:
@@ -568,7 +569,7 @@ class npc_azure_saboteur : public CreatureScript
                 if (instance && instance->GetData(DATA_MAIN_EVENT_PHASE) != IN_PROGRESS)
                     me->CastStop();
 
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!bHasGotMovingPoints)
                 {
@@ -577,36 +578,36 @@ class npc_azure_saboteur : public CreatureScript
                     {
                         case 1:
                             for (int i = 0; i < 3; i++)
-                                AddWaypoint(i,SaboteurFinalPos1[i][0],SaboteurFinalPos1[i][1],SaboteurFinalPos1[i][2],0);
+                                AddWaypoint(i, SaboteurFinalPos1[i][0], SaboteurFinalPos1[i][1], SaboteurFinalPos1[i][2], 0.0f, Milliseconds(0), false);
                             me->SetHomePosition(SaboteurFinalPos1[2][0],SaboteurFinalPos1[2][1],SaboteurFinalPos1[2][2],4.762346f);
                             break;
                         case 2:
                             for (int i = 0; i < 3; i++)
-                                AddWaypoint(i,SaboteurFinalPos2[i][0],SaboteurFinalPos2[i][1],SaboteurFinalPos2[i][2],0);
+                                AddWaypoint(i, SaboteurFinalPos2[i][0], SaboteurFinalPos2[i][1], SaboteurFinalPos2[i][2], 0.0f, Milliseconds(0), false);
                             me->SetHomePosition(SaboteurFinalPos2[2][0],SaboteurFinalPos2[2][1],SaboteurFinalPos2[2][2],1.862674f);
                             break;
                         case 3:
                             for (int i = 0; i < 2 ; i++)
-                                AddWaypoint(i,SaboteurFinalPos3[i][0],SaboteurFinalPos3[i][1],SaboteurFinalPos3[i][2],0);
+                                AddWaypoint(i, SaboteurFinalPos3[i][0], SaboteurFinalPos3[i][1], SaboteurFinalPos3[i][2], 0.0f, Milliseconds(0), false);
                             me->SetHomePosition(SaboteurFinalPos3[1][0],SaboteurFinalPos3[1][1],SaboteurFinalPos3[1][2],5.500638f);
                             break;
                         case 4:
-                            AddWaypoint(0,SaboteurFinalPos4[0],SaboteurFinalPos4[1],SaboteurFinalPos4[2],0);
+                            AddWaypoint(0, SaboteurFinalPos4[0], SaboteurFinalPos4[1], SaboteurFinalPos4[2], 0.0f, Milliseconds(0), false);
                             me->SetHomePosition(SaboteurFinalPos4[0],SaboteurFinalPos4[1],SaboteurFinalPos4[2],3.991108f);
                             break;
                         case 5:
-                            AddWaypoint(0,SaboteurFinalPos5[0],SaboteurFinalPos5[1],SaboteurFinalPos5[2],0);
+                            AddWaypoint(0, SaboteurFinalPos5[0], SaboteurFinalPos5[1], SaboteurFinalPos5[2], 0.0f, Milliseconds(0), false);
                             me->SetHomePosition(SaboteurFinalPos5[0],SaboteurFinalPos5[1],SaboteurFinalPos5[2],1.100841f);
                             break;
                         case 6:
                             for (int i = 0; i < 5; i++)
-                                AddWaypoint(i,SaboteurFinalPos6[i][0],SaboteurFinalPos6[i][1],SaboteurFinalPos6[i][2],0);
+                                AddWaypoint(i, SaboteurFinalPos6[i][0], SaboteurFinalPos6[i][1], SaboteurFinalPos6[i][2], 0.0f, Milliseconds(0), false);
                             me->SetHomePosition(SaboteurFinalPos6[4][0],SaboteurFinalPos6[4][1],SaboteurFinalPos6[4][2],0.983031f);
                             break;
                     }
 
                     SetDespawnAtEnd(false);
-                    Start(true,true);
+                    SetRun(true); Start(true);
                 }
             }
 
@@ -767,9 +768,9 @@ class npc_teleportation_portal_vh : public CreatureScript
         }
 };
 
-struct violet_hold_trashAI : public npc_escortAI
+struct violet_hold_trashAI : public EscortAI
 {
-    violet_hold_trashAI(Creature* creature):npc_escortAI(creature)
+    violet_hold_trashAI(Creature* creature):EscortAI(creature)
     {
         instance = creature->GetInstanceScript();
         bHasGotMovingPoints = false;
@@ -785,8 +786,9 @@ struct violet_hold_trashAI : public npc_escortAI
         uint32 portalLocationID;
         uint32 secondPortalRouteID;
 
-    void WaypointReached(uint32 uiPointId) override
+    void MovementInform(uint32 type, uint32 uiPointId) override
     {
+        EscortAI::MovementInform(type, uiPointId);
         switch (portalLocationID)
         {
             case 0:
@@ -828,7 +830,7 @@ struct violet_hold_trashAI : public npc_escortAI
             {
                 case 0:
                     for (int i = 0; i < 6; i++)
-                        AddWaypoint(i,FirstPortalWPs[i][0]+irand(-1, 1),FirstPortalWPs[i][1]+irand(-1, 1),FirstPortalWPs[i][2]+irand(-1, 1),0);
+                        AddWaypoint(i, FirstPortalWPs[i][0]+irand(-1, 1), FirstPortalWPs[i][1]+irand(-1, 1), FirstPortalWPs[i][2]+irand(-1, 1), 0.0f, Milliseconds(0), false);
                     me->SetHomePosition(FirstPortalWPs[5][0],FirstPortalWPs[5][1],FirstPortalWPs[5][2],3.149439f);
                     break;
                 case 1:
@@ -837,39 +839,39 @@ struct violet_hold_trashAI : public npc_escortAI
                     {
                         case 0:
                             for (int i = 0 ; i < 9 ; i++)
-                                AddWaypoint(i,SecondPortalFirstWPs[i][0]+irand(-1, 1),SecondPortalFirstWPs[i][1]+irand(-1, 1),SecondPortalFirstWPs[i][2],0);
+                                AddWaypoint(i, SecondPortalFirstWPs[i][0]+irand(-1, 1), SecondPortalFirstWPs[i][1]+irand(-1, 1), SecondPortalFirstWPs[i][2], 0.0f, Milliseconds(0), false);
                             me->SetHomePosition(SecondPortalFirstWPs[8][0]+irand(-1, 1),SecondPortalFirstWPs[8][1]+irand(-1, 1),SecondPortalFirstWPs[8][2]+irand(-1, 1),3.149439f);
                             break;
                         case 1:
                             for (int i = 0; i <8 ; i++)
-                                AddWaypoint(i,SecondPortalSecondWPs[i][0]+irand(-1, 1),SecondPortalSecondWPs[i][1]+irand(-1, 1),SecondPortalSecondWPs[i][2],0);
+                                AddWaypoint(i, SecondPortalSecondWPs[i][0]+irand(-1, 1), SecondPortalSecondWPs[i][1]+irand(-1, 1), SecondPortalSecondWPs[i][2], 0.0f, Milliseconds(0), false);
                             me->SetHomePosition(SecondPortalSecondWPs[7][0],SecondPortalSecondWPs[7][1],SecondPortalSecondWPs[7][2],3.149439f);
                             break;
                     }
                     break;
                 case 2:
                     for (int i = 0; i < 8; i++)
-                        AddWaypoint(i,ThirdPortalWPs[i][0]+irand(-1, 1),ThirdPortalWPs[i][1]+irand(-1, 1),ThirdPortalWPs[i][2],0);
+                        AddWaypoint(i, ThirdPortalWPs[i][0]+irand(-1, 1), ThirdPortalWPs[i][1]+irand(-1, 1), ThirdPortalWPs[i][2], 0.0f, Milliseconds(0), false);
                         me->SetHomePosition(ThirdPortalWPs[7][0],ThirdPortalWPs[7][1],ThirdPortalWPs[7][2],3.149439f);
                     break;
                 case 3:
                     for (int i = 0; i < 9; i++)
-                        AddWaypoint(i,FourthPortalWPs[i][0]+irand(-1, 1),FourthPortalWPs[i][1]+irand(-1, 1),FourthPortalWPs[i][2],0);
+                        AddWaypoint(i, FourthPortalWPs[i][0]+irand(-1, 1), FourthPortalWPs[i][1]+irand(-1, 1), FourthPortalWPs[i][2], 0.0f, Milliseconds(0), false);
                     me->SetHomePosition(FourthPortalWPs[8][0],FourthPortalWPs[8][1],FourthPortalWPs[8][2],3.149439f);
                     break;
                 case 4:
                     for (int i = 0; i < 6; i++)
-                        AddWaypoint(i,FifthPortalWPs[i][0]+irand(-1, 1),FifthPortalWPs[i][1]+irand(-1, 1),FifthPortalWPs[i][2],0);
+                        AddWaypoint(i, FifthPortalWPs[i][0]+irand(-1, 1), FifthPortalWPs[i][1]+irand(-1, 1), FifthPortalWPs[i][2], 0.0f, Milliseconds(0), false);
                     me->SetHomePosition(FifthPortalWPs[5][0],FifthPortalWPs[5][1],FifthPortalWPs[5][2],3.149439f);
                     break;
                 case 5:
                     for (int i = 0; i < 4; i++)
-                        AddWaypoint(i,SixthPoralWPs[i][0]+irand(-1, 1),SixthPoralWPs[i][1]+irand(-1, 1),SixthPoralWPs[i][2],0);
+                        AddWaypoint(i, SixthPoralWPs[i][0]+irand(-1, 1), SixthPoralWPs[i][1]+irand(-1, 1), SixthPoralWPs[i][2], 0.0f, Milliseconds(0), false);
                     me->SetHomePosition(SixthPoralWPs[3][0],SixthPoralWPs[3][1],SixthPoralWPs[3][2],3.149439f);
                     break;
             }
             SetDespawnAtEnd(false);
-            Start(true,true);
+            SetRun(true); Start(true);
         }
     }
 
@@ -914,7 +916,7 @@ class npc_azure_invader : public CreatureScript
             void UpdateAI(uint32 diff) override
             {
                 violet_hold_trashAI::UpdateAI(diff);
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;
@@ -987,7 +989,7 @@ class npc_azure_binder : public CreatureScript
             void UpdateAI(uint32 diff) override
             {
                 violet_hold_trashAI::UpdateAI(diff);
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;
@@ -1055,7 +1057,7 @@ class npc_azure_mage_slayer : public CreatureScript
             void UpdateAI(uint32 diff) override
             {
                 violet_hold_trashAI::UpdateAI(diff);
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;
@@ -1110,7 +1112,7 @@ class npc_azure_raider : public CreatureScript
             void UpdateAI(uint32 diff) override
             {
                 violet_hold_trashAI::UpdateAI(diff);
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;
@@ -1160,7 +1162,7 @@ class npc_azure_stalker : public CreatureScript
             void UpdateAI(uint32 diff) override
             {
                 violet_hold_trashAI::UpdateAI(diff);
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;
@@ -1222,7 +1224,7 @@ class npc_azure_spellbreaker : public CreatureScript
             void UpdateAI(uint32 diff) override
             {
                 violet_hold_trashAI::UpdateAI(diff);
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;
@@ -1291,7 +1293,7 @@ class npc_azure_captain : public CreatureScript
             void UpdateAI(uint32 diff) override
             {
                 violet_hold_trashAI::UpdateAI(diff);
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;
@@ -1341,7 +1343,7 @@ class npc_azure_sorceror : public CreatureScript
             void UpdateAI(uint32 diff) override
             {
                 violet_hold_trashAI::UpdateAI(diff);
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;

@@ -186,7 +186,7 @@ public:
                 creature->SetStandState(UNIT_STAND_STATE_STAND);
                 creature->SetFaction(232);
 
-                pEscortAI->Start(true, false, player->GetGUID(), quest);
+                pEscortAI->Start(true, player->GetGUID(), quest);
 
                 creature->AI()->Talk(SAY_MAG_START);
 
@@ -203,9 +203,9 @@ public:
         return new npc_maghar_captiveAI(creature);
     }
 
-    struct npc_maghar_captiveAI : public npc_escortAI
+    struct npc_maghar_captiveAI : public EscortAI
     {
-        npc_maghar_captiveAI(Creature* creature) : npc_escortAI(creature) { Reset(); }
+        npc_maghar_captiveAI(Creature* creature) : EscortAI(creature) { Reset(); }
 
         uint32 m_uiChainLightningTimer;
         uint32 m_uiHealTimer;
@@ -223,8 +223,9 @@ public:
             DoCast(me, SPELL_EARTHBIND_TOTEM, false);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             switch (waypointId)
             {
                 case 7:
@@ -275,7 +276,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
             if (!me->GetVictim())
                 return;
 
@@ -516,7 +517,7 @@ public:
             if (npc_kurenai_captiveAI* EscortAI = dynamic_cast<npc_kurenai_captiveAI*>(creature->AI()))
             {
                 creature->SetStandState(UNIT_STAND_STATE_STAND);
-                EscortAI->Start(true, false, player->GetGUID(), quest);
+                EscortAI->Start(true, player->GetGUID(), quest);
                 creature->AI()->Talk(SAY_KUR_START);
 
                 creature->SummonCreature(NPC_KUR_MURK_RAIDER, kurenaiAmbushA[0]+2.5f, kurenaiAmbushA[1]-2.5f, kurenaiAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
@@ -532,9 +533,9 @@ public:
         return new npc_kurenai_captiveAI(creature);
     }
 
-    struct npc_kurenai_captiveAI : public npc_escortAI
+    struct npc_kurenai_captiveAI : public EscortAI
     {
-        npc_kurenai_captiveAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_kurenai_captiveAI(Creature* creature) : EscortAI(creature) { }
 
         uint32 ChainLightningTimer;
         uint32 HealTimer;
@@ -564,8 +565,9 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             switch (waypointId)
             {
                 case 3:

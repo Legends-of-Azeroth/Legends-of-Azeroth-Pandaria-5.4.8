@@ -56,9 +56,9 @@ class boss_ambassador_hellmaw : public CreatureScript
     public:
         boss_ambassador_hellmaw() : CreatureScript("boss_ambassador_hellmaw") { }
 
-        struct boss_ambassador_hellmawAI : public npc_escortAI
+        struct boss_ambassador_hellmawAI : public EscortAI
         {
-            boss_ambassador_hellmawAI(Creature* creature) : npc_escortAI(creature)
+            boss_ambassador_hellmawAI(Creature* creature) : EscortAI(creature)
             {
                 _instance = creature->GetInstanceScript();
                 _intro = false;
@@ -85,11 +85,12 @@ class boss_ambassador_hellmaw : public CreatureScript
                 if (me->HasAura(SPELL_BANISH))
                     return;
 
-                npc_escortAI::MoveInLineOfSight(who);
+                EscortAI::MoveInLineOfSight(who);
             }
 
-            void WaypointReached(uint32 /*waypointId*/) override
+            void MovementInform(uint32 type, uint32 waypointId) override
             {
+                EscortAI::MovementInform(type, waypointId);
             }
 
             void DoAction(int32 actionId) override
@@ -114,7 +115,7 @@ class boss_ambassador_hellmaw : public CreatureScript
                     me->RemoveAurasDueToSpell(SPELL_BANISH);
 
                 Talk(SAY_INTRO);
-                Start(true, false, ObjectGuid::Empty, NULL, false, true);
+                Start(true, ObjectGuid::Empty, NULL, false, true);
             }
 
             void JustEngagedWith(Unit* /*who*/) override

@@ -636,7 +636,8 @@ public:
 
             DoMeleeAttackIfReady();
         }
-        void WaypointReached(uint32 /*waypointId*/) override { }
+        void MovementInform(uint32 type, uint32 waypointId) override {
+            EscortAI::MovementInform(type, waypointId); }
     };
 };
 

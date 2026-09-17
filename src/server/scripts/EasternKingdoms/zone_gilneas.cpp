@@ -1294,7 +1294,7 @@ public:
 
             if (Creature* horse = player->SummonCreature(NPC_KING_GREYMANES_HORSE, x, y, creature->GetPositionZ(), creature->GetOrientation()))
             {
-                if (npc_escortAI* escort = CAST_AI(npc_escortAI, horse->AI()))
+                if (EscortAI* escort = CAST_AI(EscortAI, horse->AI()))
                 {
                     escort->AddWaypoint(1, -1799.37f, 1400.21f, 19.8951f);
                     escort->AddWaypoint(2, -1798.23f, 1396.9f, 19.8993f);
@@ -1312,8 +1312,8 @@ public:
                     escort->AddWaypoint(14, -1731.79f, 1355.51f, 19.7149f);
                     escort->AddWaypoint(15, -1724.89f, 1354.29f, 19.8661f);
                     escort->AddWaypoint(16, -1718.03f, 1352.93f, 19.7824f);
-                    escort->AddWaypoint(17, -1707.68f, 1351.16f, 19.7811f, 0, true); // Jump
-                    escort->AddWaypoint(18, -1673.04f, 1344.91f, 15.1353f, 2000);
+                    escort->AddWaypoint(17, -1707.68f, 1351.16f, 19.7811f, 0.0f, Milliseconds(0), false, true); // Jump
+                    escort->AddWaypoint(18, -1673.04f, 1344.91f, 15.1353f, 0.0f, Milliseconds(2000), false);
                     escort->AddWaypoint(19, -1673.04f, 1344.91f, 15.1353f);
                     escort->AddWaypoint(20, -1669.32f, 1346.55f, 15.1353f);
                     escort->AddWaypoint(21, -1666.45f, 1349.89f, 15.1353f);
@@ -1386,9 +1386,9 @@ public:
         return new npc_vehicle_genn_horseAI (creature);
     }
 
-    struct npc_vehicle_genn_horseAI : public npc_escortAI
+    struct npc_vehicle_genn_horseAI : public EscortAI
     {
-        npc_vehicle_genn_horseAI(Creature* creature) : npc_escortAI(creature)
+        npc_vehicle_genn_horseAI(Creature* creature) : EscortAI(creature)
         {
             _aranasSaved = false;
             _playerSeated = false;
@@ -1414,7 +1414,7 @@ public:
 
                 if (apply)
                 {
-                    Start(false, true, who->GetGUID());
+                    SetRun(true); Start(false, who->GetGUID());
                     me->SetSpeed(MOVE_WALK, 1.0f, true);
                     me->SetSpeed(MOVE_RUN, 1.3f, true);
                 }
@@ -1433,8 +1433,9 @@ public:
             }
         }
 
-        void WaypointReached(uint32 i) override
+        void MovementInform(uint32 type, uint32 i) override
         {
+            EscortAI::MovementInform(type, i);
             Player* player = GetPlayerForEscort();
 
             switch(i)
@@ -1537,7 +1538,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
             Player* player = GetPlayerForEscort();
 
             if (_playerSeated)
@@ -1693,9 +1694,9 @@ class npc_wahl : public CreatureScript
 public:
     npc_wahl(const char* ScriptName) : CreatureScript(ScriptName) { }
 
-    struct npc_wahlAI : public npc_escortAI
+    struct npc_wahlAI : public EscortAI
     {
-        npc_wahlAI(Creature* creature) : npc_escortAI(creature)
+        npc_wahlAI(Creature* creature) : EscortAI(creature)
         {
             creature->SetReactState(REACT_PASSIVE);
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -1713,9 +1714,9 @@ public:
             }
         }
 
-        void WaypointReached(uint32 point) override
+        void WaypointReached(uint32 waypointId) override
         {
-            if (point == 1)
+            if (waypointId == 1)
                 if (me->IsSummon())
                     if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                     {
@@ -1728,14 +1729,21 @@ public:
 
                         me->m_Events.AddLambdaEventAtOffset([this, summoner]()
                         {
-                            AttackStart(summoner);
+                            TC_LOG_INFO("scripts", "[Wahl] 800ms lambda: summonerAlive=%d hasVictim=%d",
+                                summoner && !summoner->isDead(), me->GetVictim() != NULL);
+                            if (summoner && !summoner->isDead())
+                            {
+                                if (!me->GetVictim())
+                                    AttackStart(summoner);
+                                me->GetMotionMaster()->MoveChase(summoner);
+                            }
                         }, 800);
                     }
         }
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
 
@@ -1848,13 +1856,13 @@ public:
 
                     if (Creature* wahl = me->SummonCreature(NPC_WAHL, -2098.366f, 2352.075f, 7.160643f))
                     {
-                        if (npc_escortAI* npc_escort = CAST_AI(npc_wahl::npc_wahlAI, wahl->AI()))
+                        if (EscortAI* npc_escort = CAST_AI(npc_wahl::npc_wahlAI, wahl->AI()))
                         {
                             npc_escort->AddWaypoint(0, -2106.54f, 2342.69f, 6.93668f);
                             npc_escort->AddWaypoint(1, -2106.12f, 2334.90f, 7.36691f);
                             npc_escort->AddWaypoint(2, -2117.80f, 2357.15f, 5.88139f);
                             npc_escort->AddWaypoint(3, -2111.46f, 2366.22f, 7.17151f);
-                            npc_escort->Start(false, true);
+                            npc_escort->SetRun(true); npc_escort->Start(false);
                         }
                     }
                 }
@@ -2203,9 +2211,9 @@ class npc_stagecoach_harness : public CreatureScript
 public:
     npc_stagecoach_harness(const char* ScriptName) : CreatureScript(ScriptName) { }
 
-    struct npc_stagecoach_harnessAI : public npc_escortAI
+    struct npc_stagecoach_harnessAI : public EscortAI
     {
-        npc_stagecoach_harnessAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_stagecoach_harnessAI(Creature* creature) : EscortAI(creature) { }
 
         void OnCharmed(bool apply) override { }
 
@@ -2221,7 +2229,7 @@ public:
             {
                 case ACTION_START_WP:
                 {
-                    Start(false, true, ObjectGuid::Empty, NULL, false, false, true);
+                    SetRun(true); Start(false, ObjectGuid::Empty, NULL, false, false);
                     SetDespawnAtEnd(true);
 
                     if (GameObject* gate = me->FindNearestGameObject(GO_FIRST_GATE, 80.0f))
@@ -2236,8 +2244,9 @@ public:
             }
         }
 
-        void WaypointReached(uint32 point) override
+        void MovementInform(uint32 type, uint32 point) override
         {
+            EscortAI::MovementInform(type, point);
             switch (point)
             {
                 case 16:

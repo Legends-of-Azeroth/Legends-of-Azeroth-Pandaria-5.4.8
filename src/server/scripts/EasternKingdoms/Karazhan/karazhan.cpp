@@ -180,9 +180,9 @@ class npc_barnes : public CreatureScript
             return true;
         }
 
-        struct npc_barnesAI : public npc_escortAI
+        struct npc_barnesAI : public EscortAI
         {
-            npc_barnesAI(Creature* creature) : npc_escortAI(creature)
+            npc_barnesAI(Creature* creature) : EscortAI(creature)
             {
                 RaidWiped = false;
                 m_uiEventId = 0;
@@ -226,13 +226,14 @@ class npc_barnes : public CreatureScript
                 if (m_uiEventId == EVENT_OZ)
                     instance->SetData(DATA_OPERA_OZ_DEATHCOUNT, IN_PROGRESS);
 
-                Start(false, false);
+                Start(false);
             }
 
             void JustEngagedWith(Unit* /*who*/) override { }
 
-            void WaypointReached(uint32 i) override
+            void MovementInform(uint32 type, uint32 i) override
             {
+                EscortAI::MovementInform(type, i);
                 if (!instance)
                     return;
 
@@ -334,7 +335,7 @@ class npc_barnes : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (HasEscortState(STATE_ESCORT_PAUSED))
                 {

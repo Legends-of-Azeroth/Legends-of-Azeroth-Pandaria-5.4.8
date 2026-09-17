@@ -806,9 +806,9 @@ class npc_argent_soldier : public CreatureScript
     public:
         npc_argent_soldier() : CreatureScript("npc_argent_soldier") { }
 
-        struct npc_argent_soldierAI : public npc_escortAI
+        struct npc_argent_soldierAI : public EscortAI
         {
-            npc_argent_soldierAI(Creature* creature) : npc_escortAI(creature)
+            npc_argent_soldierAI(Creature* creature) : EscortAI(creature)
             {
                 _instance = creature->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
@@ -847,8 +847,9 @@ class npc_argent_soldier : public CreatureScript
                 }
             }
 
-            void WaypointReached(uint32 point) override
+            void MovementInform(uint32 type, uint32 point) override
             {
+                EscortAI::MovementInform(type, point);
                 if (point == 0)
                 {
                     switch (_waypoint)
@@ -917,7 +918,7 @@ class npc_argent_soldier : public CreatureScript
                         break;
                 }
 
-                Start(false, true, ObjectGuid::Empty);
+                SetRun(true); Start(false, ObjectGuid::Empty);
                 _waypoint = type;
             }
 
@@ -938,7 +939,7 @@ class npc_argent_soldier : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;

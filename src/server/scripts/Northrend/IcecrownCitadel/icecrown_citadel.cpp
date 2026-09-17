@@ -1178,9 +1178,9 @@ class npc_crok_scourgebane : public CreatureScript
     public:
         npc_crok_scourgebane() : CreatureScript("npc_crok_scourgebane") { }
 
-        struct npc_crok_scourgebaneAI : public npc_escortAI
+        struct npc_crok_scourgebaneAI : public EscortAI
         {
-            npc_crok_scourgebaneAI(Creature* creature) : npc_escortAI(creature),
+            npc_crok_scourgebaneAI(Creature* creature) : EscortAI(creature),
                 _instance(creature->GetInstanceScript()), _respawnTime(creature->GetRespawnDelay()),
                 _corpseDelay(creature->GetCorpseDelay())
             {
@@ -1428,7 +1428,7 @@ class npc_crok_scourgebane : public CreatureScript
                             break;
                         case EVENT_START_PATHING:
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            Start(true, true);
+                            SetRun(true); Start(true);
                             break;
                         case EVENT_SCOURGE_STRIKE:
                             DoCastVictim(SPELL_SCOURGE_STRIKE);
@@ -1470,7 +1470,7 @@ class npc_crok_scourgebane : public CreatureScript
                     me->DespawnOrUnsummon(30000);
                 }
                 else
-                    npc_escortAI::MovementInform(type, pointId);
+                    EscortAI::MovementInform(type, pointId);
             }
 
             bool CanAIAttack(Unit const* target) const override

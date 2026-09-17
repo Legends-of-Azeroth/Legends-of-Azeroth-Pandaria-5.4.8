@@ -345,8 +345,8 @@ public:
         if (quest->GetQuestId() == QUEST_A_CRY_FOR_SAY_HELP)
         {
             creature->SetFaction(113);
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_escortAI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
+            if (EscortAI* pEscortAI = CAST_AI(EscortAI, creature->AI()))
+                pEscortAI->Start(true, player->GetGUID());
         }
         return true;
     }
@@ -356,12 +356,13 @@ public:
         return new npc_magwinAI(creature);
     }
 
-    struct npc_magwinAI : public npc_escortAI
+    struct npc_magwinAI : public EscortAI
     {
-        npc_magwinAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_magwinAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             if (Player* player = GetPlayerForEscort())
             {
                 switch (waypointId)

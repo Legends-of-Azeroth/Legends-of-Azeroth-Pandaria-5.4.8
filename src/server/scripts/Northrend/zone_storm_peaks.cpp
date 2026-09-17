@@ -44,12 +44,13 @@ class npc_injured_goblin : public CreatureScript
 public:
     npc_injured_goblin() : CreatureScript("npc_injured_goblin") { }
 
-    struct npc_injured_goblinAI : public npc_escortAI
+    struct npc_injured_goblinAI : public EscortAI
     {
-        npc_injured_goblinAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_injured_goblinAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
@@ -78,7 +79,7 @@ public:
 
        void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
             if (!UpdateVictim())
                 return;
             DoMeleeAttackIfReady();
@@ -90,7 +91,7 @@ public:
             {
                 player->CLOSE_GOSSIP_MENU();
                 me->SetFaction(113);
-                npc_escortAI::Start(true, true, player->GetGUID());
+                EscortAI::SetRun(true); Start(true, player->GetGUID());
             }
             return true;
         }
@@ -322,9 +323,9 @@ class npc_icefang : public CreatureScript
 public:
     npc_icefang() : CreatureScript("npc_icefang") { }
 
-    struct npc_icefangAI : public npc_escortAI
+    struct npc_icefangAI : public EscortAI
     {
-        npc_icefangAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_icefangAI(Creature* creature) : EscortAI(creature) { }
 
         void AttackStart(Unit* /*who*/) override { }
         void JustEngagedWith(Unit* /*who*/) override { }
@@ -335,12 +336,16 @@ public:
             if (who->GetTypeId() == TYPEID_PLAYER)
             {
                 if (apply)
-                    Start(false, true, who->GetGUID());
+                {
+                    SetRun(true);
+                    Start(false, who->GetGUID());
+                }
             }
         }
 
-        void WaypointReached(uint32 /*waypointId*/) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -353,7 +358,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (!UpdateVictim())
                 return;

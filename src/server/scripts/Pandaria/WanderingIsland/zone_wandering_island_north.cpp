@@ -424,9 +424,9 @@ class npc_aysa_lake_escort : public CreatureScript
     public:
         npc_aysa_lake_escort() : CreatureScript("npc_aysa_lake_escort") { }
 
-        struct npc_aysa_lake_escortAI : public npc_escortAI
+        struct npc_aysa_lake_escortAI : public EscortAI
         {
-            npc_aysa_lake_escortAI(Creature* creature) : npc_escortAI(creature) { }
+            npc_aysa_lake_escortAI(Creature* creature) : EscortAI(creature) { }
 
             uint32 IntroTimer;
 
@@ -438,7 +438,7 @@ class npc_aysa_lake_escort : public CreatureScript
 
             void MovementInform(uint32 type, uint32 pointId) override
             {
-                npc_escortAI::MovementInform(type, pointId);
+                EscortAI::MovementInform(type, pointId);
 
                 if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
                     return;
@@ -452,7 +452,7 @@ class npc_aysa_lake_escort : public CreatureScript
                         me->GetMotionMaster()->MoveJump(1236.68f, 3456.68f, 102.58f, 10, 20, 12);
                         break;
                     case 12:
-                        Start(false, true);
+                        SetRun(true); Start(false);
                         break;
                     default:
                         break;
@@ -479,7 +479,7 @@ class npc_aysa_lake_escort : public CreatureScript
                         IntroTimer -= diff;
                 }
 
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
             }
         };
 

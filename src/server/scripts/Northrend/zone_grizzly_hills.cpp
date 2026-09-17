@@ -59,9 +59,9 @@ class npc_emily : public CreatureScript
 public:
     npc_emily() : CreatureScript("npc_emily") { }
 
-    struct npc_emilyAI : public npc_escortAI
+    struct npc_emilyAI : public EscortAI
     {
-        npc_emilyAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_emilyAI(Creature* creature) : EscortAI(creature) { }
 
         void JustSummoned(Creature* summoned) override
         {
@@ -71,8 +71,9 @@ public:
                 summoned->AI()->AttackStart(me->GetVictim());
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
@@ -196,8 +197,8 @@ public:
             if (Creature* Mrfloppy = GetClosestCreatureWithEntry(creature, NPC_MRFLOPPY, 180.0f))
                 Mrfloppy->GetMotionMaster()->MoveFollow(creature, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_emily::npc_emilyAI, (creature->AI())))
-                pEscortAI->Start(true, false, player->GetGUID());
+            if (EscortAI* pEscortAI = CAST_AI(npc_emily::npc_emilyAI, (creature->AI())))
+                pEscortAI->Start(true, player->GetGUID());
         }
         return true;
     }

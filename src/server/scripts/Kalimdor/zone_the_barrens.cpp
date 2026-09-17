@@ -120,7 +120,7 @@ public:
             creature->AI()->Talk(SAY_GIL_START, player);
 
             if (npc_giltharesAI* pEscortAI = CAST_AI(npc_gilthares::npc_giltharesAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID(), quest);
+                pEscortAI->Start(false, player->GetGUID(), quest);
         }
         return true;
     }
@@ -130,14 +130,15 @@ public:
         return new npc_giltharesAI(creature);
     }
 
-    struct npc_giltharesAI : public npc_escortAI
+    struct npc_giltharesAI : public EscortAI
     {
-        npc_giltharesAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_giltharesAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override { }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
@@ -527,9 +528,9 @@ class npc_wizzlecrank_shredder : public CreatureScript
 public:
     npc_wizzlecrank_shredder() : CreatureScript("npc_wizzlecrank_shredder") { }
 
-    struct npc_wizzlecrank_shredderAI : public npc_escortAI
+    struct npc_wizzlecrank_shredderAI : public EscortAI
     {
-        npc_wizzlecrank_shredderAI(Creature* creature) : npc_escortAI(creature)
+        npc_wizzlecrank_shredderAI(Creature* creature) : EscortAI(creature)
         {
             IsPostEvent = false;
             PostEventTimer = 1000;
@@ -553,8 +554,9 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             switch (waypointId)
             {
                 case 0:
@@ -651,8 +653,8 @@ public:
         if (quest->GetQuestId() == QUEST_ESCAPE)
         {
             creature->SetFaction(FACTION_RATCHET);
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_wizzlecrank_shredder::npc_wizzlecrank_shredderAI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
+            if (EscortAI* pEscortAI = CAST_AI(npc_wizzlecrank_shredder::npc_wizzlecrank_shredderAI, creature->AI()))
+                pEscortAI->Start(true, player->GetGUID());
         }
         return true;
     }

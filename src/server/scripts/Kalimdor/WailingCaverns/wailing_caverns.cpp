@@ -97,9 +97,9 @@ public:
             creature->SetFaction(250);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(false, false, player->GetGUID());
-            CAST_AI(npc_escortAI, (creature->AI()))->SetDespawnAtFar(false);
-            CAST_AI(npc_escortAI, (creature->AI()))->SetDespawnAtEnd(false);
+            CAST_AI(EscortAI, (creature->AI()))->Start(false, player->GetGUID());
+            CAST_AI(EscortAI, (creature->AI()))->SetDespawnAtFar(false);
+            CAST_AI(EscortAI, (creature->AI()))->SetDespawnAtEnd(false);
         }
         return true;
     }
@@ -131,9 +131,9 @@ public:
         return true;
     }
 
-    struct npc_disciple_of_naralexAI : public npc_escortAI
+    struct npc_disciple_of_naralexAI : public EscortAI
     {
-        npc_disciple_of_naralexAI(Creature* creature) : npc_escortAI(creature)
+        npc_disciple_of_naralexAI(Creature* creature) : EscortAI(creature)
         {
             instance = creature->GetInstanceScript();
             eventTimer = 0;
@@ -148,8 +148,9 @@ public:
         uint32 eventProgress;
         InstanceScript* instance;
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             if (!instance)
                 return;
 
@@ -209,7 +210,7 @@ public:
         void UpdateAI(uint32 diff) override
         {
             if (currentEvent != TYPE_NARALEX_PART3)
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
             if (!instance)
                 return;
@@ -235,7 +236,7 @@ public:
                                 ++eventProgress;
                                 Talk(SAY_BANISH_THE_SPIRITS);
                                 DoCast(me, SPELL_SERPENTINE_CLEANSING);
-                                //CAST_AI(npc_escort::npc_escortAI, me->AI())->SetCanDefend(false);
+                                //CAST_AI(npc_escort::EscortAI, me->AI())->SetCanDefend(false);
                                 eventTimer = 30000;
                                 me->SummonCreature(NPC_DEVIATE_VIPER, -61.5261f, 273.676f, -92.8442f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000ms);
                                 me->SummonCreature(NPC_DEVIATE_VIPER, -58.4658f, 280.799f, -92.8393f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000ms);
@@ -244,7 +245,7 @@ public:
                             else
                             if (eventProgress == 2)
                             {
-                                //CAST_AI(npc_escort::npc_escortAI, me->AI())->SetCanDefend(true);
+                                //CAST_AI(npc_escort::EscortAI, me->AI())->SetCanDefend(true);
                                 Talk(SAY_CAVERNS_PURIFIED);
                                 instance->SetData(TYPE_NARALEX_PART2, DONE);
                                 if (me->HasAura(SPELL_SERPENTINE_CLEANSING))
@@ -264,7 +265,7 @@ public:
                             {
                                 ++eventProgress;
                                 eventTimer = 15000;
-                                //CAST_AI(npc_escort::npc_escortAI, me->AI())->SetCanDefend(false);
+                                //CAST_AI(npc_escort::EscortAI, me->AI())->SetCanDefend(false);
                                 if (Creature* naralex = instance->instance->GetCreature(instance->GetGuidData(DATA_NARALEX)))
                                     DoCast(naralex, SPELL_NARALEXS_AWAKENING, true);
                                 Talk(EMOTE_AWAKENING_RITUAL);

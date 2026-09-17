@@ -61,12 +61,13 @@ class npc_deathstalker_erland : public CreatureScript
 public:
     npc_deathstalker_erland() : CreatureScript("npc_deathstalker_erland") { }
 
-    struct npc_deathstalker_erlandAI : public npc_escortAI
+    struct npc_deathstalker_erlandAI : public EscortAI
     {
-        npc_deathstalker_erlandAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_deathstalker_erlandAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
@@ -120,8 +121,8 @@ public:
         {
             creature->AI()->Talk(SAY_QUESTACCEPT, player);
 
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_deathstalker_erland::npc_deathstalker_erlandAI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
+            if (EscortAI* pEscortAI = CAST_AI(npc_deathstalker_erland::npc_deathstalker_erlandAI, creature->AI()))
+                pEscortAI->Start(true, player->GetGUID());
         }
 
         return true;

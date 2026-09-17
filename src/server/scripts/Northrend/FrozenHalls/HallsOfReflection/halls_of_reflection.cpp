@@ -1474,9 +1474,9 @@ class npc_jaina_and_sylvanas_hor_part2 : public CreatureScript
     public:
         npc_jaina_and_sylvanas_hor_part2() : CreatureScript("npc_jaina_and_sylvanas_hor_part2") { }
 
-        struct npc_jaina_and_sylvanas_hor_part2AI : public npc_escortAI
+        struct npc_jaina_and_sylvanas_hor_part2AI : public EscortAI
         {
-            npc_jaina_and_sylvanas_hor_part2AI(Creature* creature) : npc_escortAI(creature)
+            npc_jaina_and_sylvanas_hor_part2AI(Creature* creature) : EscortAI(creature)
             {
                 instance = creature->GetInstanceScript();
             }
@@ -1530,7 +1530,7 @@ class npc_jaina_and_sylvanas_hor_part2 : public CreatureScript
                 if (instance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS || Fight != true)
                     return;
 
-                npc_escortAI::AttackStart(who);
+                EscortAI::AttackStart(who);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -1550,7 +1550,7 @@ class npc_jaina_and_sylvanas_hor_part2 : public CreatureScript
                     return false;
 
                 player->CLOSE_GOSSIP_MENU();
-                Start(false, true);
+                SetRun(true); Start(false);
                 me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER | UNIT_NPC_FLAG_GOSSIP);
                 me->SetTarget(ObjectGuid::Empty);
                 me->setActive(true);
@@ -1563,8 +1563,9 @@ class npc_jaina_and_sylvanas_hor_part2 : public CreatureScript
                 return true;
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void MovementInform(uint32 type, uint32 waypointId) override
             {
+                EscortAI::MovementInform(type, waypointId);
                 switch (waypointId)
                 {
                     case 2:

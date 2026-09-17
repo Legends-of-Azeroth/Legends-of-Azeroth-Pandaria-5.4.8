@@ -1017,7 +1017,7 @@ public:
             creature->SetFaction(FACTION_EARTHEN);
 
             if (npc_earthmender_wildaAI* pEscortAI = CAST_AI(npc_earthmender_wilda::npc_earthmender_wildaAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID(), quest);
+                pEscortAI->Start(false, player->GetGUID(), quest);
         }
         return true;
     }
@@ -1027,9 +1027,9 @@ public:
         return new npc_earthmender_wildaAI(creature);
     }
 
-    struct npc_earthmender_wildaAI : public npc_escortAI
+    struct npc_earthmender_wildaAI : public EscortAI
     {
-        npc_earthmender_wildaAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_earthmender_wildaAI(Creature* creature) : EscortAI(creature) { }
 
         uint32 m_uiHealingTimer;
 
@@ -1038,8 +1038,9 @@ public:
             m_uiHealingTimer = 0;
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
@@ -1131,7 +1132,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (!UpdateVictim())
                 return;

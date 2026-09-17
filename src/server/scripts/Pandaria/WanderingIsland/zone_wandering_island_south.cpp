@@ -62,9 +62,9 @@ class npc_mandori_escort : public CreatureScript
     public:
         npc_mandori_escort() : CreatureScript("npc_mandori_escort") { }
 
-        struct npc_mandori_escortAI : public npc_escortAI
+        struct npc_mandori_escortAI : public EscortAI
         {
-            npc_mandori_escortAI(Creature* creature) : npc_escortAI(creature) { }
+            npc_mandori_escortAI(Creature* creature) : EscortAI(creature) { }
 
             enum escortEntry
             {
@@ -124,8 +124,9 @@ class npc_mandori_escort : public CreatureScript
                 return me->GetEntry() == npc_entry;
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void MovementInform(uint32 type, uint32 waypointId) override
             {
+                EscortAI::MovementInform(type, waypointId);
                 switch (waypointId)
                 {
                     case 7:
@@ -182,7 +183,7 @@ class npc_mandori_escort : public CreatureScript
                                 IntroTimer = 1000;
                                 break;
                             case 3:
-                                Start(false, true);
+                                SetRun(true); Start(false);
                                 IntroTimer = 0;
                                 break;
                         }
@@ -249,7 +250,7 @@ class npc_mandori_escort : public CreatureScript
                         doorEventTimer -= diff;
                 }
 
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
             }
         };
 
@@ -283,9 +284,9 @@ class npc_ji_forest_escort : public CreatureScript
     public:
         npc_ji_forest_escort() : CreatureScript("npc_ji_forest_escort") { }
 
-        struct npc_ji_forest_escortAI : public npc_escortAI
+        struct npc_ji_forest_escortAI : public EscortAI
         {
-            npc_ji_forest_escortAI(Creature* creature) : npc_escortAI(creature) { }
+            npc_ji_forest_escortAI(Creature* creature) : EscortAI(creature) { }
 
             ObjectGuid playerGuid;
             uint32 IntroTimer;
@@ -313,10 +314,13 @@ class npc_ji_forest_escort : public CreatureScript
             void MovementInform(uint32 type, uint32 pointId) override
             {
                 if (pointId == 100)
-                    Start(false, true);
+                {
+                    SetRun(true);
+                    Start(false);
+                }
                 else
                 {
-                    npc_escortAI::MovementInform(type, pointId);
+                    EscortAI::MovementInform(type, pointId);
                 }
             }
 
@@ -333,7 +337,7 @@ class npc_ji_forest_escort : public CreatureScript
                         IntroTimer -= diff;
                 }
 
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
             }
         };
 
@@ -597,9 +601,9 @@ class npc_aysa_gunship_crash_escort : public CreatureScript
 public:
     npc_aysa_gunship_crash_escort() : CreatureScript("npc_aysa_gunship_crash_escort") { }
 
-    struct npc_aysa_gunship_crash_escortAI : public npc_escortAI
+    struct npc_aysa_gunship_crash_escortAI : public EscortAI
     {
-        npc_aysa_gunship_crash_escortAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_aysa_gunship_crash_escortAI(Creature* creature) : EscortAI(creature) { }
 
         ObjectGuid playerGuid;
         ObjectGuid jiGuid;
@@ -661,7 +665,7 @@ public:
                     events.ScheduleEvent(EVENT_START_CINEMATIC, 200);
             }
 
-            npc_escortAI::MovementInform(type, pointId);
+            EscortAI::MovementInform(type, pointId);
         }
 
         Creature* getJi()
@@ -671,7 +675,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
             events.Update(diff);
 
             if (uint32 eventId = events.ExecuteEvent())
@@ -680,7 +684,7 @@ public:
                 {
                     case EVENT_AYSA_START:
                         Talk(0, Player::GetPlayer(*me, playerGuid));
-                        Start(false, true);
+                        SetRun(true); Start(false);
                         break;
                     case EVENT_AYSA_TALK_1:
                         Talk(1);

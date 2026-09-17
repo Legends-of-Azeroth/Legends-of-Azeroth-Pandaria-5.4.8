@@ -200,11 +200,11 @@ class npc_onyx_flamecaller : public CreatureScript
     public:
         npc_onyx_flamecaller() : CreatureScript("npc_onyx_flamecaller") { }
 
-        struct npc_onyx_flamecallerAI : public npc_escortAI
+        struct npc_onyx_flamecallerAI : public EscortAI
         {
-            npc_onyx_flamecallerAI(Creature* creature) : npc_escortAI(creature), _instance(creature->GetInstanceScript())
+            npc_onyx_flamecallerAI(Creature* creature) : EscortAI(creature), _instance(creature->GetInstanceScript())
             {
-                npc_escortAI::SetDespawnAtEnd(false);
+                EscortAI::SetDespawnAtEnd(false);
             }
 
             void Reset() override
@@ -212,7 +212,7 @@ class npc_onyx_flamecaller : public CreatureScript
                 _lavaGoutCount = 0;
                 me->setActive(true);
                 AddWaypoints();
-                Start(true, true);
+                SetRun(true); Start(true);
             }
 
             void JustEngagedWith(Unit* /*who*/) override
@@ -234,8 +234,9 @@ class npc_onyx_flamecaller : public CreatureScript
                     zarithrian->AI()->JustSummoned(me);
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void MovementInform(uint32 type, uint32 waypointId) override
             {
+                EscortAI::MovementInform(type, waypointId);
                 if (waypointId == MAX_PATH_FLAMECALLER_WAYPOINTS || waypointId == MAX_PATH_FLAMECALLER_WAYPOINTS*2)
                 {
                     DoZoneInCombat();

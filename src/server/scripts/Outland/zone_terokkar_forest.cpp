@@ -212,13 +212,14 @@ public:
         return new npc_skywingAI(creature);
     }
 
-    struct npc_skywingAI : public npc_escortAI
+    struct npc_skywingAI : public EscortAI
     {
     public:
-        npc_skywingAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_skywingAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
@@ -242,14 +243,14 @@ public:
             Player* player = who->ToPlayer();
             if (player && player->GetQuestStatus(10898) == QUEST_STATUS_INCOMPLETE)
                 if (me->IsWithinDistInMap(who, 10.0f))
-                    Start(false, false, who->GetGUID());
+                    Start(false, who->GetGUID());
         }
 
         void Reset() override { }
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
 };
@@ -473,12 +474,13 @@ class npc_isla_starmane : public CreatureScript
 public:
     npc_isla_starmane() : CreatureScript("npc_isla_starmane") { }
 
-    struct npc_isla_starmaneAI : public npc_escortAI
+    struct npc_isla_starmaneAI : public EscortAI
     {
-        npc_isla_starmaneAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_isla_starmaneAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
@@ -537,7 +539,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_EFTW_H || quest->GetQuestId() == QUEST_EFTW_A)
         {
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+            CAST_AI(EscortAI, (creature->AI()))->Start(true, player->GetGUID());
             creature->SetFaction(113);
         }
         return true;
@@ -663,7 +665,7 @@ public:
         if (quest->GetQuestId() == QUEST_ESCAPING_THE_TOMB)
         {
             if (npc_akunoAI* pEscortAI = CAST_AI(npc_akuno::npc_akunoAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID());
+                pEscortAI->Start(false, player->GetGUID());
 
             if (player->GetTeamId() == TEAM_ALLIANCE)
                 creature->SetFaction(FACTION_ESCORT_A_NEUTRAL_PASSIVE);
@@ -678,12 +680,13 @@ public:
         return new npc_akunoAI(creature);
     }
 
-    struct npc_akunoAI : public npc_escortAI
+    struct npc_akunoAI : public EscortAI
     {
-        npc_akunoAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_akunoAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;

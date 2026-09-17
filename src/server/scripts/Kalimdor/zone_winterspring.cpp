@@ -299,7 +299,7 @@ public:
             creature->SetFaction(FACTION_ESCORT_A_NEUTRAL_PASSIVE);
 
             if (npc_ranshallaAI* escortAI = dynamic_cast<npc_ranshallaAI*>(creature->AI()))
-                escortAI->Start(false, false, player->GetGUID(), quest);
+                escortAI->Start(false, player->GetGUID(), quest);
 
             return true;
         }
@@ -311,9 +311,9 @@ public:
         return new npc_ranshallaAI(creature);
     }
 
-    struct npc_ranshallaAI : public npc_escortAI, private DialogueHelper
+    struct npc_ranshallaAI : public EscortAI, private DialogueHelper
     {
-        npc_ranshallaAI(Creature* creature) : npc_escortAI(creature),
+        npc_ranshallaAI(Creature* creature) : EscortAI(creature),
             DialogueHelper(introDialogue)
         {
             Reset();
@@ -393,8 +393,9 @@ public:
             StartNextDialogueText(SAY_PRIESTESS_ALTAR_3);
         }
 
-        void WaypointReached(uint32 pointId) override
+        void MovementInform(uint32 type, uint32 pointId) override
         {
+            EscortAI::MovementInform(type, pointId);
             switch (pointId)
             {
                 case 3:
@@ -580,7 +581,7 @@ public:
             if (events.ExecuteEvent() == EVENT_RESUME)
                 StartNextDialogueText(SAY_PRIESTESS_ALTAR_3);
 
-            npc_escortAI::UpdateEscortAI(diff);
+            EscortAI::UpdateEscortAI(diff);
         }
     private:
         EventMap events;

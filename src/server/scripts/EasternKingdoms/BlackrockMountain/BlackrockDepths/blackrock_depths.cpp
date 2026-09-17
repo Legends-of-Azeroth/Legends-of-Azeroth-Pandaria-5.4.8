@@ -120,9 +120,9 @@ public:
         return new npc_grimstoneAI(creature);
     }
 
-    struct npc_grimstoneAI : public npc_escortAI
+    struct npc_grimstoneAI : public EscortAI
     {
-        npc_grimstoneAI(Creature* creature) : npc_escortAI(creature)
+        npc_grimstoneAI(Creature* creature) : EscortAI(creature)
         {
             instance = creature->GetInstanceScript();
             MobSpawnId = rand()%6;
@@ -181,8 +181,9 @@ public:
             MobDeath_Timer = 2500;
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             switch (waypointId)
             {
                 case 0:
@@ -274,7 +275,7 @@ public:
                     case 0:
                         Talk(SAY_TEXT5);
                         HandleGameObject(DATA_ARENA4, false);
-                        Start(false, false);
+                        Start(false);
                         CanWalk = true;
                         Event_Timer = 0;
                         break;
@@ -334,7 +335,7 @@ public:
             }
 
             if (CanWalk)
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
            }
     };
 };
@@ -581,9 +582,9 @@ public:
     {
         npc_dughal_stormwingAI* dughal_stormwingAI = new npc_dughal_stormwingAI(creature);
 
-        dughal_stormwingAI->AddWaypoint(0, 280.42f, -82.86f, -77.12f, 0);
-        dughal_stormwingAI->AddWaypoint(1, 287.64f, -87.01f, -76.79f, 0);
-        dughal_stormwingAI->AddWaypoint(2, 354.63f, -64.95f, -67.53f, 0);
+        dughal_stormwingAI->AddWaypoint(0, 280.42f, -82.86f, -77.12f, 0.0f, Milliseconds(0), false);
+        dughal_stormwingAI->AddWaypoint(1, 287.64f, -87.01f, -76.79f, 0.0f, Milliseconds(0), false);
+        dughal_stormwingAI->AddWaypoint(2, 354.63f, -64.95f, -67.53f, 0.0f, Milliseconds(0), false);
 
         return dughal_stormwingAI;
     }
@@ -594,7 +595,7 @@ public:
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
         {
             player->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_escort::npc_escortAI, (creature->AI()))->Start(false, true, player->GetGUID());
+            CAST_AI(npc_escort::EscortAI, (creature->AI()))->SetRun(true); CAST_AI(npc_escort::EscortAI, (creature->AI()))->Start(false, player->GetGUID());
             creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             instance->SetData(DATA_QUEST_JAIL_BREAK, ENCOUNTER_STATE_IN_PROGRESS);
         }
@@ -611,12 +612,13 @@ public:
         return true;
     }
 
-    struct npc_dughal_stormwingAI : public npc_escortAI
+    struct npc_dughal_stormwingAI : public EscortAI
     {
-        npc_dughal_stormwingAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_dughal_stormwingAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             switch (waypointId)
             {
                 case 0:
@@ -663,7 +665,7 @@ public:
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
 };
@@ -697,26 +699,26 @@ public:
     {
         npc_marshal_windsorAI* marshal_windsorAI = new npc_marshal_windsorAI(creature);
 
-        marshal_windsorAI->AddWaypoint(0, 316.336f, -225.528f, -77.7258f, 7000);
-        marshal_windsorAI->AddWaypoint(1, 316.336f, -225.528f, -77.7258f, 2000);
-        marshal_windsorAI->AddWaypoint(2, 322.96f, -207.13f, -77.87f, 0);
-        marshal_windsorAI->AddWaypoint(3, 281.05f, -172.16f, -75.12f, 0);
-        marshal_windsorAI->AddWaypoint(4, 272.19f, -139.14f, -70.61f, 0);
-        marshal_windsorAI->AddWaypoint(5, 283.62f, -116.09f, -70.21f, 0);
-        marshal_windsorAI->AddWaypoint(6, 296.18f, -94.30f, -74.08f, 0);
-        marshal_windsorAI->AddWaypoint(7, 294.57f, -93.11f, -74.08f, 0);
-        marshal_windsorAI->AddWaypoint(8, 314.31f, -74.31f, -76.09f, 0);
-        marshal_windsorAI->AddWaypoint(9, 360.22f, -62.93f, -66.77f, 0);
-        marshal_windsorAI->AddWaypoint(10, 383.38f, -69.40f, -63.25f, 0);
-        marshal_windsorAI->AddWaypoint(11, 389.99f, -67.86f, -62.57f, 0);
-        marshal_windsorAI->AddWaypoint(12, 400.98f, -72.01f, -62.31f, 0);
-        marshal_windsorAI->AddWaypoint(13, 404.22f, -62.30f, -63.50f, 2300);
-        marshal_windsorAI->AddWaypoint(14, 404.22f, -62.30f, -63.50f, 1500);
-        marshal_windsorAI->AddWaypoint(15, 407.65f, -51.86f, -63.96f, 0);
-        marshal_windsorAI->AddWaypoint(16, 403.61f, -51.71f, -63.92f, 1000);
-        marshal_windsorAI->AddWaypoint(17, 403.61f, -51.71f, -63.92f, 2000);
-        marshal_windsorAI->AddWaypoint(18, 403.61f, -51.71f, -63.92f, 1000);
-        marshal_windsorAI->AddWaypoint(19, 403.61f, -51.71f, -63.92f, 0);
+        marshal_windsorAI->AddWaypoint(0, 316.336f, -225.528f, -77.7258f, 0.0f, Milliseconds(7000), false);
+        marshal_windsorAI->AddWaypoint(1, 316.336f, -225.528f, -77.7258f, 0.0f, Milliseconds(2000), false);
+        marshal_windsorAI->AddWaypoint(2, 322.96f, -207.13f, -77.87f, 0.0f, Milliseconds(0), false);
+        marshal_windsorAI->AddWaypoint(3, 281.05f, -172.16f, -75.12f, 0.0f, Milliseconds(0), false);
+        marshal_windsorAI->AddWaypoint(4, 272.19f, -139.14f, -70.61f, 0.0f, Milliseconds(0), false);
+        marshal_windsorAI->AddWaypoint(5, 283.62f, -116.09f, -70.21f, 0.0f, Milliseconds(0), false);
+        marshal_windsorAI->AddWaypoint(6, 296.18f, -94.30f, -74.08f, 0.0f, Milliseconds(0), false);
+        marshal_windsorAI->AddWaypoint(7, 294.57f, -93.11f, -74.08f, 0.0f, Milliseconds(0), false);
+        marshal_windsorAI->AddWaypoint(8, 314.31f, -74.31f, -76.09f, 0.0f, Milliseconds(0), false);
+        marshal_windsorAI->AddWaypoint(9, 360.22f, -62.93f, -66.77f, 0.0f, Milliseconds(0), false);
+        marshal_windsorAI->AddWaypoint(10, 383.38f, -69.40f, -63.25f, 0.0f, Milliseconds(0), false);
+        marshal_windsorAI->AddWaypoint(11, 389.99f, -67.86f, -62.57f, 0.0f, Milliseconds(0), false);
+        marshal_windsorAI->AddWaypoint(12, 400.98f, -72.01f, -62.31f, 0.0f, Milliseconds(0), false);
+        marshal_windsorAI->AddWaypoint(13, 404.22f, -62.30f, -63.50f, 0.0f, Milliseconds(2300), false);
+        marshal_windsorAI->AddWaypoint(14, 404.22f, -62.30f, -63.50f, 0.0f, Milliseconds(1500), false);
+        marshal_windsorAI->AddWaypoint(15, 407.65f, -51.86f, -63.96f, 0.0f, Milliseconds(0), false);
+        marshal_windsorAI->AddWaypoint(16, 403.61f, -51.71f, -63.92f, 0.0f, Milliseconds(1000), false);
+        marshal_windsorAI->AddWaypoint(17, 403.61f, -51.71f, -63.92f, 0.0f, Milliseconds(2000), false);
+        marshal_windsorAI->AddWaypoint(18, 403.61f, -51.71f, -63.92f, 0.0f, Milliseconds(1000), false);
+        marshal_windsorAI->AddWaypoint(19, 403.61f, -51.71f, -63.92f, 0.0f, Milliseconds(0), false);
 
         return marshal_windsorAI;
     }
@@ -728,7 +730,7 @@ public:
             PlayerStart = player;
             if (instance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED)
             {
-                CAST_AI(npc_escort::npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+                CAST_AI(npc_escort::EscortAI, (creature->AI()))->Start(true, player->GetGUID());
                 instance->SetData(DATA_QUEST_JAIL_BREAK, ENCOUNTER_STATE_IN_PROGRESS);
                 creature->setFaction(11);
             }
@@ -736,15 +738,16 @@ public:
         return false;
     }
 
-    struct npc_marshal_windsorAI : public npc_escortAI
+    struct npc_marshal_windsorAI : public EscortAI
     {
-        npc_marshal_windsorAI(Creature* creature) : npc_escortAI(creature)
+        npc_marshal_windsorAI(Creature* creature) : EscortAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             switch (waypointId)
             {
                 case 1:
@@ -841,7 +844,7 @@ public:
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
 };
@@ -881,53 +884,54 @@ public:
     {
         npc_marshal_reginald_windsorAI* marshal_reginald_windsorAI = new npc_marshal_reginald_windsorAI(creature);
 
-        marshal_reginald_windsorAI->AddWaypoint(0, 403.61f, -52.71f, -63.92f, 4000);
-        marshal_reginald_windsorAI->AddWaypoint(1, 403.61f, -52.71f, -63.92f, 4000);
-        marshal_reginald_windsorAI->AddWaypoint(2, 406.33f, -54.87f, -63.95f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(3, 407.99f, -73.91f, -62.26f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(4, 557.03f, -119.71f, -61.83f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(5, 573.40f, -124.39f, -65.07f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(6, 593.91f, -130.29f, -69.25f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(7, 593.21f, -132.16f, -69.25f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(8, 593.21f, -132.16f, -69.25f, 3000);
-        marshal_reginald_windsorAI->AddWaypoint(9, 622.81f, -135.55f, -71.92f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(10, 634.68f, -151.29f, -70.32f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(11, 635.06f, -153.25f, -70.32f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(12, 635.06f, -153.25f, -70.32f, 3000);
-        marshal_reginald_windsorAI->AddWaypoint(13, 635.06f, -153.25f, -70.32f, 1500);
-        marshal_reginald_windsorAI->AddWaypoint(14, 655.25f, -172.39f, -73.72f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(15, 654.79f, -226.30f, -83.06f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(16, 622.85f, -268.85f, -83.96f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(17, 579.45f, -275.56f, -80.44f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(18, 561.19f, -266.85f, -75.59f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(19, 547.91f, -253.92f, -70.34f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(20, 549.20f, -252.40f, -70.34f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(21, 549.20f, -252.40f, -70.34f, 4000);
-        marshal_reginald_windsorAI->AddWaypoint(22, 555.33f, -269.16f, -74.40f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(23, 554.31f, -270.88f, -74.40f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(24, 554.31f, -270.88f, -74.40f, 4000);
-        marshal_reginald_windsorAI->AddWaypoint(25, 536.10f, -249.60f, -67.47f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(26, 520.94f, -216.65f, -59.28f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(27, 505.99f, -148.74f, -62.17f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(28, 484.21f, -56.24f, -62.43f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(29, 470.39f, -6.01f, -70.10f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(30, 451.27f, 30.85f, -70.07f, 0);
-        marshal_reginald_windsorAI->AddWaypoint(31, 452.45f, 29.85f, -70.37f, 1500);
-        marshal_reginald_windsorAI->AddWaypoint(32, 452.45f, 29.85f, -70.37f, 7000);
-        marshal_reginald_windsorAI->AddWaypoint(33, 452.45f, 29.85f, -70.37f, 10000);
-        marshal_reginald_windsorAI->AddWaypoint(34, 451.27f, 31.85f, -70.07f, 0);
+        marshal_reginald_windsorAI->AddWaypoint(0, 403.61f, -52.71f, -63.92f, 0.0f, Milliseconds(4000), false);
+        marshal_reginald_windsorAI->AddWaypoint(1, 403.61f, -52.71f, -63.92f, 0.0f, Milliseconds(4000), false);
+        marshal_reginald_windsorAI->AddWaypoint(2, 406.33f, -54.87f, -63.95f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(3, 407.99f, -73.91f, -62.26f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(4, 557.03f, -119.71f, -61.83f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(5, 573.40f, -124.39f, -65.07f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(6, 593.91f, -130.29f, -69.25f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(7, 593.21f, -132.16f, -69.25f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(8, 593.21f, -132.16f, -69.25f, 0.0f, Milliseconds(3000), false);
+        marshal_reginald_windsorAI->AddWaypoint(9, 622.81f, -135.55f, -71.92f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(10, 634.68f, -151.29f, -70.32f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(11, 635.06f, -153.25f, -70.32f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(12, 635.06f, -153.25f, -70.32f, 0.0f, Milliseconds(3000), false);
+        marshal_reginald_windsorAI->AddWaypoint(13, 635.06f, -153.25f, -70.32f, 0.0f, Milliseconds(1500), false);
+        marshal_reginald_windsorAI->AddWaypoint(14, 655.25f, -172.39f, -73.72f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(15, 654.79f, -226.30f, -83.06f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(16, 622.85f, -268.85f, -83.96f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(17, 579.45f, -275.56f, -80.44f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(18, 561.19f, -266.85f, -75.59f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(19, 547.91f, -253.92f, -70.34f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(20, 549.20f, -252.40f, -70.34f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(21, 549.20f, -252.40f, -70.34f, 0.0f, Milliseconds(4000), false);
+        marshal_reginald_windsorAI->AddWaypoint(22, 555.33f, -269.16f, -74.40f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(23, 554.31f, -270.88f, -74.40f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(24, 554.31f, -270.88f, -74.40f, 0.0f, Milliseconds(4000), false);
+        marshal_reginald_windsorAI->AddWaypoint(25, 536.10f, -249.60f, -67.47f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(26, 520.94f, -216.65f, -59.28f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(27, 505.99f, -148.74f, -62.17f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(28, 484.21f, -56.24f, -62.43f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(29, 470.39f, -6.01f, -70.10f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(30, 451.27f, 30.85f, -70.07f, 0.0f, Milliseconds(0), false);
+        marshal_reginald_windsorAI->AddWaypoint(31, 452.45f, 29.85f, -70.37f, 0.0f, Milliseconds(1500), false);
+        marshal_reginald_windsorAI->AddWaypoint(32, 452.45f, 29.85f, -70.37f, 0.0f, Milliseconds(7000), false);
+        marshal_reginald_windsorAI->AddWaypoint(33, 452.45f, 29.85f, -70.37f, 0.0f, Milliseconds(10000), false);
+        marshal_reginald_windsorAI->AddWaypoint(34, 451.27f, 31.85f, -70.07f, 0.0f, Milliseconds(0), false);
 
         return marshal_reginald_windsorAI;
     }
 
-    struct npc_marshal_reginald_windsorAI : public npc_escortAI
+    struct npc_marshal_reginald_windsorAI : public EscortAI
     {
-        npc_marshal_reginald_windsorAI(Creature* creature) : npc_escortAI(creature)
+        npc_marshal_reginald_windsorAI(Creature* creature) : EscortAI(creature)
         {
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             wp = waypointId;
             switch (waypointId)
             {
@@ -998,7 +1002,7 @@ public:
                     if (me->IsWithinDistInMap(who, Radius))
                     {
                         SetEscortPaused(false);
-                        Start(true, false, who->GetGUID());
+                        Start(true, who->GetGUID());
                     }
                 }
             }
@@ -1072,7 +1076,7 @@ public:
                 }
             }
             if (instance->GetData(DATA_TOBIAS) == ENCOUNTER_STATE_OBJECTIVE_COMPLETED) SetEscortPaused(false);
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
 };
@@ -1106,7 +1110,7 @@ public:
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
         {
             player->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_escort::npc_escortAI, (creature->AI()))->Start(false, true, player->GetGUID());
+            CAST_AI(npc_escort::EscortAI, (creature->AI()))->SetRun(true); CAST_AI(npc_escort::EscortAI, (creature->AI()))->Start(false, player->GetGUID());
             creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             instance->SetData(DATA_TOBIAS, ENCOUNTER_STATE_IN_PROGRESS);
         }
@@ -1123,9 +1127,9 @@ public:
         return true;
     }
 
-    struct npc_tobias_seecherAI : public npc_escortAI
+    struct npc_tobias_seecherAI : public EscortAI
     {
-        npc_tobias_seecherAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_tobias_seecherAI(Creature* creature) : EscortAI(creature) { }
 
         void JustEngagedWith(Unit* who) override { }
         void Reset() override { }
@@ -1141,8 +1145,9 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             switch (waypointId)
             {
                 case 0:
@@ -1177,7 +1182,7 @@ public:
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
 };
@@ -1227,8 +1232,8 @@ public:
                 creature->AI()->Talk(SAY_GOT_BEER);
                 creature->CastSpell(creature, SPELL_DRUNKEN_RAGE, false);
 
-                if (npc_escortAI* escortAI = CAST_AI(npc_rocknot::npc_rocknotAI, creature->AI()))
-                    escortAI->Start(false, false);
+                if (EscortAI* escortAI = CAST_AI(npc_rocknot::npc_rocknotAI, creature->AI()))
+                    escortAI->Start(false);
             }
         }
 
@@ -1240,9 +1245,9 @@ public:
         return new npc_rocknotAI(creature);
     }
 
-    struct npc_rocknotAI : public npc_escortAI
+    struct npc_rocknotAI : public EscortAI
     {
-        npc_rocknotAI(Creature* creature) : npc_escortAI(creature)
+        npc_rocknotAI(Creature* creature) : EscortAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -1267,8 +1272,9 @@ public:
                 go->SetGoState((GOState)state);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             if (!instance)
                 return;
 
@@ -1327,7 +1333,7 @@ public:
                 } else BreakDoor_Timer -= diff;
             }
 
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
 };

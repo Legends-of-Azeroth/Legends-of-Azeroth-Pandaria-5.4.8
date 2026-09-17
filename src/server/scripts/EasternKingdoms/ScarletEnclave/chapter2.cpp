@@ -197,15 +197,15 @@ public:
         {
             creature->SetStandState(UNIT_STAND_STATE_STAND);
 
-            if (npc_escortAI* escortAI = CAST_AI(npc_koltira_deathweaver::npc_koltira_deathweaverAI, creature->AI()))
-                escortAI->Start(false, false, player->GetGUID());
+            if (EscortAI* escortAI = CAST_AI(npc_koltira_deathweaver::npc_koltira_deathweaverAI, creature->AI()))
+                escortAI->Start(false, player->GetGUID());
         }
         return true;
     }
 
-    struct npc_koltira_deathweaverAI : public npc_escortAI
+    struct npc_koltira_deathweaverAI : public EscortAI
     {
-        npc_koltira_deathweaverAI(Creature* creature) : npc_escortAI(creature)
+        npc_koltira_deathweaverAI(Creature* creature) : EscortAI(creature)
         {
             me->SetReactState(REACT_DEFENSIVE);
         }
@@ -224,8 +224,9 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             switch (waypointId)
             {
                 case 0:
@@ -277,7 +278,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (HasEscortState(STATE_ESCORT_PAUSED))
             {

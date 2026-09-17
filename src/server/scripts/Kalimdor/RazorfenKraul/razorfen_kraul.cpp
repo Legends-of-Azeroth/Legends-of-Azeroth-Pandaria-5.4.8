@@ -50,7 +50,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_WILLIX_THE_IMPORTER)
         {
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+            CAST_AI(EscortAI, (creature->AI()))->Start(true, player->GetGUID());
             creature->AI()->Talk(SAY_READY, player);
             creature->SetFaction(113);
         }
@@ -63,12 +63,13 @@ public:
         return new npc_willixAI(creature);
     }
 
-    struct npc_willixAI : public npc_escortAI
+    struct npc_willixAI : public EscortAI
     {
-        npc_willixAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_willixAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;

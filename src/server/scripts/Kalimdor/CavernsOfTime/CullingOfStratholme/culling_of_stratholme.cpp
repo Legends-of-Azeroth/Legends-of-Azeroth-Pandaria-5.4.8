@@ -234,7 +234,7 @@ class npc_arthas : public CreatureScript
             switch (action)
             {
                 case GOSSIP_ACTION_INFO_DEF:
-                    pAI->Start(true, true, player->GetGUID(), 0, false, false);
+                    pAI->SetRun(true); pAI->Start(true, player->GetGUID(), 0, false, false);
                     pAI->SetDespawnAtEnd(false);
                     pAI->bStepping = false;
                     pAI->uiStep = 1;
@@ -242,7 +242,7 @@ class npc_arthas : public CreatureScript
                 case GOSSIP_ACTION_INFO_DEF+1:
                     if (pAI->respawned)
                     {
-                        pAI->Start(true, true, ObjectGuid::Empty, 0, false, false);
+                        pAI->SetRun(true); pAI->Start(true, ObjectGuid::Empty, 0, false, false);
                         pAI->SetNextWaypoint(9, false);
                         pAI->respawned = false;
                     }
@@ -256,7 +256,7 @@ class npc_arthas : public CreatureScript
                 case GOSSIP_ACTION_INFO_DEF+3:
                     if (pAI->respawned)
                     {
-                        pAI->Start(true, true, ObjectGuid::Empty, 0, false, false);
+                        pAI->SetRun(true); pAI->Start(true, ObjectGuid::Empty, 0, false, false);
                         pAI->SetNextWaypoint(21, false);
                         pAI->respawned = false;
                     }
@@ -270,7 +270,7 @@ class npc_arthas : public CreatureScript
                 case GOSSIP_ACTION_INFO_DEF+5:
                     if (pAI->respawned)
                     {
-                        pAI->Start(true, true, ObjectGuid::Empty, 0, false, false);
+                        pAI->SetRun(true); pAI->Start(true, ObjectGuid::Empty, 0, false, false);
                         pAI->respawned = false;
                         pAI->SetNextWaypoint(46, false);
                     }
@@ -282,7 +282,7 @@ class npc_arthas : public CreatureScript
                     pAI->uiStep = 85;
                     break;
                 case GOSSIP_ACTION_INFO_DEF+7:
-                    pAI->Start(true, true, player->GetGUID(), 0, false, false);
+                    pAI->SetRun(true); pAI->Start(true, player->GetGUID(), 0, false, false);
                     pAI->SetDespawnAtEnd(false);
                     pAI->bStepping = false;
                     pAI->uiStep = 22;
@@ -346,9 +346,9 @@ class npc_arthas : public CreatureScript
             return true;
         }
 
-        struct npc_arthasAI : public npc_escortAI
+        struct npc_arthasAI : public EscortAI
         {
-            npc_arthasAI(Creature* creature) : npc_escortAI(creature)
+            npc_arthasAI(Creature* creature) : EscortAI(creature)
             {
                 instance = creature->GetInstanceScript();
                 Reset();
@@ -480,8 +480,9 @@ class npc_arthas : public CreatureScript
                 instance->SetData(DATA_ARTHAS_STEP, uiStep);
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void MovementInform(uint32 type, uint32 waypointId) override
             {
+                EscortAI::MovementInform(type, waypointId);
                 switch (waypointId)
                 {
                     case 0:
@@ -602,7 +603,7 @@ class npc_arthas : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 DoMeleeAttackIfReady();
 
@@ -994,7 +995,7 @@ class npc_arthas : public CreatureScript
                                         }
                                     }
                                     else if (instance->GetData(uiBossEvent) == FAIL)
-                                        npc_escortAI::EnterEvadeMode();
+                                        EscortAI::EnterEvadeMode();
                                     else
                                         uiPhaseTimer = 10000;
                                 }
@@ -1161,7 +1162,7 @@ class npc_arthas : public CreatureScript
                                         JumpToNextStep(15000);
                                     }
                                     else if (instance->GetData(DATA_EPOCH_EVENT) == FAIL)
-                                        npc_escortAI::EnterEvadeMode();
+                                        EscortAI::EnterEvadeMode();
                                     else
                                         uiPhaseTimer = 10000;
                                 }
@@ -1210,7 +1211,7 @@ class npc_arthas : public CreatureScript
                                         JumpToNextStep(1000);
                                     }
                                     else if (instance->GetData(DATA_MAL_GANIS_EVENT) == FAIL)
-                                        npc_escortAI::EnterEvadeMode();
+                                        EscortAI::EnterEvadeMode();
                                     else
                                         uiPhaseTimer = 10000;
                                 }

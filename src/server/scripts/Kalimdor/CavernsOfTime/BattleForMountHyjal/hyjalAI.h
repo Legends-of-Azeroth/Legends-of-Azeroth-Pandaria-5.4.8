@@ -118,7 +118,7 @@ enum YellId
     DEATH        = 6,                                       // Used on death
 };
 
-struct hyjalAI : public npc_escortAI
+struct hyjalAI : public EscortAI
 {
     hyjalAI(Creature* creature);
 
@@ -145,7 +145,7 @@ struct hyjalAI : public npc_escortAI
     void SummonedCreatureDespawn(Creature* summoned) override;
     void HideNearPos(float x, float y);
     void RespawnNearPos(float x, float y);
-    void WaypointReached(uint32 waypointId) override;
+    void MovementInform(uint32 type, uint32 waypointId) override;
     void DoOverrun(uint32 faction, const uint32 diff);
     void MoveInLineOfSight(Unit* who) override;
 
