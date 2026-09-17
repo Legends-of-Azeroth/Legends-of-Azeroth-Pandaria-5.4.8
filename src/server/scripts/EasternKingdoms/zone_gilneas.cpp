@@ -1700,31 +1700,13 @@ public:
             creature->SetReactState(REACT_PASSIVE);
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-            TC_LOG_INFO("scripts", "WAHL DIAG: constructor, reactState={}, flags={:x}", (int)creature->GetReactState(), creature->GetUInt32Value(UNIT_FIELD_FLAGS));
         }
 
         void MoveInLineOfSight(Unit* who) override
         {
-            TC_LOG_INFO("scripts", "WAHL DIAG: MoveInLineOfSight who={} entry={}, reactState={}, passive={}", who ? who->GetName().c_str() : "null", who ? who->GetEntry() : 0, (int)me->GetReactState(), me->HasReactState(REACT_PASSIVE));
             if (me->HasReactState(REACT_PASSIVE))
                 return;
             EscortAI::MoveInLineOfSight(who);
-        }
-
-        uint32 uiDiagTimer = 3000;
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (uiDiagTimer <= diff)
-            {
-                uiDiagTimer = 3000;
-                TC_LOG_INFO("scripts", "WAHL DIAG: reactState={}, inCombat={}, victim={}, pos=({:.1f},{:.1f})",
-                    (int)me->GetReactState(), me->IsInCombat(), me->GetVictim() ? me->GetVictim()->GetEntry() : 0,
-                    me->GetPositionX(), me->GetPositionY());
-            }
-            else
-                uiDiagTimer -= diff;
-            EscortAI::UpdateAI(diff);
         }
 
         void DoAction(int32 const action) override
@@ -1740,7 +1722,6 @@ public:
 
         void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            TC_LOG_INFO("scripts", "WAHL DIAG: WaypointReached wp={}", waypointId);
             if (waypointId == 1)
                 if (me->IsSummon())
                     if (Unit* summoner = me->ToTempSummon()->GetSummoner())
