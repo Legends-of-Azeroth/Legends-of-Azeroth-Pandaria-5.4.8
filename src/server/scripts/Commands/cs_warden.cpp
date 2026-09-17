@@ -29,23 +29,23 @@ public:
     {
         static std::vector<ChatCommand> wardenInfoCommandTable =
         {
-            { "endscene",                   SEC_GAMEMASTER,      false, &HandleWardenInfoEndScene,                       },
+            { "endscene", &HandleWardenInfoEndScene, rbac::RBAC_PERM_COMMAND_WARDEN_INFO_ENDSCENE, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> wardenCommandTable =
         {
-            { "reload",                     SEC_ADMINISTRATOR,      true,   &HandleWardenReloadCommand,                     },
-            { "enable",                     SEC_GAMEMASTER,      false,  &HandleWardenEnableCommand,                     },
-            { "disable",                    SEC_GAMEMASTER,      false,  &HandleWardenDisableCommand,                    },
-            { "toggle",                     SEC_GAMEMASTER,      false,  &HandleWardenToggleCommand,                     },
-            { "check",                      SEC_GAMEMASTER,      false,  &HandleWardenCheckCommand,                      },
-            { "group",                      SEC_GAMEMASTER,      false,  &HandleWardenGroupCommand,                      },
-            { "direct",                     SEC_ADMINISTRATOR,      false,  &HandleWardenDirectCommand,                     },
-            { "list",                       SEC_GAMEMASTER,      true,   &HandleWardenListCommand,                       },
-            { "info",                       SEC_GAMEMASTER,      false,  wardenInfoCommandTable                          },
+            { "reload", &HandleWardenReloadCommand, rbac::RBAC_PERM_COMMAND_WARDEN_RELOAD, Trinity::ChatCommands::Console::Yes },
+            { "enable", &HandleWardenEnableCommand, rbac::RBAC_PERM_COMMAND_WARDEN_ENABLE, Trinity::ChatCommands::Console::No },
+            { "disable", &HandleWardenDisableCommand, rbac::RBAC_PERM_COMMAND_WARDEN_DISABLE, Trinity::ChatCommands::Console::No },
+            { "toggle", &HandleWardenToggleCommand, rbac::RBAC_PERM_COMMAND_WARDEN_TOGGLE, Trinity::ChatCommands::Console::No },
+            { "check", &HandleWardenCheckCommand, rbac::RBAC_PERM_COMMAND_WARDEN_CHECK, Trinity::ChatCommands::Console::No },
+            { "group", &HandleWardenGroupCommand, rbac::RBAC_PERM_COMMAND_WARDEN_GROUP, Trinity::ChatCommands::Console::No },
+            { "direct", &HandleWardenDirectCommand, rbac::RBAC_PERM_COMMAND_WARDEN_DIRECT, Trinity::ChatCommands::Console::No },
+            { "list", &HandleWardenListCommand, rbac::RBAC_PERM_COMMAND_WARDEN_LIST, Trinity::ChatCommands::Console::Yes },
+            { "info", wardenInfoCommandTable, rbac::RBAC_PERM_COMMAND_WARDEN_INFO, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "warden",                     SEC_GAMEMASTER,      true,   wardenCommandTable                              },
+            { "warden", wardenCommandTable, rbac::RBAC_PERM_COMMAND_WARDEN, Trinity::ChatCommands::Console::Yes },
         };
         return commandTable;
     }

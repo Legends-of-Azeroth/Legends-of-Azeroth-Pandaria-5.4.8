@@ -21,6 +21,7 @@
 #include "SharedDefines.h"
 #include "WorldSession.h"
 #include "Language.h"
+#include "ChatCommand.h"
 
 #include <vector>
 
@@ -33,24 +34,6 @@ class WorldSession;
 class WorldObject;
 
 struct GameTele;
-
-class ChatCommand
-{
-        typedef bool(*pHandler)(ChatHandler*, char const*);
-    public:
-        ChatCommand(char const* name, AccountTypes security, bool allowConsole, pHandler handler, std::string help = "", std::vector<ChatCommand> childCommands = std::vector<ChatCommand>())
-            : Name(name), SecurityLevel(security), AllowConsole(allowConsole), Handler(handler), Help(std::move(help)), ChildCommands(std::move(childCommands)) { }
-
-        ChatCommand(char const* name, AccountTypes security, bool allowConsole, std::vector<ChatCommand> childCommands)
-            : Name(name), SecurityLevel(security), AllowConsole(allowConsole), Handler(nullptr), ChildCommands(std::move(childCommands)) { }
-
-        char const*        Name;
-        uint32             SecurityLevel;                   // function pointer required correct align (use uint32)
-        bool               AllowConsole;
-        pHandler           Handler;
-        std::string        Help;
-        std::vector<ChatCommand> ChildCommands;
-};
 
 struct ChatCommandHolder;
 typedef std::shared_ptr<ChatCommandHolder> CommandHolder;
@@ -89,15 +72,14 @@ class ChatHandler
         std::string PGetParseString(int32 entry, ...) const;
         bool ParseCommands(const char* text);
 
-        static std::vector<ChatCommand> const& getCommandTable();
-
         bool isValidChatMessage(const char* msg);
         void SendGlobalSysMessage(const char *str);
 
         bool hasStringAbbr(const char* name, const char* part);
 
-        // function with different implementation for chat/console
-        virtual bool isAvailable(ChatCommand const& cmd) const;
+        bool IsConsole() const { return !m_session; }
+        virtual bool HasPermission(uint32 permission) const;
+
         virtual std::string GetNameLink() const { return GetNameLink(m_session->GetPlayer()); }
         virtual bool needReportToTarget(Player* chr) const;
         virtual LocaleConstant GetSessionDbcLocale() const;
@@ -139,7 +121,6 @@ class ChatHandler
         static bool LoadCommandTable() { return load_command_table; }
         static void SetLoadCommandTable(bool val) { load_command_table = val; }
 
-        bool ShowHelpForCommand(std::vector<ChatCommand> const& table, const char* cmd);
         void SecureLevelAnnounce(AccountTypes sec, const char* args);
 
         static bool ValidatePipeSequence(std::string const& text);
@@ -148,9 +129,6 @@ class ChatHandler
 
     protected:
         explicit ChatHandler() : m_session(NULL), sentErrorMessage(false) { }     // for CLI subclass
-        static bool SetDataForCommandInTable(std::vector<ChatCommand>& table, const char* text, uint32 security, std::string const& help, std::string const& fullcommand);
-        bool ExecuteCommandInTable(std::vector<ChatCommand> const& table, const char* text, std::string const& fullcmd);
-        bool ShowHelpForSubCommands(std::vector<ChatCommand> const& table, char const* cmd, char const* subcmd);
 
     private:
         WorldSession* m_session;                           // != NULL for chat command call and NULL for CLI command
@@ -207,13 +185,12 @@ class CliHandler : public ChatHandler
 {
     public:
         typedef void Print(void*, char const*);
+        CliHandler() : m_callbackArg(nullptr), m_print(nullptr), m_holder(nullptr) { }
         explicit CliHandler(CliCommandHolder* holder) :
             m_callbackArg(holder->m_callbackArg), m_print(holder->m_print), m_holder(holder), m_hptr((ChatCommandHolder*)holder) { }
 
-        // overwrite functions
         const char *GetTrinityString(int32 entry) const;
-        bool isAvailable(ChatCommand const& cmd) const;
-        bool HasPermission(uint32 /*permission*/) const { return true; }
+        bool HasPermission(uint32) const override { return true; }
         void SendSysMessage(const char *str);
         std::string GetNameLink() const;
         bool needReportToTarget(Player* chr) const;

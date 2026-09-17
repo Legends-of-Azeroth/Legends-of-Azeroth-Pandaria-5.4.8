@@ -46,38 +46,38 @@ public:
     {
         static std::vector<ChatCommand> mmapEnableCommandTable =
         {
-            { "map",            SEC_GAMEMASTER,     false, &HandleMmapEnableMapCommand,         },
-            { "zone",           SEC_GAMEMASTER,     false, &HandleMmapEnableZoneCommand,        },
-            { "area",           SEC_GAMEMASTER,     false, &HandleMmapEnableAreaCommand,        },
-            { "creature",       SEC_GAMEMASTER,     false, &HandleMmapEnableCreatureCommand,    },
-            { "",               SEC_GAMEMASTER,     false, &HandleMmapEnableCommand,            },
+            { "map", &HandleMmapEnableMapCommand, rbac::RBAC_PERM_COMMAND_MMAP_ENABLE_MAP, Trinity::ChatCommands::Console::No },
+            { "zone", &HandleMmapEnableZoneCommand, rbac::RBAC_PERM_COMMAND_MMAP_ENABLE_ZONE, Trinity::ChatCommands::Console::No },
+            { "area", &HandleMmapEnableAreaCommand, rbac::RBAC_PERM_COMMAND_MMAP_ENABLE_AREA, Trinity::ChatCommands::Console::No },
+            { "creature", &HandleMmapEnableCreatureCommand, rbac::RBAC_PERM_COMMAND_MMAP_ENABLE_CREATURE, Trinity::ChatCommands::Console::No },
+            { "", &HandleMmapEnableCommand, rbac::RBAC_PERM_COMMAND_MMAP_ENABLE, Trinity::ChatCommands::Console::No },
         };
 
         static std::vector<ChatCommand> mmapDisableCommandTable =
         {
-            { "map",            SEC_GAMEMASTER,     false, &HandleMmapDisableMapCommand,        },
-            { "zone",           SEC_GAMEMASTER,     false, &HandleMmapDisableZoneCommand,       },
-            { "area",           SEC_GAMEMASTER,     false, &HandleMmapDisableAreaCommand,       },
-            { "creature",       SEC_GAMEMASTER,     false, &HandleMmapDisableCreatureCommand,   },
-            { "",               SEC_GAMEMASTER,     false, &HandleMmapDisableCommand,           },
+            { "map", &HandleMmapDisableMapCommand, rbac::RBAC_PERM_COMMAND_MMAP_DISABLE_MAP, Trinity::ChatCommands::Console::No },
+            { "zone", &HandleMmapDisableZoneCommand, rbac::RBAC_PERM_COMMAND_MMAP_DISABLE_ZONE, Trinity::ChatCommands::Console::No },
+            { "area", &HandleMmapDisableAreaCommand, rbac::RBAC_PERM_COMMAND_MMAP_DISABLE_AREA, Trinity::ChatCommands::Console::No },
+            { "creature", &HandleMmapDisableCreatureCommand, rbac::RBAC_PERM_COMMAND_MMAP_DISABLE_CREATURE, Trinity::ChatCommands::Console::No },
+            { "", &HandleMmapDisableCommand, rbac::RBAC_PERM_COMMAND_MMAP_DISABLE, Trinity::ChatCommands::Console::No },
         };
 
         static std::vector<ChatCommand> mmapCommandTable =
         {
-            { "loadedtiles",    SEC_GAMEMASTER,     false, &HandleMmapLoadedTilesCommand,   },
-            { "loc",            SEC_GAMEMASTER,     false, &HandleMmapLocCommand,           },
-            { "path",           SEC_GAMEMASTER,     false, &HandleMmapPathCommand,          },
-            { "stats",          SEC_GAMEMASTER,     false, &HandleMmapStatsCommand,         },
-            { "testarea",       SEC_GAMEMASTER,     false, &HandleMmapTestArea,             },
-            { "enable",         SEC_GAMEMASTER,     false, mmapEnableCommandTable           },
-            { "disable",        SEC_GAMEMASTER,     false, mmapDisableCommandTable          },
-            { "visualize",      SEC_GAMEMASTER,     false, &HandleMmapVisualizeCommand,     },
-            
+            { "loadedtiles", &HandleMmapLoadedTilesCommand, rbac::RBAC_PERM_COMMAND_MMAP_LOADEDTILES, Trinity::ChatCommands::Console::No },
+            { "loc",            &HandleMmapLocCommand,           rbac::RBAC_PERM_COMMAND_MMAP_LOC,      Trinity::ChatCommands::Console::No },
+            { "path",           &HandleMmapPathCommand,          rbac::RBAC_PERM_COMMAND_MMAP_PATH,     Trinity::ChatCommands::Console::No },
+            { "stats",          &HandleMmapStatsCommand,         rbac::RBAC_PERM_COMMAND_MMAP_STATS,    Trinity::ChatCommands::Console::No },
+            { "testarea",       &HandleMmapTestArea,             rbac::RBAC_PERM_COMMAND_MMAP_TESTAREA, Trinity::ChatCommands::Console::No },
+            { "enable", mmapEnableCommandTable, rbac::RBAC_PERM_COMMAND_MMAP_ENABLE, Trinity::ChatCommands::Console::No },
+            { "disable", mmapDisableCommandTable, rbac::RBAC_PERM_COMMAND_MMAP_DISABLE, Trinity::ChatCommands::Console::No },
+            { "visualize", &HandleMmapVisualizeCommand, rbac::RBAC_PERM_COMMAND_MMAP_VISUALIZE, Trinity::ChatCommands::Console::No },
+
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "mmap",           SEC_GAMEMASTER,     true,  mmapCommandTable                 },
+            { "mmap",           mmapCommandTable,                 rbac::RBAC_PERM_COMMAND_MMAP,          Trinity::ChatCommands::Console::Yes },
         };
         return commandTable;
     }

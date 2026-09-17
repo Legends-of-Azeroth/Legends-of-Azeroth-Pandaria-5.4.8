@@ -1,5 +1,5 @@
 /*
-* This file is part of the Legends of Azeroth Pandria Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -946,6 +946,7 @@ class TC_GAME_API World
         AccountTypes GetPlayerSecurityLimit() const { return m_allowedSecurityLevel; }
         void SetPlayerSecurityLimit(AccountTypes sec);
         void LoadDBAllowedSecurityLevel();
+        void ReloadRBAC();
 
         /// Active session server limit
         void SetPlayerAmountLimit(uint32 limit) { m_playerLimit = limit; }

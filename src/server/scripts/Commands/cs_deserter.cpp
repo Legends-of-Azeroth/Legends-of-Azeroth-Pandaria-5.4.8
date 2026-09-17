@@ -47,23 +47,23 @@ public:
     {
         static std::vector<ChatCommand> deserterInstanceCommandTable =
         {
-            { "add",        SEC_GAMEMASTER, false,  &HandleDeserterInstanceAdd,     },
-            { "remove",     SEC_GAMEMASTER, false,  &HandleDeserterInstanceRemove,  },
+            { "add",        &HandleDeserterInstanceAdd,     rbac::RBAC_PERM_COMMAND_DESERTER_INSTANCE_ADD,    Trinity::ChatCommands::Console::No },
+            { "remove",     &HandleDeserterInstanceRemove,  rbac::RBAC_PERM_COMMAND_DESERTER_INSTANCE_REMOVE, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> deserterBGCommandTable =
         {
-            { "add",        SEC_GAMEMASTER, false,  &HandleDeserterBGAdd,           },
-            { "remove",     SEC_GAMEMASTER, false,  &HandleDeserterBGRemove,        },
+            { "add",        &HandleDeserterBGAdd,           rbac::RBAC_PERM_COMMAND_DESERTER_BG_ADD,          Trinity::ChatCommands::Console::No },
+            { "remove",     &HandleDeserterBGRemove,        rbac::RBAC_PERM_COMMAND_DESERTER_BG_REMOVE,       Trinity::ChatCommands::Console::No },
         };
 
         static std::vector<ChatCommand> deserterCommandTable =
         {
-            { "instance",   SEC_GAMEMASTER, false,  deserterInstanceCommandTable    },
-            { "bg",         SEC_GAMEMASTER, false,  deserterBGCommandTable          },
+            { "instance", deserterInstanceCommandTable, rbac::RBAC_PERM_COMMAND_DESERTER_INSTANCE, Trinity::ChatCommands::Console::No },
+            { "bg", deserterBGCommandTable, rbac::RBAC_PERM_COMMAND_DESERTER_BG, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "deserter", SEC_GAMEMASTER,   false, deserterCommandTable             },
+            { "deserter", deserterCommandTable, rbac::RBAC_PERM_COMMAND_DESERTER, Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

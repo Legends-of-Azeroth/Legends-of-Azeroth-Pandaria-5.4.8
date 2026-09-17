@@ -41,40 +41,40 @@ public:
     {
         static std::vector<ChatCommand> unbanCommandTable =
         {
-            { "account",        SEC_GAMEMASTER,  true,   &HandleUnBanAccountCommand,         },
-            { "character",      SEC_GAMEMASTER,  true,   &HandleUnBanCharacterCommand,       },
-            { "playeraccount",  SEC_GAMEMASTER,  true,   &HandleUnBanAccountByCharCommand,   },
-            { "ip",             SEC_GAMEMASTER,  true,   &HandleUnBanIPCommand,              },
-            { "solo",           SEC_GAMEMASTER,  true,   &HandleUnBanSoloCommand             },
+            { "account",        &HandleUnBanAccountCommand,         rbac::RBAC_PERM_COMMAND_UNBAN_ACCOUNT,       Trinity::ChatCommands::Console::Yes },
+            { "character",      &HandleUnBanCharacterCommand,       rbac::RBAC_PERM_COMMAND_UNBAN_CHARACTER,     Trinity::ChatCommands::Console::Yes },
+            { "playeraccount",  &HandleUnBanAccountByCharCommand,   rbac::RBAC_PERM_COMMAND_UNBAN_PLAYERACCOUNT, Trinity::ChatCommands::Console::Yes },
+            { "ip",             &HandleUnBanIPCommand,              rbac::RBAC_PERM_COMMAND_UNBAN_IP,            Trinity::ChatCommands::Console::Yes },
+            { "solo", &HandleUnBanSoloCommand, rbac::RBAC_PERM_COMMAND_UNBAN_SOLO, Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> banlistCommandTable =
         {
-            { "account",        SEC_GAMEMASTER,  true,   &HandleBanListAccountCommand,       },
-            { "character",      SEC_GAMEMASTER,  true,   &HandleBanListCharacterCommand,     },
-            { "ip",             SEC_GAMEMASTER,  true,   &HandleBanListIPCommand,            },
-            
+            { "account",        &HandleBanListAccountCommand,       rbac::RBAC_PERM_COMMAND_BANLIST_ACCOUNT,     Trinity::ChatCommands::Console::Yes },
+            { "character",      &HandleBanListCharacterCommand,     rbac::RBAC_PERM_COMMAND_BANLIST_CHARACTER,   Trinity::ChatCommands::Console::Yes },
+            { "ip",             &HandleBanListIPCommand,            rbac::RBAC_PERM_COMMAND_BANLIST_IP,          Trinity::ChatCommands::Console::Yes },
+
         };
         static std::vector<ChatCommand> baninfoCommandTable =
         {
-            { "account",        SEC_GAMEMASTER,  true,   &HandleBanInfoAccountCommand,       },
-            { "character",      SEC_GAMEMASTER,  true,   &HandleBanInfoCharacterCommand,     },
-            { "ip",             SEC_GAMEMASTER,  true,   &HandleBanInfoIPCommand,            },
-            
+            { "account",        &HandleBanInfoAccountCommand,       rbac::RBAC_PERM_COMMAND_BANINFO_ACCOUNT,     Trinity::ChatCommands::Console::Yes },
+            { "character",      &HandleBanInfoCharacterCommand,     rbac::RBAC_PERM_COMMAND_BANINFO_CHARACTER,   Trinity::ChatCommands::Console::Yes },
+            { "ip",             &HandleBanInfoIPCommand,            rbac::RBAC_PERM_COMMAND_BANINFO_IP,          Trinity::ChatCommands::Console::Yes },
+
         };
         static std::vector<ChatCommand> banCommandTable =
         {
-            { "account",        SEC_GAMEMASTER,  true,   &HandleBanAccountCommand,           },
-            { "character",      SEC_GAMEMASTER,  true,   &HandleBanCharacterCommand,         },
-            { "playeraccount",  SEC_GAMEMASTER,  true,   &HandleBanAccountByCharCommand,     },
-            { "ip",             SEC_GAMEMASTER,  true,   &HandleBanIPCommand,                },
-            { "solo",           SEC_GAMEMASTER,  true,   &HandleBanSoloCommand               },
+            { "account",        &HandleBanAccountCommand,           rbac::RBAC_PERM_COMMAND_BAN_ACCOUNT,         Trinity::ChatCommands::Console::Yes },
+            { "character",      &HandleBanCharacterCommand,         rbac::RBAC_PERM_COMMAND_BAN_CHARACTER,       Trinity::ChatCommands::Console::Yes },
+            { "playeraccount",  &HandleBanAccountByCharCommand,     rbac::RBAC_PERM_COMMAND_BAN_PLAYERACCOUNT,   Trinity::ChatCommands::Console::Yes },
+            { "ip",             &HandleBanIPCommand,                rbac::RBAC_PERM_COMMAND_BAN_IP,              Trinity::ChatCommands::Console::Yes },
+            { "solo", &HandleBanSoloCommand, rbac::RBAC_PERM_COMMAND_BAN_SOLO, Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "ban",            SEC_GAMEMASTER,  true,   banCommandTable                     },
-            { "baninfo",        SEC_GAMEMASTER,  true,   baninfoCommandTable                 },
-            { "banlist",        SEC_GAMEMASTER,  true,   banlistCommandTable                 },
-            { "unban",          SEC_GAMEMASTER,  true,   unbanCommandTable                   },
+            { "ban", banCommandTable, rbac::RBAC_PERM_COMMAND_BAN, Trinity::ChatCommands::Console::Yes },
+            { "baninfo", baninfoCommandTable, rbac::RBAC_PERM_COMMAND_BANINFO, Trinity::ChatCommands::Console::Yes },
+            { "banlist", banlistCommandTable, rbac::RBAC_PERM_COMMAND_BANLIST, Trinity::ChatCommands::Console::Yes },
+            { "unban", unbanCommandTable, rbac::RBAC_PERM_COMMAND_UNBAN, Trinity::ChatCommands::Console::Yes },
         };
         return commandTable;
     }

@@ -27,6 +27,7 @@
 #include "GuildMgr.h"
 #include "Language.h"
 #include "Log.h"
+#include "RBAC.h"
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
 #include "Opcodes.h"
@@ -1223,7 +1224,7 @@ void Guild::BankMoveItemData::LogAction(MoveItemData* pFrom, bool split) const
     MoveItemData::LogAction(pFrom, split);
     if (!pFrom->IsBank()) /// @todo Move this to scripts
     {
-        if (sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE) && m_pPlayer->GetSession()->GetSecurity() > SEC_PLAYER)
+        if (m_pPlayer->GetSession()->HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
             sLog->OutCommand(m_pPlayer->GetSession()->GetAccountId(),
             "GM {} (Guid: {}) (Account: {}) deposit item: {} (Entry: {} Count: {}) to guild bank named: {} (Guild ID: {})",
             m_pPlayer->GetName().c_str(), m_pPlayer->GetGUID().GetCounter(), m_pPlayer->GetSession()->GetAccountId(),
@@ -2463,7 +2464,7 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool 
 
     SendEventBankMoneyChanged();
 
-    if (sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE) && player->GetSession()->GetSecurity() > SEC_PLAYER)
+    if (player->GetSession()->HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
     {
         sLog->OutCommand(player->GetSession()->GetAccountId(),
             "GM {} (Account: {}) deposit money (Amount: " "{}" ") to guild bank (Guild ID %u)",

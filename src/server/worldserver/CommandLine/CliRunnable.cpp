@@ -25,7 +25,7 @@
 #include "Util.h"
 
 #if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
-//#include "ChatCommand.h"
+#include "ChatCommand.h"
 #include <cstring>
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -53,43 +53,12 @@ namespace Trinity::Impl::Readline
             return nullptr;
     }
 
-    char* command_finder(const char* text, int state)
-    {
-        static int idx, len;
-        const char* ret;
-        std::vector<ChatCommand> const& cmd = ChatHandler::getCommandTable();
-
-        if (!state)
-        {
-            idx = 0;
-            len = strlen(text);
-        }
-
-        while (idx < cmd.size())
-        {
-            ret = cmd[idx].Name;
-            if (!cmd[idx].AllowConsole)
-            {
-                ++idx;
-                continue;
-            }
-
-            ++idx;
-            //printf("Checking %s \n", cmd[idx].Name);
-            if (strncmp(ret, text, len) == 0)
-                return strdup(ret);
-        }
-
-        return ((char*)nullptr);
-    }
-
     char** cli_completion(char const* text, int /*start*/, int /*end*/)
     {
         ::rl_attempted_completion_over = 1;
-        // vec = Trinity::ChatCommands::GetAutoCompletionsFor(CliHandler(nullptr,nullptr), text);
-        // return ::rl_completion_matches(text, &cli_unpack_vector);
-
-        return ::rl_completion_matches((char*)text, &command_finder);  
+        CliHandler handler;
+        vec = Trinity::ChatCommands::GetAutoCompletionsFor(handler, text);
+        return ::rl_completion_matches(text, &cli_unpack_vector);
     }
 
     int cli_hook_func()

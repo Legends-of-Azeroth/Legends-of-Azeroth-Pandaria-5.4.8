@@ -40,37 +40,37 @@ public:
     {
         static std::vector<ChatCommand> accountSetSecTable =
         {
-            { "email",          SEC_ADMINISTRATOR,      true,  &HandleAccountSetEmailCommand        },
-        };      
+            { "email",          &HandleAccountSetEmailCommand, rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_EMAIL, Trinity::ChatCommands::Console::Yes },
+        };
         static std::vector<ChatCommand> accountLockCommandTable =
         {
-            { "country",        SEC_ADMINISTRATOR,      true,   &HandleAccountLockCountryCommand    },
-            { "ip",             SEC_ADMINISTRATOR,      true,   &HandleAccountLockIpCommand         },
+            { "country",        &HandleAccountLockCountryCommand, rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_COUNTRY, Trinity::ChatCommands::Console::Yes },
+            { "ip",             &HandleAccountLockIpCommand,      rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_IP,      Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> accountSetCommandTable =
         {
-            { "addon",          SEC_ADMINISTRATOR,      true,  &HandleAccountSetAddonCommand,       },
-            { "sec",            SEC_ADMINISTRATOR,      true,  accountSetSecTable                   },
-            { "gmlevel",        SEC_GAMEMASTER,         true,  &HandleAccountSetGmLevelCommand,     },
-            { "password",       SEC_ADMINISTRATOR,      true,  &HandleAccountSetPasswordCommand,    },
+            { "addon",          &HandleAccountSetAddonCommand,    rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_ADDON,    Trinity::ChatCommands::Console::Yes },
+            { "sec", accountSetSecTable, rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC, Trinity::ChatCommands::Console::Yes },
+            { "gmlevel", &HandleAccountSetGmLevelCommand, rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_GMLEVEL, Trinity::ChatCommands::Console::Yes },
+            { "password",       &HandleAccountSetPasswordCommand, rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD, Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> accountCommandTable =
         {
-            { "addon",          SEC_ADMINISTRATOR,      false, &HandleAccountAddonCommand,          },
-            { "create",         SEC_ADMINISTRATOR,      true,  &HandleAccountCreateCommand,         },
-            { "delete",         SEC_ADMINISTRATOR,      true,  &HandleAccountDeleteCommand,         },
-            { "email",          SEC_ADMINISTRATOR,      false, &HandleAccountEmailCommand,          },
-            { "onlinelist",     SEC_ADMINISTRATOR,      true,  &HandleAccountOnlineListCommand,     },
-            { "lock",           SEC_ADMINISTRATOR,      false, accountLockCommandTable              },
-            { "set",            SEC_ADMINISTRATOR,      true,  accountSetCommandTable               },
-            { "password",       SEC_ADMINISTRATOR,      false, &HandleAccountPasswordCommand,       },
-            { "boost",          SEC_ADMINISTRATOR,      true,  &HandleAccountBoostCommand,          },
-            { "",               SEC_ADMINISTRATOR,      false, &HandleAccountCommand,               },
+            { "addon",          &HandleAccountAddonCommand,      rbac::RBAC_PERM_COMMAND_ACCOUNT_ADDON,      Trinity::ChatCommands::Console::No },
+            { "create",         &HandleAccountCreateCommand,     rbac::RBAC_PERM_COMMAND_ACCOUNT_CREATE,     Trinity::ChatCommands::Console::Yes },
+            { "delete",         &HandleAccountDeleteCommand,     rbac::RBAC_PERM_COMMAND_ACCOUNT_DELETE,     Trinity::ChatCommands::Console::Yes },
+            { "email",          &HandleAccountEmailCommand,      rbac::RBAC_PERM_COMMAND_ACCOUNT_EMAIL,      Trinity::ChatCommands::Console::No },
+            { "onlinelist", &HandleAccountOnlineListCommand, rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINELIST, Trinity::ChatCommands::Console::Yes },
+            { "lock",           accountLockCommandTable,         rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK,       Trinity::ChatCommands::Console::No },
+            { "set",            accountSetCommandTable,          rbac::RBAC_PERM_COMMAND_ACCOUNT_SET,        Trinity::ChatCommands::Console::Yes },
+            { "password",       &HandleAccountPasswordCommand,   rbac::RBAC_PERM_COMMAND_ACCOUNT_PASSWORD,   Trinity::ChatCommands::Console::No },
+            { "boost", &HandleAccountBoostCommand, rbac::RBAC_PERM_COMMAND_ACCOUNT_BOOST, Trinity::ChatCommands::Console::Yes },
+            { "",               &HandleAccountCommand,           rbac::RBAC_PERM_COMMAND_ACCOUNT,            Trinity::ChatCommands::Console::No },
         };
-        static std::vector<ChatCommand> commandTable = 
+        static std::vector<ChatCommand> commandTable =
         {
-            { "account",        SEC_ADMINISTRATOR,      true,  accountCommandTable                  },
+            { "account",        accountCommandTable,             rbac::RBAC_PERM_COMMAND_ACCOUNT,            Trinity::ChatCommands::Console::Yes },
         };
         return commandTable;
     }
@@ -701,7 +701,8 @@ public:
             return false;
         }
 
-        sAccountMgr->UpdateAccountAccess(targetAccountId, uint8(gm), gmRealmID);
+        WorldSession* session = sWorld->FindSession(targetAccountId);
+        sAccountMgr->UpdateAccountAccess(session ? session->GetRBACData() : nullptr, targetAccountId, uint8(gm), gmRealmID);
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, targetAccountName.c_str(), gm);
         return true;

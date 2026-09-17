@@ -38,21 +38,21 @@ public:
     {
         static std::vector<ChatCommand> infoCommandTable =
         {
-            { "criteria",       SEC_ADMINISTRATOR,      true,  &HandleAchievementCriteriaInfoCommand,   },
-            { "modifier",       SEC_ADMINISTRATOR,      true,  &HandleAchievementModifierInfoCommand,   },
-            { "",               SEC_ADMINISTRATOR,      true,  &HandleAchievementInfoCommand,           },
+            { "criteria", &HandleAchievementCriteriaInfoCommand, rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_INFO_CRITERIA, Trinity::ChatCommands::Console::Yes },
+            { "modifier", &HandleAchievementModifierInfoCommand, rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_INFO_MODIFIER, Trinity::ChatCommands::Console::Yes },
+            { "", &HandleAchievementInfoCommand, rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_INFO, Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> achievementCommandTable =
         {
-            { "add",            SEC_ADMINISTRATOR,  false, &HandleAchievementAddCommand,            },
-            { "remove",         SEC_ADMINISTRATOR,  false, &HandleAchievementRemoveCommand,         },
-            { "info",           SEC_ADMINISTRATOR,      true,  infoCommandTable                         },
+            { "add",            &HandleAchievementAddCommand,  rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_ADD,  Trinity::ChatCommands::Console::No },
+            { "remove", &HandleAchievementRemoveCommand, rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_REMOVE, Trinity::ChatCommands::Console::No },
+            { "info", infoCommandTable, rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_INFO, Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "achievement",    SEC_ADMINISTRATOR,  false, achievementCommandTable                  },
+            { "achievement", achievementCommandTable, rbac::RBAC_PERM_COMMAND_ACHIEVEMENT, Trinity::ChatCommands::Console::No },
             
         };
         return commandTable;

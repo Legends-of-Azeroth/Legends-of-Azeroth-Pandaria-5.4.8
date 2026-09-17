@@ -40,19 +40,19 @@ public:
     {
         static std::vector<ChatCommand> listCommandTable =
         {
-            { "creature",   SEC_ADMINISTRATOR,  true,   &HandleListCreatureCommand, },
-            { "item",       SEC_ADMINISTRATOR,  true,   &HandleListItemCommand,     },
-            { "object",     SEC_ADMINISTRATOR,  true,   &HandleListObjectCommand,   },
-            { "auras",      SEC_ADMINISTRATOR,  false,  &HandleListAurasCommand,    },
-            { "mail",       SEC_ADMINISTRATOR,  true,   &HandleListMailCommand,     },
-            { "scenes",     SEC_ADMINISTRATOR,  false,  &HandleListScenesCommand,   },
-            { "aggro",      SEC_ADMINISTRATOR,  false,  &HandleListAggroCommand,    },
-            { "hostiles",   SEC_ADMINISTRATOR,  false,  &HandleListHostilesCommand, },
-            { "threat",     SEC_ADMINISTRATOR,  false,  &HandleListThreatCommand,   },
+            { "creature",   &HandleListCreatureCommand, rbac::RBAC_PERM_COMMAND_LIST_CREATURE, Trinity::ChatCommands::Console::Yes },
+            { "item",       &HandleListItemCommand,     rbac::RBAC_PERM_COMMAND_LIST_ITEM,     Trinity::ChatCommands::Console::Yes },
+            { "object",     &HandleListObjectCommand,   rbac::RBAC_PERM_COMMAND_LIST_OBJECT,   Trinity::ChatCommands::Console::Yes },
+            { "auras",      &HandleListAurasCommand,    rbac::RBAC_PERM_COMMAND_LIST_AURAS,    Trinity::ChatCommands::Console::No },
+            { "mail",       &HandleListMailCommand,     rbac::RBAC_PERM_COMMAND_LIST_MAIL,     Trinity::ChatCommands::Console::Yes },
+            { "scenes",     &HandleListScenesCommand,   rbac::RBAC_PERM_COMMAND_LIST_SCENES,   Trinity::ChatCommands::Console::No },
+            { "aggro", &HandleListAggroCommand, rbac::RBAC_PERM_COMMAND_LIST_AGGRO, Trinity::ChatCommands::Console::No },
+            { "hostiles", &HandleListHostilesCommand, rbac::RBAC_PERM_COMMAND_LIST_HOSTILES, Trinity::ChatCommands::Console::No },
+            { "threat", &HandleListThreatCommand, rbac::RBAC_PERM_COMMAND_LIST_THREAT, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "list",       SEC_ADMINISTRATOR,  true,   listCommandTable            },
+            { "list", listCommandTable, rbac::RBAC_PERM_COMMAND_LIST, Trinity::ChatCommands::Console::Yes },
         };
         return commandTable;
     }

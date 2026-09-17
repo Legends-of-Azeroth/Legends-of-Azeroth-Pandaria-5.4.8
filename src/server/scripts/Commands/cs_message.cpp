@@ -38,22 +38,22 @@ public:
     {
         static std::vector<ChatCommand> channelSetCommandTable =
         {
-            { "ownership",      SEC_GAMEMASTER, false,  &HandleChannelSetOwnership,     },
+            { "ownership",      &HandleChannelSetOwnership,     rbac::RBAC_PERM_COMMAND_CHANNEL_SET_OWNERSHIP, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> channelCommandTable =
         {
-            { "set",            SEC_GAMEMASTER, true,   channelSetCommandTable          },
+            { "set",            channelSetCommandTable,          rbac::RBAC_PERM_COMMAND_CHANNEL_SET,           Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "channel",        SEC_GAMEMASTER, true,   channelCommandTable             },
-            { "nameannounce",   SEC_GAMEMASTER, true,   &HandleNameAnnounceCommand,     },
-            { "gmnameannounce", SEC_GAMEMASTER, true,   &HandleGMNameAnnounceCommand,   },
-            { "announce",       SEC_GAMEMASTER, true,   &HandleAnnounceCommand,         },
-            { "gmannounce",     SEC_GAMEMASTER, true,   &HandleGMAnnounceCommand,       },
-            { "notify",         SEC_GAMEMASTER, true,   &HandleNotifyCommand,           },
-            { "gmnotify",       SEC_GAMEMASTER, true,   &HandleGMNotifyCommand,         },
-            { "whispers",       SEC_GAMEMASTER, false,  &HandleWhispersCommand,         },
+            { "channel",        channelCommandTable,             rbac::RBAC_PERM_COMMAND_CHANNEL,               Trinity::ChatCommands::Console::Yes },
+            { "nameannounce",   &HandleNameAnnounceCommand,     rbac::RBAC_PERM_COMMAND_NAMEANNOUNCE,          Trinity::ChatCommands::Console::Yes },
+            { "gmnameannounce", &HandleGMNameAnnounceCommand,   rbac::RBAC_PERM_COMMAND_GMNAMEANNOUNCE,        Trinity::ChatCommands::Console::Yes },
+            { "announce",       &HandleAnnounceCommand,         rbac::RBAC_PERM_COMMAND_ANNOUNCE,              Trinity::ChatCommands::Console::Yes },
+            { "gmannounce",     &HandleGMAnnounceCommand,       rbac::RBAC_PERM_COMMAND_GMANNOUNCE,            Trinity::ChatCommands::Console::Yes },
+            { "notify",         &HandleNotifyCommand,           rbac::RBAC_PERM_COMMAND_NOTIFY,                Trinity::ChatCommands::Console::Yes },
+            { "gmnotify",       &HandleGMNotifyCommand,         rbac::RBAC_PERM_COMMAND_GMNOTIFY,              Trinity::ChatCommands::Console::Yes },
+            { "whispers",       &HandleWhispersCommand,         rbac::RBAC_PERM_COMMAND_WHISPERS,              Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

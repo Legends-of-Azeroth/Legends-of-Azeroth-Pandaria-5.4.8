@@ -42,31 +42,31 @@ public:
     {
         static std::vector<ChatCommand> gobjectAddCommandTable =
         {
-            { "temp",       SEC_GAMEMASTER, false,  &HandleGameObjectAddTempCommand,    },
-            { "",           SEC_GAMEMASTER, false,  &HandleGameObjectAddCommand,        },
+            { "temp",       &HandleGameObjectAddTempCommand,    rbac::RBAC_PERM_COMMAND_GOBJECT_ADD_TEMP, Trinity::ChatCommands::Console::No },
+            { "",           &HandleGameObjectAddCommand,        rbac::RBAC_PERM_COMMAND_GOBJECT_ADD,      Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> gobjectSetCommandTable =
         {
-            { "phase",      SEC_GAMEMASTER, false,  &HandleGameObjectSetPhaseCommand,   },
-            { "phaseid",    SEC_GAMEMASTER, false,  &HandleGameObjectSetPhaseIDCommand, },
-            { "state",      SEC_GAMEMASTER, false,  &HandleGameObjectSetStateCommand,   },
+            { "phase",      &HandleGameObjectSetPhaseCommand,   rbac::RBAC_PERM_COMMAND_GOBJECT_SET_PHASE, Trinity::ChatCommands::Console::No },
+            { "phaseid", &HandleGameObjectSetPhaseIDCommand, rbac::RBAC_PERM_COMMAND_GOBJECT_SET_PHASEID, Trinity::ChatCommands::Console::No },
+            { "state",      &HandleGameObjectSetStateCommand,   rbac::RBAC_PERM_COMMAND_GOBJECT_SET_STATE, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> gobjectCommandTable =
         {
-            { "activate",   SEC_GAMEMASTER, false,  &HandleGameObjectActivateCommand,   },
-            { "delete",     SEC_GAMEMASTER, false,  &HandleGameObjectDeleteCommand,     },
-            { "info",       SEC_GAMEMASTER, false,  &HandleGameObjectInfoCommand,       },
-            { "move",       SEC_GAMEMASTER, false,  &HandleGameObjectMoveCommand,       },
-            { "near",       SEC_GAMEMASTER, false,  &HandleGameObjectNearCommand,       },
-            { "target",     SEC_GAMEMASTER, false,  &HandleGameObjectTargetCommand,     },
-            { "turn",       SEC_GAMEMASTER, false,  &HandleGameObjectTurnCommand,       },
-            { "add",        SEC_GAMEMASTER, false,  gobjectAddCommandTable              },
-            { "set",        SEC_GAMEMASTER, false,  gobjectSetCommandTable              },
-            
+            { "activate",   &HandleGameObjectActivateCommand,   rbac::RBAC_PERM_COMMAND_GOBJECT_ACTIVATE, Trinity::ChatCommands::Console::No },
+            { "delete",     &HandleGameObjectDeleteCommand,     rbac::RBAC_PERM_COMMAND_GOBJECT_DELETE,   Trinity::ChatCommands::Console::No },
+            { "info",       &HandleGameObjectInfoCommand,       rbac::RBAC_PERM_COMMAND_GOBJECT_INFO,     Trinity::ChatCommands::Console::No },
+            { "move",       &HandleGameObjectMoveCommand,       rbac::RBAC_PERM_COMMAND_GOBJECT_MOVE,     Trinity::ChatCommands::Console::No },
+            { "near",       &HandleGameObjectNearCommand,       rbac::RBAC_PERM_COMMAND_GOBJECT_NEAR,     Trinity::ChatCommands::Console::No },
+            { "target",     &HandleGameObjectTargetCommand,     rbac::RBAC_PERM_COMMAND_GOBJECT_TARGET,   Trinity::ChatCommands::Console::No },
+            { "turn",       &HandleGameObjectTurnCommand,       rbac::RBAC_PERM_COMMAND_GOBJECT_TURN,     Trinity::ChatCommands::Console::No },
+            { "add",        gobjectAddCommandTable,              rbac::RBAC_PERM_COMMAND_GOBJECT_ADD,      Trinity::ChatCommands::Console::No },
+            { "set", gobjectSetCommandTable, rbac::RBAC_PERM_COMMAND_GOBJECT_SET, Trinity::ChatCommands::Console::No },
+
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "gobject",    SEC_GAMEMASTER, false,  gobjectCommandTable                 },
+            { "gobject", gobjectCommandTable, rbac::RBAC_PERM_COMMAND_GOBJECT, Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

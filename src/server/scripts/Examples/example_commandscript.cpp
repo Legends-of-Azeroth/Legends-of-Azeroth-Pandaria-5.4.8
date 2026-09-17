@@ -46,7 +46,7 @@ class example_commandscript : public CommandScript
         {
             static std::vector<ChatCommand> HelloWorldCommandTable =
             {
-                { "hello",          SEC_PLAYER,         true,   &HandleHelloWorldCommand,        },
+                { "hello",          &HandleHelloWorldCommand, rbac::RBAC_PERM_COMMAND_HELLO, Trinity::ChatCommands::Console::Yes },
             };
             return HelloWorldCommandTable;
         }

@@ -41,40 +41,40 @@ public:
     {
         static std::vector<ChatCommand> lookupPlayerCommandTable =
         {
-            { "ip",         SEC_GAMEMASTER, true,   &HandleLookupPlayerIpCommand,       },
-            { "account",    SEC_GAMEMASTER, true,   &HandleLookupPlayerAccountCommand,  },
-            { "email",      SEC_GAMEMASTER, true,   &HandleLookupPlayerEmailCommand,    },
-            { "hwid",       SEC_GAMEMASTER, true,   &HandleLookupPlayerHWIDCommand,     },
+            { "ip",         &HandleLookupPlayerIpCommand,       rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_IP,       Trinity::ChatCommands::Console::Yes },
+            { "account",    &HandleLookupPlayerAccountCommand,  rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_ACCOUNT,  Trinity::ChatCommands::Console::Yes },
+            { "email",      &HandleLookupPlayerEmailCommand,    rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_EMAIL,    Trinity::ChatCommands::Console::Yes },
+            { "hwid", &HandleLookupPlayerHWIDCommand, rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_HWID, Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> lookupSpellCommandTable =
         {
-            { "id",         SEC_GAMEMASTER, true,   &HandleLookupSpellIdCommand,        },
-            { "",           SEC_GAMEMASTER, true,   &HandleLookupSpellCommand,          },
+            { "id",         &HandleLookupSpellIdCommand,        rbac::RBAC_PERM_COMMAND_LOOKUP_SPELL_ID,        Trinity::ChatCommands::Console::Yes },
+            { "",           &HandleLookupSpellCommand,          rbac::RBAC_PERM_COMMAND_LOOKUP_SPELL,          Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> lookupCommandTable =
         {
-            { "area",       SEC_GAMEMASTER, true,   &HandleLookupAreaCommand,           },
-            { "creature",   SEC_GAMEMASTER, true,   &HandleLookupCreatureCommand,       },
-            { "event",      SEC_GAMEMASTER, true,   &HandleLookupEventCommand,          },
-            { "faction",    SEC_GAMEMASTER, true,   &HandleLookupFactionCommand,        },
-            { "item",       SEC_GAMEMASTER, true,   &HandleLookupItemCommand,           },
-            { "itemset",    SEC_GAMEMASTER, true,   &HandleLookupItemSetCommand,        },
-            { "object",     SEC_GAMEMASTER, true,   &HandleLookupObjectCommand,         },
-            { "quest",      SEC_GAMEMASTER, true,   &HandleLookupQuestCommand,          },
-            { "player",     SEC_GAMEMASTER, true,   lookupPlayerCommandTable            },
-            { "skill",      SEC_GAMEMASTER, true,   &HandleLookupSkillCommand,          },
-            { "spell",      SEC_GAMEMASTER, true,   lookupSpellCommandTable             },
-            { "taxinode",   SEC_GAMEMASTER, true,   &HandleLookupTaxiNodeCommand,       },
-            { "tele",       SEC_GAMEMASTER, true,   &HandleLookupTeleCommand,           },
-            { "title",      SEC_GAMEMASTER, true,   &HandleLookupTitleCommand,          },
-            { "map",        SEC_GAMEMASTER, true,   &HandleLookupMapCommand,            },
+            { "area",       &HandleLookupAreaCommand,           rbac::RBAC_PERM_COMMAND_LOOKUP_AREA,           Trinity::ChatCommands::Console::Yes },
+            { "creature",   &HandleLookupCreatureCommand,       rbac::RBAC_PERM_COMMAND_LOOKUP_CREATURE,       Trinity::ChatCommands::Console::Yes },
+            { "event",      &HandleLookupEventCommand,          rbac::RBAC_PERM_COMMAND_LOOKUP_EVENT,          Trinity::ChatCommands::Console::Yes },
+            { "faction",    &HandleLookupFactionCommand,        rbac::RBAC_PERM_COMMAND_LOOKUP_FACTION,        Trinity::ChatCommands::Console::Yes },
+            { "item",       &HandleLookupItemCommand,           rbac::RBAC_PERM_COMMAND_LOOKUP_ITEM,           Trinity::ChatCommands::Console::Yes },
+            { "itemset",    &HandleLookupItemSetCommand,        rbac::RBAC_PERM_COMMAND_LOOKUP_ITEMSET,        Trinity::ChatCommands::Console::Yes },
+            { "object",     &HandleLookupObjectCommand,         rbac::RBAC_PERM_COMMAND_LOOKUP_OBJECT,         Trinity::ChatCommands::Console::Yes },
+            { "quest",      &HandleLookupQuestCommand,          rbac::RBAC_PERM_COMMAND_LOOKUP_QUEST,          Trinity::ChatCommands::Console::Yes },
+            { "player",     lookupPlayerCommandTable,            rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER,         Trinity::ChatCommands::Console::Yes },
+            { "skill",      &HandleLookupSkillCommand,          rbac::RBAC_PERM_COMMAND_LOOKUP_SKILL,          Trinity::ChatCommands::Console::Yes },
+            { "spell",      lookupSpellCommandTable,             rbac::RBAC_PERM_COMMAND_LOOKUP_SPELL,          Trinity::ChatCommands::Console::Yes },
+            { "taxinode",   &HandleLookupTaxiNodeCommand,       rbac::RBAC_PERM_COMMAND_LOOKUP_TAXINODE,       Trinity::ChatCommands::Console::Yes },
+            { "tele",       &HandleLookupTeleCommand,           rbac::RBAC_PERM_COMMAND_LOOKUP_TELE,           Trinity::ChatCommands::Console::Yes },
+            { "title",      &HandleLookupTitleCommand,          rbac::RBAC_PERM_COMMAND_LOOKUP_TITLE,          Trinity::ChatCommands::Console::Yes },
+            { "map",        &HandleLookupMapCommand,            rbac::RBAC_PERM_COMMAND_LOOKUP_MAP,            Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "lookup",     SEC_GAMEMASTER, true,   lookupCommandTable                  },
+            { "lookup",     lookupCommandTable,                  rbac::RBAC_PERM_COMMAND_LOOKUP,                Trinity::ChatCommands::Console::Yes },
         };
         return commandTable;
     }

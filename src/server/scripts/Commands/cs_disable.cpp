@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -41,34 +41,34 @@ public:
     {
         static std::vector<ChatCommand> removeDisableCommandTable =
         {
-            { "spell",                SEC_ADMINISTRATOR, true,  &HandleRemoveDisableSpellCommand,               },
-            { "quest",                SEC_ADMINISTRATOR, true,  &HandleRemoveDisableQuestCommand,               },
-            { "map",                  SEC_ADMINISTRATOR, true,  &HandleRemoveDisableMapCommand,                 },
-            { "battleground",         SEC_ADMINISTRATOR, true,  &HandleRemoveDisableBattlegroundCommand,        },
-            { "achievement_criteria", SEC_ADMINISTRATOR, true,  &HandleRemoveDisableAchievementCriteriaCommand, },
-            { "outdoorpvp",           SEC_ADMINISTRATOR, true,  &HandleRemoveDisableOutdoorPvPCommand,          },
-            { "vmap",                 SEC_ADMINISTRATOR, true,  &HandleRemoveDisableVmapCommand,                },
-            { "mmap",                 SEC_ADMINISTRATOR, true,  &HandleRemoveDisableMMapCommand,                },
+            { "spell",                &HandleRemoveDisableSpellCommand,               rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_SPELL,               Trinity::ChatCommands::Console::Yes },
+            { "quest",                &HandleRemoveDisableQuestCommand,               rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_QUEST,               Trinity::ChatCommands::Console::Yes },
+            { "map",                  &HandleRemoveDisableMapCommand,                 rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_MAP,                 Trinity::ChatCommands::Console::Yes },
+            { "battleground",         &HandleRemoveDisableBattlegroundCommand,        rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_BATTLEGROUND,        Trinity::ChatCommands::Console::Yes },
+            { "achievement_criteria", &HandleRemoveDisableAchievementCriteriaCommand, rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_ACHIEVEMENT_CRITERIA, Trinity::ChatCommands::Console::Yes },
+            { "outdoorpvp",           &HandleRemoveDisableOutdoorPvPCommand,          rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_OUTDOORPVP,          Trinity::ChatCommands::Console::Yes },
+            { "vmap",                 &HandleRemoveDisableVmapCommand,                rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_VMAP,                Trinity::ChatCommands::Console::Yes },
+            { "mmap",                 &HandleRemoveDisableMMapCommand,                rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_MMAP,                Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> addDisableCommandTable =
         {
-            { "spell",                SEC_ADMINISTRATOR,  true,   &HandleAddDisableSpellCommand,                },
-            { "quest",                SEC_ADMINISTRATOR,  true,   &HandleAddDisableQuestCommand,                },
-            { "map",                  SEC_ADMINISTRATOR,  true,   &HandleAddDisableMapCommand,                  },
-            { "battleground",         SEC_ADMINISTRATOR,  true,   &HandleAddDisableBattlegroundCommand,         },
-            { "achievement_criteria", SEC_ADMINISTRATOR,  true,   &HandleAddDisableAchievementCriteriaCommand,  },
-            { "outdoorpvp",           SEC_ADMINISTRATOR,  true,   &HandleAddDisableOutdoorPvPCommand,           },
-            { "vmap",                 SEC_ADMINISTRATOR,  true,   &HandleAddDisableVmapCommand,                 },
-            { "mmap",                 SEC_ADMINISTRATOR,  true,   &HandleAddDisableMMapCommand,                 },
+            { "spell",                &HandleAddDisableSpellCommand,                rbac::RBAC_PERM_COMMAND_DISABLE_ADD_SPELL,                Trinity::ChatCommands::Console::Yes },
+            { "quest",                &HandleAddDisableQuestCommand,                rbac::RBAC_PERM_COMMAND_DISABLE_ADD_QUEST,                Trinity::ChatCommands::Console::Yes },
+            { "map",                  &HandleAddDisableMapCommand,                  rbac::RBAC_PERM_COMMAND_DISABLE_ADD_MAP,                  Trinity::ChatCommands::Console::Yes },
+            { "battleground",         &HandleAddDisableBattlegroundCommand,         rbac::RBAC_PERM_COMMAND_DISABLE_ADD_BATTLEGROUND,         Trinity::ChatCommands::Console::Yes },
+            { "achievement_criteria", &HandleAddDisableAchievementCriteriaCommand,  rbac::RBAC_PERM_COMMAND_DISABLE_ADD_ACHIEVEMENT_CRITERIA,  Trinity::ChatCommands::Console::Yes },
+            { "outdoorpvp",           &HandleAddDisableOutdoorPvPCommand,           rbac::RBAC_PERM_COMMAND_DISABLE_ADD_OUTDOORPVP,           Trinity::ChatCommands::Console::Yes },
+            { "vmap",                 &HandleAddDisableVmapCommand,                 rbac::RBAC_PERM_COMMAND_DISABLE_ADD_VMAP,                 Trinity::ChatCommands::Console::Yes },
+            { "mmap",                 &HandleAddDisableMMapCommand,                 rbac::RBAC_PERM_COMMAND_DISABLE_ADD_MMAP,                 Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> disableCommandTable =
         {
-            { "add",                  SEC_ADMINISTRATOR,  true,   addDisableCommandTable                        },
-            { "remove",               SEC_ADMINISTRATOR,  true,   removeDisableCommandTable                     },
+            { "add", addDisableCommandTable, rbac::RBAC_PERM_COMMAND_DISABLE_ADD, Trinity::ChatCommands::Console::Yes },
+            { "remove", removeDisableCommandTable, rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE, Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "disable",              SEC_ADMINISTRATOR,  false,  disableCommandTable                           },
+            { "disable", disableCommandTable, rbac::RBAC_PERM_COMMAND_DISABLE, Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

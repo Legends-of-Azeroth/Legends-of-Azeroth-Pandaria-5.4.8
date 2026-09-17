@@ -31,22 +31,22 @@ public:
     {
         static std::vector<ChatCommand> accountSetCommandTable =
         {
-            { "password",          SEC_ADMINISTRATOR, true,  &HandleAccountSetPasswordCommand },
+            { "password",          &HandleAccountSetPasswordCommand,  rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_SET_PASSWORD,  Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> accountCommandTable =
         {
-            { "create",            SEC_ADMINISTRATOR, true,  &HandleAccountCreateCommand        },
-            //{ "gameaccountcreate", SEC_ADMINISTRATOR, true,  &HandleGameAccountCreateCommand  },
-            { "set",               SEC_ADMINISTRATOR, true,  accountSetCommandTable             },
-            //{ "password",          SEC_ADMINISTRATOR, false, &HandleAccountPasswordCommand    },
-            //{ "link",              SEC_ADMINISTRATOR, true,  &HandleAccountLinkCommand        },
-            //{ "unlink",            SEC_ADMINISTRATOR, true,  &HandleAccountUnlinkCommand      },
+            { "create",            &HandleAccountCreateCommand,       rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_CREATE,         Trinity::ChatCommands::Console::Yes },
+            //{ "gameaccountcreate", &HandleGameAccountCreateCommand, rbac::RBAC_PERM_COMMAND_BNETACCOUNT_GAMEACCOUNTCREATE, Trinity::ChatCommands::Console::Yes },
+            { "set",               accountSetCommandTable,             rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_SET,            Trinity::ChatCommands::Console::Yes },
+            //{ "password", &HandleAccountPasswordCommand, rbac::RBAC_PERM_COMMAND_BNETACCOUNT_PASSWORD, Trinity::ChatCommands::Console::No },
+            //{ "link", &HandleAccountLinkCommand, rbac::RBAC_PERM_COMMAND_BNETACCOUNT_LINK, Trinity::ChatCommands::Console::Yes },
+            //{ "unlink", &HandleAccountUnlinkCommand, rbac::RBAC_PERM_COMMAND_BNETACCOUNT_UNLINK, Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "bnetaccount",       SEC_ADMINISTRATOR, true,  accountCommandTable },
+            { "bnetaccount",       accountCommandTable,               rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT,                Trinity::ChatCommands::Console::Yes },
         };
 
         return commandTable;

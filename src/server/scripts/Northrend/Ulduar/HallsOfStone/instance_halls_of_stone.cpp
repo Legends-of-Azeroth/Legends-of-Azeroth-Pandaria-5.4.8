@@ -172,6 +172,9 @@ class instance_halls_of_stone : public InstanceMapScript
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player /*= NULL*/) const override
             {
+                if (_SkipCheckRequiredBosses(player))
+                    return true;
+
                 switch (bossId)
                 {
                     case DATA_SJONNIR:

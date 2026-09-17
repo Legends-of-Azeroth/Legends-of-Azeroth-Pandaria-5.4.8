@@ -42,61 +42,61 @@ public:
     {
         static std::vector<ChatCommand> serverIdleRestartCommandTable =
         {
-            { "cancel",         SEC_ADMINISTRATOR,  true,   &HandleServerShutDownCancelCommand, },
-            { "",               SEC_ADMINISTRATOR,  true,   &HandleServerIdleRestartCommand,    },
+            { "cancel", &HandleServerShutDownCancelCommand, rbac::RBAC_PERM_COMMAND_SERVER_IDLERESTART_CANCEL, Trinity::ChatCommands::Console::Yes },
+            { "", &HandleServerIdleRestartCommand, rbac::RBAC_PERM_COMMAND_SERVER_IDLERESTART, Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> serverIdleShutdownCommandTable =
         {
-            { "cancel",         SEC_ADMINISTRATOR,  true,   &HandleServerShutDownCancelCommand, },
-            { "",               SEC_ADMINISTRATOR,  true,   &HandleServerIdleShutDownCommand,   },
+            { "cancel", &HandleServerShutDownCancelCommand, rbac::RBAC_PERM_COMMAND_SERVER_IDLESHUTDOWN_CANCEL, Trinity::ChatCommands::Console::Yes },
+            { "", &HandleServerIdleShutDownCommand, rbac::RBAC_PERM_COMMAND_SERVER_IDLESHUTDOWN, Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> serverRestartCommandTable =
         {
-            { "cancel",         SEC_ADMINISTRATOR,  true,   &HandleServerShutDownCancelCommand, },
-            { "",               SEC_ADMINISTRATOR,  true,   &HandleServerRestartCommand,        },
+            { "cancel",         &HandleServerShutDownCancelCommand, rbac::RBAC_PERM_COMMAND_SERVER_RESTART_CANCEL, Trinity::ChatCommands::Console::Yes },
+            { "",               &HandleServerRestartCommand,        rbac::RBAC_PERM_COMMAND_SERVER_RESTART,        Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> serverShutdownCommandTable =
         {
-            { "cancel",         SEC_ADMINISTRATOR,  true,   &HandleServerShutDownCancelCommand, },
-            { "",               SEC_ADMINISTRATOR,  true,   &HandleServerShutDownCommand,       },
-            
+            { "cancel",         &HandleServerShutDownCancelCommand, rbac::RBAC_PERM_COMMAND_SERVER_SHUTDOWN_CANCEL, Trinity::ChatCommands::Console::Yes },
+            { "",               &HandleServerShutDownCommand,       rbac::RBAC_PERM_COMMAND_SERVER_SHUTDOWN,       Trinity::ChatCommands::Console::Yes },
+
         };
 
         static std::vector<ChatCommand> serverSetCommandTable =
         {
-            { "difftime",       SEC_ADMINISTRATOR,  true,   &HandleServerSetDiffTimeCommand,    },
-            { "loglevel",       SEC_ADMINISTRATOR,  true,   &HandleServerSetLogLevelCommand,    },
-            { "motd",           SEC_ADMINISTRATOR,  true,   &HandleServerSetMotdCommand,        },
-            { "closed",         SEC_ADMINISTRATOR,  true,   &HandleServerSetClosedCommand,      },
+            { "difftime",       &HandleServerSetDiffTimeCommand,    rbac::RBAC_PERM_COMMAND_SERVER_SET_DIFFTIME,    Trinity::ChatCommands::Console::Yes },
+            { "loglevel",       &HandleServerSetLogLevelCommand,    rbac::RBAC_PERM_COMMAND_SERVER_SET_LOGLEVEL,    Trinity::ChatCommands::Console::Yes },
+            { "motd",           &HandleServerSetMotdCommand,        rbac::RBAC_PERM_COMMAND_SERVER_SET_MOTD,        Trinity::ChatCommands::Console::Yes },
+            { "closed",         &HandleServerSetClosedCommand,      rbac::RBAC_PERM_COMMAND_SERVER_SET_CLOSED,      Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> serverStatsCommandTable =
         {
-            { "mapupdate",      SEC_ADMINISTRATOR,      true,   &HandleServerStatsMapUpdateCommand, },
+            { "mapupdate", &HandleServerStatsMapUpdateCommand, rbac::RBAC_PERM_COMMAND_SERVER_STATS_MAPUPDATE, Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> serverCommandTable =
         {
-            { "corpses",        SEC_ADMINISTRATOR,  true,   &HandleServerCorpsesCommand,        },
-            { "exit",           SEC_ADMINISTRATOR,  true,   &HandleServerExitCommand,           },
-            { "idlerestart",    SEC_ADMINISTRATOR,  true,   serverIdleRestartCommandTable       },
-            { "idleshutdown",   SEC_ADMINISTRATOR,  true,   serverIdleShutdownCommandTable      },
-            { "info",           SEC_PLAYER,         true,   &HandleServerInfoCommand,           },
-            { "motd",           SEC_PLAYER,         true,   &HandleServerMotdCommand,           },
-            { "plimit",         SEC_ADMINISTRATOR,  true,   &HandleServerPLimitCommand,         },
-            { "restart",        SEC_ADMINISTRATOR,  true,   serverRestartCommandTable           },
-            { "shutdown",       SEC_ADMINISTRATOR,  true,   serverShutdownCommandTable          },
-            { "set",            SEC_ADMINISTRATOR,  true,   serverSetCommandTable               },
-            { "stats",          SEC_ADMINISTRATOR,      true,   serverStatsCommandTable             },
+            { "corpses",        &HandleServerCorpsesCommand,        rbac::RBAC_PERM_COMMAND_SERVER_CORPSES,        Trinity::ChatCommands::Console::Yes },
+            { "exit",           &HandleServerExitCommand,           rbac::RBAC_PERM_COMMAND_SERVER_EXIT,           Trinity::ChatCommands::Console::Yes },
+            { "idlerestart", serverIdleRestartCommandTable, rbac::RBAC_PERM_COMMAND_SERVER_IDLERESTART, Trinity::ChatCommands::Console::Yes },
+            { "idleshutdown", serverIdleShutdownCommandTable, rbac::RBAC_PERM_COMMAND_SERVER_IDLESHUTDOWN, Trinity::ChatCommands::Console::Yes },
+            { "info",           &HandleServerInfoCommand,           rbac::RBAC_PERM_COMMAND_SERVER_INFO,           Trinity::ChatCommands::Console::Yes },
+            { "motd",           &HandleServerMotdCommand,           rbac::RBAC_PERM_COMMAND_SERVER_MOTD,           Trinity::ChatCommands::Console::Yes },
+            { "plimit",         &HandleServerPLimitCommand,         rbac::RBAC_PERM_COMMAND_SERVER_PLIMIT,         Trinity::ChatCommands::Console::Yes },
+            { "restart",        serverRestartCommandTable,           rbac::RBAC_PERM_COMMAND_SERVER_RESTART,        Trinity::ChatCommands::Console::Yes },
+            { "shutdown",       serverShutdownCommandTable,          rbac::RBAC_PERM_COMMAND_SERVER_SHUTDOWN,       Trinity::ChatCommands::Console::Yes },
+            { "set",            serverSetCommandTable,               rbac::RBAC_PERM_COMMAND_SERVER_SET,            Trinity::ChatCommands::Console::Yes },
+            { "stats", serverStatsCommandTable, rbac::RBAC_PERM_COMMAND_SERVER_STATS, Trinity::ChatCommands::Console::Yes },
         };
 
          static std::vector<ChatCommand> commandTable =
         {
-            { "server",         SEC_PLAYER,         true,   serverCommandTable                  },
-            
+            { "server",         serverCommandTable,                  rbac::RBAC_PERM_COMMAND_SERVER,                Trinity::ChatCommands::Console::Yes },
+
         };
         return commandTable;
     }

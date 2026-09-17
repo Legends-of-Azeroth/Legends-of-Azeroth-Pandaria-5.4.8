@@ -25,6 +25,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "Player.h"
+#include "RBAC.h"
 #include "Pet.h"
 #include "WorldSession.h"
 #include "Opcodes.h"
@@ -76,6 +77,11 @@ InstanceScript::InstanceScript(Map* map) : instance(map), completedEncounters(0)
     beginningTime = 0;
 
     scenarioGuid = ObjectGuid(HighGuid::Scenario, instance->GetInstanceId(), scenarioId);
+}
+
+bool InstanceScript::_SkipCheckRequiredBosses(Player const* player) const
+{
+    return player && player->GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_INSTANCE_REQUIRED_BOSSES);
 }
 
 void InstanceScript::SaveToDB()
