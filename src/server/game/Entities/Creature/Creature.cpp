@@ -994,7 +994,7 @@ void Creature::SetLootRecipient(Unit* unit)
 
     if (IsPet())
     {
-        TC_LOG_ERROR("shitlog", "Creature::SetLootRecipient unit: {} guid: " "{}" "\n%s\n", unit->GetName().c_str(), unit->GetGUID().GetRawValue());
+        TC_LOG_ERROR("shitlog", "Creature::SetLootRecipient unit: {} guid: {}", unit->GetName().c_str(), unit->GetGUID().GetRawValue());
         return;
     }
 
@@ -1726,7 +1726,7 @@ void Creature::Respawn(bool force)
         if (m_spawnId)
             GetMap()->RemoveCreatureRespawnTime(m_spawnId);
 
-        TC_LOG_DEBUG("entities.unit", "Respawning creature {} (GuidLow: {}, Full GUID: " "{}" " Entry: %u)",
+        TC_LOG_DEBUG("entities.unit", "Respawning creature {} (GuidLow: {}, Full GUID: " "{}" " Entry: {})",
             GetName().c_str(), GetGUID().GetCounter(), GetGUID().GetRawValue(), GetEntry());
         m_respawnTime = 0;
         lootForPickPocketed = false;

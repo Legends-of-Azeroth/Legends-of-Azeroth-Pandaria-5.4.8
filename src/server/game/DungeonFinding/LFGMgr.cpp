@@ -672,7 +672,7 @@ void LFGMgr::JoinLfg(Player* player, LfgRoles roles, LfgDungeonSet& dungeons, co
     // Can't join. Send result
     if (joinData.result != LFG_JOIN_OK)
     {
-        TC_LOG_DEBUG("lfg", "LFGMgr::Join: [" "{}" "] joining with %u members. result: %u", GetGuidForLog(guid), group ? group->GetMembersCount() : 1, joinData.result);
+        TC_LOG_DEBUG("lfg", "LFGMgr::Join: [" "{}" "] joining with {} members. result: {}", GetGuidForLog(guid), group ? group->GetMembersCount() : 1, joinData.result);
         if (!dungeons.empty())                             // Only should show lockmap when have no dungeons available
             joinData.lockmap.clear();
         player->GetSession()->SendLfgJoinResult(0, joinData);
@@ -842,11 +842,11 @@ void LFGMgr::RemoveGroupQueues(ObjectGuid guid)
 */
 void LFGMgr::LeaveLfg(ObjectGuid guid, uint32 queueId)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::LeaveLfg: [" "{}" "] queue: %u", GetGuidForLog(guid), queueId);
+    TC_LOG_DEBUG("lfg", "LFGMgr::LeaveLfg: [" "{}" "] queue: {}", GetGuidForLog(guid), queueId);
 
     if (!HasQueueId(guid, queueId))
     {
-        TC_LOG_ERROR("lfg", "LFGMgr::LeaveLfg: [" "{}" "] doesn't have queue: %u", GetGuidForLog(guid), queueId);
+        TC_LOG_ERROR("lfg", "LFGMgr::LeaveLfg: [" "{}" "] doesn't have queue: {}", GetGuidForLog(guid), queueId);
         return;
     }
 
@@ -1764,7 +1764,7 @@ void LFGMgr::RemoveProposal(LfgProposalContainer::iterator itProposal, LfgUpdate
         }
         else
         {
-            TC_LOG_DEBUG("lfg", "LFGMgr::RemoveProposal: Readding [" "{}" "] to queue (%u).", GetGuidForLog(guid), queueId);
+            TC_LOG_DEBUG("lfg", "LFGMgr::RemoveProposal: Readding [" "{}" "] to queue ({}).", GetGuidForLog(guid), queueId);
             SetState(guid, queueId, LFG_STATE_QUEUED);
             if (gguid != guid && GetState(gguid, queueId) != LFG_STATE_QUEUED)
                 SetState(gguid, queueId, LFG_STATE_QUEUED);
@@ -1851,7 +1851,7 @@ void LFGMgr::UpdateBoot(ObjectGuid guid, bool accept)
     ObjectGuid gguid = GetGroup(guid, queueId);
     if (!gguid)
     {
-        TC_LOG_ERROR("lfg", "LFGMgr::UpdateBoot Group not found [" "{}" "], queue id: %u", GetGuidForLog(guid), queueId);
+        TC_LOG_ERROR("lfg", "LFGMgr::UpdateBoot Group not found [" "{}" "], queue id: {}", GetGuidForLog(guid), queueId);
         return;
     }
 
@@ -1924,7 +1924,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
 
     if (!dungeon)
     {
-        TC_LOG_ERROR("lfg", "TeleportPlayer: Player {} ({}) not in group/lfggroup or dungeon not found! (group: " "{}" ", dungeon: %u)",
+        TC_LOG_ERROR("lfg", "TeleportPlayer: Player {} ({}) not in group/lfggroup or dungeon not found! (group: " "{}" ", dungeon: {})",
             player->GetName().c_str(), player->GetGUID().GetCounter(), group ? GetGuidForLog(group->GetGUID()) : 0, group ? GetDungeon(group->GetGUID()) : 0);
         player->GetSession()->SendLfgTeleportError(uint8(LFG_TELEPORTERROR_INVALID_LOCATION));
         return;
@@ -2024,7 +2024,7 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, uint32 dungeonId, Map* map)
     uint32 queueId = GetActiveQueueId(gguid);
     if (!queueId)
     {
-        TC_LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [" "{}" "] Finished dungeon %u but group has no active queue", gguid.GetRawValue(), dungeonId);
+        TC_LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [" "{}" "] Finished dungeon {} but group has no active queue", gguid.GetRawValue(), dungeonId);
         return;
     }
 
@@ -2034,7 +2034,7 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, uint32 dungeonId, Map* map)
     uint32 gDungeonId = GetDungeon(gguid);
     if (gDungeonId != dungeonId)
     {
-        TC_LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [" "{}" "] Finished dungeon %u but group queued for %u. Ignoring", gguid.GetRawValue(), dungeonId, gDungeonId);
+        TC_LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [" "{}" "] Finished dungeon {} but group queued for {}. Ignoring", gguid.GetRawValue(), dungeonId, gDungeonId);
         return;
     }
 
@@ -2270,7 +2270,7 @@ uint32 LFGMgr::ConvertToServerQueueId(ObjectGuid guid, uint32 clientQueueId) con
 
 void LFGMgr::AddQueue(ObjectGuid guid, uint32 queueId, ObjectGuid originalGroup)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::AddQueue {} [" "{}" "] queue: %u", guid.IsGroup() ? "Group" : "Player", GetGuidForLog(guid), queueId);
+    TC_LOG_DEBUG("lfg", "LFGMgr::AddQueue {} [" "{}" "] queue: {}", guid.IsGroup() ? "Group" : "Player", GetGuidForLog(guid), queueId);
 
     if (guid.IsGroup())
     {
@@ -2283,7 +2283,7 @@ void LFGMgr::AddQueue(ObjectGuid guid, uint32 queueId, ObjectGuid originalGroup)
 
 void LFGMgr::RemoveQueue(ObjectGuid guid, uint32 queueId)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::RemoveQueue: {} [" "{}" "] queueId: %u. Queue removed", guid.IsGroup() ? "Group" : "Player", GetGuidForLog(guid), queueId);
+    TC_LOG_DEBUG("lfg", "LFGMgr::RemoveQueue: {} [" "{}" "] queueId: {}. Queue removed", guid.IsGroup() ? "Group" : "Player", GetGuidForLog(guid), queueId);
 
     if (guid.IsGroup())
     {
@@ -2355,7 +2355,7 @@ LfgState LFGMgr::GetState(ObjectGuid guid, uint32 queueId) const
         state = it != PlayersStore.end() ? it->second.GetState(queueId) : LFG_STATE_NONE;
     }
 
-    TC_LOG_TRACE("lfg", "LFGMgr::GetState: [" "{}" "] = %u", GetGuidForLog(guid), state);
+    TC_LOG_TRACE("lfg", "LFGMgr::GetState: [" "{}" "] = {}", GetGuidForLog(guid), state);
     return state;
 }
 
@@ -2367,7 +2367,7 @@ LfgState LFGMgr::GetOldState(ObjectGuid guid, uint32 queueId)
     else
         state = PlayersStore[guid].GetOldState(queueId);
 
-    TC_LOG_TRACE("lfg", "LFGMgr::GetOldState: [" "{}" "] = %u, queueId: %u", GetGuidForLog(guid), state, queueId);
+    TC_LOG_TRACE("lfg", "LFGMgr::GetOldState: [" "{}" "] = {}, queueId: {}", GetGuidForLog(guid), state, queueId);
     return state;
 }
 
@@ -2379,7 +2379,7 @@ uint32 LFGMgr::GetDungeon(ObjectGuid guid, bool asId /*= true */)
     if (itr != GroupsStore.end())
         dungeon = itr->second.GetDungeon(asId);
 
-    TC_LOG_TRACE("lfg", "LFGMgr::GetDungeon: [" "{}" "] asId: %u = %u", GetGuidForLog(guid), asId, dungeon);
+    TC_LOG_TRACE("lfg", "LFGMgr::GetDungeon: [" "{}" "] asId: {} = {}", GetGuidForLog(guid), asId, dungeon);
     return dungeon;
 }
 
@@ -2391,14 +2391,14 @@ uint32 LFGMgr::GetDungeonMapId(ObjectGuid guid)
         if (LFGDungeonData const* dungeon = GetLFGDungeon(dungeonId))
             mapId = dungeon->map;
 
-    TC_LOG_TRACE("lfg", "LFGMgr::GetDungeonMapId: [" "{}" "] = %u (DungeonId = %u)", GetGuidForLog(guid), mapId, dungeonId);
+    TC_LOG_TRACE("lfg", "LFGMgr::GetDungeonMapId: [" "{}" "] = {} (DungeonId = {})", GetGuidForLog(guid), mapId, dungeonId);
     return mapId;
 }
 
 uint8 LFGMgr::GetRoles(ObjectGuid guid, uint32 queueId)
 {
     uint8 roles = PlayersStore[guid].GetRoles(queueId);
-    TC_LOG_TRACE("lfg", "LFGMgr::GetRoles: [" "{}" "] = %u, queueId: %u", GetGuidForLog(guid), roles, queueId);
+    TC_LOG_TRACE("lfg", "LFGMgr::GetRoles: [" "{}" "] = {}, queueId: {}", GetGuidForLog(guid), roles, queueId);
     return roles;
 }
 
@@ -2417,7 +2417,7 @@ LfgLockMap const& LFGMgr::GetLockedDungeons(ObjectGuid guid)
 uint8 LFGMgr::GetKicksLeft(ObjectGuid guid)
 {
     uint8 kicks = GroupsStore[guid].GetKicksLeft();
-    TC_LOG_TRACE("lfg", "LFGMgr::GetKicksLeft: [" "{}" "] = %u", GetGuidForLog(guid), kicks);
+    TC_LOG_TRACE("lfg", "LFGMgr::GetKicksLeft: [" "{}" "] = {}", GetGuidForLog(guid), kicks);
     return kicks;
 }
 
@@ -2430,7 +2430,7 @@ void LFGMgr::RestoreState(ObjectGuid guid, uint32 queueId, char const* debugMsg)
         {
             std::string const& ps = GetStateString(data.GetState(queueId));
             std::string const& os = GetStateString(data.GetOldState(queueId));
-            TC_LOG_DEBUG("lfg", "LFGMgr::RestoreState: Group: [" "{}" "] (%s) queueId: %u state: %s, oldState: %s",
+            TC_LOG_DEBUG("lfg", "LFGMgr::RestoreState: Group: [" "{}" "] ({}) queueId: {} state: {}, oldState: {}",
                 guid.GetRawValue(), debugMsg, queueId, ps.c_str(), os.c_str());
         }
 
@@ -2443,7 +2443,7 @@ void LFGMgr::RestoreState(ObjectGuid guid, uint32 queueId, char const* debugMsg)
         {
             std::string const& ps = GetStateString(data.GetState(queueId));
             std::string const& os = GetStateString(data.GetOldState(queueId));
-            TC_LOG_DEBUG("lfg", "LFGMgr::RestoreState: Player: [" "{}" "] (%s) queueId: %u, state: %s, oldState: %s",
+            TC_LOG_DEBUG("lfg", "LFGMgr::RestoreState: Player: [" "{}" "] ({}) queueId: {}, state: {}, oldState: {}",
                 GetGuidForLog(guid), debugMsg, queueId, ps.c_str(), os.c_str());
         }
         data.RestoreState(queueId);
@@ -2459,7 +2459,7 @@ void LFGMgr::SetState(ObjectGuid guid, uint32 queueId, LfgState state)
         {
             std::ostringstream ss;
             Queuer(guid, queueId).OutDebug(ss, nullptr);
-            TC_LOG_ERROR("lfg", "LFGMgr::SetState(" "{}" " (%s), state: %u, queueId: %u) while queuer still in queues, stack trace:\n", GetGuidForLog(guid), ss.str().c_str(), (uint32)state, queueId);
+            TC_LOG_ERROR("lfg", "LFGMgr::SetState(" "{}" " ({}), state: {}, queueId: {}) while queuer still in queues, stack trace:\n", GetGuidForLog(guid), ss.str().c_str(), (uint32)state, queueId);
         }
     }
 
@@ -2471,7 +2471,7 @@ void LFGMgr::SetState(ObjectGuid guid, uint32 queueId, LfgState state)
             std::string const& ns = GetStateString(state);
             std::string const& ps = GetStateString(data.GetState(queueId));
             std::string const& os = GetStateString(data.GetOldState(queueId));
-            TC_LOG_DEBUG("lfg", "LFGMgr::SetState: Group: [" "{}" "] queueId: %u, newState: %s, previous: %s, oldState: %s",
+            TC_LOG_DEBUG("lfg", "LFGMgr::SetState: Group: [" "{}" "] queueId: {}, newState: {}, previous: {}, oldState: {}",
                 guid.GetRawValue(), queueId, ns.c_str(), ps.c_str(), os.c_str());
         }
         data.SetState(queueId, state);
@@ -2484,7 +2484,7 @@ void LFGMgr::SetState(ObjectGuid guid, uint32 queueId, LfgState state)
             std::string const& ns = GetStateString(state);
             std::string const& ps = GetStateString(data.GetState(queueId));
             std::string const& os = GetStateString(data.GetOldState(queueId));
-            TC_LOG_DEBUG("lfg", "LFGMgr::SetState: Player: [" "{}" "] queueId: %u, newState: %s, previous: %s, oldState: %s",
+            TC_LOG_DEBUG("lfg", "LFGMgr::SetState: Player: [" "{}" "] queueId: {}, newState: {}, previous: {}, oldState: {}",
                 GetGuidForLog(guid), queueId, ns.c_str(), ps.c_str(), os.c_str());
         }
         data.SetState(queueId, state);
@@ -2493,13 +2493,13 @@ void LFGMgr::SetState(ObjectGuid guid, uint32 queueId, LfgState state)
 
 void LFGMgr::SetDungeon(ObjectGuid guid, uint32 dungeon)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::SetDungeon: [" "{}" "] dungeon %u", GetGuidForLog(guid), dungeon);
+    TC_LOG_DEBUG("lfg", "LFGMgr::SetDungeon: [" "{}" "] dungeon {}", GetGuidForLog(guid), dungeon);
     GroupsStore[guid].SetDungeon(dungeon);
 }
 
 void LFGMgr::SetRoles(ObjectGuid guid, uint32 queueId, LfgRoles roles)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::SetRoles: [" "{}" "] queueId: %u, roles: %u", GetGuidForLog(guid), queueId, roles);
+    TC_LOG_DEBUG("lfg", "LFGMgr::SetRoles: [" "{}" "] queueId: {}, roles: {}", GetGuidForLog(guid), queueId, roles);
     PlayersStore[guid].SetRoles(queueId, roles);
 }
 
@@ -2510,7 +2510,7 @@ void LFGMgr::SetJoinTime(ObjectGuid guid, uint32 queueId, time_t time)
 
 void LFGMgr::SetSelectedDungeons(ObjectGuid guid, uint32 queueId, LfgDungeonSet const& dungeons)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::SetSelectedDungeons: [" "{}" "] Queue Id: %u, Dungeons: %s", GetGuidForLog(guid), queueId, ConcatenateDungeons(dungeons).c_str());
+    TC_LOG_DEBUG("lfg", "LFGMgr::SetSelectedDungeons: [" "{}" "] Queue Id: {}, Dungeons: {}", GetGuidForLog(guid), queueId, ConcatenateDungeons(dungeons).c_str());
     PlayersStore[guid].SetSelectedDungeons(queueId, dungeons);
 }
 
@@ -2523,7 +2523,7 @@ uint32 LFGMgr::GetRandomDungeon(ObjectGuid guid, uint32 queueId) const
 
 void LFGMgr::SetRandomDungeon(ObjectGuid guid, uint32 queueId, uint32 dungeon)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::SetRandomDungeon: [" "{}" "] Queue Id: %u, Dungeon: %u", GetGuidForLog(guid), queueId, dungeon);
+    TC_LOG_DEBUG("lfg", "LFGMgr::SetRandomDungeon: [" "{}" "] Queue Id: {}, Dungeon: {}", GetGuidForLog(guid), queueId, dungeon);
 
     auto itr = PlayersStore.find(guid);
     ASSERT(itr != PlayersStore.end());
@@ -2575,7 +2575,7 @@ void LFGMgr::RemoveFinishedDungeons(ObjectGuid guid)
             {
                 if (itr.second.State == LFG_STATE_FINISHED_DUNGEON)
                 {
-                    TC_LOG_DEBUG("lfg", "LFGMgr::RemoveFinishedDungeons: Group [" "{}" "] Queue %u removed", GetGuidForLog(guid), itr.first);
+                    TC_LOG_DEBUG("lfg", "LFGMgr::RemoveFinishedDungeons: Group [" "{}" "] Queue {} removed", GetGuidForLog(guid), itr.first);
                     RemoveQueue(guid, itr.first);
                 }
             }
@@ -2589,7 +2589,7 @@ void LFGMgr::RemoveFinishedDungeons(ObjectGuid guid)
             {
                 if (itr.second.State == LFG_STATE_FINISHED_DUNGEON)
                 {
-                    TC_LOG_DEBUG("lfg", "LFGMgr::RemoveFinishedDungeons: Player [" "{}" "] Queue %u removed", GetGuidForLog(guid), itr.first);
+                    TC_LOG_DEBUG("lfg", "LFGMgr::RemoveFinishedDungeons: Player [" "{}" "] Queue {} removed", GetGuidForLog(guid), itr.first);
                     RemoveQueue(guid, itr.first);
                 }
             }
@@ -2696,7 +2696,7 @@ void LFGMgr::RemovePlayerFromGroup(ObjectGuid gguid, ObjectGuid guid)
 
 void LFGMgr::AddPlayerToGroup(ObjectGuid gguid, uint32 queueId, ObjectGuid guid)
 {
-    TC_LOG_DEBUG("lfg", "LFGMgr::AddPlayerToGroup: player [{}] group [" "{}" "] queue: %u", guid.GetCounter(), gguid.GetRawValue(), queueId);
+    TC_LOG_DEBUG("lfg", "LFGMgr::AddPlayerToGroup: player [{}] group [" "{}" "] queue: {}", guid.GetCounter(), gguid.GetRawValue(), queueId);
     SetGroup(guid, queueId, gguid);
     GroupsStore[gguid].AddPlayer(guid);
 }

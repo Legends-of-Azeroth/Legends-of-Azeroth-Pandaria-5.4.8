@@ -503,7 +503,7 @@ void EscortAI::Start(bool isActiveAttacker, ObjectGuid playerGUID, Quest const* 
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
     }
 
-    TC_LOG_DEBUG("scripts", "EscortAI started with " "{}" " waypoints. ActiveAttacker = %d, Run = %d, PlayerGUID = " "{}" "", uint64(WaypointList.size()), m_bIsActiveAttacker, m_bIsRunning, m_uiPlayerGUID.GetRawValue());
+    TC_LOG_DEBUG("scripts", "EscortAI started with " "{}" " waypoints. ActiveAttacker = {}, Run = {}, PlayerGUID = " "{}" "", uint64(WaypointList.size()), m_bIsActiveAttacker, m_bIsRunning, m_uiPlayerGUID.GetRawValue());
 
     CurrentWP = WaypointList.begin();
 

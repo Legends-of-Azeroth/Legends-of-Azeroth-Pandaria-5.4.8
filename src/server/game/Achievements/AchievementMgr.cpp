@@ -2196,7 +2196,7 @@ CriteriaProgress* AchievementMgr::GetCriteriaProgress(CriteriaEntry const* entry
 
 void AchievementMgr::SetCriteriaProgress(Criteria const* criteria, uint64 changeValue, Player* referencePlayer, ProgressType ptype)
 {
-    TC_LOG_DEBUG("achievement", "SetCriteriaProgress({}, " "{}" ") for (%s GUID: %u)",
+    TC_LOG_DEBUG("achievement", "SetCriteriaProgress({}, " "{}" ") for ({} GUID: {})",
                    criteria->Entry->ID, changeValue, GetGUID().GetTypeName(), GetGUID().GetCounter());
 
     CriteriaProgress* progress = GetCriteriaProgress(criteria->Entry);

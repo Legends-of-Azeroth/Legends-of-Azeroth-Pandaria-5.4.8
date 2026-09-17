@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -82,7 +82,7 @@ public:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName);
                 if (handler->GetSession())
                 {
-                    TC_LOG_INFO("entities.player.character", "Battle.net account: {} (IP: {}) Character:[{}] (" "{}" ") created Account %s",
+                    TC_LOG_INFO("entities.player.character", "Battle.net account: {} (IP: {}) Character:[{}] (" "{}" ") created Account {}",
                         handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                         handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetRawValue(),
                         accountName);
@@ -329,7 +329,7 @@ public:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName.c_str());
                 if (handler->GetSession())
                 {
-                    TC_LOG_INFO("entities.player.character", "Account: {} (IP: {}) Character:[{}] (" "{}" ") created Account %s (Email: '%s')",
+                    TC_LOG_INFO("entities.player.character", "Account: {} (IP: {}) Character:[{}] (" "{}" ") created Account {} (Email: '{}')",
                         handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                         handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetRawValue(),
                         accountName.c_str(), bnetAccountName.c_str());

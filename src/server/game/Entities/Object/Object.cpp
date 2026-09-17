@@ -89,7 +89,7 @@ WorldObject::~WorldObject()
     {
         if (GetTypeId() == TYPEID_CORPSE)
         {
-            TC_LOG_FATAL("misc", "Object::~Object Corpse guid=" "{}" ", type=%d, entry=%u deleted but still in map!!",
+            TC_LOG_FATAL("misc", "Object::~Object Corpse guid=" "{}" ", type={}, entry={} deleted but still in map!!",
                 GetGUID().GetRawValue(), ((Corpse*)this)->GetType(), GetEntry());
             ASSERT(false);
         }
@@ -101,7 +101,7 @@ Object::~Object()
 {
     if (IsInWorld())
     {
-        TC_LOG_FATAL("misc", "Object::~Object - guid=" "{}" ", typeid=%d, entry=%u deleted but still in world!!", GetGUID().GetRawValue(), GetTypeId(), GetEntry());
+        TC_LOG_FATAL("misc", "Object::~Object - guid=" "{}" ", typeid={}, entry={} deleted but still in world!!", GetGUID().GetRawValue(), GetTypeId(), GetEntry());
         if (isType(TYPEMASK_ITEM))
             TC_LOG_FATAL("misc", "Item slot {}", ((Item*)this)->GetSlot());
         ASSERT(false);
@@ -110,7 +110,7 @@ Object::~Object()
 
     if (m_objectUpdated)
     {
-        TC_LOG_FATAL("misc", "Object::~Object - guid=" "{}" ", typeid=%d, entry=%u deleted but still in update list!!", GetGUID().GetRawValue(), GetTypeId(), GetEntry());
+        TC_LOG_FATAL("misc", "Object::~Object - guid=" "{}" ", typeid={}, entry={} deleted but still in update list!!", GetGUID().GetRawValue(), GetTypeId(), GetEntry());
         ASSERT(false);
     }
 
@@ -2771,7 +2771,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             summoner->AddSummon(summon);
         else if (summoner->FindMap() != summon->FindMap()) // Okay, owner isn't in world, just some shit in scripts on instance unload/etc or summon was despawned (yeah, its's possible)
         {
-            TC_LOG_ERROR("shitlog", "Map::SummonCreature spellId: {}, owner (" "{}" ", entry: %u) map: %u (instance: %u), summon (" "{}" ", entry: %u, in world: %u) map: %u (instance: %u)\n", spellId, summoner->GetGUID().GetRawValue(), summoner->GetEntry(), summoner->GetMap()->GetId(), summoner->GetInstanceId(), summon->GetGUID().GetRawValue(), summon->GetEntry(), summon->IsInWorld(), summon->GetMap()->GetId(), summon->GetInstanceId());
+            TC_LOG_ERROR("shitlog", "Map::SummonCreature spellId: {}, owner (" "{}" ", entry: {}) map: {} (instance: {}), summon (" "{}" ", entry: {}, in world: {}) map: {} (instance: {})\n", spellId, summoner->GetGUID().GetRawValue(), summoner->GetEntry(), summoner->GetMap()->GetId(), summoner->GetInstanceId(), summon->GetGUID().GetRawValue(), summon->GetEntry(), summon->IsInWorld(), summon->GetMap()->GetId(), summon->GetInstanceId());
         }
     }
 

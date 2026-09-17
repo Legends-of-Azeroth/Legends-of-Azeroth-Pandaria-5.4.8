@@ -6818,7 +6818,7 @@ void Player::CheckAreaExploreAndOutdoor()
     AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
     if (!areaEntry)
     {
-        TC_LOG_ERROR("entities.player", "Player '{}' (" "{}" ") discovered unknown area (x: %f y: %f z: %f map: %u)",
+        TC_LOG_ERROR("entities.player", "Player '{}' (" "{}" ") discovered unknown area (x: {} y: {} z: {} map: {})",
             GetName().c_str(), GetGUID().GetRawValue(), GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId());
         return;
     }
@@ -9385,7 +9385,7 @@ void Player::RemoveLootedObject(ObjectGuid guid)
             return;
         }
     }
-    TC_LOG_ERROR("server", "Player::RemoveLootedObject guid " "{}" " not found in view of player (%u)", guid.GetRawValue(), GetGUID().GetCounter());
+    TC_LOG_ERROR("server", "Player::RemoveLootedObject guid " "{}" " not found in view of player ({})", guid.GetRawValue(), GetGUID().GetCounter());
 }
 
 static std::map<uint32, uint32> GatheringSkillDetail
@@ -19774,26 +19774,26 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 
         if (!itemId)
         {
-            TC_LOG_ERROR("entities.player", "Player::_LoadVoidStorage - Player (GUID: {}, name: {}) has an item with an invalid id (item id: " "{}" ", entry: %u).", GetGUID().GetCounter(), GetName().c_str(), itemId, itemEntry);
+            TC_LOG_ERROR("entities.player", "Player::_LoadVoidStorage - Player (GUID: {}, name: {}) has an item with an invalid id (item id: " "{}" ", entry: {}).", GetGUID().GetCounter(), GetName().c_str(), itemId, itemEntry);
             continue;
         }
 
         if (!sObjectMgr->GetItemTemplate(itemEntry))
         {
-            TC_LOG_ERROR("entities.player", "Player::_LoadVoidStorage - Player (GUID: {}, name: {}) has an item with an invalid entry (item id: " "{}" ", entry: %u).", GetGUID().GetCounter(), GetName().c_str(), itemId, itemEntry);
+            TC_LOG_ERROR("entities.player", "Player::_LoadVoidStorage - Player (GUID: {}, name: {}) has an item with an invalid entry (item id: " "{}" ", entry: {}).", GetGUID().GetCounter(), GetName().c_str(), itemId, itemEntry);
             continue;
         }
 
         if (slot >= VOID_STORAGE_MAX_SLOT)
         {
-            TC_LOG_ERROR("entities.player", "Player::_LoadVoidStorage - Player (GUID: {}, name: {}) has an item with an invalid slot (item id: " "{}" ", entry: %u, slot: %u).", GetGUID().GetCounter(), GetName().c_str(), itemId, itemEntry, slot);
+            TC_LOG_ERROR("entities.player", "Player::_LoadVoidStorage - Player (GUID: {}, name: {}) has an item with an invalid slot (item id: " "{}" ", entry: {}, slot: {}).", GetGUID().GetCounter(), GetName().c_str(), itemId, itemEntry, slot);
             continue;
         }
 
         std::string name;
         if (!creatorGuid.IsEmpty() && !sObjectMgr->GetPlayerNameByGUID(creatorGuid, name))
         {
-            TC_LOG_ERROR("entities.player", "Player::_LoadVoidStorage - Player (GUID: {}, name: {}) has an item with an invalid creator guid, set to 0 (item id: " "{}" ", entry: %u, creatorGuid: %u).", GetGUID().GetCounter(), GetName().c_str(), itemId, itemEntry, creatorGuid.GetCounter());
+            TC_LOG_ERROR("entities.player", "Player::_LoadVoidStorage - Player (GUID: {}, name: {}) has an item with an invalid creator guid, set to 0 (item id: " "{}" ", entry: {}, creatorGuid: {}).", GetGUID().GetCounter(), GetName().c_str(), itemId, itemEntry, creatorGuid.GetCounter());
             creatorGuid = ObjectGuid::Empty;
         }
 
@@ -22449,7 +22449,7 @@ void Player::StopCastingCharm()
 
     if (GetCharmGUID())
     {
-        TC_LOG_FATAL("entities.player", "Player {} (GUID: " "{}" " is not able to uncharm unit (GUID: " "{}" " Entry: %u, Type: %u)", GetName().c_str(), GetGUID().GetRawValue(), GetCharmGUID().GetRawValue(), charm->GetEntry(), charm->GetTypeId());
+        TC_LOG_FATAL("entities.player", "Player {} (GUID: " "{}" " is not able to uncharm unit (GUID: " "{}" " Entry: {}, Type: {})", GetName().c_str(), GetGUID().GetRawValue(), GetCharmGUID().GetRawValue(), charm->GetEntry(), charm->GetTypeId());
         if (charm->GetCharmerGUID())
         {
             TC_LOG_FATAL("entities.player", "Charmed unit has charmer guid " UI64FMTD, charm->GetCharmerGUID().GetRawValue());
@@ -28418,7 +28418,7 @@ void Player::SetEquipmentSet(uint32 index, EquipmentSet eqset)
 
         if (!found)                                          // something wrong...
         {
-            TC_LOG_ERROR("entities.player", "Player {} tried to save equipment set " "{}" " (index %u), but that equipment set not found!", GetName().c_str(), eqset.Guid, index);
+            TC_LOG_ERROR("entities.player", "Player {} tried to save equipment set " "{}" " (index {}), but that equipment set not found!", GetName().c_str(), eqset.Guid, index);
             return;
         }
     }
@@ -29505,7 +29505,7 @@ void Player::AddVoidStorageItemAtSlot(uint8 slot, const VoidStorageItem& item)
 
     if (_voidStorageItems[slot])
     {
-        TC_LOG_ERROR("misc", "Player::AddVoidStorageItemAtSlot - Player (GUID: {}, name: {}) tried to add an item to an used slot (item id: " "{}" ", entry: %u, slot: %u).", GetGUID().GetCounter(), GetName().c_str(), _voidStorageItems[slot]->ItemId, _voidStorageItems[slot]->ItemEntry, slot);
+        TC_LOG_ERROR("misc", "Player::AddVoidStorageItemAtSlot - Player (GUID: {}, name: {}) tried to add an item to an used slot (item id: " "{}" ", entry: {}, slot: {}).", GetGUID().GetCounter(), GetName().c_str(), _voidStorageItems[slot]->ItemId, _voidStorageItems[slot]->ItemEntry, slot);
         GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_INTERNAL_ERROR_1);
         return;
     }

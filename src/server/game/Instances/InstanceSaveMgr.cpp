@@ -359,7 +359,7 @@ void InstanceSaveManager::LoadResetTimes()
                 InstResetTimeMapDiffType::iterator itr = instResetTime.find(instance);
                 if (itr != instResetTime.end() && itr->second.second != resettime)
                 {
-                    CharacterDatabase.DirectPExecute("UPDATE instance SET resettime = '" "{}" "' WHERE id = '%u'", uint64(resettime), instance);
+                    CharacterDatabase.DirectPExecute("UPDATE instance SET resettime = '" "{}" "' WHERE id = '{}'", uint64(resettime), instance);
                     itr->second.second = resettime;
                 }
             }
@@ -486,7 +486,7 @@ void InstanceSaveManager::LoadResetTimes()
             tmNext.tm_sec = 0;
             t = mktime(&tmNext);
 
-            CharacterDatabase.DirectPExecute("UPDATE instance_reset SET resettime = '" "{}" "' WHERE mapid = '%u' AND difficulty= '%u'", (uint64)t, mapid, difficulty);
+            CharacterDatabase.DirectPExecute("UPDATE instance_reset SET resettime = '" "{}" "' WHERE mapid = '{}' AND difficulty= '{}'", (uint64)t, mapid, difficulty);
         }
 
         // Mogu'shan Vaults -- The Stone Guard weekly mechanism. Executed once per week when instances get resetted.

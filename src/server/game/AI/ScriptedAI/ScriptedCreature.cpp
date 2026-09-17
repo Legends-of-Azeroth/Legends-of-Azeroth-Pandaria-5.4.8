@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -400,7 +400,7 @@ void ScriptedAI::DoTeleportPlayer(Unit* unit, float x, float y, float z, float o
     if (Player* player = unit->ToPlayer())
         player->TeleportTo(unit->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);
     else
-        TC_LOG_ERROR("scripts", "Creature " "{}" " (Entry: %u) Tried to teleport non-player unit (Type: %u GUID: " "{}" ") to x: %f y:%f z: %f o: %f. Aborted.",
+        TC_LOG_ERROR("scripts", "Creature " "{}" " (Entry: {}) Tried to teleport non-player unit (Type: {} GUID: " "{}" ") to x: {} y:{} z: {} o: {}. Aborted.",
             me->GetGUID().GetRawValue(), me->GetEntry(), unit->GetTypeId(), unit->GetGUID().GetRawValue(), x, y, z, o);
 }
 

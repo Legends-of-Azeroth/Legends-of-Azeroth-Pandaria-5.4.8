@@ -233,7 +233,7 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[5]);
     recvData.ReadByteSeq(guid[3]);
 
-    TC_LOG_DEBUG("misc", "HandleQueueInviteResponse: GUID:" "{}" " Accepted:%u", (uint64)guid, accepted);
+    TC_LOG_DEBUG("misc", "HandleQueueInviteResponse: GUID:" "{}" " Accepted:{}", (uint64)guid, accepted);
 
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
     if (!bf)
@@ -268,7 +268,7 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[7]);
     recvData.ReadByteSeq(guid[0]);
 
-    TC_LOG_DEBUG("misc", "HandleBattlefieldInviteResponse: GUID:" "{}" " Accepted:%u", (uint64) guid, accepted);
+    TC_LOG_DEBUG("misc", "HandleBattlefieldInviteResponse: GUID:" "{}" " Accepted:{}", (uint64) guid, accepted);
 
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
     if (!bf)

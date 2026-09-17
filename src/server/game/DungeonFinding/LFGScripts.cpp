@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -151,7 +151,7 @@ void LFGGroupScript::OnAddMember(Group* group, ObjectGuid guid)
     auto gstateStr = GetStateString(gstate);
     auto stateStr = GetStateString(state);
 
-    TC_LOG_DEBUG("lfg", "LFGScripts::OnAddMember [" "{}" "]: added [%u] leader [%u] gstate: %s, state: %s", gguid.GetRawValue(), guid.GetCounter(), leader.GetCounter(), gstateStr.c_str(), stateStr.c_str());
+    TC_LOG_DEBUG("lfg", "LFGScripts::OnAddMember [" "{}" "]: added [{}] leader [{}] gstate: {}, state: {}", gguid.GetRawValue(), guid.GetCounter(), leader.GetCounter(), gstateStr.c_str(), stateStr.c_str());
 
     // When is a member added?
     // 1) Normal group. We must remove all player standalon queues and all group's queues
@@ -193,7 +193,7 @@ void LFGGroupScript::OnRemoveMember(Group* group, ObjectGuid guid, RemoveMethod 
 
     auto stateStr = GetStateString(state);
 
-    TC_LOG_DEBUG("lfg", "LFGScripts::OnRemoveMember [" "{}" "]: remove [%u] Method: %d Kicker: [%u] Reason: %s, group state: %s", gguid.GetRawValue(), guid.GetCounter(), method, kicker.GetCounter(), (reason ? reason : ""), stateStr.c_str());
+    TC_LOG_DEBUG("lfg", "LFGScripts::OnRemoveMember [" "{}" "]: remove [{}] Method: {} Kicker: [{}] Reason: {}, group state: {}", gguid.GetRawValue(), guid.GetCounter(), method, kicker.GetCounter(), (reason ? reason : ""), stateStr.c_str());
 
     if (state == LFG_STATE_NONE)
         return;
@@ -298,7 +298,7 @@ void LFGGroupScript::OnChangeLeader(Group* group, ObjectGuid newLeaderGuid, Obje
     if (sLFGMgr->GetActiveState(gguid) == LFG_STATE_NONE)
         return;
 
-    TC_LOG_DEBUG("lfg", "LFGScripts::OnChangeLeader [" "{}" "]: old [%u] new [%u]", gguid.GetRawValue(), oldLeaderGuid.GetCounter(), newLeaderGuid.GetCounter());
+    TC_LOG_DEBUG("lfg", "LFGScripts::OnChangeLeader [" "{}" "]: old [{}] new [{}]", gguid.GetRawValue(), oldLeaderGuid.GetCounter(), newLeaderGuid.GetCounter());
     sLFGMgr->SetLeader(gguid, newLeaderGuid);
 }
 
@@ -313,7 +313,7 @@ void LFGGroupScript::OnInviteMember(Group* group, ObjectGuid guid)
     ObjectGuid gguid = group->GetGUID();
 
     ObjectGuid leader = group->GetLeaderGUID();
-    TC_LOG_DEBUG("lfg", "LFGScripts::OnInviteMember [" "{}" "]: invite [%u] leader [%u]", gguid.GetRawValue(), guid.GetCounter(), leader.GetCounter());
+    TC_LOG_DEBUG("lfg", "LFGScripts::OnInviteMember [" "{}" "]: invite [{}] leader [{}]", gguid.GetRawValue(), guid.GetCounter(), leader.GetCounter());
     // No gguid ==  new group being formed
     // No leader == after group creation first invite is new leader
     // leader and no gguid == first invite after leader is added to new group (this is the real invite)

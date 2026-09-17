@@ -512,7 +512,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         me ? me->GetGUID().GetCounter() : go->GetGUID().GetCounter(), e.action.cast.spell, (*itr)->GetGUID().GetCounter(), e.action.cast.flags);
                 }
                 else
-                    TC_LOG_DEBUG("scripts.ai", "Spell {} not casted because it has flag SMARTCAST_AURA_NOT_PRESENT and the target (Guid: " "{}" " Entry: %u Type: %u) already has the aura", e.action.cast.spell, (*itr)->GetGUID().GetRawValue(), (*itr)->GetEntry(), uint32((*itr)->GetTypeId()));
+                    TC_LOG_DEBUG("scripts.ai", "Spell {} not casted because it has flag SMARTCAST_AURA_NOT_PRESENT and the target (Guid: " "{}" " Entry: {} Type: {}) already has the aura", e.action.cast.spell, (*itr)->GetGUID().GetRawValue(), (*itr)->GetEntry(), uint32((*itr)->GetTypeId()));
             }
 
             delete targets;
@@ -543,7 +543,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             tempLastInvoker->GetGUID().GetCounter(), e.action.cast.spell, (*itr)->GetGUID().GetCounter(), e.action.cast.flags);
                     }
                     else
-                        TC_LOG_DEBUG("scripts.ai", "Spell {} not casted because it has flag SMARTCAST_AURA_NOT_PRESENT and the target (Guid: " "{}" " Entry: %u Type: %u) already has the aura", e.action.cast.spell, (*itr)->GetGUID().GetRawValue(), (*itr)->GetEntry(), uint32((*itr)->GetTypeId()));
+                        TC_LOG_DEBUG("scripts.ai", "Spell {} not casted because it has flag SMARTCAST_AURA_NOT_PRESENT and the target (Guid: " "{}" " Entry: {} Type: {}) already has the aura", e.action.cast.spell, (*itr)->GetGUID().GetRawValue(), (*itr)->GetEntry(), uint32((*itr)->GetTypeId()));
             }
 
             delete targets;
@@ -1701,7 +1701,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         (*itr)->ToUnit()->CastSpell((*it)->ToUnit(), e.action.cast.spell, (e.action.cast.flags & SMARTCAST_TRIGGERED));
                     }
                     else
-                        TC_LOG_DEBUG("scripts.ai", "Spell {} not casted because it has flag SMARTCAST_AURA_NOT_PRESENT and the target (Guid: " "{}" " Entry: %u Type: %u) already has the aura", e.action.cast.spell, (*it)->GetGUID().GetRawValue(), (*it)->GetEntry(), uint32((*it)->GetTypeId()));
+                        TC_LOG_DEBUG("scripts.ai", "Spell {} not casted because it has flag SMARTCAST_AURA_NOT_PRESENT and the target (Guid: " "{}" " Entry: {} Type: {}) already has the aura", e.action.cast.spell, (*it)->GetGUID().GetRawValue(), (*it)->GetEntry(), uint32((*it)->GetTypeId()));
                 }
             }
 
@@ -2269,7 +2269,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         else
                             obj->PlayDirectSound(sound, onlySelf ? obj->ToPlayer() : nullptr);
 
-                        TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_RANDOM_SOUND: target: {} (" "{}" "), sound: %u, onlyself: %s",
+                        TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_RANDOM_SOUND: target: {} (" "{}" "), sound: {}, onlyself: {}",
                             obj->GetName().c_str(), obj->GetGUID().GetRawValue(), sound, onlySelf ? "true" : "false");
                     }
                 }
@@ -2325,7 +2325,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         break;
                     }
 
-                    TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_PLAY_ANIMKIT: target: {} (" "{}" "), AnimKit: %u, Type: %u",
+                    TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_PLAY_ANIMKIT: target: {} (" "{}" "), AnimKit: {}, Type: {}",
                         (*itr)->GetName().c_str(), (*itr)->GetGUID().GetRawValue(), e.action.animKit.animKit, e.action.animKit.type);
                 }
             }
@@ -2502,7 +2502,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         me->GetGUID().GetCounter(), id, (*itr)->GetGUID().GetCounter(), e.action.castRandomSpell.flags);
                 }
                 else
-                    TC_LOG_DEBUG("scripts.ai", "Spell {} not casted because it has flag SMARTCAST_AURA_NOT_PRESENT and the target (Guid: " "{}" " Entry: %u Type: %u) already has the aura", e.action.cast.spell, (*itr)->GetGUID().GetRawValue(), (*itr)->GetEntry(), uint32((*itr)->GetTypeId()));
+                    TC_LOG_DEBUG("scripts.ai", "Spell {} not casted because it has flag SMARTCAST_AURA_NOT_PRESENT and the target (Guid: " "{}" " Entry: {} Type: {}) already has the aura", e.action.cast.spell, (*itr)->GetGUID().GetRawValue(), (*itr)->GetEntry(), uint32((*itr)->GetTypeId()));
             }
 
             delete targets;

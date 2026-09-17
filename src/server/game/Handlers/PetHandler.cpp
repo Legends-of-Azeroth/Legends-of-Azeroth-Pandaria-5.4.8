@@ -252,7 +252,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
     CharmInfo* charmInfo = pet->GetCharmInfo();
     if (!charmInfo)
     {
-        TC_LOG_ERROR("network", "WorldSession::HandlePetAction(petGuid: " "{}" ", tagGuid: " "{}" ", spellId: %u, flag: %u): object (entry: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!",
+        TC_LOG_ERROR("network", "WorldSession::HandlePetAction(petGuid: " "{}" ", tagGuid: " "{}" ", spellId: {}, flag: {}): object (entry: {} TypeId: {}) is considered pet-like but doesn't have a charminfo!",
             guid1.GetRawValue(), guid2.GetRawValue(), spellid, flag, pet->GetGUID().GetCounter(), pet->GetTypeId());
         return;
     }
@@ -1334,7 +1334,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     if (hasSpellId)
         spellId = recvPacket.read<uint32>();
 
-    TC_LOG_DEBUG("network", "WORLD: CMSG_PET_CAST_SPELL, guid: " "{}" ", castCount: %u, spellId %u, castFlags %u", uint64(petGuid), castCount, spellId, castFlags);
+    TC_LOG_DEBUG("network", "WORLD: CMSG_PET_CAST_SPELL, guid: " "{}" ", castCount: {}, spellId {}, castFlags {}", uint64(petGuid), castCount, spellId, castFlags);
 
     // This opcode is also sent from charmed and possessed units (players and creatures)
     if (!_player->GetGuardianPet() && !_player->GetCharm())

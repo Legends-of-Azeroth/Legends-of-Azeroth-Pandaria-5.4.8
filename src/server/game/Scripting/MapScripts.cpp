@@ -318,7 +318,7 @@ void Map::ScriptsProcess()
                     source = GetTransport(step.sourceGUID);
                     break;
                 default:
-                    TC_LOG_ERROR("scripts", "{} source with unsupported high guid (GUID: " "{}" ", high guid: %u).",
+                    TC_LOG_ERROR("scripts", "{} source with unsupported high guid (GUID: " "{}" ", high guid: {}).",
                         step.script->GetDebugInfo().c_str(), step.sourceGUID.GetRawValue(), step.sourceGUID.GetHigh());
                     break;
             }
@@ -350,7 +350,7 @@ void Map::ScriptsProcess()
                     target = GetTransport(step.targetGUID);
                     break;
                 default:
-                    TC_LOG_ERROR("scripts", "{} target with unsupported high guid (GUID: " "{}" ", high guid: %u).",
+                    TC_LOG_ERROR("scripts", "{} target with unsupported high guid (GUID: " "{}" ", high guid: {}).",
                         step.script->GetDebugInfo().c_str(), step.targetGUID.GetRawValue(), step.targetGUID.GetHigh());
                     break;
             }

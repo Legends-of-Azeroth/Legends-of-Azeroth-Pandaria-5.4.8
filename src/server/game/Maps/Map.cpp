@@ -332,7 +332,7 @@ void Map::SwitchGridContainers(Creature* obj, bool on)
     CellCoord p = Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
     if (!p.IsCoordValid())
     {
-        TC_LOG_ERROR("maps", "Map::SwitchGridContainers: Object " "{}" " has invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUID().GetRawValue(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
+        TC_LOG_ERROR("maps", "Map::SwitchGridContainers: Object " "{}" " has invalid coordinates X:{} Y:{} grid cell [{}:{}]", obj->GetGUID().GetRawValue(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
         return;
     }
 
@@ -342,7 +342,7 @@ void Map::SwitchGridContainers(Creature* obj, bool on)
 
     uint32 const grid_x = cell.data.Part.grid_x;
     uint32 const grid_y = cell.data.Part.grid_y;
-    TC_LOG_DEBUG("maps", "Switch object " "{}" " from grid[%u, %u] %u", obj->GetGUID().GetRawValue(), grid_x, grid_y, on);
+    TC_LOG_DEBUG("maps", "Switch object " "{}" " from grid[{}, {}] {}", obj->GetGUID().GetRawValue(), grid_x, grid_y, on);
     NGridType *ngrid = getNGrid(cell.GridX(), cell.GridY());
     ASSERT(ngrid != NULL);
 
@@ -371,7 +371,7 @@ void Map::SwitchGridContainers(GameObject* obj, bool on)
     CellCoord p = Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
     if (!p.IsCoordValid())
     {
-        TC_LOG_ERROR("maps", "Map::SwitchGridContainers: Object " "{}" " has invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUID().GetRawValue(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
+        TC_LOG_ERROR("maps", "Map::SwitchGridContainers: Object " "{}" " has invalid coordinates X:{} Y:{} grid cell [{}:{}]", obj->GetGUID().GetRawValue(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
         return;
     }
 
@@ -381,7 +381,7 @@ void Map::SwitchGridContainers(GameObject* obj, bool on)
 
     uint32 const grid_x = cell.data.Part.grid_x;
     uint32 const grid_y = cell.data.Part.grid_y;
-    TC_LOG_DEBUG("maps", "Switch object " "{}" " from grid[%u, %u] %u", obj->GetGUID().GetRawValue(), grid_y, on);
+    TC_LOG_DEBUG("maps", "Switch object " "{}" " from grid[{}, {}] {}", obj->GetGUID().GetRawValue(), grid_x, grid_y, on);
     NGridType *ngrid = getNGrid(cell.GridX(), cell.GridY());
     ASSERT(ngrid != NULL);
 
@@ -457,7 +457,7 @@ void Map::EnsureGridLoadedForActiveObject(Cell const& cell, WorldObject const* o
     // refresh grid state & timer
     if (grid->GetGridState() != GRID_STATE_ACTIVE)
     {
-        TC_LOG_DEBUG("maps", "Active object " "{}" " triggers loading of grid [%u, %u] on map %u", object->GetGUID().GetRawValue(), cell.GridX(), cell.GridY(), GetId());
+        TC_LOG_DEBUG("maps", "Active object " "{}" " triggers loading of grid [{}, {}] on map {}", object->GetGUID().GetRawValue(), cell.GridX(), cell.GridY(), GetId());
         ResetGridExpiry(*grid, 0.1f);
         grid->SetGridState(GRID_STATE_ACTIVE);
     }
@@ -565,7 +565,7 @@ bool Map::AddToMap(T* obj)
     ASSERT(cellCoord.IsCoordValid());
     if (!cellCoord.IsCoordValid())
     {
-        TC_LOG_ERROR("maps", "Map::Add: Object " "{}" " has invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUID().GetRawValue(), obj->GetPositionX(), obj->GetPositionY(), cellCoord.x_coord, cellCoord.y_coord);
+        TC_LOG_ERROR("maps", "Map::Add: Object " "{}" " has invalid coordinates X:{} Y:{} grid cell [{}:{}]", obj->GetGUID().GetRawValue(), obj->GetPositionX(), obj->GetPositionY(), cellCoord.x_coord, cellCoord.y_coord);
         return false; //Should delete object
     }
 
@@ -616,7 +616,7 @@ bool Map::AddToMap(Transport* obj)
     CellCoord cellCoord = Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
     if (!cellCoord.IsCoordValid())
     {
-        TC_LOG_ERROR("maps", "Map::Add: Object " "{}" " has invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUID().GetRawValue(), obj->GetPositionX(), obj->GetPositionY(), cellCoord.x_coord, cellCoord.y_coord);
+        TC_LOG_ERROR("maps", "Map::Add: Object " "{}" " has invalid coordinates X:{} Y:{} grid cell [{}:{}]", obj->GetGUID().GetRawValue(), obj->GetPositionX(), obj->GetPositionY(), cellCoord.x_coord, cellCoord.y_coord);
         return false; //Should delete object
     }
 
@@ -4117,7 +4117,7 @@ void Map::LoadCorpseData()
         ObjectGuid::LowType guid = fields[15].GetUInt32();
         if (type >= MAX_CORPSE_TYPE || type == CORPSE_BONES)
         {
-            TC_LOG_ERROR("misc", "Corpse (guid: " "{}" ") have wrong corpse type (%u), not loading.", uint64(guid), type);
+            TC_LOG_ERROR("misc", "Corpse (guid: " "{}" ") have wrong corpse type ({}), not loading.", uint64(guid), type);
             continue;
         }
 

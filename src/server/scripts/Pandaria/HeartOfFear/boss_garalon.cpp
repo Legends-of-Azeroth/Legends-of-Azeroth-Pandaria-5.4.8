@@ -406,7 +406,7 @@ class boss_garalon : public CreatureScript
                         Aura* sharedDamage = body->GetAura(117190);
                         if (body->GetHealth() > damage || !sharedDamage || sharedDamage->GetCaster() != me)
                         {
-                            TC_LOG_ERROR("garalon", "Garalon: vehicle " "{}" ", body " "{}" ", health %u, damage %u, has aura %u, aura caster " UI64FMTD,
+                            TC_LOG_ERROR("garalon", "Garalon: vehicle " "{}" ", body " "{}" ", health {}, damage {}, has aura {}, aura caster " UI64FMTD,
                                 me->GetGUID().GetRawValue(), body->GetGUID().GetRawValue(), body->GetHealth(), damage, sharedDamage ? 1 : 0, sharedDamage ? sharedDamage->GetCasterGUID().GetRawValue() : uint64(0));
                             if (Player* player = me->GetMap()->GetFirstPlayerInInstance())
                                 player->Kill(body);
@@ -528,7 +528,7 @@ class npc_garalon_body : public CreatureScript
                         Aura* sharedDamage = me->GetAura(117190);
                         if (garalon->GetHealth() > damage || !sharedDamage || sharedDamage->GetCaster() != garalon)
                         {
-                            TC_LOG_ERROR("garalon", "Garalon body: vehicle " "{}" ", body " "{}" ", health %u, damage %u, has aura %u, aura caster " UI64FMTD,
+                            TC_LOG_ERROR("garalon", "Garalon body: vehicle " "{}" ", body " "{}" ", health {}, damage {}, has aura {}, aura caster " UI64FMTD,
                                 garalon->GetGUID().GetRawValue(), me->GetGUID().GetRawValue(), garalon->GetHealth(), damage, sharedDamage ? 1 : 0, sharedDamage ? sharedDamage->GetCasterGUID().GetRawValue() : uint64(0));
                             if (Player* player = me->GetMap()->GetFirstPlayerInInstance())
                                 player->Kill(garalon);

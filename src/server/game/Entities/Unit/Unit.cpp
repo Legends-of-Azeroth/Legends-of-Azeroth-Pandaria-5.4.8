@@ -950,7 +950,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     TC_LOG_DEBUG("entities.unit", "DealDamageStart");
 
     uint32 health = victim->GetHealth();
-    TC_LOG_DEBUG("entities.unit", "Unit " "{}" " dealt %u damage to unit " UI64FMTD, GetGUID().GetRawValue(), damage, victim->GetGUID().GetRawValue());
+    TC_LOG_DEBUG("entities.unit", "Unit " "{}" " dealt {} damage to unit " UI64FMTD, GetGUID().GetRawValue(), damage, victim->GetGUID().GetRawValue());
 
     // duel ends when player has 1 or less hp
     bool duel_hasEnded = false;
@@ -4135,10 +4135,10 @@ void Unit::RemoveOwnedAura(AuraMap::iterator &i, AuraRemoveMode removeMode)
         Unit* caster = aura->GetCaster();
         if (!caster)
         {
-            TC_LOG_ERROR("shitlog", "Unit::RemoveOwnedAura !caster aura: {}, owner: " "{}" " (entry: %u)\n", aura->GetId(), GetGUID().GetRawValue(), GetEntry());
+            TC_LOG_ERROR("shitlog", "Unit::RemoveOwnedAura !caster aura: {}, owner: " "{}" " (entry: {})\n", aura->GetId(), GetGUID().GetRawValue(), GetEntry());
             caster = ObjectAccessor::FindConnectedPlayer(aura->GetCasterGUID());
             if (!caster)
-                TC_LOG_ERROR("shitlog", "Unit::RemoveOwnedAura !caster and !caster aura: {}, owner: " "{}" " (entry: %u)\n", aura->GetId(), GetGUID().GetRawValue(), GetEntry());
+                TC_LOG_ERROR("shitlog", "Unit::RemoveOwnedAura !caster and !caster aura: {}, owner: " "{}" " (entry: {})\n", aura->GetId(), GetGUID().GetRawValue(), GetEntry());
         }
         // ASSERT(caster);
         if (caster)
@@ -4994,14 +4994,14 @@ void Unit::UnbindAura(Aura* aura)
     auto listit = m_boundAuras.find(aura->GetId());
     if (listit == m_boundAuras.end())
     {
-        TC_LOG_ERROR("shitlog", "Unit::UnbindAura listit == m_boundAuras.end() aura: {}, caster: " "{}" " (entry: %u)\n" , aura->GetId(), GetGUID().GetRawValue(), GetEntry());
+        TC_LOG_ERROR("shitlog", "Unit::UnbindAura listit == m_boundAuras.end() aura: {}, caster: " "{}" " (entry: {})\n" , aura->GetId(), GetGUID().GetRawValue(), GetEntry());
         return;
     }
     auto& list = m_boundAuras[aura->GetId()];
     auto it = std::find(list.begin(), list.end(), aura);
     if (it == list.end())
     {
-        TC_LOG_ERROR("shitlog", "Unit::UnbindAura it == list.end() aura: {}, caster: " "{}" " (entry: %u)\n", aura->GetId(), GetGUID().GetRawValue(), GetEntry());
+        TC_LOG_ERROR("shitlog", "Unit::UnbindAura it == list.end() aura: {}, caster: " "{}" " (entry: {})\n", aura->GetId(), GetGUID().GetRawValue(), GetEntry());
         return;
     }
     list.erase(it);
@@ -13802,7 +13802,7 @@ void Unit::UpdateCharmAI()
                     delete i_AI;
                     i_AI = i_disabledAI;
                     i_disabledAI = nullptr;
-                    TC_LOG_DEBUG("crash", "Unit::UpdateCharmAI, GUID: " "{}" ", entry: %u, charmer: " "{}" ", origianl AI", GetGUID().GetRawValue(), GetEntry(), GetCharmerGUID().GetRawValue());
+                    TC_LOG_DEBUG("crash", "Unit::UpdateCharmAI, GUID: " "{}" ", entry: {}, charmer: " "{}" ", origianl AI", GetGUID().GetRawValue(), GetEntry(), GetCharmerGUID().GetRawValue());
                 }
             }
             else
@@ -13812,12 +13812,12 @@ void Unit::UpdateCharmAI()
                     i_disabledAI = i_AI;
                     if (isPossessed() || IsVehicle())
                     {
-                        TC_LOG_DEBUG("crash", "Unit::UpdateCharmAI, GUID: " "{}" ", entry: %u, charmer: " "{}" ", PossessedAI", GetGUID().GetRawValue(), GetEntry(), GetCharmerGUID().GetRawValue());
+                        TC_LOG_DEBUG("crash", "Unit::UpdateCharmAI, GUID: " "{}" ", entry: {}, charmer: " "{}" ", PossessedAI", GetGUID().GetRawValue(), GetEntry(), GetCharmerGUID().GetRawValue());
                         i_AI = new PossessedAI(ToCreature());
                     }
                     else
                     {
-                        TC_LOG_DEBUG("crash", "Unit::UpdateCharmAI, GUID: " "{}" ", entry: %u, charmer: " "{}" ", PetAI", GetGUID().GetRawValue(), GetEntry(), GetCharmerGUID().GetRawValue());
+                        TC_LOG_DEBUG("crash", "Unit::UpdateCharmAI, GUID: " "{}" ", entry: {}, charmer: " "{}" ", PetAI", GetGUID().GetRawValue(), GetEntry(), GetCharmerGUID().GetRawValue());
                         i_AI = new PetAI(ToCreature());
                     }
                 }
@@ -15825,7 +15825,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellInfo)
     // But we have bug with killing unit than it is dead
     if (!victim->IsAlive())
     {
-        TC_LOG_ERROR("shitlog", "Unit::Kill, victim isn't alive, killer: " "{}" " (%u), victim: " "{}" " (%u)\n", GetGUID().GetRawValue(), GetEntry(), victim->GetGUID().GetRawValue(), victim->GetEntry());
+        TC_LOG_ERROR("shitlog", "Unit::Kill, victim isn't alive, killer: " "{}" " ({}), victim: " "{}" " ({})\n", GetGUID().GetRawValue(), GetEntry(), victim->GetGUID().GetRawValue(), victim->GetEntry());
         return;
     }
 
@@ -16427,7 +16427,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
         return false;
 
     if (GetTypeId() == TYPEID_UNIT)
-        TC_LOG_DEBUG("crash", "Unit::SetCharmedBy1, GUID: " "{}" ", entry: %u, charmer: " "{}" ", type: %u, aura: %u", GetGUID().GetRawValue(), GetEntry(), GetCharmerGUID().GetRawValue(), type, aurApp ? aurApp->GetBase()->GetId() : 0);
+        TC_LOG_DEBUG("crash", "Unit::SetCharmedBy1, GUID: " "{}" ", entry: {}, charmer: " "{}" ", type: {}, aura: {}", GetGUID().GetRawValue(), GetEntry(), GetCharmerGUID().GetRawValue(), type, aurApp ? aurApp->GetBase()->GetId() : 0);
 
     // dismount players when charmed
     if (GetTypeId() == TYPEID_PLAYER)
@@ -16603,7 +16603,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
         creature->RefreshSwimmingFlag();
 
     if (GetTypeId() == TYPEID_UNIT)
-        TC_LOG_DEBUG("crash", "Unit::SetCharmedBy2, GUID: " "{}" ", entry: %u, charmer: " "{}" ", type: %u, aura: %u", GetGUID().GetRawValue(), GetEntry(), GetCharmerGUID().GetRawValue(), type, aurApp ? aurApp->GetBase()->GetId() : 0);
+        TC_LOG_DEBUG("crash", "Unit::SetCharmedBy2, GUID: " "{}" ", entry: {}, charmer: " "{}" ", type: {}, aura: {}", GetGUID().GetRawValue(), GetEntry(), GetCharmerGUID().GetRawValue(), type, aurApp ? aurApp->GetBase()->GetId() : 0);
     return true;
 }
 
@@ -16631,7 +16631,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
         type = CHARM_TYPE_CHARM;
 
     if (GetTypeId() == TYPEID_UNIT)
-        TC_LOG_DEBUG("crash", "Unit::RemoveCharmedBy1, GUID: " "{}" ", entry: %u, charmer: " "{}" ", type: %u", GetGUID().GetRawValue(), GetEntry(), charmer->GetGUID().GetRawValue(), type);
+        TC_LOG_DEBUG("crash", "Unit::RemoveCharmedBy1, GUID: " "{}" ", entry: {}, charmer: " "{}" ", type: {}", GetGUID().GetRawValue(), GetEntry(), charmer->GetGUID().GetRawValue(), type);
 
     CastStop();
 
@@ -16727,7 +16727,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
                         if (GetCharmInfo())
                             GetCharmInfo()->SetPetNumber(0, true);
                         else
-                            TC_LOG_ERROR("entities.unit", "Aura::HandleModCharm: target=" "{}" " with typeid=%d has a charm aura but no charm info!", GetGUID().GetRawValue(), GetTypeId());
+                            TC_LOG_ERROR("entities.unit", "Aura::HandleModCharm: target=" "{}" " with typeid={} has a charm aura but no charm info!", GetGUID().GetRawValue(), GetTypeId());
                     }
                 }
                 break;
@@ -16744,7 +16744,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
         DeleteCharmInfo();
 
     if (GetTypeId() == TYPEID_UNIT)
-        TC_LOG_DEBUG("crash", "Unit::RemoveCharmedBy2, GUID: " "{}" ", entry: %u, charmer: " "{}" ", type: %u", GetGUID().GetRawValue(), GetEntry(), charmer->GetGUID().GetRawValue(), type);
+        TC_LOG_DEBUG("crash", "Unit::RemoveCharmedBy2, GUID: " "{}" ", entry: {}, charmer: " "{}" ", type: {}", GetGUID().GetRawValue(), GetEntry(), charmer->GetGUID().GetRawValue(), type);
 }
 
 void Unit::RestoreFaction()
@@ -19023,7 +19023,7 @@ bool Unit::CanLeadFollowTarget(Unit * target) const
 void Unit::OutDebugInfo() const
 {
     TC_LOG_ERROR("entities.unit", "Unit::OutDebugInfo");
-    TC_LOG_INFO("entities.unit", "GUID " "{}" ", entry %u, type %u, name %s", GetGUID().GetRawValue(), GetEntry(), (uint32) GetTypeId(), GetName().c_str());
+    TC_LOG_INFO("entities.unit", "GUID " "{}" ", entry {}, type {}, name {}", GetGUID().GetRawValue(), GetEntry(), (uint32) GetTypeId(), GetName().c_str());
     TC_LOG_INFO("entities.unit", "OwnerGUID " "{}" ", MinionGUID " "{}" ", CharmerGUID " "{}" ", CharmedGUID " UI64FMTD, GetOwnerGUID().GetRawValue(), GetMinionGUID().GetRawValue(), GetCharmerGUID().GetRawValue(), GetCharmGUID().GetRawValue());
     TC_LOG_INFO("entities.unit", "In world {}, unit type mask {}", (uint32) (IsInWorld() ? 1 : 0), m_unitTypeMask);
     if (IsInWorld())

@@ -1011,7 +1011,7 @@ void Battleground::EndBattleground(uint32 winner)
                         for (Battleground::BattlegroundScoreMap::const_iterator itr = GetPlayerScoresBegin(); itr != GetPlayerScoresEnd(); ++itr)
                             if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                             {
-                                TC_LOG_DEBUG("bg.arena", "Statistics match Type: {} for {} (GUID: " "{}" ", IP: %s): %u damage, %u healing, %u killing blows",
+                                TC_LOG_DEBUG("bg.arena", "Statistics match Type: {} for {} (GUID: " "{}" ", IP: {}): {} damage, {} healing, {} killing blows",
                                     m_ArenaType, player->GetName().c_str(), itr->first.GetRawValue(), player->GetSession()->GetRemoteAddress().c_str(), itr->second->DamageDone, itr->second->HealingDone,
                                     itr->second->KillingBlows);
                             }

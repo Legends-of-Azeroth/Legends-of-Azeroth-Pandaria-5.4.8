@@ -467,7 +467,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         AH->etime = etime;
         AH->auctionHouseEntry = auctionHouseEntry;
 
-        TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: Player {} (guid {}) is selling item {} entry {} (guid {}) with count {} with initial bid " "{}" " with buyout " "{}" " and with time %u (in sec) in auctionhouse %u",
+        TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: Player {} (guid {}) is selling item {} entry {} (guid {}) with count {} with initial bid " "{}" " with buyout " "{}" " and with time {} (in sec) in auctionhouse {}",
                     _player->GetName().c_str(), _player->GetGUID().GetCounter(), item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetGUID().GetCounter(), item->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
 
         // Add to pending auctions, or fail with insufficient funds error
@@ -524,7 +524,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         AH->etime = etime;
         AH->auctionHouseEntry = auctionHouseEntry;
 
-        TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: Player {} (guid {}) is selling item {} entry {} (guid {}) with count {} with initial bid " "{}" " with buyout " "{}" " and with time %u (in sec) in auctionhouse %u",
+        TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: Player {} (guid {}) is selling item {} entry {} (guid {}) with count {} with initial bid " "{}" " with buyout " "{}" " and with time {} (in sec) in auctionhouse {}",
                     _player->GetName().c_str(), _player->GetGUID().GetCounter(), newItem->GetTemplate()->Name1.c_str(), newItem->GetEntry(), newItem->GetGUID().GetCounter(), newItem->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
 
         // Add to pending auctions, or fail with insufficient funds error

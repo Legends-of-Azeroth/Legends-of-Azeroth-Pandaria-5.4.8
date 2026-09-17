@@ -1129,7 +1129,7 @@ namespace LuaUnit
                 //    break;
                 //}
             default:
-                //TC_LOG_ERROR("scripts", "{} target with unsupported high guid (GUID: " "{}" ", high guid: %u).",
+                //TC_LOG_ERROR("scripts", "{} target with unsupported high guid (GUID: " "{}" ", high guid: {}).",
                 //    step.script->GetDebugInfo().c_str(), step.targetGUID, GUID_HIPART(step.targetGUID));
                 break;
             }
@@ -1176,7 +1176,7 @@ namespace LuaUnit
             //    break;
             //}
             default:
-                //TC_LOG_ERROR("scripts", "{} target with unsupported high guid (GUID: " "{}" ", high guid: %u).",
+                //TC_LOG_ERROR("scripts", "{} target with unsupported high guid (GUID: " "{}" ", high guid: {}).",
                 //    step.script->GetDebugInfo().c_str(), step.targetGUID, GUID_HIPART(step.targetGUID));
                 break;
             }
@@ -1223,7 +1223,7 @@ namespace LuaUnit
             //    break;
             //}
             default:
-                //TC_LOG_ERROR("scripts", "{} target with unsupported high guid (GUID: " "{}" ", high guid: %u).",
+                //TC_LOG_ERROR("scripts", "{} target with unsupported high guid (GUID: " "{}" ", high guid: {}).",
                 //    step.script->GetDebugInfo().c_str(), step.targetGUID, GUID_HIPART(step.targetGUID));
                 break;
             }
@@ -1270,7 +1270,7 @@ namespace LuaUnit
                 //    break;
                 //}
             default:
-                //TC_LOG_ERROR("scripts", "{} target with unsupported high guid (GUID: " "{}" ", high guid: %u).",
+                //TC_LOG_ERROR("scripts", "{} target with unsupported high guid (GUID: " "{}" ", high guid: {}).",
                 //    step.script->GetDebugInfo().c_str(), step.targetGUID, GUID_HIPART(step.targetGUID));
                 break;
             }

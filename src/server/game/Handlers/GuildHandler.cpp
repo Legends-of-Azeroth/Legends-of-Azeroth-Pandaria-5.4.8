@@ -423,7 +423,7 @@ void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(vendorGuid[1]);
     recvPacket.ReadByteSeq(vendorGuid[3]);
 
-    TC_LOG_DEBUG("guild", "CMSG_SAVE_GUILD_EMBLEM [{}]: Guid: [" "{}" "] Style: %d, Color: %d, BorderStyle: %d, BorderColor: %d, BackgroundColor: %d",
+    TC_LOG_DEBUG("guild", "CMSG_SAVE_GUILD_EMBLEM [{}]: Guid: [" "{}" "] Style: {}, Color: {}, BorderStyle: {}, BorderColor: {}, BackgroundColor: {}",
         GetPlayerInfo().c_str(), uint64(vendorGuid), emblemInfo.GetStyle(), emblemInfo.GetColor(), emblemInfo.GetBorderStyle(),
         emblemInfo.GetBorderColor(), emblemInfo.GetBackgroundColor());
 
@@ -492,7 +492,7 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(guid[5]);
     recvPacket.ReadByteSeq(guid[3]);
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANKER_ACTIVATE [{}]: Go: [" "{}" "] AllSlots: %u", GetPlayerInfo().c_str(), (uint64)guid, sendAllSlots);
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANKER_ACTIVATE [{}]: Go: [" "{}" "] AllSlots: {}", GetPlayerInfo().c_str(), (uint64)guid, sendAllSlots);
 
     auto go = GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK);
     if (!go)
@@ -547,7 +547,7 @@ void WorldSession::HandleGuildBankQueryTab(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(guid[0]);
     recvPacket.ReadByteSeq(guid[1]);
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_QUERY_TAB [{}]: Go: [" "{}" "], TabId: %u, AllSlots: %u", GetPlayerInfo().c_str(), (uint64)guid, tabId, sendAllSlots);
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_QUERY_TAB [{}]: Go: [" "{}" "], TabId: {}, AllSlots: {}", GetPlayerInfo().c_str(), (uint64)guid, tabId, sendAllSlots);
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = GetPlayer()->GetGuild())
@@ -737,7 +737,7 @@ void WorldSession::HandleGuildBankBuyTab(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(guid[2]);
     recvPacket.ReadByteSeq(guid[0]);
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_BUY_TAB [{}]: Go: [" "{}" "], TabId: %u", GetPlayerInfo().c_str(), (uint64)guid, tabId);
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_BUY_TAB [{}]: Go: [" "{}" "], TabId: {}", GetPlayerInfo().c_str(), (uint64)guid, tabId);
 
     // Since Cata you can buy tabs from the guild constrol tab - no need to check for guid
     if (Guild* guild = GetPlayer()->GetGuild())
@@ -774,7 +774,7 @@ void WorldSession::HandleGuildBankUpdateTab(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(guid[3]);
     recvPacket.ReadByteSeq(guid[6]);
 
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_UPDATE_TAB [{}]: Go: [" "{}" "], TabId: %u, Name: %s, Icon: %s",
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_UPDATE_TAB [{}]: Go: [" "{}" "], TabId: {}, Name: {}, Icon: {}",
         GetPlayerInfo().c_str(), (uint64)guid, tabId, name.c_str(), icon.c_str());
 
     // Check for overflow

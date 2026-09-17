@@ -390,7 +390,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
     {
         if (!bg->IsArena() && !bg->IsPlayerInBattleground(itr->first))
         {
-            TC_LOG_ERROR("network", "Player " "{}" " has scoreboard entry for battleground %u but is not in battleground!", itr->first.GetRawValue(), bg->GetTypeID(true));
+            TC_LOG_ERROR("network", "Player " "{}" " has scoreboard entry for battleground {} but is not in battleground!", itr->first.GetRawValue(), bg->GetTypeID(true));
             continue;
         }
 
