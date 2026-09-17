@@ -1722,14 +1722,14 @@ public:
                         SetEscortPaused(true);
                         me->SetDisplayId(NPC_WAHL_WORGEN);
                         Talk(YELL_DONT_MESS);
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
 
                         me->m_Events.AddLambdaEventAtOffset([this, summoner]()
                         {
                             if (summoner && !summoner->isDead())
                             {
+                                me->SetReactState(REACT_AGGRESSIVE);
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                                 if (!me->GetVictim())
                                 {
                                     if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
