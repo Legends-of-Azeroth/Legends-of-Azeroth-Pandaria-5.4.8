@@ -1695,14 +1695,12 @@ public:
 
     struct npc_wahlAI : public EscortAI
     {
-        npc_wahlAI(Creature* creature) : EscortAI(creature), uiDiagTimer(0)
+        npc_wahlAI(Creature* creature) : EscortAI(creature)
         {
             creature->SetReactState(REACT_PASSIVE);
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC || UNIT_FLAG_IMMUNE_TO_NPC);
+            creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
         }
-
-        uint32 uiDiagTimer;
 
         void DoAction(int32 const action) override
         {
@@ -1726,7 +1724,7 @@ public:
                         Talk(YELL_DONT_MESS);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC || UNIT_FLAG_IMMUNE_TO_NPC);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
 
                         me->m_Events.AddLambdaEventAtOffset([this, summoner]()
                         {
@@ -1744,22 +1742,6 @@ public:
                     }
         }
 
-        void UpdateAI(uint32 diff) override
-        {
-            EscortAI::UpdateAI(diff);
-            if (Unit* v = me->GetVictim())
-            {
-                if (uiDiagTimer && uiDiagTimer <= diff)
-                {
-                    uiDiagTimer = 1000;
-                    TC_LOG_INFO("scripts", "[Wahl] diag: inCombat={} victim={} dist={} meleeRange={} inRange={} motion={}",
-                        me->IsInCombat(), v->GetName(), me->GetDistance(v), me->GetAttackDistance(v),
-                        me->IsWithinDist(v, me->GetAttackDistance(v)), (int)me->GetMotionMaster()->GetCurrentMovementGeneratorType());
-                }
-            }
-            else
-                uiDiagTimer = 0;
-        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -1786,7 +1768,7 @@ public:
             uiSummonTimer = 1500;
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC || UNIT_FLAG_IMMUNE_TO_NPC);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
         }
 
         ObjectGuid uiPlayerGUID;
@@ -1852,7 +1834,7 @@ public:
                     Catch = false;
                     uiCatchTimer = 1000;
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC || UNIT_FLAG_IMMUNE_TO_NPC);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                     me->SetReactState(REACT_AGGRESSIVE);
 
                     if (Player* player = Unit::GetPlayer(*me, uiPlayerGUID))
