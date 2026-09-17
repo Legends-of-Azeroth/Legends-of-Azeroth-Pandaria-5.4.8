@@ -1695,12 +1695,14 @@ public:
 
     struct npc_wahlAI : public EscortAI
     {
-        npc_wahlAI(Creature* creature) : EscortAI(creature)
+        npc_wahlAI(Creature* creature) : EscortAI(creature), uiDiagTimer(0)
         {
             creature->SetReactState(REACT_PASSIVE);
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC || UNIT_FLAG_IMMUNE_TO_NPC);
         }
+
+        uint32 uiDiagTimer;
 
         void DoAction(int32 const action) override
         {
@@ -1728,17 +1730,13 @@ public:
 
                         me->m_Events.AddLambdaEventAtOffset([this, summoner]()
                         {
-                            TC_LOG_INFO("scripts", "[Wahl] 800ms lambda: summonerAlive={} hasVictim={} targetable={} hostile={} dead={}",
-                                summoner && !summoner->isDead(), me->GetVictim() != NULL,
-                                summoner ? summoner->isTargetableForAttack() : false,
-                                summoner ? me->IsHostileTo(summoner) : false,
-                                me->isDead());
                             if (summoner && !summoner->isDead())
                             {
                                 if (!me->GetVictim())
                                 {
-                                    bool ok = me->Attack(summoner, true);
-                                    TC_LOG_INFO("scripts", "[Wahl] Attack(summoner)={} victimAfter={}", ok, me->GetVictim() != NULL);
+                                    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
+                                        me->GetMotionMaster()->MovementExpired();
+                                    me->Attack(summoner, true);
                                 }
                                 me->GetMotionMaster()->MoveChase(summoner);
                             }
@@ -1749,6 +1747,18 @@ public:
         void UpdateAI(uint32 diff) override
         {
             EscortAI::UpdateAI(diff);
+            if (Unit* v = me->GetVictim())
+            {
+                if (uiDiagTimer && uiDiagTimer <= diff)
+                {
+                    uiDiagTimer = 1000;
+                    TC_LOG_INFO("scripts", "[Wahl] diag: inCombat={} victim={} dist={} meleeRange={} inRange={} motion={}",
+                        me->IsInCombat(), v->GetName(), me->GetDistance(*v), me->GetAttackDistance(v),
+                        me->IsWithinDist(*v, me->GetAttackDistance(v)), (int)me->GetMotionMaster()->GetCurrentMovementGeneratorType());
+                }
+            }
+            else
+                uiDiagTimer = 0;
         }
     };
 
