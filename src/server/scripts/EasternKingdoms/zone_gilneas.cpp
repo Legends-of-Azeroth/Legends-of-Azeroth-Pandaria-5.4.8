@@ -1728,12 +1728,18 @@ public:
 
                         me->m_Events.AddLambdaEventAtOffset([this, summoner]()
                         {
-                            TC_LOG_INFO("scripts", "[Wahl] 800ms lambda: summonerAlive={} hasVictim={}",
-                                summoner && !summoner->isDead(), me->GetVictim() != NULL);
+                            TC_LOG_INFO("scripts", "[Wahl] 800ms lambda: summonerAlive={} hasVictim={} targetable={} hostile={} canAttack={} dead={}",
+                                summoner && !summoner->isDead(), me->GetVictim() != NULL,
+                                summoner ? summoner->isTargetableForAttack() : false,
+                                summoner ? me->IsHostileTo(summoner) : false,
+                                me->CanAttack(), me->isDead());
                             if (summoner && !summoner->isDead())
                             {
                                 if (!me->GetVictim())
-                                    AttackStart(summoner);
+                                {
+                                    bool ok = me->Attack(summoner, true);
+                                    TC_LOG_INFO("scripts", "[Wahl] Attack(summoner)={} victimAfter={}", ok, me->GetVictim() != NULL);
+                                }
                                 me->GetMotionMaster()->MoveChase(summoner);
                             }
                         }, 800);
