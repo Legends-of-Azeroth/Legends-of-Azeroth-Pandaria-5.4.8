@@ -12502,6 +12502,8 @@ void Unit::setDeathState(DeathState s)
 {
     if (s != ALIVE && s != JUST_RESPAWNED)
     {
+        if (GetEntry() == 38765 || (ToPlayer() && GetCharm() && GetCharm()->GetEntry() == 38765))
+            TC_LOG_INFO("spells", "[Q14465] Unit::setDeathState entry={} guid={} state={}", GetEntry(), GetGUID(), (int)s);
         CombatStop();
         GetThreatManager().RemoveMeFromThreatLists();
         GetThreatManager().ClearAllThreat();
@@ -13726,6 +13728,8 @@ void Unit::RemoveFromWorld()
 
     if (IsInWorld())
     {
+        if (GetEntry() == 38765 || (ToPlayer() && GetCharm() && GetCharm()->GetEntry() == 38765))
+            TC_LOG_INFO("spells", "[Q14465] Unit::RemoveFromWorld entry={} guid={}", GetEntry(), GetGUID());
         GetMotionMaster()->Clear(false);                    // Do it here, because MovementInform may provoke casts.
 
         m_duringRemoveFromWorld = true;
@@ -16450,6 +16454,8 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     if (!charmer)
         return false;
 
+    if (GetEntry() == 38765 || charmer->GetEntry() == 38765 || (ToPlayer() && GetCharm() && GetCharm()->GetEntry() == 38765))
+        TC_LOG_INFO("spells", "[Q14465] Unit::SetCharmedBy this entry={} guid={} charmer entry={} guid={} type={}", GetEntry(), GetGUID(), charmer->GetEntry(), charmer->GetGUID(), (int)type);
     if (GetTypeId() == TYPEID_UNIT)
         TC_LOG_DEBUG("crash", "Unit::SetCharmedBy1, GUID: " "{}" ", entry: {}, charmer: " "{}" ", type: {}, aura: {}", GetGUID().GetRawValue(), GetEntry(), GetCharmerGUID().GetRawValue(), type, aurApp ? aurApp->GetBase()->GetId() : 0);
 

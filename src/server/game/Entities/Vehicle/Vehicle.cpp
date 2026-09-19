@@ -236,7 +236,8 @@ void Vehicle::Reset(bool evading /*= false*/)
     TC_LOG_DEBUG("entities.vehicle", "Vehicle::Reset (Entry: {}, GuidLow: {}, DBGuid: {})", GetCreatureEntry(), _me->GetGUID().GetCounter(), _me->ToCreature()->GetDBTableGUIDLow());
 
     ApplyAllImmunities();
-    InstallAllAccessories(evading);
+    if (GetBase()->IsAlive())
+        InstallAllAccessories(evading);
 }
 
 /**
@@ -511,6 +512,8 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         unit->GetName().c_str(), _me->GetEntry(), _vehicleInfo->m_ID, _me->GetGUID().GetCounter(),
         (_me->GetTypeId() == TYPEID_UNIT ? _me->ToCreature()->GetDBTableGUIDLow() : 0), (int32)seatId);
 
+    if (_me->GetEntry() == 38765)
+        TC_LOG_INFO("spells", "[Q14465] Vehicle::AddPassenger vehicle entry=38765 passenger guid={} seatId={}", unit->GetGUID(), (int32)seatId);
     // The seat selection code may kick other passengers off the vehicle.
     // While the validity of the following may be arguable, it is possible that when such a passenger
     // exits the vehicle will dismiss. That's why the actual adding the passenger to the vehicle is scheduled

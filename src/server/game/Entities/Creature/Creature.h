@@ -260,13 +260,16 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void DisappearAndDie();
 
-        bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data = NULL);
+        bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data = NULL, bool dynamic = false);
         bool LoadCreaturesAddon(bool reload = false);
         void SelectLevel(const CreatureTemplate* cinfo);
         void LoadEquipment(int8 id = 1, bool force = false);
 
         uint32 GetDBTableGUIDLow() const { return m_spawnId; }
         ObjectGuid::LowType GetSpawnId() const { return m_spawnId; }
+
+        void SetRespawnCompatibilityMode(bool mode = true) { m_respawnCompatibilityMode = mode; }
+        bool GetRespawnCompatibilityMode() const { return m_respawnCompatibilityMode; }
 
         void Update(uint32 time) override;         // overwrited Unit::Update
         void GetRespawnPosition(float &x, float &y, float &z, float* ori = NULL, float* dist =NULL) const;
@@ -641,6 +644,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         //Formation var
         CreatureGroup* m_formation;
         bool m_triggerJustAppeared;
+        bool m_respawnCompatibilityMode;
 
         Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
         CreatureTextRepeatGroup m_textRepeat;

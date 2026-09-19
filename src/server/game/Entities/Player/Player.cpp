@@ -22436,6 +22436,8 @@ void Player::StopCastingCharm()
     if (!charm)
         return;
 
+    if (charm->GetEntry() == 38765)
+        TC_LOG_INFO("spells", "[Q14465] Player::StopCastingCharm player guid={} charm entry=38765", GetGUID());
     if (charm->GetTypeId() == TYPEID_UNIT)
     {
         if (charm->ToCreature()->HasUnitTypeMask(UNIT_MASK_PUPPET))
