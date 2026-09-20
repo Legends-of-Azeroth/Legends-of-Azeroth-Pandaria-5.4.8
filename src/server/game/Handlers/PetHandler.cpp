@@ -379,7 +379,11 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                 }
                 case COMMAND_ABANDON:                       // abandon (hunter pet) or dismiss (summoned pet)
                     if (pet->GetCharmerGUID() == GetPlayer()->GetGUID())
+                    {
+                        if (pet->GetEntry() == 38765)
+                            TC_LOG_INFO("spells", "[Q14465] PetHandler COMMAND_ABANDON player guid={} pet entry=38765", GetPlayer()->GetGUID());
                         _player->StopCastingCharm();
+                    }
                     else if (pet->GetOwnerGUID() == GetPlayer()->GetGUID())
                     {
                         ASSERT(pet->GetTypeId() == TYPEID_UNIT);
@@ -946,7 +950,11 @@ void WorldSession::HandlePetAbandon(WorldPacket& recvData)
                 SendPetList(ObjectGuid::Empty, PET_SLOT_ACTIVE_FIRST, PET_SLOT_ACTIVE_LAST);
         }
         else if (pet->GetGUID() == _player->GetCharmGUID())
+        {
+            if (pet->GetEntry() == 38765)
+                TC_LOG_INFO("spells", "[Q14465] PetHandler dismiss/abandon player guid={} pet entry=38765", _player->GetGUID());
             _player->StopCastingCharm();
+        }
     }
 }
 

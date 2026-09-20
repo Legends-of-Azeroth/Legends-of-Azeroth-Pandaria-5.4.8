@@ -432,6 +432,8 @@ bool SmartAI::IsEscortInvokerInRange()
 
 void SmartAI::MovepointReached(uint32 id)
 {
+    if (me->GetEntry() == 38765)
+        TC_LOG_INFO("spells", "[Q14465] SmartAI::MovepointReached entry=38765 wp={}", id);
     if (id != SMART_ESCORT_LAST_OOC_POINT && mLastWPIDReached != id)
         GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_REACHED, NULL, id);
 
