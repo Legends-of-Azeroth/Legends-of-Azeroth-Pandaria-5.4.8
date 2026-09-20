@@ -122,6 +122,9 @@ WayPoint* SmartAI::GetNextWayPoint()
 
 void SmartAI::StartPath(bool run/* = false*/, uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* invoker/* = nullptr*/, uint32 nodeId/* = 1*/)
 {
+    if (me->GetEntry() == 38765)
+        TC_LOG_INFO("spells", "[Q14465] SmartAI::StartPath entry=38765 combat={} pathId={} run={} repeat={} invoker={}",
+            me->IsInCombat(), pathId, run, repeat, invoker ? invoker->GetEntry() : 0);
     if (me->IsInCombat())// no wp movement in combat
     {
         TC_LOG_ERROR("misc", "SmartAI::StartPath: Creature entry {} wanted to start waypoint movement while in combat, ignoring.", me->GetEntry());
@@ -137,7 +140,14 @@ void SmartAI::StartPath(bool run/* = false*/, uint32 pathId/* = 0*/, bool repeat
     }
  
     if (!mWayPoints || mWayPoints->empty())
+    {
+        if (me->GetEntry() == 38765)
+            TC_LOG_INFO("spells", "[Q14465] SmartAI::StartPath entry=38765 FAILED pathId={} empty or not found", pathId);
         return;
+    }
+
+    if (me->GetEntry() == 38765)
+        TC_LOG_INFO("spells", "[Q14465] SmartAI::StartPath entry=38765 LOADED pathId={} wpCount={} run={} repeat={}", pathId, mWayPoints->size(), run, repeat);
 
     AddEscortState(SMART_ESCORT_ESCORTING);
     mCanRepeatPath = repeat;
@@ -735,6 +745,8 @@ void SmartAI::CorpseRemoved(uint32& respawnDelay)
 
 void SmartAI::PassengerBoarded(Unit* who, int8 seatId, bool apply)
 {
+    if (me->GetEntry() == 38765)
+        TC_LOG_INFO("spells", "[Q14465] SmartAI::PassengerBoarded entry=38765 who={} seatId={} apply={}", who ? who->GetEntry() : 0, (int32)seatId, apply);
     GetScript()->ProcessEventsFor(apply ? SMART_EVENT_PASSENGER_BOARDED : SMART_EVENT_PASSENGER_REMOVED, who, uint32(seatId), 0, apply);
 }
 
