@@ -280,7 +280,14 @@ class StoutMountainHorseAI : public SmartAI
         {
             SmartAI::PassengerBoarded(who, seatId, apply);
             if (apply)
+            {
+                // Prevent hostile isle mobs (e.g. Young Primal Devilsaur, aggro radius 220) from
+                // engaging the horse once SetCharmedBy switches its faction to the rider's faction,
+                // which would trip SmartAI::UpdatePath's combat gate and freeze the escort mid-path.
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
+                me->SetReactState(REACT_PASSIVE);
                 StartPath(true, 38765);
+            }
         }
 
         void MovementInform(uint32 MovementType, uint32 Data) override
