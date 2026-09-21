@@ -28,6 +28,7 @@
 #include "ScriptedCreature.h"
 #include "Group.h"
 #include "Vehicle.h"
+#include "MoveSpline.h"
 #include "SmartAI.h"
 #include "CreatureGroups.h"
 #include "ScriptMgr.h"
@@ -378,6 +379,22 @@ void SmartAI::UpdateAI(uint32 diff)
     GetScript()->OnUpdate(diff);
     UpdatePath(diff);
     UpdateDespawn(diff);
+
+    if (me->GetEntry() == 38765)
+    {
+        if (mQ14465DiagTimer <= diff)
+        {
+            mQ14465DiagTimer = 1000;
+            TC_LOG_INFO("spells", "[Q14465] SmartAI::UpdateAI diag: escort={} paused={} returning={} wpReached={} curWP={} lastWPReached={} combat={} mwp={} gen={} splineInit={} splineFin={} pos=({:.1f},{:.1f},{:.1f}) o={:.2f}",
+                HasEscortState(SMART_ESCORT_ESCORTING), HasEscortState(SMART_ESCORT_PAUSED), HasEscortState(SMART_ESCORT_RETURNING),
+                mWPReached, mCurrentWPID, mLastWPIDReached, me->IsInCombat(), mWayPoints ? mWayPoints->size() : 0,
+                uint8(me->GetMotionMaster()->GetCurrentMovementGeneratorType()),
+                me->movespline->Initialized(), me->movespline->Finalized(),
+                me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
+        }
+        else
+            mQ14465DiagTimer -= diff;
+    }
 
     /// @todo move to void
     if (mFollowGuid)

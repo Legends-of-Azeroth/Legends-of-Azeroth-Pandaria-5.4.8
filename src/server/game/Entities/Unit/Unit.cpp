@@ -559,6 +559,12 @@ void Unit::UpdateSplinePosition()
 
 void Unit::DisableSpline()
 {
+    if (GetTypeId() == TYPEID_UNIT && GetEntry() == 38765)
+    {
+        TC_LOG_INFO("spells", "[Q14465] Unit::DisableSpline entry=38765 spline reached final pos=({:.1f},{:.1f},{:.1f}) gen={}",
+            GetPositionX(), GetPositionY(), GetPositionZ(),
+            GetMotionMaster()->GetCurrentMovementGeneratorType());
+    }
     m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_FORWARD);
     movespline->_Interrupt();
 }
@@ -14860,6 +14866,10 @@ void Unit::SendPetAIReaction(ObjectGuid UnitGUID)
 
 void Unit::StopMoving()
 {
+    if (GetTypeId() == TYPEID_UNIT && GetEntry() == 38765 && !movespline->Finalized() && IsInWorld())
+        TC_LOG_INFO("spells", "[Q14465] Unit::StopMoving entry=38765 spline active={} pos=({:.1f},{:.1f},{:.1f}) gen={}",
+            movespline->Initialized(), GetPositionX(), GetPositionY(), GetPositionZ(),
+            GetMotionMaster()->GetCurrentMovementGeneratorType());
     ClearUnitState(UNIT_STATE_MOVING);
 
     // not need send any packets if not in world or not moving
