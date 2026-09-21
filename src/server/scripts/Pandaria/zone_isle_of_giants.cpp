@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "../AI/SmartScripts/SmartAI.h"
 
 enum Spells
 {
@@ -262,6 +263,59 @@ class spell_trihorn_charge : public SpellScript
     }
 };
 
+// Stout Mountain Horse 38765 (quest 14465 ride)
+enum
+{
+    HORSE_SPELL_VEHICLE_CONTROL = 46598,
+    HORSE_GO_GATE_WP3           = 196863,
+    HORSE_GO_GATE_WP13          = 196864,
+};
+
+class StoutMountainHorseAI : public SmartAI
+{
+    public:
+        explicit StoutMountainHorseAI(Creature* creature) : SmartAI(creature) { }
+
+        void PassengerBoarded(Unit* who, int8 seatId, bool apply) override
+        {
+            SmartAI::PassengerBoarded(who, seatId, apply);
+            if (apply)
+                StartPath(true, 38765);
+        }
+
+        void MovementInform(uint32 MovementType, uint32 Data) override
+        {
+            SmartAI::MovementInform(MovementType, Data);
+            if (MovementType != POINT_MOTION_TYPE)
+                return;
+
+            switch (Data)
+            {
+                case 3:
+                    PausePath(1000);
+                    ActivateGate(HORSE_GO_GATE_WP3);
+                    break;
+                case 13:
+                    PausePath(1000);
+                    ActivateGate(HORSE_GO_GATE_WP13);
+                    break;
+                case 15:
+                    me->RemoveAurasDueToSpell(HORSE_SPELL_VEHICLE_CONTROL);
+                    break;
+            }
+        }
+
+    private:
+        void ActivateGate(uint32 entry)
+        {
+            if (GameObject* go = me->FindNearestGameObject(entry, 15.0f))
+            {
+                go->SetLootState(GO_READY);
+                go->UseDoorOrButton(0, false, me);
+            }
+        }
+};
+
 void AddSC_isle_of_giants()
 {
     new creature_script<npc_young_primal_devilsaur>("npc_young_primal_devilsaur");
@@ -269,5 +323,6 @@ void AddSC_isle_of_giants()
     new creature_script<npc_zandalari_dinomancer_2>("npc_zandalari_dinomancer_2");
     new creature_script<npc_primal_direhorn_hatchling>("npc_primal_direhorn_hatchling");
     new creature_script<npc_primal_direhorn>("npc_primal_direhorn");
+    RegisterCreatureAI(StoutMountainHorseAI);
     new spell_script<spell_trihorn_charge>("spell_trihorn_charge");
 }

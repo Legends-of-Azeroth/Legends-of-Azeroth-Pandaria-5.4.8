@@ -64,6 +64,7 @@ mEscortState(SMART_ESCORT_NONE)
     mDespawnState = 0;
 
     mEscortInvokerCheckTimer = 1000;
+    mCombatPauseLogged = false;
     mFollowDist = 0;
     mFollowAngle = 0;
     mFollowCredit = 0;
@@ -205,6 +206,10 @@ void SmartAI::StopPath(uint32 DespawnTime, uint32 quest, bool fail)
     if (!HasEscortState(SMART_ESCORT_ESCORTING))
         return;
 
+    if (me->GetEntry() == 38765)
+        TC_LOG_INFO("spells", "[Q14465] SmartAI::StopPath entry=38765 despawnTime={} quest={} fail={} curWP={}",
+            DespawnTime, quest, fail, mLastWP ? mLastWP->id : 0);
+
     if (quest)
         mEscortQuestID = quest;
     SetDespawnTime(DespawnTime);
@@ -337,7 +342,19 @@ void SmartAI::UpdatePath(const uint32 diff)
         }
     }
     if ((!me->HasReactState(REACT_PASSIVE) && me->IsInCombat()) || HasEscortState(SMART_ESCORT_PAUSED | SMART_ESCORT_RETURNING))
+    {
+        if (me->GetEntry() == 38765 && !mCombatPauseLogged)
+        {
+            mCombatPauseLogged = true;
+            TC_LOG_INFO("spells", "[Q14465] SmartAI::UpdatePath entry=38765 PATH-PAUSED combat={} passive={} paused={} returning={} wpReached={} curWP={}",
+                me->IsInCombat(), me->HasReactState(REACT_PASSIVE),
+                HasEscortState(SMART_ESCORT_PAUSED), HasEscortState(SMART_ESCORT_RETURNING),
+                mWPReached, mCurrentWPID);
+        }
         return;
+    }
+    if (me->GetEntry() == 38765)
+        mCombatPauseLogged = false;
     // handle next wp
     if (mWPReached)//reached WP
     {
@@ -348,6 +365,8 @@ void SmartAI::UpdatePath(const uint32 diff)
         }
         else if (WayPoint* wp = GetNextWayPoint())
         {
+            if (me->GetEntry() == 38765)
+                TC_LOG_INFO("spells", "[Q14465] SmartAI::UpdatePath entry=38765 ADVANCE to wp={} pos=({:.2f},{:.2f},{:.2f})", wp->id, wp->x, wp->y, wp->z);
             SetRun(mRun);
             me->GetMotionMaster()->MovePoint(wp->id, wp->x, wp->y, wp->z);
         }

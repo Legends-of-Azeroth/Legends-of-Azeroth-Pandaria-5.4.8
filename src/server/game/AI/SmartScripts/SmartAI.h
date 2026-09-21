@@ -246,6 +246,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         uint32 mDespawnState;
         void UpdateDespawn(const uint32 diff);
         uint32 mEscortInvokerCheckTimer;
+        bool mCombatPauseLogged;
 
         // Gossip
         bool _gossipReturn;
