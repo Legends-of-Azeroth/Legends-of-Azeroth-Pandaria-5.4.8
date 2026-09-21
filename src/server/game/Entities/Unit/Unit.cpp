@@ -1,4 +1,4 @@
-﻿/*
+/*
 * This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
@@ -559,12 +559,6 @@ void Unit::UpdateSplinePosition()
 
 void Unit::DisableSpline()
 {
-    if (GetTypeId() == TYPEID_UNIT && GetEntry() == 38765)
-    {
-        TC_LOG_INFO("spells", "[Q14465] Unit::DisableSpline entry=38765 spline reached final pos=({:.1f},{:.1f},{:.1f}) gen={}",
-            GetPositionX(), GetPositionY(), GetPositionZ(),
-            GetMotionMaster()->GetCurrentMovementGeneratorType());
-    }
     m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_FORWARD);
     movespline->_Interrupt();
 }
@@ -4127,8 +4121,7 @@ void Unit::_RegisterAuraEffect(AuraEffect* aurEff, bool apply)
 void Unit::RemoveOwnedAura(AuraMap::iterator &i, AuraRemoveMode removeMode)
 {
     Aura* aura = i->second;
-    if (aura->GetId() == 46598 && GetEntry() == 38765)
-        TC_LOG_INFO("spells", "[Q14465] RemoveOwnedAura spell=46598 owner guid={} entry=38765 removeMode={}", GetGUID().GetRawValue(), (int32)removeMode);
+    
     ASSERT(!aura->IsRemoved());
 
     // if unit currently update aura list then make safe update iterator shift to next
@@ -4164,8 +4157,7 @@ void Unit::RemoveOwnedAura(AuraMap::iterator &i, AuraRemoveMode removeMode)
 
 void Unit::RemoveOwnedAura(uint32 spellId, ObjectGuid casterGUID, uint32 reqEffMask, AuraRemoveMode removeMode)
 {
-    if (spellId == 46598 && GetEntry() == 38765)
-        TC_LOG_INFO("spells", "[Q14465] RemoveOwnedAura(spellId) spell=46598 owner={} entry=38765 mode={}", GetGUID().GetRawValue(), (int32)removeMode);
+    
     for (AuraMap::iterator itr = m_ownedAuras.lower_bound(spellId); itr != m_ownedAuras.upper_bound(spellId);)
         if (((itr->second->GetEffectMask() & reqEffMask) == reqEffMask) && (!casterGUID || itr->second->GetCasterGUID() == casterGUID))
         {
@@ -4178,8 +4170,7 @@ void Unit::RemoveOwnedAura(uint32 spellId, ObjectGuid casterGUID, uint32 reqEffM
 
 void Unit::RemoveOwnedAura(Aura* aura, AuraRemoveMode removeMode)
 {
-    if (aura->GetId() == 46598 && GetEntry() == 38765)
-        TC_LOG_INFO("spells", "[Q14465] RemoveOwnedAura(aura) spell=46598 owner={} entry=38765 mode={}", GetGUID().GetRawValue(), (int32)removeMode);
+    
     if (aura->IsRemoved())
         return;
 
@@ -4231,8 +4222,7 @@ void Unit::RemoveAura(AuraApplicationMap::iterator &i, AuraRemoveMode mode)
 
 void Unit::RemoveAura(uint32 spellId, uint64 caster, uint32 reqEffMask, AuraRemoveMode removeMode)
 {
-    if (spellId == 46598 && GetEntry() == 38765)
-        TC_LOG_INFO("spells", "[Q14465] RemoveAura(spellId) spell=46598 target={} entry=38765 mode={}", GetGUID().GetRawValue(), (int32)removeMode);
+    
     AuraApplicationMapBoundsNonConst range = m_appliedAuras.equal_range(spellId);
     for (AuraApplicationMap::iterator iter = range.first; iter != range.second;)
     {
@@ -4250,8 +4240,7 @@ void Unit::RemoveAura(uint32 spellId, uint64 caster, uint32 reqEffMask, AuraRemo
 
 void Unit::RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode)
 {
-    if (aurApp->GetBase()->GetId() == 46598 && GetEntry() == 38765)
-        TC_LOG_INFO("spells", "[Q14465] RemoveAura(aurApp) spell=46598 target={} entry=38765 mode={}", GetGUID().GetRawValue(), (int32)mode);
+    
     // we've special situation here, RemoveAura called while during aura removal
     // this kind of call is needed only when aura effect removal handler
     // or event triggered by it expects to remove
@@ -4287,8 +4276,7 @@ void Unit::RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode)
 
 void Unit::RemoveAura(Aura* aura, AuraRemoveMode mode)
 {
-    if (aura->GetId() == 46598 && GetEntry() == 38765)
-        TC_LOG_INFO("spells", "[Q14465] RemoveAura(aura) spell=46598 target={} entry=38765 mode={}", GetGUID().GetRawValue(), (int32)mode);
+    
     if (aura->IsRemoved())
         return;
     if (AuraApplication * aurApp = aura->GetApplicationOfTarget(GetGUID()))
@@ -4297,8 +4285,7 @@ void Unit::RemoveAura(Aura* aura, AuraRemoveMode mode)
 
 void Unit::RemoveAurasDueToSpell(uint32 spellId, uint64 casterGUID, uint32 reqEffMask, AuraRemoveMode removeMode)
 {
-    if (spellId == 46598 && GetEntry() == 38765)
-        TC_LOG_INFO("spells", "[Q14465] RemoveAurasDueToSpell spell=46598 target={} entry=38765 mode={}", GetGUID().GetRawValue(), (int32)removeMode);
+    
     for (AuraApplicationMap::iterator iter = m_appliedAuras.lower_bound(spellId); iter != m_appliedAuras.upper_bound(spellId);)
     {
         Aura const* aura = iter->second->GetBase();
@@ -4465,8 +4452,7 @@ void Unit::RemoveAurasDueToItemSpell(uint32 spellId, uint64 castItemGuid)
 
 void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, Aura* except, bool negative, bool positive)
 {
-    if (auraType == SPELL_AURA_CONTROL_VEHICLE && GetEntry() == 38765)
-        TC_LOG_INFO("spells", "[Q14465] RemoveAurasByType type=CONTROL_VEHICLE target={} entry=38765", GetGUID().GetRawValue());
+    
     for (AuraEffectList::iterator iter = m_modAuras [auraType].begin(); iter != m_modAuras [auraType].end();)
     {
         Aura* aura = (*iter)->GetBase();
@@ -4805,8 +4791,7 @@ void Unit::RemoveAreaAurasDueToLeaveWorld()
 
 void Unit::RemoveAllAuras()
 {
-    if (GetEntry() == 38765)
-        TC_LOG_INFO("spells", "[Q14465] RemoveAllAuras target={} entry=38765", GetGUID().GetRawValue());
+    
     // this may be a dead loop if some events on aura remove will continiously apply aura on remove
     // we want to have all auras removed, so use your brain when linking events
     while (!m_appliedAuras.empty() || !m_ownedAuras.empty())
@@ -9341,7 +9326,7 @@ void Unit::RemoveAllMinionsByEntry(uint32 entry)
         if (unit->GetEntry() == entry && unit->GetTypeId() == TYPEID_UNIT
             && unit->ToCreature()->IsSummon()) // minion, actually
         {
-            TC_LOG_INFO("spells", "[Q14465] RemoveAllMinionsByEntry calling UnSummon on entry={} guid={}", unit->GetEntry(), unit->GetGUID().ToString().c_str());
+
             unit->ToTempSummon()->UnSummon();
         }
         // i think this is safe because i have never heard that a despawned minion will trigger a same minion
@@ -9526,7 +9511,7 @@ void Unit::RemoveAllControlled()
             target->RemoveCharmAuras();
         else if (target->GetOwnerGUID() == GetGUID() && target->IsSummon())
         {
-            TC_LOG_INFO("spells", "[Q14465] RemoveAllControlled calling UnSummon on entry={} guid={}", target->GetEntry(), target->GetGUID().ToString().c_str());
+
             target->ToTempSummon()->UnSummon();
         }
         else
@@ -12508,8 +12493,7 @@ void Unit::setDeathState(DeathState s)
 {
     if (s != ALIVE && s != JUST_RESPAWNED)
     {
-        if (GetEntry() == 38765 || (ToPlayer() && GetCharm() && GetCharm()->GetEntry() == 38765))
-            TC_LOG_INFO("spells", "[Q14465] Unit::setDeathState entry={} guid={} state={}", GetEntry(), GetGUID(), (int)s);
+        
         CombatStop();
         GetThreatManager().RemoveMeFromThreatLists();
         GetThreatManager().ClearAllThreat();
@@ -13734,8 +13718,7 @@ void Unit::RemoveFromWorld()
 
     if (IsInWorld())
     {
-        if (GetEntry() == 38765 || (ToPlayer() && GetCharm() && GetCharm()->GetEntry() == 38765))
-            TC_LOG_INFO("spells", "[Q14465] Unit::RemoveFromWorld entry={} guid={}", GetEntry(), GetGUID());
+        
         GetMotionMaster()->Clear(false);                    // Do it here, because MovementInform may provoke casts.
 
         m_duringRemoveFromWorld = true;
@@ -14866,10 +14849,7 @@ void Unit::SendPetAIReaction(ObjectGuid UnitGUID)
 
 void Unit::StopMoving()
 {
-    if (GetTypeId() == TYPEID_UNIT && GetEntry() == 38765 && !movespline->Finalized() && IsInWorld())
-        TC_LOG_INFO("spells", "[Q14465] Unit::StopMoving entry=38765 spline active={} pos=({:.1f},{:.1f},{:.1f}) gen={}",
-            movespline->Initialized(), GetPositionX(), GetPositionY(), GetPositionZ(),
-            GetMotionMaster()->GetCurrentMovementGeneratorType());
+    
     ClearUnitState(UNIT_STATE_MOVING);
 
     // not need send any packets if not in world or not moving
@@ -16464,8 +16444,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     if (!charmer)
         return false;
 
-    if (GetEntry() == 38765 || charmer->GetEntry() == 38765 || (ToPlayer() && GetCharm() && GetCharm()->GetEntry() == 38765))
-        TC_LOG_INFO("spells", "[Q14465] Unit::SetCharmedBy this entry={} guid={} charmer entry={} guid={} type={}", GetEntry(), GetGUID(), charmer->GetEntry(), charmer->GetGUID(), (int)type);
+    
     if (GetTypeId() == TYPEID_UNIT)
         TC_LOG_DEBUG("crash", "Unit::SetCharmedBy1, GUID: " "{}" ", entry: {}, charmer: " "{}" ", type: {}, aura: {}", GetGUID().GetRawValue(), GetEntry(), GetCharmerGUID().GetRawValue(), type, aurApp ? aurApp->GetBase()->GetId() : 0);
 
@@ -18200,7 +18179,7 @@ void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* a
         }
         else
         {
-            TC_LOG_INFO("spells", "[Q14465] ExitVehicle from _EnterVehicle(vehicle switch) for guid={}", GetGUID());
+
             ExitVehicle();
         }
     }
@@ -18266,8 +18245,7 @@ void Unit::ExitVehicle(Position const* /*exitPosition*/)
     if (!m_vehicle)
         return;
 
-    TC_LOG_INFO("spells", "[Q14465] ExitVehicle called for guid={} vehicle entry={}",
-        GetGUID(), m_vehicle->GetBase()->GetEntry());
+
 
     GetVehicleBase()->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE, GetGUID());
     //! The following call would not even be executed successfully as the
@@ -18333,8 +18311,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     if (vehicle->GetBase()->HasUnitTypeMask(UNIT_MASK_MINION) && vehicle->GetBase()->GetTypeId() == TYPEID_UNIT)
         if (((Minion*) vehicle->GetBase())->GetOwner() == this)
         {
-            TC_LOG_INFO("spells", "[Q14465] _ExitVehicle owner guid={} exiting minion vehicle entry={} guid={}, despawning in 1ms",
-                GetGUID(), vehicle->GetBase()->ToCreature()->GetEntry(), vehicle->GetBase()->ToCreature()->GetGUID());
+
             vehicle->GetBase()->ToCreature()->DespawnOrUnsummon(1);
         }
 

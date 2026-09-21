@@ -3221,8 +3221,7 @@ void AuraEffect::HandleAuraControlVehicle(AuraApplication const* aurApp, uint8 m
 
     if (apply)
     {
-        TC_LOG_INFO("spells", "[Q14465] CONTROL_VEHICLE aura applied: spell={} caster guid={} target entry={} amount={}",
-            GetId(), caster->GetGUID(), target->GetEntry(), m_amount);
+
         // Currently spells that have base points  0 and DieSides 0 = "0/0" exception are pushed to -1,
         // however the idea of 0/0 is to ingore flag VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT and -1 checks for it,
         // so this break such spells or most of them.
@@ -3232,8 +3231,7 @@ void AuraEffect::HandleAuraControlVehicle(AuraApplication const* aurApp, uint8 m
     }
     else
     {
-        TC_LOG_INFO("spells", "[Q14465] CONTROL_VEHICLE aura removed: spell={} mode={} caster guid={} target entry={}",
-            GetId(), mode, caster->GetGUID(), target->GetEntry());
+
 
         if (GetId() == 53111) // Devour Humanoid
         {

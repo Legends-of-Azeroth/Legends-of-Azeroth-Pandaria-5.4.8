@@ -2686,16 +2686,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
             // Summoning spells (usually triggered by npc_spellclick) that spawn a vehicle and that cause the clicker
             // to cast a ride vehicle spell on the summoned unit.
             summon = m_originalCaster->GetMap()->SummonCreature(entry, *destTarget, properties, Milliseconds(duration), m_caster, m_spellInfo->Id, 0, privateObjectOwner);
-            TC_LOG_INFO("spells", "[Q14465] VEHICLE summon spell={} entry={} duration={}ms | origCaster={} entry={} type={} | caster={} entry={} type={} | summon={} isVehicle={}",
-                m_spellInfo->Id, entry, duration,
-                m_originalCaster ? m_originalCaster->GetGUID().ToString().c_str() : "null",
-                m_originalCaster ? m_originalCaster->GetEntry() : 0,
-                m_originalCaster ? uint32(m_originalCaster->GetTypeId()) : 0,
-                m_caster ? m_caster->GetGUID().ToString().c_str() : "null",
-                m_caster ? m_caster->GetEntry() : 0,
-                m_caster ? uint32(m_caster->GetTypeId()) : 0,
-                summon ? summon->GetGUID().ToString().c_str() : "null",
-                summon ? summon->IsVehicle() : false);
+
             if (!summon || !summon->IsVehicle())
                 return;
 
@@ -2706,8 +2697,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 spellId = spellInfo->Id;
 
             // Hard coded enter vehicle spell
-            TC_LOG_INFO("spells", "[Q14465] VEHICLE ride-spell cast: rideSpell={} by origCaster={} entry={} on summon={}",
-                spellId, m_originalCaster->GetGUID().ToString().c_str(), m_originalCaster->GetEntry(), summon->GetGUID().ToString().c_str());
+
             m_originalCaster->CastSpell(summon, spellId, true);
 
             uint32 faction = properties->Faction;

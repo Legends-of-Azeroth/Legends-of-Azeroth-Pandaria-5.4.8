@@ -783,9 +783,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 else
                     (*itr)->ToUnit()->RemoveAurasDueToSpell(e.action.removeAura.spell);
 
-                if (e.action.removeAura.spell == 46598)
-                    TC_LOG_INFO("spells", "[Q14465] SmartScript REMOVEAURASFROMSPELL: base entry={} target guid={} spell=46598",
-                        unit->GetEntry(), (*itr)->GetGUID());
+                
 
                 TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_REMOVEAURASFROMSPELL: Unit {}, spell {}",
                     (*itr)->GetGUID().GetCounter(), e.action.removeAura.spell);

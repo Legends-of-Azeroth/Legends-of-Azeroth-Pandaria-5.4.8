@@ -41,7 +41,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 
     _player->m_movementInfo = mi;
 
-    TC_LOG_INFO("spells", "[Q14465] ExitVehicle from HandleDismissControlledVehicle for guid={}", _player->GetGUID());
+
     _player->ExitVehicle();
 }
 
@@ -235,7 +235,7 @@ void WorldSession::HandleEjectPassenger(WorldPacket& data)
         ASSERT(seat);
         if (seat->IsEjectable())
         {
-            TC_LOG_INFO("spells", "[Q14465] ExitVehicle from HandleEjectPassenger(player) for guid={}", player->GetGUID());
+
             player->ExitVehicle();
         }
         else
@@ -262,7 +262,7 @@ void WorldSession::HandleEjectPassenger(WorldPacket& data)
             if (seat->IsEjectable())
             {
                 ASSERT(GetPlayer() == vehicle->GetBase());
-                TC_LOG_INFO("spells", "[Q14465] ExitVehicle from HandleEjectPassenger(unit) for guid={}", unit->GetGUID());
+
                 unit->ExitVehicle();
             }
         else
@@ -282,7 +282,7 @@ void WorldSession::HandleRequestVehicleExit(WorldPacket& recvData)
         {
             if (seat->CanEnterOrExit())
             {
-                TC_LOG_INFO("spells", "[Q14465] ExitVehicle from HandleRequestVehicleExit for guid={}", GetPlayer()->GetGUID());
+
                 GetPlayer()->ExitVehicle();
             }
             else

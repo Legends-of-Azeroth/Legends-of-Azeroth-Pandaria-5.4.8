@@ -314,18 +314,6 @@ void TempSummon::SetTempSummonType(TempSummonType type)
 
 void TempSummon::UnSummon(uint32 msTime)
 {
-    if (IsVehicle())
-    {
-        Unit* s = GetSummoner();
-        TC_LOG_INFO("spells", "[Q14465] UnSummon entry={} guid={} msTime={} m_type={} m_deathState={} m_timer={} m_lifetime={} IsAlive={} summoner={} ownerGuid={} charmerGuid={} inSummonerControlled={} summonerOnVehicle={}",
-            GetEntry(), GetGUID().ToString().c_str(), msTime, uint32(m_type), uint32(m_deathState), m_timer, m_lifetime, IsAlive(),
-            s ? s->GetGUID().ToString().c_str() : "null",
-            GetOwnerGUID().ToString().c_str(),
-            GetCharmerGUID().ToString().c_str(),
-            (s && s->m_Controlled.find(this) != s->m_Controlled.end()),
-            (s != nullptr && s->GetVehicle() != nullptr));
-    }
-
     if (msTime)
     {
         ForcedUnsummonDelayEvent* pEvent = new ForcedUnsummonDelayEvent(*this);
@@ -354,7 +342,7 @@ void TempSummon::UnSummon(uint32 msTime)
 
 bool ForcedUnsummonDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 {
-    TC_LOG_INFO("spells", "[Q14465] ForcedUnsummonDelayEvent firing for entry={} guid={}", m_owner.GetEntry(), m_owner.GetGUID().ToString().c_str());
+
     m_owner.UnSummon();
     return true;
 }

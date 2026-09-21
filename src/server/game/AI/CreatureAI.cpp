@@ -625,7 +625,7 @@ void VehicleAIBase::CheckConditions(uint32 const diff)
                         //if (!sConditionMgr->IsObjectMeetToConditions(player, m_vehicleBase, conditions))
                         if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE, m_vehicleBase->GetEntry(), player, m_vehicleBase))
                         {
-                            TC_LOG_INFO("spells", "[Q14465] ExitVehicle from CreatureAI vehicle condition check for guid={}", player->GetGUID());
+
                             player->ExitVehicle();
                             return;//check other pessanger in next tick
                         }

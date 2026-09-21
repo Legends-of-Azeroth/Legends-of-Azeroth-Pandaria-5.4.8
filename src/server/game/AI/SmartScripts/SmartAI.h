@@ -213,7 +213,6 @@ class TC_GAME_API SmartAI : public CreatureAI
         bool mSmartVehicle = false;
 
     private:
-        uint32 mQ14465DiagTimer = 1000;
         uint32 mFollowCreditType;
         uint32 mFollowArrivedTimer;
         uint32 mFollowCredit;
@@ -247,7 +246,6 @@ class TC_GAME_API SmartAI : public CreatureAI
         uint32 mDespawnState;
         void UpdateDespawn(const uint32 diff);
         uint32 mEscortInvokerCheckTimer;
-        bool mCombatPauseLogged;
 
         // Gossip
         bool _gossipReturn;

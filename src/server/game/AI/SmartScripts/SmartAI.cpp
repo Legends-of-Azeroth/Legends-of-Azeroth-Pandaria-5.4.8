@@ -28,7 +28,6 @@
 #include "ScriptedCreature.h"
 #include "Group.h"
 #include "Vehicle.h"
-#include "MoveSpline.h"
 #include "SmartAI.h"
 #include "CreatureGroups.h"
 #include "ScriptMgr.h"
@@ -65,7 +64,6 @@ mEscortState(SMART_ESCORT_NONE)
     mDespawnState = 0;
 
     mEscortInvokerCheckTimer = 1000;
-    mCombatPauseLogged = false;
     mFollowDist = 0;
     mFollowAngle = 0;
     mFollowCredit = 0;
@@ -124,9 +122,6 @@ WayPoint* SmartAI::GetNextWayPoint()
 
 void SmartAI::StartPath(bool run/* = false*/, uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* invoker/* = nullptr*/, uint32 nodeId/* = 1*/)
 {
-    if (me->GetEntry() == 38765)
-        TC_LOG_INFO("spells", "[Q14465] SmartAI::StartPath entry=38765 combat={} pathId={} run={} repeat={} invoker={}",
-            me->IsInCombat(), pathId, run, repeat, invoker ? invoker->GetEntry() : 0);
     if (me->IsInCombat())// no wp movement in combat
     {
         TC_LOG_ERROR("misc", "SmartAI::StartPath: Creature entry {} wanted to start waypoint movement while in combat, ignoring.", me->GetEntry());
@@ -143,13 +138,8 @@ void SmartAI::StartPath(bool run/* = false*/, uint32 pathId/* = 0*/, bool repeat
  
     if (!mWayPoints || mWayPoints->empty())
     {
-        if (me->GetEntry() == 38765)
-            TC_LOG_INFO("spells", "[Q14465] SmartAI::StartPath entry=38765 FAILED pathId={} empty or not found", pathId);
         return;
     }
-
-    if (me->GetEntry() == 38765)
-        TC_LOG_INFO("spells", "[Q14465] SmartAI::StartPath entry=38765 LOADED pathId={} wpCount={} run={} repeat={}", pathId, mWayPoints->size(), run, repeat);
 
     AddEscortState(SMART_ESCORT_ESCORTING);
     mCanRepeatPath = repeat;
@@ -206,10 +196,6 @@ void SmartAI::StopPath(uint32 DespawnTime, uint32 quest, bool fail)
 {
     if (!HasEscortState(SMART_ESCORT_ESCORTING))
         return;
-
-    if (me->GetEntry() == 38765)
-        TC_LOG_INFO("spells", "[Q14465] SmartAI::StopPath entry=38765 despawnTime={} quest={} fail={} curWP={}",
-            DespawnTime, quest, fail, mLastWP ? mLastWP->id : 0);
 
     if (quest)
         mEscortQuestID = quest;
@@ -344,18 +330,8 @@ void SmartAI::UpdatePath(const uint32 diff)
     }
     if ((!me->HasReactState(REACT_PASSIVE) && me->IsInCombat()) || HasEscortState(SMART_ESCORT_PAUSED | SMART_ESCORT_RETURNING))
     {
-        if (me->GetEntry() == 38765 && !mCombatPauseLogged)
-        {
-            mCombatPauseLogged = true;
-            TC_LOG_INFO("spells", "[Q14465] SmartAI::UpdatePath entry=38765 PATH-PAUSED combat={} passive={} paused={} returning={} wpReached={} curWP={}",
-                me->IsInCombat(), me->HasReactState(REACT_PASSIVE),
-                HasEscortState(SMART_ESCORT_PAUSED), HasEscortState(SMART_ESCORT_RETURNING),
-                mWPReached, mCurrentWPID);
-        }
         return;
     }
-    if (me->GetEntry() == 38765)
-        mCombatPauseLogged = false;
     // handle next wp
     if (mWPReached)//reached WP
     {
@@ -366,8 +342,6 @@ void SmartAI::UpdatePath(const uint32 diff)
         }
         else if (WayPoint* wp = GetNextWayPoint())
         {
-            if (me->GetEntry() == 38765)
-                TC_LOG_INFO("spells", "[Q14465] SmartAI::UpdatePath entry=38765 ADVANCE to wp={} pos=({:.2f},{:.2f},{:.2f})", wp->id, wp->x, wp->y, wp->z);
             SetRun(mRun);
             me->GetMotionMaster()->MovePoint(wp->id, wp->x, wp->y, wp->z);
         }
@@ -379,22 +353,6 @@ void SmartAI::UpdateAI(uint32 diff)
     GetScript()->OnUpdate(diff);
     UpdatePath(diff);
     UpdateDespawn(diff);
-
-    if (me->GetEntry() == 38765)
-    {
-        if (mQ14465DiagTimer <= diff)
-        {
-            mQ14465DiagTimer = 1000;
-            TC_LOG_INFO("spells", "[Q14465] SmartAI::UpdateAI diag: escort={} paused={} returning={} wpReached={} curWP={} lastWPReached={} combat={} mwp={} gen={} splineInit={} splineFin={} pos=({:.1f},{:.1f},{:.1f}) o={:.2f}",
-                HasEscortState(SMART_ESCORT_ESCORTING), HasEscortState(SMART_ESCORT_PAUSED), HasEscortState(SMART_ESCORT_RETURNING),
-                mWPReached, mCurrentWPID, mLastWPIDReached, me->IsInCombat(), mWayPoints ? mWayPoints->size() : 0,
-                uint8(me->GetMotionMaster()->GetCurrentMovementGeneratorType()),
-                me->movespline->Initialized(), me->movespline->Finalized(),
-                me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-        }
-        else
-            mQ14465DiagTimer -= diff;
-    }
 
     /// @todo move to void
     if (mFollowGuid)
@@ -478,8 +436,6 @@ bool SmartAI::IsEscortInvokerInRange()
 
 void SmartAI::MovepointReached(uint32 id)
 {
-    if (me->GetEntry() == 38765)
-        TC_LOG_INFO("spells", "[Q14465] SmartAI::MovepointReached entry=38765 wp={}", id);
     if (id != SMART_ESCORT_LAST_OOC_POINT && mLastWPIDReached != id)
         GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_REACHED, NULL, id);
 
@@ -768,8 +724,6 @@ void SmartAI::CorpseRemoved(uint32& respawnDelay)
 
 void SmartAI::PassengerBoarded(Unit* who, int8 seatId, bool apply)
 {
-    if (me->GetEntry() == 38765)
-        TC_LOG_INFO("spells", "[Q14465] SmartAI::PassengerBoarded entry=38765 who={} seatId={} apply={}", who ? who->GetEntry() : 0, (int32)seatId, apply);
     GetScript()->ProcessEventsFor(apply ? SMART_EVENT_PASSENGER_BOARDED : SMART_EVENT_PASSENGER_REMOVED, who, uint32(seatId), 0, apply);
 }
 
