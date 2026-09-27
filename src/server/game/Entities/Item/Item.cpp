@@ -17,6 +17,7 @@
 
 #include "Common.h"
 #include "Item.h"
+#include <atomic>
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
 #include "DatabaseEnv.h"
@@ -1906,35 +1907,34 @@ void Item::AddToUpdate()
     //     return;
     // }
 
-    owner->FindMap()->AddUpdateObject(this);
+    // remember the map: the owner may change maps before the item leaves this update list
+    m_updateMap = owner->FindMap();
+    m_updateMap->AddUpdateObject(this);
     m_objectUpdated = true;
 }
 
 void Item::RemoveFromUpdate()
 {
     Player* owner = ObjectAccessor::FindPlayer(GetOwnerGUID());   // player can be out of world - logout, teleport to cross-server
-    if (!owner)
+    Map* ownerMap = owner ? owner->FindMap() : nullptr;
+    Map* map = m_updateMap ? m_updateMap : ownerMap;
+    if (m_updateMap && ownerMap && ownerMap != m_updateMap)
     {
-        TC_LOG_ERROR("shitlog", "Item::RemoveFromUpdate - owner not found, guid {}, entry {}, owner {}\n",
+        static std::atomic<uint32> mismatches{ 0 };
+        uint32 n = ++mismatches;
+        if (n == 1 || n % 100 == 0)
+            TC_LOG_ERROR("shitlog", "Item::RemoveFromUpdate - owner is on map {} but the item was queued on map {} ({} times)",
+                ownerMap->GetId(), m_updateMap->GetId(), n);
+    }
+    if (!map)
+    {
+        TC_LOG_ERROR("shitlog", "Item::RemoveFromUpdate - no map, guid {}, entry {}, owner {}\n",
             GetGUID().GetCounter(), GetEntry(), GetOwnerGUID().GetCounter());
         return;
     }
 
-    if (!owner->FindMap())
-    {
-        TC_LOG_ERROR("shitlog", "Item::RemoveFromUpdate - owner hasn't map, guid {}, entry {}, owner {}\n",
-            GetGUID().GetCounter(), GetEntry(), GetOwnerGUID().GetCounter());
-        return;
-    }
-
-    // if (owner->FindMap() != CurrentMap && CurrentMap)
-    // {
-    //     TC_LOG_ERROR("shitlog", "Item::RemoveFromUpdate - invalid map, m_currMap ID {}, CurrentMap ID: {}. Object type: {}, entry: {}, GUID: {}, owner: {} (InWorld: {}).\nStack trace:\n",
-    //         owner->FindMap()->GetId(), CurrentMap->GetId(), uint32(GetTypeId()), GetEntry(), GetGUIDLow(), GUID_LOPART(GetOwnerGUID()), owner->IsInWorld());
-    //     return;
-    // }
-
-    owner->FindMap()->RemoveUpdateObject(this);
+    map->RemoveUpdateObject(this);
+    m_updateMap = nullptr;
     m_objectUpdated = false;
 }
 
