@@ -708,12 +708,15 @@ struct npc_darnell : public ScriptedAI
         m_timer = urand(30, 45) * TimeConstants::IN_MILLISECONDS;
         m_phase = TirisfalGlades::DARNELL_PHASE_00;
         m_method = TirisfalGlades::DARNELL_METHOD_00;
+        m_player = nullptr;
+        m_playerGUID = ObjectGuid::Empty;
 
         if (Unit* npc = me->GetCharmerOrOwner())
         {
             m_player = npc->ToPlayer();
             if (m_player)
             {
+                m_playerGUID = m_player->GetGUID();
                 if (m_player->GetQuestStatus(TirisfalGlades::QUEST_THE_SHADOW_GRAVE) == QuestStatus::QUEST_STATUS_INCOMPLETE)
                 {
                     m_method = TirisfalGlades::DARNELL_METHOD_01;
@@ -743,7 +746,10 @@ struct npc_darnell : public ScriptedAI
 
     void MoveInLineOfSight(Unit* who) override
     {
-        if (who->GetGUID() != m_player->GetGUID())
+        if (!m_playerGUID || who->GetGUID() != m_playerGUID)
+            return;
+        m_player = who->ToPlayer();
+        if (!m_player)
             return;
 
         m_player_pos = who->GetPositionAlternate();
@@ -966,7 +972,8 @@ struct npc_darnell : public ScriptedAI
 
     bool CheckPlayerValid()
     {
-        if (!m_player->IsInWorld() ||
+        m_player = m_playerGUID ? ObjectAccessor::GetPlayer(*me, m_playerGUID) : nullptr;
+        if (!m_player || !m_player->IsInWorld() ||
             m_player->isDead() ||
             m_player->GetQuestStatus(TirisfalGlades::QUEST_THE_SHADOW_GRAVE) != QuestStatus::QUEST_STATUS_INCOMPLETE ||
             (m_player->GetAreaId() != TirisfalGlades::AREA_THE_DEATHKNELL_GRAVES && m_player->GetAreaId() != TirisfalGlades::AREA_SHADOW_GRAVE))
@@ -1023,6 +1030,7 @@ private:
     uint32 m_timer;
     uint32 m_phase;
     Player* m_player;
+    ObjectGuid m_playerGUID;
     bool m_FoundGround;
     bool m_ItemsFound;
 };
@@ -1053,6 +1061,7 @@ public:
         uint32 m_timer;
         uint32 m_phase;
         Player* m_player;
+        ObjectGuid m_playerGUID;
 
         void Reset() override
         {
@@ -1060,6 +1069,7 @@ public:
             m_timer = 0;
             m_phase = TirisfalGlades::MARSHAL_REDPATH_PHASE_00;
             m_player = NULL;
+            m_playerGUID.Clear();
         }
 
         void StartAnimation(Player* player)
@@ -1068,6 +1078,7 @@ public:
             {
                 me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                 m_player = player;
+                m_playerGUID = player->GetGUID();
                 m_phase = TirisfalGlades::MARSHAL_REDPATH_PHASE_01;
                 m_timer = 100;
             }
@@ -1085,6 +1096,15 @@ public:
 
         void StartVisual()
         {
+            if (m_playerGUID)
+            {
+                m_player = ObjectAccessor::GetPlayer(*me, m_playerGUID);
+                if (!m_player)
+                {
+                    Reset();
+                    return;
+                }
+            }
             switch (m_phase)
             {
                 case TirisfalGlades::MARSHAL_REDPATH_PHASE_01:
@@ -1146,6 +1166,7 @@ public:
         uint32 m_timer;
         uint32 m_phase;
         Player* m_player;
+        ObjectGuid m_playerGUID;
 
         void Reset() override
         {
@@ -1153,6 +1174,7 @@ public:
             m_timer = 0;
             m_phase = TirisfalGlades::LILIAN_VOSS_PHASE_00;
             m_player = NULL;
+            m_playerGUID.Clear();
         }
 
         void StartAnimation(Player* player)
@@ -1161,6 +1183,7 @@ public:
             {
                 me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                 m_player = player;
+                m_playerGUID = player->GetGUID();
                 m_phase = TirisfalGlades::LILIAN_VOSS_PHASE_01;
                 m_timer = 100;
             }
@@ -1178,6 +1201,15 @@ public:
 
         void StartVisual()
         {
+            if (m_playerGUID)
+            {
+                m_player = ObjectAccessor::GetPlayer(*me, m_playerGUID);
+                if (!m_player)
+                {
+                    Reset();
+                    return;
+                }
+            }
             switch (m_phase)
             {
                 case TirisfalGlades::LILIAN_VOSS_PHASE_01:
@@ -1244,6 +1276,7 @@ public:
         uint32 m_timer;
         uint32 m_phase;
         Player* m_player;
+        ObjectGuid m_playerGUID;
 
         void Reset() override
         {
@@ -1251,6 +1284,7 @@ public:
             m_timer = 0;
             m_phase = TirisfalGlades::VALDRED_MORAY_PHASE_00;
             m_player = NULL;
+            m_playerGUID.Clear();
         }
 
         void StartAnimation(Player* player)
@@ -1260,6 +1294,7 @@ public:
                 me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 m_player = player;
+                m_playerGUID = player->GetGUID();
                 m_phase = TirisfalGlades::VALDRED_MORAY_PHASE_01;
                 m_timer = 100;
             }
@@ -1277,6 +1312,15 @@ public:
 
         void StartVisual()
         {
+            if (m_playerGUID)
+            {
+                m_player = ObjectAccessor::GetPlayer(*me, m_playerGUID);
+                if (!m_player)
+                {
+                    Reset();
+                    return;
+                }
+            }
             switch (m_phase)
             {
                 case TirisfalGlades::VALDRED_MORAY_PHASE_01:
