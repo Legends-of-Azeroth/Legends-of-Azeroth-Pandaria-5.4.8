@@ -473,7 +473,11 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
         entry, (int32)seatId);
 
     TempSummon* accessory = _me->SummonCreature(entry, *_me, TempSummonType(type), Milliseconds(summonTime));
-    ASSERT(accessory);
+    if (!accessory)   // was ASSERT -> server crash when the summon fails (e.g. vehicle being removed from the map)
+    {
+        TC_LOG_ERROR("entities.vehicle", "Vehicle (Entry: {}) could not summon accessory {} on seat {}", GetCreatureEntry(), entry, (int32)seatId);
+        return;
+    }
 
     if (minion)
         accessory->AddUnitTypeMask(UNIT_MASK_ACCESSORY);
