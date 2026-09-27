@@ -237,7 +237,7 @@ void GroupMgr::LoadGroups()
         //                                                   0           1        2              3             4             5            6
         QueryResult result = CharacterDatabase.Query("SELECT gi.guid, i.map, gi.instance, gi.permanent, i.difficulty, i.resettime, COUNT(g.guid) "
             "FROM group_instance gi INNER JOIN instance i ON gi.instance = i.id "
-            "LEFT JOIN character_instance ci LEFT JOIN `groups` g ON g.leaderGuid = ci.guid ON ci.instance = gi.instance AND ci.permanent = 1 GROUP BY gi.instance ORDER BY gi.guid");
+            "LEFT JOIN character_instance ci LEFT JOIN `groups` g ON g.leaderGuid = ci.guid ON ci.instance = gi.instance AND ci.permanent = 1 GROUP BY gi.guid, gi.instance ORDER BY gi.guid");
         if (!result)
         {
             TC_LOG_INFO("server.loading", ">> Loaded 0 group-instance saves. DB table `group_instance` is empty!");
