@@ -1734,7 +1734,7 @@ public:
     void Visit(std::unordered_map<ObjectGuid, GameObject*>& gameObjectMap)
     {
         for (auto const& p : gameObjectMap)
-            if (p.second->IsInWorld())
+            if (p.second->IsInWorld() && p.second->AI())
                 p.second->AI()->OnGameEvent(_activate, _eventId);
     }
 
