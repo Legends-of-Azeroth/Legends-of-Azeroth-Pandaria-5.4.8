@@ -82,7 +82,10 @@ void ThreatReference::UpdateOffline()
 {
     if (a->GetTypeId() == TYPEID_UNIT && a->ToCreature()->IsTrigger())
         return false;
-    if (a->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
+    // UNIT_FLAG_PLAYER_CONTROLLED is 0x01000000 (old pet flag) in this core, players never have it;
+    // TC master means "player or player controlled" here -> IsControlledByPlayer(). Otherwise every creature with
+    // IMMUNE_TO_NPC (21% of normal mobs) drops a player from its threat list and evades.
+    if (a->IsControlledByPlayer())
     {
         if (b->HasUnitFlag(UNIT_FLAG_IMMUNE_TO_PC))
             return false;

@@ -247,8 +247,8 @@ void CombatManager::InheritCombatStatesFrom(Unit const* who)
         if (!IsInCombatWith(pair.first))
         {
             Unit* target = pair.second->GetOther(who);
-            if ((_owner->IsImmuneToPC() && target->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED)) ||
-                (_owner->IsImmuneToNPC() && !target->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED)))
+            if ((_owner->IsImmuneToPC() && target->IsControlledByPlayer()) ||
+                (_owner->IsImmuneToNPC() && !target->IsControlledByPlayer()))
                 continue;
             SetInCombatWith(target);
         }
@@ -256,8 +256,8 @@ void CombatManager::InheritCombatStatesFrom(Unit const* who)
     for (auto const& pair : mgr._pvpRefs)
     {
         Unit* target = pair.second->GetOther(who);
-        if ((_owner->IsImmuneToPC() && target->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED)) ||
-            (_owner->IsImmuneToNPC() && !target->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED)))
+        if ((_owner->IsImmuneToPC() && target->IsControlledByPlayer()) ||
+            (_owner->IsImmuneToNPC() && !target->IsControlledByPlayer()))
             continue;
         SetInCombatWith(target);
     }
