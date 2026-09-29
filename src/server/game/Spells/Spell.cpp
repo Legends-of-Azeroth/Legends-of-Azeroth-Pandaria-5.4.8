@@ -2222,8 +2222,8 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
             break;
         if (!searchNearTarget)
             target = *foundItr;
-        tempTargets.erase(foundItr);
         targets.push_back(*foundItr);
+        tempTargets.erase(foundItr);
         --chainTargets;
     }
 }
