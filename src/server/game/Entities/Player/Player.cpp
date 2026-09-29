@@ -26878,6 +26878,15 @@ void Player::UpdateZoneDependentAuras(uint32 newZone)
 
 void Player::UpdateAreaDependentAuras(uint32 newArea)
 {
+    // An autocast spell_area spell that does not leave an aura on the player (e.g. 125642, a force cast, in area 6391)
+    // is cast again on every call because HasAura() never becomes true. If its effects update the area again, this
+    // recursed until the stack overflowed. Do not re-enter.
+    static thread_local bool updatingAreaAuras = false;
+    if (updatingAreaAuras)
+        return;
+    updatingAreaAuras = true;
+    struct ResetGuard { ~ResetGuard() { updatingAreaAuras = false; } } resetGuard;
+
     // remove auras from spells with area limitations
     for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
     {
