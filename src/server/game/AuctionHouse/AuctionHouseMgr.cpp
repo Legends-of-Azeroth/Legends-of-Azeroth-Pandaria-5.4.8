@@ -15,6 +15,7 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <algorithm>
 #include "Common.h"
 #include "GameTime.h"
 #include "ObjectMgr.h"
@@ -446,6 +447,22 @@ bool AuctionHouseMgr::PendingAuctionAdd(Player* player, AuctionEntry* aEntry, It
     return true;
 }
 
+void AuctionHouseMgr::PendingAuctionRemove(AuctionEntry const* aEntry)
+{
+    for (auto itr = pendingAuctionMap.begin(); itr != pendingAuctionMap.end();)
+    {
+        PlayerAuctions* list = itr->second.first;
+        list->erase(std::remove(list->begin(), list->end(), aEntry), list->end());
+        if (list->empty())
+        {
+            delete list;
+            itr = pendingAuctionMap.erase(itr);
+        }
+        else
+            ++itr;
+    }
+}
+
 uint32 AuctionHouseMgr::PendingAuctionCount(Player const* player) const
 {
     auto const itr = pendingAuctionMap.find(player->GetGUID());
@@ -591,6 +608,9 @@ bool AuctionHouseObject::RemoveAuction(AuctionEntry* auction)
     bool wasInMap = AuctionsMap.erase(auction->Id) ? true : false;
 
     sScriptMgr->OnAuctionRemove(this, auction);
+
+    // it may still wait in the pending list for its deposit
+    sAuctionMgr->PendingAuctionRemove(auction);
 
     // we need to delete the entry, it is not referenced any more
     delete auction;
