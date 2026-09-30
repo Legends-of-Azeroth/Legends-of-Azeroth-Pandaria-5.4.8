@@ -144,6 +144,7 @@ struct ChatCommandHolder : public std::enable_shared_from_this<ChatCommandHolder
     ChatCommandHolder(ChatHandler* handler) : m_handler(handler) { }
 
     ChatHandler& GetHandler() { return *m_handler; }
+    virtual ~ChatCommandHolder() = default;
     virtual void FinishCommand(bool success) { }
 
 protected:
