@@ -813,6 +813,10 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
     sScriptMgr->OnPlayerLeaveMap(this, player);
 
     player->CombatStop();
+    // CombatStop() only suppresses PvP combat. A PvP reference that survives a far teleport times out later in
+    // CombatManager::Update on the thread of the NEW map and then modifies the other player (combat, threat, auras)
+    // while that player is being updated by the thread of the OLD map. End it here, while both are still on this map.
+    player->GetCombatManager().EndAllPvPCombat();
 
     bool const inWorld = player->IsInWorld();
     player->RemoveFromWorld();
