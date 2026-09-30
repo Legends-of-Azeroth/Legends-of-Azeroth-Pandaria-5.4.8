@@ -33,6 +33,7 @@
 #include "Opcodes.h"
 #include "Realm.h"
 #include "ReputationMgr.h"
+#include <mutex>
 
 #define MAX_GUILD_BANK_TAB_TEXT_LEN 500
 #define EMBLEM_PRICE 10 * GOLD
@@ -4143,6 +4144,32 @@ void Guild::SendGuildRanksUpdate(ObjectGuid setterGuid, Member* member, bool pro
         member->GetGUID().GetCounter(), setterGuid.GetCounter(), member->GetRankId());
 }
 
+namespace
+{
+    struct PendingGuildXP
+    {
+        uint64 xp = 0;
+        ObjectGuid source;
+    };
+
+    std::mutex pendingGuildXPLock;
+    std::unordered_map<uint32, PendingGuildXP> pendingGuildXP;
+}
+
+void Guild::ProcessPendingXP()
+{
+    std::unordered_map<uint32, PendingGuildXP> pending;
+    {
+        std::lock_guard<std::mutex> guard(pendingGuildXPLock);
+        pending.swap(pendingGuildXP);
+    }
+
+    for (auto const& entry : pending)
+        if (Guild* guild = sGuildMgr->GetGuildById(entry.first))
+            guild->ApplyXP(uint32(std::min<uint64>(entry.second.xp, std::numeric_limits<uint32>::max())),
+                ObjectAccessor::FindConnectedPlayer(entry.second.source));
+}
+
 void Guild::GiveXP(uint32 xp, Player* source)
 {
     if (!sWorld->getBoolConfig(CONFIG_GUILD_LEVELING_ENABLED))
@@ -4159,10 +4186,22 @@ void Guild::GiveXP(uint32 xp, Player* source)
     if (source)
         source->GetSession()->SendPacket(&data);
 
-    _experience += xp;
-
     if (!xp)
         return;
+
+    // GiveXP() is called from quest rewards, i.e. on a map update thread. The guild is shared by all maps, and a level up
+    // modifies every online member (SetGuildLevel -> AddToUpdate into the update set of THEIR map, LearnSpell), so the XP
+    // is only queued here and applied on the world thread by ProcessPendingXP().
+    std::lock_guard<std::mutex> guard(pendingGuildXPLock);
+    PendingGuildXP& pending = pendingGuildXP[GetId()];
+    pending.xp += xp;
+    if (source)
+        pending.source = source->GetGUID();
+}
+
+void Guild::ApplyXP(uint32 xp, Player* source)
+{
+    _experience += xp;
 
     uint32 oldLevel = GetLevel();
 

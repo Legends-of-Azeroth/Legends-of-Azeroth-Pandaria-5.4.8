@@ -42,6 +42,7 @@
 #include "AuctionHouseMgr.h"
 #include "BlackMarketMgr.h"
 #include "ObjectMgr.h"
+#include "Guild.h"
 #include "GuildMgr.h"
 #include "GuildFinderMgr.h"
 #include "TicketMgr.h"
@@ -2718,6 +2719,7 @@ void World::Update(uint32 diff)
     /// <li> Handle all other objects
     ///- Update objects when the timer has passed (maps, transport, creatures, ...)
     sMapMgr->Update(diff);
+    Guild::ProcessPendingXP();
 
     if (sWorld->getBoolConfig(CONFIG_AUTOBROADCAST))
     {

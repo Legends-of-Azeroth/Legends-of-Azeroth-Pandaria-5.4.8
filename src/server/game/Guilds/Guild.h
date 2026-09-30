@@ -907,6 +907,8 @@ public:
     // Guild leveling
     uint8 GetLevel() const { return _level; }
     void GiveXP(uint32 xp, Player* source);
+    // applies the guild XP queued by GiveXP(); world thread only (World::Update, after the maps are updated)
+    static void ProcessPendingXP();
     uint64 GetExperience() const { return _experience; }
 
     void AddGuildNews(uint8 type, ObjectGuid guid, uint32 flags, uint32 value);
@@ -929,6 +931,7 @@ public:
     uint64 GetBankMoney() const { return m_bankMoney; }
 
     void LevelUp(uint32 oldLevel, Player *source);
+    void ApplyXP(uint32 xp, Player* source);
 
 protected:
     ObjectGuid::LowType m_id;
