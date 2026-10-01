@@ -23,8 +23,8 @@
 
 namespace MMAP
 {
-    constexpr char MAP_FILE_NAME_FORMAT[] = "%s/mmaps/%04i.mmap";
-    constexpr char TILE_FILE_NAME_FORMAT[] = "%s/mmaps/%04i_%02i_%02i.mmtile";
+    constexpr char MAP_FILE_NAME_FORMAT[] = "{}/mmaps/{:04}.mmap";
+    constexpr char TILE_FILE_NAME_FORMAT[] = "{}/mmaps/{:04}_{:02}_{:02}.mmtile";
 
     // ######################## MMapManager ########################
     MMapManager::~MMapManager()
