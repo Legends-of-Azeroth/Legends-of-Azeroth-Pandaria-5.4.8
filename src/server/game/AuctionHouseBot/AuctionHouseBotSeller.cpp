@@ -935,8 +935,6 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
         auctionHouse->AddAuction(auctionEntry);
         auctionEntry->SaveToDB(trans);
 
-        auctionHouse->AddAuction(auctionEntry);
-
         ++count;
     }
     CharacterDatabase.CommitTransaction(trans);
