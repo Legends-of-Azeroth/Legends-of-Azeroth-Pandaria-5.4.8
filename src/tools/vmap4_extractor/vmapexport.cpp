@@ -66,7 +66,6 @@ uint32 CONF_TargetBuild = 18273;              // 5.4.8.18273
 char const* CONF_mpq_list[]=
 {
     "world.MPQ",
-    "world2.MPQ",
     "model.MPQ", // added in 5.x.x
     "misc.MPQ", // added in 5.x.x
     "expansion1.MPQ",
