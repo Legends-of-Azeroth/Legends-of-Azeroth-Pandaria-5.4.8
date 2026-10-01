@@ -772,9 +772,10 @@ void Guild::Member::SaveProfessionsToDB(CharacterDatabaseTransaction trans)
     stmt->setUInt16(1, m_professions[0].Value);
     stmt->setUInt16(2, m_professions[0].Rank);
 
+    // the recipe flags are uint8: streamed as they are they end up as raw characters in the text column
     std::ostringstream ss;
     for (auto&& it : m_professions[0].Recipes)
-        ss << it << ' ';
+        ss << uint32(it) << ' ';
 
     stmt->setString(3, ss.str());
     stmt->setUInt16(4, m_professions[1].SkillId);
@@ -783,7 +784,7 @@ void Guild::Member::SaveProfessionsToDB(CharacterDatabaseTransaction trans)
 
     ss.str("");
     for (auto&& it : m_professions[1].Recipes)
-        ss << it << ' ';
+        ss << uint32(it) << ' ';
 
     stmt->setString(7, ss.str());
 
@@ -856,7 +857,7 @@ bool Guild::Member::LoadFromDB(Field* fields)
                 recipes.resize(300, 0);
                 for (uint32 j = 0; j < 300; ++j)
                 {
-                    uint32 byte;
+                    uint32 byte = 0;
                     ss >> byte;
                     recipes[j] = byte;
                 }
