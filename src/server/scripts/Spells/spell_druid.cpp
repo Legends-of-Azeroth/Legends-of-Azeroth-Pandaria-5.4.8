@@ -3329,12 +3329,15 @@ class spell_dru_shooting_stars_proc : public AuraScript
         if (auto list = druid->GetBoundAurasBySpellId(SPELL_DRUID_SUNFIRE))
             for (auto&& itr : *list)
                 AddTarget(itr->GetUnitOwner());
+        // The critical tick can be the last one of the only Moonfire / Sunfire: the aura is unbound by then.
+        // That is one target and a regular proc chance, not an error.
         if (uniqueTargets.empty())
         {
-            TC_LOG_ERROR("misc", "spell_dru_shooting_stars_proc::CheckProc - Shit happened! GUID: {}", druid->GetGUID().GetCounter());
-            return false;
+            SpellInfo const* procSpell = eventInfo.GetSpellInfo();
+            if (!procSpell || (procSpell->Id != SPELL_DRUID_MOONFIRE && procSpell->Id != SPELL_DRUID_SUNFIRE))
+                return false;
         }
-        size_t targetCount = uniqueTargets.size();
+        size_t targetCount = std::max<size_t>(1, uniqueTargets.size());
         uniqueTargets.clear();
         float chance = GetSpellInfo()->ProcChance;
         druid->ApplySpellMod(GetId(), SPELLMOD_CHANCE_OF_SUCCESS, chance);
