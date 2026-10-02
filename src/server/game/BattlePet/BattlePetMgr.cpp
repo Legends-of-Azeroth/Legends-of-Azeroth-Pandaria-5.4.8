@@ -191,9 +191,10 @@ void BattlePetMgr::LoadSlotsFromDb(PreparedQueryResult result)
 
     Field* fields = result->Fetch();
 
-    ObjectGuid slot1(HighGuid::BattlePet, fields[0].GetUInt32());
-    ObjectGuid slot2(HighGuid::BattlePet, fields[1].GetUInt32());
-    ObjectGuid slot3(HighGuid::BattlePet, fields[2].GetUInt32());
+    // the slots hold the plain battle pet id, as the client sends it and SaveSlotsToDb stores it
+    ObjectGuid slot1(fields[0].GetUInt64());
+    ObjectGuid slot2(fields[1].GetUInt64());
+    ObjectGuid slot3(fields[2].GetUInt64());
     m_loadoutFlags = fields[3].GetUInt8();
 
     // update flag and spell state for new alt characters
@@ -226,9 +227,9 @@ void BattlePetMgr::LoadSlotsFromDb(PreparedQueryResult result)
     if (hasError)
         m_loadoutSave = true;
 
-    SetLoadoutSlot(BATTLE_PET_LOADOUT_SLOT_1, hasError ? ObjectGuid::Empty : slot1);
-    SetLoadoutSlot(BATTLE_PET_LOADOUT_SLOT_2, hasError ? ObjectGuid::Empty : slot2);
-    SetLoadoutSlot(BATTLE_PET_LOADOUT_SLOT_3, hasError ? ObjectGuid::Empty : slot3);
+    SetLoadoutSlot(BATTLE_PET_LOADOUT_SLOT_1, slotErrors.count(BATTLE_PET_LOADOUT_SLOT_1) ? ObjectGuid::Empty : slot1);
+    SetLoadoutSlot(BATTLE_PET_LOADOUT_SLOT_2, slotErrors.count(BATTLE_PET_LOADOUT_SLOT_2) ? ObjectGuid::Empty : slot2);
+    SetLoadoutSlot(BATTLE_PET_LOADOUT_SLOT_3, slotErrors.count(BATTLE_PET_LOADOUT_SLOT_3) ? ObjectGuid::Empty : slot3);
 }
 
 void BattlePetMgr::SaveSlotsToDb(CharacterDatabaseTransaction trans)
