@@ -38,8 +38,8 @@ CREATE TABLE `keychain` (
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO `keychain`(`ID`, `Key1`, `Key2`, `Key3`, `Key4`, `Key5`, `Key6`, `Key7`, `Key8`, `Key9`, `Key10`, `Key11`, `Key12`, `Key13`, `Key14`, `Key15`, `Key16`, `Key17`, `Key18`, `Key19`, `Key20`, `Key21`, `Key22`, `Key23`, `Key24`, `Key25`, `Key26`, `Key27`, `Key28`, `Key29`, `Key30`, `Key31`, `Key32`,`VerifiedBuild`)
-SELECT `keyId`, `k1`, `k2`, `k3`, `k4`, `k5`, `k6`, `k7`, `k8`, `k9`, `k10`, `k11`, `k12`, `k13`, `k14`, `k15`, `k16`, `k17`, `k18`, `k19`, `k20`, `k21`, `k22`, `k23`, `k24`, `k25`, `k26`, `k27`, `k28`, `k29`, `k30`, `k31`, `k32`, 0
-FROM `keychain_db2`;
+-- INSERT IGNORE INTO `keychain`(`ID`, `Key1`, `Key2`, `Key3`, `Key4`, `Key5`, `Key6`, `Key7`, `Key8`, `Key9`, `Key10`, `Key11`, `Key12`, `Key13`, `Key14`, `Key15`, `Key16`, `Key17`, `Key18`, `Key19`, `Key20`, `Key21`, `Key22`, `Key23`, `Key24`, `Key25`, `Key26`, `Key27`, `Key28`, `Key29`, `Key30`, `Key31`, `Key32`,`VerifiedBuild`)
+-- SELECT `keyId`, `k1`, `k2`, `k3`, `k4`, `k5`, `k6`, `k7`, `k8`, `k9`, `k10`, `k11`, `k12`, `k13`, `k14`, `k15`, `k16`, `k17`, `k18`, `k19`, `k20`, `k21`, `k22`, `k23`, `k24`, `k25`, `k26`, `k27`, `k28`, `k29`, `k30`, `k31`, `k32`, 0
+-- FROM `keychain_db2`;
 
 -- DROP TABLE IF EXISTS `keychain_db2`;

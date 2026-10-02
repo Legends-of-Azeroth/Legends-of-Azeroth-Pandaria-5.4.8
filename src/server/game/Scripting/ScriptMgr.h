@@ -1382,36 +1382,36 @@ struct pet_script : public CreatureScript
 template <class AI>
 class GenericCreatureScript : public CreatureScript
 {
-public:
-    GenericCreatureScript(char const* name) : CreatureScript(name) { }
-    CreatureAI* GetAI(Creature* me) const override { return new AI(me); }
+    public:
+        GenericCreatureScript(char const* name) : CreatureScript(name) { }
+        CreatureAI* GetAI(Creature* me) const override { return new AI(me); }
 };
 #define RegisterCreatureAI(ai_name) new GenericCreatureScript<ai_name>(#ai_name)
 
 template <class AI, AI* (*AIFactory)(Creature*)>
 class FactoryCreatureScript : public CreatureScript
 {
-public:
-    FactoryCreatureScript(char const* name) : CreatureScript(name) { }
-    CreatureAI* GetAI(Creature* me) const override { return AIFactory(me); }
+    public:
+        FactoryCreatureScript(char const* name) : CreatureScript(name) { }
+        CreatureAI* GetAI(Creature* me) const override { return AIFactory(me); }
 };
 #define RegisterCreatureAIWithFactory(ai_name, factory_fn) new FactoryCreatureScript<ai_name, &factory_fn>(#ai_name)
 
 template <class AI>
 class GenericGameObjectScript : public GameObjectScript
 {
-public:
-    GenericGameObjectScript(char const* name) : GameObjectScript(name) { }
-    GameObjectAI* GetAI(GameObject* go) const override { return new AI(go); }
+    public:
+        GenericGameObjectScript(char const* name) : GameObjectScript(name) { }
+        GameObjectAI* GetAI(GameObject* go) const override { return new AI(go); }
 };
 #define RegisterGameObjectAI(ai_name) new GenericGameObjectScript<ai_name>(#ai_name)
 
 template <class AI, AI* (*AIFactory)(GameObject*)>
 class FactoryGameObjectScript : public GameObjectScript
 {
-public:
-    FactoryGameObjectScript(char const* name) : GameObjectScript(name) { }
-    GameObjectAI* GetAI(GameObject* me) const override { return AIFactory(me); }
+    public:
+        FactoryGameObjectScript(char const* name) : GameObjectScript(name) { }
+        GameObjectAI* GetAI(GameObject* me) const override { return AIFactory(me); }
 };
 #define RegisterGameObjectAIWithFactory(ai_name, factory_fn) new FactoryGameObjectScript<ai_name, &factory_fn>(#ai_name)
 

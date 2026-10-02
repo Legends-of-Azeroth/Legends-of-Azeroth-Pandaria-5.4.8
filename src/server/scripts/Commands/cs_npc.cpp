@@ -743,6 +743,11 @@ public:
         std::string defRespawnDelayMaxStr = target->GetRespawnDelayMax() ? secsToTimeString(target->GetRespawnDelayMax(), true) : defRespawnDelayStr;
 
         handler->PSendSysMessage(LANG_NPCINFO_CHAR,  target->GetDBTableGUIDLow(), target->GetGUID().GetCounter(), faction, npcflags, Entry, displayid, nativeid);
+        handler->PSendSysMessage("Name: %s, Subname: %s", target->GetName().c_str(), cInfo->SubName.c_str());
+        handler->PSendSysMessage("Map: %u, Orientation: %.4f", target->GetMapId(), target->GetOrientation());
+        handler->PSendSysMessage("SpawnId: %u, VehicleId: %u", target->GetSpawnId(), cInfo->VehicleId);
+        handler->PSendSysMessage("Rank: %u, Type: %u, Faction: %u", cInfo->rank, cInfo->type, cInfo->faction);
+        handler->PSendSysMessage("Speed: walk=%.4f run=%.4f, Scale: %.4f", cInfo->speed_walk, cInfo->speed_run, cInfo->scale);
         handler->PSendSysMessage(LANG_NPCINFO_LEVEL, target->GetLevel());
         handler->PSendSysMessage(LANG_NPCINFO_EQUIPMENT, target->GetCurrentEquipmentId(), target->GetOriginalEquipmentId());
         handler->PSendSysMessage(LANG_NPCINFO_HEALTH, target->GetCreateHealth(), target->GetMaxHealth(), target->GetHealth());
