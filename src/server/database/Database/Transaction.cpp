@@ -33,7 +33,8 @@ std::mutex TransactionTask::_deadlockLock;
 namespace
 {
     // Errors a retry can get past: the deadlock itself and the transient ones (a lock wait that timed out, a refused,
-    // lost or timed out connection). Anything else (a duplicate key for instance) fails the same way every time.
+    // failed, lost or timed out connection, a host that could not be reached). Anything else (a duplicate key for
+    // instance) fails the same way every time.
     bool IsRetryableError(int error)
     {
         switch (error)
@@ -44,6 +45,8 @@ namespace
             case CR_SERVER_GONE_ERROR:
             case CR_SERVER_LOST:
             case CR_SERVER_LOST_EXTENDED:
+            case CR_CONNECTION_ERROR:
+            case CR_CONN_HOST_ERROR:
                 return true;
             default:
                 return false;
