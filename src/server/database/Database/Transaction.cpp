@@ -21,6 +21,7 @@
 #include "MySQLConnection.h"
 #include "PreparedStatement.h"
 #include "Timer.h"
+#include <errmsg.h>
 #include <mysqld_error.h>
 #include <sstream>
 #include <thread>
@@ -28,6 +29,27 @@
 std::mutex TransactionTask::_deadlockLock;
 
 #define DEADLOCK_MAX_RETRY_TIME_MS 60000
+
+namespace
+{
+    // Errors a retry can get past: the deadlock itself and the transient ones (a lock wait that timed out, a refused,
+    // lost or timed out connection). Anything else (a duplicate key for instance) fails the same way every time.
+    bool IsRetryableError(int error)
+    {
+        switch (error)
+        {
+            case ER_LOCK_DEADLOCK:
+            case ER_LOCK_WAIT_TIMEOUT:
+            case ER_CON_COUNT_ERROR:
+            case CR_SERVER_GONE_ERROR:
+            case CR_SERVER_LOST:
+            case CR_SERVER_LOST_EXTENDED:
+                return true;
+            default:
+                return false;
+        }
+    }
+}
 
 //- Append a raw ad-hoc query to the transaction
 void TransactionBase::Append(char const* sql)
@@ -78,8 +100,8 @@ bool TransactionTask::Execute(MySQLConnection* conn, std::shared_ptr<Transaction
             if (!retryError)
                 return true;
 
-            // not a deadlock any more (a duplicate key for instance): repeating it cannot help
-            if (retryError != ER_LOCK_DEADLOCK)
+            // an error that repeating cannot fix (a duplicate key for instance): give up
+            if (!IsRetryableError(retryError))
             {
                 TC_LOG_ERROR("sql.sql", "Deadlocked SQL Transaction failed with error {} on retry, giving up. Thread Id: {}", retryError, threadId.c_str());
                 trans->Cleanup();
