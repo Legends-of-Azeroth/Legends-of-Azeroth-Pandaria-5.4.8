@@ -181,7 +181,7 @@ enum ancientEnemy
         SPELL_FIRES_BEAM            = 73294,
 };
 
-#define VOLJIN_GOSSIP       "我准备好了."
+#define VOLJIN_GOSSIP       "I am ready, Vol'jin."
 static const uint32 npcId[3] = { NPC_ZUNI, NPC_VANIRA, NPC_VOLJIN };
 
 class npc_voljin_ancient_enemy : public CreatureScript
