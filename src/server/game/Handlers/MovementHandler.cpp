@@ -145,6 +145,7 @@ void WorldSession::HandleMoveWorldportAck()
 
     GetPlayer()->ResetMap();
     GetPlayer()->SetMap(newMap);
+    GetPlayer()->UpdatePositionData();
 
     bool invalidZ = false;
     if (GetPlayer()->GetPositionZ() > 500000.0f || GetPlayer()->GetPositionZ() <= -200000.0f)
