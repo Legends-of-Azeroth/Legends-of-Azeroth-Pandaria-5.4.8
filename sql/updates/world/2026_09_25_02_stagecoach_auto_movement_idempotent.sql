@@ -9,11 +9,21 @@
 -- Final state:
 --   38755 Stagecoach Harness   VehicleId=970, no spellclick, marker only
 --   43336 Stagecoach Harness   VehicleId=958, ScriptName=npc_stagecoach_harness
+--   38762 Ogre Ambusher        ScriptName=npc_ogre_ambusher_exodus
 --   43338 Stagecoach Horse     VehicleId=0, decorative / boarded by script
---   44928 Stagecoach Carriage  VehicleId=959, ScriptName=npc_stagecoach_carriage_exodus
+--   44928 Stagecoach Carriage  VehicleId=959, npcflag=SPELLCLICK,
+--                              ScriptName=npc_stagecoach_carriage_exodus
 --
--- 46598 = hardcoded Ride Vehicle spell (SPELL_AURA_CONTROL_VEHICLE)
--- 72767 is intentionally NOT used.
+-- 72764 (Board Vehicle) is the player-facing spellclick on the carriage.
+-- The moving harness (43336) is summoned by the carriage AI (PassengerBoarded)
+-- when the player boards seat 1.
+--
+-- Trigger: the carriage uses spellclick. Clicking it (when no harness is already
+-- nearby) casts 72764, which makes the player enter the vehicle.
+-- The carriage AI then summons the harness (43336), whose IsSummonedBy boards
+-- the carriage (seat 2) and the player (seat 1) and drives the vehicle chain
+-- along the route. The 46598 spellclick row is required for vehicle accessory
+-- installation; user_type=0 ensures the spellclick icon is visible.
 -- ============================================================
 
 -- ---------- creature_template ----------
@@ -46,13 +56,19 @@ SET npcflag = 0,
 WHERE entry = 43338;
 
 UPDATE creature_template
-SET npcflag = 1,
+SET npcflag = 16777216,
     unit_flags = 0,
     unit_flags2 = 2048,
     VehicleId = 959,
     AIName = '',
     ScriptName = 'npc_stagecoach_carriage_exodus'
 WHERE entry = 44928;
+
+-- Ogre Ambusher (38762): point at the C++ script that drives the stand-in-place
+-- cosmetic rock-throwing attack (summoned at WP24, cleaned up at WP25).
+UPDATE creature_template
+SET ScriptName = 'npc_ogre_ambusher_exodus'
+WHERE entry = 38762;
 
 -- ---------- smart_scripts ----------
 
@@ -65,8 +81,21 @@ DELETE FROM npc_spellclick_spells
 WHERE npc_entry IN (38755, 43336, 43338, 44928);
 
 INSERT INTO npc_spellclick_spells (npc_entry, spell_id, cast_flags, user_type) VALUES
-    (43336, 46598, 0, 0),
-    (44928, 46598, 0, 0);
+    (43336, 46598, 1, 2),
+    (44928, 46598, 1, 0),
+    (44928, 72764, 1, 0);
+
+-- ---------- conditions (gate the 72764 spellclick) ----------
+-- SourceType 18 = SPELL_CLICK_EVENT, SourceGroup = creature, SourceEntry = spell.
+-- Only allow casting 72764 when no moving harness (43336) is already within
+-- 30 yards (the AI summons the harness on board, so it should not be cast if
+-- one is already present).
+
+DELETE FROM conditions
+WHERE SourceTypeOrReferenceId = 18 AND SourceGroup = 44928 AND SourceEntry = 72764;
+
+INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, SourceId, ElseGroup, ConditionTypeOrReference, ConditionTarget, ConditionValue1, ConditionValue2, ConditionValue3, NegativeCondition, ErrorType, ErrorTextId, ScriptName) VALUES
+    (18, 44928, 72764, 0, 0, 29, 0, 43336, 30, 0, 1, 0, 0, '');
 
 -- ---------- vehicle_template_accessory ----------
 
@@ -83,6 +112,14 @@ INSERT INTO vehicle_template_accessory (entry, accessory_entry, seat_id, minion,
     (44928, 43907, 4, 1, 'Stagecoach Carriage', 8, 0),
     (44928, 43907, 5, 1, 'Stagecoach Carriage', 8, 0),
     (44928, 51409, 6, 1, 'Stagecoach Carriage', 8, 0);
+
+-- ---------- creature_equip_template (musket for carriage NPC passengers) ----------
+
+DELETE FROM creature_equip_template WHERE CreatureID IN (43907, 51409);
+
+INSERT INTO creature_equip_template (CreatureID, ID, ItemID1, ItemID2, ItemID3) VALUES
+    (43907, 1, 3780, 0, 0),
+    (51409, 1, 3780, 0, 0);
 
 -- ---------- script_waypoint ----------
 
