@@ -3310,7 +3310,8 @@ class npc_wounded_pilot : public CreatureScript
                 {
                     case NPC_WOUNDED_PILOT:
                         me->CastSpell(me, SPELL_WOUNDED);
-                        me->SetHealth(me->CountPctFromMaxHealth(me->GetAura(SPELL_WOUNDED)->GetSpellInfo()->Effects[EFFECT_0].BasePoints));
+                        //me->SetHealth(me->CountPctFromMaxHealth(me->GetAura(SPELL_WOUNDED)->GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                        me->SetHealth(me->CountPctFromMaxHealth(75)); // https://www.wowhead.com/spell=130851/wounded 75%, this line crash
                         for (uint8 i = 0; i < 3; i++)
                             me->m_Events.Schedule(delay += 20000, [this, i]() { me->DealDamage(me, me->CountPctFromMaxHealth(i == 2 ? 26 : 25)); });
                         break;
