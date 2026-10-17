@@ -14999,7 +14999,7 @@ void Unit::ClearComboPointHolders()
         ObjectGuid guid = *m_comboPointHolders.begin();
 
         Player* player = ObjectAccessor::FindPlayer(guid);
-        if (player && player->GetComboTarget() && player->GetComboTarget()->GetGUID() == GetGUID())     // recheck for safe
+        if (player && player->GetComboTargetGUID() == GetGUID())   // By GUID, the pointer may dangle     // recheck for safe
             player->ClearComboPoints();                                                                 // remove also guid from m_ComboPointHolders;
         else
             m_comboPointHolders.erase(guid);                                                            // or remove manually

@@ -1940,13 +1940,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
     }
     Unit* GetComboTarget() const
     {
-        return m_comboTarget;
+        return const_cast<Player*>(this)->GetValidComboTarget();
     }
     ObjectGuid GetComboTargetGUID() const
     {
-        if (m_comboTarget)
-            return m_comboTarget->GetGUID();
-        return ObjectGuid::Empty;
+        return m_comboTarget ? m_comboTargetGuid : ObjectGuid::Empty;   // Never touch the pointer
     }
 
     void AddComboPoints(Unit* target, int8 count, Spell* spell = NULL);
@@ -3475,6 +3473,8 @@ protected:
     uint32 m_ExtraFlags;
 
     Unit* m_comboTarget;
+    ObjectGuid m_comboTargetGuid;
+    Unit* GetValidComboTarget();
     int8 m_comboPoints;
 
     QuestStatusMap m_QuestStatus;
