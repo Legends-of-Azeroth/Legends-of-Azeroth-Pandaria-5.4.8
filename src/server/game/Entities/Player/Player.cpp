@@ -26293,9 +26293,11 @@ void Player::UpdateForQuestWorldObjects()
             {
                 if (sConditionMgr->GetConditionsForSpellClickEvent(obj->GetEntry(), _itr->second.spellId))
                 {
-                    obj->BuildValuesUpdateBlockForPlayer(&udata, this);
+                    // (quest-click-refresh) a values update only carries changed fields and the NPC flags did not change:
+                    // mark the field, the next update of the creature works it out again for every player who sees it
+                    obj->ForceValuesUpdateAtIndex(UNIT_FIELD_NPC_FLAGS);
                     break;
-                }                
+                }
             }
         }
     }
