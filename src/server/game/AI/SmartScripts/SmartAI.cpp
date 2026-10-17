@@ -597,6 +597,17 @@ void SmartAI::JustAppeared()
     if (me->isDead())
         return;
 
+    // A respawn: the AI object survives it, and with it the despawn state of a forced despawn of a
+    // living creature - it then despawned itself again at every respawn, invisible, until a restart. Not on the first appearance:
+    // InitializeAI just ran, and a summon may have been told to despawn after a delay in the tick it was created.
+    if (mAppearedOnce)
+    {
+        mDespawnTime = 0;
+        mDespawnState = 0;
+        me->SetVisible(true);
+    }
+    mAppearedOnce = true;
+
     GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
     Reset();
 }
@@ -731,6 +742,7 @@ void SmartAI::InitializeAI()
 {
     GetScript()->OnInitialize(me);
 
+    mAppearedOnce = false;
     mDespawnTime = 0;
     mDespawnState = 0;
     mEscortState = SMART_ESCORT_NONE;
