@@ -283,6 +283,13 @@ class TC_GAME_API CreatureAI : public UnitAI
         void EngagementStart(Unit* who);
         void EngagementOver();
 
+    public:
+        // The creature just entered combat (Unit::SetInCombatState): tells the script that the fight starts,
+        // unless EngagementStart did so for this same pull
+        void EngageFromCombatState(Unit* who);
+
+    protected:
+
         bool _EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
 
         CreatureBoundary const* _boundary;
@@ -292,6 +299,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         bool m_MoveInLineOfSight_locked;
         bool m_canSeeEvenInPassiveMode;
         bool _isEngaged;
+        uint32 _engagedAt = 0;   // when the script was last told that a fight starts
 };
 
 enum Permitions
