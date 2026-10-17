@@ -17282,9 +17282,11 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
     // Phase pets and summons
     if (IsInWorld())
     {
-         for (ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
-            if ((*itr)->GetTypeId() == TYPEID_UNIT)
-                (*itr)->SetPhaseMask(newPhaseMask, true);
+        // (setphased-controlled) as in SetPhased: walk a copy, a unit can leave the control list during its phase change
+        ControlList const controlled = m_Controlled;
+        for (Unit* unit : controlled)
+            if (m_Controlled.find(unit) != m_Controlled.end() && unit->GetTypeId() == TYPEID_UNIT)
+                unit->SetPhaseMask(newPhaseMask, true);
 
         for (uint8 i = 0; i < SUMMON_SLOT_MAX; ++i)
             if (m_SummonSlot [i])
@@ -17315,9 +17317,12 @@ bool Unit::SetPhased(uint32 id, bool update, bool apply)
         GetThreatManager().EvaluateSuppressed(true);
     }
 
-    for (ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
-        if ((*itr)->GetTypeId() == TYPEID_UNIT)
-            (*itr)->SetPhased(id, true, apply);
+    // (setphased-controlled) the phase change of a controlled unit can end what made it controlled (an aura bound to the other
+    // phase is removed): it then takes itself out of m_Controlled. Walk a copy and skip what is not controlled any more.
+    ControlList const controlled = m_Controlled;
+    for (Unit* unit : controlled)
+        if (m_Controlled.find(unit) != m_Controlled.end() && unit->GetTypeId() == TYPEID_UNIT)
+            unit->SetPhased(id, true, apply);
 
     for (uint8 i = 0; i < SUMMON_SLOT_MAX; ++i)
         if (m_SummonSlot[i])
