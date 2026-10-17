@@ -390,8 +390,13 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
     {
         if (Unit* privateObjectOwner = ObjectAccessor::GetUnit(*GetOwner(), target->GetPrivateObjectOwner()))
         {
-            AddThreat(privateObjectOwner, amount, spell, ignoreModifiers, ignoreRedirects);
-            amount = 0.0f;
+            // not when the owner rides this personal vehicle: his threat was sent here by the vehicle
+            // redirect above, sending it back to him never ends (stack overflow)
+            if (privateObjectOwner->GetVehicleBase() != target)
+            {
+                AddThreat(privateObjectOwner, amount, spell, ignoreModifiers, ignoreRedirects);
+                amount = 0.0f;
+            }
         }
     }
 
