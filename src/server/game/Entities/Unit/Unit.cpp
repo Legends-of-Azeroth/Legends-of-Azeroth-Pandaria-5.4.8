@@ -11788,7 +11788,7 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
         {
             if (IsAIEnabled)
             {
-                creature->AI()->JustEngagedWith(enemy);
+                creature->AI()->EngageFromCombatState(enemy);
 
                 if (creature->GetEntry() != 69427 && creature->GetEntry() != 69701 && creature->GetEntry() != 69700 && creature->GetEntry() != 69699 && creature->GetEntry() != 72249 && creature->GetEntry() != 71742 && creature->GetEntry() != 71749 && creature->GetEntry() != 71763)
                     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC); // unit has engaged in combat, remove immunity so players can fight back

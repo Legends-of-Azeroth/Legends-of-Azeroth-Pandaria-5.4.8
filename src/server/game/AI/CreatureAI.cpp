@@ -16,6 +16,7 @@
 */
 
 #include "CreatureAI.h"
+#include "Timer.h"
 #include "AreaBoundary.h"
 #include "CreatureAIImpl.h"
 #include "Creature.h"
@@ -358,6 +359,21 @@ void CreatureAI::EngagementStart(Unit* who)
     }
 
     _isEngaged = true;
+    _engagedAt = getMSTime();
+    JustEngagedWith(who);
+}
+
+// Called by Unit::SetInCombatState when the creature enters combat. The script is told once per pull: when
+// EngagementStart told it a moment ago (the threat list of the same pull) nothing happens; a flag left set by an earlier
+// fight does not hold the call back.
+void CreatureAI::EngageFromCombatState(Unit* who)
+{
+    uint32 const now = getMSTime();
+    if (_isEngaged && getMSTimeDiff(_engagedAt, now) < 2000)
+        return;
+
+    _isEngaged = true;
+    _engagedAt = now;
     JustEngagedWith(who);
 }
 
