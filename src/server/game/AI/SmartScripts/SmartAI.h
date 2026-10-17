@@ -244,6 +244,7 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         uint32 mDespawnTime;
         uint32 mDespawnState;
+        bool mAppearedOnce = false;   // JustAppeared ran since the AI was created
         void UpdateDespawn(const uint32 diff);
         uint32 mEscortInvokerCheckTimer;
 
