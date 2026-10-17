@@ -190,6 +190,40 @@ void Vehicle::InstallAllAccessories(bool evading)
     for (VehicleAccessoryList::const_iterator itr = accessories->begin(); itr != accessories->end(); ++itr)
         if (!evading || itr->IsMinion)  // only install minions on evade mode
             InstallAccessory(itr->AccessoryEntry, itr->SeatId, itr->IsMinion, itr->SummonedType, itr->SummonTime);
+
+    // (accessory-attach) the accessories boarded while a client in view does not know this vehicle yet (it is still being added
+    // to the world): that client dropped their boarding move and left them where they were summoned. Tell it again once the
+    // vehicle itself has been sent; the second time is for a client that got the vehicle late.
+    Unit* base = _me;
+    for (uint32 delay : { 250u, 1500u })
+        base->m_Events.AddLambdaEventAtOffset([base]()
+        {
+            if (Vehicle* kit = base->GetVehicleKit())
+                kit->AnnouncePassengers();
+        }, delay);
+}
+
+void Vehicle::AnnouncePassengers()
+{
+    if (_status == STATUS_UNINSTALLING || !_me->IsInWorld())
+        return;
+
+    for (SeatMap::iterator seat = Seats.begin(); seat != Seats.end(); ++seat)
+    {
+        Unit* passenger = ObjectAccessor::GetUnit(*_me, seat->second.Passenger.Guid);
+        if (!passenger || passenger->GetTypeId() != TYPEID_UNIT || passenger->GetVehicle() != this || !passenger->IsAlive())
+            continue;
+        if (passenger->IsControlledByPlayer() || passenger->GetCharmerGUID())   // its place is the client's business
+            continue;
+
+        Position const& pos = passenger->m_movementInfo.transport.pos;
+        Movement::MoveSplineInit init(passenger);
+        init.DisableTransportPathTransformations();
+        init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false, true);
+        init.SetFacing(0.0f);
+        init.SetTransportEnter();
+        init.Launch();
+    }
 }
 
 /**
