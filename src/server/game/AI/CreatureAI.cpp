@@ -71,6 +71,16 @@ bool ShouldFollowOnSpawn(SummonPropertiesEntry const* properties)
         case SUMMON_CATEGORY_WILD:
         case SUMMON_CATEGORY_ALLY:
         case SUMMON_CATEGORY_UNK:
+            switch (static_cast<SummonType>(properties->Type))
+            {
+                case SUMMON_TYPE_TOTEM:
+                case SUMMON_TYPE_LIGHTWELL:
+                case SUMMON_TYPE_STATUE:
+                    return false;
+                default:
+                    break;
+            }
+
             if (properties->Flags & SUMMON_PROP_FLAG_UNK10)
                 return true;
 
