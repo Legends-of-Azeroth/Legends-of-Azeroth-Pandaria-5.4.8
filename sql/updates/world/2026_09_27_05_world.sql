@@ -6938,14 +6938,14 @@ INSERT INTO `_koKR_stage_gossip_menu_option_locale` (`MenuID`, `OptionID`, `Opti
 
 UPDATE `gossip_menu_option_locale` AS `l`
 INNER JOIN `_koKR_stage_gossip_menu_option_locale` AS `s` ON `l`.`MenuID` = `s`.`MenuID` AND `l`.`OptionID` = `s`.`OptionID` AND `l`.`Locale` = 'koKR'
-INNER JOIN `gossip_menu_option` AS `p` ON `p`.`MenuId` = `s`.`MenuID` AND `p`.`OptionIndex` = `s`.`OptionID`
+INNER JOIN `gossip_menu_option` AS `p` ON `p`.`MenuID` = `s`.`MenuID` AND `p`.`OptionID` = `s`.`OptionID`
 SET `l`.`OptionText` = IF(`s`.`OptionText` IS NOT NULL AND (`l`.`OptionText` IS NULL OR `l`.`OptionText` NOT REGEXP '[가-힣ㄱ-ㅎㅏ-ㅣ]'), `s`.`OptionText`, `l`.`OptionText`),
     `l`.`BoxText` = IF(`s`.`BoxText` IS NOT NULL AND (`l`.`BoxText` IS NULL OR `l`.`BoxText` NOT REGEXP '[가-힣ㄱ-ㅎㅏ-ㅣ]'), `s`.`BoxText`, `l`.`BoxText`);
 
 INSERT INTO `gossip_menu_option_locale` (`MenuID`, `OptionID`, `Locale`, `OptionText`, `BoxText`)
 SELECT `s`.`MenuID`, `s`.`OptionID`, 'koKR', `s`.`OptionText`, `s`.`BoxText`
 FROM `_koKR_stage_gossip_menu_option_locale` AS `s`
-INNER JOIN `gossip_menu_option` AS `p` ON `p`.`MenuId` = `s`.`MenuID` AND `p`.`OptionIndex` = `s`.`OptionID`
+INNER JOIN `gossip_menu_option` AS `p` ON `p`.`MenuID` = `s`.`MenuID` AND `p`.`OptionID` = `s`.`OptionID`
 LEFT JOIN `gossip_menu_option_locale` AS `l` ON `l`.`MenuID` = `s`.`MenuID` AND `l`.`OptionID` = `s`.`OptionID` AND `l`.`Locale` = 'koKR'
 WHERE `l`.`MenuID` IS NULL;
 
