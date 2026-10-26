@@ -1631,7 +1631,22 @@ class npc_brewfest_reveler : public CreatureScript
 enum TrainingDummy
 {
     NPC_ADVANCED_TARGET_DUMMY                  = 2674,
-    NPC_TARGET_DUMMY                           = 2673
+    NPC_TARGET_DUMMY                           = 2673,
+
+    NPC_SPELL_PRACTICE_CREDIT                  = 44175,
+
+    // Each class's practice spell for the starting zone quests on Training Dummies
+    SPELL_CHARGE                               = 100,    // Warrior
+    SPELL_JUDGMENT                             = 20271,  // Paladin
+    SPELL_SEAL_OF_COMMAND                      = 118215, // Paladin (some starting zones)
+    SPELL_STEADY_SHOT                          = 56641,  // Hunter
+    SPELL_EVISCERATE                           = 2098,   // Rogue
+    SPELL_PRIMAL_STRIKE                        = 73899,  // Shaman
+    SPELL_FROST_NOVA                           = 122,    // Mage
+    SPELL_CORRUPTION                           = 172,    // Warlock
+    SPELL_SHADOW_WORD_PAIN                     = 589,    // Priest
+    SPELL_MOONFIRE                             = 8921,   // Druid
+    SPELL_TIGER_PALM                           = 100787  // Monk
 };
 
 class npc_training_dummy : public CreatureScript
@@ -1685,16 +1700,41 @@ public:
                 damage = 0;
         }
 
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        {
+            switch (spell->Id)
+            {
+                case SPELL_CHARGE:
+                case SPELL_JUDGMENT:
+                case SPELL_SEAL_OF_COMMAND:
+                case SPELL_STEADY_SHOT:
+                case SPELL_EVISCERATE:
+                case SPELL_PRIMAL_STRIKE:
+                case SPELL_FROST_NOVA:
+                case SPELL_CORRUPTION:
+                case SPELL_SHADOW_WORD_PAIN:
+                case SPELL_MOONFIRE:
+                case SPELL_TIGER_PALM:
+                    if (Player* player = caster->ToPlayer())
+                        player->KilledMonsterCredit(NPC_SPELL_PRACTICE_CREDIT);
+                    break;
+                default:
+                    break;
+            }
+        }
+
         void UpdateAI(uint32 diff) override
         {
             // Reapply in case of root fading
             me->AddUnitState(UNIT_STATE_ROTATING | UNIT_STATE_ROOT);
 
-            if (!UpdateVictim())
-                return;
-
             if (entry != NPC_ADVANCED_TARGET_DUMMY && entry != NPC_TARGET_DUMMY)
             {
+                // Pacified dummies (the starting zone ones) never get a victim, so UpdateVictim() would never let
+                // them reach the evade below and attackers would stay in combat
+                if (!me->IsInCombat())
+                    return;
+
                 if (resetTimer <= diff)
                 {
                     EnterEvadeMode();
@@ -1704,13 +1744,14 @@ public:
                     resetTimer -= diff;
                 return;
             }
+
+            if (!UpdateVictim())
+                return;
+
+            if (despawnTimer <= diff)
+                me->DespawnOrUnsummon();
             else
-            {
-                if (despawnTimer <= diff)
-                    me->DespawnOrUnsummon();
-                else
-                    despawnTimer -= diff;
-            }
+                despawnTimer -= diff;
 
             time_t now = time(nullptr);
             for (auto itr = clearAttackerCombat.begin(); itr != clearAttackerCombat.end();)

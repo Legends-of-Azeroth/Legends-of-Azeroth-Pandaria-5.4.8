@@ -477,11 +477,21 @@ struct npc_headless_horseman_fire : public ScriptedAI
 
     uint32 RangoFire[3];
     uint32 id = 0;
-    uint32 RateFire;
-    uint32 IncreaseFireTimer;
+    uint32 RateFire = 0;
+    uint32 IncreaseFireTimer = 0;
     bool Fire;
     bool Immuned;
-    uint8 curRangoFire;
+    uint8 curRangoFire = 0;
+
+    // Only the fires summoned by an event keeper (npc_hallowend) take part in the event;
+    // the DB-spawned fires of the fire training quests have no keeper.
+    Creature* GetEventKeeper() const
+    {
+        if (TempSummon const* summon = me->ToTempSummon())
+            if (Unit* summoner = summon->GetSummoner())
+                return summoner->ToCreature();
+        return nullptr;
+    }
 
     void SetData(uint32 type, uint32 data) override
     {
@@ -530,7 +540,7 @@ struct npc_headless_horseman_fire : public ScriptedAI
            FireNodsList.sort(Trinity::ObjectDistanceOrderPred(me));
 
             for (auto* nodeFire : FireNodsList)
-                if (!PostionEventoHallowends[nodeFire && nodeFire->AI()->GetData(0)].AlreadyFired)
+                if (nodeFire->IsSummon() && !PostionEventoHallowends[nodeFire->AI()->GetData(0)].AlreadyFired)
                     return nodeFire;
        }
        return nullptr;
@@ -551,17 +561,19 @@ struct npc_headless_horseman_fire : public ScriptedAI
                 curRangoFire--;
                 me->AddAura(RangoFire[curRangoFire], me);
             }
-            else 
+            else
             {
-                if (me->IsSummon())
-                    if (Unit* eventKeeper =  me->ToTempSummon()->GetSummoner())
-                        eventKeeper->ToCreature()->AI()->SetData(HALLOWEND_FIRE_REMOVE, id);
+                if (Creature* eventKeeper = GetEventKeeper())
+                    eventKeeper->AI()->SetData(HALLOWEND_FIRE_REMOVE, id);
                 Fire = false;
             }
             return;
         }
         if (spell->Id == SPELL_HEADLESS_HORSEMAN_START_FIRE)
         {
+            if (!me->IsSummon())
+                return;
+
             me->AddAura(RangoFire[0], me);
             if (id >= 242)
             {
@@ -579,9 +591,9 @@ struct npc_headless_horseman_fire : public ScriptedAI
             if (me->HasAura(RangoFire[0]) && !Fire)
             {
                 if (!RateFire)
-                    if (Unit * Owner = me->ToTempSummon()->GetSummoner())
-                        RateFire = Owner->ToCreature()->AI()->GetData(0);
-                    else 
+                    if (Creature* eventKeeper = GetEventKeeper())
+                        RateFire = eventKeeper->AI()->GetData(0);
+                    else
                         return;
                 if (!RateFire)
                     return;
@@ -744,9 +756,12 @@ struct npc_shade_of_the_horseman : public ScriptedAI
     {
         std::list<Creature*> FireNodsList;
         FireNodsList.clear();
-        if (Unit * Owner = me->ToTempSummon()->GetSummoner())
-            CountFire = Owner->ToCreature()->AI()->GetData(0);
+        if (TempSummon const* summon = me->ToTempSummon())
+            if (Unit* Owner = summon->GetSummoner())
+                CountFire = Owner->ToCreature()->AI()->GetData(0);
         GetCreatureListWithEntryInGrid(FireNodsList, me, NPC_HEADLESS_HORSEMAN_FIRE_DND, 150.0f);
+        // In Goldshire the fire training quest's fires are in range too
+        FireNodsList.remove_if([](Creature const* fire) { return !fire->IsSummon(); });
         uint32 CountFireer = 0;
         if (!FireNodsList.empty())
         {
