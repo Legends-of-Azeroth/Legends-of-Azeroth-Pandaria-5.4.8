@@ -18,14 +18,14 @@
 #ifndef TRINITY_TOTEMAI_H
 #define TRINITY_TOTEMAI_H
 
-#include "CreatureAI.h"
+#include "PassiveAI.h"
 #include "Timer.h"
 #include "ScriptedCreature.h"
 
 class Creature;
 class Totem;
 
-class TotemAI : public CreatureAI
+class TotemAI : public NullCreatureAI
 {
     public:
 

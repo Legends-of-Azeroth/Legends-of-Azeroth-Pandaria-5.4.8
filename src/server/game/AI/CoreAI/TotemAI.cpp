@@ -34,7 +34,7 @@ int TotemAI::Permissible(Creature const* creature)
     return PERMIT_BASE_NO;
 }
 
-TotemAI::TotemAI(Creature* c) : CreatureAI(c)
+TotemAI::TotemAI(Creature* c) : NullCreatureAI(c)
 {
     ASSERT(c->IsTotem());
     me->SetReactState(REACT_DEFENSIVE);
