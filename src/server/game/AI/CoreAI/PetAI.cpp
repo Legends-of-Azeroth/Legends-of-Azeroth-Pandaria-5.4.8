@@ -64,7 +64,9 @@ PetAI::PetAI(Creature* c) : CreatureAI(c), i_tracker(TIME_INTERVAL_LOOK)
             break;
     }
 
-    if (!me->IsPet())
+    // Only guardians of a player assist; a guardian summoned by a creature keeps the aggressive state from
+    // Guardian::InitStats and takes on its owner's attacker (TrinityCore's PetAI does not override it).
+    if (!me->IsPet() && me->GetOwner() && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
         me->SetReactState(REACT_ASSIST);
 
     // this is for warlock greenfire questline.
