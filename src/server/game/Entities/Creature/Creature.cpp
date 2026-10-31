@@ -2288,6 +2288,16 @@ bool Creature::LoadCreaturesAddon(bool reload)
     if (creatureAddon->emote != 0)
         SetEmoteState(Emote(creatureAddon->emote));
 
+    // the anim kits of creature_addon were loaded but never applied (sniffed poses such as scouts hanging from a ledge)
+    if (creatureAddon->aiAnimKit != 0)
+        SetAIAnimKitId(creatureAddon->aiAnimKit);
+
+    if (creatureAddon->movementAnimKit != 0)
+        SetMovementAnimKitId(creatureAddon->movementAnimKit);
+
+    if (creatureAddon->meleeAnimKit != 0)
+        SetMeleeAnimKitId(creatureAddon->meleeAnimKit);
+
     // Check if visibility distance different
     if (creatureAddon->visibilityDistanceType != VisibilityDistanceType::Normal)
         SetVisibilityDistanceOverride(creatureAddon->visibilityDistanceType);
