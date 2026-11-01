@@ -29,7 +29,7 @@ namespace WorldPackets
         class VoidStorageUnlock final : public ClientPacket
         {
         public:
-            VoidStorageUnlock(WorldPacket&& packet) : ClientPacket(CMSG_VOID_STORAGE_UNLOCK, std::move(packet)) { }
+            VoidStorageUnlock(WorldPacket&& packet) : ClientPacket(CMSG_UNLOCK_VOID_STORAGE, std::move(packet)) { }
 
             void Read() override;
 
@@ -39,7 +39,7 @@ namespace WorldPackets
         class VoidStorageQuery final : public ClientPacket
         {
         public:
-            VoidStorageQuery(WorldPacket&& packet) : ClientPacket(CMSG_VOID_STORAGE_QUERY, std::move(packet)) { }
+            VoidStorageQuery(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_VOID_STORAGE, std::move(packet)) { }
 
             void Read() override;
 
@@ -63,7 +63,7 @@ namespace WorldPackets
         class VoidSwapItem final : public ClientPacket
         {
         public:
-            VoidSwapItem(WorldPacket&& packet) : ClientPacket(CMSG_VOID_SWAP_ITEM, std::move(packet)) { }
+            VoidSwapItem(WorldPacket&& packet) : ClientPacket(CMSG_SWAP_VOID_ITEM, std::move(packet)) { }
 
             void Read() override;
 

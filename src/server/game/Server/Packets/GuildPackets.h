@@ -267,7 +267,7 @@ namespace WorldPackets
         class RequestGuildPartyState final : public ClientPacket
         {
         public:
-            RequestGuildPartyState(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_REQUEST_PARTY_STATE, std::move(packet)) { }
+            RequestGuildPartyState(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_GUILD_PARTY_STATE, std::move(packet)) { }
 
             void Read() override;
 
@@ -303,7 +303,7 @@ namespace WorldPackets
         class GuildChallengeUpdateRequest final : public ClientPacket
         {
         public:
-            GuildChallengeUpdateRequest(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_REQUEST_CHALLENGE_UPDATE, std::move(packet)) { }
+            GuildChallengeUpdateRequest(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_CHALLENGE_UPDATE_REQUEST, std::move(packet)) { }
 
             void Read() override;
         };
@@ -344,7 +344,7 @@ namespace WorldPackets
         class GuildBankTextQuery final : public ClientPacket
         {
         public:
-            GuildBankTextQuery(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_BANK_QUERY_TEXT, std::move(packet)) { }
+            GuildBankTextQuery(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_BANK_TEXT_QUERY, std::move(packet)) { }
 
             void Read() override;
 
@@ -470,7 +470,7 @@ namespace WorldPackets
         class QueryGuildRecipes final : public ClientPacket
         {
         public:
-            QueryGuildRecipes(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_GUILD_RECIPES, std::move(packet)) { }
+            QueryGuildRecipes(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_QUERY_RECIPES, std::move(packet)) { }
 
             void Read() override;
 
@@ -493,7 +493,7 @@ namespace WorldPackets
         class QueryGuildMemberRecipes final : public ClientPacket
         {
         public:
-            QueryGuildMemberRecipes(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_GUILD_MEMBER_RECIPES, std::move(packet)) { }
+            QueryGuildMemberRecipes(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_QUERY_MEMBER_RECIPES, std::move(packet)) { }
 
             void Read() override;
 

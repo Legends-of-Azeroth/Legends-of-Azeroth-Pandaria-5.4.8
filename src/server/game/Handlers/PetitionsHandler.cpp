@@ -290,11 +290,11 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPackets::Petitions::Petitio
     SendPacket(&data);
 }
 
-void WorldSession::HandlePetitionQueryOpcode(WorldPackets::Petitions::PetitionQuery& packet)
+void WorldSession::HandlePetitionQueryOpcode(WorldPackets::Petitions::QueryPetition& packet)
 {
-    TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_QUERY");   // ok
+    TC_LOG_DEBUG("network", "Received opcode CMSG_QUERY_PETITION");   // ok
 
-    TC_LOG_DEBUG("network", "CMSG_PETITION_QUERY Petition GUID {} Guild GUID {}", packet.PetitionGuid.GetCounter(), packet.GuildGuid);
+    TC_LOG_DEBUG("network", "CMSG_QUERY_PETITION Petition GUID {} Guild GUID {}", packet.PetitionGuid.GetCounter(), packet.GuildGuid);
 
     SendPetitionQueryOpcode(packet.PetitionGuid);
 }
@@ -320,11 +320,11 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionGuid)
     }
     else
     {
-        TC_LOG_DEBUG("network", "CMSG_PETITION_QUERY failed for petition (GUID: {})", petitionGuid.GetCounter());
+        TC_LOG_DEBUG("network", "CMSG_QUERY_PETITION failed for petition (GUID: {})", petitionGuid.GetCounter());
         return;
     }
 
-    WorldPacket data(SMSG_PETITION_QUERY_RESPONSE, (4+8+name.size()+1+1+4*12+2+10));
+    WorldPacket data(SMSG_QUERY_PETITION_RESPONSE, (4+8+name.size()+1+1+4*12+2+10));
     data << uint32(petitionGuid.GetCounter());              // guild/team guid (in Trinity always same as GUID_LOPART(petition guid)
     data.WriteBit(1); // hasData;
 
@@ -393,7 +393,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPackets::Petitions::PetitionR
     }
     else
     {
-        TC_LOG_DEBUG("network", "CMSG_PETITION_QUERY failed for petition (GUID: {})", packet.PetitionGuid.GetCounter());
+        TC_LOG_DEBUG("network", "CMSG_QUERY_PETITION failed for petition (GUID: {})", packet.PetitionGuid.GetCounter());
         return;
     }
 
@@ -447,9 +447,9 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPackets::Petitions::PetitionR
     SendPacket(&data);
 }
 
-void WorldSession::HandlePetitionSignOpcode(WorldPackets::Petitions::PetitionSign& packet)
+void WorldSession::HandlePetitionSignOpcode(WorldPackets::Petitions::SignPetition& packet)
 {
-    TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_SIGN");    // ok
+    TC_LOG_DEBUG("network", "Received opcode CMSG_SIGN_PETITION");    // ok
 
     Field* fields;
 

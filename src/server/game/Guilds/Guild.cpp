@@ -617,7 +617,7 @@ bool Guild::BankTab::SetItem(CharacterDatabaseTransaction trans, uint8 slotId, I
 
 void Guild::BankTab::SendText(Guild const* guild, WorldSession* session) const
 {
-    WorldPacket data(SMSG_GUILD_BANK_QUERY_TEXT_RESULT, 4 + 2 + m_text.size());
+    WorldPacket data(SMSG_GUILD_BANK_TEXT_QUERY_RESULT, 4 + 2 + m_text.size());
     data << uint32(m_tabId);
 
     data.WriteBits(m_text.length(), 14);
@@ -627,12 +627,12 @@ void Guild::BankTab::SendText(Guild const* guild, WorldSession* session) const
 
     if (session)
     {
-        TC_LOG_DEBUG("guild", "SMSG_GUILD_BANK_QUERY_TEXT_RESULT [{}]: Tabid: {}, Text: {}", session->GetPlayerInfo().c_str(), m_tabId, m_text.c_str());
+        TC_LOG_DEBUG("guild", "SMSG_GUILD_BANK_TEXT_QUERY_RESULT [{}]: Tabid: {}, Text: {}", session->GetPlayerInfo().c_str(), m_tabId, m_text.c_str());
         session->SendPacket(&data);
     }
     else
     {
-        TC_LOG_DEBUG("guild", "SMSG_GUILD_BANK_QUERY_TEXT_RESULT [Broadcast]: Tabid: {}, Text: {}", m_tabId, m_text.c_str());
+        TC_LOG_DEBUG("guild", "SMSG_GUILD_BANK_TEXT_QUERY_RESULT [Broadcast]: Tabid: {}, Text: {}", m_tabId, m_text.c_str());
         guild->BroadcastPacket(&data);
     }
 }

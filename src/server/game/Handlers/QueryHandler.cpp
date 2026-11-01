@@ -131,7 +131,7 @@ void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
     SendPacket(&data);
 }
 
-void WorldSession::HandleNameQueryOpcode(WorldPackets::Query::QueryPlayerNames& packet)
+void WorldSession::HandleNameQueryOpcode(WorldPackets::Query::QueryPlayerName& packet)
 {
     ObjectGuid guid = packet.Guid;
 
@@ -255,7 +255,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPackets::Query::QueryCreature&
 {
     uint32 entry = packet.CreatureID;
 
-    WorldPacket data(SMSG_CREATURE_QUERY_RESPONSE, 500);
+    WorldPacket data(SMSG_QUERY_CREATURE_RESPONSE, 500);
 
     CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(entry);
 
@@ -287,7 +287,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPackets::Query::QueryCreature&
             }
         }
 
-        TC_LOG_DEBUG("network", "WORLD: CMSG_CREATURE_QUERY '{}' - Entry: {}.", creatureInfo->Name.c_str(), entry);
+        TC_LOG_DEBUG("network", "WORLD: CMSG_QUERY_CREATURE '{}' - Entry: {}.", creatureInfo->Name.c_str(), entry);
 
         data.WriteBits(Title.length() ? Title.length() + 1 : 0, 11);
         data.WriteBits(qItemsSize, 22);                       // Quest items
@@ -345,12 +345,12 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPackets::Query::QueryCreature&
         data << float(creatureInfo->ModMana);                         // Mana modifier
         data << uint32(creatureInfo->family);                         // CreatureFamily.dbc
 
-        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_CREATURE_QUERY_RESPONSE");
+        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUERY_CREATURE_RESPONSE");
     }
     else
     {
         data.FlushBits();
-        TC_LOG_DEBUG("network", "WORLD: CMSG_CREATURE_QUERY - NO CREATURE INFO! (ENTRY: {})", entry);
+        TC_LOG_DEBUG("network", "WORLD: CMSG_QUERY_CREATURE - NO CREATURE INFO! (ENTRY: {})", entry);
     }
 
     SendPacket(&data);
@@ -482,7 +482,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& p
 {
     uint32 textID = packet.TextID;
 
-    TC_LOG_DEBUG("network", "WORLD: CMSG_NPC_TEXT_QUERY ID '{}'", textID);
+    TC_LOG_DEBUG("network", "WORLD: CMSG_QUERY_NPC_TEXT ID '{}'", textID);
 
     GossipText const* pGossip = sObjectMgr->GetGossipText(textID);
 
@@ -534,13 +534,13 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& p
 /// Only _static_ data is sent in this packet !!!
 void WorldSession::HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_PAGE_TEXT_QUERY");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUERY_PAGE_TEXT");
 
     uint32 pageID = packet.PageTextID;
 
     while (pageID)
     {
-        WorldPacket data(SMSG_PAGE_TEXT_QUERY_RESPONSE);
+        WorldPacket data(SMSG_QUERY_PAGE_TEXT_RESPONSE);
 
         PageText const* pageText = sObjectMgr->GetPageText(pageID);
 
@@ -574,7 +574,7 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText&
 
         SendPacket(&data);
 
-        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_PAGE_TEXT_QUERY_RESPONSE");
+        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUERY_PAGE_TEXT_RESPONSE");
     }
 }
 

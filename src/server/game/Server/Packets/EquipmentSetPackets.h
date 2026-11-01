@@ -31,7 +31,7 @@ namespace WorldPackets
         class DeleteEquipmentSet final : public ClientPacket
         {
         public:
-            DeleteEquipmentSet(WorldPacket&& packet) : ClientPacket(CMSG_EQUIPMENT_SET_DELETE, std::move(packet)) { }
+            DeleteEquipmentSet(WorldPacket&& packet) : ClientPacket(CMSG_DELETE_EQUIPMENT_SET, std::move(packet)) { }
 
             void Read() override;
 
@@ -41,7 +41,7 @@ namespace WorldPackets
         class SaveEquipmentSet final : public ClientPacket
         {
         public:
-            SaveEquipmentSet(WorldPacket&& packet) : ClientPacket(CMSG_EQUIPMENT_SET_SAVE, std::move(packet)) { }
+            SaveEquipmentSet(WorldPacket&& packet) : ClientPacket(CMSG_SAVE_EQUIPMENT_SET, std::move(packet)) { }
 
             void Read() override;
 
@@ -55,7 +55,7 @@ namespace WorldPackets
         class UseEquipmentSet final : public ClientPacket
         {
         public:
-            UseEquipmentSet(WorldPacket&& packet) : ClientPacket(CMSG_EQUIPMENT_SET_USE, std::move(packet)) { }
+            UseEquipmentSet(WorldPacket&& packet) : ClientPacket(CMSG_USE_EQUIPMENT_SET, std::move(packet)) { }
 
             void Read() override;
 

@@ -540,7 +540,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
 
 void WorldSession::HandlePetNameQuery(WorldPackets::Pet::PetNameQuery& packet)
 {
-    TC_LOG_INFO("network", "HandlePetNameQuery. CMSG_PET_NAME_QUERY");
+    TC_LOG_INFO("network", "HandlePetNameQuery. CMSG_QUERY_PET_NAME");
 
     SendPetNameQuery(packet.PetGuid, packet.PetNumber);
 }
@@ -550,7 +550,7 @@ void WorldSession::SendPetNameQuery(ObjectGuid petGuid, uint64 petNumber)
     Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, petGuid);
     if (!pet)
     {
-        WorldPacket data(SMSG_PET_NAME_QUERY_RESPONSE, (8 + 1));
+        WorldPacket data(SMSG_QUERY_PET_NAME_RESPONSE, (8 + 1));
         data.WriteBit(0);
         data.FlushBits();
         data << uint64(petNumber);
@@ -559,7 +559,7 @@ void WorldSession::SendPetNameQuery(ObjectGuid petGuid, uint64 petNumber)
         return;
     }
 
-    WorldPacket data(SMSG_PET_NAME_QUERY_RESPONSE, (8 + 1 + 1 + 5 + pet->GetName().size() + 4));
+    WorldPacket data(SMSG_QUERY_PET_NAME_RESPONSE, (8 + 1 + 1 + 5 + pet->GetName().size() + 4));
     data.WriteBit(1);                               // has data
 
     bool declinedNames = pet->IsPet() && ((Pet*)pet)->GetDeclinedNames();

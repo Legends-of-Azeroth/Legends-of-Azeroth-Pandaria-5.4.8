@@ -338,7 +338,7 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPackets::Quest::QuestGi
     }
 }
 
-void WorldSession::HandleQuestQueryOpcode(WorldPackets::Quest::QuestQuery& packet)
+void WorldSession::HandleQuestQueryOpcode(WorldPackets::Quest::QueryQuestInfo& packet)
 {
     if (!_player)
         return;

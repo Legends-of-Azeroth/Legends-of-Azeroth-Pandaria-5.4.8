@@ -125,7 +125,7 @@ namespace WorldPackets
         class QueryBattlePetName final : public ClientPacket
         {
         public:
-            QueryBattlePetName(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_QUERY_NAME, std::move(packet)) { }
+            QueryBattlePetName(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_BATTLE_PET_NAME, std::move(packet)) { }
 
             void Read() override;
 

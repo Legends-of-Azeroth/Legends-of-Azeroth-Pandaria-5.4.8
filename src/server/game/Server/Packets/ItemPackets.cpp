@@ -170,7 +170,7 @@ void WorldPackets::Item::SellItem::Read()
     _worldPacket.ReadByteSeq(ItemGuid[0]);
 }
 
-void WorldPackets::Item::BuybackItem::Read()
+void WorldPackets::Item::BuyBackItem::Read()
 {
     _worldPacket >> Slot;
 

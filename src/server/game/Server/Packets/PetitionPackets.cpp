@@ -63,7 +63,7 @@ void WorldPackets::Petitions::PetitionShowSignatures::Read()
     _worldPacket.ReadByteSeq(PetitionGuid[6]);
 }
 
-void WorldPackets::Petitions::PetitionQuery::Read()
+void WorldPackets::Petitions::QueryPetition::Read()
 {
     _worldPacket >> GuildGuid;
 
@@ -111,7 +111,7 @@ void WorldPackets::Petitions::PetitionRename::Read()
     _worldPacket.ReadByteSeq(PetitionGuid[5]);
 }
 
-void WorldPackets::Petitions::PetitionSign::Read()
+void WorldPackets::Petitions::SignPetition::Read()
 {
     _worldPacket.read_skip<uint8>();
 

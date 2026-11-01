@@ -1345,7 +1345,7 @@ void WorldSession::HandleMoveUnRootAck(WorldPackets::Movement::MoveUnRootAck& /*
         return;
     }
 
-    TC_LOG_DEBUG("network", "WORLD: CMSG_FORCE_MOVE_UNROOT_ACK");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_MOVE_FORCE_UNROOT_ACK");
 
     recvData.read_skip<uint32>();                          // unk
 
@@ -1370,7 +1370,7 @@ void WorldSession::HandleMoveRootAck(WorldPackets::Movement::MoveRootAck& /*pack
         return;
     }
 
-    TC_LOG_DEBUG("network", "WORLD: CMSG_FORCE_MOVE_ROOT_ACK");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_MOVE_FORCE_ROOT_ACK");
 
     recvData.read_skip<uint32>();                          // unk
 
@@ -1398,7 +1398,7 @@ void WorldSession::HandleSetActionBarToggles(WorldPackets::Misc::SetActionBarTog
     GetPlayer()->SetByteValue(PLAYER_FIELD_BYTES, 2, actionBar);
 }
 
-void WorldSession::HandlePlayedTime(WorldPackets::Misc::PlayedTime& packet)
+void WorldSession::HandlePlayedTime(WorldPackets::Misc::PlayedTimeClient& packet)
 {
     uint8 unk1 = packet.Unk1;                              // 0 or 1 expected
 
@@ -1678,7 +1678,7 @@ void WorldSession::SendTitleLost(uint32 TitleIndex)
     SendPacket(&data);
 }
 
-void WorldSession::HandleTimeSyncResp(WorldPackets::Misc::TimeSyncResp& packet)
+void WorldSession::HandleTimeSyncResp(WorldPackets::Misc::TimeSyncResponse& packet)
 {
     TC_LOG_DEBUG("network", "CMSG_TIME_SYNC_RESP");
 
@@ -1885,7 +1885,7 @@ void WorldSession::HandleRequestPetInfoOpcode(WorldPackets::Pet::RequestPetInfo&
     }
 }
 
-void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPackets::Misc::SetTaxiBenchmark& packet)
+void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPackets::Misc::SetTaxiBenchmarkMode& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_SET_TAXI_BENCHMARK_MODE");
 
@@ -1918,7 +1918,7 @@ void WorldSession::HandleGuildAchievementProgressQuery(WorldPackets::Misc::Guild
         guild->GetAchievementMgr().SendAchievementInfo(_player, achievementId);
 }
 
-void WorldSession::HandleWorldStateUITimerUpdate(WorldPackets::Misc::WorldStateUITimerUpdate& /*packet*/)
+void WorldSession::HandleWorldStateUITimerUpdate(WorldPackets::Misc::UITimeRequest& /*packet*/)
 {
     // empty opcode
     TC_LOG_DEBUG("network", "WORLD: CMSG_WORLD_STATE_UI_TIMER_UPDATE");
@@ -2073,7 +2073,7 @@ void WorldSession::HandleRequestHotfix(WorldPackets::Misc::RequestHotfix& packet
     DB2StorageBase const* store = sDB2Manager.GetStorage(type);
     if (!store)
     {
-        TC_LOG_DEBUG("network", "CMSG_REQUEST_HOTFIX: Received unknown hotfix type: {}", type);
+        TC_LOG_DEBUG("network", "CMSG_HOTFIX_REQUEST: Received unknown hotfix type: {}", type);
         return;
     }
 

@@ -37,7 +37,7 @@ void WorldSession::SendVoidStorageTransferResult(VoidTransferError result)
 
 void WorldSession::HandleVoidStorageUnlock(WorldPackets::VoidStorage::VoidStorageUnlock& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_VOID_STORAGE_UNLOCK");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_UNLOCK_VOID_STORAGE");
     Player* player = GetPlayer();
 
     Creature* unit = player->GetNPCIfCanInteractWith(packet.NpcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
@@ -59,7 +59,7 @@ void WorldSession::HandleVoidStorageUnlock(WorldPackets::VoidStorage::VoidStorag
 
 void WorldSession::HandleVoidStorageQuery(WorldPackets::VoidStorage::VoidStorageQuery& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_VOID_STORAGE_QUERY");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUERY_VOID_STORAGE");
     Player* player = GetPlayer();
 
     Creature* unit = player->GetNPCIfCanInteractWith(packet.NpcGuid, UNIT_NPC_FLAG_TRANSMOGRIFIER | UNIT_NPC_FLAG_VAULTKEEPER);
@@ -370,7 +370,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
 
 void WorldSession::HandleVoidSwapItem(WorldPackets::VoidStorage::VoidSwapItem& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_VOID_SWAP_ITEM");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_SWAP_VOID_ITEM");
 
     Player* player = GetPlayer();
 

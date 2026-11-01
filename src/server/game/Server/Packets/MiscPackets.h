@@ -316,7 +316,7 @@ namespace WorldPackets
         class RequestHotfix final : public ClientPacket
         {
         public:
-            RequestHotfix(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_HOTFIX, std::move(packet)) { }
+            RequestHotfix(WorldPacket&& packet) : ClientPacket(CMSG_HOTFIX_REQUEST, std::move(packet)) { }
 
             void Read() override;
 
@@ -389,10 +389,10 @@ namespace WorldPackets
             uint8 ActionBar = 0;
         };
 
-        class PlayedTime final : public ClientPacket
+        class PlayedTimeClient final : public ClientPacket
         {
         public:
-            PlayedTime(WorldPacket&& packet) : ClientPacket(CMSG_PLAYED_TIME, std::move(packet)) { }
+            PlayedTimeClient(WorldPacket&& packet) : ClientPacket(CMSG_PLAYED_TIME, std::move(packet)) { }
 
             void Read() override;
 
@@ -409,10 +409,10 @@ namespace WorldPackets
             int32 Title = 0;
         };
 
-        class TimeSyncResp final : public ClientPacket
+        class TimeSyncResponse final : public ClientPacket
         {
         public:
-            TimeSyncResp(WorldPacket&& packet) : ClientPacket(CMSG_TIME_SYNC_RESP, std::move(packet)) { }
+            TimeSyncResponse(WorldPacket&& packet) : ClientPacket(CMSG_TIME_SYNC_RESP, std::move(packet)) { }
 
             void Read() override;
 
@@ -420,10 +420,10 @@ namespace WorldPackets
             uint32 ClientTicks = 0;
         };
 
-        class SetTaxiBenchmark final : public ClientPacket
+        class SetTaxiBenchmarkMode final : public ClientPacket
         {
         public:
-            SetTaxiBenchmark(WorldPacket&& packet) : ClientPacket(CMSG_SET_TAXI_BENCHMARK_MODE, std::move(packet)) { }
+            SetTaxiBenchmarkMode(WorldPacket&& packet) : ClientPacket(CMSG_SET_TAXI_BENCHMARK_MODE, std::move(packet)) { }
 
             void Read() override;
 
@@ -440,10 +440,10 @@ namespace WorldPackets
             uint32 AchievementId = 0;
         };
 
-        class WorldStateUITimerUpdate final : public ClientPacket
+        class UITimeRequest final : public ClientPacket
         {
         public:
-            WorldStateUITimerUpdate(WorldPacket&& packet) : ClientPacket(CMSG_WORLD_STATE_UI_TIMER_UPDATE, std::move(packet)) { }
+            UITimeRequest(WorldPacket&& packet) : ClientPacket(CMSG_WORLD_STATE_UI_TIMER_UPDATE, std::move(packet)) { }
 
             void Read() override { }
         };

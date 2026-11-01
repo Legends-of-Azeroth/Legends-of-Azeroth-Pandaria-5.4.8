@@ -17,7 +17,7 @@
 
 #include "LFGPackets.h"
 
-void WorldPackets::LFG::DFJoin::Read()
+void WorldPackets::LFG::LFGJoin::Read()
 {
     _worldPacket.read_skip<uint8>();
     for (int32 i = 0; i < 3; ++i)
@@ -34,7 +34,7 @@ void WorldPackets::LFG::DFJoin::Read()
     Comment = _worldPacket.ReadString(commentLen);
 }
 
-void WorldPackets::LFG::DFLeave::Read()
+void WorldPackets::LFG::LFGLeave::Read()
 {
     _worldPacket.read_skip<uint32>();
     _worldPacket.read_skip<uint32>();

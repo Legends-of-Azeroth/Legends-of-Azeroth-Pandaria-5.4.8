@@ -135,10 +135,10 @@ namespace WorldPackets
             ObjectGuid ItemGuid;
         };
 
-        class BuybackItem final : public ClientPacket
+        class BuyBackItem final : public ClientPacket
         {
         public:
-            BuybackItem(WorldPacket&& packet) : ClientPacket(CMSG_BUYBACK_ITEM, std::move(packet)) { }
+            BuyBackItem(WorldPacket&& packet) : ClientPacket(CMSG_BUYBACK_ITEM, std::move(packet)) { }
 
             void Read() override;
 

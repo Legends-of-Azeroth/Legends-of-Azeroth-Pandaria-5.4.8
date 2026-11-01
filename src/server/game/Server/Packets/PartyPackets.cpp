@@ -53,7 +53,7 @@ WorldPacket const* WorldPackets::Party::SendRaidTargetUpdateAll::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Party::GroupInvite::Read()
+void WorldPackets::Party::PartyInviteClient::Read()
 {
     _worldPacket.read_skip<uint32>();
     _worldPacket.read_skip<uint8>();
@@ -192,14 +192,14 @@ void WorldPackets::Party::LootMethod::Read()
     _worldPacket.ReadByteSeq(LootMaster[2]);
 }
 
-void WorldPackets::Party::MinimapPing::Read()
+void WorldPackets::Party::MinimapPingClient::Read()
 {
     _worldPacket >> Y;
     _worldPacket >> X;
     _worldPacket.read_skip<uint8>();
 }
 
-void WorldPackets::Party::RandomRoll::Read()
+void WorldPackets::Party::RandomRollClient::Read()
 {
     _worldPacket >> Maximum;
     _worldPacket >> Minimum;
@@ -258,7 +258,7 @@ void WorldPackets::Party::GroupAssistantLeader::Read()
     _worldPacket.ReadByteSeq(Guid[4]);
 }
 
-void WorldPackets::Party::GroupEveryoneIsAssistant::Read()
+void WorldPackets::Party::SetEveryoneIsAssistant::Read()
 {
     _worldPacket.read_skip<uint8>();
     Apply = _worldPacket.ReadBit();

@@ -442,7 +442,7 @@ void WorldSession::HandleGuildSetRankPermissionsOpcode(WorldPackets::Guild::Guil
 
 void WorldSession::HandleGuildRequestPartyState(WorldPackets::Guild::RequestGuildPartyState& /*packet*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_GUILD_REQUEST_PARTY_STATE");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_REQUEST_GUILD_PARTY_STATE");
 
     uint32 requiredMemberCount = 0;
     float xpMult = 0.0f;

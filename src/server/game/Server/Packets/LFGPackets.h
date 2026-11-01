@@ -27,10 +27,10 @@ namespace WorldPackets
 {
     namespace LFG
     {
-        class DFJoin final : public ClientPacket
+        class LFGJoin final : public ClientPacket
         {
         public:
-            DFJoin(WorldPacket&& packet) : ClientPacket(CMSG_LFG_JOIN, std::move(packet)) { }
+            LFGJoin(WorldPacket&& packet) : ClientPacket(CMSG_LFG_JOIN, std::move(packet)) { }
 
             void Read() override;
 
@@ -39,10 +39,10 @@ namespace WorldPackets
             std::string Comment;
         };
 
-        class DFLeave final : public ClientPacket
+        class LFGLeave final : public ClientPacket
         {
         public:
-            DFLeave(WorldPacket&& packet) : ClientPacket(CMSG_LFG_LEAVE, std::move(packet)) { }
+            LFGLeave(WorldPacket&& packet) : ClientPacket(CMSG_LFG_LEAVE, std::move(packet)) { }
 
             void Read() override;
 

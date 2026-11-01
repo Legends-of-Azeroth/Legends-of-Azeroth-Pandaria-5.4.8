@@ -206,7 +206,7 @@ namespace WorldPackets
         class CharFactionOrRaceChange final : public ClientPacket
         {
         public:
-            CharFactionOrRaceChange(WorldPacket&& packet) : ClientPacket(CMSG_CHAR_FACTION_OR_RACE_CHANGE, std::move(packet)) { }
+            CharFactionOrRaceChange(WorldPacket&& packet) : ClientPacket(CMSG_CHAR_RACE_OR_FACTION_CHANGE, std::move(packet)) { }
 
             void Read() override;
 

@@ -78,10 +78,10 @@ namespace WorldPackets
             ObjectGuid Guid;
         };
 
-        class QuestQuery final : public ClientPacket
+        class QueryQuestInfo final : public ClientPacket
         {
         public:
-            QuestQuery(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_QUERY, std::move(packet)) { }
+            QueryQuestInfo(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_QUERY, std::move(packet)) { }
 
             void Read() override;
 

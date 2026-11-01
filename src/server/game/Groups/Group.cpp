@@ -896,7 +896,7 @@ static void BuildStartLootRollPacket(WorldPacket& data, uint32 countDown, uint32
 
 void Group::SendLootStartRoll(uint32 countDown, uint32 mapid, Roll const& roll)
 {
-    WorldPacket data(SMSG_LOOT_START_ROLL);
+    WorldPacket data(SMSG_START_LOOT_ROLL);
 
     BuildStartLootRollPacket(data, countDown, mapid, roll, true);
 
@@ -911,7 +911,7 @@ void Group::SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* pl
     if (!player)
         return;
 
-    WorldPacket data(SMSG_LOOT_START_ROLL);
+    WorldPacket data(SMSG_START_LOOT_ROLL);
     BuildStartLootRollPacket(data, countDown, mapId, roll, canNeed);
     player->GetSession()->SendPacket(&data);
 }

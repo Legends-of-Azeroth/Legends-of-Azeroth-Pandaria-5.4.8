@@ -194,7 +194,7 @@ namespace WorldPackets
         class MoveUnRootAck final : public ClientPacket
         {
         public:
-            MoveUnRootAck(WorldPacket&& packet) : ClientPacket(CMSG_FORCE_MOVE_UNROOT_ACK, std::move(packet)) { }
+            MoveUnRootAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_FORCE_UNROOT_ACK, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -202,7 +202,7 @@ namespace WorldPackets
         class MoveRootAck final : public ClientPacket
         {
         public:
-            MoveRootAck(WorldPacket&& packet) : ClientPacket(CMSG_FORCE_MOVE_ROOT_ACK, std::move(packet)) { }
+            MoveRootAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_FORCE_ROOT_ACK, std::move(packet)) { }
 
             void Read() override { }
         };

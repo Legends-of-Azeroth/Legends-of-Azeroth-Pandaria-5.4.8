@@ -7744,7 +7744,7 @@ void Player::ResetCurrencyWeekCap()
         itr.second.state = PLAYERCURRENCY_CHANGED;
     }
 
-    WorldPacket data(SMSG_WEEKLY_RESET_CURRENCY, 0);
+    WorldPacket data(SMSG_RESET_WEEKLY_CURRENCY, 0);
     SendDirectMessage(&data);
 }
 
@@ -22144,7 +22144,7 @@ void Player::SendDungeonDifficulty(uint32 difficulty)
 
 void Player::SendRaidDifficulty(uint32 difficulty)
 {
-    WorldPacket data(SMSG_SET_RAID_DIFFICULTY, 4);
+    WorldPacket data(SMSG_RAID_DIFFICULTY_SET, 4);
     data << uint32(difficulty);
     GetSession()->SendPacket(&data);
 }
@@ -23230,7 +23230,7 @@ void Player::RemovePetitionsAndSigns(ObjectGuid guid, uint32 type)
 
     if (result)
     {
-        do                                                  // this part effectively does nothing, since the deletion / modification only takes place _after_ the PetitionQuery. Though I don't know if the result remains intact if I execute the delete query beforehand.
+        do                                                  // this part effectively does nothing, since the deletion / modification only takes place _after_ the QueryPetition. Though I don't know if the result remains intact if I execute the delete query beforehand.
         {                                                   // and SendPetitionQueryOpcode reads data from the DB
             Field* fields = result->Fetch();
             ObjectGuid ownerguid = ObjectGuid(HighGuid::Player, fields[0].GetUInt32());

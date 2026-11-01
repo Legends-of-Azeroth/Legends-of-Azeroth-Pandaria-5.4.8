@@ -78,7 +78,7 @@ WorldPacket const* WorldPackets::Query::QueryGameObjectResponse::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Query::QueryPlayerNames::Read()
+void WorldPackets::Query::QueryPlayerName::Read()
 {
     uint8 bit14, bit1C;
 

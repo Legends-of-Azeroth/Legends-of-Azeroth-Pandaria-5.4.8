@@ -148,7 +148,7 @@ void WorldSession::HandleBattlePetModifyName(WorldPackets::BattlePet::BattlePetM
 
 void WorldSession::HandleBattlePetQueryName(WorldPackets::BattlePet::QueryBattlePetName& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BATTLE_PET_QUERY_NAME");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUERY_BATTLE_PET_NAME");
 
     ObjectGuid petEntry = packet.PetEntry;
     ObjectGuid petguid = packet.PetGuid;
@@ -156,7 +156,7 @@ void WorldSession::HandleBattlePetQueryName(WorldPackets::BattlePet::QueryBattle
     Unit* tempUnit = ObjectAccessor::GetUnit(*GetPlayer(), petguid);
     if (!tempUnit)
     {
-        TC_LOG_DEBUG("network", "CMSG_BATTLE_PET_QUERY_NAME - Player {} queried the name of Battle Pet {} which doesnt't exist in world!",
+        TC_LOG_DEBUG("network", "CMSG_QUERY_BATTLE_PET_NAME - Player {} queried the name of Battle Pet {} which doesnt't exist in world!",
             GetPlayer()->GetGUID().GetCounter(), (uint64)petEntry);
         return;
     }
@@ -173,7 +173,7 @@ void WorldSession::HandleBattlePetQueryName(WorldPackets::BattlePet::QueryBattle
 
     BattlePetSpeciesEntry const* speciesEntry = sBattlePetSpeciesStore.LookupEntry(battlePet->GetSpecies());
 
-    WorldPacket data(SMSG_BATTLE_PET_QUERY_NAME_RESPONSE, 8 + 4 + 4 + 5 + battlePet->GetNickname().size());
+    WorldPacket data(SMSG_QUERY_BATTLE_PET_NAME_RESPONSE, 8 + 4 + 4 + 5 + battlePet->GetNickname().size());
     data << uint64(petEntry);
     data << uint32(battlePet->GetTimestamp());
     data << uint32(speciesEntry->NpcId);

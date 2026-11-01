@@ -107,7 +107,7 @@ void WorldSession::SendGroupInviteNotification(const std::string& inviterName, b
     SendPacket(&data);
 }
 
-void WorldSession::HandleGroupInviteOpcode(WorldPackets::Party::GroupInvite& packet)
+void WorldSession::HandleGroupInviteOpcode(WorldPackets::Party::PartyInviteClient& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_GROUP_INVITE");
 
@@ -526,7 +526,7 @@ void WorldSession::HandleLootRoll(WorldPackets::Loot::LootRoll& packet)
     }
 }
 
-void WorldSession::HandleMinimapPingOpcode(WorldPackets::Party::MinimapPing& packet)
+void WorldSession::HandleMinimapPingOpcode(WorldPackets::Party::MinimapPingClient& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_MINIMAP_PING");
 
@@ -566,7 +566,7 @@ void WorldSession::HandleMinimapPingOpcode(WorldPackets::Party::MinimapPing& pac
     GetPlayer()->GetGroup()->BroadcastPacket(&data, true, -1, GetPlayer()->GetGUID());
 }
 
-void WorldSession::HandleRandomRollOpcode(WorldPackets::Party::RandomRoll& packet)
+void WorldSession::HandleRandomRollOpcode(WorldPackets::Party::RandomRollClient& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_RANDOM_ROLL");
 
@@ -737,7 +737,7 @@ void WorldSession::HandleGroupAssistantLeaderOpcode(WorldPackets::Party::GroupAs
 
 }
 
-void WorldSession::HandleGroupEveryoneIsAssistantOpcode(WorldPackets::Party::GroupEveryoneIsAssistant& packet)
+void WorldSession::HandleGroupEveryoneIsAssistantOpcode(WorldPackets::Party::SetEveryoneIsAssistant& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_EVERYONE_IS_ASSISTANT");
 

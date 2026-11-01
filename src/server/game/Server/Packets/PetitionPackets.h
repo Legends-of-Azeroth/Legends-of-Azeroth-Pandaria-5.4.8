@@ -47,10 +47,10 @@ namespace WorldPackets
             ObjectGuid PetitionGuid;
         };
 
-        class PetitionQuery final : public ClientPacket
+        class QueryPetition final : public ClientPacket
         {
         public:
-            PetitionQuery(WorldPacket&& packet) : ClientPacket(CMSG_PETITION_QUERY, std::move(packet)) { }
+            QueryPetition(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_PETITION, std::move(packet)) { }
 
             void Read() override;
 
@@ -69,10 +69,10 @@ namespace WorldPackets
             std::string NewName;
         };
 
-        class PetitionSign final : public ClientPacket
+        class SignPetition final : public ClientPacket
         {
         public:
-            PetitionSign(WorldPacket&& packet) : ClientPacket(CMSG_PETITION_SIGN, std::move(packet)) { }
+            SignPetition(WorldPacket&& packet) : ClientPacket(CMSG_SIGN_PETITION, std::move(packet)) { }
 
             void Read() override;
 
@@ -82,7 +82,7 @@ namespace WorldPackets
         class PetitionDecline final : public ClientPacket
         {
         public:
-            PetitionDecline(WorldPacket&& packet) : ClientPacket(CMSG_PETITION_DECLINE, std::move(packet)) { }
+            PetitionDecline(WorldPacket&& packet) : ClientPacket(CMSG_DECLINE_PETITION, std::move(packet)) { }
 
             void Read() override;
 

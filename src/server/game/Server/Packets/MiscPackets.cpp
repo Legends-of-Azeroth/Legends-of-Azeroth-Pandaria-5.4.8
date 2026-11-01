@@ -359,7 +359,7 @@ void WorldPackets::Misc::SetActionBarToggles::Read()
     _worldPacket >> ActionBar;
 }
 
-void WorldPackets::Misc::PlayedTime::Read()
+void WorldPackets::Misc::PlayedTimeClient::Read()
 {
     _worldPacket >> Unk1;
 }
@@ -369,12 +369,12 @@ void WorldPackets::Misc::SetTitle::Read()
     _worldPacket >> Title;
 }
 
-void WorldPackets::Misc::TimeSyncResp::Read()
+void WorldPackets::Misc::TimeSyncResponse::Read()
 {
     _worldPacket >> Counter >> ClientTicks;
 }
 
-void WorldPackets::Misc::SetTaxiBenchmark::Read()
+void WorldPackets::Misc::SetTaxiBenchmarkMode::Read()
 {
     _worldPacket >> Mode;
 }

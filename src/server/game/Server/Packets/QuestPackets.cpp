@@ -147,7 +147,7 @@ void WorldPackets::Quest::QuestGiverQueryQuest::Read()
     _worldPacket.ReadByteSeq(Guid[6]);
 }
 
-void WorldPackets::Quest::QuestQuery::Read()
+void WorldPackets::Quest::QueryQuestInfo::Read()
 {
     _worldPacket >> QuestId;
     Guid[0] = _worldPacket.ReadBit();

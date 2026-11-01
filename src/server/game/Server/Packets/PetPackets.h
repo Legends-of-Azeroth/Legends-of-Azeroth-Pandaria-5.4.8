@@ -47,7 +47,7 @@ namespace WorldPackets
         class PetNameQuery final : public ClientPacket
         {
         public:
-            PetNameQuery(WorldPacket&& packet) : ClientPacket(CMSG_PET_NAME_QUERY, std::move(packet)) { }
+            PetNameQuery(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_PET_NAME, std::move(packet)) { }
 
             void Read() override;
 

@@ -447,7 +447,7 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
     return;
 }
 
-void WorldSession::HandleBuybackItem(WorldPackets::Item::BuybackItem& packet)
+void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BUYBACK_ITEM");
 
@@ -1422,7 +1422,7 @@ void WorldSession::HandleItemTextQuery(WorldPackets::Item::ItemTextQuery& packet
     ObjectGuid itemGuid(packet.ItemGuid);
     TC_LOG_DEBUG("network", "CMSG_ITEM_TEXT_QUERY item guid: {}", itemGuid.GetCounter());
 
-    WorldPacket data(SMSG_ITEM_TEXT_QUERY_RESPONSE, 14);    // guess size
+    WorldPacket data(SMSG_QUERY_ITEM_TEXT_RESPONSE, 14);    // guess size
 
     if (Item* item = _player->GetItemByGuid(itemGuid))
     {

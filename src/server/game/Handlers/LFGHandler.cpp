@@ -23,7 +23,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-void WorldSession::HandleLfgJoinOpcode(WorldPackets::LFG::DFJoin& packet)
+void WorldSession::HandleLfgJoinOpcode(WorldPackets::LFG::LFGJoin& packet)
 {
     if (!sLFGMgr->isOptionEnabled(lfg::LFG_OPTION_ENABLE_DUNGEON_FINDER | lfg::LFG_OPTION_ENABLE_RAID_BROWSER))
     {
@@ -87,7 +87,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPackets::LFG::DFJoin& packet)
     sLFGMgr->JoinLfg(GetPlayer(), lfg::LfgRoles(roles), newDungeons, comment);
 }
 
-void WorldSession::HandleLfgLeaveOpcode(WorldPackets::LFG::DFLeave& packet)
+void WorldSession::HandleLfgLeaveOpcode(WorldPackets::LFG::LFGLeave& packet)
 {
     Group* group = GetPlayer()->GetGroup();
     ObjectGuid guid = GetPlayer()->GetGUID();

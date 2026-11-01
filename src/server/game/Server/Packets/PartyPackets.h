@@ -37,10 +37,10 @@ namespace WorldPackets
             std::map<uint8, ObjectGuid> TargetIcons;
         };
 
-        class GroupInvite final : public ClientPacket
+        class PartyInviteClient final : public ClientPacket
         {
         public:
-            GroupInvite(WorldPacket&& packet) : ClientPacket(CMSG_GROUP_INVITE, std::move(packet)) { }
+            PartyInviteClient(WorldPacket&& packet) : ClientPacket(CMSG_GROUP_INVITE, std::move(packet)) { }
 
             void Read() override;
 
@@ -112,10 +112,10 @@ namespace WorldPackets
             ObjectGuid LootMaster;
         };
 
-        class MinimapPing final : public ClientPacket
+        class MinimapPingClient final : public ClientPacket
         {
         public:
-            MinimapPing(WorldPacket&& packet) : ClientPacket(CMSG_MINIMAP_PING, std::move(packet)) { }
+            MinimapPingClient(WorldPacket&& packet) : ClientPacket(CMSG_MINIMAP_PING, std::move(packet)) { }
 
             void Read() override;
 
@@ -123,10 +123,10 @@ namespace WorldPackets
             float X = 0.0f;
         };
 
-        class RandomRoll final : public ClientPacket
+        class RandomRollClient final : public ClientPacket
         {
         public:
-            RandomRoll(WorldPacket&& packet) : ClientPacket(CMSG_RANDOM_ROLL, std::move(packet)) { }
+            RandomRollClient(WorldPacket&& packet) : ClientPacket(CMSG_RANDOM_ROLL, std::move(packet)) { }
 
             void Read() override;
 
@@ -168,10 +168,10 @@ namespace WorldPackets
             bool Apply = false;
         };
 
-        class GroupEveryoneIsAssistant final : public ClientPacket
+        class SetEveryoneIsAssistant final : public ClientPacket
         {
         public:
-            GroupEveryoneIsAssistant(WorldPacket&& packet) : ClientPacket(CMSG_SET_EVERYONE_IS_ASSISTANT, std::move(packet)) { }
+            SetEveryoneIsAssistant(WorldPacket&& packet) : ClientPacket(CMSG_SET_EVERYONE_IS_ASSISTANT, std::move(packet)) { }
 
             void Read() override;
 
