@@ -23,6 +23,9 @@
 #include "Optional.h"
 #include "Position.h"
 #include "SharedDefines.h"
+#include "Spell.h"
+#include <string>
+#include <vector>
 
 namespace WorldPackets
 {
@@ -39,6 +42,125 @@ namespace WorldPackets
             ObjectGuid Guid;
         };
 
+        class UseItem final : public ClientPacket
+        {
+        public:
+            UseItem(WorldPacket&& packet) : ClientPacket(CMSG_USE_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Slot = 0;
+            uint8 BagIndex = 0;
+            uint8 CastCount = 0;
+            uint8 CastFlags = 0;
+            uint32 SpellId = 0;
+            uint32 GlyphIndex = 0;
+            uint32 TargetMask = 0;
+            float Elevation = 0.0f;
+            float MissileSpeed = 0.0f;
+            ObjectGuid ItemGuid;
+            ObjectGuid TargetGuid;
+            ObjectGuid ItemTargetGuid;
+            ObjectGuid TransportDstGuid;
+            ObjectGuid TransportSrcGuid;
+            Position SrcLoc;
+            Position DstLoc;
+            std::string TargetString;
+            bool HasSrcLocation = false;
+            bool HasDestLocation = false;
+        };
+
+        class CastSpell final : public ClientPacket
+        {
+        public:
+            CastSpell(WorldPacket&& packet) : ClientPacket(CMSG_CAST_SPELL, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 CastCount = 0;
+            uint8 CastFlags = 0;
+            uint32 SpellId = 0;
+            uint32 GlyphIndex = 0;
+            uint32 TargetMask = 0;
+            float Elevation = 0.0f;
+            float MissileSpeed = 0.0f;
+            ObjectGuid TargetGuid;
+            ObjectGuid ItemTargetGuid;
+            ObjectGuid TransportDstGuid;
+            ObjectGuid TransportSrcGuid;
+            Position SrcLoc;
+            Position DstLoc;
+            std::string TargetString;
+            std::vector<SpellResearchInfo> ResearchInfoVector;
+            bool HasSrcLocation = false;
+            bool HasDestLocation = false;
+        };
+
+        class PetCancelAura final : public ClientPacket
+        {
+        public:
+            PetCancelAura(WorldPacket&& packet) : ClientPacket(CMSG_PET_CANCEL_AURA, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 SpellId = 0;
+            ObjectGuid PetGuid;
+        };
+
+        class SpellClick final : public ClientPacket
+        {
+        public:
+            SpellClick(WorldPacket&& packet) : ClientPacket(CMSG_SPELLCLICK, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Guid;
+        };
+
+        class GetMirrorImageData final : public ClientPacket
+        {
+        public:
+            GetMirrorImageData(WorldPacket&& packet) : ClientPacket(CMSG_GET_MIRROR_IMAGE_DATA, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 DisplayId = 0;
+            ObjectGuid Guid;
+        };
+
+        class MissileTrajectoryCollision final : public ClientPacket
+        {
+        public:
+            MissileTrajectoryCollision(WorldPacket&& packet) : ClientPacket(CMSG_MISSILE_TRAJECTORY_COLLISION, std::move(packet)) { }
+
+            void Read() override;
+
+            float Z = 0.0f;
+            uint8 CastCount = 0;
+            float Y = 0.0f;
+            float X = 0.0f;
+            uint32 SpellId = 0;
+            ObjectGuid CasterGuid;
+        };
+
+        class RequestCategoryCooldowns final : public ClientPacket
+        {
+        public:
+            RequestCategoryCooldowns(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_CATEGORY_COOLDOWNS, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class ChoiceResponse final : public ClientPacket
+        {
+        public:
+            ChoiceResponse(WorldPacket&& packet) : ClientPacket(CMSG_CHOICE_RESPONSE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 ResponseId = 0;
+            uint32 ChoiceId = 0;
+        };
 
     }
 }

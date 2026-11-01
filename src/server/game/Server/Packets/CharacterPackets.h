@@ -94,10 +94,10 @@ namespace WorldPackets
             ObjectGuid Guid;
         };
 
-        class LoadScreen final : public ClientPacket
+        class LoadingScreenNotify final : public ClientPacket
         {
         public:
-            LoadScreen(WorldPacket&& packet) : ClientPacket(CMSG_LOAD_SCREEN, std::move(packet)) { }
+            LoadingScreenNotify(WorldPacket&& packet) : ClientPacket(CMSG_LOAD_SCREEN, std::move(packet)) { }
 
             void Read() override;
         };
@@ -109,7 +109,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint8 FactionIndexId = 0;
+            uint8 FactionIndex = 0;
         };
 
         class SetFactionNotAtWar final : public ClientPacket
@@ -119,33 +119,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint8 FactionIndexId = 0;
-        };
-
-        class TutorialSetFlag final : public ClientPacket
-        {
-        public:
-            TutorialSetFlag(WorldPacket&& packet) : ClientPacket(CMSG_TUTORIAL_FLAG, std::move(packet)) { }
-
-            void Read() override;
-
-            uint32 Data = 0;
-        };
-
-        class TutorialClear final : public ClientPacket
-        {
-        public:
-            TutorialClear(WorldPacket&& packet) : ClientPacket(CMSG_TUTORIAL_CLEAR, std::move(packet)) { }
-
-            void Read() override { }
-        };
-
-        class TutorialReset final : public ClientPacket
-        {
-        public:
-            TutorialReset(WorldPacket&& packet) : ClientPacket(CMSG_TUTORIAL_RESET, std::move(packet)) { }
-
-            void Read() override { }
+            uint8 FactionIndex = 0;
         };
 
         class SetWatchedFaction final : public ClientPacket
@@ -155,7 +129,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 Faction = 0;
+            uint32 FactionIndex = 0;
         };
 
         class SetFactionInactive final : public ClientPacket
@@ -165,8 +139,8 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 FactionIndex = 0;
-            uint8 Status = 0;
+            uint32 Index = 0;
+            uint8 State = 0;
         };
 
         class RequestForcedReactions final : public ClientPacket
@@ -188,10 +162,10 @@ namespace WorldPackets
             std::string Name;
         };
 
-        class AlterAppearance final : public ClientPacket
+        class AlterApperance final : public ClientPacket
         {
         public:
-            AlterAppearance(WorldPacket&& packet) : ClientPacket(CMSG_ALTER_APPEARANCE, std::move(packet)) { }
+            AlterApperance(WorldPacket&& packet) : ClientPacket(CMSG_ALTER_APPEARANCE, std::move(packet)) { }
 
             void Read() override;
 
@@ -216,6 +190,63 @@ namespace WorldPackets
             uint8 HairColor = 0;
             ObjectGuid Guid;
             std::string Name;
+        };
+
+        class SetPlayerDeclinedNames final : public ClientPacket
+        {
+        public:
+            SetPlayerDeclinedNames(WorldPacket&& packet) : ClientPacket(CMSG_SET_PLAYER_DECLINED_NAMES, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Guid;
+            std::vector<std::string> DeclinedNames;
+        };
+
+        class CharFactionOrRaceChange final : public ClientPacket
+        {
+        public:
+            CharFactionOrRaceChange(WorldPacket&& packet) : ClientPacket(CMSG_CHAR_RACE_OR_FACTION_CHANGE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Gender = 0;
+            uint8 Race = 0;
+            bool HasSkinColor = false;
+            bool HasFace = false;
+            bool HasFacialHair = false;
+            bool HasHairStyle = false;
+            bool HasHairColor = false;
+            bool IsFactionChange = false;
+            ObjectGuid Guid;
+            std::string Name;
+            uint8 HairColor = 0;
+            uint8 HairStyle = 0;
+            uint8 Skin = 0;
+            uint8 Face = 0;
+            uint8 FacialHair = 0;
+        };
+
+        class RandomizeCharName final : public ClientPacket
+        {
+        public:
+            RandomizeCharName(WorldPacket&& packet) : ClientPacket(CMSG_RANDOMIZE_CHAR_NAME, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Gender = 0;
+            uint8 Race = 0;
+        };
+
+        class ReorderCharacters final : public ClientPacket
+        {
+        public:
+            ReorderCharacters(WorldPacket&& packet) : ClientPacket(CMSG_REORDER_CHARACTERS, std::move(packet)) { }
+
+            void Read() override;
+
+            std::vector<ObjectGuid> Guids;
+            std::vector<uint8> Positions;
         };
 
         class LogoutResponse final : public ServerPacket

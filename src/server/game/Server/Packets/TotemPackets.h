@@ -33,7 +33,7 @@ namespace WorldPackets
             void Read() override;
 
             uint8 Slot = 0;
-            ObjectGuid Totem;
+            ObjectGuid TotemGUID;
         };
     }
 }

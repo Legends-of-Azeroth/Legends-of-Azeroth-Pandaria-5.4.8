@@ -24,16 +24,16 @@ void WorldPackets::ClientConfig::RequestAccountData::Read()
 
 void WorldPackets::ClientConfig::UserClientUpdateAccountData::Read()
 {
-    _worldPacket >> DecompressedSize >> Time >> CompressedSize;
+    _worldPacket >> Size >> Time >> CompressedSize;
 
-    if (DecompressedSize == 0)
+    if (Size == 0)
     {
         DataType = _worldPacket.ReadBits(3);
         _worldPacket.FlushBits();
         return;
     }
 
-    if (DecompressedSize > 0xFFFF)
+    if (Size > 0xFFFF)
     {
         _worldPacket.rfinish();
         return;

@@ -27,10 +27,9 @@
 #include "WorldSession.h"
 #include "InstanceScript.h"
 
-void WorldSession::HandeSetTalentSpecialization(WorldPacket& recvData)
+void WorldSession::HandeSetTalentSpecialization(WorldPackets::Talent::SetPrimaryTalentTree& packet)
 {
-    uint32 specializationTabId;
-    recvData >> specializationTabId;
+    uint32 const specializationTabId = packet.TabIndex;
 
     if (specializationTabId > MAX_TALENT_TABS)
         return;
@@ -51,23 +50,19 @@ void WorldSession::HandeSetTalentSpecialization(WorldPacket& recvData)
     _player->SaveToDB();
 }
 
-void WorldSession::HandleLearnTalentOpcode(WorldPacket& recvData)
+void WorldSession::HandleLearnTalentOpcode(WorldPackets::Talent::LearnTalent& packet)
 {
     if (_player->GetMap()->IsDungeon() && _player->GetMap()->IsChallengeDungeon() &&
         _player->GetInstanceScript() && _player->GetInstanceScript()->IsChallengeModeStarted())
     {
         _player->SendGameError(GameError::ERR_NOT_IN_COMBAT);
-        recvData.rfinish(); // prevent spam at ignore packet
         return;
     }
 
-    uint32 talentCount = recvData.ReadBits(23);
-    uint16 talentId = 0;
     bool anythingLearned = false;
 
-    for (int i = 0; i != talentCount; i++)
+    for (uint16 talentId : packet.Talents)
     {
-        recvData >> talentId;
         if (_player->LearnTalent(talentId))
             anythingLearned = true;
     }
@@ -81,32 +76,13 @@ void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
     TC_LOG_DEBUG("network", "CMSG_LEARN_PREVIEW_TALENTS");
 }
 
-void WorldSession::HandleRespecWipeConfirmOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleRespecWipeConfirmOpcode(WorldPackets::Talent::ConfirmRespecWipe& packet)
 {
     TC_LOG_DEBUG("network", "CMSG_CONFIRM_RESPEC_WIPE");
-    ObjectGuid guid;
-    uint8 respecType = 0;
+    ObjectGuid const guid = packet.RespecMaster;
+    uint8 const respecType = packet.RespecType;
     uint32 Cost = 0;
 
-    recvPacket >> respecType;
-    guid[7] = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
-    guid[1] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
-    guid[3] = recvPacket.ReadBit();
-    guid[5] = recvPacket.ReadBit();
-
-    recvPacket.ReadByteSeq(guid[2]);
-    recvPacket.ReadByteSeq(guid[4]);
-    recvPacket.ReadByteSeq(guid[1]);
-    recvPacket.ReadByteSeq(guid[3]);
-    recvPacket.ReadByteSeq(guid[0]);
-    recvPacket.ReadByteSeq(guid[5]);
-    recvPacket.ReadByteSeq(guid[7]);
-    recvPacket.ReadByteSeq(guid[6]);
-    
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
@@ -130,10 +106,9 @@ void WorldSession::HandleRespecWipeConfirmOpcode(WorldPacket& recvPacket)
         unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
 }
 
-void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recvData)
+void WorldSession::HandleUnlearnSkillOpcode(WorldPackets::Talent::UnlearnSkill& packet)
 {
-    uint32 skillId;
-    recvData >> skillId;
+    uint32 const skillId = packet.SkillId;
 
     if (!IsProfessionSkill(skillId))
         return;
@@ -152,11 +127,11 @@ const uint32 specRecipes[PROFESSION_SPEC_INDEX_COUNT][23] =
     { 0 },
 };
 const uint32 specQuest[PROFESSION_SPEC_INDEX_COUNT] = { 29477, 29475, 29481, 29067, 29482 };
-void WorldSession::HandleUnlearnSpecializationOpcode(WorldPacket& recvData)
+void WorldSession::HandleUnlearnSpecializationOpcode(WorldPackets::Talent::UnlearnSpecialization& packet)
 {
     TC_LOG_DEBUG("network", "CMSG_UNLEARN_SPECIALIZATION");
 
-    uint8 specIndex = recvData.read<uint8>();
+    uint8 const specIndex = packet.SpecIndex;
 
     if (specIndex >= PROFESSION_SPEC_INDEX_COUNT)
         return;
@@ -180,7 +155,7 @@ void WorldSession::HandleUnlearnSpecializationOpcode(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleArcheologyRequestHistory(WorldPacket& recvPacket)
+void WorldSession::HandleArcheologyRequestHistory(WorldPackets::Talent::RequestResearchHistory& /*packet*/)
 {
     TC_LOG_DEBUG("network", "CMSG_REQUEST_RESEARCH_HISTORY");
 

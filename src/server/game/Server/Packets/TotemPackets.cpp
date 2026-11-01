@@ -20,20 +20,20 @@
 void WorldPackets::Totem::TotemDestroyed::Read()
 {
     _worldPacket >> Slot;
-    Totem[4] = _worldPacket.ReadBit();
-    Totem[2] = _worldPacket.ReadBit();
-    Totem[1] = _worldPacket.ReadBit();
-    Totem[3] = _worldPacket.ReadBit();
-    Totem[0] = _worldPacket.ReadBit();
-    Totem[6] = _worldPacket.ReadBit();
-    Totem[7] = _worldPacket.ReadBit();
-    Totem[5] = _worldPacket.ReadBit();
-    _worldPacket.ReadByteSeq(Totem[6]);
-    _worldPacket.ReadByteSeq(Totem[2]);
-    _worldPacket.ReadByteSeq(Totem[4]);
-    _worldPacket.ReadByteSeq(Totem[1]);
-    _worldPacket.ReadByteSeq(Totem[5]);
-    _worldPacket.ReadByteSeq(Totem[0]);
-    _worldPacket.ReadByteSeq(Totem[3]);
-    _worldPacket.ReadByteSeq(Totem[7]);
+    TotemGUID[4] = _worldPacket.ReadBit();
+    TotemGUID[2] = _worldPacket.ReadBit();
+    TotemGUID[1] = _worldPacket.ReadBit();
+    TotemGUID[3] = _worldPacket.ReadBit();
+    TotemGUID[0] = _worldPacket.ReadBit();
+    TotemGUID[6] = _worldPacket.ReadBit();
+    TotemGUID[7] = _worldPacket.ReadBit();
+    TotemGUID[5] = _worldPacket.ReadBit();
+    _worldPacket.ReadByteSeq(TotemGUID[6]);
+    _worldPacket.ReadByteSeq(TotemGUID[2]);
+    _worldPacket.ReadByteSeq(TotemGUID[4]);
+    _worldPacket.ReadByteSeq(TotemGUID[1]);
+    _worldPacket.ReadByteSeq(TotemGUID[5]);
+    _worldPacket.ReadByteSeq(TotemGUID[0]);
+    _worldPacket.ReadByteSeq(TotemGUID[3]);
+    _worldPacket.ReadByteSeq(TotemGUID[7]);
 }

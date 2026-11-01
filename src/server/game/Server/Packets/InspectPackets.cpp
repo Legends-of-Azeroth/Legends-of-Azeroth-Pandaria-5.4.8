@@ -36,3 +36,64 @@ void WorldPackets::Inspect::Inspect::Read()
     _worldPacket.ReadByteSeq(Target[0]);
     _worldPacket.ReadByteSeq(Target[7]);
 }
+
+void WorldPackets::Inspect::InspectHonorStats::Read()
+{
+    Target[4] = _worldPacket.ReadBit();
+    Target[3] = _worldPacket.ReadBit();
+    Target[6] = _worldPacket.ReadBit();
+    Target[1] = _worldPacket.ReadBit();
+    Target[0] = _worldPacket.ReadBit();
+    Target[2] = _worldPacket.ReadBit();
+    Target[5] = _worldPacket.ReadBit();
+    Target[7] = _worldPacket.ReadBit();
+    _worldPacket.ReadByteSeq(Target[0]);
+    _worldPacket.ReadByteSeq(Target[5]);
+    _worldPacket.ReadByteSeq(Target[1]);
+    _worldPacket.ReadByteSeq(Target[4]);
+    _worldPacket.ReadByteSeq(Target[2]);
+    _worldPacket.ReadByteSeq(Target[6]);
+    _worldPacket.ReadByteSeq(Target[7]);
+    _worldPacket.ReadByteSeq(Target[3]);
+}
+
+void WorldPackets::Inspect::QueryInspectAchievements::Read()
+{
+    Target[2] = _worldPacket.ReadBit();
+    Target[7] = _worldPacket.ReadBit();
+    Target[1] = _worldPacket.ReadBit();
+    Target[5] = _worldPacket.ReadBit();
+    Target[4] = _worldPacket.ReadBit();
+    Target[0] = _worldPacket.ReadBit();
+    Target[3] = _worldPacket.ReadBit();
+    Target[6] = _worldPacket.ReadBit();
+    _worldPacket.ReadByteSeq(Target[7]);
+    _worldPacket.ReadByteSeq(Target[2]);
+    _worldPacket.ReadByteSeq(Target[0]);
+    _worldPacket.ReadByteSeq(Target[4]);
+    _worldPacket.ReadByteSeq(Target[1]);
+    _worldPacket.ReadByteSeq(Target[5]);
+    _worldPacket.ReadByteSeq(Target[6]);
+    _worldPacket.ReadByteSeq(Target[3]);
+}
+
+void WorldPackets::Inspect::InspectRatedBGStats::Read()
+{
+    _worldPacket.read_skip<uint32>(); // realmId
+    Target[0] = _worldPacket.ReadBit();
+    Target[2] = _worldPacket.ReadBit();
+    Target[5] = _worldPacket.ReadBit();
+    Target[1] = _worldPacket.ReadBit();
+    Target[6] = _worldPacket.ReadBit();
+    Target[4] = _worldPacket.ReadBit();
+    Target[3] = _worldPacket.ReadBit();
+    Target[7] = _worldPacket.ReadBit();
+    _worldPacket.ReadByteSeq(Target[7]);
+    _worldPacket.ReadByteSeq(Target[3]);
+    _worldPacket.ReadByteSeq(Target[1]);
+    _worldPacket.ReadByteSeq(Target[5]);
+    _worldPacket.ReadByteSeq(Target[4]);
+    _worldPacket.ReadByteSeq(Target[0]);
+    _worldPacket.ReadByteSeq(Target[2]);
+    _worldPacket.ReadByteSeq(Target[6]);
+}

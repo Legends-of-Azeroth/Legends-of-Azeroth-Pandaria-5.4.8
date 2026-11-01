@@ -69,41 +69,13 @@ void WorldSession::SendBattleGroundList(ObjectGuid guid, BattlegroundTypeId bgTy
     SendPacket(&data);
 }
 
-void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
+void WorldSession::HandleBattlemasterJoinOpcode(WorldPackets::Battleground::BattlemasterJoin& packet)
 {
     uint32 bgTypeId_;
-    uint8 asGroup;
+    uint8 asGroup = packet.AsGroup;
     bool isPremade = false;
     Group* grp = NULL;
-    ObjectGuid guid;
-    bool hasRoleMask;
-    uint8 roleMask = 0;
-
-    for (int i = 0; i < 2; i++) // blacklistedMapIds
-        recvData.read_skip<uint32>();
-
-    guid[1] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    asGroup = recvData.ReadBit();           // As Group
-    guid[4] = recvData.ReadBit();
-    hasRoleMask = !recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[1]);
-
-    if (hasRoleMask)
-        recvData >> roleMask; // Need to set this as group role later
+    ObjectGuid guid = packet.Guid;
 
     //extract from guid
     bgTypeId_ = guid.GetCounter();
@@ -269,7 +241,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
     sBattlegroundMgr->ScheduleQueueUpdate(0, 0, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 }
 
-void WorldSession::HandlePVPLogDataOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandlePVPLogDataOpcode(WorldPackets::Battleground::PVPLogDataRequest& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_PVP_LOG_DATA Message");
 
@@ -288,12 +260,11 @@ void WorldSession::HandlePVPLogDataOpcode(WorldPacket & /*recvData*/)
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_PVP_LOG_DATA Message");
 }
 
-void WorldSession::HandleBattlefieldListOpcode(WorldPacket& recvData)
+void WorldSession::HandleBattlefieldListOpcode(WorldPackets::Battleground::BattlefieldListRequest& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEFIELD_LIST Message");
 
-    uint32 bgTypeId;
-    recvData >> bgTypeId;                                  // id from DBC
+    uint32 bgTypeId = packet.BgTypeId;                                  // id from DBC
 
     BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
     if (!bl)
@@ -307,35 +278,15 @@ void WorldSession::HandleBattlefieldListOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
+void WorldSession::HandleBattleFieldPortOpcode(WorldPackets::Battleground::BattlefieldPort& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEFIELD_PORT Message");
 
-    uint32 time;
-    uint32 queueSlot;
-    uint32 id;
-    uint8 action;                       // enter battle 0x1, leave queue 0x0
-    ObjectGuid guid;
-
-    recvData >> action >> queueSlot >> id >> time;
-
-    guid[6] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[1]);
+    uint32 time = packet.Time;
+    uint32 queueSlot = packet.QueueSlot;
+    uint32 id = packet.Id;
+    uint8 action = packet.Action;                       // enter battle 0x1, leave queue 0x0
+    ObjectGuid guid = packet.Guid;
 
     if (!_player->InBattlegroundQueue())
     {
@@ -489,7 +440,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
     }
 }
 
-void WorldSession::HandleBattlefieldLeaveOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleBattlefieldLeaveOpcode(WorldPackets::Battleground::BattlefieldLeave& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEFIELD_LEAVE Message");
 
@@ -502,7 +453,7 @@ void WorldSession::HandleBattlefieldLeaveOpcode(WorldPacket& /*recvData*/)
     _player->LeaveBattleground();
 }
 
-void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleBattlefieldStatusOpcode(WorldPackets::Battleground::RequestBattlefieldStatus& /*packet*/)
 {
     // empty opcode
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_BATTLEFIELD_STATUS Message");
@@ -567,13 +518,11 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket & /*recvData*/)
     }
 }
 
-void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
+void WorldSession::HandleBattlemasterJoinArena(WorldPackets::Battleground::BattlemasterJoinArena& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_BATTLEMASTER_JOIN_ARENA");
 
-    uint8 arenaslot;                                        // 2v2, 3v3 or 5v5
-
-    recvData >> arenaslot;
+    uint8 arenaslot = packet.ArenaSlot;                                        // 2v2, 3v3 or 5v5
 
     // ignore if we already in BG or BG queue
     if (_player->InBattleground())
@@ -667,7 +616,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
     sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, arenatype, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 }
 
-void WorldSession::HandleBattlemasterJoinRated(WorldPacket& recvData)
+void WorldSession::HandleBattlemasterJoinRated(WorldPackets::Battleground::BattlemasterJoinRated& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_BATTLEMASTER_JOIN_RATED");
 
@@ -748,27 +697,9 @@ void WorldSession::HandleBattlemasterJoinRated(WorldPacket& recvData)
     sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, 0, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 }
 
-void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
+void WorldSession::HandleReportPvPAFK(WorldPackets::Battleground::ReportPvPPlayerAFK& packet)
 {
-    ObjectGuid playerGuid;
-
-    playerGuid[3] = recvData.ReadBit();
-    playerGuid[6] = recvData.ReadBit();
-    playerGuid[1] = recvData.ReadBit();
-    playerGuid[4] = recvData.ReadBit();
-    playerGuid[5] = recvData.ReadBit();
-    playerGuid[0] = recvData.ReadBit();
-    playerGuid[7] = recvData.ReadBit();
-    playerGuid[2] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(playerGuid[3]);
-    recvData.ReadByteSeq(playerGuid[0]);
-    recvData.ReadByteSeq(playerGuid[4]);
-    recvData.ReadByteSeq(playerGuid[1]);
-    recvData.ReadByteSeq(playerGuid[7]);
-    recvData.ReadByteSeq(playerGuid[6]);
-    recvData.ReadByteSeq(playerGuid[2]);
-    recvData.ReadByteSeq(playerGuid[5]);
+    ObjectGuid playerGuid = packet.PlayerGuid;
 
     if (Battleground* bg = GetPlayer()->GetBattleground())
         bg->ReportAfk(playerGuid, GetPlayer());
@@ -809,7 +740,7 @@ void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
 //     SendPacket(&data);
 // }
 
-void WorldSession::HandleRequestPvpOptions(WorldPacket& /*recvData*/)
+void WorldSession::HandleRequestPvpOptions(WorldPackets::Battleground::RequestPvpOptionsEnabled& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_PVP_OPTIONS_ENABLED");
 
@@ -826,14 +757,14 @@ void WorldSession::HandleRequestPvpOptions(WorldPacket& /*recvData*/)
     SendPacket(&data);
 }
 
-void WorldSession::HandleRequestPvpReward(WorldPacket& /*recvData*/)
+void WorldSession::HandleRequestPvpReward(WorldPackets::Battleground::RequestPVPRewards& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_PVP_REWARDS");
 
     _player->SendPvpRewards();
 }
 
-void WorldSession::HandleRequestRatedBgStats(WorldPacket& /*recvData*/)
+void WorldSession::HandleRequestRatedBgStats(WorldPackets::Battleground::RequestRatedBgStats& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_RATED_BG_STATS");
 
@@ -867,7 +798,7 @@ void WorldSession::HandleRequestRatedBgStats(WorldPacket& /*recvData*/)
     SendPacket(&data);
 }
 
-void WorldSession::HandleRequestConquestFormulaConstants(WorldPacket& /*recvData*/)
+void WorldSession::HandleRequestConquestFormulaConstants(WorldPackets::Battleground::RequestConquestFormulaConstants& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS");
 

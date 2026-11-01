@@ -27,27 +27,9 @@
 #include "Player.h"
 #include "Opcodes.h"
 
-void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
+void WorldSession::HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet)
 {
-    ObjectGuid guid;
-
-    guid[6] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[5]);
+    ObjectGuid guid = packet.TargetGUID;
 
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_ATTACKSWING Message guidlow:{} guidhigh:{}", guid.GetCounter(), uint32(guid.GetHigh()));
 
@@ -87,18 +69,15 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
     _player->Attack(pEnemy, true);
 }
 
-void WorldSession::HandleAttackStopOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleAttackStopOpcode(WorldPackets::Combat::AttackStop& /*packet*/)
 {
     GetPlayer()->AttackStop();
 }
 
-void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetSheathedOpcode(WorldPackets::Combat::SetSheathed& packet)
 {
-    uint32 sheathed;
-    bool hasData = false;
-
-    recvData >> sheathed;
-    hasData = recvData.ReadBit();
+    uint32 sheathed = packet.Sheathed;
+    bool hasData = packet.HasData;
 
     //TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_SETSHEATHED Message guidlow:{} value1:{}", GetPlayer()->GetGUID().GetCounter(), sheathed);
 
@@ -161,9 +140,7 @@ void WorldSession::SendAttackStop(Unit const* enemy)
     SendPacket(&data);
 }
 
-void WorldSession::HandleSetAdvancedCombatLogging(WorldPacket& recvData)
+void WorldSession::HandleSetAdvancedCombatLogging(WorldPackets::Combat::SetAdvancedCombatLogging& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_SET_ADVANCED_COMBAT_LOGGING");
-
-    recvData.read_skip<bool>();
 }

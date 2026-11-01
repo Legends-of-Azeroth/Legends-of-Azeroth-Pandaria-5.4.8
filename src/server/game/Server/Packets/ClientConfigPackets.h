@@ -42,7 +42,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 DecompressedSize = 0;
+            uint32 Size = 0;
             uint32 Time = 0;
             uint32 CompressedSize = 0;
             uint32 DataType = 0; ///< @see enum AccountDataType

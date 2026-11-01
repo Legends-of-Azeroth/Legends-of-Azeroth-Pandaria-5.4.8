@@ -43,6 +43,229 @@ void WorldPackets::AuctionHouse::AuctionReplicateItems::Read()
     _worldPacket.ReadByteSeq(Auctioneer[2]);
 }
 
+void WorldPackets::AuctionHouse::AuctionHello::Read()
+{
+    Auctioneer[1] = _worldPacket.ReadBit();
+    Auctioneer[5] = _worldPacket.ReadBit();
+    Auctioneer[2] = _worldPacket.ReadBit();
+    Auctioneer[0] = _worldPacket.ReadBit();
+    Auctioneer[3] = _worldPacket.ReadBit();
+    Auctioneer[6] = _worldPacket.ReadBit();
+    Auctioneer[4] = _worldPacket.ReadBit();
+    Auctioneer[7] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(Auctioneer[2]);
+    _worldPacket.ReadByteSeq(Auctioneer[7]);
+    _worldPacket.ReadByteSeq(Auctioneer[1]);
+    _worldPacket.ReadByteSeq(Auctioneer[3]);
+    _worldPacket.ReadByteSeq(Auctioneer[5]);
+    _worldPacket.ReadByteSeq(Auctioneer[0]);
+    _worldPacket.ReadByteSeq(Auctioneer[4]);
+    _worldPacket.ReadByteSeq(Auctioneer[6]);
+}
+
+void WorldPackets::AuctionHouse::AuctionSellItem::Read()
+{
+    _worldPacket >> Buyout;
+    _worldPacket >> Bid;
+    _worldPacket >> Etime;
+
+    if (!Bid || !Etime)
+        return;
+
+    Auctioneer[3] = _worldPacket.ReadBit();
+    ItemCount = _worldPacket.ReadBits(5);
+
+    if (ItemCount > MAX_AUCTION_ITEMS)
+        return;
+
+    Auctioneer[0] = _worldPacket.ReadBit();
+
+    for (uint32 i = 0; i < ItemCount; i++)
+    {
+        ItemGuids[i][4] = _worldPacket.ReadBit();
+        ItemGuids[i][6] = _worldPacket.ReadBit();
+        ItemGuids[i][2] = _worldPacket.ReadBit();
+        ItemGuids[i][3] = _worldPacket.ReadBit();
+        ItemGuids[i][5] = _worldPacket.ReadBit();
+        ItemGuids[i][7] = _worldPacket.ReadBit();
+        ItemGuids[i][1] = _worldPacket.ReadBit();
+        ItemGuids[i][0] = _worldPacket.ReadBit();
+    }
+
+    Auctioneer[6] = _worldPacket.ReadBit();
+    Auctioneer[2] = _worldPacket.ReadBit();
+    Auctioneer[1] = _worldPacket.ReadBit();
+    Auctioneer[4] = _worldPacket.ReadBit();
+    Auctioneer[5] = _worldPacket.ReadBit();
+    Auctioneer[7] = _worldPacket.ReadBit();
+
+    for (uint32 i = 0; i < ItemCount; i++)
+    {
+        _worldPacket.ReadByteSeq(ItemGuids[i][3]);
+        _worldPacket.ReadByteSeq(ItemGuids[i][1]);
+        _worldPacket >> Count[i];
+        _worldPacket.ReadByteSeq(ItemGuids[i][6]);
+        _worldPacket.ReadByteSeq(ItemGuids[i][4]);
+        _worldPacket.ReadByteSeq(ItemGuids[i][5]);
+        _worldPacket.ReadByteSeq(ItemGuids[i][0]);
+        _worldPacket.ReadByteSeq(ItemGuids[i][2]);
+        _worldPacket.ReadByteSeq(ItemGuids[i][7]);
+    }
+
+    _worldPacket.ReadByteSeq(Auctioneer[3]);
+    _worldPacket.ReadByteSeq(Auctioneer[7]);
+    _worldPacket.ReadByteSeq(Auctioneer[2]);
+    _worldPacket.ReadByteSeq(Auctioneer[5]);
+    _worldPacket.ReadByteSeq(Auctioneer[6]);
+    _worldPacket.ReadByteSeq(Auctioneer[1]);
+    _worldPacket.ReadByteSeq(Auctioneer[0]);
+    _worldPacket.ReadByteSeq(Auctioneer[4]);
+}
+
+void WorldPackets::AuctionHouse::AuctionPlaceBid::Read()
+{
+    _worldPacket >> AuctionId;
+    _worldPacket >> Price;
+
+    Auctioneer[1] = _worldPacket.ReadBit();
+    Auctioneer[6] = _worldPacket.ReadBit();
+    Auctioneer[3] = _worldPacket.ReadBit();
+    Auctioneer[7] = _worldPacket.ReadBit();
+    Auctioneer[2] = _worldPacket.ReadBit();
+    Auctioneer[4] = _worldPacket.ReadBit();
+    Auctioneer[0] = _worldPacket.ReadBit();
+    Auctioneer[5] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(Auctioneer[3]);
+    _worldPacket.ReadByteSeq(Auctioneer[2]);
+    _worldPacket.ReadByteSeq(Auctioneer[1]);
+    _worldPacket.ReadByteSeq(Auctioneer[4]);
+    _worldPacket.ReadByteSeq(Auctioneer[6]);
+    _worldPacket.ReadByteSeq(Auctioneer[5]);
+    _worldPacket.ReadByteSeq(Auctioneer[7]);
+    _worldPacket.ReadByteSeq(Auctioneer[0]);
+}
+
+void WorldPackets::AuctionHouse::AuctionRemoveItem::Read()
+{
+    _worldPacket >> AuctionId;
+
+    Auctioneer[6] = _worldPacket.ReadBit();
+    Auctioneer[4] = _worldPacket.ReadBit();
+    Auctioneer[2] = _worldPacket.ReadBit();
+    Auctioneer[3] = _worldPacket.ReadBit();
+    Auctioneer[7] = _worldPacket.ReadBit();
+    Auctioneer[5] = _worldPacket.ReadBit();
+    Auctioneer[1] = _worldPacket.ReadBit();
+    Auctioneer[0] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(Auctioneer[3]);
+    _worldPacket.ReadByteSeq(Auctioneer[2]);
+    _worldPacket.ReadByteSeq(Auctioneer[6]);
+    _worldPacket.ReadByteSeq(Auctioneer[5]);
+    _worldPacket.ReadByteSeq(Auctioneer[4]);
+    _worldPacket.ReadByteSeq(Auctioneer[7]);
+    _worldPacket.ReadByteSeq(Auctioneer[0]);
+    _worldPacket.ReadByteSeq(Auctioneer[1]);
+}
+
+void WorldPackets::AuctionHouse::AuctionListBidderItems::Read()
+{
+    _worldPacket >> ListFrom;
+
+    Auctioneer[3] = _worldPacket.ReadBit();
+    Auctioneer[4] = _worldPacket.ReadBit();
+    Auctioneer[1] = _worldPacket.ReadBit();
+    Auctioneer[5] = _worldPacket.ReadBit();
+    Auctioneer[6] = _worldPacket.ReadBit();
+    Auctioneer[2] = _worldPacket.ReadBit();
+    OutbiddedCount = _worldPacket.ReadBits(7);
+    Auctioneer[7] = _worldPacket.ReadBit();
+    Auctioneer[0] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(Auctioneer[3]);
+    _worldPacket.ReadByteSeq(Auctioneer[4]);
+    _worldPacket.ReadByteSeq(Auctioneer[1]);
+    _worldPacket.ReadByteSeq(Auctioneer[0]);
+    _worldPacket.ReadByteSeq(Auctioneer[2]);
+    _worldPacket.ReadByteSeq(Auctioneer[5]);
+
+    for (uint8 i = 0; i < OutbiddedCount; i++)
+        _worldPacket >> OutbiddedAuctionIds[i];
+
+    _worldPacket.ReadByteSeq(Auctioneer[7]);
+    _worldPacket.ReadByteSeq(Auctioneer[6]);
+}
+
+void WorldPackets::AuctionHouse::AuctionListOwnerItems::Read()
+{
+    _worldPacket >> ListFrom;
+
+    Auctioneer[4] = _worldPacket.ReadBit();
+    Auctioneer[5] = _worldPacket.ReadBit();
+    Auctioneer[2] = _worldPacket.ReadBit();
+    Auctioneer[1] = _worldPacket.ReadBit();
+    Auctioneer[7] = _worldPacket.ReadBit();
+    Auctioneer[0] = _worldPacket.ReadBit();
+    Auctioneer[3] = _worldPacket.ReadBit();
+    Auctioneer[6] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(Auctioneer[5]);
+    _worldPacket.ReadByteSeq(Auctioneer[7]);
+    _worldPacket.ReadByteSeq(Auctioneer[3]);
+    _worldPacket.ReadByteSeq(Auctioneer[6]);
+    _worldPacket.ReadByteSeq(Auctioneer[4]);
+    _worldPacket.ReadByteSeq(Auctioneer[2]);
+    _worldPacket.ReadByteSeq(Auctioneer[0]);
+    _worldPacket.ReadByteSeq(Auctioneer[1]);
+}
+
+void WorldPackets::AuctionHouse::AuctionListItems::Read()
+{
+    _worldPacket >> AuctionSlotId;
+    _worldPacket >> ListFrom;
+    _worldPacket >> AuctionMainCategory;
+    _worldPacket >> Unk;
+    _worldPacket >> LevelMax >> LevelMin;
+    _worldPacket >> Quality;
+    _worldPacket >> AuctionSubCategory;
+    _worldPacket >> SortCount;
+
+    for (uint32 i = 0; i < SortCount / 2; ++i)
+    {
+        uint8 column, reversed;
+        _worldPacket >> column >> reversed;
+        SortOrder.push_back(reversed ? -(column + 1) : (column + 1));
+    }
+
+    Auctioneer[3] = _worldPacket.ReadBit();
+    Auctioneer[4] = _worldPacket.ReadBit();
+    Auctioneer[5] = _worldPacket.ReadBit();
+    Auctioneer[2] = _worldPacket.ReadBit();
+    GetAll = _worldPacket.ReadBit();
+    UsableItems = _worldPacket.ReadBit();
+    Auctioneer[7] = _worldPacket.ReadBit();
+    Auctioneer[0] = _worldPacket.ReadBit();
+    SearchStringLen = _worldPacket.ReadBits(8);
+    Auctioneer[1] = _worldPacket.ReadBit();
+    Auctioneer[6] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(Auctioneer[6]);
+    _worldPacket.ReadByteSeq(Auctioneer[3]);
+    _worldPacket.ReadByteSeq(Auctioneer[4]);
+    _worldPacket.ReadByteSeq(Auctioneer[0]);
+    _worldPacket.ReadByteSeq(Auctioneer[7]);
+    _worldPacket.ReadByteSeq(Auctioneer[2]);
+    SearchedName = _worldPacket.ReadString(SearchStringLen);
+    _worldPacket.ReadByteSeq(Auctioneer[1]);
+    _worldPacket.ReadByteSeq(Auctioneer[5]);
+}
+
+void WorldPackets::AuctionHouse::AuctionListPendingSales::Read()
+{
+}
+
 WorldPacket const* WorldPackets::AuctionHouse::AuctionReplicateResponse::Write()
 {
     ByteBuffer dataBuffer;

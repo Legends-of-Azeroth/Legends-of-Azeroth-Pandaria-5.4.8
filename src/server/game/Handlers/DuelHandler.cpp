@@ -27,27 +27,9 @@
 #define SPELL_DUEL         7266
 #define SPELL_MOUNTED_DUEL 62875
 
-void WorldSession::HandleDuelProposedOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleDuelProposedOpcode(WorldPackets::Duel::CanDuel& packet)
 {
-    ObjectGuid guid;
-
-    guid[1] = recvPacket.ReadBit();
-    guid[5] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
-    guid[3] = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-    guid[7] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
-
-    recvPacket.ReadByteSeq(guid[4]);
-    recvPacket.ReadByteSeq(guid[2]);
-    recvPacket.ReadByteSeq(guid[5]);
-    recvPacket.ReadByteSeq(guid[7]);
-    recvPacket.ReadByteSeq(guid[1]);
-    recvPacket.ReadByteSeq(guid[3]);
-    recvPacket.ReadByteSeq(guid[6]);
-    recvPacket.ReadByteSeq(guid[0]);
+    ObjectGuid const guid = packet.TargetGUID;
 
     if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
@@ -58,31 +40,11 @@ void WorldSession::HandleDuelProposedOpcode(WorldPacket& recvPacket)
     }
 }
 
-void WorldSession::HandleDuelResponseOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleDuelResponseOpcode(WorldPackets::Duel::DuelResponse& packet)
 {
-    bool accepted;
-    ObjectGuid guid;
+    bool const accepted = packet.Accepted;
     Player* player;
     Player* plTarget;
-
-    guid[7] = recvPacket.ReadBit();
-    guid[1] = recvPacket.ReadBit();
-    guid[3] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
-    accepted = recvPacket.ReadBit();
-    guid[5] = recvPacket.ReadBit();
-
-    recvPacket.ReadByteSeq(guid[6]);
-    recvPacket.ReadByteSeq(guid[4]);
-    recvPacket.ReadByteSeq(guid[5]);
-    recvPacket.ReadByteSeq(guid[0]);
-    recvPacket.ReadByteSeq(guid[1]);
-    recvPacket.ReadByteSeq(guid[2]);
-    recvPacket.ReadByteSeq(guid[7]);
-    recvPacket.ReadByteSeq(guid[3]);
 
     if (!GetPlayer()->duel)                                  // ignore accept from duel-sender
         return;

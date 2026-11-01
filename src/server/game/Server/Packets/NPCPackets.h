@@ -25,16 +25,6 @@ namespace WorldPackets
 {
     namespace NPC
     {
-        class BankerActivate final : public ClientPacket
-        {
-        public:
-            BankerActivate(WorldPacket&& packet) : ClientPacket(CMSG_BANKER_ACTIVATE, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid Unit;
-        };
-
         class BinderActivate final : public ClientPacket
         {
         public:
@@ -85,6 +75,48 @@ namespace WorldPackets
             uint32 SpellID = 0;
             uint32 TrainerID = 0;
             ObjectGuid TrainerGUID;
+        };
+
+        class TabardVendorActivate final : public ClientPacket
+        {
+        public:
+            TabardVendorActivate(WorldPacket&& packet) : ClientPacket(CMSG_TABARD_VENDOR_ACTIVATE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Unit;
+        };
+
+        class SpiritHealerActivate final : public ClientPacket
+        {
+        public:
+            SpiritHealerActivate(WorldPacket&& packet) : ClientPacket(CMSG_SPIRIT_HEALER_ACTIVATE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Unit;
+        };
+
+        class ListPets final : public ClientPacket
+        {
+        public:
+            ListPets(WorldPacket&& packet) : ClientPacket(CMSG_LIST_PETS, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Unit;
+        };
+
+        class SetPetSlot final : public ClientPacket
+        {
+        public:
+            SetPetSlot(WorldPacket&& packet) : ClientPacket(CMSG_SET_PET_SLOT, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 OldPetId = 0;
+            int8 NewSlot = 0;
+            ObjectGuid Unit;
         };
     }
 }

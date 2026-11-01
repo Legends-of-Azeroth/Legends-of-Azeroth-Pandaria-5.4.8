@@ -108,19 +108,19 @@ void WorldSession::HandleLfgLeaveOpcode(WorldPackets::LFG::LFGLeave& packet)
         sLFGMgr->LeaveLfg(gguid, queueId);
 }
 
-void WorldSession::HandleLfgProposalResultOpcode(WorldPackets::LFG::LFGProposalResult& packet)
+void WorldSession::HandleLfgProposalResultOpcode(WorldPackets::LFG::DFProposalResponse& packet)
 {
-    uint32 proposalID = packet.ProposalId;
-    bool accept = packet.Accept;
+    uint32 proposalID = packet.ProposalID;
+    bool accept = packet.Accepted;
 
     TC_LOG_DEBUG("network", "CMSG_LFG_PROPOSAL_RESULT {} proposal: {} accept: {}",
         GetPlayerInfo().c_str(), proposalID, accept ? 1 : 0);
     sLFGMgr->UpdateProposal(proposalID, GetPlayer()->GetGUID(), accept);
 }
 
-void WorldSession::HandleLfgSetRolesOpcode(WorldPackets::LFG::LFGSetRoles& packet)
+void WorldSession::HandleLfgSetRolesOpcode(WorldPackets::LFG::DFSetRoles& packet)
 {
-    uint32 roles = packet.Roles;
+    uint32 roles = packet.RolesDesired;
     ObjectGuid guid = GetPlayer()->GetGUID();
     Group* group = GetPlayer()->GetGroup();
     if (!group)
@@ -135,9 +135,9 @@ void WorldSession::HandleLfgSetRolesOpcode(WorldPackets::LFG::LFGSetRoles& packe
     sLFGMgr->UpdateRoleCheck(gguid, guid, roles);
 }
 
-void WorldSession::HandleLfgSetBootVoteOpcode(WorldPackets::LFG::LFGSetBootVote& packet)
+void WorldSession::HandleLfgSetBootVoteOpcode(WorldPackets::LFG::DFBootPlayerVote& packet)
 {
-    bool agree = packet.Agree;                              // Agree to kick player
+    bool agree = packet.Vote;                               // Agree to kick player
 
     ObjectGuid guid = GetPlayer()->GetGUID();
     TC_LOG_DEBUG("network", "CMSG_LFG_SET_BOOT_VOTE {} agree: {}",
@@ -145,18 +145,18 @@ void WorldSession::HandleLfgSetBootVoteOpcode(WorldPackets::LFG::LFGSetBootVote&
     sLFGMgr->UpdateBoot(guid, agree);
 }
 
-void WorldSession::HandleLfgTeleportOpcode(WorldPackets::LFG::LFGTeleport& packet)
+void WorldSession::HandleLfgTeleportOpcode(WorldPackets::LFG::DFTeleport& packet)
 {
-    bool out = packet.Out;
+    bool out = packet.TeleportOut;
 
     TC_LOG_DEBUG("network", "CMSG_LFG_TELEPORT {} out: {}",
         GetPlayerInfo().c_str(), out ? 1 : 0);
     sLFGMgr->TeleportPlayer(GetPlayer(), out, true);
 }
 
-void WorldSession::HandleLfgGetLockInfoOpcode(WorldPackets::LFG::LFGGetLockInfo& packet)
+void WorldSession::HandleLfgGetLockInfoOpcode(WorldPackets::LFG::DFGetSystemInfo& packet)
 {
-    bool forPlayer = packet.ForPlayer;
+    bool forPlayer = packet.Player;
     TC_LOG_DEBUG("network", "CMSG_LFG_LOCK_INFO_REQUEST {} for {}", GetPlayerInfo().c_str(), (forPlayer ? "player" : "party"));
 
     if (forPlayer)
@@ -512,7 +512,7 @@ void WorldSession::HandleLfrLeaveOpcode(WorldPacket& recvData)
     //sLFGMgr->LeaveLfr(GetPlayer(), dungeonId);
 }
 
-void WorldSession::HandleLfgGetStatus(WorldPackets::LFG::LFGGetStatus& /*packet*/)
+void WorldSession::HandleLfgGetStatus(WorldPackets::LFG::DFGetJoinStatus& /*packet*/)
 {
     TC_LOG_DEBUG("network", "CMSG_LFG_GET_STATUS {}", GetPlayerInfo().c_str());
 

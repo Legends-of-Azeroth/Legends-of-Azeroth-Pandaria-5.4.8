@@ -24,7 +24,7 @@
 #include "SpellHistory.h"
 #include "Realm.h"
 
-void WorldSession::HandleGetChallengeModeRewards(WorldPacket& /*recvData*/)
+void WorldSession::HandleGetChallengeModeRewards(WorldPackets::ChallengeMode::GetChallengeModeRewards& /*packet*/)
 {
     ByteBuffer buffer;
     WorldPacket data(SMSG_CHALLENGE_MODE_REWARDS);
@@ -62,11 +62,9 @@ void WorldSession::HandleGetChallengeModeRewards(WorldPacket& /*recvData*/)
     SendPacket(&data);
 }
 
-void WorldSession::HandleChallengeModeRequestLeaders(WorldPacket& recvData)
+void WorldSession::HandleChallengeModeRequestLeaders(WorldPackets::ChallengeMode::ChallengeModeRequestLeaders& packet)
 {
-    uint32 mapId = recvData.read<uint32>();
-    recvData.read_skip<uint32>(); // Last Guild update
-    recvData.read_skip<uint32>(); // Last Realm update
+    uint32 mapId = packet.MapId;
 
     RealmCompletedChallenge* groupChallenge = sObjectMgr->GetGroupCompletedChallengeForMap(mapId);
     RealmCompletedChallenge* guildChallenge = sObjectMgr->GetGuildCompletedChallengeForMap(mapId);
@@ -178,7 +176,7 @@ void WorldSession::HandleChallengeModeRequestLeaders(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleChallengeModeRequestMapStats(WorldPacket& /*recvData*/)
+void WorldSession::HandleChallengeModeRequestMapStats(WorldPackets::ChallengeMode::ChallengeModeRequestMapStats& /*packet*/)
 {
     uint32 mapsCount = _player->GetCompletedChallenges().size();
 
@@ -261,7 +259,7 @@ struct CooldownResetPredicate
     }
 };
 
-void WorldSession::HandleResetChallengeMode(WorldPacket& /*recvData*/)
+void WorldSession::HandleResetChallengeMode(WorldPackets::ChallengeMode::ResetChallengeMode& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_RESET_CHALLENGE_MODE");
 

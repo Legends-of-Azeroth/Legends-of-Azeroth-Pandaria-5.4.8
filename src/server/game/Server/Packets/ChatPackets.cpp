@@ -46,25 +46,25 @@ void WorldPackets::Chat::CTextEmote::Read()
     _worldPacket.ReadByteSeq(Target[6]);
 }
 
-void WorldPackets::Chat::ChatIgnored::Read()
+void WorldPackets::Chat::ChatReportIgnored::Read()
 {
-    _worldPacket >> Unk;
+    _worldPacket >> Reason;
 
-    Target[5] = _worldPacket.ReadBit();
-    Target[0] = _worldPacket.ReadBit();
-    Target[1] = _worldPacket.ReadBit();
-    Target[3] = _worldPacket.ReadBit();
-    Target[6] = _worldPacket.ReadBit();
-    Target[7] = _worldPacket.ReadBit();
-    Target[4] = _worldPacket.ReadBit();
-    Target[2] = _worldPacket.ReadBit();
+    IgnoredGUID[5] = _worldPacket.ReadBit();
+    IgnoredGUID[0] = _worldPacket.ReadBit();
+    IgnoredGUID[1] = _worldPacket.ReadBit();
+    IgnoredGUID[3] = _worldPacket.ReadBit();
+    IgnoredGUID[6] = _worldPacket.ReadBit();
+    IgnoredGUID[7] = _worldPacket.ReadBit();
+    IgnoredGUID[4] = _worldPacket.ReadBit();
+    IgnoredGUID[2] = _worldPacket.ReadBit();
 
-    _worldPacket.ReadByteSeq(Target[2]);
-    _worldPacket.ReadByteSeq(Target[0]);
-    _worldPacket.ReadByteSeq(Target[3]);
-    _worldPacket.ReadByteSeq(Target[4]);
-    _worldPacket.ReadByteSeq(Target[7]);
-    _worldPacket.ReadByteSeq(Target[6]);
-    _worldPacket.ReadByteSeq(Target[1]);
-    _worldPacket.ReadByteSeq(Target[5]);
+    _worldPacket.ReadByteSeq(IgnoredGUID[2]);
+    _worldPacket.ReadByteSeq(IgnoredGUID[0]);
+    _worldPacket.ReadByteSeq(IgnoredGUID[3]);
+    _worldPacket.ReadByteSeq(IgnoredGUID[4]);
+    _worldPacket.ReadByteSeq(IgnoredGUID[7]);
+    _worldPacket.ReadByteSeq(IgnoredGUID[6]);
+    _worldPacket.ReadByteSeq(IgnoredGUID[1]);
+    _worldPacket.ReadByteSeq(IgnoredGUID[5]);
 }

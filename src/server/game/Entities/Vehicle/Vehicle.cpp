@@ -638,7 +638,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         unit->SetDisableGravity(true);
 
     unit->SendClearTarget();                            // SMSG_BREAK_TARGET
-    unit->SetControlled(true, UNIT_STATE_ROOT);         // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
+    unit->SetControlled(true, UNIT_STATE_ROOT);         // SMSG_FORCE_ROOT - In some cases we send SMSG_MOVE_SPLINE_ROOT here (for creatures)
                                                         // also adds MOVEMENTFLAG_ROOT
 
     Movement::MoveSplineInit init(unit);

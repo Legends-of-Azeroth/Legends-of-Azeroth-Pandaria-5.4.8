@@ -50,61 +50,61 @@ namespace WorldPackets
             ObjectGuid LeaveGuid;
         };
 
-        class LFGProposalResult final : public ClientPacket
+        class DFProposalResponse final : public ClientPacket
         {
         public:
-            LFGProposalResult(WorldPacket&& packet) : ClientPacket(CMSG_LFG_PROPOSAL_RESULT, std::move(packet)) { }
+            DFProposalResponse(WorldPacket&& packet) : ClientPacket(CMSG_LFG_PROPOSAL_RESULT, std::move(packet)) { }
 
             void Read() override;
 
-            uint32 ProposalId = 0;
-            bool Accept = false;
+            uint32 ProposalID = 0;
+            bool Accepted = false;
         };
 
-        class LFGSetRoles final : public ClientPacket
+        class DFSetRoles final : public ClientPacket
         {
         public:
-            LFGSetRoles(WorldPacket&& packet) : ClientPacket(CMSG_LFG_SET_ROLES, std::move(packet)) { }
+            DFSetRoles(WorldPacket&& packet) : ClientPacket(CMSG_LFG_SET_ROLES, std::move(packet)) { }
 
             void Read() override;
 
-            uint32 Roles = 0;
+            uint32 RolesDesired = 0;
         };
 
-        class LFGSetBootVote final : public ClientPacket
+        class DFBootPlayerVote final : public ClientPacket
         {
         public:
-            LFGSetBootVote(WorldPacket&& packet) : ClientPacket(CMSG_LFG_SET_BOOT_VOTE, std::move(packet)) { }
+            DFBootPlayerVote(WorldPacket&& packet) : ClientPacket(CMSG_LFG_SET_BOOT_VOTE, std::move(packet)) { }
 
             void Read() override;
 
-            bool Agree = false;
+            bool Vote = false;
         };
 
-        class LFGTeleport final : public ClientPacket
+        class DFTeleport final : public ClientPacket
         {
         public:
-            LFGTeleport(WorldPacket&& packet) : ClientPacket(CMSG_LFG_TELEPORT, std::move(packet)) { }
+            DFTeleport(WorldPacket&& packet) : ClientPacket(CMSG_LFG_TELEPORT, std::move(packet)) { }
 
             void Read() override;
 
-            bool Out = false;
+            bool TeleportOut = false;
         };
 
-        class LFGGetLockInfo final : public ClientPacket
+        class DFGetSystemInfo final : public ClientPacket
         {
         public:
-            LFGGetLockInfo(WorldPacket&& packet) : ClientPacket(CMSG_LFG_LOCK_INFO_REQUEST, std::move(packet)) { }
+            DFGetSystemInfo(WorldPacket&& packet) : ClientPacket(CMSG_LFG_LOCK_INFO_REQUEST, std::move(packet)) { }
 
             void Read() override;
 
-            bool ForPlayer = false;
+            bool Player = false;
         };
 
-        class LFGGetStatus final : public ClientPacket
+        class DFGetJoinStatus final : public ClientPacket
         {
         public:
-            LFGGetStatus(WorldPacket&& packet) : ClientPacket(CMSG_LFG_GET_STATUS, std::move(packet)) { }
+            DFGetJoinStatus(WorldPacket&& packet) : ClientPacket(CMSG_LFG_GET_STATUS, std::move(packet)) { }
 
             void Read() override { }
         };

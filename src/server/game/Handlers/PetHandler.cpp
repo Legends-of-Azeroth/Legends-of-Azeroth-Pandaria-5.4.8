@@ -37,27 +37,9 @@
 #include "SpellHistory.h"
 #include "MovementGenerator.h"
 
-void WorldSession::HandleDismissCritter(WorldPacket& recvData)
+void WorldSession::HandleDismissCritter(WorldPackets::Pet::DismissCritter& packet)
 {
-    ObjectGuid guid;
-
-    guid[4] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[6]);
+    ObjectGuid const guid = packet.Guid;
 
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_DISMISS_CRITTER for GUID " UI64FMTD, uint64(guid));
 
@@ -113,48 +95,14 @@ static bool ActAsMainPet(Unit const* summon, Unit const* mainpet, uint32 spellId
     return mainpet->GetEntry() == summon->GetEntry() && owner->GetClass() != CLASS_WARLOCK; // Prevent Grimoire of Serivce;
 }
 
-void WorldSession::HandlePetAction(WorldPacket& recvData) //  sub_68C8FD [5.4.8 18291]
+void WorldSession::HandlePetAction(WorldPackets::Pet::PetAction& packet) //  sub_68C8FD [5.4.8 18291]
 {
-    ObjectGuid petGUID, targetGUID;
-    uint32 Action;
-    float x, y, z;
-    recvData >> Action;
-
-    // Position
-    recvData >> y >> z >> x;
-    petGUID[1] = recvData.ReadBit();
-    petGUID[0] = recvData.ReadBit();
-    petGUID[6] = recvData.ReadBit();
-    petGUID[7] = recvData.ReadBit();
-    petGUID[5] = recvData.ReadBit();
-    targetGUID[7] = recvData.ReadBit();
-    petGUID[2] = recvData.ReadBit();
-    petGUID[3] = recvData.ReadBit();
-    targetGUID[6] = recvData.ReadBit();
-    targetGUID[3] = recvData.ReadBit();
-    targetGUID[0] = recvData.ReadBit();
-    targetGUID[2] = recvData.ReadBit();
-    targetGUID[5] = recvData.ReadBit();
-    petGUID[4] = recvData.ReadBit();
-    targetGUID[4] = recvData.ReadBit();
-    targetGUID[1] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(petGUID[7]);
-    recvData.ReadByteSeq(petGUID[6]);
-    recvData.ReadByteSeq(petGUID[1]);
-    recvData.ReadByteSeq(petGUID[2]);
-    recvData.ReadByteSeq(petGUID[5]);
-    recvData.ReadByteSeq(petGUID[4]);
-    recvData.ReadByteSeq(targetGUID[5]);
-    recvData.ReadByteSeq(petGUID[3]);
-    recvData.ReadByteSeq(targetGUID[0]);
-    recvData.ReadByteSeq(targetGUID[1]);
-    recvData.ReadByteSeq(targetGUID[7]);
-    recvData.ReadByteSeq(targetGUID[4]);
-    recvData.ReadByteSeq(targetGUID[6]);
-    recvData.ReadByteSeq(targetGUID[2]);
-    recvData.ReadByteSeq(targetGUID[3]);
-    recvData.ReadByteSeq(petGUID[0]);
+    ObjectGuid const petGUID = packet.PetGUID;
+    ObjectGuid const targetGUID = packet.TargetGUID;
+    uint32 const Action = packet.Action;
+    float const x = packet.X;
+    float const y = packet.Y;
+    float const z = packet.Z;
 
     uint32 spellID = UNIT_ACTION_BUTTON_ACTION(Action);
     uint8 flag = UNIT_ACTION_BUTTON_TYPE(Action);             //delete = 0x07 CastSpell = C1
@@ -202,27 +150,9 @@ void WorldSession::HandlePetAction(WorldPacket& recvData) //  sub_68C8FD [5.4.8 
     }
 }
 
-void WorldSession::HandlePetStopAttack(WorldPacket &recvData)
+void WorldSession::HandlePetStopAttack(WorldPackets::Pet::PetStopAttack& packet)
 {
-    ObjectGuid guid;
-
-    guid[7] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[3]);
+    ObjectGuid const guid = packet.PetGUID;
 
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_PET_STOP_ATTACK for GUID " "{}" "", (uint64)guid);
 
@@ -608,48 +538,11 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
     }
 }
 
-void WorldSession::HandlePetNameQuery(WorldPacket& recvData)
+void WorldSession::HandlePetNameQuery(WorldPackets::Pet::PetNameQuery& packet)
 {
-    TC_LOG_INFO("network", "HandlePetNameQuery. CMSG_PET_NAME_QUERY");
+    TC_LOG_INFO("network", "HandlePetNameQuery. CMSG_QUERY_PET_NAME");
 
-    ObjectGuid petGuid;
-    ObjectGuid petNumber;
-
-    petNumber[0] = recvData.ReadBit();
-    petNumber[5] = recvData.ReadBit();
-    petGuid[1] = recvData.ReadBit();
-    petGuid[7] = recvData.ReadBit();
-    petNumber[7] = recvData.ReadBit();
-    petGuid[6] = recvData.ReadBit();
-    petGuid[4] = recvData.ReadBit();
-    petGuid[5] = recvData.ReadBit();
-    petGuid[0] = recvData.ReadBit();
-    petNumber[3] = recvData.ReadBit();
-    petNumber[6] = recvData.ReadBit();
-    petNumber[2] = recvData.ReadBit();
-    petGuid[3] = recvData.ReadBit();
-    petGuid[2] = recvData.ReadBit();
-    petNumber[1] = recvData.ReadBit();
-    petNumber[4] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(petNumber[2]);
-    recvData.ReadByteSeq(petNumber[1]);
-    recvData.ReadByteSeq(petNumber[0]);
-    recvData.ReadByteSeq(petNumber[7]);
-    recvData.ReadByteSeq(petGuid[5]);
-    recvData.ReadByteSeq(petGuid[0]);
-    recvData.ReadByteSeq(petNumber[6]);
-    recvData.ReadByteSeq(petGuid[4]);
-    recvData.ReadByteSeq(petNumber[5]);
-    recvData.ReadByteSeq(petGuid[2]);
-    recvData.ReadByteSeq(petGuid[6]);
-    recvData.ReadByteSeq(petNumber[3]);
-    recvData.ReadByteSeq(petGuid[3]);
-    recvData.ReadByteSeq(petNumber[4]);
-    recvData.ReadByteSeq(petGuid[1]);
-    recvData.ReadByteSeq(petGuid[7]);
-
-    SendPetNameQuery(petGuid, petNumber);
+    SendPetNameQuery(packet.PetGuid, packet.PetNumber);
 }
 
 void WorldSession::SendPetNameQuery(ObjectGuid petGuid, uint64 petNumber)
@@ -657,7 +550,7 @@ void WorldSession::SendPetNameQuery(ObjectGuid petGuid, uint64 petNumber)
     Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, petGuid);
     if (!pet)
     {
-        WorldPacket data(SMSG_PET_NAME_QUERY_RESPONSE, (8 + 1));
+        WorldPacket data(SMSG_QUERY_PET_NAME_RESPONSE, (8 + 1));
         data.WriteBit(0);
         data.FlushBits();
         data << uint64(petNumber);
@@ -666,7 +559,7 @@ void WorldSession::SendPetNameQuery(ObjectGuid petGuid, uint64 petNumber)
         return;
     }
 
-    WorldPacket data(SMSG_PET_NAME_QUERY_RESPONSE, (8 + 1 + 1 + 5 + pet->GetName().size() + 4));
+    WorldPacket data(SMSG_QUERY_PET_NAME_RESPONSE, (8 + 1 + 1 + 5 + pet->GetName().size() + 4));
     data.WriteBit(1);                               // has data
 
     bool declinedNames = pet->IsPet() && ((Pet*)pet)->GetDeclinedNames();
@@ -717,32 +610,13 @@ bool WorldSession::CheckStableMaster(ObjectGuid guid)
     return true;
 }
 
-void WorldSession::HandlePetSetAction(WorldPacket& recvData)
+void WorldSession::HandlePetSetAction(WorldPackets::Pet::PetSetAction& packet)
 {
     TC_LOG_INFO("network", "HandlePetSetAction. CMSG_PET_SET_ACTION");
 
-    ObjectGuid petguid;
-    uint32 position;
-    uint32 data;
-    bool move_command = false;
-
-    recvData >> position >> data;
-    petguid[1] = recvData.ReadBit();
-    petguid[0] = recvData.ReadBit();
-    petguid[5] = recvData.ReadBit();
-    petguid[3] = recvData.ReadBit();
-    petguid[2] = recvData.ReadBit();
-    petguid[7] = recvData.ReadBit();
-    petguid[6] = recvData.ReadBit();
-    petguid[4] = recvData.ReadBit();
-    recvData.ReadByteSeq(petguid[5]);
-    recvData.ReadByteSeq(petguid[6]);
-    recvData.ReadByteSeq(petguid[7]);
-    recvData.ReadByteSeq(petguid[3]);
-    recvData.ReadByteSeq(petguid[2]);
-    recvData.ReadByteSeq(petguid[1]);
-    recvData.ReadByteSeq(petguid[4]);
-    recvData.ReadByteSeq(petguid[0]);
+    ObjectGuid const petguid = packet.PetGUID;
+    uint32 const position = packet.Index;
+    uint32 const data = packet.Action;
 
     Unit* pet = ObjectAccessor::GetUnit(*_player, petguid);
 
@@ -816,30 +690,15 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandlePetRename(WorldPacket& recvData)
+void WorldSession::HandlePetRename(WorldPackets::Pet::PetRename& packet)
 {
     TC_LOG_INFO("network", "HandlePetRename. CMSG_PET_RENAME");
 
-    std::string name;
+    std::string const name = packet.Name;
     DeclinedName declinedname;
-    uint32 petNumber;
-    uint8 declineNameLenght[MAX_DECLINED_NAME_CASES] = { 0, 0, 0, 0, 0 };
-    uint8 nameLenght = 0;
-
-    recvData >> petNumber;
-
-    bool hasName = !recvData.ReadBit();
-    bool isdeclined = recvData.ReadBit();
-
-    if (isdeclined)
-        for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            declineNameLenght[i] = recvData.ReadBits(7);
-
-    if (hasName)
-        nameLenght = recvData.ReadBits(8);
-
-    if (hasName)
-        name = recvData.ReadString(nameLenght);
+    if (packet.IsDeclined)
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            declinedname.name[i] = packet.DeclinedNames[i];
 
     Pet* pet = GetPlayer()->GetPet();
 
@@ -870,13 +729,8 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
 
     pet->RemoveByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED);
 
-    if (isdeclined)
+    if (packet.IsDeclined)
     {
-        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-        {
-            declinedname.name[i] = recvData.ReadString(declineNameLenght[i]);
-        }
-
         if (!ObjectMgr::CheckDeclinedNames(name, declinedname))
         {
             SendPetNameInvalid(PET_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME, name, &declinedname);
@@ -885,7 +739,7 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
     }
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-    if (isdeclined)
+    if (packet.IsDeclined)
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_DECLINEDNAME);
         stmt->setUInt32(0, pet->GetCharmInfo()->GetPetNumber());
@@ -911,27 +765,9 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
     pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped
 }
 
-void WorldSession::HandlePetAbandon(WorldPacket& recvData)
+void WorldSession::HandlePetAbandon(WorldPackets::Pet::PetAbandon& packet)
 {
-    ObjectGuid guid;
-
-    guid[7] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[3]);
+    ObjectGuid const guid = packet.Pet;
 
     TC_LOG_INFO("network", "HandlePetAbandon. CMSG_PET_ABANDON pet guid is {}", guid.GetCounter());
 
@@ -956,33 +792,12 @@ void WorldSession::HandlePetAbandon(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
+void WorldSession::HandlePetSpellAutocastOpcode(WorldPackets::Pet::PetSpellAutocast& packet)
 {
     TC_LOG_INFO("network", "CMSG_PET_SPELL_AUTOCAST");
-    ObjectGuid PetGUID;
-    uint32 SpellID;
-
-    recvPacket >> SpellID;
-
-    PetGUID[0] = recvPacket.ReadBit();
-    PetGUID[4] = recvPacket.ReadBit();
-    PetGUID[2] = recvPacket.ReadBit();
-    PetGUID[6] = recvPacket.ReadBit();
-    PetGUID[1] = recvPacket.ReadBit();
-    PetGUID[5] = recvPacket.ReadBit();
-    PetGUID[3] = recvPacket.ReadBit();
-    PetGUID[7] = recvPacket.ReadBit();
-
-    bool State = recvPacket.ReadBit();
-
-    recvPacket.ReadByteSeq(PetGUID[5]);
-    recvPacket.ReadByteSeq(PetGUID[0]);
-    recvPacket.ReadByteSeq(PetGUID[4]);
-    recvPacket.ReadByteSeq(PetGUID[1]);
-    recvPacket.ReadByteSeq(PetGUID[7]);
-    recvPacket.ReadByteSeq(PetGUID[2]);
-    recvPacket.ReadByteSeq(PetGUID[3]);
-    recvPacket.ReadByteSeq(PetGUID[6]);
+    ObjectGuid const PetGUID = packet.PetGUID;
+    uint32 const SpellID = packet.SpellID;
+    bool const State = packet.AutocastEnabled;
 
     if (!_player->GetGuardianPet() && !_player->GetCharm())
         return;
@@ -1018,327 +833,23 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
     charmInfo->SetSpellAutocast(spellInfo, State);
 }
 
-void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
+void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Pet::PetCastSpell& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_PET_CAST_SPELL");
 
-    uint8 castCount;
-    uint32 spellId;
-    uint8 castFlags;
-
-    ObjectGuid targetGUID;
-    ObjectGuid transportDstGUID;
-    ObjectGuid itemGUID;
-    ObjectGuid transportSrcGUID;
-    ObjectGuid petGuid;
-    ObjectGuid transportGUID;
-    ObjectGuid guid20;
-
-    bool bit388 = false;
-    bool bit389 = false;
-    bool bit412 = false;
-    bool hasUnkMovementField = false;
-    bool hasTransport = false;
-    bool hasTransportTime2 = false;
-    bool hasTransportTime3 = false;
-    bool hasMovementFlags = false;
-    bool hasMovementFlags2 = false;
-    bool hasFallDirection = false;
-    bool hasFallData = false;
-    bool hasPitch = false;
-    bool hasOrientation = false;
-    bool hasSplineElevation = false;
-    bool hasTimestamp = false;
-
-    uint32 targetStrLenght = 0;
-    uint32 movementForcesCount = 0;
-    uint32 archeologyCount = 0;
-    uint32 targetFlags = 0;
-
-    WorldLocation dstLoc, srcLoc;
-
-    float missileSpeed = 0.0f;
-    float elevation = 0.0f;
-
-    bool hasDestLocation = recvPacket.ReadBit();
-    petGuid[7] = recvPacket.ReadBit();
-    bool hasMissileSpeed = !recvPacket.ReadBit();
-    bool hasSrcLocation = recvPacket.ReadBit();
-    petGuid[1] = recvPacket.ReadBit();
-    archeologyCount = recvPacket.ReadBits(2);
-    bool hasTargetMask = !recvPacket.ReadBit();
-    petGuid[4] = recvPacket.ReadBit();
-    recvPacket.ReadBit();
-    petGuid[6] = recvPacket.ReadBit();
-    bool hasTargetString = !recvPacket.ReadBit();
-    recvPacket.ReadBit();
-    bool hasMovement = recvPacket.ReadBit();
-    bool hasCastFlags = !recvPacket.ReadBit();
-    bool hasSpellId = !recvPacket.ReadBit();
-    petGuid[0] = recvPacket.ReadBit();
-    petGuid[5] = recvPacket.ReadBit();
-    petGuid[2] = recvPacket.ReadBit();
-    for (uint32 i = 0; i < archeologyCount; ++i)
-        recvPacket.ReadBits(2);                            // archeologyType
-    petGuid[3] = recvPacket.ReadBit();
-    bool hasGlyphIndex = !recvPacket.ReadBit();
-    bool hasCastCount = !recvPacket.ReadBit();
-    bool hasElevation = !recvPacket.ReadBit();
-
-    if (hasMovement)
-    {
-        hasOrientation = !recvPacket.ReadBit();
-        hasSplineElevation = !recvPacket.ReadBit();
-        bit388 = recvPacket.ReadBit();
-        guid20[5] = recvPacket.ReadBit();
-        guid20[7] = recvPacket.ReadBit();
-        hasMovementFlags2 = !recvPacket.ReadBit();
-        hasTimestamp = !recvPacket.ReadBit();
-        hasFallData = recvPacket.ReadBit();
-        hasMovementFlags = !recvPacket.ReadBit();
-        hasUnkMovementField = !recvPacket.ReadBit();
-
-        if (hasMovementFlags)
-            recvPacket.ReadBits(30);                       // Movement Flags
-
-        bit389 = recvPacket.ReadBit();
-        guid20[6] = recvPacket.ReadBit();
-        hasTransport = recvPacket.ReadBit();
-        guid20[0] = recvPacket.ReadBit();
-        movementForcesCount = recvPacket.ReadBits(22);
-
-        if (hasTransport)
-        {
-            hasTransportTime2 = recvPacket.ReadBit();
-            hasTransportTime3 = recvPacket.ReadBit();
-            transportGUID[5] = recvPacket.ReadBit();
-            transportGUID[6] = recvPacket.ReadBit();
-            transportGUID[4] = recvPacket.ReadBit();
-            transportGUID[0] = recvPacket.ReadBit();
-            transportGUID[1] = recvPacket.ReadBit();
-            transportGUID[2] = recvPacket.ReadBit();
-            transportGUID[7] = recvPacket.ReadBit();
-            transportGUID[3] = recvPacket.ReadBit();
-        }
-
-        guid20[1] = recvPacket.ReadBit();
-
-        if (hasMovementFlags2)
-            recvPacket.ReadBits(13);                       // Movement Flags 2
-
-        guid20[3] = recvPacket.ReadBit();
-        guid20[2] = recvPacket.ReadBit();
-        bit412 = recvPacket.ReadBit();
-        hasPitch = !recvPacket.ReadBit();
-        guid20[4] = recvPacket.ReadBit();
-
-        if (hasFallData)
-            hasFallDirection = recvPacket.ReadBit();
-    }
-
-    if (hasDestLocation)
-    {
-        transportDstGUID[2] = recvPacket.ReadBit();
-        transportDstGUID[0] = recvPacket.ReadBit();
-        transportDstGUID[1] = recvPacket.ReadBit();
-        transportDstGUID[4] = recvPacket.ReadBit();
-        transportDstGUID[5] = recvPacket.ReadBit();
-        transportDstGUID[6] = recvPacket.ReadBit();
-        transportDstGUID[3] = recvPacket.ReadBit();
-        transportDstGUID[7] = recvPacket.ReadBit();
-    }
-
-    if (hasCastFlags)
-        castFlags = recvPacket.ReadBits(5);                // Cast Flags
-
-    itemGUID[2] = recvPacket.ReadBit();
-    itemGUID[4] = recvPacket.ReadBit();
-    itemGUID[7] = recvPacket.ReadBit();
-    itemGUID[0] = recvPacket.ReadBit();
-    itemGUID[6] = recvPacket.ReadBit();
-    itemGUID[1] = recvPacket.ReadBit();
-    itemGUID[5] = recvPacket.ReadBit();
-    itemGUID[3] = recvPacket.ReadBit();
-
-    if (hasTargetMask)
-        targetFlags = recvPacket.ReadBits(20);             // Target Flags
-
-    if (hasTargetString)
-        targetStrLenght = recvPacket.ReadBits(7);          // Target String
-
-    if (hasSrcLocation)
-    {
-        transportSrcGUID[2] = recvPacket.ReadBit();
-        transportSrcGUID[0] = recvPacket.ReadBit();
-        transportSrcGUID[3] = recvPacket.ReadBit();
-        transportSrcGUID[1] = recvPacket.ReadBit();
-        transportSrcGUID[6] = recvPacket.ReadBit();
-        transportSrcGUID[7] = recvPacket.ReadBit();
-        transportSrcGUID[4] = recvPacket.ReadBit();
-        transportSrcGUID[5] = recvPacket.ReadBit();
-    }
-
-    targetGUID[6] = recvPacket.ReadBit();
-    targetGUID[0] = recvPacket.ReadBit();
-    targetGUID[3] = recvPacket.ReadBit();
-    targetGUID[4] = recvPacket.ReadBit();
-    targetGUID[2] = recvPacket.ReadBit();
-    targetGUID[1] = recvPacket.ReadBit();
-    targetGUID[5] = recvPacket.ReadBit();
-    targetGUID[7] = recvPacket.ReadBit();
-
-    recvPacket.ReadByteSeq(petGuid[2]);
-    recvPacket.ReadByteSeq(petGuid[6]);
-    recvPacket.ReadByteSeq(petGuid[3]);
-
-    for (uint32 i = 0; i < archeologyCount; ++i)
-    {
-        recvPacket.read_skip<uint32>();                    // unk1
-        recvPacket.read_skip<uint32>();                    // unk2
-    }
-    recvPacket.ReadByteSeq(petGuid[1]);
-    recvPacket.ReadByteSeq(petGuid[7]);
-    recvPacket.ReadByteSeq(petGuid[0]);
-    recvPacket.ReadByteSeq(petGuid[4]);
-    recvPacket.ReadByteSeq(petGuid[5]);
-
-    if (hasDestLocation)
-    {
-        recvPacket.ReadByteSeq(transportDstGUID[4]);
-        recvPacket.ReadByteSeq(transportDstGUID[1]);
-        recvPacket.ReadByteSeq(transportDstGUID[7]);
-        dstLoc.m_positionZ = recvPacket.read<float>();     // Position Z
-        dstLoc.m_positionY = recvPacket.read<float>();     // Position Y
-        recvPacket.ReadByteSeq(transportDstGUID[6]);
-        recvPacket.ReadByteSeq(transportDstGUID[3]);
-        dstLoc.m_positionX = recvPacket.read<float>();     // Position X
-        recvPacket.ReadByteSeq(transportDstGUID[2]);
-        recvPacket.ReadByteSeq(transportDstGUID[5]);
-        recvPacket.ReadByteSeq(transportDstGUID[0]);
-    }
-
-    if (hasMovement)
-    {
-        if (hasPitch)
-            recvPacket.read_skip<float>();                 // Pitch
-
-        if (hasTransport)
-        {
-            if (hasTransportTime3)
-                recvPacket.read_skip<int32>();             // Transport Time 3
-
-            if (hasTransportTime2)
-                recvPacket.read_skip<int32>();             // Transport Time 2
-
-            recvPacket.read_skip<uint8>();                 // Transport Seat
-            recvPacket.read_skip<float>();                 // Orientation
-            recvPacket.read_skip<float>();                 // Position Z
-            recvPacket.ReadByteSeq(transportGUID[2]);
-            recvPacket.read_skip<int32>();                 // Transport Time
-            recvPacket.ReadByteSeq(transportGUID[3]);
-            recvPacket.read_skip<float>();                 // Position X
-            recvPacket.ReadByteSeq(transportGUID[6]);
-            recvPacket.ReadByteSeq(transportGUID[5]);
-            recvPacket.ReadByteSeq(transportGUID[7]);
-            recvPacket.ReadByteSeq(transportGUID[0]);
-            recvPacket.read_skip<float>();                 // Position Y
-            recvPacket.ReadByteSeq(transportGUID[4]);
-            recvPacket.ReadByteSeq(transportGUID[1]);
-        }
-
-        if (hasUnkMovementField)
-            recvPacket.read_skip<int32>();
-
-        for (uint32 i = 0; i < movementForcesCount; ++i)
-            recvPacket.read_skip<uint32>();                // Movement Forces
-
-        recvPacket.ReadByteSeq(guid20[3]);
-
-        if (hasOrientation)
-            recvPacket.read_skip<float>();                 // Orientation
-
-        recvPacket.ReadByteSeq(guid20[5]);
-
-        if (hasFallData)
-        {
-            recvPacket.read_skip<float>();                 // Z Speed
-
-            if (hasFallDirection)
-            {
-                recvPacket.read_skip<float>();             // CosAngle
-                recvPacket.read_skip<float>();             // XY Speed
-                recvPacket.read_skip<float>();             // SinAngle
-            }
-            recvPacket.read_skip<int32>();                 // FallTime
-        }
-
-        if (hasTimestamp)
-            recvPacket.read_skip<int32>();                 // Timestamp
-
-        recvPacket.ReadByteSeq(guid20[6]);
-        recvPacket.read_skip<float>();                     // Position X
-        recvPacket.ReadByteSeq(guid20[1]);
-        recvPacket.read_skip<float>();                     // Position Z
-        recvPacket.ReadByteSeq(guid20[2]);
-        recvPacket.ReadByteSeq(guid20[7]);
-        recvPacket.ReadByteSeq(guid20[0]);
-        recvPacket.read_skip<float>();                     // Position Y
-        recvPacket.ReadByteSeq(guid20[4]);
-
-        if (hasSplineElevation)
-            recvPacket.read_skip<float>();                 // Spline Elevation
-    }
-
-    if (hasSrcLocation)
-    {
-        recvPacket.ReadByteSeq(transportSrcGUID[3]);
-        recvPacket.ReadByteSeq(transportSrcGUID[4]);
-        recvPacket.ReadByteSeq(transportSrcGUID[2]);
-        recvPacket.ReadByteSeq(transportSrcGUID[1]);
-        recvPacket.ReadByteSeq(transportSrcGUID[0]);
-        recvPacket.ReadByteSeq(transportSrcGUID[7]);
-        srcLoc.m_positionZ = recvPacket.read<float>();     // Position Z
-        recvPacket.ReadByteSeq(transportSrcGUID[6]);
-        recvPacket.ReadByteSeq(transportSrcGUID[5]);
-        srcLoc.m_positionX = recvPacket.read<float>();     // Position X
-        srcLoc.m_positionY = recvPacket.read<float>();     // Position Y
-    }
-
-    if (hasMissileSpeed)
-        missileSpeed = recvPacket.read<float>();           // missileSpeed
-
-    recvPacket.ReadByteSeq(itemGUID[1]);
-    recvPacket.ReadByteSeq(itemGUID[2]);
-    recvPacket.ReadByteSeq(itemGUID[5]);
-    recvPacket.ReadByteSeq(itemGUID[7]);
-    recvPacket.ReadByteSeq(itemGUID[4]);
-    recvPacket.ReadByteSeq(itemGUID[6]);
-    recvPacket.ReadByteSeq(itemGUID[3]);
-    recvPacket.ReadByteSeq(itemGUID[0]);
-
-    recvPacket.ReadByteSeq(targetGUID[1]);
-    recvPacket.ReadByteSeq(targetGUID[5]);
-    recvPacket.ReadByteSeq(targetGUID[7]);
-    recvPacket.ReadByteSeq(targetGUID[3]);
-    recvPacket.ReadByteSeq(targetGUID[0]);
-    recvPacket.ReadByteSeq(targetGUID[2]);
-    recvPacket.ReadByteSeq(targetGUID[4]);
-    recvPacket.ReadByteSeq(targetGUID[6]);
-
-    if (hasElevation)
-        elevation = recvPacket.read<float>();              // Elevation
-
-    if (hasCastCount)
-        castCount = recvPacket.read<uint8>();              // Cast Count
-
-    if (hasTargetString)
-        recvPacket.ReadString(targetStrLenght);
-
-    if (hasGlyphIndex)
-        recvPacket.read_skip<int32>();                     // Glyph Index
-
-    if (hasSpellId)
-        spellId = recvPacket.read<uint32>();
+    uint8 const castCount = packet.CastCount;
+    uint32 const spellId = packet.SpellId;
+    uint8 const castFlags = packet.CastFlags;
+    uint32 const targetFlags = packet.TargetFlags;
+    ObjectGuid const targetGUID = packet.TargetGuid;
+    ObjectGuid const itemGUID = packet.ItemGuid;
+    ObjectGuid const transportDstGUID = packet.TransportDstGuid;
+    ObjectGuid const transportSrcGUID = packet.TransportSrcGuid;
+    ObjectGuid const petGuid = packet.PetGuid;
+    WorldLocation const& dstLoc = packet.DstLoc;
+    WorldLocation const& srcLoc = packet.SrcLoc;
+    float const missileSpeed = packet.MissileSpeed;
+    float const elevation = packet.Elevation;
 
     TC_LOG_DEBUG("network", "WORLD: CMSG_PET_CAST_SPELL, guid: " "{}" ", castCount: {}, spellId {}, castFlags {}", uint64(petGuid), castCount, spellId, castFlags);
 
@@ -1458,28 +969,11 @@ void WorldSession::HandleLearnPreviewTalentsPet(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "CMSG_LEARN_PREVIEW_TALENTS_PET");
 }
 
-void WorldSession::HandleLearnPetSpecialization(WorldPacket& recvData)
+void WorldSession::HandleLearnPetSpecialization(WorldPackets::Pet::LearnPetSpecializationGroup& packet)
 {
     TC_LOG_DEBUG("network", "CMSG_LEARN_PET_SPECIALIZATION_GROUP");
 
-    ObjectGuid guid;
-    uint32 index = recvData.read<uint32>();
-    guid[5] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[1]);
+    uint32 const index = packet.Index;
 
     if (_player->GetClass() != CLASS_HUNTER || _player->IsInCombat())
         return;

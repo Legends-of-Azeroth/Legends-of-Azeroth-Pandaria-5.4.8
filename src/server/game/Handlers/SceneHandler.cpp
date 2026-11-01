@@ -19,27 +19,21 @@
 #include "WorldSession.h"
 #include "Player.h"
 
-void WorldSession::HandleSceneTriggerEvent(WorldPacket& recvData)
+void WorldSession::HandleSceneTriggerEvent(WorldPackets::Scene::SceneTriggerEvent& packet)
 {
-    recvData.ReadBit();
-    uint32 len = recvData.ReadBits(6);
-    std::string event = recvData.ReadString(len);
-    uint32 sceneInstanceID = recvData.read<uint32>();
+    std::string event = packet.Event;
+    uint32 sceneInstanceID = packet.SceneInstanceID;
     GetPlayer()->GetSceneMgr().OnSceneTrigger(sceneInstanceID, event);
 }
 
-void WorldSession::HandleScenePlaybackComplete(WorldPacket& recvData)
+void WorldSession::HandleScenePlaybackComplete(WorldPackets::Scene::ScenePlaybackComplete& packet)
 {
-    uint32 sceneInstanceID = 0;
-    if (!recvData.ReadBit())
-        recvData >> sceneInstanceID;
+    uint32 sceneInstanceID = packet.SceneInstanceID;
     GetPlayer()->GetSceneMgr().OnSceneComplete(sceneInstanceID);
 }
 
-void WorldSession::HandleScenePlaybackCanceled(WorldPacket& recvData)
+void WorldSession::HandleScenePlaybackCanceled(WorldPackets::Scene::ScenePlaybackCanceled& packet)
 {
-    uint32 sceneInstanceID = 0;
-    if (!recvData.ReadBit())
-        recvData >> sceneInstanceID;
+    uint32 sceneInstanceID = packet.SceneInstanceID;
     GetPlayer()->GetSceneMgr().OnSceneCancel(sceneInstanceID);
 }

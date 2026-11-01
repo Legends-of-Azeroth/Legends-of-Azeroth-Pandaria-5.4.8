@@ -16,6 +16,7 @@
 */
 
 #include "CharacterPackets.h"
+#include "World.h"
 
 void WorldPackets::Character::ShowingCloak::Read()
 {
@@ -85,7 +86,7 @@ void WorldPackets::Character::CharDelete::Read()
     _worldPacket.ReadByteSeq(Guid[5]);
 }
 
-void WorldPackets::Character::LoadScreen::Read()
+void WorldPackets::Character::LoadingScreenNotify::Read()
 {
     _worldPacket.read<uint32>();
     _worldPacket.ReadBit();
@@ -93,27 +94,22 @@ void WorldPackets::Character::LoadScreen::Read()
 
 void WorldPackets::Character::SetFactionAtWar::Read()
 {
-    _worldPacket >> FactionIndexId;
+    _worldPacket >> FactionIndex;
 }
 
 void WorldPackets::Character::SetFactionNotAtWar::Read()
 {
-    _worldPacket >> FactionIndexId;
-}
-
-void WorldPackets::Character::TutorialSetFlag::Read()
-{
-    _worldPacket >> Data;
+    _worldPacket >> FactionIndex;
 }
 
 void WorldPackets::Character::SetWatchedFaction::Read()
 {
-    _worldPacket >> Faction;
+    _worldPacket >> FactionIndex;
 }
 
 void WorldPackets::Character::SetFactionInactive::Read()
 {
-    _worldPacket >> FactionIndex >> Status;
+    _worldPacket >> Index >> State;
 }
 
 void WorldPackets::Character::CharacterRenameRequest::Read()
@@ -139,7 +135,7 @@ void WorldPackets::Character::CharacterRenameRequest::Read()
     _worldPacket.ReadByteSeq(Guid[0]);
 }
 
-void WorldPackets::Character::AlterAppearance::Read()
+void WorldPackets::Character::AlterApperance::Read()
 {
     _worldPacket >> SkinColor >> Color >> Hair >> FacialHair;
 }
@@ -165,6 +161,114 @@ void WorldPackets::Character::CharCustomize::Read()
     _worldPacket.ReadByteSeq(Guid[3]);
     _worldPacket.ReadByteSeq(Guid[1]);
     _worldPacket.ReadByteSeq(Guid[7]);
+}
+
+void WorldPackets::Character::SetPlayerDeclinedNames::Read()
+{
+    Guid[0] = _worldPacket.ReadBit();
+    Guid[2] = _worldPacket.ReadBit();
+    Guid[1] = _worldPacket.ReadBit();
+    Guid[7] = _worldPacket.ReadBit();
+    Guid[5] = _worldPacket.ReadBit();
+    Guid[6] = _worldPacket.ReadBit();
+    Guid[4] = _worldPacket.ReadBit();
+    Guid[3] = _worldPacket.ReadBit();
+
+    uint32 nameLength[MAX_DECLINED_NAME_CASES];
+    for (uint32 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+        nameLength[i] = _worldPacket.ReadBits(7);
+
+    DeclinedNames.resize(MAX_DECLINED_NAME_CASES);
+    for (uint32 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+        DeclinedNames[i] = _worldPacket.ReadString(nameLength[i]);
+
+    _worldPacket.ReadByteSeq(Guid[0]);
+    _worldPacket.ReadByteSeq(Guid[7]);
+    _worldPacket.ReadByteSeq(Guid[3]);
+    _worldPacket.ReadByteSeq(Guid[6]);
+    _worldPacket.ReadByteSeq(Guid[4]);
+    _worldPacket.ReadByteSeq(Guid[2]);
+    _worldPacket.ReadByteSeq(Guid[1]);
+    _worldPacket.ReadByteSeq(Guid[5]);
+}
+
+void WorldPackets::Character::CharFactionOrRaceChange::Read()
+{
+    _worldPacket >> Gender >> Race;
+
+    Guid[3] = _worldPacket.ReadBit();
+    Guid[2] = _worldPacket.ReadBit();
+    HasSkinColor = _worldPacket.ReadBit();
+    HasFace = _worldPacket.ReadBit();
+    Guid[6] = _worldPacket.ReadBit();
+    uint32 nameLength = _worldPacket.ReadBits(6);
+    HasFacialHair = _worldPacket.ReadBit();
+    HasHairStyle = _worldPacket.ReadBit();
+    Guid[4] = _worldPacket.ReadBit();
+    Guid[1] = _worldPacket.ReadBit();
+    Guid[0] = _worldPacket.ReadBit();
+    Guid[5] = _worldPacket.ReadBit();
+    HasHairColor = _worldPacket.ReadBit();
+    IsFactionChange = _worldPacket.ReadBit();
+    Guid[7] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(Guid[2]);
+    _worldPacket.ReadByteSeq(Guid[1]);
+    _worldPacket.ReadByteSeq(Guid[4]);
+    _worldPacket.ReadByteSeq(Guid[5]);
+    _worldPacket.ReadByteSeq(Guid[0]);
+    Name = _worldPacket.ReadString(nameLength);
+    _worldPacket.ReadByteSeq(Guid[6]);
+    _worldPacket.ReadByteSeq(Guid[3]);
+    _worldPacket.ReadByteSeq(Guid[7]);
+
+    if (HasHairColor)
+        _worldPacket >> HairColor;
+    if (HasHairStyle)
+        _worldPacket >> HairStyle;
+    if (HasSkinColor)
+        _worldPacket >> Skin;
+    if (HasFace)
+        _worldPacket >> Face;
+    if (HasFacialHair)
+        _worldPacket >> FacialHair;
+}
+
+void WorldPackets::Character::RandomizeCharName::Read()
+{
+    _worldPacket >> Gender >> Race;
+}
+
+void WorldPackets::Character::ReorderCharacters::Read()
+{
+    uint32 charactersCount = _worldPacket.ReadBits(9);
+
+    Guids.resize(charactersCount);
+    for (uint32 i = 0; i < charactersCount; ++i)
+    {
+        Guids[i][4] = _worldPacket.ReadBit();
+        Guids[i][2] = _worldPacket.ReadBit();
+        Guids[i][7] = _worldPacket.ReadBit();
+        Guids[i][6] = _worldPacket.ReadBit();
+        Guids[i][0] = _worldPacket.ReadBit();
+        Guids[i][5] = _worldPacket.ReadBit();
+        Guids[i][3] = _worldPacket.ReadBit();
+        Guids[i][1] = _worldPacket.ReadBit();
+    }
+
+    Positions.resize(charactersCount);
+    for (uint32 i = 0; i < charactersCount; ++i)
+    {
+        _worldPacket.ReadByteSeq(Guids[i][1]);
+        _worldPacket.ReadByteSeq(Guids[i][2]);
+        _worldPacket.ReadByteSeq(Guids[i][7]);
+        _worldPacket.ReadByteSeq(Guids[i][5]);
+        _worldPacket.ReadByteSeq(Guids[i][4]);
+        _worldPacket.ReadByteSeq(Guids[i][0]);
+        _worldPacket.ReadByteSeq(Guids[i][3]);
+        _worldPacket.ReadByteSeq(Guids[i][6]);
+        _worldPacket >> Positions[i];
+    }
 }
 
 WorldPacket const* WorldPackets::Character::LogoutResponse::Write()

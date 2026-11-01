@@ -51,27 +51,11 @@ enum StableResultCode
     STABLE_ERR_STABLE       = 0x0C,                         // "Internal pet error"
 };
 
-void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket& recvData)
+void WorldSession::HandleTabardVendorActivateOpcode(WorldPackets::NPC::TabardVendorActivate& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_TABARD_VENDOR_ACTIVATE");
 
-    ObjectGuid guid;
-    guid[2] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[3]);
+    ObjectGuid guid = packet.Unit;
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TABARDDESIGNER);
     if (!unit)
@@ -111,9 +95,9 @@ void WorldSession::SendTabardVendorActivate(ObjectGuid guid)
     SendPacket(&data);
 }
 
-void WorldSession::HandleBankerActivateOpcode(WorldPackets::NPC::BankerActivate& packet)
+void WorldSession::HandleBankerActivateOpcode(WorldPackets::Bank::BankerActivate& packet)
 {
-    ObjectGuid guid = packet.Unit;
+    ObjectGuid guid = packet.Banker;
 
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BANKER_ACTIVATE");
 
@@ -481,29 +465,11 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::GossipHello& packe
     }
 }*/
 
-void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket& recvData)
+void WorldSession::HandleSpiritHealerActivateOpcode(WorldPackets::NPC::SpiritHealerActivate& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_SPIRIT_HEALER_ACTIVATE");
 
-    ObjectGuid UnitGUID;
-
-    UnitGUID[2] = recvData.ReadBit();
-    UnitGUID[7] = recvData.ReadBit();
-    UnitGUID[6] = recvData.ReadBit();
-    UnitGUID[0] = recvData.ReadBit();
-    UnitGUID[5] = recvData.ReadBit();
-    UnitGUID[4] = recvData.ReadBit();
-    UnitGUID[1] = recvData.ReadBit();
-    UnitGUID[3] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(UnitGUID[1]);
-    recvData.ReadByteSeq(UnitGUID[5]);
-    recvData.ReadByteSeq(UnitGUID[6]);
-    recvData.ReadByteSeq(UnitGUID[3]);
-    recvData.ReadByteSeq(UnitGUID[2]);
-    recvData.ReadByteSeq(UnitGUID[0]);
-    recvData.ReadByteSeq(UnitGUID[7]);
-    recvData.ReadByteSeq(UnitGUID[4]);
+    ObjectGuid UnitGUID = packet.Unit;
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(UnitGUID, UNIT_NPC_FLAG_SPIRITHEALER);
     if (!unit)
@@ -588,26 +554,11 @@ void WorldSession::SendBindPoint(Creature* npc)
     _player->PlayerTalkClass->SendCloseGossip();
 }
 
-void WorldSession::HandleListPets(WorldPacket& recvData)
+void WorldSession::HandleListPets(WorldPackets::NPC::ListPets& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Recv MSG_LIST_STABLED_PETS");
-    ObjectGuid guid;
-    guid[0] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[6]);
+
+    ObjectGuid guid = packet.Unit;
 
     if (!CheckStableMaster(guid))
         return;
@@ -692,31 +643,13 @@ void WorldSession::SendStableResult(uint8 res)
     SendPacket(&data);
 }
 
-void WorldSession::HandleSetPetSlot(WorldPacket& recvData)
+void WorldSession::HandleSetPetSlot(WorldPackets::NPC::SetPetSlot& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Recv CMSG_SET_PET_SLOT");
 
-    uint32 oldPetId;
-    int8 newSlot;
-    recvData >> oldPetId;
-    recvData >> newSlot;
-    ObjectGuid npcGUID;
-    npcGUID[5] = recvData.ReadBit();
-    npcGUID[7] = recvData.ReadBit();
-    npcGUID[3] = recvData.ReadBit();
-    npcGUID[2] = recvData.ReadBit();
-    npcGUID[6] = recvData.ReadBit();
-    npcGUID[1] = recvData.ReadBit();
-    npcGUID[0] = recvData.ReadBit();
-    npcGUID[4] = recvData.ReadBit();
-    recvData.ReadByteSeq(npcGUID[0]);
-    recvData.ReadByteSeq(npcGUID[3]);
-    recvData.ReadByteSeq(npcGUID[2]);
-    recvData.ReadByteSeq(npcGUID[6]);
-    recvData.ReadByteSeq(npcGUID[5]);
-    recvData.ReadByteSeq(npcGUID[7]);
-    recvData.ReadByteSeq(npcGUID[4]);
-    recvData.ReadByteSeq(npcGUID[1]);
+    uint32 oldPetId = packet.OldPetId;
+    int8 newSlot = packet.NewSlot;
+    ObjectGuid npcGUID = packet.Unit;
 
     if (!CheckStableMaster(npcGUID) || newSlot < 0 || newSlot > PET_SLOT_STABLE_LAST)
     {
@@ -1027,47 +960,12 @@ void WorldSession::HandleStableSwapPetCallback(PreparedQueryResult result, uint3
         SendStableResult(STABLE_SUCCESS_UNSTABLE);*/
 }
 
-void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_REPAIR_ITEM");
 
-    ObjectGuid npcGuid, itemGuid;
-    bool guildBank;                                         // new in 2.3.2, bool that means from guild bank money
-
-    itemGuid[2] = recvData.ReadBit();
-    itemGuid[5] = recvData.ReadBit();
-    npcGuid[3] = recvData.ReadBit();
-    guildBank = recvData.ReadBit();
-    npcGuid[7] = recvData.ReadBit();
-    itemGuid[4] = recvData.ReadBit();
-    npcGuid[2] = recvData.ReadBit();
-    itemGuid[0] = recvData.ReadBit();
-    itemGuid[3] = recvData.ReadBit();
-    npcGuid[6] = recvData.ReadBit();
-    npcGuid[1] = recvData.ReadBit();
-    npcGuid[4] = recvData.ReadBit();
-    itemGuid[6] = recvData.ReadBit();
-    npcGuid[5] = recvData.ReadBit();
-    npcGuid[0] = recvData.ReadBit();
-    itemGuid[7] = recvData.ReadBit();
-    itemGuid[1] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(itemGuid[2]);
-    recvData.ReadByteSeq(npcGuid[1]);
-    recvData.ReadByteSeq(itemGuid[1]);
-    recvData.ReadByteSeq(npcGuid[4]);
-    recvData.ReadByteSeq(npcGuid[7]);
-    recvData.ReadByteSeq(npcGuid[3]);
-    recvData.ReadByteSeq(npcGuid[2]);
-    recvData.ReadByteSeq(itemGuid[7]);
-    recvData.ReadByteSeq(npcGuid[5]);
-    recvData.ReadByteSeq(npcGuid[0]);
-    recvData.ReadByteSeq(itemGuid[5]);
-    recvData.ReadByteSeq(itemGuid[3]);
-    recvData.ReadByteSeq(itemGuid[4]);
-    recvData.ReadByteSeq(itemGuid[6]);
-    recvData.ReadByteSeq(npcGuid[6]);
-    recvData.ReadByteSeq(itemGuid[0]);
+    ObjectGuid npcGuid = packet.NpcGuid, itemGuid = packet.ItemGuid;
+    bool guildBank = packet.GuildBank;
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_REPAIR);
     if (!unit)

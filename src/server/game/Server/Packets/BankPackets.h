@@ -54,6 +54,16 @@ namespace WorldPackets
 
             void Read() override;
 
+            ObjectGuid Guid;
+        };
+
+        class BankerActivate final : public ClientPacket
+        {
+        public:
+            BankerActivate(WorldPacket&& packet) : ClientPacket(CMSG_BANKER_ACTIVATE, std::move(packet)) { }
+
+            void Read() override;
+
             ObjectGuid Banker;
         };
     }

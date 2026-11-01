@@ -37,7 +37,7 @@
 #include "HookMgr.h"
 #endif
 
-void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
     Player* player = GetPlayer();
@@ -47,37 +47,14 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
     auto& lootView = GetPlayer()->GetLootView();
     AELootResult* aoeLoot = lootView.size() > 1 ? &result : nullptr;
 
-    int32 lootCount = recvData.ReadBits(23);
-    std::vector<ObjectGuid> guids;
-    guids.resize(lootCount);
+    int32 lootCount = static_cast<int32>(packet.guids.size());
 
     for (int i = 0; i < lootCount; i++)
     {
-        (guids[i])[2] = recvData.ReadBit();
-        (guids[i])[7] = recvData.ReadBit();
-        (guids[i])[0] = recvData.ReadBit();
-        (guids[i])[6] = recvData.ReadBit();
-        (guids[i])[5] = recvData.ReadBit();
-        (guids[i])[3] = recvData.ReadBit();
-        (guids[i])[1] = recvData.ReadBit();
-        (guids[i])[4] = recvData.ReadBit();
-    }
-
-    for (int i = 0; i < lootCount; i++)
-    {
-        recvData.ReadByteSeq((guids[i])[0]);
-        recvData.ReadByteSeq((guids[i])[4]);
-        recvData.ReadByteSeq((guids[i])[1]);
-        recvData.ReadByteSeq((guids[i])[7]);
-        recvData.ReadByteSeq((guids[i])[6]);
-        recvData.ReadByteSeq((guids[i])[5]);
-        recvData.ReadByteSeq((guids[i])[3]);
-        recvData.ReadByteSeq((guids[i])[2]);
-        uint8 lootSlot;
-        recvData >> lootSlot;
+        uint8 lootSlot = packet.lootSlots[i];
 
         Loot* loot = nullptr;
-        auto it = lootView.find(guids[i]);
+        auto it = lootView.find(packet.guids[i]);
         if (it == lootView.end())
             continue;
 
@@ -158,7 +135,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_LOOT_MONEY");
 
@@ -332,29 +309,11 @@ struct AELootCreatureCheck
 
 float AELootCreatureCheck::LootDistance = 30.0f;
 
-void WorldSession::HandleLootOpcode(WorldPacket& recvData)
+void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_LOOT");
 
-    ObjectGuid guid;
-
-    guid[4] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[2]);
+    ObjectGuid const guid = packet.Unit;
 
     // Check possible cheat
     if (!_player->IsAlive())
@@ -379,31 +338,14 @@ void WorldSession::HandleLootOpcode(WorldPacket& recvData)
         GetPlayer()->InterruptNonMeleeSpells(false);
 }
 
-void WorldSession::HandleLootReleaseOpcode(WorldPacket& recvData)
+void WorldSession::HandleLootReleaseOpcode(WorldPackets::Loot::LootRelease& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_LOOT_RELEASE");
 
     // cheaters can modify lguid to prevent correct apply loot release code and re-loot
     // use internal stored guid
 
-    ObjectGuid guid;
-    guid[7] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[1]);
+    ObjectGuid const guid = packet.Unit;
 
     for (auto&& it : GetPlayer()->GetLootView())
     {
@@ -579,7 +521,7 @@ void WorldSession::DoLootReleaseAll()
         DoLootRelease(lootView.begin()->second);
 }
 
-void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
+void WorldSession::HandleLootMasterGiveOpcode(WorldPackets::Loot::MasterLootItem& packet)
 {
     if (!GetPlayer()->GetGroup() || GetPlayer()->GetGroup()->GetLooterGuid() != GetPlayer()->GetGUID())
     {
@@ -587,54 +529,9 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         return;
     }
 
-    ObjectGuid targetGuid;
-    targetGuid[0] = recvData.ReadBit();
-    targetGuid[2] = recvData.ReadBit();
-    targetGuid[4] = recvData.ReadBit();
-    targetGuid[1] = recvData.ReadBit();
-    targetGuid[7] = recvData.ReadBit();
-    targetGuid[6] = recvData.ReadBit();
-    uint32 size = recvData.ReadBits(23);
-
-    std::vector<ObjectGuid> lootViews;
-    std::vector<uint8> slots;
-    for (uint32 i = 0; i < size; ++i)
-    {
-        lootViews.emplace_back();
-        auto& g = lootViews.back();
-        g[6] = recvData.ReadBit();
-        g[1] = recvData.ReadBit();
-        g[7] = recvData.ReadBit();
-        g[0] = recvData.ReadBit();
-        g[3] = recvData.ReadBit();
-        g[4] = recvData.ReadBit();
-        g[5] = recvData.ReadBit();
-        g[2] = recvData.ReadBit();
-    }
-    targetGuid[3] = recvData.ReadBit();
-    targetGuid[5] = recvData.ReadBit();
-    for (auto&& g : lootViews)
-    {
-        uint8 slot;
-        recvData >> slot;
-        slots.push_back(slot);
-        recvData.ReadByteSeq(g[3]);
-        recvData.ReadByteSeq(g[0]);
-        recvData.ReadByteSeq(g[6]);
-        recvData.ReadByteSeq(g[7]);
-        recvData.ReadByteSeq(g[1]);
-        recvData.ReadByteSeq(g[4]);
-        recvData.ReadByteSeq(g[2]);
-        recvData.ReadByteSeq(g[5]);
-    }
-    recvData.ReadByteSeq(targetGuid[4]);
-    recvData.ReadByteSeq(targetGuid[5]);
-    recvData.ReadByteSeq(targetGuid[2]);
-    recvData.ReadByteSeq(targetGuid[3]);
-    recvData.ReadByteSeq(targetGuid[6]);
-    recvData.ReadByteSeq(targetGuid[0]);
-    recvData.ReadByteSeq(targetGuid[7]);
-    recvData.ReadByteSeq(targetGuid[1]);
+    ObjectGuid targetGuid = packet.Target;
+    auto& lootViews = packet.lootViews;
+    auto& slots = packet.slots;
 
     Player* target = ObjectAccessor::FindPlayer(targetGuid);
     if (!target)
@@ -737,14 +634,10 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleChangeCurrencyFlags(WorldPacket& recvPacket)
+void WorldSession::HandleChangeCurrencyFlags(WorldPackets::Loot::SetCurrencyFlags& packet)
 {
     TC_LOG_DEBUG("network", "CHARACTER: CMSG_SET_CURRENCY_FLAGS");
 
-    uint32 currencyId, flags;
-
-    recvPacket >> flags >> currencyId;
-
     if (GetPlayer())
-        GetPlayer()->ModifyCurrencyFlag(currencyId, uint8(flags));
+        GetPlayer()->ModifyCurrencyFlag(packet.CurrencyId, uint8(packet.Flags));
 }

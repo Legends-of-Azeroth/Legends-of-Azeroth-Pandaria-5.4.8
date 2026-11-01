@@ -32,16 +32,11 @@
 #include "ServiceMgr.h"
 #include <vector>
 
-void WorldSession::HandleSplitItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleSplitItemOpcode(WorldPackets::Item::SplitItem& packet)
 {
     //TC_LOG_DEBUG("network", "WORLD: CMSG_SPLIT_ITEM");
-    uint8 srcBag, srcSlot, dstBag, dstSlot;
-    uint32 count;
-
-    recvData >> srcBag;
-    recvData >> count;
-    recvData >> dstBag >> srcSlot >> dstSlot;
-    recvData.rfinish();
+    uint8 srcBag = packet.SrcBag, srcSlot = packet.SrcSlot, dstBag = packet.DstBag, dstSlot = packet.DstSlot;
+    uint32 count = packet.Count;
 
     //TC_LOG_DEBUG("STORAGE: receive srcbag = {}, srcslot = {}, dstbag = {}, dstslot = {}, count = {}", srcbag, srcslot, dstbag, dstslot, count);
 
@@ -69,31 +64,13 @@ void WorldSession::HandleSplitItemOpcode(WorldPacket& recvData)
     _player->SplitItem(src, dst, count);
 }
 
-void WorldSession::HandleSwapInvItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleSwapInvItemOpcode(WorldPackets::Item::SwapInvItem& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_SWAP_INV_ITEM");
-    bool hasSrcSlot = false, HasDstSlot = false, HasSrcBag = false, HasDstBag = false;
-    uint8 srcSlot = 0, dstSlot = 0, srcBag = 0, dstBag = 0, checkSrcSlot = 0, checkDstSlot = 0;
+    uint8 srcSlot = packet.SrcSlot, dstSlot = packet.DstSlot, srcBag = packet.SrcBag, dstBag = packet.DstBag, checkSrcSlot = packet.CheckSrcSlot, checkDstSlot = packet.CheckDstSlot;
 
-    recvData >> srcSlot >> dstSlot;
-
-    uint8 size = recvData.ReadBits(2);
-    if (size != 2)
+    if (packet.Size != 2)
         return;
-
-    HasDstSlot = recvData.ReadBit();
-    HasDstBag = recvData.ReadBit();
-    hasSrcSlot = recvData.ReadBit();
-    HasSrcBag = recvData.ReadBit();
-
-    if (!HasDstSlot)
-        recvData >> checkDstSlot;
-    if (!HasDstBag)
-        recvData >> dstBag;
-    if (!hasSrcSlot)
-        recvData >> checkSrcSlot;
-    if (!HasSrcBag)
-        recvData >> srcBag;
 
     if (srcSlot != checkSrcSlot || dstSlot != checkDstSlot)
         return;
@@ -120,50 +97,10 @@ void WorldSession::HandleSwapInvItemOpcode(WorldPacket& recvData)
     _player->SwapItem(src, dst);
 }
 
-void WorldSession::HandleAutoEquipItemSlotOpcode(WorldPacket& recvData)
+void WorldSession::HandleAutoEquipItemSlotOpcode(WorldPackets::Item::AutoEquipItemSlot& packet)
 {
-    uint8 slot = recvData.read<uint8>();
-    ObjectGuid itemGuid;
-    itemGuid[6] = recvData.ReadBit();
-    itemGuid[3] = recvData.ReadBit();
-    itemGuid[0] = recvData.ReadBit();
-    uint32 length = recvData.ReadBits(2);
-    itemGuid[7] = recvData.ReadBit();
-
-    struct Unk14
-    {
-        uint8 Unk0;
-        uint8 Unk1;
-    };
-
-    std::vector<Unk14> unk14;
-    for (uint32 i = 0; i < length; ++i)
-    {
-        Unk14 u;
-        u.Unk1 = recvData.ReadBit();
-        u.Unk0 = recvData.ReadBit();
-        unk14.push_back(u);
-    }
-    itemGuid[5] = recvData.ReadBit();
-    itemGuid[2] = recvData.ReadBit();
-    itemGuid[1] = recvData.ReadBit();
-    itemGuid[4] = recvData.ReadBit();
-    recvData.ReadByteSeq(itemGuid[6]);
-    recvData.ReadByteSeq(itemGuid[3]);
-    recvData.ReadByteSeq(itemGuid[1]);
-    recvData.ReadByteSeq(itemGuid[7]);
-    recvData.ReadByteSeq(itemGuid[2]);
-    recvData.ReadByteSeq(itemGuid[0]);
-    recvData.ReadByteSeq(itemGuid[4]);
-    recvData.ReadByteSeq(itemGuid[5]);
-
-    for (auto&& itr : unk14)
-    {
-        if (itr.Unk1)
-            itr.Unk1 = recvData.read<uint8>();
-        if (itr.Unk0)
-            itr.Unk0 = recvData.read<uint8>();
-    }
+    uint8 slot = packet.Slot;
+    ObjectGuid itemGuid = packet.ItemGuid;
 
     Item* item = GetPlayer()->GetItemByGuid(itemGuid);
     if (!item)
@@ -186,31 +123,13 @@ void WorldSession::HandleAutoEquipItemSlotOpcode(WorldPacket& recvData)
     GetPlayer()->SwapItem(item->GetPos(), dstpos);
 }
 
-void WorldSession::HandleSwapItem(WorldPacket& recvData)
+void WorldSession::HandleSwapItem(WorldPackets::Item::SwapItem& packet)
 {
     //TC_LOG_DEBUG("network", "WORLD: CMSG_SWAP_ITEM");
-    bool hasSlot[2];
-    bool hasBag[2];
-    uint8 dstBag, dstSlot, srcBag, srcSlot;
-    uint8 srcSlotAlt, srcBagAlt, dstSlotAlt, dstBagAlt;
+    uint8 dstBag = packet.DstBag, dstSlot = packet.DstSlot, srcBag = packet.SrcBag, srcSlot = packet.SrcSlot;
 
-    recvData >> srcSlotAlt >> srcBagAlt >> dstBagAlt >> dstSlotAlt;
-
-    uint32 count = recvData.ReadBits(2);
-
-    if (count != 2)
+    if (packet.Count != 2)
         return;
-
-    for (uint8 i = 0; i < count; i++)
-    {
-        hasSlot[i] = !recvData.ReadBit();
-        hasBag[i] = !recvData.ReadBit();
-    }
-
-    dstBag = hasBag[0] ? recvData.read<uint8>() : dstBagAlt;
-    dstSlot = hasSlot[0] ? recvData.read<uint8>() : dstSlotAlt;
-    srcBag = hasBag[1] ? recvData.read<uint8>() : srcBagAlt;
-    srcSlot = hasSlot[1] ? recvData.read<uint8>() : srcSlotAlt;
 
     //TC_LOG_DEBUG("STORAGE: receive srcbag = {}, srcslot = {}, dstbag = {}, dstslot = {}", srcbag, srcslot, dstbag, dstslot);
 
@@ -236,13 +155,11 @@ void WorldSession::HandleSwapItem(WorldPacket& recvData)
     _player->SwapItem(src, dst);
 }
 
-void WorldSession::HandleAutoEquipItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& packet)
 {
     //TC_LOG_DEBUG("network", "WORLD: CMSG_AUTOEQUIP_ITEM");
-    uint8 srcbag, srcslot;
+    uint8 srcbag = packet.SrcBag, srcslot = packet.SrcSlot;
 
-    recvData >> srcslot >> srcbag;
-    recvData.rfinish();
     //TC_LOG_DEBUG("STORAGE: receive srcbag = {}, srcslot = {}", srcbag, srcslot);
 
     Item* pSrcItem  = _player->GetItemByPos(srcbag, srcslot);
@@ -331,14 +248,12 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleDestroyItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleDestroyItemOpcode(WorldPackets::Item::DestroyItem& packet)
 {
     //TC_LOG_DEBUG("network", "WORLD: CMSG_DESTROY_ITEM");
-    int32 count;
-    int8 bag, slot;
+    int32 count = packet.Count;
+    int8 bag = packet.Bag, slot = packet.Slot;
 
-    recvData >> count;
-    recvData >> slot >> bag;
     //TC_LOG_DEBUG("STORAGE: receive bag = {}, slot = {}, count = {}", bag, slot, count);
 
     uint16 pos = (bag << 8) | slot;
@@ -378,11 +293,10 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket& recvData)
         _player->DestroyItem(bag, slot, true);
 }
 
-void WorldSession::HandleReadItem(WorldPacket& recvData)
+void WorldSession::HandleReadItem(WorldPackets::Item::ReadItem& packet)
 {
-    uint8 bag, slot;
-    recvData >> bag >> slot;
-    
+    uint8 bag = packet.Bag, slot = packet.Slot;
+
     Item* pItem = _player->GetItemByPos(bag, slot);
 
     if (pItem && pItem->GetTemplate()->PageText)
@@ -408,48 +322,12 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
         _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
 }
 
-void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_SELL_ITEM");
 
-    ObjectGuid vendorGuid, itemGuid;
-    uint32 count;
-
-    recvData >> count;
-
-    itemGuid[4] = recvData.ReadBit();
-    itemGuid[3] = recvData.ReadBit();
-    itemGuid[7] = recvData.ReadBit();
-    vendorGuid[6] = recvData.ReadBit();
-    vendorGuid[5] = recvData.ReadBit();
-    vendorGuid[1] = recvData.ReadBit();
-    itemGuid[5] = recvData.ReadBit();
-    itemGuid[2] = recvData.ReadBit();
-    itemGuid[1] = recvData.ReadBit();
-    vendorGuid[2] = recvData.ReadBit();
-    itemGuid[6] = recvData.ReadBit();
-    vendorGuid[4] = recvData.ReadBit();
-    vendorGuid[0] = recvData.ReadBit();
-    vendorGuid[7] = recvData.ReadBit();
-    vendorGuid[3] = recvData.ReadBit();
-    itemGuid[0] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(vendorGuid[6]);
-    recvData.ReadByteSeq(vendorGuid[3]);
-    recvData.ReadByteSeq(vendorGuid[1]);
-    recvData.ReadByteSeq(itemGuid[1]);
-    recvData.ReadByteSeq(vendorGuid[2]);
-    recvData.ReadByteSeq(itemGuid[7]);
-    recvData.ReadByteSeq(itemGuid[5]);
-    recvData.ReadByteSeq(vendorGuid[7]);
-    recvData.ReadByteSeq(itemGuid[2]);
-    recvData.ReadByteSeq(vendorGuid[0]);
-    recvData.ReadByteSeq(vendorGuid[5]);
-    recvData.ReadByteSeq(itemGuid[3]);
-    recvData.ReadByteSeq(itemGuid[6]);
-    recvData.ReadByteSeq(vendorGuid[4]);
-    recvData.ReadByteSeq(itemGuid[4]);
-    recvData.ReadByteSeq(itemGuid[0]);
+    ObjectGuid vendorGuid = packet.VendorGuid, itemGuid = packet.ItemGuid;
+    uint32 count = packet.Count;
 
     if (!itemGuid)
         return;
@@ -569,32 +447,12 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
     return;
 }
 
-void WorldSession::HandleBuybackItem(WorldPacket& recvData)
+void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BUYBACK_ITEM");
 
-    ObjectGuid vendorGuid;
-    uint32 slot;
-
-    recvData >> slot;
-
-    vendorGuid[2] = recvData.ReadBit();
-    vendorGuid[3] = recvData.ReadBit();
-    vendorGuid[0] = recvData.ReadBit();
-    vendorGuid[4] = recvData.ReadBit();
-    vendorGuid[1] = recvData.ReadBit();
-    vendorGuid[7] = recvData.ReadBit();
-    vendorGuid[5] = recvData.ReadBit();
-    vendorGuid[6] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(vendorGuid[0]);
-    recvData.ReadByteSeq(vendorGuid[6]);
-    recvData.ReadByteSeq(vendorGuid[1]);
-    recvData.ReadByteSeq(vendorGuid[7]);
-    recvData.ReadByteSeq(vendorGuid[5]);
-    recvData.ReadByteSeq(vendorGuid[2]);
-    recvData.ReadByteSeq(vendorGuid[3]);
-    recvData.ReadByteSeq(vendorGuid[4]);
+    ObjectGuid vendorGuid = packet.VendorGuid;
+    uint32 slot = packet.Slot;
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
@@ -672,50 +530,13 @@ void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket& recvData)
     GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, bagslot);
 }
 
-void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BUY_ITEM");
 
-    ObjectGuid vendorGuid, bagGuid;
-    uint32 item, slot, count, bagSlot;
-    uint8 itemType; // 1 = item, 2 = currency
-
-    recvData >> bagSlot >> count >> item >> slot;
-
-    vendorGuid[6] = recvData.ReadBit();
-    bagGuid[6] = recvData.ReadBit();
-    bagGuid[4] = recvData.ReadBit();
-    vendorGuid[4] = recvData.ReadBit();
-    itemType = recvData.ReadBits(2);
-    vendorGuid[0] = recvData.ReadBit();
-    vendorGuid[3] = recvData.ReadBit();
-    bagGuid[3] = recvData.ReadBit();
-    vendorGuid[7] = recvData.ReadBit();
-    vendorGuid[5] = recvData.ReadBit();
-    bagGuid[2] = recvData.ReadBit();
-    vendorGuid[1] = recvData.ReadBit();
-    bagGuid[7] = recvData.ReadBit();
-    vendorGuid[2] = recvData.ReadBit();
-    bagGuid[1] = recvData.ReadBit();
-    bagGuid[0] = recvData.ReadBit();
-    bagGuid[5] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(vendorGuid[5]);
-    recvData.ReadByteSeq(vendorGuid[0]);
-    recvData.ReadByteSeq(bagGuid[3]);
-    recvData.ReadByteSeq(bagGuid[1]);
-    recvData.ReadByteSeq(bagGuid[6]);
-    recvData.ReadByteSeq(vendorGuid[2]);
-    recvData.ReadByteSeq(vendorGuid[7]);
-    recvData.ReadByteSeq(vendorGuid[6]);
-    recvData.ReadByteSeq(bagGuid[0]);
-    recvData.ReadByteSeq(bagGuid[5]);
-    recvData.ReadByteSeq(vendorGuid[4]);
-    recvData.ReadByteSeq(bagGuid[2]);
-    recvData.ReadByteSeq(vendorGuid[3]);
-    recvData.ReadByteSeq(bagGuid[7]);
-    recvData.ReadByteSeq(vendorGuid[1]);
-    recvData.ReadByteSeq(bagGuid[4]);
+    ObjectGuid vendorGuid = packet.VendorGuid, bagGuid = packet.BagGuid;
+    uint32 item = packet.Item, slot = packet.Slot, count = packet.Count, bagSlot = packet.BagSlot;
+    uint8 itemType = packet.ItemType; // 1 = item, 2 = currency
 
     // client expects count starting at 1, and we send vendorslot+1 to client already
     if (slot > 0)
@@ -948,13 +769,10 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid, uint32 vendorEntry)
     SendPacket(&data);
 }
 
-void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleAutoStoreBagItemOpcode(WorldPackets::Item::AutoStoreBagItem& packet)
 {
     //TC_LOG_DEBUG("network", "WORLD: CMSG_AUTOSTORE_BAG_ITEM");
-    uint8 srcBag, srcSlot, dstBag;
-
-    recvData >> srcSlot >> srcBag >> dstBag;
-    recvData.rfinish();
+    uint8 srcBag = packet.SrcBag, srcSlot = packet.SrcSlot, dstBag = packet.DstBag;
 
     //TC_LOG_DEBUG("STORAGE: receive srcbag = {}, srcslot = {}, dstbag = {}", srcbag, srcslot, dstbag);
 
@@ -1005,7 +823,7 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& pack
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_BUY_BANK_SLOT");
 
-    ObjectGuid guid = packet.Banker;
+    ObjectGuid guid = packet.Guid;
 
     // cheating protection
     /* not critical if "cheated", and check skip allow by slots in bank windows open by .bank command.
@@ -1224,30 +1042,15 @@ void WorldSession::SendItemEnchantTimeUpdate(ObjectGuid Playerguid, ObjectGuid I
     SendPacket(&data);
 }
 
-void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleWrapItemOpcode(WorldPackets::Item::WrapItem& packet)
 {
     TC_LOG_DEBUG("network", "Received opcode CMSG_WRAP_ITEM");
 
     // Still wrong, just shutting up the analyzer
-    uint8 gift_bag = 0, gift_slot = 0, item_bag = 0, item_slot = 0;
+    uint8 gift_bag = packet.GiftBag, gift_slot = packet.GiftSlot, item_bag = packet.ItemBag, item_slot = packet.ItemSlot;
 
-    uint8 size = recvData.ReadBits(2);
-    if (size != 2)
+    if (packet.Size != 2)
         return;
-
-    bool has_gift_slot = !recvData.ReadBit();
-    bool has_gift_bag  = !recvData.ReadBit();
-    bool has_item_slot = !recvData.ReadBit();
-    bool has_item_bag  = !recvData.ReadBit();
-
-    if (has_gift_slot)
-        recvData >> gift_slot;                 // paper
-    if (has_gift_bag)
-        recvData >> gift_bag;
-    if (has_item_slot)
-        recvData >> item_slot;                 // item
-    if (has_item_bag)
-        recvData >> item_bag;
 
     TC_LOG_DEBUG("network", "WRAP: receive gift_bag = {}, gift_slot = {}, item_bag = {}, item_slot = {}", gift_bag, gift_slot, item_bag, item_slot);
 
@@ -1351,65 +1154,14 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
     _player->DestroyItemCount(gift, count, true);
 }
 
-void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
+void WorldSession::HandleSocketOpcode(WorldPackets::Item::SocketGems& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_SOCKET_GEMS");
 
-    ObjectGuid item_guid;
+    ObjectGuid item_guid = packet.ItemGuid;
     ObjectGuid gem_guids[MAX_GEM_SOCKETS];
-
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        gem_guids[i][4] = recvData.ReadBit();
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        gem_guids[i][0] = recvData.ReadBit();
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        gem_guids[i][6] = recvData.ReadBit();
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        gem_guids[i][2] = recvData.ReadBit();
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        gem_guids[i][1] = recvData.ReadBit();
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        gem_guids[i][7] = recvData.ReadBit();
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        gem_guids[i][3] = recvData.ReadBit();
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        gem_guids[i][5] = recvData.ReadBit();
-
-    item_guid[5] = recvData.ReadBit();
-    item_guid[0] = recvData.ReadBit();
-    item_guid[6] = recvData.ReadBit();
-    item_guid[2] = recvData.ReadBit();
-    item_guid[3] = recvData.ReadBit();
-    item_guid[4] = recvData.ReadBit();
-    item_guid[7] = recvData.ReadBit();
-    item_guid[1] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(item_guid[7]);
-    recvData.ReadByteSeq(item_guid[2]);
-    recvData.ReadByteSeq(item_guid[6]);
-
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadByteSeq(gem_guids[i][6]);
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadByteSeq(gem_guids[i][4]);
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadByteSeq(gem_guids[i][3]);
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadByteSeq(gem_guids[i][2]);
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadByteSeq(gem_guids[i][0]);
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadByteSeq(gem_guids[i][1]);
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadByteSeq(gem_guids[i][7]);
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadByteSeq(gem_guids[i][5]);
-
-    recvData.ReadByteSeq(item_guid[4]);
-    recvData.ReadByteSeq(item_guid[3]);
-    recvData.ReadByteSeq(item_guid[1]);
-    recvData.ReadByteSeq(item_guid[5]);
-    recvData.ReadByteSeq(item_guid[0]);
+        gem_guids[i] = packet.GemGuids[i];
 
     if (!item_guid)
         return;
@@ -1607,13 +1359,11 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
     itemTarget->SendUpdateSockets();
 }
 
-void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recvData)
+void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPackets::Combat::CancelTempEnchantment& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_CANCEL_TEMP_ENCHANTMENT");
 
-    uint32 slot;
-
-    recvData >> slot;
+    uint32 slot = packet.Slot;
 
     // apply only to equipped item
     if (!Player::IsEquipmentPos(INVENTORY_SLOT_BAG_0, slot))
@@ -1631,29 +1381,11 @@ void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recvData)
     item->ClearEnchantment(TEMP_ENCHANTMENT_SLOT);
 }
 
-void WorldSession::HandleItemRefundInfoRequest(WorldPacket& recvData)
+void WorldSession::HandleItemRefundInfoRequest(WorldPackets::Item::GetItemPurchaseData& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_ITEM_REFUND_INFO");
 
-    ObjectGuid guid;
-    
-    guid[1] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[2]);
+    ObjectGuid guid = packet.Guid;
 
     Item* item = _player->GetItemByGuid(guid);
     if (!item)
@@ -1665,26 +1397,10 @@ void WorldSession::HandleItemRefundInfoRequest(WorldPacket& recvData)
     GetPlayer()->SendRefundInfo(item);
 }
 
-void WorldSession::HandleItemRefund(WorldPacket &recvData)
+void WorldSession::HandleItemRefund(WorldPackets::Item::ItemPurchaseRefund& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_ITEM_REFUND");
-    ObjectGuid guid;
-    guid[2] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[4]);
+    ObjectGuid guid = packet.Guid;
 
     Item* item = _player->GetItemByGuid(guid);
     if (!item)
@@ -1701,15 +1417,12 @@ void WorldSession::HandleItemRefund(WorldPacket &recvData)
  *
  * This function is called when player clicks on item which has some flag set
  */
-void WorldSession::HandleItemTextQuery(WorldPacket& recvData)
+void WorldSession::HandleItemTextQuery(WorldPackets::Item::ItemTextQuery& packet)
 {
-    uint64 g;
-    recvData >> g;
-
-    ObjectGuid itemGuid(g);
+    ObjectGuid itemGuid(packet.ItemGuid);
     TC_LOG_DEBUG("network", "CMSG_ITEM_TEXT_QUERY item guid: {}", itemGuid.GetCounter());
 
-    WorldPacket data(SMSG_ITEM_TEXT_QUERY_RESPONSE, 14);    // guess size
+    WorldPacket data(SMSG_QUERY_ITEM_TEXT_RESPONSE, 14);    // guess size
 
     if (Item* item = _player->GetItemByGuid(itemGuid))
     {
@@ -1725,112 +1438,22 @@ void WorldSession::HandleItemTextQuery(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
+void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::TransmogrifyItems& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_TRANSMOGRIFY_ITEMS");
     Player* player = GetPlayer();
 
     // Read data
-    uint32 count;
-    ObjectGuid npcGuid;
-
-    npcGuid[5] = recvData.ReadBit();
-    npcGuid[6] = recvData.ReadBit();
-    npcGuid[1] = recvData.ReadBit();
-    npcGuid[2] = recvData.ReadBit();
-    npcGuid[3] = recvData.ReadBit();
-    npcGuid[4] = recvData.ReadBit();
-    count = recvData.ReadBits(21);
-
-    std::vector<ObjectGuid>itemGuids(count, ObjectGuid::Empty);
-    std::vector<uint32>newEntries(count, 0);
-    std::vector<uint32>slots(count, 0);
-    std::vector<bool>HasItemBonus(count, false);
-    std::vector<bool>HasModifications(count, false);
-
-    for (uint8 i = 0; i < count; ++i)
-    {
-        HasItemBonus[i] = recvData.ReadBit();
-        HasModifications[i] = recvData.ReadBit();
-    }
+    uint32 count = packet.Count;
+    ObjectGuid npcGuid = packet.NpcGuid;
+    std::vector<ObjectGuid>itemGuids = packet.ItemGuids;
+    std::vector<uint32>newEntries = packet.NewEntries;
+    std::vector<uint32>slots = packet.Slots;
 
     if (count >= EQUIPMENT_SLOT_END)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (GUID: {}, name: {}) sent a wrong count ({}) when transmogrifying items.", player->GetGUID().GetCounter(), player->GetName().c_str(), count);
-        recvData.rfinish();
         return;
-    }
-
-    npcGuid[0] = recvData.ReadBit();
-    npcGuid[7] = recvData.ReadBit();
-
-    for (uint8 i = 0; i < count; ++i)
-    {
-        if (HasModifications[i])
-        {
-            itemGuids[i][5] = recvData.ReadBit();
-            itemGuids[i][6] = recvData.ReadBit();
-            itemGuids[i][1] = recvData.ReadBit();
-            itemGuids[i][3] = recvData.ReadBit();
-            itemGuids[i][0] = recvData.ReadBit();
-            itemGuids[i][4] = recvData.ReadBit();
-            itemGuids[i][7] = recvData.ReadBit();
-            itemGuids[i][2] = recvData.ReadBit();
-        }
-
-        if (HasItemBonus[i])
-        {
-            itemGuids[i][4] = recvData.ReadBit();
-            itemGuids[i][1] = recvData.ReadBit();
-            itemGuids[i][0] = recvData.ReadBit();
-            itemGuids[i][6] = recvData.ReadBit();
-            itemGuids[i][5] = recvData.ReadBit();
-            itemGuids[i][2] = recvData.ReadBit();
-            itemGuids[i][7] = recvData.ReadBit();
-            itemGuids[i][3] = recvData.ReadBit();
-        }
-    }
-
-    for (uint8 i = 0; i < count; ++i)
-    {
-        recvData >> slots[i];
-        recvData >> newEntries[i];
-    }
-
-    recvData.ReadByteSeq(npcGuid[5]);
-    recvData.ReadByteSeq(npcGuid[0]);
-    recvData.ReadByteSeq(npcGuid[1]);
-    recvData.ReadByteSeq(npcGuid[2]);
-    recvData.ReadByteSeq(npcGuid[3]);
-    recvData.ReadByteSeq(npcGuid[4]);
-    recvData.ReadByteSeq(npcGuid[6]);
-    recvData.ReadByteSeq(npcGuid[7]);
-
-    for (uint8 i = 0; i < count; ++i)
-    {
-        if (HasModifications[i])
-        {
-            recvData.ReadByteSeq(itemGuids[i][2]);
-            recvData.ReadByteSeq(itemGuids[i][5]);
-            recvData.ReadByteSeq(itemGuids[i][4]);
-            recvData.ReadByteSeq(itemGuids[i][3]);
-            recvData.ReadByteSeq(itemGuids[i][6]);
-            recvData.ReadByteSeq(itemGuids[i][0]);
-            recvData.ReadByteSeq(itemGuids[i][7]);
-            recvData.ReadByteSeq(itemGuids[i][1]);
-        }
-
-        if (HasItemBonus[i])
-        {
-            recvData.ReadByteSeq(itemGuids[i][7]);
-            recvData.ReadByteSeq(itemGuids[i][1]);
-            recvData.ReadByteSeq(itemGuids[i][6]);
-            recvData.ReadByteSeq(itemGuids[i][5]);
-            recvData.ReadByteSeq(itemGuids[i][4]);
-            recvData.ReadByteSeq(itemGuids[i][3]);
-            recvData.ReadByteSeq(itemGuids[i][0]);
-            recvData.ReadByteSeq(itemGuids[i][2]);
-        }
     }
 
     if (!player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_TRANSMOGRIFIER))
@@ -1949,31 +1572,12 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         player->ModifyMoney(-cost);
 }
 
-void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleReforgeItemOpcode(WorldPackets::Item::ReforgeItem& packet)
 {
-    uint32 slot, reforgeEntry;
-    ObjectGuid guid;
-    uint32 bag;
+    uint32 slot = packet.Slot, reforgeEntry = packet.ReforgeEntry;
+    ObjectGuid guid = packet.Guid;
+    uint32 bag = packet.Bag;
     Player* player = GetPlayer();
-
-    recvData >> reforgeEntry >> bag >> slot;
-
-    guid[1] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[5]);
 
     if (!player->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_REFORGER))
     {
@@ -2081,49 +1685,13 @@ void WorldSession::SendItemUpgradeResult(bool success)
     SendPacket(&data);
 }
 
-void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleUpgradeItemOpcode(WorldPackets::Item::UpgradeItem& packet)
 {
     TC_LOG_DEBUG("network", "Received opcode CMSG_UPGRADE_ITEM");
-    ObjectGuid npcGuid;
-    ObjectGuid itemGuid;
+    ObjectGuid npcGuid = packet.NpcGuid;
+    ObjectGuid itemGuid = packet.ItemGuid;
     Player* player = GetPlayer();
-    uint32 item_bag = 0, item_slot = 0, upgradeEntry = 0;
-
-    recvData >> item_slot >> item_bag >> upgradeEntry;
-
-    itemGuid[5] = recvData.ReadBit();
-    npcGuid[6] = recvData.ReadBit();
-    itemGuid[6] = recvData.ReadBit();
-    itemGuid[0] = recvData.ReadBit();
-    itemGuid[1] = recvData.ReadBit();
-    npcGuid[4] = recvData.ReadBit();
-    npcGuid[1] = recvData.ReadBit();
-    npcGuid[7] = recvData.ReadBit();
-    itemGuid[7] = recvData.ReadBit();
-    itemGuid[2] = recvData.ReadBit();
-    itemGuid[3] = recvData.ReadBit();
-    npcGuid[0] = recvData.ReadBit();
-    npcGuid[2] = recvData.ReadBit();
-    npcGuid[5] = recvData.ReadBit();
-    itemGuid[4] = recvData.ReadBit();
-    npcGuid[3] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(itemGuid[7]);
-    recvData.ReadByteSeq(npcGuid[6]);
-    recvData.ReadByteSeq(itemGuid[6]);
-    recvData.ReadByteSeq(npcGuid[3]);
-    recvData.ReadByteSeq(npcGuid[2]);
-    recvData.ReadByteSeq(itemGuid[5]);
-    recvData.ReadByteSeq(npcGuid[1]);
-    recvData.ReadByteSeq(itemGuid[1]);
-    recvData.ReadByteSeq(npcGuid[0]);
-    recvData.ReadByteSeq(itemGuid[2]);
-    recvData.ReadByteSeq(itemGuid[0]);
-    recvData.ReadByteSeq(npcGuid[4]);
-    recvData.ReadByteSeq(npcGuid[5]);
-    recvData.ReadByteSeq(itemGuid[3]);
-    recvData.ReadByteSeq(npcGuid[7]);
-    recvData.ReadByteSeq(itemGuid[4]);
+    uint32 item_bag = packet.ItemBag, item_slot = packet.ItemSlot, upgradeEntry = packet.UpgradeEntry;
 
     if (!player->GetNPCIfCanInteractWithFlag2(npcGuid, UNIT_NPC_FLAG2_ITEM_UPGRADE))
     {
@@ -2350,12 +1918,11 @@ void WorldSession::SendItemSparseDb2Reply(uint32 entry, ByteBuffer& buffer)
     buffer << uint32(proto->CurrencySubstitutionCount);
 }
 
-void WorldSession::HandleSetLootSpecialization(WorldPacket& recvData)
+void WorldSession::HandleSetLootSpecialization(WorldPackets::Item::SetLootSpecialization& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_LOOT_SPECIALIZATION");
 
-    uint32 lootSpecialization;
-    recvData >> lootSpecialization;
+    uint32 const lootSpecialization = packet.LootSpecialization;
 
     // If client sends 0 when setting to current specialization.
     if (lootSpecialization)

@@ -29,20 +29,40 @@ void WorldPackets::Bank::AutoStoreBankItem::Read()
 
 void WorldPackets::Bank::BuyBankSlot::Read()
 {
-    Banker[7] = _worldPacket.ReadBit();
-    Banker[6] = _worldPacket.ReadBit();
-    Banker[1] = _worldPacket.ReadBit();
-    Banker[3] = _worldPacket.ReadBit();
-    Banker[2] = _worldPacket.ReadBit();
-    Banker[0] = _worldPacket.ReadBit();
+    Guid[7] = _worldPacket.ReadBit();
+    Guid[6] = _worldPacket.ReadBit();
+    Guid[1] = _worldPacket.ReadBit();
+    Guid[3] = _worldPacket.ReadBit();
+    Guid[2] = _worldPacket.ReadBit();
+    Guid[0] = _worldPacket.ReadBit();
+    Guid[4] = _worldPacket.ReadBit();
+    Guid[5] = _worldPacket.ReadBit();
+    _worldPacket.ReadByteSeq(Guid[3]);
+    _worldPacket.ReadByteSeq(Guid[5]);
+    _worldPacket.ReadByteSeq(Guid[1]);
+    _worldPacket.ReadByteSeq(Guid[6]);
+    _worldPacket.ReadByteSeq(Guid[7]);
+    _worldPacket.ReadByteSeq(Guid[2]);
+    _worldPacket.ReadByteSeq(Guid[0]);
+    _worldPacket.ReadByteSeq(Guid[4]);
+}
+
+void WorldPackets::Bank::BankerActivate::Read()
+{
     Banker[4] = _worldPacket.ReadBit();
     Banker[5] = _worldPacket.ReadBit();
-    _worldPacket.ReadByteSeq(Banker[3]);
-    _worldPacket.ReadByteSeq(Banker[5]);
+    Banker[0] = _worldPacket.ReadBit();
+    Banker[6] = _worldPacket.ReadBit();
+    Banker[1] = _worldPacket.ReadBit();
+    Banker[2] = _worldPacket.ReadBit();
+    Banker[7] = _worldPacket.ReadBit();
+    Banker[3] = _worldPacket.ReadBit();
     _worldPacket.ReadByteSeq(Banker[1]);
-    _worldPacket.ReadByteSeq(Banker[6]);
     _worldPacket.ReadByteSeq(Banker[7]);
     _worldPacket.ReadByteSeq(Banker[2]);
+    _worldPacket.ReadByteSeq(Banker[5]);
+    _worldPacket.ReadByteSeq(Banker[6]);
+    _worldPacket.ReadByteSeq(Banker[3]);
     _worldPacket.ReadByteSeq(Banker[0]);
     _worldPacket.ReadByteSeq(Banker[4]);
 }

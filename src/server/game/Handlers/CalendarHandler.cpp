@@ -48,8 +48,10 @@ Copied events should probably have a new owner
 #include "WorldSession.h"
 #include "GameEventMgr.h"
 #include "Util.h"
+#include "CalendarPackets.h"
+#include "InstancePackets.h"
 
-void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
+void WorldSession::HandleCalendarGetCalendar(WorldPackets::Calendar::CalendarGetCalendar& packet)
 {
     ObjectGuid playerGuid = _player->GetGUID();
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_GET_CALENDAR [" "{}" "]", playerGuid.GetRawValue());
@@ -442,9 +444,9 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
     SendPacket(&data);
 }
 
-void WorldSession::HandleCalendarGetEvent(WorldPacket& recvData)
+void WorldSession::HandleCalendarGetEvent(WorldPackets::Calendar::CalendarGetEvent& packet)
 {
-    uint64 eventId = recvData.read<uint64>();
+    uint64 eventId = packet.EventId;
 
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_GET_EVENT. Player [" "{}" "] Event [" "{}" "]", _player->GetGUID().GetRawValue(), eventId);
 
@@ -454,13 +456,13 @@ void WorldSession::HandleCalendarGetEvent(WorldPacket& recvData)
         sCalendarMgr->SendCalendarCommandResult(_player->GetGUID(), CALENDAR_ERROR_EVENT_INVALID);
 }
 
-void WorldSession::HandleCalendarGuildFilter(WorldPacket& recvData)
+void WorldSession::HandleCalendarGuildFilter(WorldPackets::Calendar::CalendarGuildFilter& packet)
 {
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_GUILD_FILTER [" "{}" "]", _player->GetGUID().GetRawValue());
 
-    uint8 maxLevel = recvData.read<uint8>();
-    uint8 minRank = recvData.read<uint8>();
-    uint8 minLevel = recvData.read<uint8>();
+    uint8 maxLevel = packet.MaxLevel;
+    uint8 minRank = packet.MinRank;
+    uint8 minLevel = packet.MinLevel;
 
     if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
         guild->MassInviteToEvent(this, minLevel, maxLevel, minRank);
@@ -468,60 +470,21 @@ void WorldSession::HandleCalendarGuildFilter(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_GUILD_FILTER: Min level [{}], Max level [{}], Min rank [{}]", minLevel, maxLevel, minRank);
 }
 
-void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
+void WorldSession::HandleCalendarAddEvent(WorldPackets::Calendar::CalendarAddEvent& packet)
 {
     ObjectGuid guid = _player->GetGUID();
 
-    uint32 maxInvites = recvData.read<uint32>();  // always 100, necesary? Not find the way how to change it
-    uint32 flags = recvData.read<uint32>();
-    int32 dungeonId = recvData.read<int32>();
-    uint32 eventPackedTime = recvData.ReadPackedTime();
+    uint32 flags = packet.Flags;
+    int32 dungeonId = packet.DungeonId;
+    uint32 eventPackedTime = packet.EventPackedTime;
+    uint8 type = packet.Type;
+    std::string title = packet.Title;
+    std::string description = packet.Description;
 
     // prevent events in the past
     // To Do: properly handle timezones and remove the "- time_t(86400L)" hack
     if (time_t(eventPackedTime) < (time(NULL) - time_t(86400L)))
-    {
-        recvData.rfinish();
         return;
-    }
-
-    uint8 type = recvData.read<uint8>();
-    uint32 inviteeCount = recvData.ReadBits(22);
-    uint16 descriptionLength = recvData.ReadBits(11);
-
-    std::list<CalendarInvitePacketInfo> calendarInviteList;
-    for (uint32 i = 0; i < inviteeCount; i++)
-    {
-        CalendarInvitePacketInfo info;
-        info.Guid[7] = recvData.ReadBit();
-        info.Guid[2] = recvData.ReadBit();
-        info.Guid[6] = recvData.ReadBit();
-        info.Guid[3] = recvData.ReadBit();
-        info.Guid[5] = recvData.ReadBit();
-        info.Guid[1] = recvData.ReadBit();
-        info.Guid[0] = recvData.ReadBit();
-        info.Guid[4] = recvData.ReadBit();
-        calendarInviteList.push_back(info);
-    }
-
-    uint16 titleLength = recvData.ReadBits(8);
-
-    for (auto&& itr : calendarInviteList)
-    {
-        recvData.ReadByteSeq(itr.Guid[4]);
-        recvData.ReadByteSeq(itr.Guid[2]);
-        recvData.ReadByteSeq(itr.Guid[3]);
-        recvData.ReadByteSeq(itr.Guid[1]);
-        recvData.ReadByteSeq(itr.Guid[0]);
-        recvData.ReadByteSeq(itr.Guid[6]);
-        recvData.ReadByteSeq(itr.Guid[7]);
-        recvData >> itr.Status;
-        recvData.ReadByteSeq(itr.Guid[5]);
-        recvData >> itr.ModerationRank;
-    }
-
-    std::string title = recvData.ReadString(titleLength);
-    std::string description = recvData.ReadString(descriptionLength);
 
     CalendarEvent* calendarEvent = new CalendarEvent(sCalendarMgr->GetFreeEventId(), guid, 0, CalendarEventType(type), dungeonId,
         time_t(eventPackedTime), flags, title, description);
@@ -537,7 +500,7 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
     }
     else
     {
-        for (auto&& itr : calendarInviteList)
+        for (auto&& itr : packet.Invites)
         {
             CalendarInvite* invite = new CalendarInvite(sCalendarMgr->GetFreeInviteId(), calendarEvent->GetEventId(), guid, guid, 946684800, CalendarInviteStatus(itr.Status), CalendarModerationRank(itr.ModerationRank), "");
             sCalendarMgr->AddInvite(calendarEvent, invite);
@@ -547,64 +510,26 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
     sCalendarMgr->AddEvent(calendarEvent, CALENDAR_SENDTYPE_ADD);
 }
 
-void WorldSession::HandleCalendarUpdateEvent(WorldPacket& recvData)
+void WorldSession::HandleCalendarUpdateEvent(WorldPackets::Calendar::CalendarUpdateEvent& packet)
 {
     ObjectGuid guid = _player->GetGUID();
     time_t oldEventTime;
 
-    ObjectGuid eventId, inviteId;
-    uint32 maxInvites = recvData.read<uint32>();
-    int32 dungeonId = recvData.read<int32>();
-    uint32 eventPackedTime = recvData.ReadPackedTime();
+    ObjectGuid eventId = packet.EventId;
+    ObjectGuid inviteId = packet.InviteId;
+    uint32 maxInvites = packet.MaxInvites;
+    int32 dungeonId = packet.DungeonId;
+    uint32 eventPackedTime = packet.EventPackedTime;
 
     // prevent events in the past
     // To Do: properly handle timezones and remove the "- time_t(86400L)" hack
     if (time_t(eventPackedTime) < (time(NULL) - time_t(86400L)))
-    {
-        recvData.rfinish();
         return;
-    }
 
-    uint32 flags = recvData.read<uint32>();
-    uint8 type = recvData.read<uint8>();
-    eventId[4] = recvData.ReadBit();
-    eventId[5] = recvData.ReadBit();
-    eventId[2] = recvData.ReadBit();
-    inviteId[4] = recvData.ReadBit();
-    eventId[7] = recvData.ReadBit();
-    eventId[0] = recvData.ReadBit();
-    inviteId[5] = recvData.ReadBit();
-    inviteId[3] = recvData.ReadBit();
-    eventId[6] = recvData.ReadBit();
-    eventId[1] = recvData.ReadBit();
-    inviteId[6] = recvData.ReadBit();
-    inviteId[2] = recvData.ReadBit();
-    inviteId[7] = recvData.ReadBit();
-    inviteId[1] = recvData.ReadBit();
-    inviteId[0] = recvData.ReadBit();
-    uint16 descriptionLength = recvData.ReadBits(11);
-    uint16 titleLength = recvData.ReadBits(8);
-    eventId[3] = recvData.ReadBit();
-
-
-    recvData.ReadByteSeq(inviteId[6]);
-    recvData.ReadByteSeq(eventId[0]);
-    recvData.ReadByteSeq(inviteId[7]);
-    recvData.ReadByteSeq(inviteId[3]);
-    recvData.ReadByteSeq(eventId[6]);
-    recvData.ReadByteSeq(inviteId[1]);
-    recvData.ReadByteSeq(eventId[2]);
-    std::string title = recvData.ReadString(titleLength);
-    recvData.ReadByteSeq(inviteId[5]);
-    recvData.ReadByteSeq(inviteId[4]);
-    recvData.ReadByteSeq(eventId[5]);
-    recvData.ReadByteSeq(eventId[3]);
-    recvData.ReadByteSeq(inviteId[0]);
-    recvData.ReadByteSeq(eventId[4]);
-    std::string description = recvData.ReadString(descriptionLength);
-    recvData.ReadByteSeq(eventId[1]);
-    recvData.ReadByteSeq(inviteId[2]);
-    recvData.ReadByteSeq(eventId[7]);
+    uint32 flags = packet.Flags;
+    uint8 type = packet.Type;
+    std::string title = packet.Title;
+    std::string description = packet.Description;
 
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_UPDATE_EVENT [" "{}" "] EventId [" "{}" "], InviteId [" "{}" "] Title {}, Description {}, type {} "
         "MaxInvites {}, Dungeon ID {}, Time {}, Flags {}",
@@ -630,24 +555,22 @@ void WorldSession::HandleCalendarUpdateEvent(WorldPacket& recvData)
         sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_EVENT_INVALID);
 }
 
-void WorldSession::HandleCalendarRemoveEvent(WorldPacket& recvData)
+void WorldSession::HandleCalendarRemoveEvent(WorldPackets::Calendar::CalendarRemoveEvent& packet)
 {
     ObjectGuid guid = _player->GetGUID();
 
-    recvData.read_skip<uint64>(); // Skip InviteId
-    uint64 eventId = recvData.read<uint64>();
-    recvData.read_skip<uint32>(); // Skip flags
+    uint64 eventId = packet.EventId;
 
     sCalendarMgr->RemoveEvent(eventId, guid);
 }
 
-void WorldSession::HandleCalendarCopyEvent(WorldPacket& recvData)
+void WorldSession::HandleCalendarCopyEvent(WorldPackets::Calendar::CalendarCopyEvent& packet)
 {
     ObjectGuid guid = _player->GetGUID();
 
-    uint64 eventId = recvData.read<uint64>();
-    uint64 inviteId = recvData.read<uint64>();
-    uint32 time = recvData.ReadPackedTime();
+    uint64 eventId = packet.EventId;
+    uint64 inviteId = packet.InviteId;
+    uint32 time = packet.Time;
 
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_COPY_EVENT [" "{}" "], EventId [" "{}" "] inviteId [" "{}" "] Time: {}", guid.GetRawValue(), eventId, inviteId, time);
 
@@ -666,7 +589,7 @@ void WorldSession::HandleCalendarCopyEvent(WorldPacket& recvData)
         sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_EVENT_INVALID);
 }
 
-void WorldSession::HandleCalendarEventInvite(WorldPacket& recvData)
+void WorldSession::HandleCalendarEventInvite(WorldPackets::Calendar::CalendarInvite& packet)
 {
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_INVITE");
 
@@ -676,12 +599,11 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recvData)
     uint32 inviteeTeam = 0;
     uint32 inviteeGuildId = 0;
 
-    uint64 eventId = recvData.read<uint64>();
-    uint64 inviteId = recvData.read<uint64>();
-    bool isPreInvite = recvData.ReadBit();
-    uint16 length = recvData.ReadBits(9);
-    bool isGuildEvent = recvData.ReadBit();
-    std::string name = recvData.ReadString(length);
+    uint64 eventId = packet.EventId;
+    uint64 inviteId = packet.InviteId;
+    bool isPreInvite = packet.IsPreInvite;
+    bool isGuildEvent = packet.IsGuildEvent;
+    std::string name = packet.Name;
 
     Player* player = ObjectAccessor::FindPlayerByName(name.c_str());
     if (player)
@@ -764,12 +686,12 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleCalendarEventSignup(WorldPacket& recvData)
+void WorldSession::HandleCalendarEventSignup(WorldPackets::Calendar::CalendarEventSignUp& packet)
 {
     ObjectGuid guid = _player->GetGUID();
 
-    uint64 eventId = recvData.read<uint64>();
-    bool tentative = recvData.ReadBit();
+    uint64 eventId = packet.EventId;
+    bool tentative = packet.Tentative;
 
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_SIGNUP [" "{}" "] EventId [" "{}" "] Tentative {}", guid.GetRawValue(), eventId, tentative);
 
@@ -790,13 +712,13 @@ void WorldSession::HandleCalendarEventSignup(WorldPacket& recvData)
         sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_EVENT_INVALID);
 }
 
-void WorldSession::HandleCalendarEventRsvp(WorldPacket& recvData)
+void WorldSession::HandleCalendarEventRsvp(WorldPackets::Calendar::CalendarRSVP& packet)
 {
     ObjectGuid guid = _player->GetGUID();
 
-    uint64 eventId = recvData.read<uint64>();
-    uint64 inviteId = recvData.read<uint64>();
-    uint8 status = recvData.read<uint8>();
+    uint64 eventId = packet.EventId;
+    uint64 inviteId = packet.InviteId;
+    uint8 status = packet.Status;
 
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_RSVP [" "{}" "] EventId [" "{}" "], InviteId [" "{}" "], status {}", guid.GetRawValue(), eventId,
         inviteId, status);
@@ -827,30 +749,14 @@ void WorldSession::HandleCalendarEventRsvp(WorldPacket& recvData)
         sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_EVENT_INVALID);
 }
 
-void WorldSession::HandleCalendarEventRemoveInvite(WorldPacket& recvData)
+void WorldSession::HandleCalendarEventRemoveInvite(WorldPackets::Calendar::CalendarRemoveInvite& packet)
 {
     ObjectGuid guid = _player->GetGUID();
 
-    ObjectGuid invitee;
-    uint64 inviteId = recvData.read<uint64>();
-    uint64 senderId = recvData.read<uint64>();
-    uint64 eventId = recvData.read<uint64>();
-    invitee[6] = recvData.ReadBit();
-    invitee[3] = recvData.ReadBit();
-    invitee[2] = recvData.ReadBit();
-    invitee[4] = recvData.ReadBit();
-    invitee[5] = recvData.ReadBit();
-    invitee[7] = recvData.ReadBit();
-    invitee[0] = recvData.ReadBit();
-    invitee[1] = recvData.ReadBit();
-    recvData.ReadByteSeq(invitee[0]);
-    recvData.ReadByteSeq(invitee[4]);
-    recvData.ReadByteSeq(invitee[7]);
-    recvData.ReadByteSeq(invitee[3]);
-    recvData.ReadByteSeq(invitee[5]);
-    recvData.ReadByteSeq(invitee[1]);
-    recvData.ReadByteSeq(invitee[2]);
-    recvData.ReadByteSeq(invitee[6]);
+    ObjectGuid invitee = packet.Invitee;
+    uint64 inviteId = packet.InviteId;
+    uint64 senderId = packet.SenderId;
+    uint64 eventId = packet.EventId;
 
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_REMOVE_INVITE [" "{}" "] EventId [" "{}" "], senderId [" "{}" "], Invitee ([" "{}" "] id: [" "{}" "])",
         guid.GetRawValue(), eventId, senderId, (uint64)invitee, inviteId);
@@ -869,31 +775,15 @@ void WorldSession::HandleCalendarEventRemoveInvite(WorldPacket& recvData)
         sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_NO_INVITE);
 }
 
-void WorldSession::HandleCalendarEventStatus(WorldPacket& recvData)
+void WorldSession::HandleCalendarEventStatus(WorldPackets::Calendar::CalendarStatus& packet)
 {
     ObjectGuid guid = _player->GetGUID();
 
-    ObjectGuid invitee;
-    uint64 senderId = recvData.read<uint64>();
-    uint64 eventId = recvData.read<uint64>();
-    uint64 inviteId = recvData.read<uint64>();
-    uint8 status = recvData.read<uint8>();
-    invitee[4] = recvData.ReadBit();
-    invitee[3] = recvData.ReadBit();
-    invitee[7] = recvData.ReadBit();
-    invitee[6] = recvData.ReadBit();
-    invitee[2] = recvData.ReadBit();
-    invitee[0] = recvData.ReadBit();
-    invitee[5] = recvData.ReadBit();
-    invitee[1] = recvData.ReadBit();
-    recvData.ReadByteSeq(invitee[7]);
-    recvData.ReadByteSeq(invitee[5]);
-    recvData.ReadByteSeq(invitee[2]);
-    recvData.ReadByteSeq(invitee[1]);
-    recvData.ReadByteSeq(invitee[4]);
-    recvData.ReadByteSeq(invitee[6]);
-    recvData.ReadByteSeq(invitee[0]);
-    recvData.ReadByteSeq(invitee[3]);
+    ObjectGuid invitee = packet.Invitee;
+    uint64 senderId = packet.SenderId;
+    uint64 eventId = packet.EventId;
+    uint64 inviteId = packet.InviteId;
+    uint8 status = packet.Status;
 
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_STATUS [" "{}" "] EventId [" "{}" "] senderId [" "{}" "], Invitee ([" "{}" "] id: [" "{}" "], status {}", guid.GetRawValue(), eventId, senderId, (uint64)invitee, inviteId, status);
 
@@ -915,31 +805,15 @@ void WorldSession::HandleCalendarEventStatus(WorldPacket& recvData)
         sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_EVENT_INVALID);
 }
 
-void WorldSession::HandleCalendarEventModeratorStatus(WorldPacket& recvData)
+void WorldSession::HandleCalendarEventModeratorStatus(WorldPackets::Calendar::CalendarModeratorStatusQuery& packet)
 {
     ObjectGuid guid = _player->GetGUID();
 
-    ObjectGuid invitee;
-    uint8 rank = recvData.read<uint8>();
-    uint64 eventId = recvData.read<uint64>();
-    uint64 senderId = recvData.read<uint64>();
-    uint64 inviteId = recvData.read<uint64>();
-    invitee[6] = recvData.ReadBit();
-    invitee[5] = recvData.ReadBit();
-    invitee[1] = recvData.ReadBit();
-    invitee[3] = recvData.ReadBit();
-    invitee[4] = recvData.ReadBit();
-    invitee[7] = recvData.ReadBit();
-    invitee[0] = recvData.ReadBit();
-    invitee[2] = recvData.ReadBit();
-    recvData.ReadByteSeq(invitee[7]);
-    recvData.ReadByteSeq(invitee[5]);
-    recvData.ReadByteSeq(invitee[0]);
-    recvData.ReadByteSeq(invitee[4]);
-    recvData.ReadByteSeq(invitee[1]);
-    recvData.ReadByteSeq(invitee[3]);
-    recvData.ReadByteSeq(invitee[2]);
-    recvData.ReadByteSeq(invitee[6]);
+    ObjectGuid invitee = packet.Invitee;
+    uint8 rank = packet.Rank;
+    uint64 eventId = packet.EventId;
+    uint64 senderId = packet.SenderId;
+    uint64 inviteId = packet.InviteId;
 
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_MODERATOR_STATUS [" "{}" "] EventId [" "{}" "] senderId [" "{}" "], Invitee ([" "{}" "] id: [" "{}" "], rank {}", guid.GetRawValue(), eventId, senderId, (uint64)invitee, inviteId, rank);
 
@@ -964,36 +838,20 @@ void WorldSession::HandleCalendarEventModeratorStatus(WorldPacket& recvData)
         sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_EVENT_INVALID);
 }
 
-void WorldSession::HandleCalendarComplain(WorldPacket& recvData)
+void WorldSession::HandleCalendarComplain(WorldPackets::Calendar::CalendarComplain& packet)
 {
     uint64 guid = _player->GetGUID();
 
-    ObjectGuid complainGUID;
-    uint64 inviteId = recvData.read<uint64>();
-    uint64 eventId = recvData.read<uint64>();
-    complainGUID[4] = recvData.ReadBit();
-    complainGUID[6] = recvData.ReadBit();
-    complainGUID[2] = recvData.ReadBit();
-    complainGUID[7] = recvData.ReadBit();
-    complainGUID[1] = recvData.ReadBit();
-    complainGUID[5] = recvData.ReadBit();
-    complainGUID[3] = recvData.ReadBit();
-    complainGUID[0] = recvData.ReadBit();
-    recvData.ReadByteSeq(complainGUID[6]);
-    recvData.ReadByteSeq(complainGUID[7]);
-    recvData.ReadByteSeq(complainGUID[1]);
-    recvData.ReadByteSeq(complainGUID[0]);
-    recvData.ReadByteSeq(complainGUID[4]);
-    recvData.ReadByteSeq(complainGUID[2]);
-    recvData.ReadByteSeq(complainGUID[3]);
-    recvData.ReadByteSeq(complainGUID[5]);
+    ObjectGuid complainGUID = packet.ComplainGuid;
+    uint64 inviteId = packet.InviteId;
+    uint64 eventId = packet.EventId;
 
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_COMPLAIN [" "{}" "] EventId [" "{}" "] guid [" "{}" "] InviteId [" "{}" "]", guid, eventId, (uint64)complainGUID, inviteId);
 
     // what to do with complains?
 }
 
-void WorldSession::HandleCalendarGetNumPending(WorldPacket& /*recvData*/)
+void WorldSession::HandleCalendarGetNumPending(WorldPackets::Calendar::CalendarGetNumPending& packet)
 {
     ObjectGuid guid = _player->GetGUID();
     uint32 pending = sCalendarMgr->GetPlayerNumPending(guid);
@@ -1005,11 +863,11 @@ void WorldSession::HandleCalendarGetNumPending(WorldPacket& /*recvData*/)
     SendPacket(&data);
 }
 
-void WorldSession::HandleSetSavedInstanceExtend(WorldPacket& recvData)
+void WorldSession::HandleSetSavedInstanceExtend(WorldPackets::Instance::SetSavedInstanceExtend& packet)
 {
-    uint32 mapId = recvData.read<uint32>();
-    uint32 difficulty = recvData.read<uint32>();
-    bool toggleExtend = recvData.ReadBit();
+    uint32 mapId = packet.MapId;
+    uint32 difficulty = packet.Difficulty;
+    bool toggleExtend = packet.ToggleExtend;
 
     TC_LOG_DEBUG("network", "CMSG_SET_SAVED_INSTANCE_EXTEND - MapId: {}, Difficulty: {}, ToggleExtend: {}", mapId, difficulty, toggleExtend ? "On" : "Off");
 

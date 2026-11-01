@@ -299,7 +299,7 @@ void WorldPackets::Movement::MoveTeleportAck::Read()
     _worldPacket.ReadByteSeq(MoverGUID[3]);
 }
 
-void WorldPackets::Movement::MoveSetActiveMover::Read()
+void WorldPackets::Movement::SetActiveMover::Read()
 {
     _worldPacket.ReadBit();
 
@@ -324,7 +324,7 @@ void WorldPackets::Movement::MoveSetActiveMover::Read()
 
 void WorldPackets::Movement::MoveKnockBackAck::Read()
 {
-    WorldPackets::Movement::ReadMovementInfo(_worldPacket, Status);
+    WorldPackets::Movement::ReadMovementInfo(_worldPacket, Ack);
 }
 
 void WorldPackets::Movement::MoveHoverAck::Read()
@@ -341,31 +341,31 @@ void WorldPackets::Movement::MoveSetCollisionHeightAck::Read()
 {
     static MovementStatusElements const heightElements[] = { MSEExtraFloat, MSEExtra2Bits };
     ::Movement::ExtraMovementStatusElement extras(heightElements);
-    WorldPackets::Movement::ReadMovementInfo(_worldPacket, Status, &extras);
+    WorldPackets::Movement::ReadMovementInfo(_worldPacket, Data, &extras);
     Height = extras.Data.floatData;
     Reason = extras.Data.extra2BitsData;
 }
 
-void WorldPackets::Movement::MovementForceAck::Read()
+void WorldPackets::Movement::MoveApplyMovementForceAck::Read()
 {
     if (_worldPacket.GetOpcode() == CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK)
     {
         static MovementStatusElements const unkElements[] = { MSEExtraFloat, MSEExtraInt32, MSEExtraFloat };
         ::Movement::ExtraMovementStatusElement extras(unkElements);
-        WorldPackets::Movement::ReadMovementInfo(_worldPacket, Status, &extras);
+        WorldPackets::Movement::ReadMovementInfo(_worldPacket, Ack, &extras);
         Speed = extras.Data.floatData;
         UnkInt = extras.Data.extraInt32Data;
         DirectionX = extras.Data.floatData2;
     }
     else
-        WorldPackets::Movement::ReadMovementInfo(_worldPacket, Status);
+        WorldPackets::Movement::ReadMovementInfo(_worldPacket, Ack);
 }
 
-void WorldPackets::Movement::MoveSpeedChangeAck::Read()
+void WorldPackets::Movement::MovementSpeedAck::Read()
 {
     static MovementStatusElements const speedElement = MSEExtraFloat;
     ::Movement::ExtraMovementStatusElement extras(&speedElement);
-    WorldPackets::Movement::ReadMovementInfo(_worldPacket, Status, &extras);
+    WorldPackets::Movement::ReadMovementInfo(_worldPacket, Ack, &extras);
     Speed = extras.Data.floatData;
 }
 
@@ -393,5 +393,33 @@ void WorldPackets::Movement::SummonResponse::Read()
     _worldPacket.ReadByteSeq(SummonerGUID[4]);
     _worldPacket.ReadByteSeq(SummonerGUID[2]);
     _worldPacket.ReadByteSeq(SummonerGUID[7]);
+}
+
+void WorldPackets::Movement::MoveTimeSkipped::Read()
+{
+    _worldPacket >> Time;
+
+    MoverGUID[5] = _worldPacket.ReadBit();
+    MoverGUID[0] = _worldPacket.ReadBit();
+    MoverGUID[7] = _worldPacket.ReadBit();
+    MoverGUID[4] = _worldPacket.ReadBit();
+    MoverGUID[1] = _worldPacket.ReadBit();
+    MoverGUID[2] = _worldPacket.ReadBit();
+    MoverGUID[6] = _worldPacket.ReadBit();
+    MoverGUID[3] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(MoverGUID[7]);
+    _worldPacket.ReadByteSeq(MoverGUID[2]);
+    _worldPacket.ReadByteSeq(MoverGUID[0]);
+    _worldPacket.ReadByteSeq(MoverGUID[6]);
+    _worldPacket.ReadByteSeq(MoverGUID[1]);
+    _worldPacket.ReadByteSeq(MoverGUID[5]);
+    _worldPacket.ReadByteSeq(MoverGUID[3]);
+    _worldPacket.ReadByteSeq(MoverGUID[4]);
+}
+
+void WorldPackets::Movement::MoveSetCanFlyAck::Read()
+{
+    WorldPackets::Movement::ReadMovementInfo(_worldPacket, Status);
 }
 

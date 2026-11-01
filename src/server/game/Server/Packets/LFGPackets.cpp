@@ -60,14 +60,14 @@ void WorldPackets::LFG::LFGLeave::Read()
     _worldPacket.ReadByteSeq(LeaveGuid[0]);
 }
 
-void WorldPackets::LFG::LFGProposalResult::Read()
+void WorldPackets::LFG::DFProposalResponse::Read()
 {
-    ProposalId = _worldPacket.read<uint32>();
+    ProposalID = _worldPacket.read<uint32>();
     _worldPacket.read_skip<uint32>(); // queueId
     _worldPacket.read_skip<uint32>(); // unk flags (always 3)
     _worldPacket.read_skip<uint32>(); // join time
 
-    Accept = _worldPacket.ReadBit();
+    Accepted = _worldPacket.ReadBit();
 
     ObjectGuid guid1;
     ObjectGuid guid2;
@@ -106,26 +106,26 @@ void WorldPackets::LFG::LFGProposalResult::Read()
     _worldPacket.ReadByteSeq(guid2[2]);
 }
 
-void WorldPackets::LFG::LFGSetRoles::Read()
+void WorldPackets::LFG::DFSetRoles::Read()
 {
-    Roles = _worldPacket.read<uint32>();
+    RolesDesired = _worldPacket.read<uint32>();
     _worldPacket.read_skip<uint8>();
 }
 
-void WorldPackets::LFG::LFGSetBootVote::Read()
+void WorldPackets::LFG::DFBootPlayerVote::Read()
 {
-    Agree = _worldPacket.ReadBit();
+    Vote = _worldPacket.ReadBit();
 }
 
-void WorldPackets::LFG::LFGTeleport::Read()
+void WorldPackets::LFG::DFTeleport::Read()
 {
-    Out = _worldPacket.ReadBit();
+    TeleportOut = _worldPacket.ReadBit();
 }
 
-void WorldPackets::LFG::LFGGetLockInfo::Read()
+void WorldPackets::LFG::DFGetSystemInfo::Read()
 {
     _worldPacket.read_skip<uint8>();
-    ForPlayer = _worldPacket.ReadBit();
+    Player = _worldPacket.ReadBit();
 }
 
 void WorldPackets::LFG::SetLfgBonusFactionId::Read()

@@ -209,29 +209,10 @@ void WorldSession::SendBfLeaveMessage(ObjectGuid guid, BFLeaveReason reason)
 }
 
 // Send by client when he click on accept for queue
-void WorldSession::HandleBfQueueInviteResponse(WorldPacket& recvData)
+void WorldSession::HandleBfQueueInviteResponse(WorldPackets::Battleground::BattlefieldMgrQueueInviteResponse& packet)
 {
-    uint8 accepted;
-    ObjectGuid guid;
-
-    guid[3] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    accepted = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[3]);
+    ObjectGuid guid = packet.Guid;
+    uint8 accepted = packet.Accepted;
 
     TC_LOG_DEBUG("misc", "HandleQueueInviteResponse: GUID:" "{}" " Accepted:{}", (uint64)guid, accepted);
 
@@ -244,29 +225,10 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket& recvData)
 }
 
 // Send by client on clicking in accept or refuse of invitation windows for join game
-void WorldSession::HandleBfEntryInviteResponse(WorldPacket& recvData)
+void WorldSession::HandleBfEntryInviteResponse(WorldPackets::Battleground::BattlefieldMgrEntryInviteResponse& packet)
 {
-    uint8 accepted;
-    ObjectGuid guid;
-
-    guid[0] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    accepted = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[0]);
+    ObjectGuid guid = packet.Guid;
+    uint8 accepted = packet.Accepted;
 
     TC_LOG_DEBUG("misc", "HandleBattlefieldInviteResponse: GUID:" "{}" " Accepted:{}", (uint64) guid, accepted);
 
@@ -281,27 +243,9 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket& recvData)
             bf->KickPlayerFromBattlefield(_player->GetGUID());
 }
 
-void WorldSession::HandleBfQueueRequest(WorldPacket& recvData)
+void WorldSession::HandleBfQueueRequest(WorldPackets::Battleground::BattlefieldMgrQueueRequest& packet)
 {
-    ObjectGuid guid;
-
-    guid[5] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[3]);
+    ObjectGuid guid = packet.Guid;
 
     TC_LOG_DEBUG("misc", "HandleBfQueueRequest: GUID:" "{}" " ", (uint64) guid);
 
@@ -319,7 +263,7 @@ void WorldSession::HandleBfQueueRequest(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleBfExitRequest(WorldPacket& recvData)
+void WorldSession::HandleBfExitRequest(WorldPackets::Battleground::BattlefieldMgrExitRequest& /*packet*/)
 {
     TC_LOG_DEBUG("misc", "HandleBfExitRequest");
 

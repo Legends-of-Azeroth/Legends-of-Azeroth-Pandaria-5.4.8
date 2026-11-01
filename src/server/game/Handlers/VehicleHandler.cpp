@@ -24,7 +24,7 @@
 #include "ObjectAccessor.h"
 #include "MovementStructures.h"
 
-void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
+void WorldSession::HandleDismissControlledVehicle(WorldPackets::Vehicle::MoveDismissVehicle& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_DISMISS_CONTROLLED_VEHICLE");
 
@@ -32,12 +32,10 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 
     if (!vehicleGUID)                                       // something wrong here...
     {
-        recvData.rfinish();                                // prevent warnings spam
         return;
     }
 
-    MovementInfo mi;
-    _player->ReadMovementInfo(recvData, &mi);
+    MovementInfo mi = packet.Mi;
 
     _player->m_movementInfo = mi;
 
@@ -154,26 +152,9 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleEnterPlayerVehicle(WorldPacket& recvData)
+void WorldSession::HandleEnterPlayerVehicle(WorldPackets::Vehicle::PlayerVehicleEnter& packet)
 {
-    ObjectGuid Guid;
-    Guid[5] = recvData.ReadBit();
-    Guid[7] = recvData.ReadBit();
-    Guid[3] = recvData.ReadBit();
-    Guid[0] = recvData.ReadBit();
-    Guid[2] = recvData.ReadBit();
-    Guid[4] = recvData.ReadBit();
-    Guid[6] = recvData.ReadBit();
-    Guid[1] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(Guid[5]);
-    recvData.ReadByteSeq(Guid[3]);
-    recvData.ReadByteSeq(Guid[1]);
-    recvData.ReadByteSeq(Guid[2]);
-    recvData.ReadByteSeq(Guid[7]);
-    recvData.ReadByteSeq(Guid[0]);
-    recvData.ReadByteSeq(Guid[6]);
-    recvData.ReadByteSeq(Guid[4]);
+    ObjectGuid Guid = packet.Guid;
 
     if (Player* player = ObjectAccessor::FindPlayer(Guid))
     {
@@ -188,33 +169,16 @@ void WorldSession::HandleEnterPlayerVehicle(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleEjectPassenger(WorldPacket& data)
+void WorldSession::HandleEjectPassenger(WorldPackets::Vehicle::EjectPassenger& packet)
 {
     Vehicle* vehicle = _player->GetVehicleKit();
     if (!vehicle)
     {
-        data.rfinish();                                     // prevent warnings spam
         TC_LOG_ERROR("network", "HandleEjectPassenger: Player {} is not in a vehicle!", GetPlayer()->GetGUID().GetCounter());
         return;
     }
 
-    ObjectGuid guid;
-    guid[4] = data.ReadBit();
-    guid[2] = data.ReadBit();
-    guid[1] = data.ReadBit();
-    guid[6] = data.ReadBit();
-    guid[5] = data.ReadBit();
-    guid[0] = data.ReadBit();
-    guid[7] = data.ReadBit();
-    guid[3] = data.ReadBit();
-    data.ReadByteSeq(guid[2]);
-    data.ReadByteSeq(guid[7]);
-    data.ReadByteSeq(guid[0]);
-    data.ReadByteSeq(guid[6]);
-    data.ReadByteSeq(guid[4]);
-    data.ReadByteSeq(guid[3]);
-    data.ReadByteSeq(guid[5]);
-    data.ReadByteSeq(guid[1]);
+    ObjectGuid guid = packet.Guid;
 
     if (guid.IsPlayer())
     {
@@ -272,7 +236,7 @@ void WorldSession::HandleEjectPassenger(WorldPacket& data)
         TC_LOG_ERROR("network", "HandleEjectPassenger: Player {} tried to eject invalid GUID " UI64FMTD, GetPlayer()->GetGUID().GetCounter(), uint64(guid));
 }
 
-void WorldSession::HandleRequestVehicleExit(WorldPacket& recvData)
+void WorldSession::HandleRequestVehicleExit(WorldPackets::Vehicle::RequestVehicleExit& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_REQUEST_VEHICLE_EXIT");
 
@@ -292,16 +256,11 @@ void WorldSession::HandleRequestVehicleExit(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleMoveSetVehicleRecAck(WorldPacket& recvData)
+void WorldSession::HandleMoveSetVehicleRecAck(WorldPackets::Vehicle::MoveSetVehicleRecIdAck& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_SET_VEHICLE_REC_ID_ACK");
 
-    static MovementStatusElements const vehicleIdExtra = MSEExtraInt32;
-    Movement::ExtraMovementStatusElement extras(&vehicleIdExtra);
-    MovementInfo movementInfo;
-    GetPlayer()->ReadMovementInfo(recvData, &movementInfo, &extras);
-
-    uint32 vehicleId = extras.Data.extraInt32Data;
+    uint32 vehicleId = packet.VehicleId;
 
     ObjectGuid vehicleGuid = GetPlayer()->GetGUID();
     WorldPacket data(SMSG_SET_VEHICLE_REC_ID, 8 + 4);

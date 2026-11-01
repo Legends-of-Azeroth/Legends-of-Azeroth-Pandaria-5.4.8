@@ -34,6 +34,36 @@ namespace WorldPackets
 
             ObjectGuid Target;
         };
+
+        class InspectHonorStats final : public ClientPacket
+        {
+        public:
+            explicit InspectHonorStats(WorldPacket&& packet) : ClientPacket(CMSG_INSPECT_HONOR_STATS, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Target;
+        };
+
+        class QueryInspectAchievements final : public ClientPacket
+        {
+        public:
+            explicit QueryInspectAchievements(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_INSPECT_ACHIEVEMENTS, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Target;
+        };
+
+        class InspectRatedBGStats final : public ClientPacket
+        {
+        public:
+            explicit InspectRatedBGStats(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_INSPECT_RATED_BG_STATS, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Target;
+        };
     }
 }
 

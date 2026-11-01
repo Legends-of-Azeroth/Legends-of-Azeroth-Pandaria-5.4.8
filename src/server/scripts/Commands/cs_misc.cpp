@@ -3553,7 +3553,9 @@ public:
     static bool HandleBattlegroundRegRatedCommand(ChatHandler* handler, char const* args)
     {
         WorldPacket data;
-        handler->GetSession()->HandleBattlemasterJoinRated(data);
+        WorldPackets::Battleground::BattlemasterJoinRated packet(std::move(data));
+        packet.Read();
+        handler->GetSession()->HandleBattlemasterJoinRated(packet);
         return true;
     }
 

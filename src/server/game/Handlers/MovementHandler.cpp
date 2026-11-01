@@ -469,12 +469,12 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
     }
 }
 
-void WorldSession::HandleForceSpeedChangeAck(WorldPackets::Movement::MoveSpeedChangeAck& packet)
+void WorldSession::HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpeedAck& packet)
 {
     uint32 opcode = packet.GetOpcode();
 
     /* extract packet */
-    MovementInfo const& movementInfo = packet.Status;
+    MovementInfo const& movementInfo = packet.Ack;
 
     // now can skip not our packet
     if (_player->GetGUID() != movementInfo.guid)
@@ -542,7 +542,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPackets::Movement::MoveSpeedCh
     }
 }
 
-void WorldSession::HandleSetActiveMoverOpcode(WorldPackets::Movement::MoveSetActiveMover& packet)
+void WorldSession::HandleSetActiveMoverOpcode(WorldPackets::Movement::SetActiveMover& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_SET_ACTIVE_MOVER");
 
@@ -563,7 +563,7 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
     _player->m_movementInfo = mi;
 }
 
-void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleMountSpecialAnimOpcode(WorldPackets::Movement::MountSpecialAnim& /*packet*/)
 {
     ObjectGuid guid = GetPlayer()->GetGUID();
 
@@ -595,7 +595,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPackets::Movement::MoveKnockBackA
 {
     TC_LOG_DEBUG("network", "CMSG_MOVE_KNOCK_BACK_ACK");
 
-    MovementInfo movementInfo = packet.Status;
+    MovementInfo movementInfo = packet.Ack;
 
     if (_player->m_mover->GetGUID() != movementInfo.guid)
         return;
@@ -632,7 +632,7 @@ void WorldSession::HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCo
     TC_LOG_DEBUG("network", "CMSG_MOVE_SET_COLLISION_HEIGHT_ACK");
 }
 
-void WorldSession::HandleMovementForceAck(WorldPackets::Movement::MovementForceAck& packet)
+void WorldSession::HandleMovementForceAck(WorldPackets::Movement::MoveApplyMovementForceAck& packet)
 {
     TC_LOG_DEBUG("network", "{}", packet.GetOpcode() == CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK ? "CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK" : "CMSG_MOVE_REMOVE_MOVEMENT_FORCE_ACK");
 }

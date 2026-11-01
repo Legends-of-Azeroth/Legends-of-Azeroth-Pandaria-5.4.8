@@ -22,40 +22,20 @@
 #include "GuildFinderMgr.h"
 #include "GuildMgr.h"
 #include "AchievementMgr.h"
+#include "GuildFinderPackets.h"
 
-void WorldSession::HandleGuildFinderAddApplication(WorldPacket& recvPacket)
+void WorldSession::HandleGuildFinderAddApplication(WorldPackets::GuildFinder::LFGuildAddApplication& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_LF_GUILD_ADD_APPLICATION");
 
     if (sGuildFinderMgr->GetAllMembershipRequestsForPlayer(GetPlayer()->GetGUID().GetCounter()).size() == 10)
         return;
 
-    uint32 classRoles = 0;
-    uint32 availability = 0;
-    uint32 guildInterests = 0;
-
-    recvPacket >> classRoles >> availability >> guildInterests;
-
-    ObjectGuid guid;
-    guid[7] = recvPacket.ReadBit();
-    guid[5] = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
-    guid[1] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
-    uint16 commentLength = recvPacket.ReadBits(10);
-    guid[3] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-
-    recvPacket.ReadByteSeq(guid[4]);
-    recvPacket.ReadByteSeq(guid[0]);
-    recvPacket.ReadByteSeq(guid[2]);
-    std::string comment = recvPacket.ReadString(commentLength);
-    recvPacket.ReadByteSeq(guid[6]);
-    recvPacket.ReadByteSeq(guid[1]);
-    recvPacket.ReadByteSeq(guid[5]);
-    recvPacket.ReadByteSeq(guid[7]);
-    recvPacket.ReadByteSeq(guid[3]);
+    uint32 classRoles = packet.ClassRoles;
+    uint32 availability = packet.Availability;
+    uint32 guildInterests = packet.GuildInterests;
+    ObjectGuid guid = packet.GuildGuid;
+    std::string comment = packet.Comment;
 
     uint32 guildLowGuid = guid.GetCounter();
 
@@ -72,15 +52,13 @@ void WorldSession::HandleGuildFinderAddApplication(WorldPacket& recvPacket)
     sGuildFinderMgr->AddMembershipRequest(guildLowGuid, request);
 }
 
-void WorldSession::HandleGuildFinderBrowse(WorldPacket& recvPacket)
+void WorldSession::HandleGuildFinderBrowse(WorldPackets::GuildFinder::LFGuildBrowse& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_LF_GUILD_BROWSE");
-    uint32 classRoles = 0;
-    uint32 availability = 0;
-    uint32 guildInterests = 0;
-    uint32 playerLevel = 0; // Raw player level (1-85), do they use MAX_FINDER_LEVEL when on level 85 ?
-
-    recvPacket >> playerLevel >> availability >> classRoles >> guildInterests;
+    uint32 classRoles = packet.ClassRoles;
+    uint32 availability = packet.Availability;
+    uint32 guildInterests = packet.GuildInterests;
+    uint32 playerLevel = packet.PlayerLevel; // Raw player level (1-85), do they use MAX_FINDER_LEVEL when on level 85 ?
 
     if (!(classRoles & GUILDFINDER_ALL_ROLES) || classRoles > GUILDFINDER_ALL_ROLES)
         return;
@@ -162,29 +140,11 @@ void WorldSession::HandleGuildFinderBrowse(WorldPacket& recvPacket)
     player->SendDirectMessage(&data);
 }
 
-void WorldSession::HandleGuildFinderDeclineRecruit(WorldPacket& recvPacket)
+void WorldSession::HandleGuildFinderDeclineRecruit(WorldPackets::GuildFinder::LFGuildDeclineRecruit& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_LF_GUILD_DECLINE_RECRUIT");
 
-    ObjectGuid playerGuid;
-
-    playerGuid[6] = recvPacket.ReadBit();
-    playerGuid[7] = recvPacket.ReadBit();
-    playerGuid[3] = recvPacket.ReadBit();
-    playerGuid[1] = recvPacket.ReadBit();
-    playerGuid[2] = recvPacket.ReadBit();
-    playerGuid[0] = recvPacket.ReadBit();
-    playerGuid[4] = recvPacket.ReadBit();
-    playerGuid[5] = recvPacket.ReadBit();
-
-    recvPacket.ReadByteSeq(playerGuid[0]);
-    recvPacket.ReadByteSeq(playerGuid[7]);
-    recvPacket.ReadByteSeq(playerGuid[1]);
-    recvPacket.ReadByteSeq(playerGuid[6]);
-    recvPacket.ReadByteSeq(playerGuid[4]);
-    recvPacket.ReadByteSeq(playerGuid[3]);
-    recvPacket.ReadByteSeq(playerGuid[5]);
-    recvPacket.ReadByteSeq(playerGuid[2]);
+    ObjectGuid playerGuid = packet.PlayerGuid;
 
     if (!playerGuid.IsPlayer())
         return;
@@ -192,7 +152,7 @@ void WorldSession::HandleGuildFinderDeclineRecruit(WorldPacket& recvPacket)
     sGuildFinderMgr->RemoveMembershipRequest(playerGuid.GetCounter(), GetPlayer()->GetGuildId());
 }
 
-void WorldSession::HandleGuildFinderGetApplications(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleGuildFinderGetApplications(WorldPackets::GuildFinder::LFGuildGetApplications&)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_LF_GUILD_GET_APPLICATIONS"); // Empty opcode
 
@@ -255,12 +215,9 @@ void WorldSession::HandleGuildFinderGetApplications(WorldPacket& /*recvPacket*/)
 }
 
 // Lists all recruits for a guild - Misses times
-void WorldSession::HandleGuildFinderGetRecruits(WorldPacket& recvPacket)
+void WorldSession::HandleGuildFinderGetRecruits(WorldPackets::GuildFinder::LFGuildGetRecruits&)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_LF_GUILD_GET_RECRUITS");
-
-    uint32 unkTime = 0;
-    recvPacket >> unkTime;
 
     Player* player = GetPlayer();
     if (!player->GetGuildId())
@@ -323,7 +280,7 @@ void WorldSession::HandleGuildFinderGetRecruits(WorldPacket& recvPacket)
     player->SendDirectMessage(&data);
 }
 
-void WorldSession::HandleGuildFinderPostRequest(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleGuildFinderPostRequest(WorldPackets::GuildFinder::LFGuildPostRequest&)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_LF_GUILD_POST_REQUEST"); // Empty opcode
 
@@ -362,29 +319,11 @@ void WorldSession::HandleGuildFinderPostRequest(WorldPacket& /*recvPacket*/)
     player->SendDirectMessage(&data);
 }
 
-void WorldSession::HandleGuildFinderRemoveApplication(WorldPacket& recvPacket)
+void WorldSession::HandleGuildFinderRemoveApplication(WorldPackets::GuildFinder::LFGuildRemoveApplication& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_LF_GUILD_REMOVE_APPLICATION");
 
-    ObjectGuid guildGuid;
-
-    guildGuid[7] = recvPacket.ReadBit();
-    guildGuid[5] = recvPacket.ReadBit();
-    guildGuid[4] = recvPacket.ReadBit();
-    guildGuid[1] = recvPacket.ReadBit();
-    guildGuid[6] = recvPacket.ReadBit();
-    guildGuid[3] = recvPacket.ReadBit();
-    guildGuid[2] = recvPacket.ReadBit();
-    guildGuid[0] = recvPacket.ReadBit();
-
-    recvPacket.ReadByteSeq(guildGuid[6]);
-    recvPacket.ReadByteSeq(guildGuid[3]);
-    recvPacket.ReadByteSeq(guildGuid[7]);
-    recvPacket.ReadByteSeq(guildGuid[1]);
-    recvPacket.ReadByteSeq(guildGuid[2]);
-    recvPacket.ReadByteSeq(guildGuid[0]);
-    recvPacket.ReadByteSeq(guildGuid[5]);
-    recvPacket.ReadByteSeq(guildGuid[4]);
+    ObjectGuid guildGuid = packet.GuildGuid;
 
     if (!guildGuid.IsGuild())
         return;
@@ -393,23 +332,21 @@ void WorldSession::HandleGuildFinderRemoveApplication(WorldPacket& recvPacket)
 }
 
 // Sent any time a guild master sets an option in the interface and when listing / unlisting his guild
-void WorldSession::HandleGuildFinderSetGuildPost(WorldPacket& recvPacket)
+void WorldSession::HandleGuildFinderSetGuildPost(WorldPackets::GuildFinder::LFGuildSetGuildPost& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_LF_GUILD_SET_GUILD_POST");
 
-    uint32 classRoles = 0;
-    uint32 availability = 0;
-    uint32 guildInterests =  0;
-    uint32 level = 0;
+    uint32 classRoles = packet.ClassRoles;
+    uint32 availability = packet.Availability;
+    uint32 guildInterests = packet.GuildInterests;
+    uint32 level = packet.Level;
 
-    recvPacket >> level >> availability >> classRoles >> guildInterests;
     // Level sent is zero if untouched, force to any (from interface). Idk why
     if (!level)
         level = ANY_FINDER_LEVEL;
 
-    uint16 length = recvPacket.ReadBits(10);
-    bool listed = recvPacket.ReadBit();
-    std::string comment = recvPacket.ReadString(length);
+    bool listed = packet.Listed;
+    std::string comment = packet.Comment;
 
     if (!(classRoles & GUILDFINDER_ALL_ROLES) || classRoles > GUILDFINDER_ALL_ROLES)
         return;

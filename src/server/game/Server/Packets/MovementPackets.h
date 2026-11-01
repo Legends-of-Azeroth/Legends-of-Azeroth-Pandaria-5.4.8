@@ -58,10 +58,10 @@ namespace WorldPackets
             uint32 Flags = 0;
         };
 
-        class MoveSetActiveMover final : public ClientPacket
+        class SetActiveMover final : public ClientPacket
         {
         public:
-            explicit MoveSetActiveMover(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTIVE_MOVER, std::move(packet)) { }
+            explicit SetActiveMover(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTIVE_MOVER, std::move(packet)) { }
 
             void Read() override;
 
@@ -75,7 +75,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            MovementInfo Status;
+            MovementInfo Ack;
         };
 
         class MoveHoverAck final : public ClientPacket
@@ -105,32 +105,32 @@ namespace WorldPackets
 
             void Read() override;
 
-            MovementInfo Status;
+            MovementInfo Data;
             float Height = 0.0f;
             uint32 Reason = 0;
         };
 
-        class MovementForceAck final : public ClientPacket
+        class MoveApplyMovementForceAck final : public ClientPacket
         {
         public:
-            explicit MovementForceAck(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            explicit MoveApplyMovementForceAck(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
 
             void Read() override;
 
-            MovementInfo Status;
+            MovementInfo Ack;
             float Speed = 0.0f;
             int32 UnkInt = 0;
             float DirectionX = 0.0f;
         };
 
-        class MoveSpeedChangeAck final : public ClientPacket
+        class MovementSpeedAck final : public ClientPacket
         {
         public:
-            explicit MoveSpeedChangeAck(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            explicit MovementSpeedAck(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
 
             void Read() override;
 
-            MovementInfo Status;
+            MovementInfo Ack;
             float Speed = 0.0f;
         };
 
@@ -162,6 +162,68 @@ namespace WorldPackets
             explicit WorldPortResponse(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
 
             void Read() override { }
+        };
+
+        class MountSpecialAnim final : public ClientPacket
+        {
+        public:
+            explicit MountSpecialAnim(WorldPacket&& packet) : ClientPacket(CMSG_MOUNTSPECIAL_ANIM, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class MoveTimeSkipped final : public ClientPacket
+        {
+        public:
+            MoveTimeSkipped(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_TIME_SKIPPED, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Time = 0;
+            ObjectGuid MoverGUID;
+        };
+
+        class FeatherFallAck final : public ClientPacket
+        {
+        public:
+            FeatherFallAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_FEATHER_FALL_ACK, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class MoveUnRootAck final : public ClientPacket
+        {
+        public:
+            MoveUnRootAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_FORCE_UNROOT_ACK, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class MoveRootAck final : public ClientPacket
+        {
+        public:
+            MoveRootAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_FORCE_ROOT_ACK, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class MoveGravityAck final : public ClientPacket
+        {
+        public:
+            // Handles both CMSG_MOVE_GRAVITY_DISABLE_ACK and CMSG_MOVE_GRAVITY_ENABLE_ACK, so we can't use the validating ctor
+            MoveGravityAck(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class MoveSetCanFlyAck final : public ClientPacket
+        {
+        public:
+            MoveSetCanFlyAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_SET_CAN_FLY_ACK, std::move(packet)) { }
+
+            void Read() override;
+
+            MovementInfo Status;
         };
     }
 }

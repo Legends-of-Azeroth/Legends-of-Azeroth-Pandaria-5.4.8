@@ -17,26 +17,6 @@
 
 #include "NPCPackets.h"
 
-void WorldPackets::NPC::BankerActivate::Read()
-{
-    Unit[4] = _worldPacket.ReadBit();
-    Unit[5] = _worldPacket.ReadBit();
-    Unit[0] = _worldPacket.ReadBit();
-    Unit[6] = _worldPacket.ReadBit();
-    Unit[1] = _worldPacket.ReadBit();
-    Unit[2] = _worldPacket.ReadBit();
-    Unit[7] = _worldPacket.ReadBit();
-    Unit[3] = _worldPacket.ReadBit();
-    _worldPacket.ReadByteSeq(Unit[1]);
-    _worldPacket.ReadByteSeq(Unit[7]);
-    _worldPacket.ReadByteSeq(Unit[2]);
-    _worldPacket.ReadByteSeq(Unit[5]);
-    _worldPacket.ReadByteSeq(Unit[6]);
-    _worldPacket.ReadByteSeq(Unit[3]);
-    _worldPacket.ReadByteSeq(Unit[0]);
-    _worldPacket.ReadByteSeq(Unit[4]);
-}
-
 void WorldPackets::NPC::BinderActivate::Read()
 {
     Unit[0] = _worldPacket.ReadBit();
@@ -136,4 +116,86 @@ void WorldPackets::NPC::TrainerBuySpell::Read()
     _worldPacket.ReadByteSeq(TrainerGUID[5]);
     _worldPacket.ReadByteSeq(TrainerGUID[6]);
     _worldPacket.ReadByteSeq(TrainerGUID[2]);
+}
+
+void WorldPackets::NPC::TabardVendorActivate::Read()
+{
+    Unit[2] = _worldPacket.ReadBit();
+    Unit[1] = _worldPacket.ReadBit();
+    Unit[4] = _worldPacket.ReadBit();
+    Unit[6] = _worldPacket.ReadBit();
+    Unit[3] = _worldPacket.ReadBit();
+    Unit[5] = _worldPacket.ReadBit();
+    Unit[0] = _worldPacket.ReadBit();
+    Unit[7] = _worldPacket.ReadBit();
+    _worldPacket.ReadByteSeq(Unit[7]);
+    _worldPacket.ReadByteSeq(Unit[6]);
+    _worldPacket.ReadByteSeq(Unit[2]);
+    _worldPacket.ReadByteSeq(Unit[5]);
+    _worldPacket.ReadByteSeq(Unit[0]);
+    _worldPacket.ReadByteSeq(Unit[1]);
+    _worldPacket.ReadByteSeq(Unit[4]);
+    _worldPacket.ReadByteSeq(Unit[3]);
+}
+
+void WorldPackets::NPC::SpiritHealerActivate::Read()
+{
+    Unit[2] = _worldPacket.ReadBit();
+    Unit[7] = _worldPacket.ReadBit();
+    Unit[6] = _worldPacket.ReadBit();
+    Unit[0] = _worldPacket.ReadBit();
+    Unit[5] = _worldPacket.ReadBit();
+    Unit[4] = _worldPacket.ReadBit();
+    Unit[1] = _worldPacket.ReadBit();
+    Unit[3] = _worldPacket.ReadBit();
+    _worldPacket.ReadByteSeq(Unit[1]);
+    _worldPacket.ReadByteSeq(Unit[5]);
+    _worldPacket.ReadByteSeq(Unit[6]);
+    _worldPacket.ReadByteSeq(Unit[3]);
+    _worldPacket.ReadByteSeq(Unit[2]);
+    _worldPacket.ReadByteSeq(Unit[0]);
+    _worldPacket.ReadByteSeq(Unit[7]);
+    _worldPacket.ReadByteSeq(Unit[4]);
+}
+
+void WorldPackets::NPC::ListPets::Read()
+{
+    Unit[0] = _worldPacket.ReadBit();
+    Unit[5] = _worldPacket.ReadBit();
+    Unit[1] = _worldPacket.ReadBit();
+    Unit[3] = _worldPacket.ReadBit();
+    Unit[6] = _worldPacket.ReadBit();
+    Unit[7] = _worldPacket.ReadBit();
+    Unit[2] = _worldPacket.ReadBit();
+    Unit[4] = _worldPacket.ReadBit();
+    _worldPacket.ReadByteSeq(Unit[0]);
+    _worldPacket.ReadByteSeq(Unit[5]);
+    _worldPacket.ReadByteSeq(Unit[7]);
+    _worldPacket.ReadByteSeq(Unit[1]);
+    _worldPacket.ReadByteSeq(Unit[2]);
+    _worldPacket.ReadByteSeq(Unit[3]);
+    _worldPacket.ReadByteSeq(Unit[4]);
+    _worldPacket.ReadByteSeq(Unit[6]);
+}
+
+void WorldPackets::NPC::SetPetSlot::Read()
+{
+    _worldPacket >> OldPetId;
+    _worldPacket >> NewSlot;
+    Unit[5] = _worldPacket.ReadBit();
+    Unit[7] = _worldPacket.ReadBit();
+    Unit[3] = _worldPacket.ReadBit();
+    Unit[2] = _worldPacket.ReadBit();
+    Unit[6] = _worldPacket.ReadBit();
+    Unit[1] = _worldPacket.ReadBit();
+    Unit[0] = _worldPacket.ReadBit();
+    Unit[4] = _worldPacket.ReadBit();
+    _worldPacket.ReadByteSeq(Unit[0]);
+    _worldPacket.ReadByteSeq(Unit[3]);
+    _worldPacket.ReadByteSeq(Unit[2]);
+    _worldPacket.ReadByteSeq(Unit[6]);
+    _worldPacket.ReadByteSeq(Unit[5]);
+    _worldPacket.ReadByteSeq(Unit[7]);
+    _worldPacket.ReadByteSeq(Unit[4]);
+    _worldPacket.ReadByteSeq(Unit[1]);
 }

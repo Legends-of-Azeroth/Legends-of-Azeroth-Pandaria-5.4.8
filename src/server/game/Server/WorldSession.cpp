@@ -1505,7 +1505,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
     case CMSG_CALENDAR_GET_CALENDAR:
     case CMSG_GAMEOBJ_REPORT_USE:                  // not profiled
     case CMSG_GAMEOBJ_USE:                         // not profiled
-    case CMSG_PETITION_DECLINE:                     // not profiled
+    case CMSG_DECLINE_PETITION:                     // not profiled
     {
         maxPacketCounterAllowed = 50;
         break;
@@ -1524,13 +1524,13 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         break;
     }
 
-    case CMSG_PETITION_SIGN:                        //   9               4         2 sync 1 async db queries
+    case CMSG_SIGN_PETITION:                        //   9               4         2 sync 1 async db queries
     case CMSG_TURN_IN_PETITION:                     //   8               5.5       2 sync db query
     case CMSG_GROUP_CHANGE_SUB_GROUP:
     //case CMSG_GROUP_SWAP_SUB_GROUP:
-    case CMSG_PETITION_QUERY:                       //   4               3.5       1 sync db query
+    case CMSG_QUERY_PETITION:                       //   4               3.5       1 sync db query
     case CMSG_CHAR_CUSTOMIZE:                       //   5               5         1 sync db query
-    case CMSG_CHAR_FACTION_OR_RACE_CHANGE:          //   5               5         1 sync db query
+    case CMSG_CHAR_RACE_OR_FACTION_CHANGE:          //   5               5         1 sync db query
     case CMSG_CHAR_DELETE:                          //   4               4         1 sync db query
     case CMSG_DEL_FRIEND:                           //   7               5         1 async db query
     case CMSG_ADD_FRIEND:                           //   6               4         1 async db query
@@ -1588,7 +1588,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
     case CMSG_GUILD_BANK_WITHDRAW_MONEY:            // not profiled
     case CMSG_GUILD_BANK_BUY_TAB:                   // not profiled
     case CMSG_GUILD_BANK_UPDATE_TAB:                // not profiled
-    case CMSG_GUILD_BANK_QUERY_TEXT:              // not profiled
+    case CMSG_GUILD_BANK_TEXT_QUERY:              // not profiled
     case CMSG_SAVE_GUILD_EMBLEM:                    // not profiled
     case CMSG_PETITION_RENAME:                // not profiled
     case CMSG_CONFIRM_RESPEC_WIPE:                  // not profiled
@@ -1616,7 +1616,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         break;
     }
 
-    case CMSG_REQUEST_HOTFIX:                       // not profiled
+    case CMSG_HOTFIX_REQUEST:                       // not profiled
     {
         maxPacketCounterAllowed = 1;
         break;

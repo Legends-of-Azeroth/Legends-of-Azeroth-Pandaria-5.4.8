@@ -111,12 +111,12 @@ void WorldPackets::Query::QueryPlayerName::Read()
 
 void WorldPackets::Query::QueryRealmName::Read()
 {
-    RealmId = _worldPacket.read<uint32>();
+    VirtualRealmAddress = _worldPacket.read<uint32>();
 }
 
 void WorldPackets::Query::QueryCreature::Read()
 {
-    Entry = _worldPacket.read<uint32>();
+    CreatureID = _worldPacket.read<uint32>();
 }
 
 void WorldPackets::Query::QueryNPCText::Read()
@@ -145,7 +145,7 @@ void WorldPackets::Query::QueryNPCText::Read()
 
 void WorldPackets::Query::QueryPageText::Read()
 {
-    PageID = _worldPacket.read<uint32>();
+    PageTextID = _worldPacket.read<uint32>();
 
     ObjectGuid guid;
     guid[2] = _worldPacket.ReadBit();
@@ -188,29 +188,24 @@ void WorldPackets::Query::QueryCorpseTransport::Read()
     _worldPacket.ReadByteSeq(corpseGuid[7]);
 }
 
-void WorldPackets::Query::QuestNPCQuery::Read()
+void WorldPackets::Query::QueryQuestCompletionNPCs::Read()
 {
     for (int i = 0; i < 50; ++i)
-        QuestIds.push_back(_worldPacket.read<uint32>());
+        QuestCompletionNPCs.push_back(_worldPacket.read<uint32>());
 
     Count = _worldPacket.read<uint32>();
 }
 
 void WorldPackets::Query::QuestPOIQuery::Read()
 {
-    Count = _worldPacket.ReadBits(22);
+    MissingQuestCount = _worldPacket.ReadBits(22);
 
-    if (Count > MAX_QUEST_LOG_SIZE)
+    if (MissingQuestCount > MAX_QUEST_LOG_SIZE)
     {
         _worldPacket.rfinish();
         return;
     }
 
-    for (uint32 i = 0; i < Count; ++i)
-        QuestIds.push_back(_worldPacket.read<uint32>());
-}
-
-void WorldPackets::Query::QueryCountdownTimer::Read()
-{
-    _worldPacket.read_skip<uint32>();
+    for (uint32 i = 0; i < MissingQuestCount; ++i)
+        MissingQuestPOIs.push_back(_worldPacket.read<uint32>());
 }

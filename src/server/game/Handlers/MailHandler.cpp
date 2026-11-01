@@ -61,76 +61,24 @@ bool WorldSession::CanOpenMailBox(ObjectGuid guid)
     return true;
 }
 
-void WorldSession::HandleSendMail(WorldPacket& recvData)
+void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
 {
-    ObjectGuid mailbox;
-    uint64 money, COD;
-    std::string receiverName, subject, body;
-    uint32 bodyLength, subjectLength, receiverLength;
-    uint32 unk1, unk2;
-    uint8 itemCount;
-
-    recvData >> unk1 >> unk2;                       // both unknown
-    recvData >> COD >> money;                       // money and cod
-
-    mailbox[0] = recvData.ReadBit();
-    mailbox[6] = recvData.ReadBit();
-    mailbox[4] = recvData.ReadBit();
-    mailbox[1] = recvData.ReadBit();
-    bodyLength = recvData.ReadBits(11);
-    mailbox[3] = recvData.ReadBit();
-    receiverLength = recvData.ReadBits(9);
-    mailbox[7] = recvData.ReadBit();
-    mailbox[5] = recvData.ReadBit();
-    itemCount = recvData.ReadBits(5);               // attached items count
+    ObjectGuid mailbox = packet.Mailbox;
+    uint64 money = packet.Money;
+    uint64 COD = packet.COD;
+    std::string receiverName = packet.ReceiverName;
+    std::string subject = packet.Subject;
+    std::string body = packet.Body;
+    uint32 unk1 = packet.Unk1;
+    uint32 unk2 = packet.Unk2;
+    uint8 itemCount = packet.ItemCount;
+    std::vector<ObjectGuid> itemGuids = packet.ItemGuids;
 
     if (itemCount > MAX_MAIL_ITEMS)                 // client limit
     {
         GetPlayer()->SendMailResult(0, MAIL_SEND, MAIL_ERR_TOO_MANY_ATTACHMENTS);
-        recvData.rfinish();                         // set to end to avoid warnings spam
         return;
     }
-
-    ObjectGuid itemGuids[MAX_MAIL_ITEMS];
-    for (uint8 i = 0; i < itemCount; ++i)
-    {
-        itemGuids[i][1] = recvData.ReadBit();
-        itemGuids[i][7] = recvData.ReadBit();
-        itemGuids[i][2] = recvData.ReadBit();
-        itemGuids[i][5] = recvData.ReadBit();
-        itemGuids[i][0] = recvData.ReadBit();
-        itemGuids[i][6] = recvData.ReadBit();
-        itemGuids[i][3] = recvData.ReadBit();
-        itemGuids[i][4] = recvData.ReadBit();
-    }
-
-    subjectLength = recvData.ReadBits(9);
-    mailbox[2] = recvData.ReadBit();
-
-    for (uint8 i = 0; i < itemCount; ++i)
-    {
-        recvData.read_skip<uint8>();                // item slot in mail, not used
-        recvData.ReadByteSeq(itemGuids[i][3]);
-        recvData.ReadByteSeq(itemGuids[i][0]);
-        recvData.ReadByteSeq(itemGuids[i][2]);
-        recvData.ReadByteSeq(itemGuids[i][1]);
-        recvData.ReadByteSeq(itemGuids[i][6]);
-        recvData.ReadByteSeq(itemGuids[i][5]);
-        recvData.ReadByteSeq(itemGuids[i][7]);
-        recvData.ReadByteSeq(itemGuids[i][4]);
-    }
-
-    recvData.ReadByteSeq(mailbox[1]);
-    body = recvData.ReadString(bodyLength);
-    recvData.ReadByteSeq(mailbox[0]);
-    subject = recvData.ReadString(subjectLength);
-    recvData.ReadByteSeq(mailbox[2]);
-    recvData.ReadByteSeq(mailbox[6]);
-    recvData.ReadByteSeq(mailbox[5]);
-    recvData.ReadByteSeq(mailbox[7]);
-    recvData.ReadByteSeq(mailbox[3]);
-    recvData.ReadByteSeq(mailbox[4]);
-    receiverName = recvData.ReadString(receiverLength);
 
     // packet read complete, now do check
 
@@ -414,31 +362,10 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 }
 
 //called when mail is read
-void WorldSession::HandleMailMarkAsRead(WorldPacket& recvData)
+void WorldSession::HandleMailMarkAsRead(WorldPackets::Mail::MailMarkAsRead& packet)
 {
-    ObjectGuid mailbox;
-    uint32 mailId;
-
-    recvData >> mailId;
-
-    mailbox[0] = recvData.ReadBit();
-    mailbox[2] = recvData.ReadBit();
-    mailbox[3] = recvData.ReadBit();
-    recvData.ReadBit();
-    mailbox[4] = recvData.ReadBit();
-    mailbox[6] = recvData.ReadBit();
-    mailbox[7] = recvData.ReadBit();
-    mailbox[1] = recvData.ReadBit();
-    mailbox[5] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(mailbox[1]);
-    recvData.ReadByteSeq(mailbox[7]);
-    recvData.ReadByteSeq(mailbox[2]);
-    recvData.ReadByteSeq(mailbox[5]);
-    recvData.ReadByteSeq(mailbox[6]);
-    recvData.ReadByteSeq(mailbox[3]);
-    recvData.ReadByteSeq(mailbox[4]);
-    recvData.ReadByteSeq(mailbox[0]);
+    ObjectGuid mailbox = packet.Mailbox;
+    uint32 mailId = packet.MailId;
 
     if (!CanOpenMailBox(mailbox))
         return;// Mail interactions on client don't get locked up when this action is performed, thus no result packet is needed
@@ -456,12 +383,9 @@ void WorldSession::HandleMailMarkAsRead(WorldPacket& recvData)
 }
 
 //called when client deletes mail
-void WorldSession::HandleMailDelete(WorldPacket& recvData)
+void WorldSession::HandleMailDelete(WorldPackets::Mail::MailDelete& packet)
 {
-    uint32 mailId;
-
-    recvData >> mailId;
-    recvData.read_skip<uint32>();       // mailTemplateId
+    uint32 mailId = packet.MailId;
 
     if (Mail* mail = _player->GetMail(mailId))
     {
@@ -479,30 +403,10 @@ void WorldSession::HandleMailDelete(WorldPacket& recvData)
     _player->SendMailResult(mailId, MAIL_DELETED, MAIL_OK);
 }
 
-void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
+void WorldSession::HandleMailReturnToSender(WorldPackets::Mail::MailReturnToSender& packet)
 {
-    ObjectGuid mailbox;
-    uint32 mailId;
-
-    recvData >> mailId;
-
-    mailbox[2] = recvData.ReadBit();
-    mailbox[0] = recvData.ReadBit();
-    mailbox[4] = recvData.ReadBit();
-    mailbox[6] = recvData.ReadBit();
-    mailbox[3] = recvData.ReadBit();
-    mailbox[1] = recvData.ReadBit();
-    mailbox[7] = recvData.ReadBit();
-    mailbox[5] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(mailbox[5]);
-    recvData.ReadByteSeq(mailbox[6]);
-    recvData.ReadByteSeq(mailbox[2]);
-    recvData.ReadByteSeq(mailbox[0]);
-    recvData.ReadByteSeq(mailbox[3]);
-    recvData.ReadByteSeq(mailbox[1]);
-    recvData.ReadByteSeq(mailbox[4]);
-    recvData.ReadByteSeq(mailbox[7]);
+    ObjectGuid mailbox = packet.Mailbox;
+    uint32 mailId = packet.MailId;
 
     // mailbox isn't mailbox, this is guid of player to return mail, why?
     // TODO: Need to find mailbox near the player
@@ -568,32 +472,11 @@ void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
 }
 
 //called when player takes item attached in mail
-void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
+void WorldSession::HandleMailTakeItem(WorldPackets::Mail::MailTakeItem& packet)
 {
-    ObjectGuid mailbox;
-    uint32 mailId;
-    uint32 itemId;
-
-    recvData >> mailId;
-    recvData >> itemId;
-
-    mailbox[6] = recvData.ReadBit();
-    mailbox[5] = recvData.ReadBit();
-    mailbox[2] = recvData.ReadBit();
-    mailbox[3] = recvData.ReadBit();
-    mailbox[0] = recvData.ReadBit();
-    mailbox[1] = recvData.ReadBit();
-    mailbox[4] = recvData.ReadBit();
-    mailbox[7] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(mailbox[0]);
-    recvData.ReadByteSeq(mailbox[1]);
-    recvData.ReadByteSeq(mailbox[4]);
-    recvData.ReadByteSeq(mailbox[2]);
-    recvData.ReadByteSeq(mailbox[5]);
-    recvData.ReadByteSeq(mailbox[6]);
-    recvData.ReadByteSeq(mailbox[3]);
-    recvData.ReadByteSeq(mailbox[7]);
+    ObjectGuid mailbox = packet.Mailbox;
+    uint32 mailId = packet.MailId;
+    uint32 itemId = packet.ItemId;
 
     if (!CanOpenMailBox(mailbox))
     {
@@ -686,32 +569,11 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
         player->SendMailResult(mailId, MAIL_ITEM_TAKEN, MAIL_ERR_EQUIP_ERROR, msg);
 }
 
-void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
+void WorldSession::HandleMailTakeMoney(WorldPackets::Mail::MailTakeMoney& packet)
 {
-    ObjectGuid mailbox;
-    uint64 money;
-    uint32 mailId;
-
-    recvData >> mailId;
-    recvData >> money;
-
-    mailbox[7] = recvData.ReadBit();
-    mailbox[6] = recvData.ReadBit();
-    mailbox[3] = recvData.ReadBit();
-    mailbox[2] = recvData.ReadBit();
-    mailbox[4] = recvData.ReadBit();
-    mailbox[5] = recvData.ReadBit();
-    mailbox[0] = recvData.ReadBit();
-    mailbox[1] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(mailbox[7]);
-    recvData.ReadByteSeq(mailbox[1]);
-    recvData.ReadByteSeq(mailbox[4]);
-    recvData.ReadByteSeq(mailbox[0]);
-    recvData.ReadByteSeq(mailbox[3]);
-    recvData.ReadByteSeq(mailbox[2]);
-    recvData.ReadByteSeq(mailbox[6]);
-    recvData.ReadByteSeq(mailbox[5]);
+    ObjectGuid mailbox = packet.Mailbox;
+    uint32 mailId = packet.MailId;
+    uint64 money = packet.Money;
 
     if (!CanOpenMailBox(mailbox))
     {
@@ -782,25 +644,9 @@ void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
 }
 
 //called when player lists his received mails
-void WorldSession::HandleGetMailList(WorldPacket& recvData)
+void WorldSession::HandleGetMailList(WorldPackets::Mail::MailGetList& packet)
 {
-    ObjectGuid mailbox;
-    mailbox[6] = recvData.ReadBit();
-    mailbox[3] = recvData.ReadBit();
-    mailbox[7] = recvData.ReadBit();
-    mailbox[5] = recvData.ReadBit();
-    mailbox[4] = recvData.ReadBit();
-    mailbox[1] = recvData.ReadBit();
-    mailbox[2] = recvData.ReadBit();
-    mailbox[0] = recvData.ReadBit();
-    recvData.ReadByteSeq(mailbox[7]);
-    recvData.ReadByteSeq(mailbox[1]);
-    recvData.ReadByteSeq(mailbox[6]);
-    recvData.ReadByteSeq(mailbox[5]);
-    recvData.ReadByteSeq(mailbox[4]);
-    recvData.ReadByteSeq(mailbox[2]);
-    recvData.ReadByteSeq(mailbox[3]);
-    recvData.ReadByteSeq(mailbox[0]);
+    ObjectGuid mailbox = packet.Mailbox;
 
     if (!CanOpenMailBox(mailbox))
     {
@@ -959,30 +805,10 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
 }
 
 //used when player copies mail body to his inventory
-void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
+void WorldSession::HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextItem& packet)
 {
-    ObjectGuid mailbox;
-    uint32 mailId;
-
-    recvData >> mailId;
-
-    mailbox[4] = recvData.ReadBit();
-    mailbox[1] = recvData.ReadBit();
-    mailbox[6] = recvData.ReadBit();
-    mailbox[2] = recvData.ReadBit();
-    mailbox[5] = recvData.ReadBit();
-    mailbox[3] = recvData.ReadBit();
-    mailbox[0] = recvData.ReadBit();
-    mailbox[7] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(mailbox[6]);
-    recvData.ReadByteSeq(mailbox[5]);
-    recvData.ReadByteSeq(mailbox[4]);
-    recvData.ReadByteSeq(mailbox[3]);
-    recvData.ReadByteSeq(mailbox[0]);
-    recvData.ReadByteSeq(mailbox[7]);
-    recvData.ReadByteSeq(mailbox[2]);
-    recvData.ReadByteSeq(mailbox[1]);
+    ObjectGuid mailbox = packet.Mailbox;
+    uint32 mailId = packet.MailId;
 
     if (!CanOpenMailBox(mailbox))
     {
@@ -1045,7 +871,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
 }
 
 /// @todo Fix me! ... this void has probably bad condition, but good data are sent
-void WorldSession::HandleQueryNextMailTime(WorldPacket& /*recvData*/)
+void WorldSession::HandleQueryNextMailTime(WorldPackets::Mail::MailQueryNextMailTime& /*packet*/)
 {
     WorldPacket data(SMSG_MAIL_QUERY_NEXT_TIME_RESULT);
 

@@ -74,7 +74,7 @@ void WorldSession::SendTradeStatus(TradeStatus status)
     SendPacket(&data);
 }
 
-void WorldSession::HandleIgnoreTradeOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleIgnoreTradeOpcode(WorldPackets::Trade::IgnoreTrade& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Ignore Trade {}", _player->GetGUID().GetCounter());
 }
@@ -330,7 +330,7 @@ static void clearAcceptTradeMode(Item* *myItems, Item* *hisItems)
     }
 }
 
-void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& /*packet*/)
 {
     TradeData* my_trade = _player->m_trade;
     if (!my_trade)
@@ -599,7 +599,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
     }
 }
 
-void WorldSession::HandleUnacceptTradeOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleUnacceptTradeOpcode(WorldPackets::Trade::UnacceptTrade& /*packet*/)
 {
     TradeData* my_trade = _player->GetTradeData();
     if (!my_trade)
@@ -608,7 +608,7 @@ void WorldSession::HandleUnacceptTradeOpcode(WorldPacket& /*recvPacket*/)
     my_trade->SetAccepted(false, true);
 }
 
-void WorldSession::HandleBeginTradeOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleBeginTradeOpcode(WorldPackets::Trade::BeginTrade& /*packet*/)
 {
     TradeData* my_trade = _player->m_trade;
     if (!my_trade)
@@ -626,34 +626,16 @@ void WorldSession::SendCancelTrade()
     SendTradeStatus(TRADE_STATUS_CANCELLED);
 }
 
-void WorldSession::HandleCancelTradeOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleCancelTradeOpcode(WorldPackets::Trade::CancelTrade& /*packet*/)
 {
     // sent also after LOGOUT COMPLETE
     if (_player)                                             // needed because STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT
         _player->TradeCancel(true);
 }
 
-void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleInitiateTradeOpcode(WorldPackets::Trade::InitiateTrade& packet)
 {
-    ObjectGuid guid;
-
-    guid[5] = recvPacket.ReadBit();
-    guid[1] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-    guid[3] = recvPacket.ReadBit();
-    guid[7] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
-
-    recvPacket.ReadByteSeq(guid[4]);
-    recvPacket.ReadByteSeq(guid[6]);
-    recvPacket.ReadByteSeq(guid[2]);
-    recvPacket.ReadByteSeq(guid[0]);
-    recvPacket.ReadByteSeq(guid[3]);
-    recvPacket.ReadByteSeq(guid[7]);
-    recvPacket.ReadByteSeq(guid[5]);
-    recvPacket.ReadByteSeq(guid[1]);
+    ObjectGuid guid = packet.Guid;
 
     if (GetPlayer()->m_trade)
         return;
@@ -783,10 +765,9 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
 
 }
 
-void WorldSession::HandleSetTradeGoldOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleSetTradeGoldOpcode(WorldPackets::Trade::SetTradeGold& packet)
 {
-    uint64 gold;
-    recvPacket >> gold;
+    uint64 gold = packet.Gold;
 
     TradeData* my_trade = _player->GetTradeData();
     if (!my_trade)
@@ -796,16 +777,12 @@ void WorldSession::HandleSetTradeGoldOpcode(WorldPacket& recvPacket)
     my_trade->SetMoney(gold);
 }
 
-void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleSetTradeItemOpcode(WorldPackets::Trade::SetTradeItem& packet)
 {
     // send update
-    uint8 tradeSlot;
-    uint8 bag;
-    uint8 slot;
-
-    recvPacket >> tradeSlot;
-    recvPacket >> slot;
-    recvPacket >> bag;
+    uint8 tradeSlot = packet.TradeSlot;
+    uint8 bag = packet.Bag;
+    uint8 slot = packet.Slot;
 
     TradeData* my_trade = _player->GetTradeData();
     if (!my_trade)
@@ -839,10 +816,9 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
     my_trade->SetItem(TradeSlots(tradeSlot), item);
 }
 
-void WorldSession::HandleClearTradeItemOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleClearTradeItemOpcode(WorldPackets::Trade::ClearTradeItem& packet)
 {
-    uint8 tradeSlot;
-    recvPacket >> tradeSlot;
+    uint8 tradeSlot = packet.TradeSlot;
 
     TradeData* my_trade = _player->m_trade;
     if (!my_trade)

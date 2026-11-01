@@ -47,15 +47,15 @@ namespace WorldPackets
             ObjectGuid Target;
         };
 
-        class ChatIgnored final : public ClientPacket
+        class ChatReportIgnored final : public ClientPacket
         {
         public:
-            ChatIgnored(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_IGNORED, std::move(packet)) { }
+            ChatReportIgnored(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_IGNORED, std::move(packet)) { }
 
             void Read() override;
 
-            uint8 Unk = 0;
-            ObjectGuid Target;
+            uint8 Reason = 0;
+            ObjectGuid IgnoredGUID;
         };
     }
 }

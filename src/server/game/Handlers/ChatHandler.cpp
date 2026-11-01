@@ -925,11 +925,11 @@ void WorldSession::HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet)
         ((Creature*)unit)->AI()->ReceiveEmote(GetPlayer(), text_emote);
 }
 
-void WorldSession::HandleChatIgnoredOpcode(WorldPackets::Chat::ChatIgnored& packet)
+void WorldSession::HandleChatIgnoredOpcode(WorldPackets::Chat::ChatReportIgnored& packet)
 {
     //TC_LOG_DEBUG("network", "WORLD: Received CMSG_CHAT_IGNORED");
 
-    Player* player = ObjectAccessor::FindPlayer(packet.Target);
+    Player* player = ObjectAccessor::FindPlayer(packet.IgnoredGUID);
     if (!player || !player->GetSession())
         return;
 

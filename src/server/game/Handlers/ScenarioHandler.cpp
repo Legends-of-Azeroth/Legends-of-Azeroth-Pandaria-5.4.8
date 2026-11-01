@@ -18,13 +18,12 @@
 #include "ScenarioMgr.h"
 #include "WorldSession.h"
 
-void WorldSession::HandleQueryScenarioPOI(WorldPacket& recvData)
+void WorldSession::HandleQueryScenarioPOI(WorldPackets::Scene::QueryScenarioPOI& packet)
 {
     // Read criteria tree ids and add the in a unordered_set so we don't send POIs for the same criteria tree multiple times
     std::unordered_set<int32> criteriaTreeIds;
-    uint32 MissingScenarioPOIsCount = recvData.ReadBits(22);
-    for (size_t i = 0; i < MissingScenarioPOIsCount; ++i)
-        criteriaTreeIds.insert(recvData.read<uint32>()); // CriteriaTreeID
+    for (uint32 criteriaTreeId : packet.CriteriaTreeIds)
+        criteriaTreeIds.insert(criteriaTreeId); // CriteriaTreeID
 
     uint32 count = 0;
     ByteBuffer dataBuff;

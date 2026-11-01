@@ -29,7 +29,7 @@
 
 static const char InvalidCharacters[] = ":-\\";
 
-void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
+void WorldSession::HandleGMTicketCreateOpcode(WorldPackets::Ticket::GMTicketCreate& packet)
 {
     // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)
     if (sTicketMgr->GetGmTicketSystemStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
@@ -50,67 +50,23 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
     // Player must not have ticket
     if (!ticket || ticket->IsClosed())
     {
-        uint32 count, mapId, decompressedSize;
-        G3D::Vector3 Position;
-        uint8 textCount, messageLen;
-        std::list<uint32> times;
-        std::string chatLog, message;
-        bool haveTicket, needResponse;
-
         ticket = new GmTicket(GetPlayer());
 
-        recvData >> mapId;
-        recvData >> Position.z;
-        recvData >> Position.y;
-        recvData.read_skip<uint8>();    // flags!?
-        recvData >> Position.x;
-        recvData >> count;
-
-        if (!message.empty())
-            for (uint8 X = 0; X < strlen(InvalidCharacters); ++X)
-                message.erase(std::remove(message.begin(), message.end(), InvalidCharacters[X]), message.end());
-
-        if (count > 0)
+        if (!packet.DecompressOk)
         {
-            recvData >> textCount;
-            for (uint32 i = 0; i < textCount; i++)
-            {
-                uint32 time;
-                recvData >> time;
-                times.push_back(time);
-            }
-
-            recvData >> decompressedSize;
-
-            if (count && decompressedSize && decompressedSize < 0xFFFF)
-            {
-                uint32 pos = recvData.rpos();
-                ByteBuffer tailPacket;
-                tailPacket.resize(decompressedSize);
-
-                uLongf realSize = decompressedSize;
-                if (uncompress(tailPacket.contents(), &realSize, recvData.contents() + pos, recvData.size() - pos) == Z_OK)
-                    tailPacket >> chatLog;
-
-                else
-                {
-                    TC_LOG_ERROR("network", "CMSG_GM_TICKET_CREATE possibly corrupt. Uncompression failed.");
-                    recvData.rfinish();
-                    delete ticket;
-                    return;
-                }
-            }
+            delete ticket;
+            return;
         }
 
-        needResponse = recvData.ReadBit();
-        haveTicket = recvData.ReadBit();
-        messageLen = recvData.ReadBits(11);
-        message = recvData.ReadString(messageLen);
+        G3D::Vector3 Position;
+        Position.x = packet.X;
+        Position.y = packet.Y;
+        Position.z = packet.Z;
 
-        ticket->SetChatLog(times, chatLog);
-        ticket->SetMessage(message);
-        ticket->SetPosition(mapId, Position);
-        ticket->SetGmAction(needResponse, haveTicket);
+        ticket->SetChatLog(packet.Times, packet.ChatLog);
+        ticket->SetMessage(packet.Message);
+        ticket->SetPosition(packet.MapId, Position);
+        ticket->SetGmAction(packet.NeedResponse, packet.HaveTicket);
 
         sTicketMgr->AddTicket(ticket);
         sTicketMgr->UpdateLastChange();
@@ -123,13 +79,9 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
     sTicketMgr->SendGmTicketUpdate(SMSG_GM_TICKET_UPDATE, response, GetPlayer());
 }
 
-void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket& recvData)
+void WorldSession::HandleGMTicketUpdateOpcode(WorldPackets::Ticket::GMTicketUpdateText& packet)
 {
-    std::string message;
-    uint8 messageLen = 0;
-
-    messageLen = recvData.ReadBits(11);
-    message    = recvData.ReadString(messageLen);
+    std::string message = packet.Message;
 
     if (!message.empty())
         for (uint8 X = 0; X < strlen(InvalidCharacters); ++X)
@@ -150,7 +102,7 @@ void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket& recvData)
     // sTicketMgr->SendGmTicketUpdate(SMSG_GM_TICKET_UPDATE_TEXT, response, GetPlayer()); opcode not vaild
 }
 
-void WorldSession::HandleGMTicketDeleteOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleGMTicketDeleteOpcode(WorldPackets::Ticket::GMTicketDeleteTicket& /*packet*/)
 {
     if (GmTicket* ticket = sTicketMgr->GetGmTicketByPlayerGuid(GetPlayer()->GetGUID()))
     {
@@ -163,7 +115,7 @@ void WorldSession::HandleGMTicketDeleteOpcode(WorldPacket & /*recvData*/)
     }
 }
 
-void WorldSession::HandleGMTicketGetTicketOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleGMTicketGetTicketOpcode(WorldPackets::Ticket::GMTicketGetTicket& /*packet*/)
 {
     SendQueryTimeResponse();
 
@@ -178,7 +130,7 @@ void WorldSession::HandleGMTicketGetTicketOpcode(WorldPacket & /*recvData*/)
         sTicketMgr->SendGmTicket(this, NULL);
 }
 
-void WorldSession::HandleGMTicketSystemStatusOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleGMTicketSystemStatusOpcode(WorldPackets::Ticket::GMTicketGetSystemStatus& /*packet*/)
 {
     // Note: This only disables the ticket UI at client side and is not fully reliable
     // are we sure this is a uint32? Should ask Zor
@@ -187,7 +139,7 @@ void WorldSession::HandleGMTicketSystemStatusOpcode(WorldPacket & /*recvData*/)
     SendPacket(&data);
 }
 
-void WorldSession::HandleGMTicketCaseStatusOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleGMTicketCaseStatusOpcode(WorldPackets::Ticket::GMTicketGetCaseStatus& /*packet*/)
 {
     time_t UpdateTime = 0, OldestTicketTime = time(NULL);
     WorldPacket data(SMSG_GM_TICKET_CASE_STATUS, 4+4+3);
