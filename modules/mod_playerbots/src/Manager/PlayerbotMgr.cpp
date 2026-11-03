@@ -585,10 +585,17 @@ void PlayerbotHolder::OnBotLogin(Player* const bot)
         // TODO make action/config
         // Make the bot join the world channel for chat
         WorldPacket pkt(CMSG_JOIN_CHANNEL);
-        pkt << uint32(0) << uint8(0) << uint8(0);
-        pkt << std::string("World");
-        pkt << "";  // Pass
-        bot->GetSession()->HandleJoinChannel(pkt);
+        pkt << uint32(0);
+        pkt.WriteBit(0);
+        pkt.WriteBits(5, 7);
+        pkt.WriteBits(0, 7);
+        pkt.WriteBit(0);
+        pkt.FlushBits();
+        pkt.WriteString("");
+        pkt.WriteString("World");
+        WorldPackets::Channel::JoinChannel joinPkt(std::move(pkt));
+        joinPkt.Read();
+        bot->GetSession()->HandleJoinChannel(joinPkt);
     }
 
     // join standard channels
@@ -728,7 +735,9 @@ std::vector<std::string> PlayerbotHolder::HandlePlayerbotCommand(char const* arg
         if (bot)
         {
             bot->ResetTalents(true, true, true);
-            bot->GetSession()->HandeSetTalentSpecialization(p);
+            WorldPackets::Talent::SetPrimaryTalentTree talentPkt(std::move(p));
+            talentPkt.Read();
+            bot->GetSession()->HandeSetTalentSpecialization(talentPkt);
             bot->ActivateSpec(0);
             BotFactory factory(bot, bot->GetLevel());
             factory.InitTalentsTree(false);

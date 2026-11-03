@@ -338,9 +338,6 @@ bool UseTrinketAction::UseTrinket(Item* item)
     uint8 spell_index = 0;
     uint8 cast_count = 1;
     ObjectGuid item_guid = item->GetGUID();
-    uint32 glyphIndex = 0;
-    uint8 castFlags = 0;
-    uint32 targetFlag = TARGET_FLAG_NONE;
     uint32 spellId = 0;
     for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
     {
@@ -356,21 +353,70 @@ bool UseTrinketAction::UseTrinket(Item* item)
     }
     if (!spellId)
         return false;
-    WorldPacket packet(CMSG_USE_ITEM);
-    packet << bagIndex << slot << cast_count << spellId << item_guid << glyphIndex << castFlags;
-
     Unit* target = AI_VALUE(Unit*, "current target");
-    if (target)
-    {
-        targetFlag = TARGET_FLAG_UNIT;
-        packet << targetFlag << target->GetGUID().WriteAsPacked();
-    }
-    else
-    {
-        targetFlag = TARGET_FLAG_NONE;
-        packet << targetFlag << bot->GetPackGUID();
-    }
-    bot->GetSession()->HandleUseItemOpcode(packet);
+    ObjectGuid target_guid = target ? target->GetGUID() : bot->GetGUID();
+
+    WorldPacket packet(CMSG_USE_ITEM);
+    packet << slot << bagIndex;
+    packet.WriteBit(1);
+    packet.WriteBit(item_guid[6]);
+    packet.WriteBit(1);
+    packet.WriteBit(item_guid[1]);
+    packet.WriteBit(1);
+    packet.WriteBit(0);
+    packet.WriteBit(item_guid[2]);
+    packet.WriteBit(item_guid[7]);
+    packet.WriteBit(item_guid[0]);
+    packet.WriteBit(1);
+    packet.WriteBit(1);
+    packet.WriteBit(0);
+    packet.WriteBit(0);
+    packet.WriteBit(0);
+    packet.WriteBit(0);
+    packet.WriteBit(1);
+    packet.WriteBit(0);
+    packet.WriteBit(item_guid[4]);
+    packet.WriteBit(0);
+    packet.WriteBit(item_guid[3]);
+    packet.WriteBit(item_guid[5]);
+    packet.WriteBits(0, 2);
+    packet.WriteBit(target_guid[1]);
+    packet.WriteBit(target_guid[0]);
+    packet.WriteBit(target_guid[5]);
+    packet.WriteBit(target_guid[3]);
+    packet.WriteBit(target_guid[6]);
+    packet.WriteBit(target_guid[4]);
+    packet.WriteBit(target_guid[7]);
+    packet.WriteBit(target_guid[2]);
+    packet.WriteBit(0);
+    packet.WriteBit(0);
+    packet.WriteBit(0);
+    packet.WriteBit(0);
+    packet.WriteBit(0);
+    packet.WriteBit(0);
+    packet.WriteBit(0);
+    packet.WriteBit(0);
+    packet.WriteByteSeq(item_guid[0]);
+    packet.WriteByteSeq(item_guid[5]);
+    packet.WriteByteSeq(item_guid[6]);
+    packet.WriteByteSeq(item_guid[3]);
+    packet.WriteByteSeq(item_guid[4]);
+    packet.WriteByteSeq(item_guid[2]);
+    packet.WriteByteSeq(item_guid[1]);
+    packet.WriteByteSeq(item_guid[7]);
+    packet << spellId;
+    packet.WriteByteSeq(target_guid[1]);
+    packet.WriteByteSeq(target_guid[4]);
+    packet.WriteByteSeq(target_guid[3]);
+    packet.WriteByteSeq(target_guid[6]);
+    packet.WriteByteSeq(target_guid[2]);
+    packet.WriteByteSeq(target_guid[0]);
+    packet.WriteByteSeq(target_guid[7]);
+    packet.WriteByteSeq(target_guid[5]);
+    packet << cast_count;
+    WorldPackets::Spells::UseItem useItemPkt(std::move(packet));
+    useItemPkt.Read();
+    bot->GetSession()->HandleUseItemOpcode(useItemPkt);
     return true;
 }
 

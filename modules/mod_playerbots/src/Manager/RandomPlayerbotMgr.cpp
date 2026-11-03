@@ -822,7 +822,9 @@ void RandomPlayerbotMgr::OnBotLoginInternal(Player* const bot)
             packet << (std::rand() % 2 ? JOIN_THE_HORDE : JOIN_THE_ALLIANCE);
 
             WorldSession* session = bot->GetSession();
-            session->HandleSelectFactionOpcode(packet);
+            WorldPackets::Misc::SelectFaction factionPkt(std::move(packet));
+            factionPkt.Read();
+            session->HandleSelectFactionOpcode(factionPkt);
 
             TC_LOG_INFO("playerbots", "{} Assigned to faction: {}", bot->GetName().c_str(), (bot->GetTeamId() ? "Alliance" : "Horde"));
         });        
