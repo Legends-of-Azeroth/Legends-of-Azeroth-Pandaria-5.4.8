@@ -94,7 +94,9 @@ bool ReviveFromCorpseAction::Execute(Event event)
     packet.WriteByteSeq(guid[7]);
     packet.WriteByteSeq(guid[3]);
 
-    bot->GetSession()->HandleReclaimCorpseOpcode(packet);
+    WorldPackets::Combat::ReclaimCorpse reclaimPkt(std::move(packet));
+    reclaimPkt.Read();
+    bot->GetSession()->HandleReclaimCorpseOpcode(reclaimPkt);
 
     return true;
 }

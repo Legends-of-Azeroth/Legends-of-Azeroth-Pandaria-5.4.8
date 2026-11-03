@@ -353,7 +353,9 @@ void BotFactory::InitTalentsTree(bool reset)
             uint32 tab = std::rand() % 3;
             WorldPacket p(CMSG_SET_PRIMARY_TALENT_TREE);
             p << tab;
-            bot->GetSession()->HandeSetTalentSpecialization(p);
+            WorldPackets::Talent::SetPrimaryTalentTree talentPkt(std::move(p));
+            talentPkt.Read();
+            bot->GetSession()->HandeSetTalentSpecialization(talentPkt);
             bot->ActivateSpec(0);
         }
     }
@@ -386,7 +388,9 @@ void BotFactory::InitTalentsTree(bool reset)
         p.WriteBits(learnCount, 23);
         for (const auto& c : talent_to_learn)
             p << c;
-        bot->GetSession()->HandleLearnTalentOpcode(p);
+        WorldPackets::Talent::LearnTalent learnPkt(std::move(p));
+        learnPkt.Read();
+        bot->GetSession()->HandleLearnTalentOpcode(learnPkt);
     }
 }
 

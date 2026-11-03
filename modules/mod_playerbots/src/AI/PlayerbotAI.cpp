@@ -1113,7 +1113,9 @@ void PlayerbotAI::HandleBotOutgoingPacket(WorldPacket const& packet)
         packet.rpos(0);
         packet << counter << clientTicks;
 
-        bot->GetSession()->HandleTimeSyncResp(packet);
+        WorldPackets::Misc::TimeSyncResponse timePkt(std::move(packet));
+        timePkt.Read();
+        bot->GetSession()->HandleTimeSyncResp(timePkt);
         break;
     }
     default:
