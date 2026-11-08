@@ -1044,7 +1044,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             }
 
-            if (e.action.setCounter.value == 0)
+            if (e.action.setCounter.value == 0 && !e.action.setCounter.reset)
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses wrong value {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.setCounter.value);
                 return false;
