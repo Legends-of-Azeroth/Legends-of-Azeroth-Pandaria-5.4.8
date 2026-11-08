@@ -18,13 +18,14 @@
 /* ScriptData
 SDName: Eversong_Woods
 SD%Complete: 100
-SDComment: Quest support: 8488, 8490
+SDComment: Quest support: 8487, 8488, 8490
 SDCategory: Eversong Woods
 EndScriptData */
 
 /* ContentData
 npc_apprentice_mirveda
 npc_infused_crystal
+go_tainted_soil
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -32,6 +33,7 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "Player.h"
+#include "GameObjectAI.h"
 
 enum UnexpectedResults
 {
@@ -261,9 +263,54 @@ class spell_lorthemar_mass_charm : public SpellScript
     }
 };
 
+// Quest 8487: Corrupted Soil
+enum TaintedSoil
+{
+    GO_TAINTED_SOIL_SAMPLE  = 180921,
+    GO_TAINTED_SOIL_TRAP    = 181583
+};
+
+class go_tainted_soil : public GameObjectScript
+{
+public:
+    go_tainted_soil() : GameObjectScript("go_tainted_soil") { }
+
+    struct go_tainted_soilAI : public GameObjectAI
+    {
+        go_tainted_soilAI(GameObject* go) : GameObjectAI(go) { }
+
+        void Reset() override
+        {
+            if (GameObject* trap = me->FindNearestGameObject(GO_TAINTED_SOIL_TRAP, 1.0f))
+                if (!trap->isSpawned())
+                    trap->Respawn();
+        }
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new go_tainted_soilAI(go);
+    }
+
+    void OnLootStateChanged(GameObject* go, uint32 state, Unit* /*unit*/) override
+    {
+        if (state == GO_JUST_DEACTIVATED)
+        {
+            if (GameObject* trap = go->FindNearestGameObject(GO_TAINTED_SOIL_TRAP, 1.0f))
+            {
+                trap->SetRespawnTime(go->GetRespawnDelay());
+                trap->SaveRespawnTime();
+                trap->SendObjectDeSpawnAnim(trap->GetGUID());
+                trap->UpdateObjectVisibility();
+            }
+        }
+    }
+};
+
 void AddSC_eversong_woods()
 {
     new npc_apprentice_mirveda();
     new npc_infused_crystal();
     new spell_script<spell_lorthemar_mass_charm>("spell_lorthemar_mass_charm");
+    new go_tainted_soil();
 }
