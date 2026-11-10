@@ -31,6 +31,7 @@
 #include "Log.h"
 #include <math.h>
 #include <unordered_map>
+#include <unordered_set>
 
 enum SolocraftTrinityStrings 
 {
@@ -82,6 +83,12 @@ class SolocraftConfig
 
             SolocraftXPEnabled = sConfigMgr->GetBoolDefault("Solocraft.XP.Enabled", 1);
             SolocraftXPBalancingEnabled = sConfigMgr->GetBoolDefault("Solocraft.XP.Balancing.Enabled", 1);
+            SoloCraftXPMod = sConfigMgr->GetFloatDefault("Solocraft.XP.Mod", 1.0);
+            SolocraftNoXPFlag = sConfigMgr->GetBoolDefault("Solocraft.NoXP.Keep", 0);
+            if (SoloCraftXPMod < 0.0f)
+            {
+                SoloCraftXPMod = 0.0f;
+            }
             SolocraftLevelDiff = sConfigMgr->GetIntDefault("Solocraft.Max.Level.Diff", 10);
             SolocraftDungeonLevel = sConfigMgr->GetIntDefault("Solocraft.Dungeon.Level", 90);
 
@@ -420,20 +427,49 @@ class SolocraftConfig
         float D25 = 1.0;
         float D40 = 1.0;
         float D649H10 = 1.0;
-        float D649H25 = 1.0;                   
+        float D649H25 = 1.0;
 };
+
+// Shared XP state so OnGiveXP (announce script) can see who
+// currently holds a SoloCraft buff (tracked by instance handler).
+// GiveXP returns early when PLAYER_FLAGS_NO_XP_GAIN is set, so
+// proportional scaling must NOT set that flag for the balancing case.
+static std::unordered_set<uint32> s_solocraftXpScaled;
+static std::unordered_map<uint32, bool> s_solocraftHadNoXp;
+
+static uint32 SolocraftGetGuidLow(Player* player)
+{
+    return player->GetGUID().GetCounter();
+}
+
+static void SolocraftRememberNoXpFlag(Player* player)
+{
+    uint32 guidLow = SolocraftGetGuidLow(player);
+    if (s_solocraftHadNoXp.find(guidLow) != s_solocraftHadNoXp.end())
+    {
+        return;
+    }
+
+    s_solocraftHadNoXp[guidLow] = player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
+}
+
+static void SolocraftForgetPlayer(uint32 guidLow)
+{
+    s_solocraftHadNoXp.erase(guidLow);
+    s_solocraftXpScaled.erase(guidLow);
+}
 
 class solocraft_system_announce : public PlayerScript
 {
     public:
-        solocraft_system_announce() : PlayerScript("solocraft_system_announce") 
-        { 
-            solocraftConfig = SolocraftConfig::getInstance();
+        solocraft_system_announce() : PlayerScript("solocraft_system_announce")
+        {
         }
 
         void OnLogin(Player* player) override
         {
-            if (solocraftConfig.SoloCraftEnable && solocraftConfig.SoloCraftAnnounceModule)
+            SolocraftConfig const& config = SolocraftConfig::getInstance();
+            if (config.SoloCraftEnable && config.SoloCraftAnnounceModule)
             {
                 ChatHandler(player->GetSession()).SendSysMessage(SOLOCRAFT_TRINITYSTRING_ACTIVE);
             }
@@ -441,6 +477,7 @@ class solocraft_system_announce : public PlayerScript
 
         void OnLogout(Player* player) override
         {
+            SolocraftForgetPlayer(SolocraftGetGuidLow(player));
             QueryResult result = CharacterDatabase.PQuery("SELECT `GUID` FROM `custom_solocraft_character_stats` WHERE GUID = {}", player->GetGUID().GetCounter());
             if (result)
             {
@@ -448,29 +485,43 @@ class solocraft_system_announce : public PlayerScript
             }
         }
 
-        void OnGiveXP(Player* /*player*/, uint32& amount, Unit* /*victim*/) override
+        void OnGiveXP(Player* player, uint32& amount, Unit* /*victim*/) override
         {
-            if (solocraftConfig.SolocraftXPBalancingEnabled)
+            SolocraftConfig const& config = SolocraftConfig::getInstance();
+            if (!config.SoloCraftEnable)
             {
-                amount = uint32(amount * solocraftConfig.SoloCraftXPMod);
+                return;
             }
-        }
 
-    protected:
-        SolocraftConfig solocraftConfig;
+            if (!config.SolocraftXPBalancingEnabled)
+            {
+                return;
+            }
+
+            if (s_solocraftXpScaled.find(SolocraftGetGuidLow(player)) == s_solocraftXpScaled.end())
+            {
+                return;
+            }
+
+            amount = uint32(float(amount) * config.SoloCraftXPMod);
+        }
 };
 
 class solocraft_system_player_instance_handler : public PlayerScript
 {
 public:
-    solocraft_system_player_instance_handler() : PlayerScript("solocraft_system_player_instance_handler") 
-    { 
-        solocraftConfig = SolocraftConfig::getInstance();
+    solocraft_system_player_instance_handler() : PlayerScript("solocraft_system_player_instance_handler")
+    {
+    }
+
+    void OnLogout(Player* player) override
+    {
+        SolocraftForgetPlayer(SolocraftGetGuidLow(player));
     }
 
     void OnMapChanged(Player* player) override
     {
-        if (solocraftConfig.SoloCraftEnable)
+        if (SolocraftConfig::getInstance().SoloCraftEnable)
         {
             Map* map = player->GetMap();
             float difficulty = CalculateDifficulty(map, player);
@@ -484,67 +535,66 @@ public:
 
 private:
     std::map<uint32, float> _unitDifficulty;
-protected:
-    SolocraftConfig solocraftConfig;   
-    bool noXPGainFlag = false; // if noXPGainFlag before solocraft setting
 
     float CalculateDifficulty(Map* map, Player* /*player*/)
     {
+        SolocraftConfig const& config = SolocraftConfig::getInstance();
         if (map)
         {
             if (map->Is25ManRaid())
             {
                 if (map->IsHeroic() && map->GetId() == 649)
                 {
-                    return solocraftConfig.D649H25;
+                    return config.D649H25;
                 }
-                else if (solocraftConfig.diff_Multiplier_Heroics.find(map->GetId()) == solocraftConfig.diff_Multiplier_Heroics.end())
+                else if (config.diff_Multiplier_Heroics.find(map->GetId()) == config.diff_Multiplier_Heroics.end())
                 {
-                    return solocraftConfig.D25;
+                    return config.D25;
                 }
                 else
-                    return solocraftConfig.diff_Multiplier_Heroics[map->GetId()];
+                    return config.diff_Multiplier_Heroics.at(map->GetId());
             }
 
             if (map->IsHeroic())
             {
                 if (map->GetId() == 649)
                 {
-                    return solocraftConfig.D649H10;
+                    return config.D649H10;
                 }
-                else if (solocraftConfig.diff_Multiplier_Heroics.find(map->GetId()) == solocraftConfig.diff_Multiplier_Heroics.end())
+                else if (config.diff_Multiplier_Heroics.find(map->GetId()) == config.diff_Multiplier_Heroics.end())
                 {
-                    return solocraftConfig.D10;
+                    return config.D10;
                 }
                 else
-                    return solocraftConfig.diff_Multiplier_Heroics[map->GetId()];
+                    return config.diff_Multiplier_Heroics.at(map->GetId());
             }
 
-            if (solocraftConfig.diff_Multiplier.find(map->GetId()) == solocraftConfig.diff_Multiplier.end())
+            if (config.diff_Multiplier.find(map->GetId()) == config.diff_Multiplier.end())
             {
                 if (map->IsDungeon())
                 {
-                    return solocraftConfig.D5;
+                    return config.D5;
                 }
                 else if (map->IsRaid())
                 {
-                    return solocraftConfig.D40;
+                    return config.D40;
                 }
             }
             else
-                return solocraftConfig.diff_Multiplier[map->GetId()];
+                return config.diff_Multiplier.at(map->GetId());
         }
         return 0;
     }
 
     int CalculateDungeonLevel(Map* map, Player* /*player*/)
     {
-        if (solocraftConfig.dungeons.find(map->GetId()) == solocraftConfig.dungeons.end())
+        SolocraftConfig const& config = SolocraftConfig::getInstance();
+        if (config.dungeons.find(map->GetId()) == config.dungeons.end())
         {
-            return solocraftConfig.SolocraftDungeonLevel;
+            return config.SolocraftDungeonLevel;
         }
         else
-            return solocraftConfig.dungeons[map->GetId()];
+            return config.dungeons.at(map->GetId());
     }
 
     int GetNumInGroup(Player* player)
@@ -563,14 +613,15 @@ protected:
     uint32 GetClassBalance(Player* player)
     {
         uint32 classBalance = 100;
+        SolocraftConfig const& config = SolocraftConfig::getInstance();
 
-        if (solocraftConfig.classes.find(player->GetClass()) == solocraftConfig.classes.end())
+        if (config.classes.find(player->GetClass()) == config.classes.end())
         {
             return classBalance;
         }
-        else if (solocraftConfig.classes[player->GetClass()] <= 100)
+        else if (config.classes.at(player->GetClass()) <= 100)
         {
-            return solocraftConfig.classes[player->GetClass()];
+            return config.classes.at(player->GetClass());
         }
         else
             return classBalance;
@@ -578,95 +629,98 @@ protected:
 
     void ApplyBuffs(Player* player, Map* map, float difficulty, int dunLevel, int numInGroup, int classBalance)
     {
-        if (difficulty > 0)
+        SolocraftConfig const& config = SolocraftConfig::getInstance();
+        uint32 guidLow = SolocraftGetGuidLow(player);
+
+        if (difficulty <= 0)
         {
+            ClearBuffs(player, map);
+            return;
+        }
 
-            int SpellPowerBonus = 0;
+        int SpellPowerBonus = 0;
 
-            if (player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN))
+        SolocraftRememberNoXpFlag(player);
+
+        if (player->GetLevel() <= dunLevel + config.SolocraftLevelDiff)
+        {
+            float GroupDifficulty = GetGroupDifficulty(player);
+
+            if (GroupDifficulty >= difficulty && config.SoloCraftDebuffEnable)
             {
-                noXPGainFlag = true;
+                difficulty = (-abs(difficulty)) + ((((float)classBalance / 100) * difficulty) / numInGroup);
+                difficulty = roundf(difficulty * 100) / 100;
+                // Proportional XP scaling is handled in OnGiveXP.
+                // Do not set PLAYER_FLAGS_NO_XP_GAIN here, otherwise
+                // Player::GiveXP returns before the OnGiveXP hook runs.
             }
 
-            if (player->GetLevel() <= dunLevel + solocraftConfig.SolocraftLevelDiff)
+            QueryResult result = CharacterDatabase.PQuery("SELECT `guid`, `Difficulty`, `GroupSize`, `SpellPower`, `Stats` FROM `custom_solocraft_character_stats` WHERE `guid` = {}", player->GetGUID().GetCounter());
+
+            for (int32 i = STAT_STRENGTH; i < MAX_STATS; ++i)
             {
-                float GroupDifficulty = GetGroupDifficulty(player);
-
-                if (GroupDifficulty >= difficulty && solocraftConfig.SoloCraftDebuffEnable)
+                if (result)
                 {
-                    difficulty = (-abs(difficulty)) + ((((float)classBalance / 100) * difficulty) / numInGroup);
-                    difficulty = roundf(difficulty * 100) / 100;
-
-                    if (!player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN) && solocraftConfig.SolocraftXPBalancingEnabled)
-                    {
-                        player->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
-                    }
+                    player->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), TOTAL_VALUE, (*result)[1].GetFloat() * (*result)[4].GetFloat(), false);
                 }
 
-                QueryResult result = CharacterDatabase.PQuery("SELECT `guid`, `Difficulty`, `GroupSize`, `SpellPower`, `Stats` FROM `custom_solocraft_character_stats` WHERE `guid` = {}", player->GetGUID().GetCounter());
+                player->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), TOTAL_VALUE, difficulty * config.SoloCraftStatsMult, true);
+            }
 
-                for (int32 i = STAT_STRENGTH; i < MAX_STATS; ++i)
+            player->SetFullHealth();
+            player->CastSpell(player, 6962, true);
+
+            if (player->GetPowerType() == POWER_MANA || player->GetClass() == 11)
+            {
+                player->SetPower(POWER_MANA, player->GetMaxPower(POWER_MANA));
+
+                if (result)
                 {
-                    if (result)
-                    {
-                        player->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), TOTAL_VALUE, (*result)[1].GetFloat() * (*result)[4].GetFloat(), false);
-                    }
-
-                    player->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), TOTAL_VALUE, difficulty * solocraftConfig.SoloCraftStatsMult, true);
-                }
-
-                player->SetFullHealth();
-                player->CastSpell(player, 6962, true);
-
-                if (player->GetPowerType() == POWER_MANA || player->GetClass() == 11)
-                {
-                    player->SetPower(POWER_MANA, player->GetMaxPower(POWER_MANA));
-
-                    if (result)
-                    {
-                        player->ApplySpellPowerBonus((*result)[3].GetUInt32() * (*result)[4].GetFloat(), false);
-                    }
-
-                    if (difficulty > 0)
-                    {
-                        SpellPowerBonus = static_cast<int>((player->GetLevel() * solocraftConfig.SoloCraftSpellMult) * difficulty);
-                        player->ApplySpellPowerBonus(SpellPowerBonus, true);
-                    }
-                }
-
-                if (!solocraftConfig.SolocraftXPEnabled)
-                {
-                    if (!player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN))
-                    {
-                        player->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
-                    }
+                    player->ApplySpellPowerBonus((*result)[3].GetUInt32() * (*result)[4].GetFloat(), false);
                 }
 
                 if (difficulty > 0)
                 {
-
-                    const char* solocraft_enabled = player->GetSession()->GetTrinityString(SOLOCRAFT_TRINITYSTRING_ENABLED);
-                    const char* solocraft_disabled = player->GetSession()->GetTrinityString(SOLOCRAFT_TRINITYSTRING_DISABLED);
-                    ChatHandler(player->GetSession()).PSendSysMessage(player->GetSession()->GetTrinityString(SOLOCRAFT_TRINITYSTRING_STATUS), player->GetName().c_str(), map->GetMapName(), difficulty, SpellPowerBonus, classBalance, solocraftConfig.SolocraftXPEnabled?solocraft_enabled:solocraft_disabled, solocraftConfig.SolocraftXPBalancingEnabled?solocraft_enabled:solocraft_disabled);
-                    //|cffFF0000[SoloCraft]|r |cffFF8000 %s entered %s - Difficulty Offset: %0.2f. Spellpower Bonus: %i. Class Balance Weight: %i. XP Gain: |cffFF0000%s XP Balancing:%s |cff4CFF00%s
-
+                    SpellPowerBonus = static_cast<int>((player->GetLevel() * config.SoloCraftSpellMult) * difficulty);
+                    player->ApplySpellPowerBonus(SpellPowerBonus, true);
                 }
-                else
+            }
+
+            if (!config.SolocraftXPEnabled)
+            {
+                if (!player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN))
                 {
-                    ChatHandler(player->GetSession()).PSendSysMessage(player->GetSession()->GetTrinityString(SOLOCRAFT_TRINITYSTRING_ERR_GROUP_ALREADY_BUFFED), player->GetName().c_str(), map->GetMapName(), difficulty, classBalance);
-                    // |cffFF0000[SoloCraft]|r |cffFF8000 %s entered %s - |cffFF0000BE ADVISED - You have been debuffed by offset: %0.2f with a Class Balance Weight: %i. |cffFF8000A group member already inside has the dungeon's full buff offset. No Spellpower buff will be applied to spell casters. ALL group members must exit the dungeon and re-enter to receive a balanced offset.
+                    player->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
                 }
-
-                CharacterDatabase.PExecute("REPLACE INTO `custom_solocraft_character_stats` (`guid`, `Difficulty`, `GroupSize`, `SpellPower`, `Stats`) VALUES ({}, {}, {}, {}, {})", player->GetGUID().GetCounter(), difficulty, numInGroup, SpellPowerBonus, solocraftConfig.SoloCraftStatsMult);
+                s_solocraftXpScaled.erase(guidLow);
+            }
+            else if (config.SolocraftXPBalancingEnabled)
+            {
+                s_solocraftXpScaled.insert(guidLow);
             }
             else
             {
-                ChatHandler(player->GetSession()).PSendSysMessage(player->GetSession()->GetTrinityString(SOLOCRAFT_TRINITYSTRING_ERR_LEVEL_TOO_HIGH), player->GetName().c_str(), map->GetMapName(), dunLevel + solocraftConfig.SolocraftLevelDiff);
-                ClearBuffs(player, map);
+                s_solocraftXpScaled.erase(guidLow);
             }
+
+            if (difficulty > 0)
+            {
+                const char* solocraft_enabled = player->GetSession()->GetTrinityString(SOLOCRAFT_TRINITYSTRING_ENABLED);
+                const char* solocraft_disabled = player->GetSession()->GetTrinityString(SOLOCRAFT_TRINITYSTRING_DISABLED);
+                ChatHandler(player->GetSession()).PSendSysMessage(player->GetSession()->GetTrinityString(SOLOCRAFT_TRINITYSTRING_STATUS), player->GetName().c_str(), map->GetMapName(), difficulty, SpellPowerBonus, classBalance, config.SolocraftXPEnabled ? solocraft_enabled : solocraft_disabled, config.SolocraftXPBalancingEnabled ? solocraft_enabled : solocraft_disabled);
+            }
+            else
+            {
+                // Debuffed group case still scales XP proportionally via OnGiveXP.
+                s_solocraftXpScaled.insert(guidLow);
+                ChatHandler(player->GetSession()).PSendSysMessage(player->GetSession()->GetTrinityString(SOLOCRAFT_TRINITYSTRING_ERR_GROUP_ALREADY_BUFFED), player->GetName().c_str(), map->GetMapName(), difficulty, classBalance);
+            }
+
+            CharacterDatabase.PExecute("REPLACE INTO `custom_solocraft_character_stats` (`guid`, `Difficulty`, `GroupSize`, `SpellPower`, `Stats`) VALUES ({}, {}, {}, {}, {})", player->GetGUID().GetCounter(), difficulty, numInGroup, SpellPowerBonus, config.SoloCraftStatsMult);
         }
         else
         {
+            ChatHandler(player->GetSession()).PSendSysMessage(player->GetSession()->GetTrinityString(SOLOCRAFT_TRINITYSTRING_ERR_LEVEL_TOO_HIGH), player->GetName().c_str(), map->GetMapName(), dunLevel + config.SolocraftLevelDiff);
             ClearBuffs(player, map);
         }
     }
@@ -702,38 +756,67 @@ protected:
 
     void ClearBuffs(Player* player, Map* map)
     {
+        SolocraftConfig const& config = SolocraftConfig::getInstance();
+        uint32 guidLow = SolocraftGetGuidLow(player);
+        s_solocraftXpScaled.erase(guidLow);
+
         QueryResult result = CharacterDatabase.PQuery("SELECT `guid`, `Difficulty`, `GroupSize`, `SpellPower`, `Stats` FROM `custom_solocraft_character_stats` WHERE `guid` = {}", player->GetGUID().GetCounter());
 
-        if (result)
+        if (!result)
         {
-            float difficulty = (*result)[1].GetFloat();
-            int SpellPowerBonus = (*result)[3].GetUInt32();
-            float StatsMultPct = (*result)[4].GetFloat();
-
-            ChatHandler(player->GetSession()).PSendSysMessage(player->GetSession()->GetTrinityString(SOLOCRAFT_TRINITYSTRING_CLEAR_BUFFS), player->GetName().c_str(), map->GetMapName(), difficulty, SpellPowerBonus);
-
-            for (int32 i = STAT_STRENGTH; i < MAX_STATS; ++i)
-            {
-                player->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), TOTAL_VALUE, difficulty * StatsMultPct, false);
-            }
-
-            if (player->GetPowerType() == POWER_MANA && difficulty > 0)
-            {
-                player->ApplySpellPowerBonus(SpellPowerBonus, false);
-            }
-
-            if (player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN) && !noXPGainFlag && !solocraftConfig.SolocraftNoXPFlag)
-            {
-                player->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
-            }
-
-            CharacterDatabase.PExecute("DELETE FROM `custom_solocraft_character_stats` WHERE `guid` = {}", player->GetGUID().GetCounter());
+            SolocraftForgetPlayer(guidLow);
+            return;
         }
+
+        float difficulty = (*result)[1].GetFloat();
+        int SpellPowerBonus = (*result)[3].GetUInt32();
+        float StatsMultPct = (*result)[4].GetFloat();
+
+        ChatHandler(player->GetSession()).PSendSysMessage(player->GetSession()->GetTrinityString(SOLOCRAFT_TRINITYSTRING_CLEAR_BUFFS), player->GetName().c_str(), map->GetMapName(), difficulty, SpellPowerBonus);
+
+        for (int32 i = STAT_STRENGTH; i < MAX_STATS; ++i)
+        {
+            player->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), TOTAL_VALUE, difficulty * StatsMultPct, false);
+        }
+
+        if (player->GetPowerType() == POWER_MANA && difficulty > 0)
+        {
+            player->ApplySpellPowerBonus(SpellPowerBonus, false);
+        }
+
+        bool hadNoXp = false;
+        auto it = s_solocraftHadNoXp.find(guidLow);
+        if (it != s_solocraftHadNoXp.end())
+        {
+            hadNoXp = it->second;
+        }
+
+        if (player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN) && !hadNoXp && !config.SolocraftNoXPFlag)
+        {
+            player->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
+        }
+
+        CharacterDatabase.PExecute("DELETE FROM `custom_solocraft_character_stats` WHERE `guid` = {}", player->GetGUID().GetCounter());
+        SolocraftForgetPlayer(guidLow);
+    }
+};
+
+class solocraft_world_config : public WorldScript
+{
+public:
+    solocraft_world_config() : WorldScript("solocraft_world_config")
+    {
+    }
+
+    void OnConfigLoad(bool /*reload*/) override
+    {
+        SolocraftConfig::getInstance().loadConfig();
     }
 };
 
 void AddSC_solocraft_system()
 {
+    new solocraft_world_config();
     new solocraft_system_announce();
     new solocraft_system_player_instance_handler();
 }

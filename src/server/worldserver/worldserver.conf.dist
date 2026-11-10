@@ -4090,6 +4090,8 @@ SoloCraft.Monk = 100
 
 Solocraft.XP.Enabled = 1
 Solocraft.XP.Balancing.Enabled = 1
+Solocraft.XP.Mod = 1.0
+Solocraft.NoXP.Keep = 0
 
 Solocraft.Dungeon = 5.0
 Solocraft.Heroic = 10.0
