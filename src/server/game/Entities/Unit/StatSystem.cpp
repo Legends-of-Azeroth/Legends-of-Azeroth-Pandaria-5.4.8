@@ -1246,6 +1246,15 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
     float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE);
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
 
+    // damage_base .. damage_exp3 of creature_classlevelstats are damage per second (NpcDamageByClass), so the weapon part
+    // is multiplied by the attack time as well, as in TrinityCore; damage_exp4 holds per-hit values
+    if (GetCreatureTemplate()->expansion < 4)
+    {
+        float const attackSpeed = GetAPMultiplier(attType, false);
+        weapon_mindamage *= attackSpeed;
+        weapon_maxdamage *= attackSpeed;
+    }
+
     /* per-creature/per-difficulty damage multiplier (from difficulty table, default 1.0)
        combined with any runtime override (e.g. world events) */
     float dmg_multiplier = GetCreatureTemplate()->dmg_multiplier;
