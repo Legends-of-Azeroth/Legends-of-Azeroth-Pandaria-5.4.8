@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -36,44 +36,35 @@
 ## entry 15192
 ######*/
 
-#define GOSSIP_A_WRINKIE_IN_TIME "Yes, Anachronos. I am ready to witness your vision of the future."
-#define ACTION_A_WRINKIE_IN_TIME 1001
-
-#define GOSSIP_ON_A_WING_AND_A_PRAYER "Take the Timeless Eye."
-#define ACTION_ON_A_WING_AND_A_PRAYER 1002
-
-class npc_anachronos_15192 : public CreatureScript
+// Anachronos (15192) gossip is configured in the database:
+//   creature_template.gossip_menu_id = 6539
+//   gossip_menu (MenuID 6539) + gossip_menu_option (OptionID 16, 17)
+//   conditions gate each option by quest state (see sql/updates/world/2026_11_13_00_world.sql)
+// The values below must match the OptionID column in gossip_menu_option.
+enum AnachronosGossipOption
 {
-    public:
-        npc_anachronos_15192() : CreatureScript("npc_anachronos_15192") { }
+    GOSSIP_OPT_A_WRINKIE_IN_TIME = 16,
+    GOSSIP_OPT_ON_A_WING_AND_A_PRAYER = 17,
+};
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+struct npc_anachronos_15192 : public ScriptedAI
+{
+    npc_anachronos_15192(Creature* creature) : ScriptedAI(creature) { }
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+    {
+        player->PlayerTalkClass->ClearMenus();
+        switch (gossipListId)
         {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-
-            if (player->GetQuestStatus(29134) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_A_WRINKIE_IN_TIME, GOSSIP_SENDER_MAIN, ACTION_A_WRINKIE_IN_TIME);
-            else if (player->GetQuestStatus(29193) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ON_A_WING_AND_A_PRAYER, GOSSIP_SENDER_MAIN, ACTION_ON_A_WING_AND_A_PRAYER);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            if (action == ACTION_A_WRINKIE_IN_TIME)
-            {
+            case GOSSIP_OPT_A_WRINKIE_IN_TIME:
                 player->KilledMonsterCredit(52605, ObjectGuid::Empty);
-            }
-            else if (action == ACTION_ON_A_WING_AND_A_PRAYER)
+                break;
+            case GOSSIP_OPT_ON_A_WING_AND_A_PRAYER:
             {
                 uint32 curItemCount = player->GetItemCount(69238, false);
                 if (curItemCount >= 1)
                     return false;
-                
+
                 ItemPosCountVec dest;
                 uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 49661, 1);
                 if (msg == EQUIP_ERR_OK)
@@ -83,199 +74,148 @@ class npc_anachronos_15192 : public CreatureScript
                 }
                 else
                     return false;
+                break;
             }
-
-            return true;
+            default:
+                break;
         }
+
+        return true;
+    }
 };
 
-class npc_tarecgosa_52835 : public CreatureScript
+struct npc_tarecgosa_52835 : public ScriptedAI
 {
-    public:
-        npc_tarecgosa_52835() : CreatureScript("npc_tarecgosa_52835") { }
+    npc_tarecgosa_52835(Creature* creature) : ScriptedAI(creature) { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player) override
+    {
+        if (me->IsQuestGiver())
+            player->PrepareQuestMenu(me->GetGUID());
+
+        SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+
+        return true;
+    }
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    {
+        player->PlayerTalkClass->ClearMenus();
+        return false;
+    }
+
+    void MoveInLineOfSight(Unit* who) override
+    {
+        if (!who || who->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        if (!me->IsWithinDistInMap(who, 20.0f))
+            return;
+
+        if (who->ToPlayer()->GetQuestStatus(29193) == QUEST_STATUS_INCOMPLETE)
         {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-            return true;
+            who->ToPlayer()->KilledMonsterCredit(52832, ObjectGuid::Empty);
+            who->ToPlayer()->CompleteQuest(29193);
         }
-
-        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            return false;
-        }
-
-        struct npc_tarecgosa_52835AI : ScriptedAI
-        {
-            npc_tarecgosa_52835AI(Creature* creature) : ScriptedAI(creature) { }
-
-            void MoveInLineOfSight(Unit* who) override
-            {
-                if (!who || who->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                if (!me->IsWithinDistInMap(who, 20.0f))
-                    return;
-
-                if (who->ToPlayer()->GetQuestStatus(29193) == QUEST_STATUS_INCOMPLETE)
-                {
-                    who->ToPlayer()->KilledMonsterCredit(52832, ObjectGuid::Empty);
-                    who->ToPlayer()->CompleteQuest(29193);
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_tarecgosa_52835AI(creature);
-        }
+    }
 };
 
-class npc_tarecgosa_53098 : public CreatureScript
+struct npc_tarecgosa_53098 : public ScriptedAI
 {
-    public:
-        npc_tarecgosa_53098() : CreatureScript("npc_tarecgosa_53098") { }
+    npc_tarecgosa_53098(Creature* creature) : ScriptedAI(creature)
+    {
+        me->SetStandState(UNIT_STAND_STATE_DEAD);
+    }
 
-        struct npc_tarecgosa_53098AI : ScriptedAI
+    void MoveInLineOfSight(Unit* who) override
+    {
+        if (!who || who->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        if (!me->IsWithinDistInMap(who, 20.0f))
+            return;
+
+        if (who->ToPlayer()->GetQuestStatus(29240) == QUEST_STATUS_INCOMPLETE)
         {
-            npc_tarecgosa_53098AI(Creature* creature) : ScriptedAI(creature) 
-            {
-                me->SetStandState(UNIT_STAND_STATE_DEAD);
-            }
-
-            void MoveInLineOfSight(Unit* who) override
-            {
-                if (!who || who->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                if (!me->IsWithinDistInMap(who, 20.0f))
-                    return;
-
-                if (who->ToPlayer()->GetQuestStatus(29240) == QUEST_STATUS_INCOMPLETE)
-                {
-                    who->ToPlayer()->KilledMonsterCredit(53047, ObjectGuid::Empty);
-                    who->ToPlayer()->CompleteQuest(29240);
-                }
-
-                if (who->ToPlayer()->GetQuestStatus(29269) == QUEST_STATUS_INCOMPLETE)
-                {
-                    who->ToPlayer()->KilledMonsterCredit(53182, ObjectGuid::Empty);
-                    who->ToPlayer()->CompleteQuest(29269);
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_tarecgosa_53098AI(creature);
+            who->ToPlayer()->KilledMonsterCredit(53047, ObjectGuid::Empty);
+            who->ToPlayer()->CompleteQuest(29240);
         }
+
+        if (who->ToPlayer()->GetQuestStatus(29269) == QUEST_STATUS_INCOMPLETE)
+        {
+            who->ToPlayer()->KilledMonsterCredit(53182, ObjectGuid::Empty);
+            who->ToPlayer()->CompleteQuest(29269);
+        }
+    }
 };
 
-class npc_kalecgos_53149 : public CreatureScript
+struct npc_kalecgos_53149 : public ScriptedAI
 {
-    public:
-        npc_kalecgos_53149() : CreatureScript("npc_kalecgos_53149") { }
-
-        struct npc_kalecgos_53149AI : ScriptedAI
-        {
-            npc_kalecgos_53149AI(Creature* creature) : ScriptedAI(creature) 
-            {
-                me->SetStandState(UNIT_STAND_STATE_KNEEL);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_kalecgos_53149AI(creature);
-        }
+    npc_kalecgos_53149(Creature* creature) : ScriptedAI(creature)
+    {
+        me->SetStandState(UNIT_STAND_STATE_KNEEL);
+    }
 };
 
-class npc_thyrinar : public CreatureScript
+struct npc_thyrinar : public ScriptedAI
 {
-    public:
-        npc_thyrinar() : CreatureScript("npc_thyrinar") { }
+    npc_thyrinar(Creature* creature) : ScriptedAI(creature)
+    {
+        me->SetCanFly(true);
+        me->SetDisableGravity(true);
+        me->SetReactState(REACT_PASSIVE);
+    }
 
-        struct npc_thyrinarAI : ScriptedAI
-        {
-            npc_thyrinarAI(Creature* creature) : ScriptedAI(creature) 
-            {
-                me->SetCanFly(true);
-                me->SetDisableGravity(true);
-                me->SetReactState(REACT_PASSIVE);
-            }
+    void Reset() override
+    {
+        me->SetCanFly(true);
+        me->SetDisableGravity(true);
+        me->SetReactState(REACT_PASSIVE);
+    }
 
-            void Reset() override
-            {
-                me->SetCanFly(true);
-                me->SetDisableGravity(true);
-                me->SetReactState(REACT_PASSIVE);
-            }
+    void JustDied(Unit* who) override
+    {
+        if (!who)
+            return;
 
-            void JustDied(Unit* who) override
-            {
-                if (!who)
-                    return;
+        Unit* originalKiller = who->GetCharmerOrOwnerOrSelf();
+        if (!originalKiller || originalKiller->GetTypeId() != TYPEID_PLAYER)
+            return;
 
-                Unit* originalKiller = who->GetCharmerOrOwnerOrSelf();
-                if (!originalKiller || originalKiller->GetTypeId() != TYPEID_PLAYER)
-                    return;
+        if (Creature* pTarecgosa = me->FindNearestCreature(53567, 200.0f))
+            pTarecgosa->RemoveAura(99561);
 
-                if (Creature* pTarecgosa = me->FindNearestCreature(53567, 200.0f))
-                    pTarecgosa->RemoveAura(99561);
-
-                if (originalKiller->ToPlayer()->GetQuestStatus(29194) == QUEST_STATUS_INCOMPLETE)
-                    originalKiller->ToPlayer()->KilledMonsterCredit(52867, ObjectGuid::Empty);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_thyrinarAI(creature);
-        }
+        if (originalKiller->ToPlayer()->GetQuestStatus(29194) == QUEST_STATUS_INCOMPLETE)
+            originalKiller->ToPlayer()->KilledMonsterCredit(52867, ObjectGuid::Empty);
+    }
 };
 
-class npc_kalecgos_53349 : public CreatureScript
+struct npc_kalecgos_53349 : public ScriptedAI
 {
-    public:
-        npc_kalecgos_53349() : CreatureScript("npc_kalecgos_53349") { }
+    npc_kalecgos_53349(Creature* creature) : ScriptedAI(creature) { }
 
-        struct npc_kalecgos_53349AI : ScriptedAI
-        {
-            npc_kalecgos_53349AI(Creature* creature) : ScriptedAI(creature) { }
+    void MoveInLineOfSight(Unit* who) override
+    {
+        if (!who || who->GetTypeId() != TYPEID_PLAYER)
+            return;
 
-            void MoveInLineOfSight(Unit* who) override
-            {
-                if (!who || who->GetTypeId() != TYPEID_PLAYER)
-                    return;
+        if (!me->IsWithinDistInMap(who, 20.0f))
+            return;
 
-                if (!me->IsWithinDistInMap(who, 20.0f))
-                    return;
-
-                if (who->ToPlayer()->GetQuestStatus(29285) == QUEST_STATUS_INCOMPLETE)
-                    who->ToPlayer()->KilledMonsterCredit(53227, ObjectGuid::Empty);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_kalecgos_53349AI(creature);
-        }
+        if (who->ToPlayer()->GetQuestStatus(29285) == QUEST_STATUS_INCOMPLETE)
+            who->ToPlayer()->KilledMonsterCredit(53227, ObjectGuid::Empty);
+    }
 };
 
 enum ScriptedText_kalecgos_53392
 {
-    SAY_53392_1 = 0, 
-    SAY_53392_2 = 1, 
+    SAY_53392_1 = 0,
+    SAY_53392_2 = 1,
     SAY_53392_3 = 2,
-    SAY_53392_4 = 3, 
-    SAY_53392_5 = 4, 
-    SAY_53392_6 = 5, 
-    SAY_53392_7 = 6, 
+    SAY_53392_4 = 3,
+    SAY_53392_5 = 4,
+    SAY_53392_6 = 5,
+    SAY_53392_7 = 6,
     SAY_53392_8 = 7,
 };
 
@@ -364,319 +304,262 @@ const Position finalPos2[13] =
     { 1634.151245f, -4358.372559f, 124.68f,    0.55f }  // Stalker
 };
 
-class npc_hallegosa : public CreatureScript
+struct npc_hallegosa : public ScriptedAI
 {
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+    npc_hallegosa(Creature* creature) : ScriptedAI(creature)
     {
-        creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        curPoint = 0;
+        me->RemoveAllAuras();
+        me->SetCanFly(false);
+        me->SetDisableGravity(false);
+        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+        me->setActive(true);
+    }
 
+    void OnQuestAccept(Player* /*player*/, Quest const* /*quest*/) override
+    {
+        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+    }
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    {
+        player->PlayerTalkClass->ClearMenus();
+        CloseGossipMenuFor(player);
+
+        me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+
+        me->SetWalk(true);
+        me->GetMotionMaster()->MovePoint(POINT_HALLEGOSA_1, ((me->GetMapId() == 1) ? finalPos2[0] : finalPos1[0]));
         return true;
     }
 
-    public:
-        npc_hallegosa() : CreatureScript("npc_hallegosa") { }
+    void JustAppeared() override
+    {
+        ScriptedAI::JustAppeared();
+        me->RemoveAllAuras();
+        me->SetCanFly(false);
+        curPoint = 0;
+        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+    }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
+    void MovementInform(uint32 type, uint32 data) override
+    {
+        if (type == POINT_MOTION_TYPE)
         {
-            player->PlayerTalkClass->ClearMenus();
-            player->CLOSE_GOSSIP_MENU();
-
-            creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
-            
-            creature->SetWalk(true);
-            creature->GetMotionMaster()->MovePoint(POINT_HALLEGOSA_1, ((creature->GetMapId() == 1) ? finalPos2[0] : finalPos1[0]));
-            return true;
-        }
-
-        struct npc_hallegosaAI : ScriptedAI
-        {
-            npc_hallegosaAI(Creature* creature) : ScriptedAI(creature) 
+            switch (data)
             {
-                curPoint = 0;
-                me->RemoveAllAuras();
-                me->SetCanFly(false);
-                me->SetDisableGravity(false);
-                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
-                me->setActive(true);
-            }
-
-            void JustAppeared() override
-            {
-                ScriptedAI::JustAppeared();
-                me->RemoveAllAuras();
-                me->SetCanFly(false);
-                curPoint = 0;
-                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
-            }
-
-            void MovementInform(uint32 type, uint32 data) override
-            {
-                if (type == POINT_MOTION_TYPE)
+                case POINT_HALLEGOSA_1:
                 {
-                    switch (data)
+                    curPoint++;
+                    uint8 max_point = ((me->GetMapId() == 1) ? 7 : 3);
+
+                    if (curPoint == max_point)
+                        events.ScheduleEvent(EVENT_HALLEGOSA_DISC_1, 500);
+                    else
+                        events.ScheduleEvent(EVENT_HALLEGOSA_MOVE_1, 500);
+                    break;
+                }
+                case POINT_HALLEGOSA_2:
+                    events.ScheduleEvent(EVENT_HALLEGOSA_END, 5000);
+                    break;
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        events.Update(diff);
+
+        if (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_HALLEGOSA_MOVE_1:
+                    me->GetMotionMaster()->MovePoint(POINT_HALLEGOSA_1, ((me->GetMapId() == 1) ? finalPos2[curPoint] : finalPos1[curPoint]));
+                    break;
+                case EVENT_HALLEGOSA_DISC_1:
+                    DoCast(me, SPELL_HALLEGOSA_SUMMON_DISC_1);
+                    events.ScheduleEvent(EVENT_HALLEGOSA_TRANS, 5000);
+                    break;
+                case EVENT_HALLEGOSA_TRANS:
+                    DoCast(me, SPELL_HALEGOSA_TRANSFORM);
+                    events.ScheduleEvent(EVENT_HALLEGOSA_MOVE_2, 3000);
+                    break;
+                case EVENT_HALLEGOSA_MOVE_2:
+                    me->SetCanFly(true);
+                    me->SetDisableGravity(true);
+                    me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_CAN_FLY);
+                    me->GetMotionMaster()->MovePoint(POINT_HALLEGOSA_2, ((me->GetMapId() == 1) ? finalPos2[curPoint] : finalPos1[curPoint]));
+                    break;
+                case EVENT_HALLEGOSA_END:
+                    me->SummonCreature(NPC_KALECGOS_53392, ((me->GetMapId() == 1) ? finalPos2[8] : finalPos1[4]), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(30 * MINUTE * IN_MILLISECONDS));
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap events;
+    uint8 curPoint;
+};
+
+struct npc_kalecgos_53392 : public ScriptedAI
+{
+    npc_kalecgos_53392(Creature* creature) : ScriptedAI(creature)
+    {
+        me->setActive(true);
+    }
+
+    void IsSummonedBy(Unit* /*owner*/) override
+    {
+        events.ScheduleEvent(EVENT_TALK_1, 5000);
+    }
+
+    void MoveInLineOfSight(Unit* who) override
+    {
+        if (!who || who->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        if (me->GetDistance(who) >= 20.0f)
+            return;
+
+        if (who->ToPlayer()->GetTeam() == HORDE)
+        {
+            if (who->ToPlayer()->GetQuestStatus(29309) == QUEST_STATUS_INCOMPLETE)
+                who->ToPlayer()->KilledMonsterCredit(53715, ObjectGuid::Empty);
+        }
+        else if (who->ToPlayer()->GetTeam() == ALLIANCE)
+        {
+            if (who->ToPlayer()->GetQuestStatus(29312) == QUEST_STATUS_INCOMPLETE)
+                who->ToPlayer()->KilledMonsterCredit(53715, ObjectGuid::Empty);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        events.Update(diff);
+
+        if (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_TALK_1:
+                    Talk(SAY_53392_1, 0);
+                    events.ScheduleEvent(EVENT_TALK_2, 6000);
+                    break;
+                case EVENT_TALK_2:
+                    Talk(SAY_53392_2, 0);
+                    if (me->GetMapId() == 1)
                     {
-                        case POINT_HALLEGOSA_1:
-                        {
-                            curPoint++;
-                            uint8 max_point = ((me->GetMapId() == 1) ? 7 : 3);
-
-                            if (curPoint == max_point)
-                                events.ScheduleEvent(EVENT_HALLEGOSA_DISC_1, 500);
-                            else
-                                events.ScheduleEvent(EVENT_HALLEGOSA_MOVE_1, 500);
-                            break;
-                        }
-                        case POINT_HALLEGOSA_2:
-                            events.ScheduleEvent(EVENT_HALLEGOSA_END, 5000);
-                            break;
+                        for (uint8 i = 10; i < 12; ++i)
+                            me->SummonCreature(NPC_BLUE_DRAGON_53394, finalPos2[i], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(30 * MINUTE * IN_MILLISECONDS));
                     }
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                events.Update(diff);
-
-                if (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
+                    else
                     {
-                        case EVENT_HALLEGOSA_MOVE_1:
-                            me->GetMotionMaster()->MovePoint(POINT_HALLEGOSA_1, ((me->GetMapId() == 1) ? finalPos2[curPoint] : finalPos1[curPoint]));
-                            break;
-                        case EVENT_HALLEGOSA_DISC_1:
-                            DoCast(me, SPELL_HALLEGOSA_SUMMON_DISC_1);
-                            events.ScheduleEvent(EVENT_HALLEGOSA_TRANS, 5000);
-                            break;
-                        case EVENT_HALLEGOSA_TRANS:
-                            DoCast(me, SPELL_HALEGOSA_TRANSFORM);
-                            events.ScheduleEvent(EVENT_HALLEGOSA_MOVE_2, 3000);
-                            break;
-                        case EVENT_HALLEGOSA_MOVE_2:
-                            me->SetCanFly(true);
-                            me->SetDisableGravity(true);
-                            me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_CAN_FLY);
-                            me->GetMotionMaster()->MovePoint(POINT_HALLEGOSA_2, ((me->GetMapId() == 1) ? finalPos2[curPoint] : finalPos1[curPoint]));
-                            break;
-                        case EVENT_HALLEGOSA_END:
-                            me->SummonCreature(NPC_KALECGOS_53392, ((me->GetMapId() == 1) ? finalPos2[8] : finalPos1[4]), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(30 * MINUTE * IN_MILLISECONDS));
-                            break;
-                        default:
-                            break;
+                        for (uint8 i = 6; i < 9; ++i)
+                            me->SummonCreature(NPC_BLUE_DRAGON_53394, finalPos1[i], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(30 * MINUTE * IN_MILLISECONDS));
                     }
-                }
-            }
-
-        private:
-            EventMap events;
-            uint8 curPoint;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_hallegosaAI(creature);
-        }
-};
-
-class npc_kalecgos_53392 : public CreatureScript
-{
-    public:
-        npc_kalecgos_53392() : CreatureScript("npc_kalecgos_53392") { }
-
-        struct npc_kalecgos_53392AI : ScriptedAI
-        {
-            npc_kalecgos_53392AI(Creature* creature) : ScriptedAI(creature) 
-            {
-                me->setActive(true);
-            }
-
-            void IsSummonedBy(Unit* /*owner*/) override
-            {
-                events.ScheduleEvent(EVENT_TALK_1, 5000);
-            }
-
-            void MoveInLineOfSight(Unit* who) override
-            {
-                if (!who || who->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                if (me->GetDistance(who) >= 20.0f)
-                    return;
-
-                if (who->ToPlayer()->GetTeam() == HORDE)
-                {
-                    if (who->ToPlayer()->GetQuestStatus(29309) == QUEST_STATUS_INCOMPLETE)
-                        who->ToPlayer()->KilledMonsterCredit(53715, ObjectGuid::Empty);
-                }
-                else if (who->ToPlayer()->GetTeam() == ALLIANCE)
-                {
-                    if (who->ToPlayer()->GetQuestStatus(29312) == QUEST_STATUS_INCOMPLETE)
-                        who->ToPlayer()->KilledMonsterCredit(53715, ObjectGuid::Empty);
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                events.Update(diff);
-
-                if (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
+                    events.ScheduleEvent(EVENT_TALK_3, 7000);
+                    break;
+                case EVENT_TALK_3:
+                    Talk(SAY_53392_3, 0);
+                    events.ScheduleEvent(EVENT_TALK_4, 6000);
+                    break;
+                case EVENT_TALK_4:
+                    Talk(SAY_53392_4, 0);
+                    me->SummonCreature(NPC_TARECGOSA_53396, ((me->GetMapId() == 1) ? finalPos2[9] : finalPos1[5]), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(30 * MINUTE * IN_MILLISECONDS));
+                    events.ScheduleEvent(EVENT_TALK_5, 7000);
+                    break;
+                case EVENT_TALK_5:
+                    Talk(SAY_53392_5, 0);
+                    if (Creature* pStalker = me->SummonCreature(NPC_STALKER_53422, ((me->GetMapId() == 1) ? finalPos2[12] : finalPos1[9]), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(30 * MINUTE * IN_MILLISECONDS)))
                     {
-                        case EVENT_TALK_1:
-                            Talk(SAY_53392_1, 0);
-                            events.ScheduleEvent(EVENT_TALK_2, 6000);
-                            break;
-                        case EVENT_TALK_2:
-                            Talk(SAY_53392_2, 0);
-                            if (me->GetMapId() == 1)
-                            {
-                                for (uint8 i = 10; i < 12; ++i)
-                                    me->SummonCreature(NPC_BLUE_DRAGON_53394, finalPos2[i], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(30 * MINUTE * IN_MILLISECONDS)); 
-                            }
-                            else
-                            {
-                                for (uint8 i = 6; i < 9; ++i)
-                                    me->SummonCreature(NPC_BLUE_DRAGON_53394, finalPos1[i], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(30 * MINUTE * IN_MILLISECONDS)); 
-                            }
-                            events.ScheduleEvent(EVENT_TALK_3, 7000);
-                            break;
-                        case EVENT_TALK_3:
-                            Talk(SAY_53392_3, 0);
-                            events.ScheduleEvent(EVENT_TALK_4, 6000);
-                            break;
-                        case EVENT_TALK_4:
-                            Talk(SAY_53392_4, 0);
-                            me->SummonCreature(NPC_TARECGOSA_53396, ((me->GetMapId() == 1) ? finalPos2[9] : finalPos1[5]), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(30 * MINUTE * IN_MILLISECONDS));
-                            events.ScheduleEvent(EVENT_TALK_5, 7000);
-                            break;
-                        case EVENT_TALK_5:
-                            Talk(SAY_53392_5, 0);
-                            if (Creature* pStalker = me->SummonCreature(NPC_STALKER_53422, ((me->GetMapId() == 1) ? finalPos2[12] : finalPos1[9]), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(30 * MINUTE * IN_MILLISECONDS)))
-                            {
-                                pStalker->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
-                                pStalker->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 0, 69859);
-                                pStalker->SetDisplayId(21888);
-                            }
-                            events.ScheduleEvent(EVENT_ESSENCE_1, 9000);
-                            break;
-                        case EVENT_ESSENCE_1:
-                            if (Creature* pStalker = me->FindNearestCreature(NPC_STALKER_53422, 100.0f))
-                                pStalker->CastSpell(pStalker, SPELL_ESSENCE_OF_TARECGOSA);
-                            events.ScheduleEvent(EVENT_ESSENCE_2, 15000);
-                            break;
-                        case EVENT_ESSENCE_2:
-                            if (Creature* pTarecgosa = me->FindNearestCreature(NPC_TARECGOSA_53396, 100.0f))
-                                pTarecgosa->DespawnOrUnsummon();
-                            if (Creature* pStalker = me->FindNearestCreature(NPC_STALKER_53422, 100.0f))
-                                pStalker->CastSpell(pStalker, SPELL_PULSE_OF_TARECGOSA);
-                            events.ScheduleEvent(EVENT_TALK_6, 6000);
-                            break;
-                        case EVENT_TALK_6:
-                            Talk(SAY_53392_6, 0);
-                            events.ScheduleEvent(EVENT_TALK_7, 13000);
-                            break;
-                        case EVENT_TALK_7:
-                            Talk(SAY_53392_7, 0);
-                            if (Creature* pStalker = me->FindNearestCreature(NPC_STALKER_53422, 100.0f))
-                                pStalker->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                            events.ScheduleEvent(EVENT_TALK_8, 7000);
-                            break;
-                        case EVENT_TALK_8:
-                            Talk(SAY_53392_8, 0);
-                            if (Creature* pHallegosa = me->FindNearestCreature(((me->GetMapId() == 1) ? NPC_HALLEGOSA_53371 : NPC_HALLEGOSA_53466), 100.0f))
-                            {
-                                pHallegosa->NearTeleportTo(pHallegosa->GetHomePosition().GetPositionX(), pHallegosa->GetHomePosition().GetPositionY(), pHallegosa->GetHomePosition().GetPositionZ(), pHallegosa->GetHomePosition().GetOrientation());
-                                pHallegosa->DespawnOrUnsummon();
-                            }
-                            break;
+                        pStalker->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                        pStalker->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 0, 69859);
+                        pStalker->SetDisplayId(21888);
                     }
-                }
+                    events.ScheduleEvent(EVENT_ESSENCE_1, 9000);
+                    break;
+                case EVENT_ESSENCE_1:
+                    if (Creature* pStalker = me->FindNearestCreature(NPC_STALKER_53422, 100.0f))
+                        pStalker->CastSpell(pStalker, SPELL_ESSENCE_OF_TARECGOSA);
+                    events.ScheduleEvent(EVENT_ESSENCE_2, 15000);
+                    break;
+                case EVENT_ESSENCE_2:
+                    if (Creature* pTarecgosa = me->FindNearestCreature(NPC_TARECGOSA_53396, 100.0f))
+                        pTarecgosa->DespawnOrUnsummon();
+                    if (Creature* pStalker = me->FindNearestCreature(NPC_STALKER_53422, 100.0f))
+                        pStalker->CastSpell(pStalker, SPELL_PULSE_OF_TARECGOSA);
+                    events.ScheduleEvent(EVENT_TALK_6, 6000);
+                    break;
+                case EVENT_TALK_6:
+                    Talk(SAY_53392_6, 0);
+                    events.ScheduleEvent(EVENT_TALK_7, 13000);
+                    break;
+                case EVENT_TALK_7:
+                    Talk(SAY_53392_7, 0);
+                    if (Creature* pStalker = me->FindNearestCreature(NPC_STALKER_53422, 100.0f))
+                        pStalker->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    events.ScheduleEvent(EVENT_TALK_8, 7000);
+                    break;
+                case EVENT_TALK_8:
+                    Talk(SAY_53392_8, 0);
+                    if (Creature* pHallegosa = me->FindNearestCreature(((me->GetMapId() == 1) ? NPC_HALLEGOSA_53371 : NPC_HALLEGOSA_53466), 100.0f))
+                    {
+                        pHallegosa->NearTeleportTo(pHallegosa->GetHomePosition().GetPositionX(), pHallegosa->GetHomePosition().GetPositionY(), pHallegosa->GetHomePosition().GetPositionZ(), pHallegosa->GetHomePosition().GetOrientation());
+                        pHallegosa->DespawnOrUnsummon();
+                    }
+                    break;
             }
-
-        private:
-            EventMap events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_kalecgos_53392AI(creature);
         }
+    }
+
+private:
+    EventMap events;
 };
 
-class npc_tarecgosa_53396 : public CreatureScript
+struct npc_tarecgosa_53396 : public ScriptedAI
 {
-    public:
-        npc_tarecgosa_53396() : CreatureScript("npc_tarecgosa_53396") { }
-
-        struct npc_tarecgosa_53396AI : ScriptedAI
-        {
-            npc_tarecgosa_53396AI(Creature* creature) : ScriptedAI(creature) 
-            {
-                me->setActive(true);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_tarecgosa_53396AI(creature);
-        }
+    npc_tarecgosa_53396(Creature* creature) : ScriptedAI(creature)
+    {
+        me->setActive(true);
+    }
 };
 
-class npc_blue_dragon_53394 : public CreatureScript
+struct npc_blue_dragon_53394 : public ScriptedAI
 {
-    public:
-        npc_blue_dragon_53394() : CreatureScript("npc_blue_dragon_53394") { }
-
-        struct npc_blue_dragon_53394AI : ScriptedAI
-        {
-            npc_blue_dragon_53394AI(Creature* creature) : ScriptedAI(creature) 
-            {
-                me->setActive(true);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_blue_dragon_53394AI(creature);
-        }
+    npc_blue_dragon_53394(Creature* creature) : ScriptedAI(creature)
+    {
+        me->setActive(true);
+    }
 };
 
-class npc_stalker_53422 : public CreatureScript
+struct npc_stalker_53422 : public ScriptedAI
 {
-    public:
-        npc_stalker_53422() : CreatureScript("npc_stalker_53422") { }
+    npc_stalker_53422(Creature* creature) : ScriptedAI(creature)
+    {
+        me->setActive(true);
+    }
 
-        struct npc_stalker_53422AI : ScriptedAI
-        {
-            npc_stalker_53422AI(Creature* creature) : ScriptedAI(creature) 
-            {
-                me->setActive(true);
-            }
-
-            void OnQuestReward(Player* player, const Quest* quest, uint32 data) override
-            {
-                me->DespawnOrUnsummon();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_stalker_53422AI(creature);
-        }
+    void OnQuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*data*/) override
+    {
+        me->DespawnOrUnsummon();
+    }
 };
 
 void AddSC_tarecgosa_scripts()
 {
-    new npc_anachronos_15192();
-    new npc_tarecgosa_52835();
-    new npc_thyrinar();
-    new npc_tarecgosa_53098();
-    new npc_kalecgos_53149();
-    new npc_kalecgos_53349();
-    new npc_hallegosa();
-    new npc_kalecgos_53392();
-    new npc_tarecgosa_53396();
-    new npc_blue_dragon_53394();
-    new npc_stalker_53422();
+    RegisterCreatureAI(npc_anachronos_15192);
+    RegisterCreatureAI(npc_tarecgosa_52835);
+    RegisterCreatureAI(npc_tarecgosa_53098);
+    RegisterCreatureAI(npc_kalecgos_53149);
+    RegisterCreatureAI(npc_thyrinar);
+    RegisterCreatureAI(npc_kalecgos_53349);
+    RegisterCreatureAI(npc_hallegosa);
+    RegisterCreatureAI(npc_kalecgos_53392);
+    RegisterCreatureAI(npc_tarecgosa_53396);
+    RegisterCreatureAI(npc_blue_dragon_53394);
+    RegisterCreatureAI(npc_stalker_53422);
 }
