@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -34,6 +34,7 @@
 #include "PassiveAI.h"
 #include "TotemAI.h"
 #include "Pet.h"
+#include "Random.h"
 
 enum ShamanSpells
 {
@@ -1415,7 +1416,7 @@ class spell_sha_conductivity : public AuraScript
             if (aura->GetMaxDuration() < 40 * IN_MILLISECONDS)
             {
                 int32 add = eff->GetAmplitude() * 2;
-                int32 maxDuration = std::min(aura->GetMaxDuration() + add, 40 * IN_MILLISECONDS);
+                int32 maxDuration = static_cast<int32>(std::min((uint32)aura->GetMaxDuration() + add, 40 * IN_MILLISECONDS));
                 aura->SetMaxDuration(maxDuration);
                 aura->SetDuration(aura->GetDuration() + add);
             }
@@ -1535,7 +1536,7 @@ class spell_sha_natures_guardian : public AuraScript
         PreventDefaultAction();
         GetUnitOwner()->CastCustomSpell(SPELL_SHA_NATURES_GUARDIAN, SPELLVALUE_BASE_POINT0, eff->GetAmount(), GetUnitOwner(), true);
         if (eventInfo.GetActor() && eventInfo.GetActor()->CanHaveThreatList())
-            eventInfo.GetActor()->getThreatManager().modifyThreatPercent(GetUnitOwner(), -10.f); // No idea
+            eventInfo.GetActor()->GetThreatManager().ModifyThreatByPercent(GetUnitOwner(), -10.f); // No idea
         m_caster->AddSpellCooldown(SPELL_SHA_NATURES_GUARDIAN, Seconds(30));
     }
 
@@ -1637,8 +1638,7 @@ class spell_sha_totemic_projection : public SpellScript
         Unit* shaman = GetCaster();
         for (int32 i = 0; i < 4; ++i)
         {
-            Position pos;
-            GetHitDest()->GetPosition(&pos);
+            Position pos = GetHitDest()->GetPosition();
             Creature* totem = shaman->GetMap()->GetCreature(shaman->m_SummonSlot[SUMMON_SLOT_TOTEM + i]);
             if (totem && totem->IsTotem())
             {
@@ -1799,7 +1799,7 @@ class spell_sha_healing_stream : public SpellScript
 {
     PrepareSpellScript(spell_sha_healing_stream);
 
-    uint64 bonusTarget = 0;
+    ObjectGuid bonusTarget = ObjectGuid::Empty;
 
     void SelectTarget(std::list<WorldObject*>& targets)
     {
@@ -1853,7 +1853,7 @@ class spell_sha_windfury_weapon : public AuraScript
 
     Player* m_caster = nullptr;
 
-    bool Load()
+    bool Load() override
     {
         m_caster = GetOwner()->ToPlayer();
         return m_caster != nullptr;
@@ -1875,7 +1875,7 @@ class spell_sha_windfury_weapon : public AuraScript
         SpellInfo const* windfurySpellInfo = sSpellMgr->GetSpellInfo(8232);
         if (!windfurySpellInfo)
         {
-            TC_LOG_ERROR("server", "spell_sha_windfurry_weapon::HandleProc Windfury (%u) spell not found", spellId);
+            TC_LOG_ERROR("server", "spell_sha_windfurry_weapon::HandleProc Windfury ({}) spell not found", spellId);
             return;
         }
 
@@ -2256,7 +2256,7 @@ class spell_sha_flametongue_weapon : public AuraScript
 {
     PrepareAuraScript(spell_sha_flametongue_weapon);
 
-    bool Load()
+    bool Load() override
     {
         return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
     }
@@ -2449,7 +2449,7 @@ struct npc_sha_spirit_wolf : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         scheduler.CancelAll();
 
@@ -2486,7 +2486,7 @@ class spell_sha_stormlash_totem : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        // If it’s periodic damage, it doesn’t Stormlash, unless it’s Mind Flay, Malefic Grasp, or Drain Soul.
+        // If itï¿½s periodic damage, it doesnï¿½t Stormlash, unless itï¿½s Mind Flay, Malefic Grasp, or Drain Soul.
         if (eventInfo.GetTypeMask() & PROC_FLAG_DONE_PERIODIC)
             if (!eventInfo.GetSpellInfo()->IsChanneled())
                 return false;
@@ -2772,7 +2772,7 @@ struct npc_sha_spiritwalker_champion : public PassiveAI
 {
     npc_sha_spiritwalker_champion(Creature* c) : PassiveAI(c) { }
 
-    void IsSummonedBy(Unit* summoner)
+    void IsSummonedBy(Unit* summoner) override
     {
         summoner->CastSpell(me, SPELL_CLONE_ME, true);
         summoner->CastSpell(me, SPELL_COPY_WEAPONS, true);
@@ -2782,7 +2782,7 @@ struct npc_sha_spiritwalker_champion : public PassiveAI
         me->SetPower(POWER_MANA, me->GetMaxPower(POWER_MANA));
     }
 
-    void EnterEvadeMode() override 
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override 
     {
         Unit* owner = me->GetCharmerOrOwner();
         if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
@@ -2902,7 +2902,7 @@ struct npc_sha_lightning_elemental : public ScriptedAI
             casterMovement.Chase(target);
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
             return;
@@ -2934,8 +2934,8 @@ struct npc_sha_earth_elemental : public ScriptedAI
             ctx.Repeat(Milliseconds(5000));
 
             if (Unit* target = me->GetVictim())
-                if (target->getThreatManager().getCurrentVictim())
-                    if (Unit* tank = target->getThreatManager().getCurrentVictim()->getTarget())
+                if (target->GetThreatManager().GetCurrentVictim())
+                    if (Unit* tank = target->GetThreatManager().GetCurrentVictim())
                         if (tank->GetTypeId() == TYPEID_PLAYER && tank->ToPlayer()->GetRoleForGroup() == ROLES_TANK)
                             return;
 

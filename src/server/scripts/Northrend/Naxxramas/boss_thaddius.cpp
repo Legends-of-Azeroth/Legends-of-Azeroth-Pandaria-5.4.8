@@ -20,6 +20,7 @@
 #include "SpellScript.h"
 #include "Player.h"
 #include "naxxramas.h"
+#include "Random.h"
 
 //Stalagg
 enum StalaggYells
@@ -123,11 +124,11 @@ public:
             // Moreover, the adds may not yet be spawn. So just track down the status if mob is spawn
             // and each mob will send its status at reset (meaning that it is alive)
             checkFeugenAlive = false;
-            if (Creature* pFeugen = me->GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
+            if (Creature* pFeugen = me->GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
                 checkFeugenAlive = pFeugen->IsAlive();
 
             checkStalaggAlive = false;
-            if (Creature* pStalagg = me->GetCreature(*me, instance->GetData64(DATA_STALAGG)))
+            if (Creature* pStalagg = me->GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
                 checkStalaggAlive = pStalagg->IsAlive();
 
             if (!checkFeugenAlive && !checkStalaggAlive)
@@ -190,9 +191,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_SHIFT, 30000);
             events.ScheduleEvent(EVENT_CHAIN, urand(10000, 20000));
@@ -235,13 +236,13 @@ public:
                     if (!checkStalaggAlive)
                     {
                         if (instance)
-                            if (Creature* pStalagg = me->GetCreature(*me, instance->GetData64(DATA_STALAGG)))
+                            if (Creature* pStalagg = me->GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
                                 pStalagg->Respawn();
                     }
                     else
                     {
                         if (instance)
-                            if (Creature* pFeugen = me->GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
+                            if (Creature* pFeugen = me->GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
                                 pFeugen->Respawn();
                     }
                 }
@@ -307,7 +308,7 @@ public:
         void Reset() override
         {
             if (instance)
-                if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
+                if (Creature* pThaddius = me->GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_STALAGG_RESET);
             powerSurgeTimer = urand(20000, 25000);
@@ -320,7 +321,7 @@ public:
                 Talk(SAY_STAL_SLAY);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_STAL_AGGRO);
             DoCast(SPELL_STALAGG_TESLA);
@@ -330,7 +331,7 @@ public:
         {
             Talk(SAY_STAL_DEATH);
             if (instance)
-                if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
+                if (Creature* pThaddius = me->GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_STALAGG_DIED);
         }
@@ -342,7 +343,7 @@ public:
 
             if (magneticPullTimer <= uiDiff)
             {
-                if (Creature* pFeugen = me->GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
+                if (Creature* pFeugen = me->GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
                 {
                     Unit* pStalaggVictim = me->GetVictim();
                     Unit* pFeugenVictim = pFeugen->GetVictim();
@@ -352,10 +353,10 @@ public:
                         // magnetic pull is not working. So just jump.
 
                         // reset aggro to be sure that feugen will not follow the jump
-                        pFeugen->getThreatManager().modifyThreatPercent(pFeugenVictim, -100);
+                        pFeugen->GetThreatManager().ModifyThreatByPercent(pFeugenVictim, -100);
                         pFeugenVictim->JumpTo(me, 0.3f);
 
-                        me->getThreatManager().modifyThreatPercent(pStalaggVictim, -100);
+                        me->GetThreatManager().ModifyThreatByPercent(pStalaggVictim, -100);
                         pStalaggVictim->JumpTo(pFeugen, 0.3f);
                     }
                 }
@@ -400,7 +401,7 @@ public:
         void Reset() override
         {
             if (instance)
-                if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
+                if (Creature* pThaddius = me->GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_FEUGEN_RESET);
             staticFieldTimer = 5000;
@@ -412,7 +413,7 @@ public:
                 Talk(SAY_FEUG_SLAY);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_FEUG_AGGRO);
             DoCast(SPELL_FEUGEN_TESLA);
@@ -422,7 +423,7 @@ public:
         {
             Talk(SAY_FEUG_DEATH);
             if (instance)
-                if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
+                if (Creature* pThaddius = me->GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_FEUGEN_DIED);
         }

@@ -34,20 +34,20 @@ class instance_dark_heart_of_pandaria : public InstanceMapScript
             uint32 m_auiEncounter[CHAPTERS];
             uint32 artifactCounter;
             uint32 greatArtifactCount;
-            uint64 urthargesGUID;
-            uint64 malkorokGUID;
-            uint64 grizzleGUID;
-            uint64 norushenGUID;
-            uint64 craftyGUID;
-            uint64 echoGUID;
-            uint64 strangeWallGUID;
-            uint64 heartOfYshaarjGUID;
-            uint64 heartControllerGUID;
-            uint64 additGrizzleGUID;
+            ObjectGuid urthargesGUID;
+            ObjectGuid malkorokGUID;
+            ObjectGuid grizzleGUID;
+            ObjectGuid norushenGUID;
+            ObjectGuid craftyGUID;
+            ObjectGuid echoGUID;
+            ObjectGuid strangeWallGUID;
+            ObjectGuid heartOfYshaarjGUID;
+            ObjectGuid heartControllerGUID;
+            ObjectGuid additGrizzleGUID;
 
-            std::vector<uint64> artifactGUIDs;
-            std::vector<uint64> blossomCollisionsGUIDs;
-            std::vector<uint64> yshaarjBloodGUIDs;
+            std::vector<ObjectGuid> artifactGUIDs;
+            std::vector<ObjectGuid> blossomCollisionsGUIDs;
+            std::vector<ObjectGuid> yshaarjBloodGUIDs;
     
             void Initialize() override
             {
@@ -61,16 +61,16 @@ class instance_dark_heart_of_pandaria : public InstanceMapScript
                 chapterFive         = 0;
                                     
                 artifactCounter     = 0;
-                urthargesGUID       = 0;
-                malkorokGUID        = 0;
-                grizzleGUID         = 0;
-                norushenGUID        = 0;
-                craftyGUID          = 0;
-                echoGUID            = 0;
-                strangeWallGUID     = 0;
-                heartOfYshaarjGUID  = 0;
-                heartControllerGUID = 0;
-                additGrizzleGUID    = 0;
+                urthargesGUID = ObjectGuid::Empty;
+                malkorokGUID = ObjectGuid::Empty;
+                grizzleGUID = ObjectGuid::Empty;
+                norushenGUID = ObjectGuid::Empty;
+                craftyGUID = ObjectGuid::Empty;
+                echoGUID = ObjectGuid::Empty;
+                strangeWallGUID = ObjectGuid::Empty;
+                heartOfYshaarjGUID = ObjectGuid::Empty;
+                heartControllerGUID = ObjectGuid::Empty;
+                additGrizzleGUID = ObjectGuid::Empty;
                 greatArtifactCount  = 0;
 
                 artifactGUIDs.clear();
@@ -228,7 +228,7 @@ class instance_dark_heart_of_pandaria : public InstanceMapScript
                             DoFinishLFGDungeon(instance->GetDifficulty() == SCENARIO_DIFFICULTY_NORMAL ? 624 : 647);
 
                             // Interaction Scene
-                            if (Creature* norushen = instance->GetCreature(GetData64(NPC_NORUSHEN)))
+                            if (Creature* norushen = instance->GetCreature(GetGuidData(NPC_NORUSHEN)))
                                 norushen->SummonCreature(NPC_GRIZZLE_GEARSLIP, gearslipPath[0], TEMPSUMMON_MANUAL_DESPAWN);
                         }
                         break;
@@ -236,7 +236,7 @@ class instance_dark_heart_of_pandaria : public InstanceMapScript
                         artifactCounter += data;
 
                         if (data > 4 && ++greatArtifactCount > 2) // great artifact
-                            if (Creature* grizzle = instance->GetCreature(GetData64(NPC_GRIZZLE_GEARSLIP)))
+                            if (Creature* grizzle = instance->GetCreature(GetGuidData(NPC_GRIZZLE_GEARSLIP)))
                                 grizzle->CastSpell(grizzle, SPELL_ACCELERATED_ARCHEOLOGY, true);
 
                         if (artifactCounter < 51)
@@ -272,7 +272,7 @@ class instance_dark_heart_of_pandaria : public InstanceMapScript
                 return 0;
             }
     
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -298,7 +298,7 @@ class instance_dark_heart_of_pandaria : public InstanceMapScript
                         return additGrizzleGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
     
             bool IsWipe(float range, Unit* source) override

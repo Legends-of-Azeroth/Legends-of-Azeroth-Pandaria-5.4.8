@@ -55,9 +55,9 @@ class boss_shazzrah : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* target) override
+            void JustEngagedWith(Unit* target) override
             {
-                BossAI::EnterCombat(target);
+                BossAI::JustEngagedWith(target);
                 events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 6000);
                 events.ScheduleEvent(EVENT_SHAZZRAH_CURSE, 10000);
                 events.ScheduleEvent(EVENT_MAGIC_GROUNDING, 24000);

@@ -57,7 +57,7 @@ public:
             LandslideTimer = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
         }
 

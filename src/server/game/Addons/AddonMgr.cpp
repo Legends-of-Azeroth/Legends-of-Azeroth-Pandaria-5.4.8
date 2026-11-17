@@ -16,11 +16,11 @@
 */
 
 #include "AddonMgr.h"
+#include "CryptoHash.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
 #include "Log.h"
 #include "Timer.h"
-#include "MD5Util.h"
 
 namespace AddonMgr
 {
@@ -59,7 +59,7 @@ void LoadFromDB()
         }
         while (result->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded %u known addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded {} known addons in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
     else
         TC_LOG_INFO("server.loading", ">> Loaded 0 known addons. DB table `addons` is empty!");
@@ -82,8 +82,8 @@ void LoadFromDB()
             std::string name = fields[1].GetString();
             std::string version = fields[2].GetString();
 
-            MD5Util::MD5(reinterpret_cast<uint8 const*>(name.c_str()), name.length(), addon.NameMD5);
-            MD5Util::MD5(reinterpret_cast<uint8 const*>(version.c_str()), version.length(), addon.VersionMD5);
+            addon.NameMD5 = Trinity::Crypto::MD5::GetDigestOf(name);
+            addon.VersionMD5 = Trinity::Crypto::MD5::GetDigestOf(version);
 
             m_bannedAddons.push_back(addon);
 
@@ -91,7 +91,7 @@ void LoadFromDB()
         }
         while (result->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded %u banned addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded {} banned addons in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
 }
 

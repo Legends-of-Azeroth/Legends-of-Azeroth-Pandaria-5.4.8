@@ -132,9 +132,9 @@ class boss_siamat : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
             
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -209,7 +209,7 @@ class boss_siamat : public CreatureScript
                                 uint8 dist = urand(5, 30);
                                 float angle = frand(0, M_PI);
                                 float x, y;
-                                me->GetNearPoint2D(x, y, (float)dist, angle);
+                                me->GetNearPoint2D(nullptr, x, y, (float)dist, angle);
                                 me->CastSpell(x, y, FLOR_COORD_Z, StaticShock[uiStaticShockId], false);
                                 ++uiStaticShockId;
 
@@ -225,7 +225,7 @@ class boss_siamat : public CreatureScript
                                 uint8 dist = urand(5, 30);
                                 float angle = frand(0, M_PI);
                                 float x, y;
-                                me->GetNearPoint2D(x, y, (float)dist, angle);
+                                me->GetNearPoint2D(nullptr, x, y, (float)dist, angle);
                                 me->CastSpell(x, y, FLOR_COORD_Z, SPELL_CALL_OF_SKY, false);
                                 events.ScheduleEvent(EVENT_CALL_OF_SKY, urand(15000, 35000));
                             }
@@ -332,7 +332,7 @@ class npc_servant_of_siamat : public CreatureScript
                 LightningCharge = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_THUNDER_CRASH, 1000);
                 events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 5000);
@@ -350,7 +350,7 @@ class npc_servant_of_siamat : public CreatureScript
 
                     if (!LightningCharge)
                     {
-                        me->CastSpell(me, SPELL_LIGHTNING_CHARGE, false, NULL, NULL, instance->GetData64(DATA_SIAMAT));
+                        me->CastSpell(me, SPELL_LIGHTNING_CHARGE, false, NULL, NULL, instance->GetGuidData(DATA_SIAMAT));
 
                         LightningCharge = true;
                         me->SetReactState(REACT_PASSIVE);
@@ -440,7 +440,7 @@ class npc_siamat_minion : public CreatureScript
                     summon->GetMotionMaster()->MoveRandom(25.0f);
                     InstanceScript* instance = me->GetInstanceScript();
 
-                    if (Creature* siamat = Unit::GetCreature(*me, instance->GetData64(DATA_SIAMAT)))
+                    if (Creature* siamat = Unit::GetCreature(*me, instance->GetGuidData(DATA_SIAMAT)))
                         siamat->AI()->JustSummoned(summon);
                 }
             }
@@ -570,7 +570,7 @@ class spell_wailing_winds : public SpellScriptLoader
                 else
                 {
                     float dist = frand(10.0f, 30.0f);
-                    target->GetNearPoint2D(x, y, dist, angle);
+                    target->GetNearPoint2D(nullptr, x, y, dist, angle);
                     target->GetMotionMaster()->MoveJump(x, y, FLOR_COORD_Z, SpeedXY, SpeedZ);
                 }
             }

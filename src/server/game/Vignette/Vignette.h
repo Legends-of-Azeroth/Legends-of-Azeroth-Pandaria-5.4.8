@@ -136,13 +136,13 @@ namespace Vignette
             * Get the guid of the vignette
             * @return guid : New position of the vignette
             */
-            uint64 GetGuid() const { return m_Guid; }
+            ObjectGuid GetGuid() const { return m_Guid; }
 
             /**
             * Get the source guid of the vignette, can be 0
             * @return source guid
             */
-            uint64 GeSourceGuid() const { return m_SourceGuid; }
+            ObjectGuid GeSourceGuid() const { return m_SourceGuid; }
 
             /**
             * Get the vignette type
@@ -187,10 +187,10 @@ namespace Vignette
             * @param position: World position of the vignette
             * @param sourceGuid: Guid of the source (can be gameobject or creature)
             */
-            void Create(Type type, G3D::Vector3 position, uint64 sourceGuid);
+            void Create(Map* map, Type type, G3D::Vector3 position, ObjectGuid sourceGuid);
 
-            uint64               m_Guid;                    // Guid of the current vignette (GUID_TYPE_VIGNETTE)
-            uint64               m_SourceGuid;              // Guid of the source if any (can be gameobject or creature)
+            ObjectGuid           m_Guid;                    // Guid of the current vignette (GUID_TYPE_VIGNETTE)
+            ObjectGuid           m_SourceGuid;              // Guid of the source if any (can be gameobject or creature)
             uint32 const         m_Map;                     // Map Id of the current vignette (we only send vignette which are on the same map the player is)
             VignetteEntry const* m_VignetteEntry;           // Vignette data (db2)
             G3D::Vector3         m_Position;                // World coordinates of the current vignette, client compute 2D minimap coord itself

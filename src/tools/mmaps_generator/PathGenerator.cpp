@@ -17,11 +17,26 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "DBCFileLoader.h"
 #include "PathCommon.h"
 #include "MapBuilder.h"
 #include "Timer.h"
+#include "Util.h"
+#include <boost/filesystem.hpp>
+#include <unordered_map>
 
 using namespace MMAP;
+
+namespace
+{
+    std::unordered_map<uint32, uint8> _liquidTypes;
+}
+
+uint32 GetLiquidFlags(uint32 liquidId)
+{
+    auto itr = _liquidTypes.find(liquidId);
+    return itr != _liquidTypes.end() ? (1 << itr->second) : 0;
+}
 
 bool checkDirectories(bool debugOutput)
 {
@@ -42,10 +57,7 @@ bool checkDirectories(bool debugOutput)
 
     dirFiles.clear();
     if (getDirContents(dirFiles, "mmaps") == LISTFILE_DIRECTORY_NOT_FOUND)
-    {
-        printf("'mmaps' directory does not exist\n");
-        return false;
-    }
+        return boost::filesystem::create_directory("mmaps");
 
     dirFiles.clear();
     if (debugOutput)
@@ -64,7 +76,8 @@ bool handleArgs(int argc, char** argv,
                int &mapnum,
                int &tileX,
                int &tileY,
-               float &maxAngle,
+               Optional<float>& maxAngle,
+               Optional<float>& maxAngleNotSteep,
                bool &skipLiquid,
                bool &skipContinents,
                bool &skipJunkMaps,
@@ -77,9 +90,9 @@ bool handleArgs(int argc, char** argv,
                bool &bigBaseUnit,
                char* &offMeshInputPath,
                char* &file,
-               int& threads)
+               unsigned int& threads)
 {
-    char* param = NULL;
+    char* param = nullptr;
     for (int i = 1; i < argc; ++i)
     {
         if (strcmp(argv[i], "--maxAngle") == 0)
@@ -89,10 +102,22 @@ bool handleArgs(int argc, char** argv,
                 return false;
 
             float maxangle = atof(param);
-            if (maxangle <= 90.f && maxangle >= 45.f)
+            if (maxangle <= 90.f && maxangle >= 0.f)
                 maxAngle = maxangle;
             else
                 printf("invalid option for '--maxAngle', using default\n");
+        }
+        else if (strcmp(argv[i], "--maxAngleNotSteep") == 0)
+        {
+            param = argv[++i];
+            if (!param)
+                return false;
+
+            float maxangle = atof(param);
+            if (maxangle <= 90.f && maxangle >= 0.f)
+                maxAngleNotSteep = maxangle;
+            else
+                printf("invalid option for '--maxAngleNotSteep', using default\n");
         }
         else if (strcmp(argv[i], "--threads") == 0)
         {
@@ -283,11 +308,29 @@ int finish(const char* message, int returnValue)
     return returnValue;
 }
 
+std::unordered_map<uint32, uint8> LoadLiquid()
+{
+    DBCFileLoader liquidDbc;
+    std::unordered_map<uint32, uint8> liquidData;
+    // format string doesnt matter as long as it has correct length (only used for mapping to structures in worldserver)
+    if (liquidDbc.Load((boost::filesystem::path("dbc") / "LiquidType.dbc").string().c_str(), "nxxixixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"))
+    {
+        for (uint32 x = 0; x < liquidDbc.GetNumRows(); ++x)
+        {
+            DBCFileLoader::Record record = liquidDbc.getRecord(x);
+            liquidData[record.getUInt(0)] = record.getUInt(3);
+        }
+    }
+
+    return liquidData;
+}
+
 int main(int argc, char** argv)
 {
-    int threads = 3, mapnum = -1;
-    float maxAngle = 70.0f;
+    unsigned int threads = std::thread::hardware_concurrency();
+    int mapnum = -1;
     int tileX = -1, tileY = -1;
+    Optional<float> maxAngle, maxAngleNotSteep;    
     bool skipLiquid = false,
          skipContinents = false,
          skipJunkMaps = true,
@@ -298,11 +341,11 @@ int main(int argc, char** argv)
          debugOutput = false,
          silent = false,
          bigBaseUnit = false;
-    char* offMeshInputPath = NULL;
+    char* offMeshInputPath = nullptr;
     char* file = NULL;
 
     bool validParam = handleArgs(argc, argv, mapnum,
-                                 tileX, tileY, maxAngle,
+                                 tileX, tileY, maxAngle, maxAngleNotSteep,
                                  skipLiquid, skipContinents, skipJunkMaps, skipBattlegrounds, skipArenas, skipDungeons, skipTransports,
                                  debugOutput, silent, bigBaseUnit, offMeshInputPath, file, threads);
 
@@ -324,8 +367,12 @@ int main(int argc, char** argv)
     if (!checkDirectories(debugOutput))
         return silent ? -3 : finish("Press any key to close...", -3);
 
-    MapBuilder builder(maxAngle, skipLiquid, skipContinents, skipJunkMaps,
-                       skipBattlegrounds, skipArenas, skipDungeons, skipTransports, debugOutput, bigBaseUnit, offMeshInputPath);
+    _liquidTypes = LoadLiquid();
+    if (_liquidTypes.empty())
+        return silent ? -5 : finish("Failed to load LiquidType.dbc", -5);    
+
+    MapBuilder builder(maxAngle, maxAngleNotSteep, skipLiquid, skipContinents, skipJunkMaps,
+                       skipBattlegrounds, skipArenas, skipDungeons, skipTransports, debugOutput, bigBaseUnit, mapnum, offMeshInputPath, threads);
 
     uint32 start = getMSTime();
     if (file)
@@ -333,9 +380,9 @@ int main(int argc, char** argv)
     else if (tileX > -1 && tileY > -1 && mapnum >= 0)
         builder.buildSingleTile(mapnum, tileX, tileY);
     else if (mapnum >= 0)
-        builder.buildMap(uint32(mapnum));
+        builder.buildMaps(uint32(mapnum));
     else
-        builder.buildAllMaps(threads);
+        builder.buildMaps({});
 
     if (!silent)
         printf("Finished. MMAPS were built in %u ms!\n", GetMSTimeDiffToNow(start));

@@ -79,7 +79,7 @@ void GuildFinderMgr::LoadGuildSettings()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u guild finder guild-related settings in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} guild finder guild-related settings in {} ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GuildFinderMgr::LoadMembershipRequests()
@@ -101,7 +101,7 @@ void GuildFinderMgr::LoadMembershipRequests()
     {
         Field* fields = result->Fetch();
         uint32 guildId      = fields[0].GetUInt32();
-        uint32 playerId     = fields[1].GetUInt32();
+        ObjectGuid playerId(HighGuid::Player, fields[1].GetUInt32());
         if (!sWorld->GetCharacterNameData(playerId))
         {
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_APPLICANT);
@@ -123,7 +123,7 @@ void GuildFinderMgr::LoadMembershipRequests()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u guild finder membership requests in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} guild finder membership requests in {} ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GuildFinderMgr::AddMembershipRequest(uint32 guildGuid, MembershipRequest const& request)
@@ -143,7 +143,7 @@ void GuildFinderMgr::AddMembershipRequest(uint32 guildGuid, MembershipRequest co
     CharacterDatabase.CommitTransaction(trans);
 
     // Notify the applicant his submittion has been added
-    if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(request.GetPlayerGUID(), 0, HIGHGUID_PLAYER)))
+    if (Player* player = ObjectAccessor::FindPlayer(request.GetPlayerGUID()))
         SendMembershipRequestListUpdate(*player);
 
     // Notify the guild master and officers the list changed
@@ -200,7 +200,7 @@ void GuildFinderMgr::RemoveMembershipRequest(uint32 playerId, uint32 guildId)
     _membershipRequests[guildId].erase(itr);
 
     // Notify the applicant his submittion has been removed
-    if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(playerId, 0, HIGHGUID_PLAYER)))
+    if (Player* player = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player, playerId)))
         SendMembershipRequestListUpdate(*player);
 
     // Notify the guild master and officers the list changed
@@ -304,11 +304,11 @@ void GuildFinderMgr::DeleteGuild(uint32 guildId)
     {
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-        uint32 applicant = itr->GetPlayerGUID();
+        ObjectGuid applicant = itr->GetPlayerGUID();
 
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_APPLICANT);
         stmt->setUInt32(0, itr->GetGuildId());
-        stmt->setUInt32(1, applicant);
+        stmt->setUInt32(1, applicant.GetCounter());
         trans->Append(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_GUILD_SETTINGS);
@@ -318,7 +318,7 @@ void GuildFinderMgr::DeleteGuild(uint32 guildId)
         CharacterDatabase.CommitTransaction(trans);
 
         // Notify the applicant his submition has been removed
-        if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(applicant, 0, HIGHGUID_PLAYER)))
+        if (Player* player = ObjectAccessor::FindPlayer(applicant))
             SendMembershipRequestListUpdate(*player);
 
         ++itr;

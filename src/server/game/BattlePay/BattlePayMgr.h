@@ -248,7 +248,7 @@ struct BattlePayShopEntryLocale
 
 struct PurchaseInfo
 {
-    PurchaseInfo() : Session(nullptr), SelectedPlayer(0), PurchaseId(0), ProductId(0), PurchaseStatus(0), ResultCode(0), ClientToken(0), ServerToken(0), Buyed(false) { }
+    PurchaseInfo() : Session(nullptr), SelectedPlayer(ObjectGuid::Empty), PurchaseId(0), ProductId(0), PurchaseStatus(0), ResultCode(0), ClientToken(0), ServerToken(0), Buyed(false) { }
 
     PurchaseInfo(WorldSession* session, ObjectGuid selectedPlayer, uint64 purchaseId, uint32 productId, uint32 purchaseStatus, uint32 resultCode, uint32 clientToken, uint32 serverToken, bool buyed)
         : Session(session), SelectedPlayer(selectedPlayer), PurchaseId(purchaseId), ProductId(productId), PurchaseStatus(purchaseStatus), ResultCode(resultCode), ClientToken(clientToken), ServerToken(serverToken), Buyed(buyed) { }

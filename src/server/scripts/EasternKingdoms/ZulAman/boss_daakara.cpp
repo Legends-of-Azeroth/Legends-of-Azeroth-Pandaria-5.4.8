@@ -151,7 +151,7 @@ class boss_daakara : public CreatureScript
                 //me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 
@@ -368,7 +368,7 @@ class boss_daakara : public CreatureScript
             }
 
         private:
-            uint64 ClawTargetGUID;
+            ObjectGuid ClawTargetGUID;
             bool bEnrage;
             uint8 phase;
             bool bAchieve;
@@ -392,17 +392,17 @@ class npc_daakara_vortex : public CreatureScript
                 DoCast(me, SPELL_FEATHER_VORTEX_VISUAL, true);
                 me->SetReactState(REACT_PASSIVE);
                 startTimer = 2000;
-                victimGUID = 0;
+                victimGUID = ObjectGuid::Empty;
                 SetCombatMovement(false);
             }
 
             bool bStart;
             uint32 startTimer;
-            uint64 victimGUID;
+            ObjectGuid victimGUID;
 
             void Reset() override { }
             
-            void SetGUID(uint64 guid, int32 type) override
+            void SetGUID(ObjectGuid guid, int32 type) override
             {
                 victimGUID = guid;
             }
@@ -489,7 +489,7 @@ class npc_daakara_amani_lynx : public CreatureScript
                 events.Reset();
             }
             
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_FERAL_SWIPE, urand(6000, 9000));
             }

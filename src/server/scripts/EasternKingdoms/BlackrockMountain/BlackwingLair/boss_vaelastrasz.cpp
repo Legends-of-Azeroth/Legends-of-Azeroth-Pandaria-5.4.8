@@ -79,14 +79,14 @@ public:
             _Reset();
 
             me->SetStandState(UNIT_STAND_STATE_DEAD);
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
 
             HasYelled = false;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
 
             DoCast(me, SPELL_ESSENCEOFTHERED);
             me->SetHealth(me->CountPctFromMaxHealth(30));
@@ -226,7 +226,7 @@ public:
         }
 
         private:
-            uint64 PlayerGUID;
+            ObjectGuid PlayerGUID;
             bool HasYelled;
     };
 

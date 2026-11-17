@@ -80,7 +80,7 @@ class boss_dred : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_BETTER_OF_DRED, 0);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (instance)
                     instance->SetData(DATA_DRED_EVENT,IN_PROGRESS);
@@ -213,7 +213,7 @@ class npc_drakkari_gutripper : public CreatureScript
 
                 void JustDied(Unit* /*killer*/) override
                 {
-                    if (Creature* Dred = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_DRED)))
+                    if (Creature* Dred = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DRED)))
                         Dred->AI()->DoAction(ACTION_RAPTOR_KILLED);
                 }
         };
@@ -261,7 +261,7 @@ class npc_drakkari_scytheclaw : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* Dred = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_DRED)))
+                if (Creature* Dred = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DRED)))
                     Dred->AI()->DoAction(ACTION_RAPTOR_KILLED);
             }
         };

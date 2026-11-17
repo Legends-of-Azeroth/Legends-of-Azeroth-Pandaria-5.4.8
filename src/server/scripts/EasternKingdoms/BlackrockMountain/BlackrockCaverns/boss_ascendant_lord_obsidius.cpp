@@ -83,9 +83,9 @@ class boss_ascendant_lord_obsidius : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_ASCENDANT_DESCENDING, 1);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -195,7 +195,7 @@ class npc_shadow_of_obsidius : public CreatureScript
                 DoCast(me, SPELL_SHADOW_OF_OBSIDIUS);
             }   
 
-            void EnterCombat(Unit* attacker) override
+            void JustEngagedWith(Unit* attacker) override
             {
                 events.ScheduleEvent(EVENT_CREPUSCULAR_VEIL, 3900);
             }
@@ -205,7 +205,7 @@ class npc_shadow_of_obsidius : public CreatureScript
                 if (me->GetVictim() != attacker)
                 {
                     DoResetThreat();
-                    me->AddThreat(attacker, 1000000.0f);
+                    me->GetThreatManager().AddThreat(attacker, 1000000.0f);
                     me->Attack(attacker, true);
                     me->GetMotionMaster()->MoveChase(attacker);
                 }

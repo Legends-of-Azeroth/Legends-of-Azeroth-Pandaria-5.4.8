@@ -39,18 +39,18 @@ class instance_blackwing_descent : public InstanceMapScript
                 LoadDoorData(doorData);
                 omnotronHealth = 0;
                 uiBileotron800Active = 0;
-                uiMagmawGUID = 0;
-                uiMagmawHeadGUID = 0;
-                uiMaloriakGUID = 0;
+                uiMagmawGUID = ObjectGuid::Empty;
+                uiMagmawHeadGUID = ObjectGuid::Empty;
+                uiMaloriakGUID = ObjectGuid::Empty;
                 uiAberCount = 18;
-                uiChimaeronGUID = 0;
-                uiBileotron800GUID = 0;
-                uiAtramedesGUID = 0;
-                uiInnerChamberDoorGUID = 0;
-                uiLordNefarianGUID      = 0;
-                uiOnyxiaGUID            = 0;
-                uiNefarianGUID = 0;
-                uiNefarianFloorGUID = 0;
+                uiChimaeronGUID = ObjectGuid::Empty;
+                uiBileotron800GUID = ObjectGuid::Empty;
+                uiAtramedesGUID = ObjectGuid::Empty;
+                uiInnerChamberDoorGUID = ObjectGuid::Empty;
+                uiLordNefarianGUID = ObjectGuid::Empty;
+                uiOnyxiaGUID = ObjectGuid::Empty;
+                uiNefarianGUID = ObjectGuid::Empty;
+                uiNefarianFloorGUID = ObjectGuid::Empty;
                 memset(&m_uiOmnotronGUID, 0, sizeof(m_uiOmnotronGUID));
             }
 
@@ -124,7 +124,7 @@ class instance_blackwing_descent : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject *go)
+            void OnGameObjectCreate(GameObject *go) override
             {
                 switch (go->GetEntry())
                 {
@@ -144,7 +144,7 @@ class instance_blackwing_descent : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -179,7 +179,7 @@ class instance_blackwing_descent : public InstanceMapScript
                     case DATA_NEFARIAN_FLOOR:
                         return uiNefarianFloorGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             uint32 GetData(uint32 type) const override
@@ -235,7 +235,7 @@ class instance_blackwing_descent : public InstanceMapScript
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const override
             {
-                if (player && player->IsGameMaster())
+                if (_SkipCheckRequiredBosses(player))
                     return true;
             
                 switch (bossId)
@@ -306,21 +306,21 @@ class instance_blackwing_descent : public InstanceMapScript
                 uint32 omnotronHealth;
                 uint32 uiAberCount;
                 uint32 uiBileotron800Active;
-                uint64 uiMagmawGUID;
-                uint64 uiMagmawHeadGUID;
-                uint64 uiMaloriakGUID;
-                uint64 m_uiOmnotronGUID[4];
-                uint64 uiOmnotronControllerGUID;
-                uint64 uiChimaeronGUID;
-                uint64 uiBileotron800GUID;
-                uint64 uiAtramedesGUID;
-                uint64 uiInnerChamberDoorGUID;
-                uint64 uiLordNefarianGUID;
-                uint64 uiNefarianGUID;
-                uint64 uiOnyxiaGUID;
-                uint64 uiOrbOfCulminationStalkerGUID;
-                uint64 uiNefarianFloorGUID;
-                uint64 uiOrbOfCulminationGUID;
+                ObjectGuid uiMagmawGUID;
+                ObjectGuid uiMagmawHeadGUID;
+                ObjectGuid uiMaloriakGUID;
+                ObjectGuid m_uiOmnotronGUID[4];
+                ObjectGuid uiOmnotronControllerGUID;
+                ObjectGuid uiChimaeronGUID;
+                ObjectGuid uiBileotron800GUID;
+                ObjectGuid uiAtramedesGUID;
+                ObjectGuid uiInnerChamberDoorGUID;
+                ObjectGuid uiLordNefarianGUID;
+                ObjectGuid uiNefarianGUID;
+                ObjectGuid uiOnyxiaGUID;
+                ObjectGuid uiOrbOfCulminationStalkerGUID;
+                ObjectGuid uiNefarianFloorGUID;
+                ObjectGuid uiOrbOfCulminationGUID;
                 uint32 uiTeamInInstance;
         };
 

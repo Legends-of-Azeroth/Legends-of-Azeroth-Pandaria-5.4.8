@@ -36,13 +36,13 @@ class instance_nexus : public InstanceMapScript
 
             uint32 m_auiEncounter[NUMBER_OF_ENCOUNTERS];
 
-            uint64 anomalusGUID;
-            uint64 keristraszaGUID;
-            uint64 commanderGUID;
+            ObjectGuid anomalusGUID;
+            ObjectGuid keristraszaGUID;
+            ObjectGuid commanderGUID;
 
-            uint64 AnomalusContainmentSphere;
-            uint64 OrmoroksContainmentSphere;
-            uint64 TelestrasContainmentSphere;
+            ObjectGuid AnomalusContainmentSphere;
+            ObjectGuid OrmoroksContainmentSphere;
+            ObjectGuid TelestrasContainmentSphere;
 
             std::string strInstData;
 
@@ -50,13 +50,13 @@ class instance_nexus : public InstanceMapScript
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-                anomalusGUID = 0;
-                keristraszaGUID = 0;
-                commanderGUID = 0;
+                anomalusGUID = ObjectGuid::Empty;
+                keristraszaGUID = ObjectGuid::Empty;
+                commanderGUID = ObjectGuid::Empty;
 
-                AnomalusContainmentSphere = 0;
-                OrmoroksContainmentSphere = 0;
-                TelestrasContainmentSphere = 0;
+                AnomalusContainmentSphere = ObjectGuid::Empty;
+                OrmoroksContainmentSphere = ObjectGuid::Empty;
+                TelestrasContainmentSphere = ObjectGuid::Empty;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -222,7 +222,7 @@ class instance_nexus : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -233,7 +233,7 @@ class instance_nexus : public InstanceMapScript
                     case ORMOROKS_CONTAINMET_SPHERE:    return OrmoroksContainmentSphere;
                     case TELESTRAS_CONTAINMET_SPHERE:   return TelestrasContainmentSphere;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData() override

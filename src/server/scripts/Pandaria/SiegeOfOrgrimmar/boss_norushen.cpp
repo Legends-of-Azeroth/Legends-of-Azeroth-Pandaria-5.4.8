@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -362,9 +362,9 @@ class boss_norushen : public CreatureScript
                     me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void JustSummoned(Creature* summon) override
@@ -394,7 +394,8 @@ class boss_norushen : public CreatureScript
                     case ACTION_FINISHED_EVENT:
                         events.Reset();
                         scheduler.CancelAll();
-                        me->DeleteThreatList();
+                        me->GetThreatManager().RemoveMeFromThreatLists();
+                        me->GetThreatManager().ClearAllThreat();
                         me->CombatStop(true);
 
                         if (instance)
@@ -416,14 +417,15 @@ class boss_norushen : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 Talk(SAY_NORUSHEN_WIPE);
 
                 me->RemoveAllAuras();
 
                 Reset();
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
 
                 me->GetMotionMaster()->MovementExpired();
@@ -501,7 +503,7 @@ class boss_norushen : public CreatureScript
                             events.ScheduleEvent(EVENT_START_COMBAT, 6000);
                             break;
                         case EVENT_START_COMBAT:
-                            if (Creature* amalgam = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+                            if (Creature* amalgam = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
                             {
                                 amalgam->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
                                 amalgam->SetReactState(REACT_AGGRESSIVE);
@@ -510,7 +512,7 @@ class boss_norushen : public CreatureScript
                             break;
                         // Outro.
                         case EVENT_START_OUTRO:
-                            if (Creature* quarantinMeasure = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_QUARANTINE_MEASURES) : 0))
+                            if (Creature* quarantinMeasure = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_QUARANTINE_MEASURES) : ObjectGuid::Empty))
                                 me->GetMotionMaster()->MovePoint(POINT_NORUSHEN_OUTRO_MID, *quarantinMeasure); // Move mid and talk.
                             break;
                         case EVENT_SPAWN_NORUSHEN_PRIDE:
@@ -619,12 +621,12 @@ class boss_amalgam_of_corruption : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                if (Creature* quarantinMeasure = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_QUARANTINE_MEASURES) : 0))
+                if (Creature* quarantinMeasure = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_QUARANTINE_MEASURES) : ObjectGuid::Empty))
                     quarantinMeasure->SetInCombatWithZone();
 
-                if (Creature* norushen = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_NORUSHEN) : 0))
+                if (Creature* norushen = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NORUSHEN) : ObjectGuid::Empty))
                     norushen->SetInCombatWithZone();
 
                 DoCast(me, SPELL_ICY_FEAR_AURA, true);
@@ -717,13 +719,14 @@ class boss_amalgam_of_corruption : public CreatureScript
 
             void KilledUnit(Unit* victim) override { }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->RemoveAllAuras();
                 me->RemoveAllAreasTrigger();
 
                 berserkerEvents.Reset();
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
                 summons.DespawnAll();
 
@@ -744,9 +747,10 @@ class boss_amalgam_of_corruption : public CreatureScript
 
                     instance->DoRemoveBloodLustDebuffSpellOnPlayers();
 
-                    if (Creature* quarantinMeasure = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_QUARANTINE_MEASURES)))
+                    if (Creature* quarantinMeasure = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_QUARANTINE_MEASURES)))
                     {
-                        quarantinMeasure->DeleteThreatList();
+                        quarantinMeasure->GetThreatManager().RemoveMeFromThreatLists();
+                        quarantinMeasure->GetThreatManager().ClearAllThreat();
                         quarantinMeasure->CombatStop(true);
                     }
 
@@ -758,7 +762,7 @@ class boss_amalgam_of_corruption : public CreatureScript
                     instance->DoSetAlternatePowerOnPlayers(0);
                 }
 
-                if (Creature* norushen = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_NORUSHEN) : 0))
+                if (Creature* norushen = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NORUSHEN) : ObjectGuid::Empty))
                     norushen->AI()->DoAction(ACTION_RESET_EVENT);
             }
 
@@ -784,9 +788,10 @@ class boss_amalgam_of_corruption : public CreatureScript
 
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me); // Remove.
 
-                    if (Creature* quarantinMeasure = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_QUARANTINE_MEASURES)))
+                    if (Creature* quarantinMeasure = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_QUARANTINE_MEASURES)))
                     {
-                        quarantinMeasure->DeleteThreatList();
+                        quarantinMeasure->GetThreatManager().RemoveMeFromThreatLists();
+                        quarantinMeasure->GetThreatManager().ClearAllThreat();
                         quarantinMeasure->CombatStop(true);
                     }
 
@@ -802,7 +807,7 @@ class boss_amalgam_of_corruption : public CreatureScript
                 events.Reset();
                 berserkerEvents.Reset();
 
-                if (Creature* norushen = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_NORUSHEN) : 0))
+                if (Creature* norushen = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NORUSHEN) : ObjectGuid::Empty))
                     norushen->AI()->DoAction(ACTION_FINISHED_EVENT);
             }
 
@@ -835,7 +840,7 @@ class boss_amalgam_of_corruption : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SAFETY_MEASURES: // berserk
-                            if (Creature* quarantinMeasure = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_QUARANTINE_MEASURES) : 0))
+                            if (Creature* quarantinMeasure = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_QUARANTINE_MEASURES) : ObjectGuid::Empty))
                                 quarantinMeasure->AI()->DoAction(ACTION_QUARANTINE_MEASURES);
                             break;
                             // Purifying Light orbs spawning.
@@ -889,7 +894,7 @@ class boss_amalgam_of_corruption : public CreatureScript
                             me->SummonCreature(NPC_BLIND_HATRED, x, y, me->GetPositionZ(), TEMPSUMMON_MANUAL_DESPAWN);
                             DoCast(me, SPELL_BLIND_HATRED, true);
 
-                            if (Creature* quarantinMeasure = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_QUARANTINE_MEASURES) : 0))
+                            if (Creature* quarantinMeasure = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_QUARANTINE_MEASURES) : ObjectGuid::Empty))
                                 quarantinMeasure->CastSpell(quarantinMeasure, SPELL_BLIND_HATRED, true);
 
                             events.ScheduleEvent(EVENT_BLIND_HATRED, 60000);
@@ -946,7 +951,7 @@ struct npc_manifestation_of_corruption : public ScriptedAI
     npc_manifestation_of_corruption(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
 
     void IsSummonedBy(Unit* summoner) override
     {
@@ -958,7 +963,7 @@ struct npc_manifestation_of_corruption : public ScriptedAI
         {
             me->SetPhaseMask(summoner->GetPhaseMask(), true);
 
-            if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+            if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
             {
                 amalgam->AI()->JustSummoned(me);
                 amalgam->CastSpell(me, SPELL_FOUL_LINK_ADDS, true);
@@ -995,7 +1000,7 @@ struct npc_manifestation_of_corruption : public ScriptedAI
         {
             DoCast(me, SPELL_FOUL_LINK_TRIGGER, true);
 
-            if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+            if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
                 amalgam->CastSpell(me, SPELL_FOUL_LINK_ADDS, true);
 
             me->ClearUnitState(UNIT_STATE_CASTING);
@@ -1010,19 +1015,20 @@ struct npc_manifestation_of_corruption : public ScriptedAI
         }
     }
 
-    uint64 GetGUID(int32 /*type*/) const override
+    ObjectGuid GetGUID(int32 /*type*/) const override
     {
         return targetGUID;
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         // fake death, vanish etc.
         if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
             if (target->IsAlive())
                 return;
 
-        me->DeleteThreatList();
+        me->GetThreatManager().RemoveMeFromThreatLists();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
     }
 
@@ -1031,7 +1037,7 @@ struct npc_manifestation_of_corruption : public ScriptedAI
         if (me->GetEntry() != NPC_MANIFEST_OF_CORRUPTION_L)
             return;
 
-        if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+        if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
             if (damage < amalgam->GetHealth())
                 amalgam->ModifyHealth(-int32(damage));
     }
@@ -1044,7 +1050,7 @@ struct npc_manifestation_of_corruption : public ScriptedAI
                 killer->CastSpell(killer, SPELL_CLEANSE_MANIF_L, true);
 
             // Have the Amalgam Unleash it when killed.
-            if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+            if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
                 amalgam->CastSpell(amalgam, SPELL_MIS_SPAWN_MANIF_N, true);
         }
         else // Summon Residual Corruption.
@@ -1071,7 +1077,7 @@ struct npc_essence_of_corruption : public ScriptedAI
     npc_essence_of_corruption(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
 
     void IsSummonedBy(Unit* summoner) override
     {
@@ -1084,7 +1090,7 @@ struct npc_essence_of_corruption : public ScriptedAI
         {
             me->SetPhaseMask(summoner->GetPhaseMask(), true);
 
-            if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+            if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
             {
                 amalgam->AI()->JustSummoned(me);
                 amalgam->CastSpell(me, SPELL_FOUL_LINK_ADDS, true);
@@ -1107,14 +1113,14 @@ struct npc_essence_of_corruption : public ScriptedAI
         {
             DoCast(me, SPELL_FOUL_LINK_TRIGGER, true);
 
-            if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+            if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
                 amalgam->CastSpell(me, SPELL_FOUL_LINK_ADDS, true);
 
             // Expel Corruption to Summoner
             scheduler
                 .Schedule(Seconds(2), [this](TaskContext context)
             {
-                if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+                if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
                     me->PrepareChanneledCast(me->GetAngle(amalgam), SPELL_EXPEL_CORRUPTION);
 
                 context.Repeat(Seconds(6), Seconds(7));
@@ -1124,19 +1130,20 @@ struct npc_essence_of_corruption : public ScriptedAI
         DoZoneInCombat(me, 100.0f);
     }
 
-    uint64 GetGUID(int32 /*type*/) const override
+    ObjectGuid GetGUID(int32 /*type*/) const override
     {
         return targetGUID;
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         // fake death, vanish etc.
         if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
             if (target->IsAlive())
                 return;
 
-        me->DeleteThreatList();
+        me->GetThreatManager().RemoveMeFromThreatLists();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
     }
 
@@ -1145,7 +1152,7 @@ struct npc_essence_of_corruption : public ScriptedAI
         if (me->GetEntry() != NPC_ESSENCE_OF_CORRUPTION_L)
             return;
 
-        if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+        if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
             if (damage < amalgam->GetHealth())
                 amalgam->ModifyHealth(-int32(damage));
     }
@@ -1158,7 +1165,7 @@ struct npc_essence_of_corruption : public ScriptedAI
                 killer->CastSpell(killer, SPELL_CLEANSE_ESSENCE_L, true);
 
             // Have the Amalgam Unleash it when killed.
-            if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+            if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
                 amalgam->CastSpell(amalgam, SPELL_MIS_SPAWN_ESSENCE_N, true);
         }
 
@@ -1179,7 +1186,7 @@ struct npc_greater_corruption : public ScriptedAI
     SummonList summons;
     EventMap events;
     uint32 summonsDead;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
     bool hasFail;
 
     void Reset() override
@@ -1191,7 +1198,7 @@ struct npc_greater_corruption : public ScriptedAI
         hasFail = false;
     }
 
-    uint64 GetGUID(int32 /*type*/) const override
+    ObjectGuid GetGUID(int32 /*type*/) const override
     {
         return targetGUID;
     }
@@ -1233,7 +1240,7 @@ struct npc_greater_corruption : public ScriptedAI
         summon->setActive(true);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->RemoveAurasDueToSpell(SPELL_MANIFEST_SPAWN_VIS);
 
@@ -1242,7 +1249,7 @@ struct npc_greater_corruption : public ScriptedAI
         events.ScheduleEvent(EVENT_BOTTOMLESS_PIT, 20000);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         // fake death, vanish etc.
         if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
@@ -1251,7 +1258,8 @@ struct npc_greater_corruption : public ScriptedAI
 
         Reset();
         me->RemoveAllAreasTrigger();
-        me->DeleteThreatList();
+        me->GetThreatManager().RemoveMeFromThreatLists();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
     }
 
@@ -1279,7 +1287,7 @@ struct npc_greater_corruption : public ScriptedAI
                 target->RemoveAurasDueToSpell(SPELL_TEST_OF_RELIANCE_HEAL);
                 me->DespawnOrUnsummon(1 * IN_MILLISECONDS);
 
-                if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+                if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
                     amalgam->CastSpell(amalgam, SPELL_MIS_SPAWN_MANIF_N, true);
             }
         }
@@ -1287,7 +1295,7 @@ struct npc_greater_corruption : public ScriptedAI
 
     void DamageTaken(Unit* attacker, uint32& damage) override
     {
-        if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+        if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
             if (damage < amalgam->GetHealth())
                 amalgam->ModifyHealth(-int32(damage));
     }
@@ -1354,14 +1362,14 @@ struct npc_titanic_corruption : public ScriptedAI
     InstanceScript* instance;
     EventMap events;
     TaskScheduler scheduler;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
 
     void Reset() override
     {
         events.Reset();
     }
 
-    uint64 GetGUID(int32 /*type*/) const override
+    ObjectGuid GetGUID(int32 /*type*/) const override
     {
         return targetGUID;
     }
@@ -1371,7 +1379,7 @@ struct npc_titanic_corruption : public ScriptedAI
         targetGUID = summoner->GetGUID();
 
         // for warrior reflection @TODO
-        /*if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+        /*if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
             me->SetOwnerGUID(amalgam->GetGUID());*/
 
         me->SetPhaseMask(summoner->GetPhaseMask(), true);
@@ -1380,7 +1388,7 @@ struct npc_titanic_corruption : public ScriptedAI
         DoZoneInCombat(me, 100.0f);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->RemoveAurasDueToSpell(SPELL_MANIFEST_SPAWN_VIS);
 
@@ -1390,7 +1398,7 @@ struct npc_titanic_corruption : public ScriptedAI
         events.ScheduleEvent(EVENT_TITANIC_SMASH, 7000);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         // fake death, vanish etc.
         if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
@@ -1398,13 +1406,14 @@ struct npc_titanic_corruption : public ScriptedAI
                 return;
 
         Reset();
-        me->DeleteThreatList();
+        me->GetThreatManager().RemoveMeFromThreatLists();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
     }
 
     void DamageTaken(Unit* attacker, uint32& damage) override
     {
-        if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+        if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
             if (damage < amalgam->GetHealth())
                 amalgam->ModifyHealth(-int32(damage));
     }
@@ -1491,7 +1500,7 @@ struct npc_blind_hatred : public ScriptedAI
 
     void Reset() override
     {
-        me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
+        me->SetDisplayFromModel(0);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
         me->SetReactState(REACT_PASSIVE);
         DoCast(me, SPELL_BLIND_HATRED_NPC_VIS, true);
@@ -1508,7 +1517,7 @@ struct npc_blind_hatred : public ScriptedAI
         {
             hasMoving = 1;
 
-            if (Creature* amalgam = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+            if (Creature* amalgam = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
             {
                 dist = me->GetExactDist2d(amalgam);
 
@@ -1549,7 +1558,7 @@ struct npc_residual_corruption : public ScriptedAI
 
     void IsSummonedBy(Unit* /*summoner*/) override
     {
-        if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+        if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
             amalgam->AI()->JustSummoned(me);
 
         DoCast(me, SPELL_RESIDUAL_CORRUPTION_A);
@@ -1636,7 +1645,7 @@ struct npc_purifying_light_orb : public ScriptedAI
 
         uint32 playerRole = clickerPlayer->GetRoleForGroup(clickerPlayer->GetTalentSpecialization());
 
-        if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+        if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
             specRealm = amalgam->AI()->GetData(TYPE_LIGHT_ORB);
 
         // not one phase is available
@@ -1649,7 +1658,7 @@ struct npc_purifying_light_orb : public ScriptedAI
         // Remove spellclick flag.
         me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
 
-        if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+        if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
         {
             amalgam->AI()->SetData(TYPE_LIGHT_ORB, specRealm);
             specPhase = amalgam->AI()->GetData(specRealm);
@@ -1671,7 +1680,7 @@ struct npc_purifying_light_orb : public ScriptedAI
         }
 
         // Remove orb slot
-        if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+        if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
             amalgam->AI()->SetData(TYPE_ORB_POS, GetData(TYPE_ORB_POS));
 
         if (clicker->ToPlayer())
@@ -1698,11 +1707,11 @@ struct npc_test_of_reliance_helpers : public customCreatureAI
             SetCombatMovement(false);
     }
 
-    uint64 summonerGUID;
+    ObjectGuid summonerGUID;
 
     void IsSummonedBy(Unit* summoner) override
     {
-        if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+        if (Creature* amalgam = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
             amalgam->AI()->JustSummoned(me);
 
         summonerGUID = summoner->GetGUID();
@@ -1716,7 +1725,7 @@ struct npc_test_of_reliance_helpers : public customCreatureAI
             DoCast(me, SPELL_DAMAGE_DEALER, true);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         if (me->GetEntry() == NPC_SUN_TENDERHEART_GC)
             events.ScheduleEvent(EVENT_FIRE_BALL, 2 * IN_MILLISECONDS);
@@ -1883,7 +1892,7 @@ class spell_test_realm_amalgam : public AuraScript
             {
                 tempManifestations.remove_if([=](TempSummon* target) { return target && !target->IsAlive(); });
 
-                if (Creature* amalgam = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+                if (Creature* amalgam = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
                     for (auto&& itr : tempManifestations)
                         amalgam->CastSpell(amalgam, invTestAmalgamType.find(itr->GetEntry())->second, true);
 
@@ -1986,7 +1995,7 @@ class spell_test_realm_amalgam : public AuraScript
                     if (altPower > 85)
                         EssencesToSpawn += 1;
 
-                    if (Creature* amalgam = ObjectAccessor::GetCreature(*target, target->GetInstanceScript() ? target->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+                    if (Creature* amalgam = ObjectAccessor::GetCreature(*target, target->GetInstanceScript() ? target->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
                     {
                         for (uint8 i = 0; i < EssencesToSpawn; i++)
                         {
@@ -2091,7 +2100,7 @@ class spell_norushen_teleport : public SpellScript
 
     void HandleDummy(SpellEffIndex effIndex)
     {
-        if (Creature* quarantinZone = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript() ? GetCaster()->GetInstanceScript()->GetData64(NPC_QUARANTINE_MEASURES) : 0))
+        if (Creature* quarantinZone = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript() ? GetCaster()->GetInstanceScript()->GetGuidData(NPC_QUARANTINE_MEASURES) : ObjectGuid::Empty))
             if (GetHitUnit() && GetHitUnit()->GetExactDist2d(quarantinZone) <= 35.0f)
                 PreventHitEffect(effIndex);
     }
@@ -2109,7 +2118,7 @@ class spell_essence_unleash_corruption : public SpellScript
 
     void SelectTargets(SpellDestination& dest)
     {
-        if (Creature* amalgam = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript() ? GetCaster()->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+        if (Creature* amalgam = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript() ? GetCaster()->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
         {
             GetPositionWithDistInOrientation(amalgam, 23.5f, frand(0.0f, 2 * M_PI), x, y);
             Position newPos = { x, y, 356.339f, 0.0f };
@@ -2133,7 +2142,7 @@ class spell_manifestation_unleash_corruption : public SpellScript
 
     void SelectTargets(SpellDestination& dest)
     {
-        if (Creature* amalgam = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript() ? GetCaster()->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+        if (Creature* amalgam = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript() ? GetCaster()->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
         {
             GetPositionWithDistInOrientation(amalgam, 37.5f, frand(0.0f, 2 * M_PI), x, y);
             Position newPos = { x, y, 356.339f, 0.0f };
@@ -2224,8 +2233,8 @@ class spell_norushen_lingering_corruption : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if([=](WorldObject* target) { return target->GetEntry() != NPC_SUN_TENDERHEART_GC && target->GetEntry() != NPC_LEVEN_DAWNBLADE_GC && target->GetEntry() != NPC_ROOK_STONETOE_GC 
-            || GetCaster() && GetCaster()->ToCreature() && target && target->ToPlayer() && GetCaster()->ToCreature()->AI()->GetGUID() != target->ToPlayer()->GetGUID(); });
+        targets.remove_if([=](WorldObject* target) { return !target || (target->GetEntry() != NPC_SUN_TENDERHEART_GC && target->GetEntry() != NPC_LEVEN_DAWNBLADE_GC && target->GetEntry() != NPC_ROOK_STONETOE_GC
+            || GetCaster() && GetCaster()->ToCreature() && target->ToPlayer() && GetCaster()->ToCreature()->AI()->GetGUID() != target->ToPlayer()->GetGUID()); });
 
         if (targets.size() > 1)
             Trinity::Containers::RandomResizeList(targets, 1);
@@ -2297,7 +2306,7 @@ class spell_look_within : public AuraScript
     {
         if (Unit* owner = GetOwner()->ToUnit())
         {
-            if (Creature* amalgam = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+            if (Creature* amalgam = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
                 amalgam->AI()->SetData(TYPE_LIGHT_ORB_SLOT, GetSpellInfo()->Id);
 
             owner->SetPhaseMask(1, true);
@@ -2364,7 +2373,7 @@ class sat_expel_corruption : public IAreaTriggerOnce
     {
         if (Creature* caster = GetCaster()->ToCreature())
         {
-            if (Unit* target = ObjectAccessor::GetUnit(*caster, caster->GetInstanceScript() ? caster->GetInstanceScript()->GetData64(NPC_AMALGAM_OF_CORRUPTION) : 0))
+            if (Unit* target = ObjectAccessor::GetUnit(*caster, caster->GetInstanceScript() ? caster->GetInstanceScript()->GetGuidData(NPC_AMALGAM_OF_CORRUPTION) : ObjectGuid::Empty))
             {
                 AreaTrigger* at = GetAreaTrigger();
                 float dist = at->GetExactDist2d(target) + 5.0f;
@@ -2480,7 +2489,7 @@ class cond_blind_hatred : public ConditionScript
     public:
         cond_blind_hatred() : ConditionScript("cond_blind_hatred") { }
 
-        bool OnConditionCheck(Condition* cond, ConditionSourceInfo& source) override
+        bool OnConditionCheck(const Condition* cond, ConditionSourceInfo& source) override
         {
             if (source.mConditionTargets[0] && source.mConditionTargets[1])
             {

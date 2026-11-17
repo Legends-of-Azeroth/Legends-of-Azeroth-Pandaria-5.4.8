@@ -77,7 +77,7 @@ class boss_hydromancer_thespia : public CreatureScript
                     instance->SetBossState(DATA_HYDROMANCER_THESPIA, DONE);
 
                     if (instance)
-                        if (GameObject* goHydroDoor = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_ACCESS_PANEL_HYDRO)))
+                        if (GameObject* goHydroDoor = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_ACCESS_PANEL_HYDRO)))
                             goHydroDoor->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 }
             }
@@ -87,7 +87,7 @@ class boss_hydromancer_thespia : public CreatureScript
                 Talk(SAY_SLAY);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_LIGHTNING_CLOUD, 15 * IN_MILLISECONDS);
@@ -169,7 +169,7 @@ class npc_coilfang_waterelemental : public CreatureScript
                 WaterBoltVolley_Timer = 3000+rand()%3000;
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override
             {

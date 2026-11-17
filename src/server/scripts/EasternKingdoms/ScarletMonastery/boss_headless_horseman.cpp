@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -95,7 +95,7 @@ struct boss_headless_horseman : public ScriptedAI
 {
     boss_headless_horseman(Creature* creature) : ScriptedAI(creature), _summons(me) { }
 
-    void SetGUID(uint64 guid, int32 type) override
+    void SetGUID(ObjectGuid guid, int32 type) override
     {
         if (type == TYPE_STARTER_GUID)
             _starterGUID = guid;
@@ -124,7 +124,7 @@ struct boss_headless_horseman : public ScriptedAI
 
         introCount = 0;
         phase = 0;
-        _starterGUID = 0;
+        _starterGUID = ObjectGuid::Empty;
 
         introTimer = 1*IN_MILLISECONDS;
         laughTimer = 5*IN_MILLISECONDS;
@@ -153,7 +153,7 @@ struct boss_headless_horseman : public ScriptedAI
         });
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         DoZoneInCombat(me, 100.0f);
     }
@@ -200,8 +200,8 @@ struct boss_headless_horseman : public ScriptedAI
                     sLFGMgr->FinishDungeon(players.begin()->GetSource()->GetGroup()->GetGUID(), 285, map);
         }
         DoCast(me, SPELL_BURNING, true);
-        me->SummonCreature(NPC_SIR_THOMAS, 1118.27f, 617.449f, 1.2174f, 4.42471f, TEMPSUMMON_TIMED_DESPAWN, 60*IN_MILLISECONDS);
-        }
+        me->SummonCreature(NPC_SIR_THOMAS, 1118.27f, 617.449f, 1.2174f, 4.42471f, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(60*IN_MILLISECONDS));
+    }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
@@ -225,8 +225,7 @@ struct boss_headless_horseman : public ScriptedAI
             DoCast(me, SPELL_BODY_REGEN, true);
             DoCast(me, SPELL_CONFUSED, true);
 
-            Position randomPos;
-            me->GetRandomNearPosition(randomPos, 20.0f);
+            Position randomPos = me->GetRandomNearPosition(20.0f);
 
             if (Creature* head = me->SummonCreature(NPC_HEAD, randomPos))
             {
@@ -359,7 +358,7 @@ struct boss_headless_horseman : public ScriptedAI
         uint32 cleaveTimer;
         uint32 summonTimer;
         uint32 conflagTimer;
-        uint64 _starterGUID;
+        ObjectGuid _starterGUID;
 };
 
 struct npc_horseman_head : public ScriptedAI

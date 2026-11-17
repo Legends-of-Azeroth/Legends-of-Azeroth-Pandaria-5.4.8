@@ -17,6 +17,7 @@
 
 #include "ScriptPCH.h"
 #include "zulaman.h"
+#include "Random.h"
 
 enum Spells
 {
@@ -216,7 +217,7 @@ class npc_amanishi_tempest : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_THUNDERCLAP, urand(5000, 10000));
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(6000, 12000));
@@ -268,13 +269,13 @@ struct npc_amani_lynx : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->RemoveAurasDueToSpell(SPELL_STEALTH);
         events.ScheduleEvent(EVENT_FERAL_SWIPE, urand(2 * IN_MILLISECONDS, 4.5 * IN_MILLISECONDS));
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         DoCast(me, SPELL_STEALTH, true);

@@ -85,7 +85,7 @@ class Unit;
 struct GossipMenuItems;
 class OutdoorPvP;
 
-typedef std::set<uint64> PlayerSet;
+typedef std::set<ObjectGuid> PlayerSet;
 
 class OPvPCapturePoint
 {
@@ -101,7 +101,7 @@ class OPvPCapturePoint
         void SendUpdateWorldState(uint32 field, uint32 value);
 
         // send kill notify to players in the controlling faction
-        void SendObjectiveComplete(uint32 id, uint64 guid);
+        void SendObjectiveComplete(uint32 id, ObjectGuid guid);
 
         // used when player is activated/inactivated in the area
         virtual bool HandlePlayerEnter(Player* player);
@@ -112,7 +112,7 @@ class OPvPCapturePoint
 
         virtual bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go);
 
-        virtual int32 HandleOpenGo(Player* player, uint64 guid);
+        virtual int32 HandleOpenGo(Player* player, ObjectGuid guid);
 
         // returns true if the state of the objective has changed, in this case, the OutdoorPvP must send a world state ui update.
         virtual bool Update(uint32 diff);
@@ -123,7 +123,7 @@ class OPvPCapturePoint
 
         virtual void SendChangePhase();
 
-        virtual bool HandleGossipOption(Player* player, uint64 guid, uint32 gossipid);
+        virtual bool HandleGossipOption(Player* player, Creature* creature, uint32 gossipid);
 
         virtual bool CanTalkTo(Player* player, Creature* c, GossipMenuItems const& gso);
 
@@ -131,7 +131,7 @@ class OPvPCapturePoint
 
         virtual void DeleteSpawns();
 
-        uint32 m_capturePointGUID;
+        ObjectGuid m_capturePointGUID;
 
         GameObject* m_capturePoint;
 
@@ -181,10 +181,10 @@ class OPvPCapturePoint
 
         // map to store the various gameobjects and creatures spawned by the objective
         //        type, guid
-        std::map<uint32, uint64> m_Objects;
-        std::map<uint32, uint64> m_Creatures;
-        std::map<uint64, uint32> m_ObjectTypes;
-        std::map<uint64, uint32> m_CreatureTypes;
+        std::map<uint32, ObjectGuid> m_Objects;
+        std::map<uint32, ObjectGuid> m_Creatures;
+        std::map<ObjectGuid, uint32> m_ObjectTypes;
+        std::map<ObjectGuid, uint32> m_CreatureTypes;
 };
 
 // base class for specific outdoor pvp handlers
@@ -208,13 +208,13 @@ class OutdoorPvP : public ZoneScript
         virtual void FillInitialWorldStates(WorldStateBuilder& /*builder*/) { }
 
         // called when a player triggers an areatrigger
-        virtual bool HandleAreaTrigger(Player* player, uint32 trigger);
+        virtual bool HandleAreaTrigger(Player* player, uint32 trigger, bool entered);
 
         // called on custom spell
         virtual bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go);
 
         // called on go use
-        virtual bool HandleOpenGo(Player* player, uint64 guid);
+        virtual bool HandleOpenGo(Player* player, ObjectGuid guid);
 
         // setup stuff
         virtual bool SetupOutdoorPvP() {return true;}
@@ -243,7 +243,7 @@ class OutdoorPvP : public ZoneScript
 
         virtual bool HandleDropFlag(Player* player, uint32 spellId);
 
-        virtual bool HandleGossipOption(Player* player, uint64 guid, uint32 gossipid);
+        virtual bool HandleGossipOption(Player* player, Creature* creature, uint32 gossipid);
 
         virtual bool CanTalkTo(Player* player, Creature* c, GossipMenuItems const& gso);
 

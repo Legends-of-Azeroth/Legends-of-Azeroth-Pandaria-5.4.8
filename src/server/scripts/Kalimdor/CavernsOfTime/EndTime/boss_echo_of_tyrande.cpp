@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
 #include "ScriptPCH.h"
 #include "end_time.h"
 #include "MoveSplineInit.h"
+#include "Random.h"
 
 enum Yells
 {
@@ -158,7 +159,7 @@ class boss_echo_of_tyrande : public CreatureScript
                 eventphase = 0;
                 curPool = NULL;
                 moonlight = false;
-                me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8); // not sure (UNIT_FIELD_BYTES_1)
+                me->SetUInt32Value(UNIT_FIELD_BYTES_1, 8); // not sure (UNIT_FIELD_BYTES_1)
                 me->AddAura(SPELL_IN_SHADOW, me);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             }
@@ -167,13 +168,13 @@ class boss_echo_of_tyrande : public CreatureScript
             {
                 _Reset();
 
-                moonlanceGUID = 0LL;
+                moonlanceGUID = ObjectGuid::Empty;
                 phase = 0;
                 eyesphase = -1;
 
                 if (instance->GetData(DATA_TYRANDE_EVENT) == DONE)
                 {
-                    me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); // not sure (UNIT_FIELD_BYTES_1)
+                    me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0); // not sure (UNIT_FIELD_BYTES_1)
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                     me->RemoveAura(SPELL_IN_SHADOW);
 
@@ -218,8 +219,7 @@ class boss_echo_of_tyrande : public CreatureScript
                         }
 
                         summon->SetOrientation(me->GetAngle(target));
-                        Position pos;
-                        summon->GetNearPosition(pos, 15.0f, 0.0f);
+                        Position pos = summon->GetNearPosition(15.0f, 0.0f);
                         summon->GetMotionMaster()->MovePoint(POINT_MOONLANCE, pos);
                         break;
                     }
@@ -244,7 +244,7 @@ class boss_echo_of_tyrande : public CreatureScript
                             me->InterruptSpell(CURRENT_GENERIC_SPELL);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 
@@ -340,7 +340,7 @@ class boss_echo_of_tyrande : public CreatureScript
                                 default: break;
                             }
                             curPool = NULL;
-                            curPool = me->SummonCreature(NPC_POOL_OF_MOONLIGHT, poolPos[eventphase - 1], TEMPSUMMON_TIMED_DESPAWN, 40000);
+                            curPool = me->SummonCreature(NPC_POOL_OF_MOONLIGHT, poolPos[eventphase - 1], TEMPSUMMON_TIMED_DESPAWN, 40000ms);
                             if (eventphase < 5)
                             {
                                 switch (eventphase)
@@ -364,8 +364,7 @@ class boss_echo_of_tyrande : public CreatureScript
                         {
                             if (Player* player = me->FindNearestPlayer(500.0f))
                             {
-                                Position pos;
-                                player->GetRandomNearPosition(pos, frand(15.0f, 20.0f));
+                                Position pos = player->GetRandomNearPosition(frand(15.0f, 20.0f));
                                 uint32 entry = NPC_TIME_TWISTED_NIGHTSABER_1;
                                 switch (urand(1, eventphase))
                                 {
@@ -415,7 +414,7 @@ class boss_echo_of_tyrande : public CreatureScript
                             Talk(SAY_LIGHT_6);
                             DoCastAOE(SPELL_ACHIEVEMENT);
                             events.CancelEvent(EVENT_CHECK_PLAYERS);
-                            me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); // not sure (UNIT_FIELD_BYTES_1)
+                            me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0); // not sure (UNIT_FIELD_BYTES_1)
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                             me->RemoveAura(SPELL_IN_SHADOW);
 
@@ -468,7 +467,7 @@ class boss_echo_of_tyrande : public CreatureScript
 
         private:
             uint8 phase; 
-            uint64 moonlanceGUID;
+            ObjectGuid moonlanceGUID;
             uint8 eventphase;
             int32 eyesphase;
             Unit* curPool;
@@ -514,18 +513,17 @@ class npc_echo_of_tyrande_moonlance : public CreatureScript
                 {
                     if (me->GetEntry() == NPC_MOONLANCE_1)
                     {
-                        Position pos1_1, pos1_2, pos2_1, pos2_2, pos3_1, pos3_2;
-                        me->GetNearPosition(pos1_1, 3.0f, -(M_PI / 4.0f));
-                        me->GetNearPosition(pos1_2, 30.0f, -(M_PI / 4.0f)); 
-                        me->GetNearPosition(pos2_1, 3.0f, 0.0f); 
-                        me->GetNearPosition(pos2_2, 30.0f, 0.0f); 
-                        me->GetNearPosition(pos3_1, 3.0f, (M_PI / 4.0f)); 
-                        me->GetNearPosition(pos3_2, 30.0f, (M_PI / 4.0f));
-                        if (Creature* pLance1 = me->SummonCreature(NPC_MOONLANCE_2_1, pos1_1, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                        Position pos1_1 = me->GetNearPosition(3.0f, -(M_PI / 4.0f));
+                        Position pos1_2 = me->GetNearPosition(30.0f, -(M_PI / 4.0f)); 
+                        Position pos2_1 = me->GetNearPosition(3.0f, 0.0f); 
+                        Position pos2_2 = me->GetNearPosition(30.0f, 0.0f); 
+                        Position pos3_1 = me->GetNearPosition(3.0f, (M_PI / 4.0f)); 
+                        Position pos3_2 = me->GetNearPosition(30.0f, (M_PI / 4.0f));
+                        if (Creature* pLance1 = me->SummonCreature(NPC_MOONLANCE_2_1, pos1_1, TEMPSUMMON_TIMED_DESPAWN, 30000ms))
                             pLance1->GetMotionMaster()->MovePoint(POINT_MOONLANCE, pos1_2);
-                        if (Creature* pLance2 = me->SummonCreature(NPC_MOONLANCE_2_2, pos2_1, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                        if (Creature* pLance2 = me->SummonCreature(NPC_MOONLANCE_2_2, pos2_1, TEMPSUMMON_TIMED_DESPAWN, 30000ms))
                             pLance2->GetMotionMaster()->MovePoint(POINT_MOONLANCE, pos2_2);
-                        if (Creature* pLance3 = me->SummonCreature(NPC_MOONLANCE_2_3, pos3_1, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                        if (Creature* pLance3 = me->SummonCreature(NPC_MOONLANCE_2_3, pos3_1, TEMPSUMMON_TIMED_DESPAWN, 30000ms))
                             pLance3->GetMotionMaster()->MovePoint(POINT_MOONLANCE, pos3_2);
                     }
 
@@ -593,9 +591,9 @@ class npc_echo_of_tyrande_eye_of_elune : public CreatureScript
     public:
         npc_echo_of_tyrande_eye_of_elune() : CreatureScript("npc_echo_of_tyrande_eye_of_elune") { }
 
-        struct npc_echo_of_tyrande_eye_of_eluneAI : public CreatureAI
+        struct npc_echo_of_tyrande_eye_of_eluneAI : public ScriptedAI
         {
-            npc_echo_of_tyrande_eye_of_eluneAI(Creature* creature) : CreatureAI(creature)
+            npc_echo_of_tyrande_eye_of_eluneAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->SetReactState(REACT_PASSIVE);
             }
@@ -769,7 +767,7 @@ class at_et_tyrande : public AreaTriggerScript
                 if (instance->GetData(DATA_TYRANDE_EVENT) != IN_PROGRESS && 
                     instance->GetData(DATA_TYRANDE_EVENT) != DONE)
                 {
-                    if (Creature* pTyrande = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_ECHO_OF_TYRANDE)))
+                    if (Creature* pTyrande = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_ECHO_OF_TYRANDE)))
                     {
                         pTyrande->AI()->Talk(SAY_INTRO_1);
                         pTyrande->AI()->DoAction(ACTION_START_EVENT);

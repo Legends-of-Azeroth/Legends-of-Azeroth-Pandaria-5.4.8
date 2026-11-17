@@ -191,7 +191,7 @@ struct NonTankSpecTargetSelector
         uint32 _spellId;
 };
 
-class UnitAI
+class TC_GAME_API UnitAI
 {
     protected:
         Unit* const me;
@@ -217,8 +217,8 @@ class UnitAI
         virtual void DoAction(int32 /*param*/) { }
         virtual uint32 GetData(uint32 /*id = 0*/) const { return 0; }
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) { }
-        virtual void SetGUID(uint64 /*guid*/, int32 /*id*/ = 0) { }
-        virtual uint64 GetGUID(int32 /*id*/ = 0) const { return 0; }
+        virtual void SetGUID(ObjectGuid /*guid*/, int32 /*id*/ = 0) { }
+        virtual ObjectGuid GetGUID(int32 /*id*/ = 0) const { return ObjectGuid::Empty; }
 
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
         // Select the best target (in <targetType> order) satisfying <predicate> from the threat list.
@@ -226,14 +226,14 @@ class UnitAI
         // order, if <targetType> is SelectTargetMethod::Random) are skipped.
         template <class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE const& predicate)
         {
-            ThreatContainer::StorageType const& threatlist = me->getThreatManager().getThreatList();
-            if (position >= threatlist.size())
+            auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+            if (position >= me->GetThreatManager().GetThreatListSize())
                 return NULL;
 
             std::list<Unit*> targetList;
-            for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                if (predicate((*itr)->getTarget()))
-                    targetList.push_back((*itr)->getTarget());
+            for (ThreatReference const* ref : threatlist)
+                if (predicate(ref->GetVictim()))
+                    targetList.push_back(ref->GetVictim());
 
             if (position >= targetList.size())
                 return NULL;
@@ -287,13 +287,13 @@ class UnitAI
         // order, if <targetType> is SelectTargetMethod::Random) are skipped.
         template <class PREDICATE> void SelectTargetList(std::list<Unit*>& targetList, PREDICATE const& predicate, uint32 maxTargets, SelectAggroTarget targetType)
         {
-            ThreatContainer::StorageType const& threatlist = me->getThreatManager().getThreatList();
-            if (threatlist.empty())
+            auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+            if (me->GetThreatManager().IsThreatListEmpty())
                 return;
 
-            for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                if (predicate((*itr)->getTarget()))
-                    targetList.push_back((*itr)->getTarget());
+            for (ThreatReference const* ref : threatlist)
+                if (predicate(ref->GetVictim()))
+                    targetList.push_back(ref->GetVictim());
 
             if (targetList.size() < maxTargets)
                 return;

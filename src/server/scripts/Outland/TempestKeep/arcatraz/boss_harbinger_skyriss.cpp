@@ -111,7 +111,7 @@ class boss_harbinger_skyriss : public CreatureScript
                 ScriptedAI::MoveInLineOfSight(who);
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void JustDied(Unit* /*killer*/) override
             {
@@ -168,13 +168,13 @@ class boss_harbinger_skyriss : public CreatureScript
                         {
                         case 1:
                             Talk(SAY_INTRO);
-                            instance->HandleGameObject(instance->GetData64(DATA_SPHERE_SHIELD), true);
+                            instance->HandleGameObject(instance->GetGuidData(DATA_SPHERE_SHIELD), true);
                             ++Intro_Phase;
                             Intro_Timer = 25000;
                             break;
                         case 2:
                             Talk(SAY_AGGRO);
-                            if (Unit* mellic = Unit::GetUnit(*me, instance->GetData64(DATA_MELLICHAR)))
+                            if (Unit* mellic = Unit::GetUnit(*me, instance->GetGuidData(DATA_MELLICHAR)))
                             {
                                 //should have a better way to do this. possibly spell exist.
                                 mellic->setDeathState(JUST_DIED);
@@ -289,7 +289,7 @@ class boss_harbinger_skyriss_illusion : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
         };
 
         CreatureAI* GetAI(Creature* creature) const override

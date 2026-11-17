@@ -169,7 +169,7 @@ class boss_jedoga_shadowseeker : public CreatureScript
                 me->GetMap()->SetWorldState(WORLD_STATE_VOLUNTEER_WORK, 1);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance || (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == NPC_JEDOGA_CONTROLLER))
                     return;
@@ -179,7 +179,7 @@ class boss_jedoga_shadowseeker : public CreatureScript
                 instance->SetData(DATA_JEDOGA_SHADOWSEEKER_EVENT, IN_PROGRESS);
 
                 //for (int i = 0; i < VOLUNTEER_COUNT; i++)
-                //    if (Creature* pTemp = me->SummonCreature(NPC_TWILIGHT_VOLUNTEER, VolunteerLoc[i].x, VolunteerLoc[i].y, VolunteerLoc[i].z, VolunteerLoc[i].o, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                //    if (Creature* pTemp = me->SummonCreature(NPC_TWILIGHT_VOLUNTEER, VolunteerLoc[i].x, VolunteerLoc[i].y, VolunteerLoc[i].z, VolunteerLoc[i].o, TEMPSUMMON_CORPSE_DESPAWN, 0ms))
                 //        pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
@@ -191,7 +191,7 @@ class boss_jedoga_shadowseeker : public CreatureScript
                 ScriptedAI::AttackStart(who);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* victim) override
             {
                 if (!victim || victim->GetTypeId() != TYPEID_PLAYER)
                     return;
@@ -199,7 +199,7 @@ class boss_jedoga_shadowseeker : public CreatureScript
                 Talk(TEXT_SLAY);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(TEXT_DEATH);
 
@@ -235,7 +235,7 @@ class boss_jedoga_shadowseeker : public CreatureScript
                         else if (me->GetMap()->IsDungeon())
                         {
                             who->SetInCombatWith(me);
-                            me->AddThreat(who, 0.0f);
+                            me->GetThreatManager().AddThreat(who, 0.0f);
                         }
                     }
                 }
@@ -269,12 +269,12 @@ class boss_jedoga_shadowseeker : public CreatureScript
                 }
                 else
                 {
-                    if (Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_PL_JEDOGA_TARGET)))
+                    if (Unit* target = Unit::GetUnit(*me, instance->GetGuidData(DATA_PL_JEDOGA_TARGET)))
                     {
                         AttackStart(target);
                         instance->SetData(DATA_JEDOGA_RESET_INITIANDS, 0);
                         if (instance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) != IN_PROGRESS)
-                            EnterCombat(target);
+                            JustEngagedWith(target);
                     }
                     else if (!me->IsInCombat())
                         EnterEvadeMode();
@@ -311,7 +311,7 @@ class boss_jedoga_shadowseeker : public CreatureScript
                 if (!instance)
                     return;
 
-                uint64 opfer = instance->GetData64(DATA_ADD_JEDOGA_INITIAND);
+                ObjectGuid opfer = instance->GetGuidData(DATA_ADD_JEDOGA_INITIAND);
 
                 if (opfer)
                 {
@@ -454,7 +454,7 @@ class npc_jedoga_initiand : public CreatureScript
 
                 if (bWalking)
                 {
-                    if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_JEDOGA_SHADOWSEEKER)))
+                    if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JEDOGA_SHADOWSEEKER)))
                     {
                         if (!CAST_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok)
                             CAST_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerokFail = true;
@@ -471,7 +471,7 @@ class npc_jedoga_initiand : public CreatureScript
                     instance->SetData64(DATA_PL_JEDOGA_TARGET, killer->GetGUID());
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if ((instance && instance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) == IN_PROGRESS) || !who)
                     return;
@@ -502,7 +502,7 @@ class npc_jedoga_initiand : public CreatureScript
                 {
                     case 1:
                         {
-                            Creature* boss = me->GetMap()->GetCreature(instance->GetData64(DATA_JEDOGA_SHADOWSEEKER));
+                            Creature* boss = me->GetMap()->GetCreature(instance->GetGuidData(DATA_JEDOGA_SHADOWSEEKER));
                             if (boss)
                             {
                                 CAST_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok = true;
@@ -525,7 +525,7 @@ class npc_jedoga_initiand : public CreatureScript
             {
                 if (instance && bCheckTimer <= diff)
                 {
-                    if (me->GetGUID() == instance->GetData64(DATA_ADD_JEDOGA_OPFER) && !bWalking)
+                    if (me->GetGUID() == instance->GetGuidData(DATA_ADD_JEDOGA_OPFER) && !bWalking)
                     {
                         me->SetMaxHealth(DUNGEON_MODE(25705, 58648)); // TODO: implement npc entry 30385
                         me->SetHealth(DUNGEON_MODE(25705, 58648));
@@ -612,7 +612,7 @@ class npc_jedogas_aufseher_trigger : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void AttackStart(Unit* /*who*/) override { }
 

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -514,9 +514,9 @@ class npc_well_of_eternity_stalker : public CreatureScript
             return GetInstanceAI<npc_well_of_eternity_stalkerAI>(creature);
         }
 
-        struct npc_well_of_eternity_stalkerAI : public CreatureAI
+        struct npc_well_of_eternity_stalkerAI : public ScriptedAI
         {
-            npc_well_of_eternity_stalkerAI(Creature* creature) : CreatureAI(creature) { }
+            npc_well_of_eternity_stalkerAI(Creature* creature) : ScriptedAI(creature) { }
 
             void UpdateAI(uint32 /*diff*/) override { }
         };
@@ -667,7 +667,7 @@ class npc_well_of_eternity_legion_demon : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_STRIKE_FEAR, urand(5000, 7000));
                 //DoCast(who, SPELL_CRUSHING_LEAP);
@@ -707,7 +707,7 @@ class npc_well_of_eternity_legion_demon : public CreatureScript
                 instance->SetData(secondDemon ? DATA_EVENT_DEMON_2 : DATA_EVENT_DEMON, DONE);
 
                 if (instance->GetData(DATA_EVENT_ILLIDAN_1) == IN_PROGRESS)
-                    if (Creature* illidan = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EVENT_ILLIDAN_1)))
+                    if (Creature* illidan = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EVENT_ILLIDAN_1)))
                         illidan->AI()->DoAction(ACTION_ILLIDAN_1_LEGION_DEMON_RESUME);
 
                 Map::PlayerList const &PlayerList = instance->instance->GetPlayers();
@@ -931,7 +931,7 @@ class npc_well_of_eternity_illidan_1 : public CreatureScript
                 events.ScheduleEvent(EVENT_ILLIDAN_1_INITIAL_CLOAK, 1000);
             }
 
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
@@ -1036,7 +1036,7 @@ class npc_well_of_eternity_illidan_1 : public CreatureScript
                         ResumeMovement(4000);
                         // Teleporting him now to avoid messing up the visual
                         if (InstanceScript* instance = me->GetInstanceScript())
-                            if (Creature* perotharn = instance->instance->GetCreature(instance->GetData64(DATA_PEROTHARN)))
+                            if (Creature* perotharn = instance->instance->GetCreature(instance->GetGuidData(DATA_PEROTHARN)))
                                 perotharn->AI()->DoAction(3); // ACTION_TELEPORT_APPEAR
                         break;
                     case POINT_ILLIDAN_1_MOVE_12:
@@ -1052,7 +1052,7 @@ class npc_well_of_eternity_illidan_1 : public CreatureScript
                         Talk(SAY_ILLIDAN_1_BOSS_PRE);
                         // Teleporting him now to avoid messing up the visual
                         if (InstanceScript* instance = me->GetInstanceScript())
-                            if (Creature* perotharn = instance->instance->GetCreature(instance->GetData64(DATA_PEROTHARN)))
+                            if (Creature* perotharn = instance->instance->GetCreature(instance->GetGuidData(DATA_PEROTHARN)))
                                 perotharn->AI()->DoAction(4); // ACTION_TELEPORT_CENTER
                         events.ScheduleEvent(EVENT_ILLIDAN_1_BOSS_SPAWN, 3000);
                         events.ScheduleEvent(EVENT_ILLIDAN_1_SAY_WAIT, 15000);
@@ -1269,7 +1269,7 @@ class npc_well_of_eternity_illidan_1 : public CreatureScript
                     case EVENT_ILLIDAN_1_BOSS_SPAWN:
                         events.CancelEvent(EVENT_ILLIDAN_1_WIPE_CHECK);
                         if (InstanceScript* instance = me->GetInstanceScript())
-                            if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PEROTHARN)))
+                            if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_PEROTHARN)))
                                 boss->AI()->DoAction(1); // ACTION_START
                         break;
                     case EVENT_ILLIDAN_1_OUTRO_1:
@@ -1380,13 +1380,13 @@ class npc_well_of_eternity_illidan_1 : public CreatureScript
                         if (player->IsInCombat())
                         {
                             player->CombatStop();
-                            player->getHostileRefManager().deleteReferences();
+                            player->GetThreatManager().RemoveMeFromThreatLists();
                             if (Guardian* pet = player->GetGuardianPet())
                             {
                                 if (pet->IsInCombat())
                                 {
                                     pet->CombatStop();
-                                    pet->getHostileRefManager().deleteReferences();
+                                    pet->GetThreatManager().RemoveMeFromThreatLists();
                                 }
                             }
                         }
@@ -1456,9 +1456,9 @@ class npc_well_of_eternity_legion_demon_preevent : CreatureScript
     public:
         npc_well_of_eternity_legion_demon_preevent() : CreatureScript("npc_well_of_eternity_legion_demon_preevent") { }
 
-        struct npc_well_of_eternity_legion_demon_preeventAI : public CreatureAI
+        struct npc_well_of_eternity_legion_demon_preeventAI : public ScriptedAI
         {
-            npc_well_of_eternity_legion_demon_preeventAI(Creature* creature) : CreatureAI(creature) { }
+            npc_well_of_eternity_legion_demon_preeventAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {
@@ -1478,10 +1478,10 @@ class npc_well_of_eternity_legion_demon_preevent : CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->CombatStop(true);
-                me->getHostileRefManager().deleteReferences();
+                me->GetThreatManager().RemoveMeFromThreatLists();
             }
 
             void MoveInLineOfSight(Unit* who) override
@@ -1506,7 +1506,7 @@ class npc_well_of_eternity_legion_demon_preevent : CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 CreatureAI::EnterEvadeMode();
                 waypointIndex = 5;
@@ -1673,9 +1673,9 @@ class npc_well_of_eternity_guardian_demon : CreatureScript
     public:
         npc_well_of_eternity_guardian_demon() : CreatureScript("npc_well_of_eternity_guardian_demon") { }
 
-        struct npc_well_of_eternity_guardian_demonAI : public CreatureAI
+        struct npc_well_of_eternity_guardian_demonAI : public ScriptedAI
         {
-            npc_well_of_eternity_guardian_demonAI(Creature* creature) : CreatureAI(creature) { }
+            npc_well_of_eternity_guardian_demonAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {
@@ -1686,12 +1686,12 @@ class npc_well_of_eternity_guardian_demon : CreatureScript
                         me->DespawnOrUnsummon(500);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (who->HasAura(SPELL_SHADOW_WALK_AURA) || who->HasAura(SPELL_SHADOWCLOAK_PETS))
                 {
                     me->CombatStop(true);
-                    me->getHostileRefManager().deleteReferences();
+                    me->GetThreatManager().RemoveMeFromThreatLists();
                 }
                 else
                     SetGUID(who->GetGUID(), 0);
@@ -1727,7 +1727,7 @@ class npc_well_of_eternity_guardian_demon : CreatureScript
                 }
             }
 
-            void SetGUID(uint64 guid, int32 /*type*/) override
+            void SetGUID(ObjectGuid guid, int32 /*type*/) override
             {
                 if (Unit* target = ObjectAccessor::GetUnit(*me, guid))
                 {
@@ -1811,9 +1811,9 @@ class npc_well_of_eternity_fel_crystal_stalker : public CreatureScript
     public:
         npc_well_of_eternity_fel_crystal_stalker() : CreatureScript("npc_well_of_eternity_fel_crystal_stalker") { }
 
-        struct npc_well_of_eternity_fel_crystal_stalkerAI : public CreatureAI
+        struct npc_well_of_eternity_fel_crystal_stalkerAI : public ScriptedAI
         {
-            npc_well_of_eternity_fel_crystal_stalkerAI(Creature* creature) : CreatureAI(creature) { }
+            npc_well_of_eternity_fel_crystal_stalkerAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {
@@ -1828,7 +1828,7 @@ class npc_well_of_eternity_fel_crystal_stalker : public CreatureScript
                 switch (action)
                 {
                     case ACTION_FEL_CRYSTAL_STALKER_UNLOCK:
-                        for (std::vector<uint64>::const_iterator itr = guardGuids.begin(); itr != guardGuids.end(); ++itr)
+                        for (std::vector<ObjectGuid>::const_iterator itr = guardGuids.begin(); itr != guardGuids.end(); ++itr)
                             if (Creature* guard = ObjectAccessor::GetCreature(*me, *itr))
                                 if (guard->IsAlive())
                                     return;
@@ -1842,7 +1842,7 @@ class npc_well_of_eternity_fel_crystal_stalker : public CreatureScript
                         portalEnergyFocus->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
 
                         if (InstanceScript* instance = me->GetInstanceScript())
-                            if (Creature* illidan = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EVENT_ILLIDAN_1)))
+                            if (Creature* illidan = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EVENT_ILLIDAN_1)))
                                 illidan->GetAI()->DoAction(ACTION_ILLIDAN_1_CRYSTAL);
                         break;
                     case ACTION_FEL_CRYSTAL_STALKER_MELTDOWN:
@@ -1897,7 +1897,7 @@ class npc_well_of_eternity_fel_crystal_stalker : public CreatureScript
                             connector->GetAI()->DoAction(ACTION_PORTAL_DISABLE);
 
                         if (InstanceScript* instance = me->GetInstanceScript())
-                            if (Creature* illidan = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EVENT_ILLIDAN_1)))
+                            if (Creature* illidan = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EVENT_ILLIDAN_1)))
                                 illidan->GetAI()->DoAction(ACTION_ILLIDAN_1_CRYSTAL_RESUME);
                         break;
                     default:
@@ -1907,7 +1907,7 @@ class npc_well_of_eternity_fel_crystal_stalker : public CreatureScript
 
         private:
             EventMap events;
-            std::vector<uint64> guardGuids;
+            std::vector<ObjectGuid> guardGuids;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -1921,14 +1921,14 @@ class npc_well_of_eternity_portal_connector : CreatureScript
     public:
         npc_well_of_eternity_portal_connector() : CreatureScript("npc_well_of_eternity_portal_connector") { }
 
-        struct npc_well_of_eternity_portal_connectorAI : public CreatureAI
+        struct npc_well_of_eternity_portal_connectorAI : public ScriptedAI
         {
-            npc_well_of_eternity_portal_connectorAI(Creature* creature) : CreatureAI(creature) { }
+            npc_well_of_eternity_portal_connectorAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {
-                connectedToGuid = 0;
-                portalGuid = 0;
+                connectedToGuid = ObjectGuid::Empty;
+                portalGuid = ObjectGuid::Empty;
                 actionExecuted = false;
                 events.Reset();
                 Reconnect();
@@ -1941,8 +1941,8 @@ class npc_well_of_eternity_portal_connector : CreatureScript
                 Unit* oldConnection = GetConnection();
                 uint64 oldConnectionGuid = connectedToGuid;
 
-                connectedToGuid = 0;
-                portalGuid = 0;
+                connectedToGuid = ObjectGuid::Empty;
+                portalGuid = ObjectGuid::Empty;
 
                 uint32 nextEntry = 0;
                 switch (me->GetEntry())
@@ -2026,8 +2026,8 @@ class npc_well_of_eternity_portal_connector : CreatureScript
 
         private:
             EventMap events;
-            uint64 connectedToGuid;
-            uint64 portalGuid;
+            ObjectGuid connectedToGuid;
+            ObjectGuid portalGuid;
             bool actionExecuted; // Loop prevention
 
             Unit* GetConnection()
@@ -2055,9 +2055,9 @@ class npc_well_of_eternity_legion_portal : CreatureScript
     public:
         npc_well_of_eternity_legion_portal() : CreatureScript("npc_well_of_eternity_legion_portal") { }
 
-        struct npc_well_of_eternity_legion_portalAI : public CreatureAI
+        struct npc_well_of_eternity_legion_portalAI : public ScriptedAI
         {
-            npc_well_of_eternity_legion_portalAI(Creature* creature) : CreatureAI(creature) { }
+            npc_well_of_eternity_legion_portalAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {
@@ -2112,9 +2112,9 @@ class npc_well_of_eternity_portal_trash : public CreatureScript
     public:
         npc_well_of_eternity_portal_trash() : CreatureScript("npc_well_of_eternity_portal_trash") { }
 
-        struct npc_well_of_eternity_portal_trashAI : public CreatureAI
+        struct npc_well_of_eternity_portal_trashAI : public ScriptedAI
         {
-            npc_well_of_eternity_portal_trashAI(Creature* creature) : CreatureAI(creature)
+            npc_well_of_eternity_portal_trashAI(Creature* creature) : ScriptedAI(creature)
             {
                 isArcanist = me->GetEntry() == NPC_CORRUPTED_ARCANIST;
                 me->SetReactState(REACT_PASSIVE);
@@ -2134,12 +2134,12 @@ class npc_well_of_eternity_portal_trash : public CreatureScript
                             me->DespawnOrUnsummon(1000);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (who->HasAura(SPELL_SHADOW_WALK_AURA) || who->HasAura(SPELL_SHADOWCLOAK_PETS))
                 {
                     me->CombatStop(true);
-                    me->getHostileRefManager().deleteReferences();
+                    me->GetThreatManager().RemoveMeFromThreatLists();
                     return;
                 }
 
@@ -2279,9 +2279,9 @@ class npc_well_of_eternity_fire_wall_stalker : public CreatureScript
     public:
         npc_well_of_eternity_fire_wall_stalker() : CreatureScript("npc_well_of_eternity_fire_wall_stalker") { }
 
-        struct npc_well_of_eternity_fire_wall_stalkerAI : public CreatureAI
+        struct npc_well_of_eternity_fire_wall_stalkerAI : public ScriptedAI
         {
-            npc_well_of_eternity_fire_wall_stalkerAI(Creature* creature) : CreatureAI(creature) { }
+            npc_well_of_eternity_fire_wall_stalkerAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {
@@ -2386,9 +2386,9 @@ class npc_well_of_eternity_shadowcloak_stalker : public CreatureScript
     public:
         npc_well_of_eternity_shadowcloak_stalker() : CreatureScript("npc_well_of_eternity_shadowcloak_stalker") { }
 
-        struct npc_well_of_eternity_shadowcloak_stalkerAI : public CreatureAI
+        struct npc_well_of_eternity_shadowcloak_stalkerAI : public ScriptedAI
         {
-            npc_well_of_eternity_shadowcloak_stalkerAI(Creature* creature) : CreatureAI(creature)
+            npc_well_of_eternity_shadowcloak_stalkerAI(Creature* creature) : ScriptedAI(creature)
             {
                 enterVehicleTimer = 1000;
             }
@@ -2532,7 +2532,7 @@ class at_well_of_eternity_skip_illidan_intro : public AreaTriggerScript
         {
             if (InstanceScript* instance = player->GetInstanceScript())
                 if (instance->GetData(DATA_EVENT_ILLIDAN_1) == NOT_STARTED)
-                    if (Creature* illidan = instance->instance->GetCreature(instance->GetData64(DATA_EVENT_ILLIDAN_1)))
+                    if (Creature* illidan = instance->instance->GetCreature(instance->GetGuidData(DATA_EVENT_ILLIDAN_1)))
                         illidan->AI()->DoAction(ACTION_ILLIDAN_1_START);
             return true;
         }
@@ -2547,7 +2547,7 @@ class at_well_of_eternity_perotharn_preevent_appear : public AreaTriggerScript
         {
             if (InstanceScript* instance = player->GetInstanceScript())
                 if (instance->GetData(DATA_EVENT_ILLIDAN_1) == DONE && instance->GetBossState(DATA_PEROTHARN) == NOT_STARTED)
-                    if (Creature* perotharn = instance->instance->GetCreature(instance->GetData64(DATA_PEROTHARN)))
+                    if (Creature* perotharn = instance->instance->GetCreature(instance->GetGuidData(DATA_PEROTHARN)))
                         if (perotharn->HasAura(SPELL_CAMOUFLAGE))
                             perotharn->AI()->DoAction(2); // ACTION_PREEVENT_APPEAR
             return true;
@@ -2563,7 +2563,7 @@ class at_well_of_eternity_illidan_outro_resume : public AreaTriggerScript
         {
             if (InstanceScript* instance = player->GetInstanceScript())
                 if (instance->GetData(DATA_EVENT_ILLIDAN_1) == DONE && instance->GetBossState(DATA_PEROTHARN) == DONE)
-                    if (Creature* illidan = instance->instance->GetCreature(instance->GetData64(DATA_EVENT_ILLIDAN_1)))
+                    if (Creature* illidan = instance->instance->GetCreature(instance->GetGuidData(DATA_EVENT_ILLIDAN_1)))
                         illidan->AI()->DoAction(ACTION_ILLIDAN_1_OUTRO_RESUME);
             return true;
         }
@@ -2578,7 +2578,7 @@ class spell_well_of_eternity_shadow_walk : public SpellScriptLoader
         {
             PrepareAuraScript(spell_well_of_eternity_shadow_walk_AuraScript);
 
-            bool Validate(SpellInfo const* /*entry*/)
+            bool Validate(SpellInfo const* /*entry*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SHADOW_AMBUSHER) || !sSpellMgr->GetSpellInfo(SPELL_SHADOW_AMBUSHER_BUFF) || !sSpellMgr->GetSpellInfo(SPELL_SHADOWCLOAK_PLAYERS) || !sSpellMgr->GetSpellInfo(SPELL_SHADOWCLOAK_PETS) || !sSpellMgr->GetSpellInfo(SPELL_SHADOW_WALK_STACKS))
                     return false;
@@ -2592,14 +2592,13 @@ class spell_well_of_eternity_shadow_walk : public SpellScriptLoader
                 Unit* target = GetTarget();
 
                 target->CombatStop(true);
-                target->getHostileRefManager().deleteReferences();
+                target->GetThreatManager().RemoveMeFromThreatLists();
 
                 target->CastSpell(target, SPELL_SHADOWCLOAK_PLAYERS);
                 target->CastSpell(target, SPELL_SHADOWCLOAK_AGGRO);
                 target->CastSpell(target, SPELL_SHADOW_AMBUSHER_BUFF);
 
-                Position pos;
-                target->GetPosition(&pos);
+                Position pos = target->GetPosition();
                 if (Creature* stalker = target->SummonCreature(NPC_SHADOWCLOAK_STALKER, pos, TEMPSUMMON_MANUAL_DESPAWN))
                     stalker->EnterVehicle(target);
 
@@ -2661,7 +2660,7 @@ class spell_well_of_eternity_shadowcloak_illidan : public SpellScriptLoader
         {
             PrepareAuraScript(spell_well_of_eternity_shadowcloak_illidan_AuraScript);
 
-            bool Validate(SpellInfo const* /*entry*/)
+            bool Validate(SpellInfo const* /*entry*/) override
             {
                 if (!sObjectMgr->GetCreatureTemplate(NPC_SHADOWCLOAK_ILLIDAN_STALKER))
                     return false;
@@ -2672,8 +2671,7 @@ class spell_well_of_eternity_shadowcloak_illidan : public SpellScriptLoader
             {
                 Unit* target = GetTarget();
 
-                Position pos;
-                target->GetPosition(&pos);
+                Position pos = target->GetPosition();
                 if (Creature* stalker = target->SummonCreature(NPC_SHADOWCLOAK_ILLIDAN_STALKER, pos, TEMPSUMMON_MANUAL_DESPAWN))
                     stalker->EnterVehicle(target);
             }
@@ -2746,7 +2744,7 @@ class npc_well_of_eternity_eternal_champion : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_QUEENS_BLADE, urand(2000, 6000));
                 events.ScheduleEvent(EVENT_SHIMMERING_STRIKE, urand(9000, 12000));
@@ -2803,7 +2801,7 @@ class npc_well_of_eternity_eye_of_legion : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_FEL_FLAMES, urand(2000, 10000));
             }
@@ -2858,7 +2856,7 @@ class npc_well_of_eternity_enchanted_highmistress : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (me->GetEntry() == NPC_ENCHANTED_HIGHMISTRESS_1)
                 {
@@ -2939,7 +2937,7 @@ class npc_well_of_eternity_royal_handmaiden : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SWEET_LULLABY, urand(7000, 12000));
             }
@@ -3034,7 +3032,7 @@ class npc_well_of_eternity_doomguard_annihilator : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!who)
                     return;
@@ -3050,7 +3048,7 @@ class npc_well_of_eternity_doomguard_annihilator : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
-                    if (Creature* pIllidan = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EVENT_ILLIDAN_2)))
+                    if (Creature* pIllidan = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EVENT_ILLIDAN_2)))
                         pIllidan->AI()->DoAction(ACTION_DOOMGUARD_DIED);
             }
         };
@@ -3082,7 +3080,7 @@ class npc_well_of_eternity_illidan_2 : public CreatureScript
                 events.Reset();
             }
 
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
             void DamageTaken(Unit* attacker, uint32& damage) override
             {
@@ -3149,9 +3147,9 @@ class npc_well_of_eternity_illidan_2 : public CreatureScript
                             events.ScheduleEvent(EVENT_ILLIDAN_MOVE_2_9, 100);
                             break;
                         case POINT_ILLIDAN_2_9:
-                            if (Creature* pVarothen = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VAROTHEN)))
+                            if (Creature* pVarothen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VAROTHEN)))
                                 pVarothen->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                            if (Creature* pMannoroth = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MANNOROTH)))
+                            if (Creature* pMannoroth = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MANNOROTH)))
                                 pMannoroth->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                             Talk(SAY_ILLIDAN_2_VAROTHEN);
                             break;
@@ -3335,7 +3333,7 @@ class npc_well_of_eternity_tyrande : public CreatureScript
                 uiDebilitatingCount = 0;
             }
 
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
             void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
             {
@@ -3383,7 +3381,7 @@ class npc_well_of_eternity_tyrande : public CreatureScript
                                 me->RemoveAura(SPELL_BLESSING_OF_ELUNE);
                                 Talk(SAY_TYRANDE_CONTINUE);
                                 events.ScheduleEvent(EVENT_TYRANDE_SHOT, 1000);
-                                if (Creature* pMannoroth = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MANNOROTH)))
+                                if (Creature* pMannoroth = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MANNOROTH)))
                                     pMannoroth->AI()->DoAction(2); // ACTION_DEBILITATING_OFF
                             }
                         }
@@ -3493,7 +3491,7 @@ class npc_well_of_eternity_malfurion : public CreatureScript
 
             void Reset() override { }
 
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -3531,7 +3529,7 @@ class npc_well_of_eternity_abyssal_doombringer : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_ABYSSAL_FLAMES, 5000);
             }
@@ -3539,7 +3537,7 @@ class npc_well_of_eternity_abyssal_doombringer : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
-                    if (Creature* pIllidan = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EVENT_ILLIDAN_2)))
+                    if (Creature* pIllidan = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EVENT_ILLIDAN_2)))
                         pIllidan->AI()->DoAction(ACTION_DOOMBRINGER_DIED);
 
                 me->DespawnOrUnsummon(3000);

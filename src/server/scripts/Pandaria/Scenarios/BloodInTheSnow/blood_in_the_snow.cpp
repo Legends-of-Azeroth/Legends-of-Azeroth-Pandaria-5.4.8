@@ -100,7 +100,7 @@ struct npc_bloodsnow_varian_wrynn : public ScriptedAI
                 scheduler
                     .Schedule(Milliseconds(delay), [this](TaskContext context)
                 {
-                    if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_MOIRA_THAURISSAN) : 0))
+                    if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN) : ObjectGuid::Empty))
                         moira->AI()->Talk(TALK_INTRO);
                 });
 
@@ -113,7 +113,7 @@ struct npc_bloodsnow_varian_wrynn : public ScriptedAI
                 scheduler
                     .Schedule(Milliseconds(delay += 4700), [this](TaskContext context)
                 {
-                    if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_MOIRA_THAURISSAN) : 0))
+                    if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN) : ObjectGuid::Empty))
                         moira->AI()->Talk(TALK_SPECIAL_1);
                 });
 
@@ -126,7 +126,7 @@ struct npc_bloodsnow_varian_wrynn : public ScriptedAI
                 scheduler
                     .Schedule(Milliseconds(delay += 3500), [this](TaskContext context)
                 {
-                    if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_MOIRA_THAURISSAN) : 0))
+                    if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN) : ObjectGuid::Empty))
                         moira->AI()->Talk(TALK_SPECIAL_2);
                 });
 
@@ -139,14 +139,14 @@ struct npc_bloodsnow_varian_wrynn : public ScriptedAI
                 scheduler
                     .Schedule(Milliseconds(delay += 6250), [this](TaskContext context)
                 {
-                    if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_MOIRA_THAURISSAN) : 0))
+                    if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN) : ObjectGuid::Empty))
                         moira->AI()->Talk(TALK_SPECIAL_3);
                 });
 
                 scheduler
                     .Schedule(Milliseconds(delay += 7000), [this](TaskContext context)
                 {
-                    if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_MOIRA_THAURISSAN) : 0))
+                    if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN) : ObjectGuid::Empty))
                         me->SetFacingToObject(moira);
 
                     Talk(TALK_SPECIAL_4);
@@ -155,14 +155,14 @@ struct npc_bloodsnow_varian_wrynn : public ScriptedAI
                 scheduler
                     .Schedule(Milliseconds(delay += 6480), [this](TaskContext context)
                 {
-                    if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_MOIRA_THAURISSAN) : 0))
+                    if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN) : ObjectGuid::Empty))
                         moira->AI()->Talk(TALK_SPECIAL_4);
                 });
 
                 scheduler
                     .Schedule(Milliseconds(delay += 9300), [this](TaskContext context)
                 {
-                    if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_MOIRA_THAURISSAN) : 0))
+                    if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN) : ObjectGuid::Empty))
                     {
                         moira->SetFacingToObject(me);
                         moira->AI()->Talk(TALK_SPECIAL_5);
@@ -178,7 +178,7 @@ struct npc_bloodsnow_varian_wrynn : public ScriptedAI
                 scheduler
                     .Schedule(Milliseconds(delay += 3800), [this](TaskContext context)
                 {
-                    if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_MOIRA_THAURISSAN) : 0))
+                    if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN) : ObjectGuid::Empty))
                         moira->AI()->Talk(TALK_SPECIAL_6);
                 });
 
@@ -186,7 +186,7 @@ struct npc_bloodsnow_varian_wrynn : public ScriptedAI
                     .Schedule(Milliseconds(delay += 1500), [this](TaskContext context)
                 {
                     // Moira Move forward
-                    if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_MOIRA_THAURISSAN) : 0))
+                    if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN) : ObjectGuid::Empty))
                     {
                         float x, y;
                         GetPositionWithDistInOrientation(moira, 15.0f, Position::NormalizeOrientation(moira->GetOrientation() + M_PI / 2), x, y);
@@ -199,7 +199,7 @@ struct npc_bloodsnow_varian_wrynn : public ScriptedAI
             case ACTION_LAST_STAND:
                 me->SetVisible(true);
 
-                if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_MOIRA_THAURISSAN + 1) : 0))
+                if (Creature* moira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN + 1) : ObjectGuid::Empty))
                 {
                     float x, y;
                     GetPositionWithDistInOrientation(moira, 3.0f, moira->GetAngle(me), x, y);
@@ -216,7 +216,7 @@ struct npc_bloodsnow_varian_wrynn : public ScriptedAI
                     scheduler
                         .Schedule(Milliseconds(delay += 4000), [this](TaskContext context)
                     {
-                        if (Creature* newMoira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_MOIRA_THAURISSAN + 1) : 0))
+                        if (Creature* newMoira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN + 1) : ObjectGuid::Empty))
                             newMoira->AI()->Talk(TALK_SPECIAL_8);
                     });
 
@@ -229,7 +229,7 @@ struct npc_bloodsnow_varian_wrynn : public ScriptedAI
                     scheduler
                         .Schedule(Milliseconds(delay += 7000), [this](TaskContext context)
                     {
-                        if (Creature* newMoira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_MOIRA_THAURISSAN + 1) : 0))
+                        if (Creature* newMoira = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MOIRA_THAURISSAN + 1) : ObjectGuid::Empty))
                             newMoira->AI()->Talk(TALK_SPECIAL_9);
                     });
 
@@ -308,14 +308,14 @@ struct npc_bloodsnow_roasting_spit : public ScriptedAI
         scheduler
             .Schedule(Milliseconds(2000), [this](TaskContext context)
         {
-            if (Creature* stonebeard = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SCOUT_STONEBEARD) : 0))
+            if (Creature* stonebeard = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SCOUT_STONEBEARD) : ObjectGuid::Empty))
                 stonebeard->CastSpell(me, VEHICLE_SPELL_RIDE_HARDCODED, true);
         });
     }
 
     void OnSpellClick(Unit* clicker, bool& /*result*/) override
     {
-        if (Creature* stonebeard = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SCOUT_STONEBEARD) : 0))
+        if (Creature* stonebeard = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SCOUT_STONEBEARD) : ObjectGuid::Empty))
             clicker->CastSpell(stonebeard, SPELL_FREE_SCOUT_STONEBEARD, false);
     }
 
@@ -390,22 +390,22 @@ struct npc_bloodsnow_frostmane_flesh_eater : public customCreatureAI
 {
     npc_bloodsnow_frostmane_flesh_eater(Creature* creature) : customCreatureAI(creature) 
     { 
-        scoutGUID = 0;
+        scoutGUID = ObjectGuid::Empty;
     }
 
-    uint64 scoutGUID;
+    ObjectGuid scoutGUID;
 
     void Reset() override
     {
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_DRAIN_BLOOD, urand(2.5 * IN_MILLISECONDS, 5.5 * IN_MILLISECONDS));
     }
 
-    void SetGUID(uint64 guid, int32 /*type*/) override
+    void SetGUID(ObjectGuid guid, int32 /*type*/) override
     {
         scoutGUID = guid;
     }
@@ -444,11 +444,11 @@ struct npc_bloodsnow_frostmane_headhunter : public customCreatureAI
 {
     npc_bloodsnow_frostmane_headhunter(Creature* creature) : customCreatureAI(creature) 
     {
-        scoutGUID = 0;
+        scoutGUID = ObjectGuid::Empty;
     }
 
     bool allowAttack;
-    uint64 scoutGUID;
+    ObjectGuid scoutGUID;
 
     void Reset() override
     {
@@ -456,12 +456,12 @@ struct npc_bloodsnow_frostmane_headhunter : public customCreatureAI
         allowAttack = false;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_THROW_AXE, 1.5 * IN_MILLISECONDS);
     }
 
-    void SetGUID(uint64 guid, int32 /*type*/) override
+    void SetGUID(ObjectGuid guid, int32 /*type*/) override
     {
         scoutGUID = guid;
     }
@@ -528,11 +528,11 @@ struct npc_bloodsnow_frostmane_snowstalker : public customCreatureAI
 {
     npc_bloodsnow_frostmane_snowstalker(Creature* creature) : customCreatureAI(creature) 
     {
-        scoutGUID = 0;
+        scoutGUID = ObjectGuid::Empty;
     }
 
     TaskScheduler scheduler;
-    uint64 scoutGUID;
+    ObjectGuid scoutGUID;
 
     void Reset() override
     {
@@ -546,12 +546,12 @@ struct npc_bloodsnow_frostmane_snowstalker : public customCreatureAI
         });
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_SHOT, 1 * IN_MILLISECONDS);
     }
 
-    void SetGUID(uint64 guid, int32 /*type*/) override
+    void SetGUID(ObjectGuid guid, int32 /*type*/) override
     {
         scoutGUID = guid;
     }
@@ -612,22 +612,22 @@ struct npc_bloodsnow_frostmane_berserker : public customCreatureAI
 {
     npc_bloodsnow_frostmane_berserker(Creature* creature) : customCreatureAI(creature) 
     {
-        scoutGUID = 0;
+        scoutGUID = ObjectGuid::Empty;
     }
 
-    uint64 scoutGUID;
+    ObjectGuid scoutGUID;
 
     void Reset() override
     {
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_DEVASTATING_LEAP, urand(6.5 * IN_MILLISECONDS, 10 * IN_MILLISECONDS));
     }
 
-    void SetGUID(uint64 guid, int32 /*type*/) override
+    void SetGUID(ObjectGuid guid, int32 /*type*/) override
     {
         scoutGUID = guid;
     }
@@ -672,25 +672,25 @@ struct npc_bloodsnow_frostmane_bonechiller : public customCreatureAI
 {
     npc_bloodsnow_frostmane_bonechiller(Creature* creature) : customCreatureAI(creature) 
     {
-        scoutGUID = 0;
+        scoutGUID = ObjectGuid::Empty;
     }
 
     bool hasElementalTriggered;
-    uint64 scoutGUID;
+    ObjectGuid scoutGUID;
 
     void Reset() override
     {
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_FROSTBOLT, 1 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_FREEZING_CIRCLE, 8.5 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_BLIZZARD, 16 * IN_MILLISECONDS);
     }
 
-    void SetGUID(uint64 guid, int32 /*type*/) override
+    void SetGUID(ObjectGuid guid, int32 /*type*/) override
     {
         scoutGUID = guid;
     }
@@ -777,7 +777,7 @@ struct npc_bloodsnow_farastu : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_FREEZE_SOLID, urand(9.5 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
     }
@@ -813,7 +813,7 @@ struct npc_bloodsnow_freeze_solid : public customCreatureAI
 {
     npc_bloodsnow_freeze_solid(Creature* creature) : customCreatureAI(creature) { }
 
-    uint64 affectedTargetGUID;
+    ObjectGuid affectedTargetGUID;
 
     void IsSummonedBy(Unit* summoner) override
     {
@@ -850,7 +850,7 @@ struct npc_bloodsnow_hekima_the_wise : public customCreatureAI
         hasYell3 = false;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_HEKIMA_BRANDS, urand(3.5 * IN_MILLISECONDS, 5 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_HEKIMAS_WISDOM, 14 * IN_MILLISECONDS);
@@ -906,7 +906,7 @@ struct npc_bloodsnow_hekima_the_wise : public customCreatureAI
         }
     }
 
-    uint64 GetLowestFriendGUID() override
+    ObjectGuid GetLowestFriendGUID() override
     {
         std::list<Creature*> tmpTargets;
 
@@ -917,14 +917,14 @@ struct npc_bloodsnow_hekima_the_wise : public customCreatureAI
         GetCreatureListWithEntryInGrid(tmpTargets, me, NPC_FROSTMANE_BONECHILLER, 80.0f);
 
         if (tmpTargets.empty())
-            return 0;
+            return ObjectGuid::Empty;
 
         tmpTargets.sort(Trinity::HealthPctOrderPred());
 
         if (Creature* lowestTarget = tmpTargets.front())
             return lowestTarget->GetGUID();
 
-        return 0;
+        return ObjectGuid::Empty;
     }
 
     void UpdateAI(uint32 diff) override
@@ -956,23 +956,23 @@ struct npc_bloodsnow_frostmane_witch_doctor : public customCreatureAI
 {
     npc_bloodsnow_frostmane_witch_doctor(Creature* creature) : customCreatureAI(creature) 
     {
-        scoutGUID = 0;
+        scoutGUID = ObjectGuid::Empty;
     }
 
-    uint64 scoutGUID;
+    ObjectGuid scoutGUID;
 
     void Reset() override
     {
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_FROST_SHOCK, urand(2.5 * IN_MILLISECONDS, 5 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_HEKIMAS_WISDOM, 14 * IN_MILLISECONDS);
     }
 
-    void SetGUID(uint64 guid, int32 /*type*/) override
+    void SetGUID(ObjectGuid guid, int32 /*type*/) override
     {
         scoutGUID = guid;
     }
@@ -986,7 +986,7 @@ struct npc_bloodsnow_frostmane_witch_doctor : public customCreatureAI
             scout->AI()->DoAction(ACTION_START_INTRO);
     }
 
-    uint64 GetLowestFriendGUID() override
+    ObjectGuid GetLowestFriendGUID() override
     {
         std::list<Creature*> tmpTargets;
 
@@ -997,14 +997,14 @@ struct npc_bloodsnow_frostmane_witch_doctor : public customCreatureAI
         GetCreatureListWithEntryInGrid(tmpTargets, me, NPC_FROSTMANE_BONECHILLER, 80.0f);
 
         if (tmpTargets.empty())
-            return 0;
+            return ObjectGuid::Empty;
 
         tmpTargets.sort(Trinity::HealthPctOrderPred());
 
         if (Creature* lowestTarget = tmpTargets.front())
             return lowestTarget->GetGUID();
 
-        return 0;
+        return ObjectGuid::Empty;
     }
 
     void UpdateAI(uint32 diff) override
@@ -1038,7 +1038,7 @@ struct npc_bloodsnow_ironforge_guardian : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         if (me->GetEntry() == NPC_PYROMANCE_FLAMEHEARTH)
         {
@@ -1242,12 +1242,12 @@ struct npc_bloodsnow_zandalari_rage_banner : public customCreatureAI
 {
     npc_bloodsnow_zandalari_rage_banner(Creature* creature) : customCreatureAI(creature)
     {
-        scoutGUID = 0;
+        scoutGUID = ObjectGuid::Empty;
     }
 
-    uint64 scoutGUID;
+    ObjectGuid scoutGUID;
 
-    void SetGUID(uint64 guid, int32 /*type*/) override
+    void SetGUID(ObjectGuid guid, int32 /*type*/) override
     {
         scoutGUID = guid;
     }
@@ -1275,7 +1275,7 @@ class spell_bloodsnow_free_scout_stonebeard : public SpellScript
         {
             stoneBeard->AI()->DoAction(ACTION_START_INTRO);
 
-            if (Creature* spit = ObjectAccessor::GetCreature(*stoneBeard, stoneBeard->GetInstanceScript() ? stoneBeard->GetInstanceScript()->GetData64(NPC_ROASTING_SPIT) : 0))
+            if (Creature* spit = ObjectAccessor::GetCreature(*stoneBeard, stoneBeard->GetInstanceScript() ? stoneBeard->GetInstanceScript()->GetGuidData(NPC_ROASTING_SPIT) : ObjectGuid::Empty))
                 spit->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
         }
     }
@@ -1403,7 +1403,7 @@ class AreaTrigger_at_bloodsnow_grimbolt : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
-            if (Creature* grimbolt = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetData64(NPC_MOUNTAINER_GRIMBOLT) : 0))
+            if (Creature* grimbolt = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_MOUNTAINER_GRIMBOLT) : ObjectGuid::Empty))
                 grimbolt->AI()->DoAction(ACTION_START_INTRO);
 
             return true;

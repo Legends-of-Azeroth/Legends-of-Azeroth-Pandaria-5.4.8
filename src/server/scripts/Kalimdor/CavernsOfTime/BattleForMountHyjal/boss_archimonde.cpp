@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -42,27 +42,28 @@ enum Texts
 
 enum Spells
 {
-    SPELL_DENOUEMENT_WISP       = 32124,
-    SPELL_ANCIENT_SPARK         = 39349,
-    SPELL_PROTECTION_OF_ELUNE   = 38528,
+    SPELL_DENOUEMENT_WISP            = 32124,
+    SPELL_ANCIENT_SPARK              = 39349,
+    SPELL_PROTECTION_OF_ELUNE        = 38528,
 
-    SPELL_DRAIN_WORLD_TREE      = 39140,
-    SPELL_DRAIN_WORLD_TREE_2    = 39141,
+    SPELL_DRAIN_WORLD_TREE           = 39140,
+    SPELL_DRAIN_WORLD_TREE_2         = 39141,
 
-    SPELL_FINGER_OF_DEATH       = 31984,
-    SPELL_HAND_OF_DEATH         = 35354,
-    SPELL_AIR_BURST             = 32014,
-    SPELL_GRIP_OF_THE_LEGION    = 31972,
-    SPELL_DOOMFIRE_STRIKE       = 31903,    //summons two creatures
-    SPELL_DOOMFIRE_SPAWN        = 32074,
-    SPELL_DOOMFIRE              = 31945,
-    SPELL_SOUL_CHARGE_YELLOW    = 32045,
-    SPELL_SOUL_CHARGE_GREEN     = 32051,
-    SPELL_SOUL_CHARGE_RED       = 32052,
-    SPELL_UNLEASH_SOUL_YELLOW   = 32054,
-    SPELL_UNLEASH_SOUL_GREEN    = 32057,
-    SPELL_UNLEASH_SOUL_RED      = 32053,
-    SPELL_FEAR                  = 31970,
+    SPELL_FINGER_OF_DEATH            = 31984,
+    SPELL_FINGER_OF_DEATH_LAST_PHASE = 32111,
+    SPELL_HAND_OF_DEATH              = 35354,
+    SPELL_AIR_BURST                  = 32014,
+    SPELL_GRIP_OF_THE_LEGION         = 31972,
+    SPELL_DOOMFIRE_STRIKE            = 31903,    //summons two creatures
+    SPELL_DOOMFIRE_SPAWN             = 32074,
+    SPELL_DOOMFIRE                   = 31945,
+    SPELL_SOUL_CHARGE_YELLOW         = 32045,
+    SPELL_SOUL_CHARGE_GREEN          = 32051,
+    SPELL_SOUL_CHARGE_RED            = 32052,
+    SPELL_UNLEASH_SOUL_YELLOW        = 32054,
+    SPELL_UNLEASH_SOUL_GREEN         = 32057,
+    SPELL_UNLEASH_SOUL_RED           = 32053,
+    SPELL_FEAR                       = 31970,
 };
 
 enum Summons
@@ -90,11 +91,11 @@ public:
         npc_ancient_wispAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            ArchimondeGUID = 0;
+            ArchimondeGUID = ObjectGuid::Empty;
         }
 
         InstanceScript* instance;
-        uint64 ArchimondeGUID;
+        ObjectGuid ArchimondeGUID;
         uint32 CheckTimer;
 
         void Reset() override
@@ -102,12 +103,12 @@ public:
             CheckTimer = 1000;
 
             if (instance)
-                ArchimondeGUID = instance->GetData64(DATA_ARCHIMONDE);
+                ArchimondeGUID = instance->GetGuidData(DATA_ARCHIMONDE);
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
         {
@@ -151,7 +152,7 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
         {
@@ -176,12 +177,12 @@ public:
     {
         npc_doomfire_targettingAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 TargetGUID;
+        ObjectGuid TargetGUID;
         uint32 ChangeTargetTimer;
 
         void Reset() override
         {
-            TargetGUID = 0;
+            TargetGUID = ObjectGuid::Empty;
             ChangeTargetTimer = 5000;
         }
 
@@ -194,7 +195,7 @@ public:
                 TargetGUID = who->GetGUID();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
         {
@@ -208,12 +209,11 @@ public:
                 if (Unit* temp = Unit::GetUnit(*me, TargetGUID))
                 {
                     me->GetMotionMaster()->MoveFollow(temp, 0.0f, 0.0f);
-                    TargetGUID = 0;
+                    TargetGUID = ObjectGuid::Empty;
                 }
                 else
                 {
-                    Position pos;
-                    me->GetRandomNearPosition(pos, 40);
+                    Position pos = me->GetRandomNearPosition(40);
                     me->GetMotionMaster()->MovePoint(0, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
                 }
 
@@ -250,8 +250,8 @@ public:
 
         InstanceScript* instance;
 
-        uint64 DoomfireSpiritGUID;
-        uint64 WorldTreeGUID;
+        ObjectGuid DoomfireSpiritGUID;
+        ObjectGuid WorldTreeGUID;
 
         uint32 DrainNordrassilTimer;
         uint32 FearTimer;
@@ -277,9 +277,9 @@ public:
             if (instance)
                 instance->SetData(DATA_ARCHIMONDEEVENT, NOT_STARTED);
 
-            DoomfireSpiritGUID = 0;
+            DoomfireSpiritGUID = ObjectGuid::Empty;
             damageTaken = 0;
-            WorldTreeGUID = 0;
+            WorldTreeGUID = ObjectGuid::Empty;
 
             DrainNordrassilTimer = 0;
             FearTimer = 42000;
@@ -301,7 +301,7 @@ public:
             IsChanneling = false;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             me->InterruptSpell(CURRENT_CHANNELED_SPELL);
             Talk(SAY_AGGRO);
@@ -360,15 +360,14 @@ public:
             if (victim && me->IsWithinDistInMap(victim, me->GetAttackDistance(victim)))
                 return false;
 
-            ThreatContainer::StorageType const &threatlist = me->getThreatManager().getThreatList();
-            if (threatlist.empty())
+            auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+            if (me->GetThreatManager().IsThreatListEmpty())
                 return false;
 
             std::list<Unit*> targets;
-            ThreatContainer::StorageType::const_iterator itr = threatlist.begin();
-            for (; itr != threatlist.end(); ++itr)
+            for (ThreatReference const* ref : threatlist)
             {
-                Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                 if (unit && unit->IsAlive())
                     targets.push_back(unit);
             }
@@ -383,7 +382,7 @@ public:
                 if (!me->IsWithinDistInMap(target, me->GetAttackDistance(target)))
                     return true;                                // Cast Finger of Death
                 else                                            // This target is closest, he is our new tank
-                    me->AddThreat(target, me->getThreatManager().getThreat(me->GetVictim()));
+                    me->GetThreatManager().AddThreat(target, me->GetThreatManager().GetThreat(me->GetVictim()));
             }
 
             return false;
@@ -413,7 +412,7 @@ public:
                 if (Unit* DoomfireSpirit = Unit::GetUnit(*me, DoomfireSpiritGUID))
                 {
                     summoned->GetMotionMaster()->MoveFollow(DoomfireSpirit, 0.0f, 0.0f);
-                    DoomfireSpiritGUID = 0;
+                    DoomfireSpiritGUID = ObjectGuid::Empty;
                 }
             }
         }
@@ -423,11 +422,11 @@ public:
         {
             me->SummonCreature(CREATURE_DOOMFIRE_SPIRIT,
                 target->GetPositionX()+15.0f, target->GetPositionY()+15.0f, target->GetPositionZ(), 0,
-                TEMPSUMMON_TIMED_DESPAWN, 27000);
+                TEMPSUMMON_TIMED_DESPAWN, 27000ms);
 
             me->SummonCreature(CREATURE_DOOMFIRE,
                 target->GetPositionX()-15.0f, target->GetPositionY()-15.0f, target->GetPositionZ(), 0,
-                TEMPSUMMON_TIMED_DESPAWN, 27000);
+                TEMPSUMMON_TIMED_DESPAWN, 27000ms);
         }
 
         void UnleashSoulCharge()
@@ -489,7 +488,7 @@ public:
                 {
                     if (!IsChanneling)
                     {
-                        Creature* temp = me->SummonCreature(CREATURE_CHANNEL_TARGET, NordrassilLoc, TEMPSUMMON_TIMED_DESPAWN, 1200000);
+                        Creature* temp = me->SummonCreature(CREATURE_CHANNEL_TARGET, NordrassilLoc, TEMPSUMMON_TIMED_DESPAWN, 1200000ms);
 
                         if (temp)
                             WorldTreeGUID = temp->GetGUID();
@@ -533,7 +532,7 @@ public:
                 if (CheckDistanceTimer <= diff)
                 {
                     // To simplify the check, we simply summon a Creature in the location and then check how far we are from the creature
-                    Creature* Check = me->SummonCreature(CREATURE_CHANNEL_TARGET, NordrassilLoc, TEMPSUMMON_TIMED_DESPAWN, 2000);
+                    Creature* Check = me->SummonCreature(CREATURE_CHANNEL_TARGET, NordrassilLoc, TEMPSUMMON_TIMED_DESPAWN, 2000ms);
                     if (Check)
                     {
                         Check->SetVisible(false);
@@ -565,7 +564,7 @@ public:
 
                 if (SummonWispTimer <= diff)
                 {
-                    DoSpawnCreature(CREATURE_ANCIENT_WISP, float(rand()%40), float(rand()%40), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                    DoSpawnCreature(CREATURE_ANCIENT_WISP, float(rand()%40), float(rand()%40), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000ms);
                     SummonWispTimer = 1500;
                     ++WispCount;
                 } else SummonWispTimer -= diff;
@@ -637,8 +636,47 @@ public:
 
             DoMeleeAttackIfReady();
         }
-        void WaypointReached(uint32 /*waypointId*/) override { }
+        void MovementInform(uint32 type, uint32 waypointId) override {
+            EscortAI::MovementInform(type, waypointId); }
     };
+};
+
+// Protection of Elune 38528
+class spell_protection_of_elune : public AuraScript
+{
+    PrepareAuraScript(spell_protection_of_elune);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_PROTECTION_OF_ELUNE
+        });
+    }
+
+    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->ApplySpellImmune(SPELL_HAND_OF_DEATH, IMMUNITY_ID, SPELL_HAND_OF_DEATH, true);
+        target->ApplySpellImmune(SPELL_FINGER_OF_DEATH, IMMUNITY_ID, SPELL_FINGER_OF_DEATH, true);
+        target->ApplySpellImmune(SPELL_FINGER_OF_DEATH_LAST_PHASE, IMMUNITY_ID, SPELL_FINGER_OF_DEATH_LAST_PHASE, true);
+        target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FINGER_OF_DEATH_LAST_PHASE, true);
+    }
+
+    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->ApplySpellImmune(SPELL_HAND_OF_DEATH, IMMUNITY_ID, SPELL_HAND_OF_DEATH, false);
+        target->ApplySpellImmune(SPELL_FINGER_OF_DEATH, IMMUNITY_ID, SPELL_FINGER_OF_DEATH, false);
+        target->ApplySpellImmune(SPELL_FINGER_OF_DEATH_LAST_PHASE, IMMUNITY_ID, SPELL_FINGER_OF_DEATH_LAST_PHASE, false);
+        target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FINGER_OF_DEATH_LAST_PHASE, false);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_protection_of_elune::HandleEffectApply, EFFECT_0, SPELL_AURA_SCHOOL_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_protection_of_elune::HandleEffectRemove, EFFECT_0, SPELL_AURA_SCHOOL_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 void AddSC_boss_archimonde()
@@ -647,4 +685,5 @@ void AddSC_boss_archimonde()
     new npc_doomfire();
     new npc_doomfire_targetting();
     new npc_ancient_wisp();
+    new spell_protection_of_elune();
 }

@@ -103,7 +103,7 @@ class boss_mal_ganis : public CreatureScript
                      instance->SetData(DATA_MAL_GANIS_EVENT, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 if (instance)
@@ -148,7 +148,7 @@ class boss_mal_ganis : public CreatureScript
                             return;
                         }
 
-                        if (Creature* pArthas = me->GetCreature(*me, instance ? instance->GetData64(DATA_ARTHAS) : 0))
+                        if (Creature* pArthas = me->GetCreature(*me, instance ? instance->GetGuidData(DATA_ARTHAS) : ObjectGuid::Empty))
                             if (pArthas->isDead())
                             {
                                 EnterEvadeMode();
@@ -198,7 +198,7 @@ class boss_mal_ganis : public CreatureScript
                                     uiOutroTimer = 8000;
                                     break;
                                 case 2:
-                                    me->SetTarget(instance ? instance->GetData64(DATA_ARTHAS) : 0);
+                                    me->SetTarget(instance ? instance->GetGuidData(DATA_ARTHAS) : ObjectGuid::Empty);
                                     me->HandleEmoteCommand(29);
                                     Talk(SAY_ESCAPE_SPEECH_2);
                                     ++uiOutroStep;
@@ -221,7 +221,7 @@ class boss_mal_ganis : public CreatureScript
                                         if (!PlList.isEmpty())
                                             for (auto&& ref : PlList)
                                                 if (Player* player = ref.GetSource())
-                                                    player->KilledMonsterCredit(NPC_MALGANIS_KILL_CREDIT, 0);
+                                                    player->KilledMonsterCredit(NPC_MALGANIS_KILL_CREDIT, ObjectGuid::Empty);
                                     }
                                     me->SetVisible(false);
                                     me->Kill(me);

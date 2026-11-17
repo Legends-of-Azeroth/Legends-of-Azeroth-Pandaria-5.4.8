@@ -82,8 +82,8 @@ public:
     void SetEndTime(uint32 endTime) { _endTime = endTime; }
     uint32 GetEndTime() { return _endTime; }
 
-    void SetCurrentBidder(uint32 currentBidder) { _currentBidder = currentBidder; }
-    uint32 GetCurrentBidder() const { return _currentBidder; }
+    void SetCurrentBidder(ObjectGuid::LowType currentBidder) { _currentBidder = currentBidder; }
+    ObjectGuid::LowType GetCurrentBidder() const { return _currentBidder; }
 
     void SetCurrentBid(uint64 currentBid) { _currentBid = currentBid; }
     uint64 GetCurrentBid() const { return _currentBid; }
@@ -106,7 +106,7 @@ public:
     bool IsExpired() { return GetEndTime() < time(NULL); }
 
     std::string BuildAuctionMailSubject(BMMailAuctionAnswers response);
-    std::string BuildAuctionMailBody(uint32 lowGuid);
+    std::string BuildAuctionMailBody(ObjectGuid::LowType lowGuid);
 
 private:
     uint32 _auctionId;

@@ -63,7 +63,7 @@ class boss_jandice_barov : public CreatureScript
             boss_jandice_barovAI(Creature* creature) : BossAI(creature, DATA_JANDICE_BAROV) { }
 
             uint32 Pos, phase, CurHealth, CurPcnt, Max;
-            uint64 TargetGUID;
+            ObjectGuid TargetGUID;
 
             void Reset() override
             {
@@ -88,7 +88,7 @@ class boss_jandice_barov : public CreatureScript
                 phase = PHASE_DEFAULT;
                 CurPcnt = 66;
                 Max = me->GetMaxHealth(); 
-                TargetGUID = 0;
+                TargetGUID = ObjectGuid::Empty;
             }
 
             void JustDied(Unit* killer) override
@@ -127,7 +127,7 @@ class boss_jandice_barov : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)
@@ -144,7 +144,7 @@ class boss_jandice_barov : public CreatureScript
             {
                 if (instance)
                     if (GameObject* Idoor = GetClosestGameObjectWithEntry(me, GO_JANDICE_INTRO_DOOR, 150.0f))
-                        instance->HandleGameObject(0, reset, Idoor);
+                        instance->HandleGameObject(ObjectGuid::Empty, reset, Idoor);
             }
 
             void RemoveIllusions()
@@ -156,9 +156,9 @@ class boss_jandice_barov : public CreatureScript
                     itr->DespawnOrUnsummon();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 //Talk(TALK_INTO);
                 if (instance)
                 {
@@ -169,7 +169,7 @@ class boss_jandice_barov : public CreatureScript
                 Talk(TALK_AGGRO);
                 HandleDoors();
 
-                if (Unit* TalkingSkull = ObjectAccessor::GetUnit(*me, instance->GetData64(NPC_TALKING_SKULL)))
+                if (Unit* TalkingSkull = ObjectAccessor::GetUnit(*me, instance->GetGuidData(NPC_TALKING_SKULL)))
                     TalkingSkull->ToCreature()->AI()->Talk(TALK_JANDICE_COMBAT);
             }
 

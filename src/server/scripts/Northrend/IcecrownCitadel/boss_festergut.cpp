@@ -79,7 +79,7 @@ class boss_festergut : public CreatureScript
                 //_fuckup = 0;
                 _maxInoculatedStack = 0;
                 _inhaleCounter = 0;
-                _gasDummyGUID = 0;
+                _gasDummyGUID = ObjectGuid::Empty;
             }
 
             void Reset() override
@@ -106,7 +106,7 @@ class boss_festergut : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_FLU_SHOT_SHORTAGE, 1);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(DATA_FESTERGUT, who->ToPlayer()))
                 {
@@ -119,7 +119,7 @@ class boss_festergut : public CreatureScript
                 Talk(SAY_AGGRO);
                 if (Creature* gasDummy = me->FindNearestCreature(NPC_GAS_DUMMY, 100.0f, true))
                     _gasDummyGUID = gasDummy->GetGUID();
-                if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
+                if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                 if (professor->IsAlive())
                     professor->AI()->DoAction(ACTION_FESTERGUT_COMBAT);
                 DoZoneInCombat();
@@ -134,7 +134,7 @@ class boss_festergut : public CreatureScript
                 me->RemoveAurasDueToSpell(53338);
                   _JustDied();
                 Talk(SAY_DEATH);
-                if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
+                if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                 if (professor->IsAlive())
                     professor->AI()->DoAction(ACTION_FESTERGUT_DEATH);
 
@@ -150,10 +150,10 @@ class boss_festergut : public CreatureScript
                 instance->SetBossState(DATA_FESTERGUT, FAIL);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
-                if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
+                if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->EnterEvadeMode();
             }
 
@@ -202,7 +202,7 @@ class boss_festergut : public CreatureScript
                                 Talk(SAY_PUNGENT_BLIGHT);
                                 DoCast(me, SPELL_PUNGENT_BLIGHT);
                                 _inhaleCounter = 0;
-                                if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
+                                if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                                  //if (professor->IsAlive())
                                  //{
                                  //    if (instance->GetBossState(DATA_FESTERGUT) != DONE);
@@ -303,7 +303,7 @@ class boss_festergut : public CreatureScript
             }
 
         private:
-            uint64 _gasDummyGUID;
+            ObjectGuid _gasDummyGUID;
             uint32 _maxInoculatedStack;
             uint32 _inhaleCounter;
             //uint8 _fuckup;
@@ -333,7 +333,7 @@ class npc_stinky_icc : public CreatureScript
                 _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_PLAGUE_STENCH);
             }
@@ -369,7 +369,7 @@ class npc_stinky_icc : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* festergut = me->GetCreature(*me, _instance->GetData64(DATA_FESTERGUT)))
+                if (Creature* festergut = me->GetCreature(*me, _instance->GetGuidData(DATA_FESTERGUT)))
                     if (festergut->IsAlive())
                         festergut->AI()->Talk(SAY_STINKY_DEAD);
             }
@@ -475,7 +475,7 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
             {
                 GetTarget()->CastSpell(GetTarget(), SPELL_INOCULATED, true);
                 if (InstanceScript* instance = GetTarget()->GetInstanceScript())
-                    if (Creature* festergut = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_FESTERGUT)))
+                    if (Creature* festergut = ObjectAccessor::GetCreature(*GetTarget(), instance->GetGuidData(DATA_FESTERGUT)))
                         festergut->AI()->SetData(DATA_INOCULATED_STACK, GetTarget()->GetAuraCount(SPELL_INOCULATED));
             }
 

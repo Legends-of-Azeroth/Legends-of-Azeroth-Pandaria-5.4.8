@@ -74,7 +74,7 @@ void BattlegroundBE::OnInvite(Player* player, GroupQueueInfo const* ginfo)
     PlayerScores[player->GetGUID()] = sc;
 }
 
-void BattlegroundBE::RemovePlayer(Player* player, uint64 guid, uint32 team)
+void BattlegroundBE::RemovePlayer(Player* player, ObjectGuid guid, uint32 team)
 {
     Battleground::RemovePlayer(player, guid, team);
     if (GetStatus() == STATUS_WAIT_LEAVE)
@@ -101,7 +101,7 @@ void BattlegroundBE::HandleKillPlayer(Player* player, Player* killer)
     CheckArenaWinConditions();
 }
 
-void BattlegroundBE::HandleAreaTrigger(Player* player, uint32 trigger)
+void BattlegroundBE::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -112,7 +112,7 @@ void BattlegroundBE::HandleAreaTrigger(Player* player, uint32 trigger)
         case 4539:                                          // buff trigger?
             break;
         default:
-            Battleground::HandleAreaTrigger(player, trigger);
+            Battleground::HandleAreaTrigger(player, trigger, entered);
             break;
     }
 }

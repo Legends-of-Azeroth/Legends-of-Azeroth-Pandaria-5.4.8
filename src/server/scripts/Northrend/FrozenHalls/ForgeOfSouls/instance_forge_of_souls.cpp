@@ -36,16 +36,16 @@ class instance_forge_of_souls : public InstanceMapScript
             instance_forge_of_souls_InstanceScript(Map* map) : InstanceScript(map)
             {
                 SetBossNumber(MAX_ENCOUNTER);
-                uiBronjahm = 0;
-                uiDevourer = 0;
+                uiBronjahm = ObjectGuid::Empty;
+                uiDevourer = ObjectGuid::Empty;
                 soulFragmentsAlive = 0;
 
-                uiSylvanas_Part1 = 0;
-                uiJaina_Part1 = 0;
-                uiKalira = 0;
-                uiElandra = 0;
-                uiLoralen = 0;
-                uiKoreln = 0;
+                uiSylvanas_Part1 = ObjectGuid::Empty;
+                uiJaina_Part1 = ObjectGuid::Empty;
+                uiKalira = ObjectGuid::Empty;
+                uiElandra = ObjectGuid::Empty;
+                uiLoralen = ObjectGuid::Empty;
+                uiKoreln = ObjectGuid::Empty;
 
                 team = TEAM_NEUTRAL;
             }
@@ -131,7 +131,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 return 0;
             }
 
-            void SetData(uint32 data, uint32 value)
+            void SetData(uint32 data, uint32 value) override
             {
                 switch (data)
                 {
@@ -146,7 +146,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -157,7 +157,7 @@ class instance_forge_of_souls : public InstanceMapScript
                     default:
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData() override
@@ -202,15 +202,15 @@ class instance_forge_of_souls : public InstanceMapScript
             }
 
         private:
-            uint64 uiBronjahm;
-            uint64 uiDevourer;
+            ObjectGuid uiBronjahm;
+            ObjectGuid uiDevourer;
 
-            uint64 uiSylvanas_Part1;
-            uint64 uiJaina_Part1;
-            uint64 uiKalira;
-            uint64 uiElandra;
-            uint64 uiLoralen;
-            uint64 uiKoreln;
+            ObjectGuid uiSylvanas_Part1;
+            ObjectGuid uiJaina_Part1;
+            ObjectGuid uiKalira;
+            ObjectGuid uiElandra;
+            ObjectGuid uiLoralen;
+            ObjectGuid uiKoreln;
 
             TeamId team;
             uint32 soulFragmentsAlive;

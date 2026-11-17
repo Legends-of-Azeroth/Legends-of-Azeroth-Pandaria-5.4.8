@@ -30,13 +30,13 @@ class instance_thunder_king_citadel : public InstanceMapScript
             uint32 step1;
             uint32 step2;
             uint32 chestCounter;
-            uint64 playerGUID;
-            uint64 doorGUID;
+            ObjectGuid playerGUID;
+            ObjectGuid doorGUID;
             uint32 timeData;
             uint32 goldenChestCount;
-            std::list<uint64> firstDoorPackGUIDs;
-            std::list<uint64> secondDoorPackGUIDs;
-            std::list<uint64> burialThroveGUIDs;
+            std::list<ObjectGuid> firstDoorPackGUIDs;
+            std::list<ObjectGuid> secondDoorPackGUIDs;
+            std::list<ObjectGuid> burialThroveGUIDs;
             bool hasGoldenChestAchieved;
     
             instance_thunder_king_citadel_InstanceScript(Map* map) : InstanceScript(map) { }
@@ -46,8 +46,8 @@ class instance_thunder_king_citadel : public InstanceMapScript
                 step1            = 0;
                 step2            = 0;
                 chestCounter     = 0;
-                playerGUID       = 0;
-                doorGUID         = 0;
+                playerGUID = ObjectGuid::Empty;
+                doorGUID = ObjectGuid::Empty;
                 timeData         = 0;
                 goldenChestCount = 0;
                 hasGoldenChestAchieved = false;
@@ -112,7 +112,7 @@ class instance_thunder_king_citadel : public InstanceMapScript
                 {
                     case DATA_SPEAK_WITH_TAOSHI:
                         step1 = data;
-                        HandleGameObject(GetData64(GO_ANCIENT_GATE_6), true, NULL);
+                        HandleGameObject(GetGuidData(GO_ANCIENT_GATE_6), true, NULL);
 
                         for (auto&& itr : instance->GetPlayers())
                             if (Player* player = itr.GetSource())
@@ -133,7 +133,7 @@ class instance_thunder_king_citadel : public InstanceMapScript
                     case CHEST_DATA:
                         chestCounter += data;
 
-                        if (Unit* target = ObjectAccessor::FindUnit(GetData64(PLAYER_DATA)))
+                        if (Unit* target = ObjectAccessor::FindPlayer(GetGuidData(PLAYER_DATA)))
                             target->ModifyPower(POWER_ALTERNATE_POWER, data);
                         break;
                     case TIME_DATA:
@@ -145,7 +145,7 @@ class instance_thunder_king_citadel : public InstanceMapScript
                         {
                             hasGoldenChestAchieved = true;
 
-                            if (Player* scenarioOwner = ObjectAccessor::FindPlayer(GetData64(PLAYER_DATA)))
+                            if (Player* scenarioOwner = ObjectAccessor::FindPlayer(GetGuidData(PLAYER_DATA)))
                             {
                                 for (uint8 i = 0; i < 10; i++)
                                     scenarioOwner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_LOOTED_GOLDEN_CHEST_ACHIEV); // actually doesn`t work for unk reason
@@ -175,7 +175,7 @@ class instance_thunder_king_citadel : public InstanceMapScript
                 return 0;
             }
     
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -185,7 +185,7 @@ class instance_thunder_king_citadel : public InstanceMapScript
                         return doorGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
     
             std::string GetSaveData() override

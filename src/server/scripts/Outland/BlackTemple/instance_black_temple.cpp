@@ -51,32 +51,32 @@ class instance_black_temple : public InstanceMapScript
             uint32 m_auiEncounter[MAX_ENCOUNTER];
             std::string str_data;
 
-            uint64 Najentus;
-            uint64 Akama;       // This is the Akama that starts the Illidan encounter.
-            uint64 Akama_Shade; // This is the Akama that starts the Shade of Akama encounter.
-            uint64 ShadeOfAkama;
-            uint64 Supremus;
-            uint64 Teron;
-            uint64 LadyMalande;
-            uint64 GathiosTheShatterer;
-            uint64 HighNethermancerZerevor;
-            uint64 VerasDarkshadow;
-            uint64 IllidariCouncil;
-            uint64 BloodElfCouncilVoice;
-            uint64 IllidanStormrage;
+            ObjectGuid Najentus;
+            ObjectGuid Akama;       // This is the Akama that starts the Illidan encounter.
+            ObjectGuid Akama_Shade; // This is the Akama that starts the Shade of Akama encounter.
+            ObjectGuid ShadeOfAkama;
+            ObjectGuid Supremus;
+            ObjectGuid Teron;
+            ObjectGuid LadyMalande;
+            ObjectGuid GathiosTheShatterer;
+            ObjectGuid HighNethermancerZerevor;
+            ObjectGuid VerasDarkshadow;
+            ObjectGuid IllidariCouncil;
+            ObjectGuid BloodElfCouncilVoice;
+            ObjectGuid IllidanStormrage;
 
-            uint64 NajentusGate;
-            uint64 MainTempleDoors;
-            uint64 ShadeOfAkamaDoor;
-            uint64 CommonDoor; // Teron
-            uint64 TeronDoor;
-            uint64 GuurtogDoor;
-            uint64 MotherDoor;
-            uint64 TempleDoor; // Befor mother
-            uint64 CouncilDoor;
-            uint64 SimpleDoor; // council
-            uint64 IllidanGate;
-            uint64 IllidanDoor[2];
+            ObjectGuid NajentusGate;
+            ObjectGuid MainTempleDoors;
+            ObjectGuid ShadeOfAkamaDoor;
+            ObjectGuid CommonDoor; // Teron
+            ObjectGuid TeronDoor;
+            ObjectGuid GuurtogDoor;
+            ObjectGuid MotherDoor;
+            ObjectGuid TempleDoor; // Befor mother
+            ObjectGuid CouncilDoor;
+            ObjectGuid SimpleDoor; // council
+            ObjectGuid IllidanGate;
+            ObjectGuid IllidanDoor[2];
 
             uint32 IllidanGateOpend;
 
@@ -84,33 +84,33 @@ class instance_black_temple : public InstanceMapScript
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-                Najentus = 0;
-                Akama = 0;
-                Akama_Shade = 0;
-                ShadeOfAkama = 0;
-                Supremus = 0;
-                Teron = 0;
-                LadyMalande = 0;
-                GathiosTheShatterer = 0;
-                HighNethermancerZerevor = 0;
-                VerasDarkshadow = 0;
-                IllidariCouncil = 0;
-                BloodElfCouncilVoice = 0;
-                IllidanStormrage = 0;
+                Najentus = ObjectGuid::Empty;
+                Akama = ObjectGuid::Empty;
+                Akama_Shade = ObjectGuid::Empty;
+                ShadeOfAkama = ObjectGuid::Empty;
+                Supremus = ObjectGuid::Empty;
+                Teron = ObjectGuid::Empty;
+                LadyMalande = ObjectGuid::Empty;
+                GathiosTheShatterer = ObjectGuid::Empty;
+                HighNethermancerZerevor = ObjectGuid::Empty;
+                VerasDarkshadow = ObjectGuid::Empty;
+                IllidariCouncil = ObjectGuid::Empty;
+                BloodElfCouncilVoice = ObjectGuid::Empty;
+                IllidanStormrage = ObjectGuid::Empty;
 
-                NajentusGate    = 0;
-                MainTempleDoors = 0;
-                ShadeOfAkamaDoor= 0;
-                CommonDoor              = 0;//teron
-                TeronDoor               = 0;
-                GuurtogDoor             = 0;
-                MotherDoor              = 0;
-                TempleDoor              = 0;
-                SimpleDoor              = 0;//Bycouncil
-                CouncilDoor             = 0;
-                IllidanGate     = 0;
-                IllidanDoor[0]  = 0;
-                IllidanDoor[1]  = 0;
+                NajentusGate    = ObjectGuid::Empty;
+                MainTempleDoors = ObjectGuid::Empty;
+                ShadeOfAkamaDoor= ObjectGuid::Empty;
+                CommonDoor              = ObjectGuid::Empty;//teron
+                TeronDoor               = ObjectGuid::Empty;
+                GuurtogDoor             = ObjectGuid::Empty;
+                MotherDoor              = ObjectGuid::Empty;
+                TempleDoor              = ObjectGuid::Empty;
+                SimpleDoor              = ObjectGuid::Empty;//Bycouncil
+                CouncilDoor             = ObjectGuid::Empty;
+                IllidanGate     = ObjectGuid::Empty;
+                IllidanDoor[0]  = ObjectGuid::Empty;
+                IllidanDoor[1]  = ObjectGuid::Empty;
 
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     m_auiEncounter[i] = NOT_STARTED;
@@ -170,12 +170,12 @@ class instance_black_temple : public InstanceMapScript
                     case 185483:
                         NajentusGate = go->GetGUID(); // Gate past Naj'entus (at the entrance to Supermoose's courtyards)
                         if (m_auiEncounter[0] == DONE)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case 185882:
                         MainTempleDoors = go->GetGUID(); // Main Temple Doors - right past Supermoose (Supremus)
                         if (m_auiEncounter[1] == DONE)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case 185478:
                         ShadeOfAkamaDoor = go->GetGUID();
@@ -183,46 +183,46 @@ class instance_black_temple : public InstanceMapScript
                     case 185480:
                         CommonDoor = go->GetGUID();
                         if (m_auiEncounter[3] == DONE)
-                            HandleGameObject(0,true,go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case 186153:
                         TeronDoor = go->GetGUID();
                         if (m_auiEncounter[3] == DONE)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case 185892:
                         GuurtogDoor = go->GetGUID();
                         if (m_auiEncounter[4] == DONE)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case 185479:
                         TempleDoor = go->GetGUID();
                         // if (m_auiEncounter[5] == DONE)
-                        //     HandleGameObject(0, true, go);
+                        //     HandleGameObject(ObjectGuid::Empty, true, go);
                         // break;
                         if (m_auiEncounter[2] == DONE && m_auiEncounter[3] == DONE && m_auiEncounter[4] == DONE && m_auiEncounter[5] == DONE)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case 185482:
                         MotherDoor = go->GetGUID();
                         if (m_auiEncounter[6] == DONE)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case 185481:
                         CouncilDoor = go->GetGUID();
                         if (m_auiEncounter[7] == DONE)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case 186152:
                         SimpleDoor = go->GetGUID();
                         if (m_auiEncounter[7] == DONE)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case 185905:
                         IllidanGate = go->GetGUID(); // Gate leading to Temple Summit
                         // go->setActive(true);
                         if (IllidanGateOpend == DONE)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break; // Gate leading to Temple Summit
                     case 186261:
                         IllidanDoor[0] = go->GetGUID();
@@ -233,7 +233,7 @@ class instance_black_temple : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -257,7 +257,7 @@ class instance_black_temple : public InstanceMapScript
                     case DATA_BLOOD_ELF_COUNCIL_VOICE:     return BloodElfCouncilVoice;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void HandleTempleDoor()

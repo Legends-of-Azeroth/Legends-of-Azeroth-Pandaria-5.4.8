@@ -167,7 +167,7 @@ class boss_bethtilac : public CreatureScript
 
                 DoCast(me, SPELL_ZERO_POWER, true);
                 me->SetReactState(REACT_PASSIVE);
-                //me->SetAnimationTier(UnitAnimationTier::Fly);
+                //me->SetAnimTier(AnimTier::Fly);
                 //me->SetUInt32Value(UNIT_FIELD_BYTES_2, 1);
                 me->GetMap()->SetWorldState(WORLDSTATE_DEATH_FROM_ABOVE, 1);
                 uiPhase = 0;
@@ -178,14 +178,14 @@ class boss_bethtilac : public CreatureScript
 
                 me->SetCanFly(true);
                 me->SetDisableGravity(true);
-                me->SetAnimationTier(UnitAnimationTier::Hover);
+                me->SetAnimTier(AnimTier::Hover);
 
                 float hx, hy, hz, ho;
                 me->GetHomePosition(hx, hy, hz, ho);
                 me->NearTeleportTo(hx, hy, hz, ho);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 uiPhase = 0;
                 uiCount = 0;
@@ -203,7 +203,7 @@ class boss_bethtilac : public CreatureScript
                     if (pointId == POINT_HIGH)
                     {
                         me->SetFacingTo(highPos.GetOrientation());
-                        me->SetAnimationTier(UnitAnimationTier::Ground);
+                        me->SetAnimTier(AnimTier::Ground);
                         me->RemoveAurasByType(SPELL_AURA_MOD_TAUNT);
                         //me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                         //me->SetUInt32Value(UNIT_FIELD_BYTES_2, 0);
@@ -489,7 +489,7 @@ class npc_bethtilac_spiderweb_filament : public CreatureScript
                     {
                         pSpinner->SetCanFly(true);
                         pSpinner->SetDisableGravity(true);
-                        pSpinner->SetAnimationTier(UnitAnimationTier::Hover);
+                        pSpinner->SetAnimTier(AnimTier::Hover);
                         DoCast(pSpinner, SPELL_SPIDERWEB_FILAMENT_ANY, true);
                         //pSpinner->CastSpell(pSpinner, SPELL_CREEPER, true);
                         pSpinner->CastSpell(pSpinner, SPELL_TEMPERAMENT, true);
@@ -552,7 +552,7 @@ class npc_bethtilac_cinderweb_spinner : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_BURNING_ACID, urand(7000, 15000));
                 if (IsHeroic())
@@ -576,7 +576,7 @@ class npc_bethtilac_cinderweb_spinner : public CreatureScript
                 bTaunted = true;
 
                 if (owner && owner->GetEntry() == NPC_SPIDERWEB_FILAMENT)
-                    if (Creature* pFilament = owner->SummonCreature(NPC_SPIDERWEB_FILAMENT, owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 15000))
+                    if (Creature* pFilament = owner->SummonCreature(NPC_SPIDERWEB_FILAMENT, owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 15000ms))
                     {
                         pFilament->SetCanFly(true);
                         owner->CastSpell(pFilament, SPELL_SPIDERWEB_FILAMENT_ANY, true);
@@ -593,7 +593,7 @@ class npc_bethtilac_cinderweb_spinner : public CreatureScript
                     bTaunted = true;
                     me->SetReactState(REACT_AGGRESSIVE);
                     if (owner && owner->GetEntry() == NPC_SPIDERWEB_FILAMENT)
-                        if (Creature* pFilament = owner->SummonCreature(NPC_SPIDERWEB_FILAMENT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 15000))
+                        if (Creature* pFilament = owner->SummonCreature(NPC_SPIDERWEB_FILAMENT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 15000ms))
                         {
                             pFilament->SetCanFly(true);
                             owner->CastSpell(pFilament, SPELL_SPIDERWEB_FILAMENT_ANY, true);
@@ -606,7 +606,7 @@ class npc_bethtilac_cinderweb_spinner : public CreatureScript
                     me->RemoveAura(SPELL_TEMPERAMENT);
                     me->SetCanFly(false);
                     me->SetDisableGravity(false);
-                    me->SetAnimationTier(UnitAnimationTier::Ground);
+                    me->SetAnimTier(AnimTier::Ground);
                     AttackStart(caster);
                 }
             }
@@ -691,7 +691,7 @@ class npc_bethtilac_cinderweb_drone : public CreatureScript
                 DoCast(me, SPELL_ENERGIZE, true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_BURNING_ACID, urand(7000, 15000));
                 events.ScheduleEvent(EVENT_BOILING_SPATTER, urand(14000, 20000));
@@ -714,7 +714,7 @@ class npc_bethtilac_cinderweb_drone : public CreatureScript
             {
                 if (type == POINT_MOTION_TYPE && pointId == POINT_HIGH)
                 {
-                    me->SetAnimationTier(UnitAnimationTier::Ground);
+                    me->SetAnimTier(AnimTier::Ground);
                     me->SetReactState(REACT_AGGRESSIVE);
                 }
             }
@@ -738,7 +738,7 @@ class npc_bethtilac_cinderweb_drone : public CreatureScript
                     me->AttackStop();
                     me->SetCanFly(true);
                     me->SetDisableGravity(true);
-                    me->SetAnimationTier(UnitAnimationTier::Hover);
+                    me->SetAnimTier(AnimTier::Hover);
                     me->RemoveAurasDueToSpell(SPELL_ENERGIZE);
                     float z = std::max(110.0f, me->GetMap()->GetHeight(me->GetPositionX(), me->GetPositionY(), MAX_HEIGHT, true, MAX_HEIGHT * 2));
                     me->GetMotionMaster()->Clear();
@@ -793,7 +793,7 @@ class npc_bethtilac_cinderweb_drone : public CreatureScript
                                 DoResetThreat();
                                 DoCast(me, SPELL_FIXATE_SELF, true);
                                 DoCast(target, SPELL_FIXATE, true);
-                                me->AddThreat(target, 1000000.0f);
+                                me->GetThreatManager().AddThreat(target, 1000000.0f);
                                 AttackStart(target);
                                 events.ScheduleEvent(EVENT_FIXATE_OFF, 10000);
                             }
@@ -853,7 +853,7 @@ class npc_bethtilac_cinderweb_spiderling : public CreatureScript
             Unit* pDrone;
             EventMap events;
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_CHECK_DRONE, 2000);
             }
@@ -935,7 +935,7 @@ class npc_bethtilac_engorged_broodling : public CreatureScript
 
             bool bBurst;
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 bBurst = false;
             }

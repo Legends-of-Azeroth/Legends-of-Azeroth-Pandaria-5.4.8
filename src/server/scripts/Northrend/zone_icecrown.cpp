@@ -318,7 +318,7 @@ public:
                 {
                     if (who->HasAura(SPELL_SUBDUED_LITHE_STALKER))
                         {
-                            owner->ToPlayer()->KilledMonsterCredit(NPC_GEIST_RETURN_BUNNY_KC, 0);
+                            owner->ToPlayer()->KilledMonsterCredit(NPC_GEIST_RETURN_BUNNY_KC, ObjectGuid::Empty);
                             who->ToCreature()->DisappearAndDie();
 
                     }
@@ -396,7 +396,7 @@ class npc_tournament_training_dummy : public CreatureScript
                 events.ScheduleEvent(EVENT_DUMMY_RECAST_DEFEND, 5000);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (!_EnterEvadeMode())
                     return;
@@ -602,10 +602,10 @@ public:
 
         SummonList Summons;
 
-        uint64 guidDalfors;
-        uint64 guidPriest[3];
-        uint64 guidMason[3];
-        uint64 guidHalof;
+        ObjectGuid guidDalfors;
+        ObjectGuid guidPriest[3];
+        ObjectGuid guidMason[3];
+        ObjectGuid guidHalof;
 
         void Reset() override
         {
@@ -615,7 +615,7 @@ public:
             events.ScheduleEvent(EVENT_SPAWN, 3000);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
@@ -927,7 +927,7 @@ class npc_frostbrood_skytalon : public CreatureScript
                     {
                         Position randomPosOnRadius;
                         randomPosOnRadius.m_positionZ = (me->GetPositionZ() + 40.0f);
-                        me->GetNearPoint2D(randomPosOnRadius.m_positionX, randomPosOnRadius.m_positionY, 40.0f, me->GetAngle(me));
+                        me->GetNearPoint2D(nullptr, randomPosOnRadius.m_positionX, randomPosOnRadius.m_positionY, 40.0f, me->GetAngle(me));
                         me->GetMotionMaster()->MovePoint(POINT_FLY_AWAY, randomPosOnRadius);
                     }
                 }
@@ -996,7 +996,7 @@ class npc_margrave_dhakar : public CreatureScript
 
         struct npc_margrave_dhakarAI : public ScriptedAI
         {
-            npc_margrave_dhakarAI(Creature* creature) : ScriptedAI(creature) , _summons(me), _lichKingGuid(0) { }
+            npc_margrave_dhakarAI(Creature* creature) : ScriptedAI(creature) , _summons(me), _lichKingGuid() { }
 
             void Reset() override
             {
@@ -1111,7 +1111,7 @@ class npc_margrave_dhakar : public CreatureScript
         private:
             EventMap _events;
             SummonList _summons;
-            uint64 _lichKingGuid;
+            ObjectGuid _lichKingGuid;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

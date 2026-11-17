@@ -19,9 +19,10 @@
 #define TRINITY_CONDITIONMGR_H
 
 #include "Define.h"
+#include "Hash.h"
 #include "Errors.h"
 #include <list>
-#include <map>
+#include <unordered_map>
 
 class Player;
 class Unit;
@@ -74,7 +75,7 @@ enum ConditionTypes
     CONDITION_HP_PCT                   = 38,                   // hpPct            ComparisonType 0                  true if unit's hp matches given pct
     CONDITION_REALM_ACHIEVEMENT        = 39,                   // achievement_id   0              0                  true if realm achievement is complete
     CONDITION_IN_WATER                 = 40,                   // 0                0              0                  true if unit in water
-    CONDITION_TERRAIN_SWAP             = 41,                   // terrainSwap      0              0                  true if object is in terrainswap (NYI, reserved)
+    CONDITION_TERRAIN_SWAP             = 41,                   // terrainSwap      0              0                  true if object is in terrainswap
     CONDITION_STAND_STATE              = 42,                   // stateType        state          0                  true if unit matches specified sitstate (0,x: has exactly state x; 1,0: any standing state; 1,1: any sitting state;)
     CONDITION_DAILY_QUEST_DONE         = 43,                   // quest id         0              0                  true if daily quest has been completed for the day
     CONDITION_CHARMED                  = 44,                   // 0                0              0                  true if unit is currently charmed
@@ -91,7 +92,6 @@ enum ConditionTypes
     CONDITION_SCENE_IN_PROGRESS        = 55,                   // SceneScriptPackageId   0              0                  true if player is playing a scene with ScriptPackageId equal to given value
     CONDITION_PLAYER_CONDITION         = 56,                   // PlayerConditionId      0              0                  true if player satisfies PlayerCondition
     
-    CONDITION_project_NONE             = 100,
     CONDITION_SAI_PHASE                = 101,                  // phase            0              0                  true if object sai phase = value1
     CONDITION_PLAYER_SPEC              = 102,                  // spec             0              0                  true if player spec = value1
     CONDITION_CURRENCY_SEASON          = 103,                  // currency         count          0                  true if player spec = value1
@@ -99,7 +99,9 @@ enum ConditionTypes
     CONDITION_WEEKLY_QUEST_DONE        = 105,                  // quest            0              0                  true if weekly quest has been completed for the week
     CONDITION_MONTHLY_QUEST_DONE       = 106,                  // quest            0              0                  true if monthly quest has been completed for the month
     CONDITION_REPUTATION_VALUE         = 107,                  // faction_id       rep_value      0                  true if reputation value more or equal than rep_value
-    CONDITION_project_MAX              = 108,                  // MAX
+    CONDITION_PHASEID                  = 108,                  // phaseid          0              0                  true if object is in phaseid
+    CONDITION_WORLD_MAP_SWAP           = 109,                  // worldMapSwamp    0              0                  ture if object is in worldMapSwamp
+    CONDITION_project_MAX              = 110,                  // MAX
     CONDITION_MAX
 };
 
@@ -158,9 +160,13 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_NPC_VENDOR                     = 23,
     CONDITION_SOURCE_TYPE_SPELL_PROC                     = 24,
     CONDITION_SOURCE_TYPE_PHASE_DEFINITION               = 25, // only 4.3.4
-    // Condition source type 26 unused
+    CONDITION_SOURCE_TYPE_PHASE                          = 26,
     CONDITION_SOURCE_TYPE_GRAVEYARD                      = 27,
-    CONDITION_SOURCE_TYPE_MAX                            = 28  // MAX
+    CONDITION_SOURCE_TYPE_AREATRIGGER                    = 28, // only master (this refers to dynamically spawned areatriggers, not the ones from AreaTrigger.dbc/db2)    
+    CONDITION_SOURCE_TYPE_TERRAIN_SWAP                   = 29,
+    CONDITION_SOURCE_TYPE_AREATRIGGER_CLIENT_TRIGGERED   = 30,
+
+    CONDITION_SOURCE_TYPE_MAX                            = 31  // MAX
 };
 
 enum RelationType
@@ -189,17 +195,17 @@ enum MaxConditionTargets
 struct ConditionSourceInfo
 {
     WorldObject* mConditionTargets[MAX_CONDITION_TARGETS]; // an array of targets available for conditions
-    Condition* mLastFailedCondition;
-    ConditionSourceInfo(WorldObject* target0, WorldObject* target1 = NULL, WorldObject* target2 = NULL)
+    Condition const* mLastFailedCondition;
+    ConditionSourceInfo(WorldObject* target0, WorldObject* target1 = nullptr, WorldObject* target2 = nullptr)
     {
         mConditionTargets[0] = target0;
         mConditionTargets[1] = target1;
         mConditionTargets[2] = target2;
-        mLastFailedCondition = NULL;
+        mLastFailedCondition = nullptr;
     }
 };
 
-struct Condition
+struct TC_GAME_API Condition
 {
     ConditionSourceType     SourceType;        //SourceTypeOrReferenceId
     uint32                  SourceGroup;
@@ -236,24 +242,25 @@ struct Condition
         NegativeCondition  = false;
     }
 
-    bool Meets(ConditionSourceInfo& sourceInfo);
-    uint32 GetSearcherTypeMaskForCondition();
+    bool Meets(ConditionSourceInfo& sourceInfo) const;
+    uint32 GetSearcherTypeMaskForCondition() const;
     bool isLoaded() const { return ConditionType > CONDITION_NONE || ReferenceId; }
-    uint32 GetMaxAvailableConditionTargets();
+    uint32 GetMaxAvailableConditionTargets() const;
+
+    std::string ToString(bool ext = false) const; /// For logging purpose
 };
 
-typedef std::list<Condition*> ConditionList;
-//typedef std::vector<Condition*> ConditionContainer; // from TC
-typedef std::map<uint32, ConditionList> ConditionTypeContainer;
-typedef std::map<ConditionSourceType, ConditionTypeContainer> ConditionContainer;
-typedef std::map<uint32, ConditionTypeContainer> CreatureSpellConditionContainer;
-typedef std::map<uint32, ConditionTypeContainer> NpcVendorConditionContainer;
-typedef std::map<std::pair<int32, uint32 /*SAI source_type*/>, ConditionTypeContainer> SmartEventConditionContainer;
-typedef std::map<int32 /*zoneId*/, ConditionTypeContainer> PhaseDefinitionConditionContainer;
+typedef std::vector<Condition*> ConditionContainer;
+typedef std::unordered_map<uint32 /*SourceEntry*/, ConditionContainer> ConditionsByEntryMap;
+typedef std::array<ConditionsByEntryMap, CONDITION_SOURCE_TYPE_MAX> ConditionEntriesByTypeArray;
+typedef std::unordered_map<uint32, ConditionsByEntryMap> ConditionEntriesByCreatureIdMap;
+typedef std::unordered_map<std::pair<int32, uint32 /*SAI source_type*/>, ConditionsByEntryMap> SmartEventConditionContainer;
 
-typedef std::map<uint32, ConditionList> ConditionReferenceContainer;//only used for references
+typedef std::unordered_map<int32 /*zoneId*/, ConditionsByEntryMap> PhaseDefinitionConditionContainer;
 
-class ConditionMgr
+typedef std::unordered_map<uint32, ConditionContainer> ConditionReferenceContainer;//only used for references
+
+class TC_GAME_API ConditionMgr
 {
 
     private:
@@ -264,43 +271,58 @@ class ConditionMgr
         static ConditionMgr* instance();
 
         void LoadConditions(bool isReload = false);
-        bool isConditionTypeValid(Condition* cond);
-        ConditionList GetConditionReferences(uint32 refId);
+        bool isConditionTypeValid(Condition* cond) const;
 
-        uint32 GetSearcherTypeMaskForConditionList(ConditionList const& conditions);
-        bool IsObjectMeetToConditions(WorldObject* object, ConditionList const& conditions);
-        bool IsObjectMeetToConditions(WorldObject* object1, WorldObject* object2, ConditionList const& conditions);
-        bool IsObjectMeetToConditions(ConditionSourceInfo& sourceInfo, ConditionList const& conditions);
-        bool CanHaveSourceGroupSet(ConditionSourceType sourceType) const;
-        bool CanHaveSourceIdSet(ConditionSourceType sourceType) const;
-        ConditionList GetConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry);
-        ConditionList GetConditionsForSpellClickEvent(uint32 creatureId, uint32 spellId);
-        ConditionList GetConditionsForSmartEvent(int32 entryOrGuid, uint32 eventId, uint32 sourceType);
-        ConditionList GetConditionsForVehicleSpell(uint32 creatureId, uint32 spellId);
-        ConditionList const* GetConditionsForPhaseDefinition(uint32 zone, uint32 entry);
-        ConditionList GetConditionsForNpcVendorEvent(uint32 creatureId, uint32 itemId);
+        uint32 GetSearcherTypeMaskForConditionList(ConditionContainer const& conditions) const;
+        bool IsObjectMeetToConditions(WorldObject* object, ConditionContainer const& conditions) const;
+        bool IsObjectMeetToConditions(WorldObject* object1, WorldObject* object2, ConditionContainer const& conditions) const;
+        bool IsObjectMeetToConditions(ConditionSourceInfo& sourceInfo, ConditionContainer const& conditions) const;
+        static bool CanHaveSourceGroupSet(ConditionSourceType sourceType);
+        static bool CanHaveSourceIdSet(ConditionSourceType sourceType);
+        ConditionContainer const* GetConditionsForPhaseDefinition(uint32 zone, uint32 entry) const;
+        bool IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, ConditionSourceInfo& sourceInfo) const;
+        bool IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, WorldObject* target0, WorldObject* target1 = nullptr, WorldObject* target2 = nullptr) const;
+        bool HasConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry) const;
+        bool IsObjectMeetingSpellClickConditions(uint32 creatureId, uint32 spellId, WorldObject* clicker, WorldObject* target) const;
+        ConditionContainer const* GetConditionsForSpellClickEvent(uint32 creatureId, uint32 spellId) const;
+        bool IsObjectMeetingVehicleSpellConditions(uint32 creatureId, uint32 spellId, Player* player, Unit* vehicle) const;
+        bool IsObjectMeetingSmartEventConditions(int32 entryOrGuid, uint32 eventId, uint32 sourceType, Unit* unit, WorldObject* baseObject) const;
+        bool IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32 itemId, Player* player, Creature* vendor) const;
+
 
         void RegisterVehicleAI(VehicleAIBase* ai) { m_vehicleAIs.insert(ai); }
         void UnregisterVehicleAI(VehicleAIBase* ai) { m_vehicleAIs.erase(ai); }
 
+        struct ConditionTypeInfo
+        {
+            char const* Name;
+            bool HasConditionValue1;
+            bool HasConditionValue2;
+            bool HasConditionValue3;
+        };
+        static char const* const StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX];
+        static ConditionTypeInfo const StaticConditionTypeData[CONDITION_MAX];        
+
     private:
-        bool isSourceTypeValid(Condition* cond);
-        bool addToLootTemplate(Condition* cond, LootTemplate* loot);
-        bool addToGossipMenus(Condition* cond);
-        bool addToGossipMenuItems(Condition* cond);
-        bool AddToSpellImplicitTargetConditions(Condition* cond);
-        bool AddToSpellImplicitTargetConditions(Condition* cond, SpellInfo* spellInfo);
-        bool IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, ConditionList const& conditions);
+        bool isSourceTypeValid(Condition* cond) const;
+        bool addToLootTemplate(Condition* cond, LootTemplate* loot) const;
+        bool addToGossipMenus(Condition* cond) const;
+        bool addToGossipMenuItems(Condition* cond) const;
+        bool AddToSpellImplicitTargetConditions(Condition* cond) const;
+        bool AddToSpellImplicitTargetConditions(Condition* cond, SpellInfo* spellInfo) const;
+        bool addToPhases(Condition* cond);
+        bool IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, ConditionContainer const& conditions) const;
 
         void Clean(); // free up resources
-        std::list<Condition*> AllocatedMemoryStore; // some garbage collection :)
+        std::vector<Condition*> AllocatedMemoryStore; // some garbage collection :)
 
-        ConditionContainer                ConditionStore;
-        ConditionReferenceContainer       ConditionReferenceStore;
-        CreatureSpellConditionContainer   VehicleSpellConditionStore;
-        CreatureSpellConditionContainer   SpellClickEventConditionStore;
-        NpcVendorConditionContainer       NpcVendorConditionContainerStore;
-        SmartEventConditionContainer      SmartEventConditionStore;
+        ConditionEntriesByTypeArray     ConditionStore;
+        ConditionReferenceContainer     ConditionReferenceStore;
+        ConditionEntriesByCreatureIdMap VehicleSpellConditionStore;
+        ConditionEntriesByCreatureIdMap SpellClickEventConditionStore;
+        ConditionEntriesByCreatureIdMap NpcVendorConditionContainerStore;
+        SmartEventConditionContainer    SmartEventConditionStore;
+
         PhaseDefinitionConditionContainer PhaseDefinitionsConditionStore;
 
         std::unordered_set<VehicleAIBase*> m_vehicleAIs;

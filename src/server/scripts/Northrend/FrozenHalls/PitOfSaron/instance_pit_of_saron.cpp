@@ -44,13 +44,13 @@ class instance_pit_of_saron : public InstanceMapScript
             {
                 SetBossNumber(MAX_ENCOUNTER);
 
-                _garfrostGUID = 0;
-                _krickGUID = 0;
-                _ickGUID = 0;
-                _tyrannusGUID = 0;
-                _rimefangGUID = 0;
-                _jainaOrSylvanas1GUID = 0;
-                _jainaOrSylvanas2GUID = 0;
+                _garfrostGUID = ObjectGuid::Empty;
+                _krickGUID = ObjectGuid::Empty;
+                _ickGUID = ObjectGuid::Empty;
+                _tyrannusGUID = ObjectGuid::Empty;
+                _rimefangGUID = ObjectGuid::Empty;
+                _jainaOrSylvanas1GUID = ObjectGuid::Empty;
+                _jainaOrSylvanas2GUID = ObjectGuid::Empty;
                 _teamInInstance = 0;
 
                 _dontLookUpEligible = true;
@@ -175,7 +175,7 @@ class instance_pit_of_saron : public InstanceMapScript
                 case GO_ICE_WALL:
                     uiIceWall = go->GetGUID();
                     if (GetBossState(DATA_GARFROST) == DONE && GetBossState(DATA_ICK) == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 }
             }
@@ -238,7 +238,7 @@ class instance_pit_of_saron : public InstanceMapScript
                 return true;
             }
 
-            void SetData64(uint32 type, uint64 data) override
+            void SetGuidData(uint32 type, ObjectGuid data) override
             {
                 switch (type)
                 {
@@ -280,7 +280,7 @@ class instance_pit_of_saron : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -304,7 +304,7 @@ class instance_pit_of_saron : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData() override
@@ -354,7 +354,7 @@ class instance_pit_of_saron : public InstanceMapScript
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
 
-            void DistributeDontLookUpAchievement(uint64 guardianGUID)
+            void DistributeDontLookUpAchievement(ObjectGuid guardianGUID)
             {
                 Map::PlayerList const& players = instance->GetPlayers();
                 if (players.isEmpty())
@@ -391,20 +391,20 @@ class instance_pit_of_saron : public InstanceMapScript
             }
 
         private:
-            uint64 _garfrostGUID;
-            uint64 _krickGUID;
-            uint64 _ickGUID;
-            uint64 _tyrannusGUID;
-            uint64 _rimefangGUID;
+            ObjectGuid _garfrostGUID;
+            ObjectGuid _krickGUID;
+            ObjectGuid _ickGUID;
+            ObjectGuid _tyrannusGUID;
+            ObjectGuid _rimefangGUID;
 
-            uint64 _tyrannusEventGUID;
-            uint64 _jainaOrSylvanas1GUID;
-            uint64 _jainaOrSylvanas2GUID;
-            uint64 uiIceWall;
+            ObjectGuid _tyrannusEventGUID;
+            ObjectGuid _jainaOrSylvanas1GUID;
+            ObjectGuid _jainaOrSylvanas2GUID;
+            ObjectGuid uiIceWall;
 
             uint32 _teamInInstance;
 
-            std::set<uint64> _caveGuardianSet;
+            std::set<ObjectGuid> _caveGuardianSet;
             bool _dontLookUpEligible;
         };
 

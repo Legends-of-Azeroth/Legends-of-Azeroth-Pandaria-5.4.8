@@ -19,6 +19,7 @@
 #define TRINITYSERVER_TYPEDEFS_H
 
 #include "Common.h"
+#include "UnitDefines.h"
 
 namespace G3D
 {
@@ -33,6 +34,7 @@ namespace Movement
     using G3D::Vector3;
     using G3D::Vector4;
 
+    UnitMoveType SelectSpeedType(uint32 moveFlags);
     inline uint32 SecToMS(float sec)
     {
         return static_cast<uint32>(sec * 1000.f);

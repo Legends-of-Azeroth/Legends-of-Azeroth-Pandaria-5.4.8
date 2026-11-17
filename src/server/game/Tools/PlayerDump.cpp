@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "Common.h"
+#include "CharacterCache.h"
 #include "PlayerDump.h"
 #include "DatabaseEnv.h"
 #include "UpdateFields.h"
@@ -317,7 +318,7 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
         else                                                // not set case, get single guid string
             wherestr = GenerateWhereStr(fieldname, guid);
 
-        QueryResult result = CharacterDatabase.PQuery("SELECT * FROM %s WHERE %s", tableFrom, wherestr.c_str());
+        QueryResult result = CharacterDatabase.PQuery("SELECT * FROM {} WHERE {}", tableFrom, wherestr.c_str());
         if (!result)
             return true;
 
@@ -419,7 +420,7 @@ void fixNULLfields(std::string &line)
     }
 }
 
-DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, std::string name, uint32 guid, CharacterDatabaseTransaction trans)
+DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, std::string name, ObjectGuid::LowType guid, CharacterDatabaseTransaction trans)
 {
     uint32 charcount = AccountMgr::GetCharactersCount(account);
     if (charcount >= 11)
@@ -433,18 +434,18 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
 
     // make sure the same guid doesn't already exist and is safe to use
     bool incHighest = true;
-    if (guid != 0 && guid < sObjectMgr->_hiCharGuid)
+    if (guid != 0 && guid < sObjectMgr->GetGenerator<HighGuid::Player>().GetNextAfterMaxUsed())
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_GUID);
         stmt->setUInt32(0, guid);
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
         if (result)
-            guid = sObjectMgr->_hiCharGuid;                     // use first free if exists
+            guid = sObjectMgr->GetGenerator<HighGuid::Player>().GetNextAfterMaxUsed();                     // use first free if exists
         else incHighest = false;
     }
     else
-        guid = sObjectMgr->_hiCharGuid;
+        guid = sObjectMgr->GetGenerator<HighGuid::Player>().GetNextAfterMaxUsed();
 
     // normalize the name if specified and check if it exists
     if (!normalizePlayerName(name))
@@ -490,7 +491,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
     uint8 level = 1;
     DeclinedName* declinedName = NULL;
 
-    QueryResult result = CharacterDatabase.PQuery("SELECT spell FROM account_spell WHERE account = %u", account);
+    QueryResult result = CharacterDatabase.PQuery("SELECT spell FROM account_spell WHERE account = {}", account);
     if (result)
     {
         do
@@ -536,7 +537,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
         std::string tn = gettablename(line);
         if (tn.empty())
         {
-            TC_LOG_ERROR("misc", "LoadPlayerDump: Can't extract table name from line: '%s'!", line.c_str());
+            TC_LOG_ERROR("misc", "LoadPlayerDump: Can't extract table name from line: '{}'!", line.c_str());
             ROLLBACK(DUMP_FILE_BROKEN);
         }
 
@@ -553,7 +554,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
 
         if (i == DUMP_TABLE_COUNT)
         {
-            TC_LOG_ERROR("misc", "LoadPlayerDump: Unknown table: '%s'!", tn.c_str());
+            TC_LOG_ERROR("misc", "LoadPlayerDump: Unknown table: '{}'!", tn.c_str());
             ROLLBACK(DUMP_FILE_BROKEN);
         }
 
@@ -574,9 +575,14 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
                 level = uint8(atol(getnth(line, 8).c_str()));
 
                 for (auto&& spec : dbc::GetClassSpecializations(playerClass))
-                    if (auto spells = dbc::GetSpecializetionSpells(spec))
-                        for (auto&& spell : *spells)
-                            classSpells.insert(spell);
+                {
+                    std::vector<SpecializationSpellsEntry const*> const* specSpells = sDBCManager.GetSpecializationSpells(spec);
+                    for (size_t j = 0; j < specSpells->size(); ++j)
+                    {
+                        SpecializationSpellsEntry const* specSpell = specSpells->at(j);
+                        classSpells.insert(specSpell->SpellID);
+                    }
+                }
 
                 if (keepOriginalName)
                 {
@@ -640,9 +646,9 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
                 if (!changenth(line, 1, newguid))           // character_inventory.guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
 
-                if (!changeGuid(line, 2, items, sObjectMgr->_hiItemGuid, true))
+                if (!changeGuid(line, 2, items, sObjectMgr->GetGenerator<HighGuid::Item>().Generate(), true))
                     ROLLBACK(DUMP_FILE_BROKEN);             // character_inventory.bag update
-                if (!changeGuid(line, 4, items, sObjectMgr->_hiItemGuid))
+                if (!changeGuid(line, 4, items, sObjectMgr->GetGenerator<HighGuid::Item>().Generate()))
                     ROLLBACK(DUMP_FILE_BROKEN);             // character_inventory.item update
                 break;
             }
@@ -658,7 +664,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
             {
                 if (!changeGuid(line, 1, mails, sObjectMgr->_mailId))
                     ROLLBACK(DUMP_FILE_BROKEN);             // mail_items.id
-                if (!changeGuid(line, 2, items, sObjectMgr->_hiItemGuid))
+                if (!changeGuid(line, 2, items, sObjectMgr->GetGenerator<HighGuid::Item>().Generate()))
                     ROLLBACK(DUMP_FILE_BROKEN);             // mail_items.item_guid
                 if (!changenth(line, 3, newguid))           // mail_items.receiver
                     ROLLBACK(DUMP_FILE_BROKEN);
@@ -667,7 +673,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
             case DTT_ITEM:
             {
                 // item, owner, data field:item, owner guid
-                if (!changeGuid(line, 1, items, sObjectMgr->_hiItemGuid))
+                if (!changeGuid(line, 1, items, sObjectMgr->GetGenerator<HighGuid::Item>().Generate()))
                    ROLLBACK(DUMP_FILE_BROKEN);              // item_instance.guid update
                 if (!changenth(line, 3, newguid))           // item_instance.owner_guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
@@ -677,7 +683,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
             {
                 if (!changenth(line, 1, newguid))           // character_gifts.guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
-                if (!changeGuid(line, 2, items, sObjectMgr->_hiItemGuid))
+                if (!changeGuid(line, 2, items, sObjectMgr->GetGenerator<HighGuid::Item>().Generate()))
                     ROLLBACK(DUMP_FILE_BROKEN);             // character_gifts.item_guid update
                 break;
             }
@@ -764,7 +770,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
                 break;
             }
             default:
-                TC_LOG_ERROR("misc", "Unknown dump table type: %u", type);
+                TC_LOG_ERROR("misc", "Unknown dump table type: {}", type);
                 break;
         }
 
@@ -784,14 +790,12 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
     }
 
     // in case of name conflict player has to rename at login anyway
-    sWorld->AddCharacterNameData(guid, name, gender, race, playerClass, level);
+    sCharacterCache->AddCharacterCacheEntry(ObjectGuid(HighGuid::Player, guid), account, name, gender, race, playerClass, level);
+    // in case of name conflict player has to rename at login anyway
+    sWorld->AddCharacterNameData(ObjectGuid(HighGuid::Player, guid), name, gender, race, playerClass, level);
 
-    sObjectMgr->_hiItemGuid += items.size();
     sObjectMgr->_mailId     += mails.size();
     sObjectMgr->_voidItemId += itemsVoid.size();
-
-    if (incHighest)
-        ++sObjectMgr->_hiCharGuid;
 
     fclose(fin);
 

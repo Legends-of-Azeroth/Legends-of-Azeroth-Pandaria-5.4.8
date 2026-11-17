@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -29,9 +29,9 @@ enum LoginDatabaseStatements : uint32
     */
 
     LOGIN_SEL_REALMLIST,
-    LOGIN_SEL_REALMNAME_BY_ID,
     LOGIN_DEL_EXPIRED_IP_BANS,
     LOGIN_UPD_EXPIRED_ACCOUNT_BANS,
+    LOGIN_SEL_IP_INFO,
     LOGIN_SEL_IP_BANNED,
     LOGIN_INS_IP_AUTO_BANNED,
     LOGIN_SEL_ACCOUNT_BANNED,
@@ -39,19 +39,23 @@ enum LoginDatabaseStatements : uint32
     LOGIN_SEL_ACCOUNT_BANNED_BY_USERNAME,
     LOGIN_INS_ACCOUNT_AUTO_BANNED,
     LOGIN_DEL_ACCOUNT_BANNED,
+    LOGIN_SEL_ACCOUNT_INFO_CONTINUED_SESSION,
     LOGIN_SEL_SESSIONKEY,
     LOGIN_UPD_VS,
     LOGIN_UPD_LOGONPROOF,
     LOGIN_SEL_LOGONCHALLENGE,
+    LOGIN_SEL_RECONNECTCHALLENGE,
     LOGIN_UPD_FAILEDLOGINS,
     LOGIN_SEL_FAILEDLOGINS,
     LOGIN_SEL_ACCOUNT_ID_BY_NAME,
+    LOGIN_SEL_ACCOUNT_ID_BY_LIKENAME,
     LOGIN_SEL_ACCOUNT_LIST_BY_NAME,
     LOGIN_SEL_ACCOUNT_INFO_BY_NAME,
     LOGIN_SEL_ACCOUNT_LIST_BY_EMAIL,
     LOGIN_SEL_ACCOUNT_LIST_BY_HWID,
     LOGIN_SEL_NUM_CHARS_ON_REALM,
     LOGIN_SEL_ACCOUNT_BY_IP,
+    LOGIN_SEL_REALM_CHARACTER_COUNTS,
     LOGIN_INS_IP_BANNED,
     LOGIN_DEL_IP_NOT_BANNED,
     LOGIN_SEL_IP_BANNED_ALL,
@@ -75,6 +79,7 @@ enum LoginDatabaseStatements : uint32
     LOGIN_UPD_BATTLEPAY_VP_COINS,
     LOGIN_INS_WOW_TOKEN,
     LOGIN_UPD_ACCOUNT_LOCK,
+    LOGIN_UPD_ACCOUNT_LOCK_COUNTRY,
     LOGIN_INS_LOG,
     LOGIN_UPD_USERNAME,
     LOGIN_UPD_PASSWORD,
@@ -95,8 +100,6 @@ enum LoginDatabaseStatements : uint32
     LOGIN_SEL_ACCOUNT_INFO,
     LOGIN_SEL_ACCOUNT_ACCESS_GMLEVEL_TEST,
     LOGIN_SEL_ACCOUNT_ACCESS,
-    LOGIN_SEL_ACCOUNT_RECRUITER,
-    LOGIN_SEL_BANS,
     LOGIN_SEL_ACCOUNT_WHOIS,
     LOGIN_SEL_REALMLIST_SECURITY_LEVEL,
     LOGIN_DEL_ACCOUNT,
@@ -130,6 +133,9 @@ enum LoginDatabaseStatements : uint32
     LOGIN_GET_ACCOUNT_ACCESS_GMLEVEL,
 
     LOGIN_INS_ARENA_GAMES,
+    LOGIN_SEL_RBAC_ACCOUNT_PERMISSIONS,
+    LOGIN_INS_RBAC_ACCOUNT_PERMISSION,
+    LOGIN_DEL_RBAC_ACCOUNT_PERMISSION,
 
     MAX_LOGINDATABASE_STATEMENTS
 };
@@ -140,8 +146,7 @@ public:
     typedef LoginDatabaseStatements Statements;
 
     //- Constructors for sync and async connections
-    LoginDatabaseConnection(MySQLConnectionInfo& connInfo);
-    LoginDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo);
+    LoginDatabaseConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags);
     ~LoginDatabaseConnection();
 
     //- Loads database type specific prepared statements

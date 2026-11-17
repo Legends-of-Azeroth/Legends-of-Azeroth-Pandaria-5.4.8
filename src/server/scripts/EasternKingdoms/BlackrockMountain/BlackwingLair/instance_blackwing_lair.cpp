@@ -67,31 +67,31 @@ class instance_blackwing_lair : public InstanceMapScript
             instance_blackwing_lair_InstanceMapScript(Map* map) : InstanceScript(map) { }
             uint32 m_auiEncounter[MAX_TYPES];
 
-            std::list<uint64> EggList;
+            std::list<ObjectGuid> EggList;
             // Misc
             EventMap _events;
             // Razorgore
             uint8 EggCount;
             uint32 EggEvent;
-            uint64 RazorgoreTheUntamedGUID;
+            ObjectGuid RazorgoreTheUntamedGUID;
 
             // Vaelastrasz the Corrupt
-            uint64 VaelastraszTheCorruptGUID;
+            ObjectGuid VaelastraszTheCorruptGUID;
 
             // Broodlord Lashlayer
-            uint64 BroodlordLashlayerGUID;
+            ObjectGuid BroodlordLashlayerGUID;
 
             // 3 Dragons
-            uint64 FiremawGUID;
-            uint64 EbonrocGUID;
-            uint64 FlamegorGUID;
+            ObjectGuid FiremawGUID;
+            ObjectGuid EbonrocGUID;
+            ObjectGuid FlamegorGUID;
 
             // Chormaggus
-            uint64 ChromaggusGUID;
+            ObjectGuid ChromaggusGUID;
 
             // Nefarian
-            uint64 LordVictorNefariusGUID;
-            uint64 NefarianGUID;
+            ObjectGuid LordVictorNefariusGUID;
+            ObjectGuid NefarianGUID;
 
             void Initialize() override
             {
@@ -100,21 +100,21 @@ class instance_blackwing_lair : public InstanceMapScript
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
                 // Razorgore
                 EggCount = 0;
-                RazorgoreTheUntamedGUID = 0;
+                RazorgoreTheUntamedGUID = ObjectGuid::Empty;
                 EggList.clear();
                 // Vaelastrasz the Corrupt
-                VaelastraszTheCorruptGUID = 0;
+                VaelastraszTheCorruptGUID = ObjectGuid::Empty;
                 // Broodlord Lashlayer
-                BroodlordLashlayerGUID = 0;
+                BroodlordLashlayerGUID = ObjectGuid::Empty;
                 // 3 Dragons
-                FiremawGUID = 0;
-                EbonrocGUID = 0;
-                FlamegorGUID = 0;
+                FiremawGUID = ObjectGuid::Empty;
+                EbonrocGUID = ObjectGuid::Empty;
+                FlamegorGUID = ObjectGuid::Empty;
                 // Chormaggus
-                ChromaggusGUID = 0;
+                ChromaggusGUID = ObjectGuid::Empty;
                 // Nefarian
-                LordVictorNefariusGUID = 0;
-                NefarianGUID = 0;
+                LordVictorNefariusGUID = ObjectGuid::Empty;
+                NefarianGUID = ObjectGuid::Empty;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -218,7 +218,7 @@ class instance_blackwing_lair : public InstanceMapScript
                 return true;
             }
 
-            uint64 GetData64(uint32 id) const override
+            ObjectGuid GetGuidData(uint32 id) const override
             {
                 switch (id)
                 {
@@ -233,7 +233,7 @@ class instance_blackwing_lair : public InstanceMapScript
                     case DATA_NEFARIAN:               return NefarianGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void SetData(uint32 type, uint32 data) override

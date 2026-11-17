@@ -97,7 +97,7 @@ class npc_ymirjar_flamebearer : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.ScheduleEvent(EVENT_FIREBALL, 4000);
                 _events.ScheduleEvent(EVENT_TACTICAL_BLINK, 15000);
@@ -163,7 +163,7 @@ class npc_iceborn_protodrake : public CreatureScript
                 _frostBreathCooldown = 5000;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _vehicle->RemoveAllPassengers();
             }
@@ -209,7 +209,7 @@ class npc_wrathbone_laborer : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.ScheduleEvent(EVENT_BLINDING_DIRT, 3000);
                 _events.ScheduleEvent(EVENT_PUNCTURE_WOUND, urand(3000, 5000));
@@ -349,7 +349,7 @@ class npc_fallen_warrior : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_ARCING_SLICE, 8000);
                 events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, 20000);
@@ -411,7 +411,7 @@ class npc_plagueborn_horror : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_BLIGHT_BOMB, 5000);
                 events.ScheduleEvent(EVENT_PUSTULANT_FLESH, urand(1000, 5000));
@@ -486,7 +486,7 @@ class npc_ymirjar_skycaller : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_FROSTBLADE, 8000);
                 events.ScheduleEvent(EVENT_GLACIAL_STRIKE, 5000);

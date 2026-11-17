@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -81,7 +81,7 @@ public:
     {
         npc_mature_netherwing_drakeAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 uiPlayerGUID;
+        ObjectGuid uiPlayerGUID;
 
         bool bCanEat;
         bool bIsEating;
@@ -91,7 +91,7 @@ public:
 
         void Reset() override
         {
-            uiPlayerGUID = 0;
+            uiPlayerGUID = ObjectGuid::Empty;
 
             bCanEat = false;
             bIsEating = false;
@@ -155,7 +155,7 @@ public:
 
                         if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
                         {
-                            player->KilledMonsterCredit(NPC_EVENT_PINGER, 0);
+                            player->KilledMonsterCredit(NPC_EVENT_PINGER, ObjectGuid::Empty);
 
                             if (GameObject* go = player->FindNearestGameObject(GO_CARCASS, 10))
                                 go->Delete();
@@ -219,12 +219,12 @@ public:
     {
         npc_enslaved_netherwing_drakeAI(Creature* creature) : ScriptedAI(creature)
         {
-            PlayerGUID = 0;
+            PlayerGUID = ObjectGuid::Empty;
             Tapped = false;
             Reset();
         }
 
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
         uint32 FlyTimer;
         bool Tapped;
 
@@ -254,13 +254,11 @@ public:
                 Unit* Dragonmaw = me->FindNearestCreature(NPC_DRAGONMAW_SUBJUGATOR, 50);
                 if (Dragonmaw)
                 {
-                    me->AddThreat(Dragonmaw, 100000.0f);
+                    me->GetThreatManager().AddThreat(Dragonmaw, 100000.0f);
                     AttackStart(Dragonmaw);
                 }
 
-                HostileReference* ref = me->getThreatManager().getOnlineContainer().getReferenceByTarget(caster);
-                if (ref)
-                    ref->removeReference();
+                me->GetThreatManager().ClearThreat(caster);
             }
         }
 
@@ -277,7 +275,7 @@ public:
                     if (player)
                         DoCast(player, SPELL_FORCE_OF_NELTHARAKU, true);
 
-                    PlayerGUID = 0;
+                    PlayerGUID = ObjectGuid::Empty;
                 }
                 me->SetVisible(false);
                 me->SetDisableGravity(false);
@@ -311,10 +309,10 @@ public:
 
                                 Position pos;
                                 if (Unit* EscapeDummy = me->FindNearestCreature(NPC_ESCAPE_DUMMY, 30))
-                                    EscapeDummy->GetPosition(&pos);
+                                    pos = EscapeDummy->GetPosition();
                                 else
                                 {
-                                    me->GetRandomNearPosition(pos, 20);
+                                    pos = me->GetRandomNearPosition(20);
                                     pos.m_positionZ += 25;
                                 }
 
@@ -350,13 +348,13 @@ public:
     {
         npc_dragonmaw_peonAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
         bool Tapped;
         uint32 PoisonTimer;
 
         void Reset() override
         {
-            PlayerGUID = 0;
+            PlayerGUID = ObjectGuid::Empty;
             Tapped = false;
             PoisonTimer = 0;
         }
@@ -401,7 +399,7 @@ public:
                     {
                         Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
                         if (player && player->GetQuestStatus(11020) == QUEST_STATUS_INCOMPLETE)
-                            player->KilledMonsterCredit(23209, 0);
+                            player->KilledMonsterCredit(23209, ObjectGuid::Empty);
                     }
                     PoisonTimer = 0;
                     me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -659,7 +657,7 @@ class npc_karynaku : public CreatureScript
                 player->ActivateTaxiPathTo(TAXI_PATH_ID);
 
             if (quest->GetQuestId() == QUEST_ZUHULED_THE_WACK)
-                creature->SummonCreature(NPC_ZUHULED_THE_WACKED, -4204.94f, 316.397f, 122.508f, 1.309f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
+                creature->SummonCreature(NPC_ZUHULED_THE_WACKED, -4204.94f, 316.397f, 122.508f, 1.309f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000ms);
 
             return true;
         }
@@ -727,8 +725,8 @@ public:
     {
         npc_overlord_morghorAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 PlayerGUID;
-        uint64 IllidanGUID;
+        ObjectGuid PlayerGUID;
+        ObjectGuid IllidanGUID;
 
         uint32 ConversationTimer;
         uint32 Step;
@@ -737,8 +735,8 @@ public:
 
         void Reset() override
         {
-            PlayerGUID = 0;
-            IllidanGUID = 0;
+            PlayerGUID = ObjectGuid::Empty;
+            IllidanGUID = ObjectGuid::Empty;
 
             ConversationTimer = 0;
             Step = 0;
@@ -750,8 +748,8 @@ public:
         void StartEvent()
         {
             me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
-            me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
-            Unit* Illidan = me->SummonCreature(C_ILLIDAN, -5107.83f, 602.584f, 85.2393f, 4.92598f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+            me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+            Unit* Illidan = me->SummonCreature(C_ILLIDAN, -5107.83f, 602.584f, 85.2393f, 4.92598f, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
             if (Illidan)
             {
                 IllidanGUID = Illidan->GetGUID();
@@ -823,7 +821,7 @@ public:
                     return 4500;
                     break;
                 case 8:
-                    me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8);
+                    me->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
                     return 2500;
                     break;
                 case 9:
@@ -902,7 +900,7 @@ public:
                     return 1000;
                     break;
                 case 23:
-                    me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
+                    me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                     return 2000;
                     break;
                 case 24:
@@ -942,7 +940,7 @@ public:
                 case 30:
                     {
                         if (Creature* Yarzill = me->FindNearestCreature(C_YARZILL, 50.0f))
-                            Yarzill->SetTarget(0);
+                            Yarzill->SetTarget(ObjectGuid::Empty);
                         return 5000;
                     }
                     break;
@@ -958,7 +956,7 @@ public:
                     return 5000;
                     break;
                 case 33:
-                    me->SetTarget(0);
+                    me->SetTarget(ObjectGuid::Empty);
                     Reset();
                     return 100;
                     break;
@@ -1019,7 +1017,7 @@ public:
             creature->SetFaction(FACTION_EARTHEN);
 
             if (npc_earthmender_wildaAI* pEscortAI = CAST_AI(npc_earthmender_wilda::npc_earthmender_wildaAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID(), quest);
+                pEscortAI->Start(false, player->GetGUID(), quest);
         }
         return true;
     }
@@ -1029,9 +1027,9 @@ public:
         return new npc_earthmender_wildaAI(creature);
     }
 
-    struct npc_earthmender_wildaAI : public npc_escortAI
+    struct npc_earthmender_wildaAI : public EscortAI
     {
-        npc_earthmender_wildaAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_earthmender_wildaAI(Creature* creature) : EscortAI(creature) { }
 
         uint32 m_uiHealingTimer;
 
@@ -1040,7 +1038,7 @@ public:
             m_uiHealingTimer = 0;
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -1113,10 +1111,10 @@ public:
         void DoSpawnAssassin()
         {
             //unknown where they actually appear
-            DoSummon(NPC_COILSKAR_ASSASSIN, me, 15.0f, 5000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
+            DoSummon(NPC_COILSKAR_ASSASSIN, me, 15.0f, 5000ms, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             //don't always use
             if (rand()%5)
@@ -1133,7 +1131,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (!UpdateVictim())
                 return;
@@ -1267,8 +1265,8 @@ public:
 
         uint8 AnimationCount;
 
-        uint64 LordIllidanGUID;
-        uint64 AggroTargetGUID;
+        ObjectGuid LordIllidanGUID;
+        ObjectGuid AggroTargetGUID;
 
         bool Timers;
 
@@ -1276,16 +1274,16 @@ public:
         {
             AnimationTimer = 4000;
             AnimationCount = 0;
-            LordIllidanGUID = 0;
-            AggroTargetGUID = 0;
+            LordIllidanGUID = ObjectGuid::Empty;
+            AggroTargetGUID = ObjectGuid::Empty;
             Timers = false;
 
             me->AddUnitState(UNIT_STATE_ROOT);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetTarget(0);
+            me->SetTarget(ObjectGuid::Empty);
         }
 
-        void EnterCombat(Unit* /*who*/)override { }
+        void JustEngagedWith(Unit* /*who*/)override { }
 
         void HandleAnimation()
         {
@@ -1304,16 +1302,16 @@ public:
             switch (AnimationCount)
             {
             case 0:
-                me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8);
+                me->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
                 break;
             case 3:
-                me->RemoveFlag(UNIT_FIELD_ANIM_TIER, 8);
+                me->RemoveFlag(UNIT_FIELD_BYTES_1, 8);
                 break;
             case 5:
                 if (Player* AggroTarget = ObjectAccessor::GetPlayer(*me, AggroTargetGUID))
                 {
                     me->SetTarget(AggroTarget->GetGUID());
-                    me->AddThreat(AggroTarget, 1);
+                    me->GetThreatManager().AddThreat(AggroTarget, 1);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
                 }
                 break;
@@ -1418,7 +1416,7 @@ public:
     {
         npc_lord_illidan_stormrageAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         uint32 WaveTimer;
         uint32 AnnounceTimer;
@@ -1432,7 +1430,7 @@ public:
 
         void Reset() override
         {
-            PlayerGUID = 0;
+            PlayerGUID = ObjectGuid::Empty;
 
             WaveTimer = 10000;
             AnnounceTimer = 7000;
@@ -1446,7 +1444,7 @@ public:
             me->SetVisible(false);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
         void AttackStart(Unit* /*who*/) override { }
@@ -1560,17 +1558,17 @@ public:
     {
         npc_illidari_spawnAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 LordIllidanGUID;
+        ObjectGuid LordIllidanGUID;
         uint32 SpellTimer1, SpellTimer2, SpellTimer3;
         bool Timers;
 
         void Reset() override
         {
-            LordIllidanGUID = 0;
+            LordIllidanGUID = ObjectGuid::Empty;
             Timers = false;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void JustDied(Unit* /*killer*/) override
         {
@@ -1675,7 +1673,7 @@ void npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI::SummonNextWave()
         float Y = SpawnLocation[locIndex + i].y;
         float Z = SpawnLocation[locIndex + i].z;
         float O = SpawnLocation[locIndex + i].o;
-        Spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, X, Y, Z, O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+        Spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, X, Y, Z, O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000ms);
         ++LiveCount;
 
         if (Spawn)
@@ -1817,7 +1815,7 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/)override { }
+        void JustEngagedWith(Unit* /*who*/)override { }
 
         void JustDied(Unit* /*killer*/) override
         {
@@ -1858,7 +1856,7 @@ public:
             Unit* totemOspirits = NULL;
 
             if (entry != 0)
-                Summoned = DoSpawnCreature(entry, 0, 0, 1, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5000);
+                Summoned = DoSpawnCreature(entry, 0, 0, 1, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5000ms);
 
             // FIND TOTEM, PROCESS QUEST
             if (Summoned)
@@ -1871,7 +1869,7 @@ public:
 
                      if (Unit* owner = totemOspirits->GetOwner())
                          if (Player* player = owner->ToPlayer())
-                             player->KilledMonsterCredit(credit, 0);
+                             player->KilledMonsterCredit(credit, ObjectGuid::Empty);
                      DoCast(totemOspirits, SPELL_SOUL_CAPTURED);
                  }
             }
@@ -1938,7 +1936,7 @@ public:
         void Reset() override
         {
             tapped = false;
-            tuberGUID = 0;
+            tuberGUID = ObjectGuid::Empty;
             resetTimer = 60000;
         }
 
@@ -1993,7 +1991,7 @@ public:
         }
     private:
         bool tapped;
-        uint64 tuberGUID;
+        ObjectGuid tuberGUID;
         uint32 resetTimer;
     };
 

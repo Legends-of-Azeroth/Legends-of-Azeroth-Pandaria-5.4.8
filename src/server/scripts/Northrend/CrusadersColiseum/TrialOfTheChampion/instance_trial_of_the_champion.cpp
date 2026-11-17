@@ -39,17 +39,17 @@ class instance_trial_of_the_champion : public InstanceMapScript
             uint32 memoryEntry;
             uint32 grandChampionEntry[3];
 
-            uint64 announcerGUID;
-            uint64 mainGateGUID;
-            uint64 portcullisGUID;
-            uint64 grandChampion1GUID;
-            uint64 grandChampion2GUID;
-            uint64 grandChampion3GUID;
-            uint64 championLootGUID;
-            uint64 argentChampionGUID;
-            uint64 blackKnightGUID;
+            ObjectGuid announcerGUID;
+            ObjectGuid mainGateGUID;
+            ObjectGuid portcullisGUID;
+            ObjectGuid grandChampion1GUID;
+            ObjectGuid grandChampion2GUID;
+            ObjectGuid grandChampion3GUID;
+            ObjectGuid championLootGUID;
+            ObjectGuid argentChampionGUID;
+            ObjectGuid blackKnightGUID;
 
-            std::list<uint64> vehicleList;
+            std::list<ObjectGuid> vehicleList;
             std::string str_data;
 
             void Initialize() override
@@ -63,15 +63,15 @@ class instance_trial_of_the_champion : public InstanceMapScript
                 for (uint8 i = 0; i < 3; ++i)
                     grandChampionEntry[i] = 0;
 
-                announcerGUID = 0;
-                mainGateGUID = 0;
-                portcullisGUID = 0;
-                grandChampion1GUID = 0;
-                grandChampion2GUID = 0;
-                grandChampion3GUID = 0;
-                championLootGUID = 0;
-                argentChampionGUID = 0;
-                blackKnightGUID = 0;
+                announcerGUID = ObjectGuid::Empty;
+                mainGateGUID = ObjectGuid::Empty;
+                portcullisGUID = ObjectGuid::Empty;
+                grandChampion1GUID = ObjectGuid::Empty;
+                grandChampion2GUID = ObjectGuid::Empty;
+                grandChampion3GUID = ObjectGuid::Empty;
+                championLootGUID = ObjectGuid::Empty;
+                argentChampionGUID = ObjectGuid::Empty;
+                blackKnightGUID = ObjectGuid::Empty;
 
                 vehicleList.clear();
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
@@ -240,7 +240,7 @@ class instance_trial_of_the_champion : public InstanceMapScript
                         movementDone = data;
                         if (movementDone == 3)
                         {
-                            if (Creature* announcer = instance->GetCreature(GetData64(DATA_ANNOUNCER)))
+                            if (Creature* announcer = instance->GetCreature(GetGuidData(DATA_ANNOUNCER)))
                                 announcer->AI()->SetData(DATA_IN_POSITION, 0);
                         }
                         break;
@@ -258,7 +258,7 @@ class instance_trial_of_the_champion : public InstanceMapScript
                             if (grandChampionsDeaths >= 3)
                             {
                                 for (uint8 i = 0; i < 3; ++i)
-                                    if (Creature* GrandChampion = instance->GetCreature(GetData64(DATA_GRAND_CHAMPION_1 + i)))
+                                    if (Creature* GrandChampion = instance->GetCreature(GetGuidData(DATA_GRAND_CHAMPION_1 + i)))
                                         GrandChampion->AI()->SetData(11, 0);
 
                                 if (Creature* announcer = instance->GetCreature(announcerGUID))
@@ -374,7 +374,7 @@ class instance_trial_of_the_champion : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -388,10 +388,10 @@ class instance_trial_of_the_champion : public InstanceMapScript
                     case DATA_BLACK_KNIGHT:            return blackKnightGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
-            void SetData64(uint32 type, uint64 data) override
+            void SetGuidData(uint32 type, ObjectGuid data) override
             {
                 switch (type)
                 {

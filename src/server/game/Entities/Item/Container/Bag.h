@@ -55,7 +55,7 @@ class TC_GAME_API Bag : public Item
         // overwrite virtual Item::SaveToDB
         void SaveToDB(CharacterDatabaseTransaction trans);
         // overwrite virtual Item::LoadFromDB
-        bool LoadFromDB(uint32 guid, uint64 ownerGuid, Field* fields, uint32 entry, Player* owner);
+        bool LoadFromDB(uint32 guid, ObjectGuid ownerGuid, Field* fields, uint32 entry, Player* owner);
         // overwrite virtual Item::DeleteFromDB
         void DeleteFromDB(CharacterDatabaseTransaction trans);
 

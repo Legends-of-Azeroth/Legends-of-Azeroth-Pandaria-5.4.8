@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -110,7 +110,7 @@ void Totem::UnSummon(uint32 msTime)
     {
         if (GetOwner()->m_SummonSlot[i] == GetGUID())
         {
-            GetOwner()->m_SummonSlot[i] = 0;
+            GetOwner()->m_SummonSlot[i].Clear();
             break;
         }
     }

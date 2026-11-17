@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -94,7 +94,7 @@ class npc_brewmaster_blanche : public CreatureScript
     public:
         npc_brewmaster_blanche() : CreatureScript("npc_brewmaster_blanche") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
         {
             player->PlayerTalkClass->ClearMenus();
 
@@ -119,7 +119,7 @@ class npc_brewmaster_blanche : public CreatureScript
             return true;
         }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature) override
         {
             if (InstanceScript* instance = creature->GetInstanceScript())
             {
@@ -327,7 +327,7 @@ class npc_brewmaster_blanche : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
             }
@@ -453,13 +453,13 @@ class npc_brewmaster_blanche : public CreatureScript
                 return false;
             }
 
-            uint64 SelectAnyStalkerGUID(uint32 npc_entry)
+            ObjectGuid SelectAnyStalkerGUID(uint32 npc_entry)
             {
                 std::list<Creature*> StalkerList;
                 GetCreatureListWithEntryInGrid(StalkerList, me, npc_entry, 30.0f);
 
                 if (StalkerList.empty())
-                    return 0;
+                    return ObjectGuid::Empty;
 
                 return Trinity::Containers::SelectRandomContainerElement(StalkerList)->GetGUID();
             }
@@ -493,7 +493,7 @@ struct npc_viletongue_sauroks : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         if (who)
             DoCast(who, SPELL_LEAPING_CLEAVE);
@@ -588,7 +588,7 @@ struct npc_viletongue_stalker : public ScriptedAI
 
     void Reset() override
     {
-        me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+        me->SetDisplayFromModel(1);
     }
 
     void DoAction(int32 actionId) override
@@ -598,7 +598,7 @@ struct npc_viletongue_stalker : public ScriptedAI
             case ACTION_VILETONGUE_AT_GROUND:
                 for (uint8 i = 0; i < 2; i++)
                 {
-                    if (Creature* blanche = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_BREWMASTER_BLANCHE) : 0))
+                    if (Creature* blanche = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_BREWMASTER_BLANCHE) : ObjectGuid::Empty))
                         if (Creature* raider = blanche->SummonCreature(NPC_VILETONGUE_RAIDER, me->GetPositionX() + frand(-3.0f, 5.0f), me->GetPositionY() + frand(-2.0f, 3.0f), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN))
                             raider->SetInCombatWithZone();
                 }
@@ -606,7 +606,7 @@ struct npc_viletongue_stalker : public ScriptedAI
             case ACTION_VILETONGUE_AT_HILL:
                 for (uint8 i = 0; i < 2; i++)
                 {
-                    if (Creature* blanche = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_BREWMASTER_BLANCHE) : 0))
+                    if (Creature* blanche = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_BREWMASTER_BLANCHE) : ObjectGuid::Empty))
                     {
                         if (Creature* skirmisher = blanche->SummonCreature(NPC_VILETONGUE_SKIRMISHER, me->GetPositionX() + frand(-2.0f, 2.0f), me->GetPositionY() + frand(-1.0f, 1.0f), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN))
                         {
@@ -625,7 +625,7 @@ struct npc_viletongue_stalker : public ScriptedAI
         Position pos;
         // Main method for calculate position for jump into ground from hill
         // diff between stalker that`ll spawn creature and current location around 7-8y
-        Position CalculateGroundPos(Position cur, uint64 viletongueGUID)
+        Position CalculateGroundPos(Position cur, ObjectGuid viletongueGUID)
         {
             float x = 0, y = 0, z = 4.5f, o = cur.GetOrientation();
 
@@ -662,7 +662,7 @@ struct npc_borokhula_the_destroyer : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_SWAMP_SMASH, urand(3 * IN_MILLISECONDS, 8 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_EARTH_SHATTERING, urand(12 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
@@ -685,7 +685,7 @@ struct npc_borokhula_the_destroyer : public ScriptedAI
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PACIFIED);
             me->SetInCombatWithZone();
 
-            if (Creature* blanche = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_BREWMASTER_BLANCHE) : 0))
+            if (Creature* blanche = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_BREWMASTER_BLANCHE) : ObjectGuid::Empty))
                 blanche->AI()->Talk(TALK_BOROKHALA_INTRO);
         }
     }
@@ -696,7 +696,7 @@ struct npc_borokhula_the_destroyer : public ScriptedAI
         {
             SayAtLow = true;
 
-            if (Creature* Blanche = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_BREWMASTER_BLANCHE) : 0))
+            if (Creature* Blanche = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_BREWMASTER_BLANCHE) : ObjectGuid::Empty))
                 Blanche->AI()->Talk(TALK_BOROKHALA_LOW);
         }
     }
@@ -707,7 +707,7 @@ struct npc_borokhula_the_destroyer : public ScriptedAI
         {
             instance->SetData(DATA_SAVE_THUNDERPAW_REFUGE, DONE);
 
-            if (Creature* blanche = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_BREWMASTER_BLANCHE)))
+            if (Creature* blanche = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_BREWMASTER_BLANCHE)))
             {
                 blanche->AI()->Talk(TALK_SCENARIO_END);
 
@@ -765,7 +765,7 @@ struct npc_viletongue_decimator : public ScriptedAI
         summons.DespawnAll();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_TORCH_TOSS, urand(7 * IN_MILLISECONDS, 10 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_WIND_SLASH, 5 * IN_MILLISECONDS);
@@ -819,11 +819,11 @@ class spell_brewing_storm_lightning_impact : public SpellScript
         {
             target->CastSpell(target, SPELL_ON_FIRE, true);
 
-            if (Creature* Blanche = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript() ? GetCaster()->GetInstanceScript()->GetData64(NPC_BREWMASTER_BLANCHE) : 0))
+            if (Creature* Blanche = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript() ? GetCaster()->GetInstanceScript()->GetGuidData(NPC_BREWMASTER_BLANCHE) : ObjectGuid::Empty))
                 Blanche->GetAI()->DoAction(ACTION_BREW_POWER);
         }
         else if (Player* target = GetHitPlayer())
-            if (Creature* blanche = ObjectAccessor::GetCreature(*target, target->GetInstanceScript() ? target->GetInstanceScript()->GetData64(NPC_BREWMASTER_BLANCHE) : 0))
+            if (Creature* blanche = ObjectAccessor::GetCreature(*target, target->GetInstanceScript() ? target->GetInstanceScript()->GetGuidData(NPC_BREWMASTER_BLANCHE) : ObjectGuid::Empty))
                 blanche->AI()->SetData(TYPE_HIT_BY_ROAD, 0);
     }
 

@@ -100,7 +100,7 @@ public:
 
         bool EventActive;
         bool IsMovingToLunch;
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
         uint32 EventTimer;
         uint8 EventPhase;
 
@@ -108,7 +108,7 @@ public:
         {
             EventActive = false;
             IsMovingToLunch = false;
-            PlayerGUID = 0;
+            PlayerGUID = ObjectGuid::Empty;
             EventTimer = 5000;
             EventPhase = 0;
 
@@ -116,7 +116,7 @@ public:
                 me->UpdateEntry(NPC_KYLE_FRENZIED);
         }
 
-        void SpellHit(Unit* Caster, SpellInfo const* Spell)
+        void SpellHit(Unit* Caster, SpellInfo const* Spell) override
         {
             if (!me->GetVictim() && !EventActive && Spell->Id == SPELL_LUNCH)
             {

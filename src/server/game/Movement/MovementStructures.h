@@ -155,20 +155,20 @@ namespace Movement
     class PacketSender
     {
     public:
-        PacketSender(Unit* unit, Opcodes serverControl, Opcodes playerControl, Opcodes broadcast = SMSG_PLAYER_MOVE, ExtraMovementStatusElement* extras = NULL);
+        PacketSender(Unit* unit, uint16 serverControl, uint16 playerControl, uint16 broadcast = SMSG_PLAYER_MOVE, ExtraMovementStatusElement* extras = NULL);
 
         void Send() const;
 
     private:
         ExtraMovementStatusElement* _extraElements;
         Unit* _unit;
-        Opcodes _selfOpcode;
-        Opcodes _broadcast;
+        uint16 _selfOpcode;
+        uint16 _broadcast;
     };
 
     bool PrintInvalidSequenceElement(MovementStatusElements element, char const* function);
 }
 
-MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode);
+MovementStatusElements const* GetMovementStatusElementsSequence(uint32 opcode);
 
 #endif

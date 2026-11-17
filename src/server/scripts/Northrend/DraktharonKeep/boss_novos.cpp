@@ -137,9 +137,9 @@ class boss_novos : public CreatureScript
                 SetBubbled(false);
             }
 
-            void EnterCombat(Unit* /*victim*/) override
+            void JustEngagedWith(Unit* /*victim*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
                 SetCrystalsStatus(true);
@@ -277,7 +277,7 @@ class boss_novos : public CreatureScript
             void SetSummonerStatus(bool active)
             {
                 for (auto&& summoner : summoners)
-                    if (uint64 guid = instance->GetData64(summoner.data))
+                    if (ObjectGuid guid = instance->GetGuidData(summoner.data))
                         if (Creature* crystalChannelTarget = ObjectAccessor::GetCreature(*me, guid))
                         {
                             if (active)
@@ -295,7 +295,7 @@ class boss_novos : public CreatureScript
             void SetCrystalsStatus(bool active)
             {
                 for (uint8 i = 0; i < 4; i++)
-                    if (uint64 guid = instance->GetData64(DATA_NOVOS_CRYSTAL_1 + i))
+                    if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_CRYSTAL_1 + i))
                         if (GameObject* crystal = ObjectAccessor::GetGameObject(*me, guid))
                             SetCrystalStatus(crystal, active);
             }
@@ -315,7 +315,7 @@ class boss_novos : public CreatureScript
             void CrystalHandlerDied()
             {
                 for (uint8 i = 0; i < 4; i++)
-                    if (uint64 guid = instance->GetData64(DATA_NOVOS_CRYSTAL_1 + i))
+                    if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_CRYSTAL_1 + i))
                         if (GameObject* crystal = ObjectAccessor::GetGameObject(*me, guid))
                             if (crystal->GetGoState() == GO_STATE_ACTIVE)
                             {
@@ -391,7 +391,7 @@ class npc_crystal_channel_target : public CreatureScript
             void JustSummoned(Creature* summon) override
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
-                    if (uint64 guid = instance->GetData64(DATA_NOVOS))
+                    if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS))
                         if (Creature* novos = ObjectAccessor::GetCreature(*me, guid))
                             novos->AI()->JustSummoned(summon);
 
@@ -538,7 +538,7 @@ class spell_novos_summon_minions : public SpellScriptLoader
         {
             PrepareSpellScript(spell_novos_summon_minions_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_COPY_OF_MINIONS))
                     return false;

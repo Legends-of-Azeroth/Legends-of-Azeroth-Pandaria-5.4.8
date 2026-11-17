@@ -123,9 +123,9 @@ class boss_commander_springvale : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_TO_THE_GROUND, 1);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -179,8 +179,8 @@ class boss_commander_springvale : public CreatureScript
                             break;
                         case EVENT_ADDS:
                             Talk(SAY_ADDS);
-                            me->SummonCreature(NPC_SPRINGVALE_OFFICER, addSpawnPos[0],TEMPSUMMON_CORPSE_DESPAWN, 10000);
-                            me->SummonCreature(NPC_SPRINGVALE_GUARD, addSpawnPos[1],TEMPSUMMON_CORPSE_DESPAWN, 10000);
+                            me->SummonCreature(NPC_SPRINGVALE_OFFICER, addSpawnPos[0],TEMPSUMMON_CORPSE_DESPAWN, 10000ms);
+                            me->SummonCreature(NPC_SPRINGVALE_GUARD, addSpawnPos[1],TEMPSUMMON_CORPSE_DESPAWN, 10000ms);
                             events.ScheduleEvent(EVENT_ADDS, 45000);
                             break;
                         case EVENT_WORD_OF_SHAME:
@@ -245,7 +245,7 @@ class npc_springvale_wailing_guardsman : public CreatureScript
                 events.Reset();
             }
             
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_MORTAL_STRIKE, 3000);
                 events.ScheduleEvent(EVENT_SCREAMS_OF_THE_PAST, urand(15000, 20000));    
@@ -275,7 +275,7 @@ class npc_springvale_wailing_guardsman : public CreatureScript
                             events.ScheduleEvent(EVENT_SCREAMS_OF_THE_PAST, urand(15000, 20000));
                             break;
                         case EVENT_UNHOLY_EMPOWERMENT:
-                            if (Creature* springvale = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SPRINGVALE)))
+                            if (Creature* springvale = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SPRINGVALE)))
                                 DoCast(springvale, SPELL_UNHOLY_EMPOWERMENT);
                             events.ScheduleEvent(EVENT_UNHOLY_EMPOWERMENT, 15000);
                             break;
@@ -311,7 +311,7 @@ class npc_springvale_tormented_officer : public CreatureScript
                 events.Reset();
             }
             
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_UNHOLY_EMPOWERMENT, 15000);
                 events.ScheduleEvent(EVENT_FORSAKEN_ABILITY, urand(10000, 30000));
@@ -336,10 +336,10 @@ class npc_springvale_tormented_officer : public CreatureScript
                             DoCast(SPELL_SHIELD_WALL);
                             break;
                         case EVENT_FORSAKEN_ABILITY:
-                            //todo: реализовать спелл
+                            //todo: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
                             break;
                         case EVENT_UNHOLY_EMPOWERMENT:
-                            if (Creature* springvale = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SPRINGVALE)))
+                            if (Creature* springvale = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SPRINGVALE)))
                                 DoCast(springvale, SPELL_UNHOLY_EMPOWERMENT);
                             events.ScheduleEvent(EVENT_UNHOLY_EMPOWERMENT, 15000);
                             break;

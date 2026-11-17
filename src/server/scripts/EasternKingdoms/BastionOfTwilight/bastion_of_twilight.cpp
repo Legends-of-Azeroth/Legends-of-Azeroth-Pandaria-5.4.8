@@ -118,7 +118,7 @@ class npc_twilight_portal_shaper: public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 1000);
                 events.ScheduleEvent(EVENT_SHAPE_PORTAL, urand(10000, 15000));
@@ -173,7 +173,7 @@ class npc_twilight_shifter: public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_TWILIGHT_SHIFT, urand(5000, 15000));
             }
@@ -232,7 +232,7 @@ class npc_twilight_shadow_mender: public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 DoCast(me, SPELL_SHADOW_MENDING);
                 events.ScheduleEvent(EVENT_UMBRAL_FLAMES, urand(10000, 13000));
@@ -397,7 +397,7 @@ struct twilight_casterAI : public ScriptedAI
         return false;
     }
 
-    uint64 GetLowestFriendlyGUID()
+    ObjectGuid GetLowestFriendlyGUID()
     {
         std::list<Creature*> tmpTargets;
 
@@ -413,14 +413,14 @@ struct twilight_casterAI : public ScriptedAI
         GetCreatureListWithEntryInGrid(tmpTargets, me, NPC_TWILIGHT_BRUTE, 80.0f);
 
         if (tmpTargets.empty())
-            return 0;
+            return ObjectGuid::Empty;
 
         tmpTargets.sort(Trinity::HealthPctOrderPred());
 
         if (Creature* lowestTarget = tmpTargets.front())
             return lowestTarget->GetGUID();
 
-        return 0;
+        return ObjectGuid::Empty;
     }
 };
 
@@ -455,7 +455,7 @@ class npc_twilight_soul_blade : public CreatureScript
                 HasBarrier = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_SOUL_BLADE);
                 events.ScheduleEvent(EVENT_DARK_POOL, 6.5 * IN_MILLISECONDS);
@@ -535,7 +535,7 @@ class npc_twilight_shadow_knight : public CreatureScript
                 HasBlock = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_DEVASTATE, 6.5 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_DISMANTLE, urand(14.5 * IN_MILLISECONDS, 21 * IN_MILLISECONDS));
@@ -620,7 +620,7 @@ class npc_twilight_dark_mender : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_HUNGERING_SHADOWS, urand(6.5 * IN_MILLISECONDS, 18.5 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_DARK_MENDING, urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
@@ -700,7 +700,7 @@ class npc_twilight_crossfire : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SHOT, urand(2 * IN_MILLISECONDS, 3 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_RAPID_FIRE, urand(10 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
@@ -787,7 +787,7 @@ class npc_twilight_phase_twister : public CreatureScript
                 });
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_PHASE_TWIST, urand(6.5 * IN_MILLISECONDS, 27 * IN_MILLISECONDS));
             }
@@ -848,7 +848,7 @@ class npc_chosen_seer : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_LAVA_BOLT, urand(6.5 * IN_MILLISECONDS, 18.5 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_FIRE_SHOCK, urand(3.5 * IN_MILLISECONDS, 13.8 * IN_MILLISECONDS));
@@ -925,7 +925,7 @@ class npc_chosen_warrior : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_HAMSTRING, urand(6.5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
             }
@@ -987,7 +987,7 @@ class npc_crimsonborne_firestarter : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_CRIMSON_FLAMES, urand(11 * IN_MILLISECONDS, 18.5 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_BURNING_TWILIGHT, urand(3.5 * IN_MILLISECONDS, 23 * IN_MILLISECONDS));
@@ -1071,7 +1071,7 @@ class npc_azureborne_destroyer : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_ARCANE_FISTS, urand(6.5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_STASIS_STRIKE, 16 * IN_MILLISECONDS);
@@ -1138,7 +1138,7 @@ class npc_twilight_brute : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_WHIRLING_BLADES, 12 * IN_MILLISECONDS);
             }
@@ -1199,7 +1199,7 @@ class npc_twilight_elementalist : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_FROST_FIRE_BOLT, urand(4.5 * IN_MILLISECONDS, 5 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_EMPOWER_ELEMENTAL, urand(12 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
@@ -1276,7 +1276,7 @@ class npc_elemental_firelord : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_MOLTEN_BURST, urand(4.5 * IN_MILLISECONDS, 5 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_VOLCANIC_WRATH, urand(15 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
@@ -1351,7 +1351,7 @@ class npc_wind_breaker : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_GALE_WIND, urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_VIOLET_GALE_STORM, 20 * IN_MILLISECONDS);
@@ -1428,7 +1428,7 @@ class npc_earth_ravager : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_PETRIFY_SKIN, urand(5 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_TREMORS, 20 * IN_MILLISECONDS);
@@ -1515,7 +1515,7 @@ class npc_evolved_drakonaar : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_WHIRLING_BLADES, 12 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_CLEAVE, 6 * IN_MILLISECONDS);
@@ -1585,7 +1585,7 @@ class npc_bound_rumbler : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_ENTOMB, urand(5 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_SHOCKWAVE, urand(15 * IN_MILLISECONDS, 22 * IN_MILLISECONDS));
@@ -1661,7 +1661,7 @@ class npc_bound_inferno : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_WARD_OF_COMBUSTION);
                 events.ScheduleEvent(EVENT_FLAMESTRIKE, urand(6.5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
@@ -1727,7 +1727,7 @@ class npc_bound_deluge : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_ICY_SHROUD);
                 events.ScheduleEvent(EVENT_FROST_WHIRL, 10 * IN_MILLISECONDS);
@@ -1806,7 +1806,7 @@ class npc_bound_zephyr : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_LIGHTNING_SHOCK, urand(4.5 * IN_MILLISECONDS, 9 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_RENDING_GALE, urand(12 * IN_MILLISECONDS, 22 * IN_MILLISECONDS));
@@ -2040,9 +2040,9 @@ class npc_bt_instance_portal: public CreatureScript
     public:
         npc_bt_instance_portal() : CreatureScript("npc_bt_instance_portal") { }
 
-        struct npc_bt_instance_portal_AI : public CreatureAI
+        struct npc_bt_instance_portal_AI : public ScriptedAI
         {
-            npc_bt_instance_portal_AI(Creature* creature) : CreatureAI(creature) { }
+            npc_bt_instance_portal_AI(Creature* creature) : ScriptedAI(creature) { }
 
             void OnSpellClick(Unit* clicker, bool& /*result*/) override
             {
@@ -2059,7 +2059,7 @@ class npc_bt_instance_portal: public CreatureScript
                         at = sAreaTriggerStore.LookupEntry(6437);
                     
                     if (at)
-                        clicker->NearTeleportTo(at->x, at->y, at->z, clicker->GetOrientation(), false);
+                        clicker->NearTeleportTo(at->Pos.X, at->Pos.Y, at->Pos.Z, clicker->GetOrientation(), false);
                 }
             }
 

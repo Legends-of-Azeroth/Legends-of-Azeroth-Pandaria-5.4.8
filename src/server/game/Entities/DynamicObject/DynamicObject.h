@@ -56,7 +56,7 @@ class DynamicObject : public WorldObject, public GridObject<DynamicObject>, publ
         void BindToCaster();
         void UnbindFromCaster();
         uint32 GetSpellId() const {  return GetUInt32Value(DYNAMICOBJECT_FIELD_SPELL_ID); }
-        uint64 GetCasterGUID() const { return GetUInt64Value(DYNAMICOBJECT_FIELD_CASTER); }
+        ObjectGuid GetCasterGUID() const { return GetGuidValue(DYNAMICOBJECT_FIELD_CASTER); }
         float GetRadius() const { return GetFloatValue(DYNAMICOBJECT_FIELD_RADIUS); }
 
     private:

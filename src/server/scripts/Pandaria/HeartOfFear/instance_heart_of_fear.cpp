@@ -53,13 +53,13 @@ class instance_heart_of_fear : public InstanceMapScript
                 LoadDoorData(doorData);
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-                zorlokEntranceDoorGuid   = 0;
-                tayakEntranceDoorGuid    = 0;
-                tayakExitDoorGuid        = 0;
-                garalonEntranceDoorGuid  = 0;
-                meljarakExitDoorGuid     = 0;
-                unsokEntranceDoorGuid    = 0;
-                shekzeerEntranceDoorGuid = 0;
+                zorlokEntranceDoorGuid = ObjectGuid::Empty;
+                tayakEntranceDoorGuid = ObjectGuid::Empty;
+                tayakExitDoorGuid = ObjectGuid::Empty;
+                garalonEntranceDoorGuid = ObjectGuid::Empty;
+                meljarakExitDoorGuid = ObjectGuid::Empty;
+                unsokEntranceDoorGuid = ObjectGuid::Empty;
+                shekzeerEntranceDoorGuid = ObjectGuid::Empty;
 
                 HasZorlokEventDone       = 0;
                 HasTayakEventDone        = 0;
@@ -317,7 +317,7 @@ class instance_heart_of_fear : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -354,7 +354,7 @@ class instance_heart_of_fear : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData() override
@@ -469,22 +469,22 @@ class instance_heart_of_fear : public InstanceMapScript
             }
 
         protected:
-            uint64 ZorlokGUID;
-            uint64 TayakGUID;
-            uint64 GaralonGUID;
-            uint64 MeljarakGUID;
-            uint64 UnsokGUID;
-            uint64 ShekzeerGUID;
+            ObjectGuid ZorlokGUID;
+            ObjectGuid TayakGUID;
+            ObjectGuid GaralonGUID;
+            ObjectGuid MeljarakGUID;
+            ObjectGuid UnsokGUID;
+            ObjectGuid ShekzeerGUID;
 
             // Special Doors GUIDs
-            uint64 zorlokEntranceDoorGuid;
-            uint64 tayakEntranceDoorGuid;
-            uint64 tayakExitDoorGuid;
-            uint64 garalonEntranceDoorGuid;
-            uint64 garalonExitDoorGuid;
-            uint64 meljarakExitDoorGuid;
-            uint64 unsokEntranceDoorGuid;
-            uint64 shekzeerEntranceDoorGuid;
+            ObjectGuid zorlokEntranceDoorGuid;
+            ObjectGuid tayakEntranceDoorGuid;
+            ObjectGuid tayakExitDoorGuid;
+            ObjectGuid garalonEntranceDoorGuid;
+            ObjectGuid garalonExitDoorGuid;
+            ObjectGuid meljarakExitDoorGuid;
+            ObjectGuid unsokEntranceDoorGuid;
+            ObjectGuid shekzeerEntranceDoorGuid;
 
             // Post Events Save Data
             uint32 HasZorlokEventDone;

@@ -264,13 +264,13 @@ struct boss_horAI : ScriptedAI
         me->SetReactState(REACT_PASSIVE);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         instance->SetData(DATA_WAVE_COUNT, NOT_STARTED);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage)
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
         if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             damage = 0;

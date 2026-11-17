@@ -921,31 +921,31 @@ class BattlegroundIC : public Battleground
 
         /* inherited from BattlegroundClass */
         void AddPlayer(Player *plr) override;
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
-        virtual void PostUpdateImpl(uint32 diff);
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
+        void PostUpdateImpl(uint32 diff) override;
 
-        void RemovePlayer(Player* plr, uint64 guid, uint32 team);
-        void HandleAreaTrigger(Player* player, uint32 trigger);
-        bool SetupBattleground();
-        void HandleKillUnit(Creature* unit, Player* killer);
-        void HandleKillPlayer(Player* player, Player* killer);
+        void RemovePlayer(Player* plr, ObjectGuid guid, uint32 team) override;
+        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
+        bool SetupBattleground() override;
+        void HandleKillUnit(Creature* unit, Player* killer) override;
+        void HandleKillPlayer(Player* player, Player* killer) override;
         void EndBattleground(uint32 winner);
-        void EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj*/);
+        void EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj*/) override;
 
         void ActivateBoss(uint8 faction, bool visible = true);
-        void DestroyGate(Player* pl, GameObject* go);
+        void DestroyGate(Player* pl, GameObject* go) override;
 
-        virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
 
         /* Scorekeeping */
-        void UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
 
-        void FillInitialWorldStates(WorldStateBuilder& builder);
+        void FillInitialWorldStates(WorldStateBuilder& builder) override;
 
-        void DoAction(uint32 action, uint64 var);
+        void DoAction(uint32 action, ObjectGuid var) override;
 
-        virtual void HandlePlayerResurrect(Player* player);
+        void HandlePlayerResurrect(Player* player) override;
 
         uint32 GetNodeState(uint8 nodeType) const { return (uint8)nodePoint[nodeType].nodeState; }
 
@@ -954,7 +954,7 @@ class BattlegroundIC : public Battleground
         bool IsSpellAllowed(uint32 spellId, Player const* player) const override;
 
         // Achievement: Resource Glut
-        bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target = NULL, uint32 miscvalue1 = 0);
+        bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target = NULL, uint32 miscvalue1 = 0) override;
 
     private:
         uint32 closeFortressDoorsTimer;

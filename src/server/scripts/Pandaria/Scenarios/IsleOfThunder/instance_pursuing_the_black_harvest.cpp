@@ -33,14 +33,14 @@ class instance_pursuing_the_black_harvest : public InstanceMapScript
 
             uint32 m_auiEncounter[CHAPTERS];
             uint32 chapterOne, chapterTwo, chapterThree, chapterFour, chapterFive, chapterSix, chapterSeven, chapterEight, chapterEleven;
-            uint64 playerGUID;
-            uint64 akamaGUID;
-            uint64 essenceOrderGUID;
-            uint64 kanrethardGUID;
-            uint64 jubekaGUID;
-            uint64 soulwellGUID;
-            uint64 demongateGUID;
-            std::vector<uint64> unboundDemonsList;
+            ObjectGuid playerGUID;
+            ObjectGuid akamaGUID;
+            ObjectGuid essenceOrderGUID;
+            ObjectGuid kanrethardGUID;
+            ObjectGuid jubekaGUID;
+            ObjectGuid soulwellGUID;
+            ObjectGuid demongateGUID;
+            std::vector<ObjectGuid> unboundDemonsList;
 
             void Initialize() override
             {
@@ -56,13 +56,13 @@ class instance_pursuing_the_black_harvest : public InstanceMapScript
                 chapterSeven     = 0;
                 chapterEight     = 0;
                 chapterEleven    = 0;
-                playerGUID       = 0;
-                akamaGUID        = 0;
-                essenceOrderGUID = 0;
-                kanrethardGUID   = 0;
-                jubekaGUID       = 0;
-                soulwellGUID     = 0;
-                demongateGUID    = 0;
+                playerGUID = ObjectGuid::Empty;
+                akamaGUID = ObjectGuid::Empty;
+                essenceOrderGUID = ObjectGuid::Empty;
+                kanrethardGUID = ObjectGuid::Empty;
+                jubekaGUID = ObjectGuid::Empty;
+                soulwellGUID = ObjectGuid::Empty;
+                demongateGUID = ObjectGuid::Empty;
 
                 unboundDemonsList.clear();
             }
@@ -138,7 +138,7 @@ class instance_pursuing_the_black_harvest : public InstanceMapScript
                             if (Player* player = itr.GetSource())
                                 sScenarioMgr->SendScenarioState(player, 1112, STEP_FOLLOW_AKAMA, 0);
 
-                        if (Creature* akama = instance->GetCreature(GetData64(NPC_AKAMA)))
+                        if (Creature* akama = instance->GetCreature(GetGuidData(NPC_AKAMA)))
                             akama->AI()->DoAction(ACTION_MOVE_TO_SANCTUM);
                         break;
                     case STEP_FOLLOW_AKAMA:
@@ -156,7 +156,7 @@ class instance_pursuing_the_black_harvest : public InstanceMapScript
                                 sScenarioMgr->SendScenarioState(player, 1112, STEP_DEFEAT_ESSENCE_OF_ORDER, 0);
 
                         // Activate Essence of Order
-                        if (Creature* essence = instance->GetCreature(GetData64(NPC_ESSENCE_OF_ORDER)))
+                        if (Creature* essence = instance->GetCreature(GetGuidData(NPC_ESSENCE_OF_ORDER)))
                             essence->AI()->DoAction(ACTION_START_INTRO);
                         break;
                     case STEP_DEFEAT_ESSENCE_OF_ORDER:
@@ -229,7 +229,7 @@ class instance_pursuing_the_black_harvest : public InstanceMapScript
                 return 0;
             }
     
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -249,7 +249,7 @@ class instance_pursuing_the_black_harvest : public InstanceMapScript
                         return demongateGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
     
             std::string GetSaveData() override

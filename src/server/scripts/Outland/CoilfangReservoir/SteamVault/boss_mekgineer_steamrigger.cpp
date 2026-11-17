@@ -95,7 +95,7 @@ class boss_mekgineer_steamrigger : public CreatureScript
                     instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, DONE);
 
                     if (instance)
-                        if (GameObject* goMekDoor = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_ACCESS_PANEL_MEK)))
+                        if (GameObject* goMekDoor = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_ACCESS_PANEL_MEK)))
                             goMekDoor->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 }
             }
@@ -105,7 +105,7 @@ class boss_mekgineer_steamrigger : public CreatureScript
                 Talk(SAY_SLAY);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_SHRINK, 20 * IN_MILLISECONDS);
@@ -121,14 +121,14 @@ class boss_mekgineer_steamrigger : public CreatureScript
             {
                 Talk(SAY_MECHANICS);
 
-                DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, 5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
-                DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, -5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
-                DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, -5, -5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
+                DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, 5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000ms);
+                DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, -5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000ms);
+                DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, -5, -5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000ms);
 
                 if (rand()%2)
-                    DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, 5, -7, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
+                    DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, 5, -7, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000ms);
                 if (rand()%2)
-                    DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, 7, -5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
+                    DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, 7, -5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000ms);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -211,7 +211,7 @@ class npc_steamrigger_mechanic : public CreatureScript
                 //react only if attacked
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override
             {
@@ -219,7 +219,7 @@ class npc_steamrigger_mechanic : public CreatureScript
                 {
                     if (instance && instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == IN_PROGRESS)
                     {
-                        if (Unit* pMekgineer = Unit::GetUnit(*me, instance->GetData64(DATA_MEKGINEER_STEAMRIGGER)))
+                        if (Unit* pMekgineer = Unit::GetUnit(*me, instance->GetGuidData(DATA_MEKGINEER_STEAMRIGGER)))
                         {
                             if (me->IsWithinDistInMap(pMekgineer, MAX_REPAIR_RANGE))
                             {

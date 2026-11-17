@@ -64,11 +64,18 @@ enum VmapDisableTypes
     VMAP_DISABLE_LIQUIDSTATUS   = 0x8
 };
 
+enum MMapDisableTypes
+{
+    MMAP_DISABLE_PATHFINDING    = 0x0
+};
+
 namespace DisableMgr
 {
-    void LoadDisables();
-    bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags = 0);
-    void CheckQuestDisables();
+    TC_GAME_API void LoadDisables();
+    TC_GAME_API bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags = 0);
+    TC_GAME_API void CheckQuestDisables();
+    TC_GAME_API bool IsVMAPDisabledFor(uint32 entry, uint8 flags);
+    TC_GAME_API bool IsPathfindingEnabled(uint32 mapId);
 }
 
 #endif //TRINITY_DISABLEMGR_H

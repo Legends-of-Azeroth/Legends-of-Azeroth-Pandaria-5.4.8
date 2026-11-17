@@ -84,7 +84,7 @@ class boss_occuthar : public CreatureScript
                 _JustReachedHome();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_BERSERK, 300000);
                 events.ScheduleEvent(EVENT_EYE_OF_OCCUTHAR, 59000);
@@ -237,7 +237,7 @@ class spell_occuthar_eye_of_occuthar : public SpellScriptLoader
 
                 GetCaster()->CastSpell(GetCaster(), SPELL_EYE_OF_OCCUTHAR_VEHICLE, true);
                 
-                if (Creature* pEye = GetCaster()->SummonCreature(NPC_EYE_OF_OCCUTHAR, GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), GetCaster()->GetPositionZ(), GetCaster()->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 11000))
+                if (Creature* pEye = GetCaster()->SummonCreature(NPC_EYE_OF_OCCUTHAR, GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), GetCaster()->GetPositionZ(), GetCaster()->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 11000ms))
                     pEye->CastSpell(GetCaster(), SPELL_EYE_OF_OCCUTHAR_DMG, true); 
             }
 

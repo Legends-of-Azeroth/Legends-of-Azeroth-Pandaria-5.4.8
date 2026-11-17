@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -19,7 +19,7 @@
 #define TRINITYCORE_COMMON_H
 
 #include "Define.h"
-
+#include <array>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -46,7 +46,6 @@
 #include <unordered_set>
 
 #if PLATFORM == PLATFORM_WINDOWS
-// #  include <ace/config-all.h>
 // XP winver - needed to compile with standard leak check in MemoryLeaks.h
 // uncomment later if needed
 //#define _WIN32_WINNT 0x0501
@@ -61,10 +60,9 @@
 #  include <netdb.h>
 #endif
 
-#if COMPILER == COMPILER_MICROSOFT
+#if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
 
 #define atoll _atoi64
-#define vsnprintf _vsnprintf
 #define llabs _abs64
 
 #else
@@ -74,11 +72,12 @@
 
 #endif
 
-#define atol(a) strtoul( a, NULL, 10)
+inline unsigned long atoul(char const* str) { return strtoul(str, nullptr, 10); }
+inline unsigned long long atoull(char const* str) { return strtoull(str, nullptr, 10); }
 
 #define STRINGIZE(a) #a
 
-enum TimeConstants
+enum TimeConstants : uint32
 {
     MINUTE          = 60,
     HOUR            = MINUTE*60,
@@ -126,29 +125,19 @@ TC_COMMON_API LocaleConstant GetLocaleByName(const std::string& name);
 
 typedef std::vector<std::string> StringVector;
 
-#if defined(__GNUC__)
-#pragma pack(1)
-#else
 #pragma pack(push, 1)
-#endif
 
-struct DbcStr
+struct LocalizedString
 {
-    char const* operator[](size_t i) const
+    constexpr char const* operator[](LocaleConstant locale) const
     {
-        if (i >= TOTAL_LOCALES || !m_impl[i])
-            return "";
-        return m_impl[i];
+        return Str[locale];
     }
 
-    char const* m_impl[TOTAL_LOCALES];
+    std::array<char const*, TOTAL_LOCALES> Str;
 };
 
-#if defined(__GNUC__)
-#pragma pack()
-#else
 #pragma pack(pop)
-#endif
 
 // we always use stdlibc++ std::max/std::min, undefine some not C++ standard defines (Win API and some other platforms)
 #ifdef max
@@ -161,6 +150,11 @@ struct DbcStr
 
 #ifndef M_PI
 #define M_PI            3.14159265358979323846f
+#define M_PI_2          1.57079632679489661923f   // pi/2
+#endif
+
+#ifndef M_PI_4
+#define M_PI_4          0.78539816339744830962f   // pi/4
 #endif
 
 #define MAX_QUERY_LEN 32*1024

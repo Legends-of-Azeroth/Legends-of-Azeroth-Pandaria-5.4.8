@@ -186,7 +186,7 @@ class boss_echo_of_jaina : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 
@@ -263,9 +263,9 @@ class boss_echo_of_jaina : public CreatureScript
                             break;
                         case EVENT_FROST_BLADES:
                             Talk(SAY_SPELL);
-                            me->SummonCreature(NPC_FROSTBLADES, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation() - (M_PI / 4.0f), TEMPSUMMON_TIMED_DESPAWN, 30000);
-                            me->SummonCreature(NPC_FROSTBLADES, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 30000);
-                            me->SummonCreature(NPC_FROSTBLADES, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation() + (M_PI / 4.0f), TEMPSUMMON_TIMED_DESPAWN, 30000);
+                            me->SummonCreature(NPC_FROSTBLADES, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation() - (M_PI / 4.0f), TEMPSUMMON_TIMED_DESPAWN, 30000ms);
+                            me->SummonCreature(NPC_FROSTBLADES, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 30000ms);
+                            me->SummonCreature(NPC_FROSTBLADES, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation() + (M_PI / 4.0f), TEMPSUMMON_TIMED_DESPAWN, 30000ms);
                             break;
                     }
                 }
@@ -319,7 +319,7 @@ class npc_echo_of_jaina_flarecore : public CreatureScript
                     me->AddAura(SPELL_CHECK_PLAYER_DIST, me);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_CHECK_PLAYER, 500);
                 events.ScheduleEvent(EVENT_EXPLODE, 10000);
@@ -379,7 +379,7 @@ class go_echo_of_jaina_jaina_staff_fragment : public GameObjectScript
             if (!instance)
                 return true;
 
-            if (Creature* pJaina = ObjectAccessor::GetCreature(*go, instance->GetData64(DATA_ECHO_OF_JAINA)))
+            if (Creature* pJaina = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_ECHO_OF_JAINA)))
                 pJaina->AI()->DoAction(ACTION_FRAGMENTS);
  
             go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);

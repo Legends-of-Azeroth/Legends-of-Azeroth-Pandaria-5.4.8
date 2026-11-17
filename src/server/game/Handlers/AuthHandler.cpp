@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -21,6 +21,7 @@
 #include "WorldPacket.h"
 #include "Config.h"
 #include "BattlePayMgr.h"
+#include "Realm.h"
 
 #define PLAYABLE_RACES_COUNT 15
 #define PLAYABLE_CLASSES_COUNT 11
@@ -63,9 +64,9 @@ void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
 {
     std::map<uint32, std::string> realmNamesToSend;
 
-    RealmNameMap::const_iterator iter = realmNameStore.find(realmID);
+    RealmNameMap::const_iterator iter = realmNameStore.find(realm.Id.Realm);
     if (iter != realmNameStore.end()) // Add local realm
-        realmNamesToSend[realmID] = iter->second;
+        realmNamesToSend[realm.Id.Realm] = iter->second;
 
     TC_LOG_DEBUG("network", "SMSG_AUTH_RESPONSE");
     WorldPacket packet(SMSG_AUTH_RESPONSE, 113);
@@ -82,7 +83,7 @@ void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
             std::string normalized = itr->second;
             normalized.erase(std::remove_if(normalized.begin(), normalized.end(), ::isspace), normalized.end());
             packet.WriteBits(normalized.size(), 8);
-            packet.WriteBit(itr->first == realmID); // Home realm
+            packet.WriteBit(itr->first == realm.Id.Realm); // Home realm
         }
 
         packet.WriteBits(PLAYABLE_CLASSES_COUNT, 23);

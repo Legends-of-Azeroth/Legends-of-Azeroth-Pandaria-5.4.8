@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,162 +16,142 @@
 */
 
 #include "TCSoap.h"
-#include "Log.h"
+#include "soapH.h"
+#include "soapStub.h"
 #include "World.h"
 #include "AccountMgr.h"
+#include "Log.h"
 #include "Chat.h"
-#include <soapService.h>
-#include <mutex>
-#include <condition_variable>
 
-class SoapService::ServiceImpl : public Service
+void TCSoapThread(const std::string& host, uint16 port)
 {
-public:
-    ~ServiceImpl()
-    {
-        Finished(this, false);
-#ifdef _WIN32
-        closesocket(soap->master);
-#else
-        shutdown(soap->master, SHUT_RDWR);
-        close(soap->master);
+    struct soap soap;
+    soap_init(&soap);
+    soap_set_imode(&soap, SOAP_C_UTFSTRING);
+    soap_set_omode(&soap, SOAP_C_UTFSTRING);
+
+#if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+    soap.bind_flags = SO_REUSEADDR;
 #endif
-        if (_thr.joinable())
-            _thr.join();
-        destroy();
-    }
 
-    void Run(std::string const& host, uint32 port)
+    // check every 3 seconds if world ended
+    soap.accept_timeout = 3;
+    soap.recv_timeout = 5;
+    soap.send_timeout = 5;
+    if (!soap_valid_socket(soap_bind(&soap, host.c_str(), port, 100)))
     {
-        Service_init(SOAP_C_UTFSTRING, SOAP_C_UTFSTRING);
-        soap->bind_flags = SO_REUSEADDR;
-
-        if (!soap_valid_socket(bind(host.c_str(), port, 100)))
-        {
-            TC_LOG_ERROR("soap", "TCSoap: couldn't bind to %s:%d", host.c_str(), port);
-            World::StopNow(ERROR_EXIT_CODE);
-            return;
-        }
-
-        TC_LOG_ERROR("soap", "TCSoap: bound to http://%s:%d", host.c_str(), port);
-
-        _thr = std::thread([this]()
-        {
-            while (!World::IsStopped())
-            {
-                if (soap_valid_socket(accept()))
-                {
-                    TC_LOG_INFO("soap", "Connection accepted from  %d.%d.%d.%d", (int)(this->soap->ip >> 24) & 0xFF, (int)(this->soap->ip >> 16) & 0xFF, (int)(this->soap->ip >> 8) & 0xFF, (int)(this->soap->ip) & 0xFF);
-                    serve();
-                    soap_destroy(this->soap);
-                    soap_end(this->soap);
-                }
-            }
-        });
+        TC_LOG_ERROR("network.soap", "Couldn't bind to {}:{}", host.c_str(), port);
+        exit(-1);
     }
 
-    int executeCommand(char* command, char** result) override
+    TC_LOG_INFO("network.soap", "Bound to http://{}:{}", host.c_str(), port);
+
+    while (!World::IsStopped())
     {
-        TC_LOG_INFO("soap", "executeCommand invoked: %s", command ? command : "");
+        if (!soap_valid_socket(soap_accept(&soap)))
+            continue;   // ran into an accept timeout
 
-        // security check
-        if (!soap->userid || !soap->passwd)
-        {
-            TC_LOG_ERROR("soap", "TCSoap: Client didn't provide login information");
-            return 401;
-        }
-
-        uint32 accountId = AccountMgr::GetId(soap->userid);
-        if (!accountId)
-        {
-            TC_LOG_ERROR("soap", "TCSoap: Client used invalid username '%s'", soap->userid);
-            return 401;
-        }
-
-        if (!AccountMgr::CheckPassword(accountId, soap->passwd))
-        {
-            TC_LOG_ERROR("soap", "TCSoap: invalid password for account '%s'", soap->userid);
-            return 401;
-        }
-
-        if (AccountMgr::GetSecurity(accountId) < SEC_ADMINISTRATOR)
-        {
-            TC_LOG_ERROR("soap", "TCSoap: %s's gmlevel is too low", soap->userid);
-            return 403;
-        }
-
-        if (!command || !*command)
-            return soap_sender_fault(soap, "Command mustn't be empty", "The supplied command was an empty string");
-
-        std::unique_lock<std::mutex> g(_mut);
-        // commands are executed in the world thread. We have to wait for them to be completed
-        {
-            // CliCommandHolder will be deleted from world, accessing after queueing is NOT save
-            CliCommandHolder* cmd = new CliCommandHolder(this, command, &ServiceImpl::Print, &ServiceImpl::Finished);
-            sWorld->QueueCliCommand(cmd);
-        }
-
-        _cond.wait(g, [this]() -> bool { return _executed; });
-        char* buff = strdup(_resp.c_str());
-        TC_LOG_INFO("soap", "Command invoked, result: %u\n%s", _result, buff);
-        _executed = false;
-        _resp.clear();
-
-        if (_result)
-        {
-            *result = buff;
-            return SOAP_OK;
-        }
-        else
-            return soap_senderfault(buff, buff);
+        TC_LOG_DEBUG("network.soap", "Accepted connection from IP={}.{}.{}.{}", (int)(soap.ip>>24)&0xFF, (int)(soap.ip>>16)&0xFF, (int)(soap.ip>>8)&0xFF, (int)soap.ip&0xFF);
+        struct soap* thread_soap = soap_copy(&soap);// make a safe copy
+        process_message(thread_soap);
     }
 
-    Service* copy() { std::abort(); }
-
-private:
-    static void Print(void* service, char const* args)
-    {
-        ((ServiceImpl*)service)->_resp.append(args);
-    }
-
-    static void Finished(void* service, bool success)
-    {
-        ServiceImpl* s = ((ServiceImpl*)service);
-        s->_executed = true;
-        s->_result = success;
-        s->_cond.notify_all();
-    }
-
-private:
-    std::string _resp;
-    std::mutex _mut;
-    std::condition_variable _cond;
-    std::thread _thr;
-    bool _executed = false;
-    bool _result;
-};
-
-SoapService::SoapService()
-{
+    soap_destroy(&soap);
+    soap_end(&soap);
+    soap_done(&soap);
 }
 
-SoapService::~SoapService()
+void process_message(struct soap* soap_message)
 {
-    delete _impl;
+    TC_LOG_TRACE("network.soap", "SOAPWorkingThread::process_message");
+
+    soap_serve(soap_message);
+    soap_destroy(soap_message); // dealloc C++ data
+    soap_end(soap_message); // dealloc data and clean up
+    soap_free(soap_message); // detach soap struct and free up the memory
+}
+/*
+Code used for generating stubs:
+
+int ns1__executeCommand(char* command, char** result);
+*/
+int ns1__executeCommand(soap* soap, char* command, char** result)
+{
+    // security check
+    if (!soap->userid || !soap->passwd)
+    {
+        TC_LOG_INFO("network.soap", "Client didn't provide login information");
+        return 401;
+    }
+
+    uint32 accountId = AccountMgr::GetId(soap->userid);
+    if (!accountId)
+    {
+        TC_LOG_INFO("network.soap", "Client used invalid username '{}'", soap->userid);
+        return 401;
+    }
+
+    if (!AccountMgr::CheckPassword(accountId, soap->passwd))
+    {
+        TC_LOG_INFO("network.soap", "Invalid password for account '{}'", soap->userid);
+        return 401;
+    }
+
+    // if (AccountMgr::GetSecurity(accountId, realm.Id.Realm) < SEC_ADMINISTRATOR)
+    // {
+    //     TC_LOG_INFO("network.soap", "{}'s gmlevel is too low", soap->userid);
+    //     return 403;
+    // }
+    if (AccountMgr::GetSecurity(accountId) < SEC_ADMINISTRATOR)
+    {
+        TC_LOG_ERROR("soap", "TCSoap: {}'s gmlevel is too low", soap->userid);
+        return 403;
+    }
+
+    if (!command || !*command)
+        return soap_sender_fault(soap, "Command can not be empty", "The supplied command was an empty string");
+
+    TC_LOG_INFO("network.soap", "Received command '{}'", command);
+    SOAPCommand connection;
+
+    // commands are executed in the world thread. We have to wait for them to be completed
+    {
+        // CliCommandHolder will be deleted from world, accessing after queueing is NOT safe
+        CliCommandHolder* cmd = new CliCommandHolder(&connection, command, &SOAPCommand::print, &SOAPCommand::commandFinished);
+        sWorld->QueueCliCommand(cmd);
+    }
+
+    // Wait until the command has finished executing
+    connection.finishedPromise.get_future().wait();
+
+    // The command has finished executing already
+    char* printBuffer = soap_strdup(soap, connection.m_printBuffer.c_str());
+    if (connection.hasCommandSucceeded())
+    {
+        *result = printBuffer;
+        return SOAP_OK;
+    }
+    else
+        return soap_sender_fault(soap, printBuffer, printBuffer);
 }
 
-void SoapService::Run(std::string const& host, uint32 port)
+void SOAPCommand::commandFinished(void* soapconnection, bool success)
 {
-    _impl = new ServiceImpl();
-    _impl->Run(host, port);
+    SOAPCommand* con = (SOAPCommand*)soapconnection;
+    con->setCommandSuccess(success);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Namespace Definition Table
+//
+////////////////////////////////////////////////////////////////////////////////
 
 struct Namespace namespaces[] =
-{
-    { "SOAP-ENV", "http://schemas.xmlsoap.org/soap/envelope/", "http://www.w3.org/*/soap-envelope", NULL },
-    { "SOAP-ENC", "http://schemas.xmlsoap.org/soap/encoding/", "http://www.w3.org/*/soap-encoding", NULL },
-    { "xsi", "http://www.w3.org/2001/XMLSchema-instance", "http://www.w3.org/*/XMLSchema-instance", NULL },
-    { "xsd", "http://www.w3.org/2001/XMLSchema", "http://www.w3.org/*/XMLSchema", NULL },
-    { "ns1", "urn:TC", NULL, NULL },
+{   { "SOAP-ENV", "http://schemas.xmlsoap.org/soap/envelope/", NULL, NULL }, // must be first
+    { "SOAP-ENC", "http://schemas.xmlsoap.org/soap/encoding/", NULL, NULL }, // must be second
+    { "xsi", "http://www.w3.org/1999/XMLSchema-instance", "http://www.w3.org/*/XMLSchema-instance", NULL },
+    { "xsd", "http://www.w3.org/1999/XMLSchema",          "http://www.w3.org/*/XMLSchema", NULL },
+    { "ns1", "urn:TC", NULL, NULL },     // "ns1" namespace prefix
     { NULL, NULL, NULL, NULL }
 };

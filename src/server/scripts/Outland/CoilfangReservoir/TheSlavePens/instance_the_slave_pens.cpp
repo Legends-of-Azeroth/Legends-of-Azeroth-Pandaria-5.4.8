@@ -44,9 +44,9 @@ class instance_the_slave_pens : public InstanceMapScript
 
                 SetBossNumber(MAX_DATA);
 
-                mennuGUID      = 0;
-                RokmarGUID     = 0;
-                QuagmirranGUID = 0;
+                mennuGUID = ObjectGuid::Empty;
+                RokmarGUID = ObjectGuid::Empty;
+                QuagmirranGUID = ObjectGuid::Empty;
             }
 
             void OnCreatureCreate(Creature* creature) override

@@ -101,8 +101,8 @@ class boss_ymiron : public CreatureScript
                     _activeOrder[r] = temp;
                 }
 
-                _activeGhostGUID = 0;
-                _bjornSpiritGUID = 0;
+                _activeGhostGUID = ObjectGuid::Empty;
+                _bjornSpiritGUID = ObjectGuid::Empty;
             }
 
             InstanceScript* instance;
@@ -142,14 +142,14 @@ class boss_ymiron : public CreatureScript
 
                 DespawnBoatGhosts(_activeGhostGUID);
                 DespawnBoatGhosts(_bjornSpiritGUID);
-                _activeGhostGUID = 0;
-                _bjornSpiritGUID = 0;
+                _activeGhostGUID = ObjectGuid::Empty;
+                _bjornSpiritGUID = ObjectGuid::Empty;
 
                 me->HandleEmoteStateCommand(EMOTE_STATE_SIT_CHAIR_HIGH);
                 me->GetMap()->SetWorldState(WORLDSTATE_KINGS_BANE, 1);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 me->HandleEmoteStateCommand(EMOTE_ONESHOT_NONE);
@@ -184,7 +184,7 @@ class boss_ymiron : public CreatureScript
                         Talk(ActiveBoat[_activeOrder[_activeBoatNumber]].say);
 
                         DoCast(me, SPELL_CHANNEL_YMIRON_TO_SPIRIT);
-                        if (Creature* ghost = me->SummonCreature(ActiveBoat[_activeOrder[_activeBoatNumber]].npc, ActiveBoat[_activeOrder[_activeBoatNumber]].SpawnX, ActiveBoat[_activeOrder[_activeBoatNumber]].SpawnY, ActiveBoat[_activeOrder[_activeBoatNumber]].SpawnZ, ActiveBoat[_activeOrder[_activeBoatNumber]].SpawnO, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                        if (Creature* ghost = me->SummonCreature(ActiveBoat[_activeOrder[_activeBoatNumber]].npc, ActiveBoat[_activeOrder[_activeBoatNumber]].SpawnX, ActiveBoat[_activeOrder[_activeBoatNumber]].SpawnY, ActiveBoat[_activeOrder[_activeBoatNumber]].SpawnZ, ActiveBoat[_activeOrder[_activeBoatNumber]].SpawnO, TEMPSUMMON_CORPSE_DESPAWN, 0ms))
                         {
                             _activeGhostGUID = ghost->GetGUID();
                             ghost->CastSpell(me, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
@@ -277,7 +277,7 @@ class boss_ymiron : public CreatureScript
                     // Ghosts abilities
                     if (_isActiveWithBjorn && _abilityBjornTimer <= diff)
                     {
-                        if (Creature* spirit = me->SummonCreature(NPC_SPIRIT_FOUNT, 385.0f + rand() % 10, -330.0f + rand() % 10, 104.756f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3 * MINUTE * IN_MILLISECONDS))
+                        if (Creature* spirit = me->SummonCreature(NPC_SPIRIT_FOUNT, 385.0f + rand() % 10, -330.0f + rand() % 10, 104.756f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, Milliseconds(3 * MINUTE * IN_MILLISECONDS)))
                         {
                             spirit->SetSpeed(MOVE_RUN, 0.4f);
                             spirit->CastSpell(spirit, DUNGEON_MODE(SPELL_SPIRIT_FOUNT, SPELL_SPIRIT_FOUNT_H));
@@ -315,11 +315,11 @@ class boss_ymiron : public CreatureScript
                         z = me->GetPositionZ();
                         for (uint8 i = 0; i < 4; ++i)
                         {
-                            if (Creature* spirit = me->SummonCreature(NPC_AVENGING_SPIRIT, x + rand() % 10, y + rand() % 10, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30 * IN_MILLISECONDS))
+                            if (Creature* spirit = me->SummonCreature(NPC_AVENGING_SPIRIT, x + rand() % 10, y + rand() % 10, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, Milliseconds(30 * IN_MILLISECONDS)))
                             {
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 {
-                                    spirit->AddThreat(target, 0.0f);
+                                    spirit->GetThreatManager().AddThreat(target, 0.0f);
                                     spirit->SetFaction(14);
                                     spirit->AI()->AttackStart(target);
                                 }
@@ -380,13 +380,13 @@ class boss_ymiron : public CreatureScript
                     instance->SetData(DATA_KING_YMIRON_EVENT, DONE);
             }
 
-            void DespawnBoatGhosts(uint64 creatureGUID)
+            void DespawnBoatGhosts(ObjectGuid creatureGUID)
             {
                 if (creatureGUID)
                     if (Creature* despawnCreature = ObjectAccessor::GetCreature(*me, creatureGUID))
                         despawnCreature->DisappearAndDie();
 
-                creatureGUID = 0;
+                creatureGUID = ObjectGuid::Empty;
             }
 
             private:
@@ -414,8 +414,8 @@ class boss_ymiron : public CreatureScript
                 uint32 _healthAmountModifier;
                 uint32 _healthAmountMultipler;
 
-                uint64 _activeGhostGUID;
-                uint64 _bjornSpiritGUID;
+                ObjectGuid _activeGhostGUID;
+                ObjectGuid _bjornSpiritGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

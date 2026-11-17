@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -24,7 +24,7 @@
 
 #include <limits>
 #include <map>
-#include "ace/Mutex.h"
+#include <mutex>
 
 enum Yells
 {
@@ -353,7 +353,7 @@ class boss_mimiron : public CreatureScript
                 DespawnCreatures(NPC_FIRE_BOT, 100.0f);
 
                 for (uint8 data = DATA_LEVIATHAN_MK_II; data <= DATA_AERIAL_UNIT; ++data)
-                    if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetData64(data)))
+                    if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetGuidData(data)))
                         if (creature->IsAlive())
                         {
                             creature->ExitVehicle();
@@ -381,27 +381,29 @@ class boss_mimiron : public CreatureScript
                 if (_phase != PHASE_COMBAT)
                     return;
 
-                _mapMutex.acquire();
-                bool res = true;
-                // Check if there is still a false value.
-                std::for_each(_isSelfRepairing.begin(), _isSelfRepairing.end(), EqualHelper(res));
-                _mapMutex.release();
-                if (res)
+                if (_mapMutex.try_lock())
                 {
-                    // We're down, baby.
-                    Creature* Leviathan = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II));
-                    Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VX_001));
-                    Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT));
-                    if (Leviathan && VX_001 && AerialUnit)
+                    bool res = true;
+                    // Check if there is still a false value.
+                    std::for_each(_isSelfRepairing.begin(), _isSelfRepairing.end(), EqualHelper(res));
+                    _mapMutex.unlock();
+                    if (res)
                     {
-                        Leviathan->DisappearAndDie();
-                        VX_001->DisappearAndDie();
-                        AerialUnit->DisappearAndDie();
-                        DespawnCreatures(NPC_FLAMES_INITIAL, 100.0f);
-                        DespawnCreatures(NPC_PROXIMITY_MINE, 100.0f);
-                        DespawnCreatures(NPC_ROCKET, 100);
-                        me->ExitVehicle();
-                        EncounterPostProgress();
+                        // We're down, baby.
+                        Creature* Leviathan = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LEVIATHAN_MK_II));
+                        Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VX_001));
+                        Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AERIAL_UNIT));
+                        if (Leviathan && VX_001 && AerialUnit)
+                        {
+                            Leviathan->DisappearAndDie();
+                            VX_001->DisappearAndDie();
+                            AerialUnit->DisappearAndDie();
+                            DespawnCreatures(NPC_FLAMES_INITIAL, 100.0f);
+                            DespawnCreatures(NPC_PROXIMITY_MINE, 100.0f);
+                            DespawnCreatures(NPC_ROCKET, 100);
+                            me->ExitVehicle();
+                            EncounterPostProgress();
+                        }
                     }
                 }
             }
@@ -417,7 +419,8 @@ class boss_mimiron : public CreatureScript
                 me->RemoveAllAuras();
                 me->AttackStop();
                 me->SetFaction(35);
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
 
                 if (_gotHardMode)
@@ -435,13 +438,13 @@ class boss_mimiron : public CreatureScript
                 me->DespawnOrUnsummon(30*IN_MILLISECONDS);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _gotEncounterFinished = _gotEncounterFinished || (instance && instance->GetBossState(BOSS_MIMIRON) == DONE);
                 if (_gotEncounterFinished)
                     return;
 
-                _EnterCombat();
+                _JustEngagedWith();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
                 _phase = PHASE_INTRO;
                 events.SetPhase(_phase);
@@ -501,7 +504,7 @@ class boss_mimiron : public CreatureScript
                         case EVENT_ENRAGE:
                             Talk(SAY_BERSERK);
                             for (uint8 data = DATA_LEVIATHAN_MK_II; data <= DATA_AERIAL_UNIT; ++data)
-                                if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetData64(data)))
+                                if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetGuidData(data)))
                                     creature->AI()->DoAction(DO_ENTER_ENRAGE);
                             _enraged = true;
                             if (_gotHardMode)
@@ -556,9 +559,9 @@ class boss_mimiron : public CreatureScript
                                     if (instance)
                                     {
                                         //me->SetVisible(true);
-                                        if (Creature* Leviathan = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
+                                        if (Creature* Leviathan = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LEVIATHAN_MK_II)))
                                             Leviathan->GetMotionMaster()->MovePoint(0, 2744.65f, 2569.46f, 364.397f);
-                                        if (Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VX_001)))
+                                        if (Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VX_001)))
                                         {
                                             me->EnterVehicle(VX_001, 1);
                                             me->SetUInt32Value(UNIT_FIELD_NPC_EMOTESTATE, EMOTE_STATE_STAND);
@@ -576,7 +579,7 @@ class boss_mimiron : public CreatureScript
                             {
                                 case PHASE_INTRO:
                                     if (instance)
-                                        if (Creature* Leviathan = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
+                                        if (Creature* Leviathan = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LEVIATHAN_MK_II)))
                                             me->EnterVehicle(Leviathan, 4);
                                     events.ScheduleEvent(EVENT_STEP_3, 2*IN_MILLISECONDS, 0, PHASE_INTRO);
                                     break;
@@ -591,8 +594,8 @@ class boss_mimiron : public CreatureScript
                                     break;
                                 case PHASE_V0L7R0N_ACTIVATION:
                                     if (instance)
-                                        if (Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VX_001)))
-                                            if (Creature* Leviathan = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
+                                        if (Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VX_001)))
+                                            if (Creature* Leviathan = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LEVIATHAN_MK_II)))
                                             {
                                                 VX_001->SetStandState(UNIT_STAND_STATE_STAND);
                                                 VX_001->SetUInt32Value(UNIT_FIELD_NPC_EMOTESTATE, EMOTE_STATE_CUSTOM_SPELL_01);
@@ -620,7 +623,7 @@ class boss_mimiron : public CreatureScript
                                     me->SetUInt32Value(UNIT_FIELD_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                                     if (instance)
                                     {
-                                        if (Creature* AerialUnit = me->SummonCreature(NPC_AERIAL_COMMAND_UNIT, 2744.65f, 2569.46f, 380.0f, 3.14159f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10*IN_MILLISECONDS))
+                                        if (Creature* AerialUnit = me->SummonCreature(NPC_AERIAL_COMMAND_UNIT, 2744.65f, 2569.46f, 380.0f, 3.14159f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(10*IN_MILLISECONDS)))
                                         {
                                             AerialUnit->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                             AerialUnit->SetVisible(true);
@@ -630,8 +633,8 @@ class boss_mimiron : public CreatureScript
                                     break;
                                 case PHASE_V0L7R0N_ACTIVATION:
                                     if (instance)
-                                        if (Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VX_001)))
-                                            if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
+                                        if (Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VX_001)))
+                                            if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AERIAL_UNIT)))
                                             {
                                                 AerialUnit->SetFlying(false);
                                                 AerialUnit->EnterVehicle(VX_001, 3);
@@ -655,7 +658,7 @@ class boss_mimiron : public CreatureScript
                                 case PHASE_VX001_ACTIVATION:
                                     if (instance)
                                     {
-                                        if (Creature* VX_001 = me->SummonCreature(NPC_VX_001, 2744.65f, 2569.46f, 364.397f, 3.14159f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10*IN_MILLISECONDS))
+                                        if (Creature* VX_001 = me->SummonCreature(NPC_VX_001, 2744.65f, 2569.46f, 364.397f, 3.14159f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(10*IN_MILLISECONDS)))
                                         {
                                             instance->SetData(DATA_MIMIRON_ELEVATOR, GO_STATE_ACTIVE_ALTERNATIVE);
                                             VX_001->SetVisible(true);
@@ -678,18 +681,18 @@ class boss_mimiron : public CreatureScript
                                     me->ExitVehicle();
                                     me->GetMotionMaster()->MoveJump(2745.06f, 2569.36f, 379.90f, 10, 15);
                                     // entering the vehicle makes Mimiron leave combat and restart the encounter
-                                    if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
+                                    if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AERIAL_UNIT)))
                                         me->EnterVehicle(AerialUnit, 0);
                                     events.ScheduleEvent(EVENT_STEP_5, 2*IN_MILLISECONDS, 0, PHASE_AERIAL_ACTIVATION);
                                     break;
                                 case PHASE_V0L7R0N_ACTIVATION:
                                     if (instance)
                                     {
-                                        if (Creature* Leviathan = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
+                                        if (Creature* Leviathan = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LEVIATHAN_MK_II)))
                                             Leviathan->AI()->DoAction(DO_LEVIATHAN_ASSEMBLED);
-                                        if (Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VX_001)))
+                                        if (Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VX_001)))
                                             VX_001->AI()->DoAction(DO_VX001_ASSEMBLED);
-                                        if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
+                                        if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AERIAL_UNIT)))
                                             AerialUnit->AI()->DoAction(DO_AERIAL_ASSEMBLED);
                                         _phase = PHASE_COMBAT;
                                         events.SetPhase(_phase);
@@ -709,7 +712,7 @@ class boss_mimiron : public CreatureScript
                                     break;
                                 case PHASE_VX001_ACTIVATION:
                                     if (instance)
-                                        if (Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VX_001)))
+                                        if (Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VX_001)))
                                             me->EnterVehicle(VX_001, 0);
                                     events.ScheduleEvent(EVENT_STEP_6, 3.5*IN_MILLISECONDS, 0, PHASE_VX001_ACTIVATION);
                                     break;
@@ -739,7 +742,7 @@ class boss_mimiron : public CreatureScript
                                     //me->SetVisible(false);
                                     if (instance)
                                     {
-                                        if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
+                                        if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AERIAL_UNIT)))
                                         {
                                             AerialUnit->AI()->DoAction(DO_START_AERIAL);
                                             AerialUnit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -758,7 +761,7 @@ class boss_mimiron : public CreatureScript
                                 case PHASE_INTRO:
                                     if (instance)
                                     {
-                                        if (Creature* Leviathan = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
+                                        if (Creature* Leviathan = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LEVIATHAN_MK_II)))
                                         {
                                             me->SetUInt32Value(UNIT_FIELD_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                                             Leviathan->AI()->DoAction(DO_START_ENCOUNTER);
@@ -781,7 +784,7 @@ class boss_mimiron : public CreatureScript
                             {
                                 case PHASE_VX001_ACTIVATION:
                                     if (instance)
-                                        if (Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VX_001)))
+                                        if (Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VX_001)))
                                             VX_001->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
                                     events.ScheduleEvent(EVENT_STEP_9, 3.5*IN_MILLISECONDS, 0, PHASE_VX001_ACTIVATION);
                                     break;
@@ -794,7 +797,7 @@ class boss_mimiron : public CreatureScript
                             {
                                 case PHASE_VX001_ACTIVATION:
                                     if (instance)
-                                        if (Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VX_001)))
+                                        if (Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VX_001)))
                                         {
                                             VX_001->AddAura(SPELL_HOVER, VX_001); // Hover
                                             VX_001->AI()->DoAction(DO_START_VX001);
@@ -852,7 +855,7 @@ class boss_mimiron : public CreatureScript
                         events.SetPhase(PHASE_V0L7R0N_ACTIVATION);
                         events.ScheduleEvent(EVENT_STEP_1, 1*IN_MILLISECONDS, 0, PHASE_V0L7R0N_ACTIVATION);
                         break;
-                    case DO_ACTIVATE_HARD_MODE:     // Cannot be done infight, since the button gets locked on EnterCombat() with Mimiron.
+                    case DO_ACTIVATE_HARD_MODE:     // Cannot be done infight, since the button gets locked on JustEngagedWith() with Mimiron.
                         me->GetMap()->SetWorldState(WORLDSTATE_FIRE_FIGHTER, 1);
                         _gotHardMode = true;
                         DoZoneInCombat();
@@ -866,37 +869,49 @@ class boss_mimiron : public CreatureScript
                         break;
                     // Repair stuff
                     case DO_LEVIATHAN_SELF_REPAIR_START:
-                        _mapMutex.acquire();
-                        _isSelfRepairing[DATA_LEVIATHAN_MK_II] = true;
-                        _mapMutex.release();
+                        if (_mapMutex.try_lock())
+                        {
+                            _isSelfRepairing[DATA_LEVIATHAN_MK_II] = true;
+                            _mapMutex.unlock();
+                        }                        
                         BotAliveCheck();
                         break;
                     case DO_LEVIATHAN_SELF_REPAIR_END:
-                        _mapMutex.acquire();
-                        _isSelfRepairing[DATA_LEVIATHAN_MK_II] = false;
-                        _mapMutex.release();
+                        if (_mapMutex.try_lock())
+                        {
+                            _isSelfRepairing[DATA_LEVIATHAN_MK_II] = false;
+                            _mapMutex.unlock();
+                        } 
                         break;
                     case DO_VX001_SELF_REPAIR_START:
-                        _mapMutex.acquire();
-                        _isSelfRepairing[DATA_VX_001] = true;
-                        _mapMutex.release();
+                        if (_mapMutex.try_lock())
+                        {
+                            _isSelfRepairing[DATA_VX_001] = true;
+                            _mapMutex.unlock();
+                        }                         
                         BotAliveCheck();
                         break;
                     case DO_VX001_SELF_REPAIR_END:
-                        _mapMutex.acquire();
-                        _isSelfRepairing[DATA_VX_001] = false;
-                        _mapMutex.release();
+                        if (_mapMutex.try_lock())
+                        {
+                            _isSelfRepairing[DATA_VX_001] = false;
+                            _mapMutex.unlock();
+                        }                         
                         break;
                     case DO_AERIAL_SELF_REPAIR_START:
-                        _mapMutex.acquire();
-                        _isSelfRepairing[DATA_AERIAL_UNIT] = true;
-                        _mapMutex.release();
+                        if (_mapMutex.try_lock())
+                        {
+                            _isSelfRepairing[DATA_AERIAL_UNIT] = true;
+                            _mapMutex.unlock();
+                        }                        
                         BotAliveCheck();
                         break;
                     case DO_AERIAL_SELF_REPAIR_END:
-                        _mapMutex.acquire();
-                        _isSelfRepairing[DATA_AERIAL_UNIT] = false;
-                        _mapMutex.release();
+                        if (_mapMutex.try_lock())
+                        {
+                            _isSelfRepairing[DATA_AERIAL_UNIT] = false;
+                            _mapMutex.unlock();
+                        }                         
                         break;
                     // Achiev
                     case DATA_AVOIDED_ROCKET_STRIKES:
@@ -917,7 +932,7 @@ class boss_mimiron : public CreatureScript
             }
 
             private:
-                ACE_Mutex _mapMutex;
+                std::mutex _mapMutex;
                 std::map<uint32, bool> _isSelfRepairing;
                 std::map<BombIndices, bool> _setUpUsTheBomb;
                 Phases _phase;
@@ -985,7 +1000,7 @@ class boss_leviathan_mk : public CreatureScript
 
             void KilledUnit(Unit* /*who*/) override
             {
-                if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_MIMIRON) : 0))
+                if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(BOSS_MIMIRON) : ObjectGuid::Empty))
                 {
                     if (_phase == PHASE_LEVIATHAN_SOLO__GLOBAL_1)
                     {
@@ -1006,7 +1021,7 @@ class boss_leviathan_mk : public CreatureScript
                 if (spell->Id == SPELL_SELF_REPAIR)
                 {
                     DoAction(DO_LEVIATHAN_SELF_REPAIR_END);
-                    if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
+                    if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_MIMIRON)))
                         Mimiron->AI()->DoAction(DO_LEVIATHAN_SELF_REPAIR_END);
                 }
             }
@@ -1030,7 +1045,7 @@ class boss_leviathan_mk : public CreatureScript
                     {
                         case PHASE_LEVIATHAN_SOLO__GLOBAL_1:
                             me->SetHealth(me->GetMaxHealth());
-                            if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
+                            if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_MIMIRON)))
                                 Mimiron->AI()->DoAction(DO_ACTIVATE_VX001);
                             if (Creature* turret = me->GetVehicleKit()->GetPassenger(3)->ToCreature())
                             {
@@ -1042,7 +1057,7 @@ class boss_leviathan_mk : public CreatureScript
                             break;
                         case PHASE_LEVIATHAN_ASSEMBLED__GLOBAL_4:
                             me->SetStandState(UNIT_STAND_STATE_DEAD);
-                            if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
+                            if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_MIMIRON)))
                                 Mimiron->AI()->DoAction(DO_LEVIATHAN_SELF_REPAIR_START);
                             DoCast(me, SPELL_SELF_REPAIR);
                             break;
@@ -1055,9 +1070,9 @@ class boss_leviathan_mk : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_MIMIRON) : 0))
+                if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(BOSS_MIMIRON) : ObjectGuid::Empty))
                     _gotMimironHardMode = Mimiron->AI()->GetData(DATA_GET_HARD_MODE);
 
                 if (Creature* turret = me->GetVehicleKit()->GetPassenger(3)->ToCreature())
@@ -1282,7 +1297,7 @@ class npc_proximity_mine : public CreatureScript
                 if (target->ToPlayer())
                     if (spell->Id == SPELL_EXPLOSION || spell->Id == SPELL_EXPLOSION_25)
                         if (InstanceScript* instance = me->GetInstanceScript())
-                            if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
+                            if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_MIMIRON)))
                                 mimiron->AI()->DoAction(DATA_AVOIDED_PROXIMITY_MINES);
             }
 
@@ -1396,7 +1411,7 @@ class boss_vx_001 : public CreatureScript
             void KilledUnit(Unit* /*who*/) override
             {
                 if (instance)
-                    if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_MIMIRON) : 0))
+                    if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(BOSS_MIMIRON) : ObjectGuid::Empty))
                     {
                         if (_phase == PHASE_VX001_SOLO__GLOBAL_2)
                         {
@@ -1409,9 +1424,9 @@ class boss_vx_001 : public CreatureScript
                     }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_MIMIRON) : 0))
+                if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(BOSS_MIMIRON) : ObjectGuid::Empty))
                     _mimironHardMode = Mimiron->AI()->GetData(DATA_GET_HARD_MODE);
 
                 if (_mimironHardMode)
@@ -1486,11 +1501,11 @@ class boss_vx_001 : public CreatureScript
                     {
                         case PHASE_VX001_SOLO__GLOBAL_2:
                             me->SetHealth(me->GetMaxHealth());
-                            if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
+                            if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_MIMIRON)))
                                 Mimiron->AI()->DoAction(DO_ACTIVATE_AERIAL);
                             break;
                         case PHASE_VX001_ASSEMBLED__GLOBAL_4:
-                            if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
+                            if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_MIMIRON)))
                                 Mimiron->AI()->DoAction(DO_VX001_SELF_REPAIR_START);
                             DoCast(me, SPELL_SELF_REPAIR);
                             break;
@@ -1511,7 +1526,7 @@ class boss_vx_001 : public CreatureScript
                 if (spell->Id == SPELL_SELF_REPAIR)
                 {
                     DoAction(DO_VX001_SELF_REPAIR_END);
-                    if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
+                    if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_MIMIRON)))
                         Mimiron->AI()->DoAction(DO_VX001_SELF_REPAIR_END);
                 }
             }
@@ -1521,7 +1536,7 @@ class boss_vx_001 : public CreatureScript
                 switch (spell->Id)
                 {
                     case SPELL_FROSTBOMB:
-                        me->SummonCreature(NPC_FROST_BOMB, *target, TEMPSUMMON_TIMED_DESPAWN, 11*IN_MILLISECONDS);
+                        me->SummonCreature(NPC_FROST_BOMB, *target, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(11*IN_MILLISECONDS));
                         break;
                     default:
                         break;
@@ -1553,7 +1568,7 @@ class boss_vx_001 : public CreatureScript
                     {
                         case EVENT_RAPID_BURST:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                                if (Creature* BurstTarget = me->SummonCreature(NPC_BURST_TARGET, *target, TEMPSUMMON_TIMED_DESPAWN, 3.1*IN_MILLISECONDS))
+                                if (Creature* BurstTarget = me->SummonCreature(NPC_BURST_TARGET, *target, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(uint32(3.1*IN_MILLISECONDS))))
                                 {
                                     DoCast(BurstTarget, SPELL_RAPID_BURST);
                                     me->SetFacingToObject(target);
@@ -1567,7 +1582,7 @@ class boss_vx_001 : public CreatureScript
                                 leviathan->AddUnitState(UNIT_STATE_ROTATING);
                                 leviathan->SetReactState(REACT_PASSIVE);
                                 leviathan->SetFacingTo(leviathan->GetOrientation());
-                                leviathan->SetTarget(0);
+                                leviathan->SetTarget(ObjectGuid::Empty);
                             }
                             _direction = RAND(true, false);
                             _spinning = true;
@@ -1597,10 +1612,10 @@ class boss_vx_001 : public CreatureScript
                         case EVENT_ROCKET_STRIKE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                             {
-                                if (Creature* pTemp = me->SummonCreature(NPC_MIMIRON_FOCUS, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10*IN_MILLISECONDS))
+                                if (Creature* pTemp = me->SummonCreature(NPC_MIMIRON_FOCUS, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(10*IN_MILLISECONDS)))
                                 {
                                     pTemp->SetReactState(REACT_PASSIVE);
-                                    pTemp->SetDisplayId(pTemp->GetCreatureTemplate()->Modelid2);
+                                    pTemp->SetDisplayFromModel(1);
                                     pTemp->GetMotionMaster()->MoveIdle();
                                     pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                                     pTemp->CombatStop();
@@ -1613,10 +1628,10 @@ class boss_vx_001 : public CreatureScript
                             if (_phase == PHASE_VX001_ASSEMBLED__GLOBAL_4)
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 {
-                                    if (Creature* pTemp = me->SummonCreature(NPC_MIMIRON_FOCUS, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10*IN_MILLISECONDS))
+                                    if (Creature* pTemp = me->SummonCreature(NPC_MIMIRON_FOCUS, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(10*IN_MILLISECONDS)))
                                     {
                                         pTemp->SetReactState(REACT_PASSIVE);
-                                        pTemp->SetDisplayId(pTemp->GetCreatureTemplate()->Modelid2);
+                                        pTemp->SetDisplayFromModel(1);
                                         pTemp->GetMotionMaster()->MoveIdle();
                                         pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                                         pTemp->CombatStop();
@@ -1784,7 +1799,7 @@ class boss_aerial_unit : public CreatureScript
             void KilledUnit(Unit* /*who*/) override
             {
                 if (instance)
-                    if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_MIMIRON) : 0))
+                    if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(BOSS_MIMIRON) : ObjectGuid::Empty))
                     {
                         if (_phase == PHASE_AERIAL_SOLO__GLOBAL_3)
                         {
@@ -1805,7 +1820,7 @@ class boss_aerial_unit : public CreatureScript
                 if (spell->Id == SPELL_SELF_REPAIR)
                 {
                     DoAction(DO_AERIAL_SELF_REPAIR_END);
-                    if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
+                    if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_MIMIRON)))
                         Mimiron->AI()->DoAction(DO_AERIAL_SELF_REPAIR_END);
                 }
             }
@@ -1832,9 +1847,9 @@ class boss_aerial_unit : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_MIMIRON) : 0))
+                if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(BOSS_MIMIRON) : ObjectGuid::Empty))
                     _gotMimironHardMode = Mimiron->AI()->GetData(DATA_GET_HARD_MODE);
 
                 if (_gotMimironHardMode)
@@ -1847,13 +1862,14 @@ class boss_aerial_unit : public CreatureScript
                 _events.ScheduleEvent(EVENT_SUMMON_BOOM_BOT,    11 * IN_MILLISECONDS, 0, PHASE_AERIAL_SOLO__GLOBAL_3);
             }
 
-            void AttackStart(Unit* target)
+            void AttackStart(Unit* target) override
             {
                 AttackStartCaster(target, 100.0f);
             }
 
             void DoAction(int32 action) override
             {
+                Position destination;
                 switch (action)
                 {
                     case DO_START_AERIAL:
@@ -1873,8 +1889,7 @@ class boss_aerial_unit : public CreatureScript
                             DoCast(me, SPELL_MAGNETIC_CORE);
                             DoCast(me, SPELL_MAGNETIC_CORE_VISUAL);
                             // Move to floor.
-                            Position destination;
-                            me->GetPosition(&destination);
+                            destination = me->GetPosition();
                             destination.m_positionZ = 368.965f;
                             me->GetMotionMaster()->MoveLand(1, destination, 5.0f);  // Check if MoveLand is ok here, a flying unit should have a landing animation, but... just 4 the case
                             _events.DelayEvents(20*IN_MILLISECONDS);
@@ -1914,6 +1929,7 @@ class boss_aerial_unit : public CreatureScript
 
                 while (uint32 eventId = _events.ExecuteEvent())
                 {
+                    Position destination;
                     switch (eventId)
                     {
                         case EVENT_PLASMA_BALL:
@@ -1941,8 +1957,7 @@ class boss_aerial_unit : public CreatureScript
                             return;
                         case EVENT_REACTIVATE_AERIAL:
                             me->RemoveAurasDueToSpell(SPELL_MAGNETIC_CORE_VISUAL);
-                            Position destination;
-                            me->GetPosition(&destination);
+                            destination = me->GetPosition();
                             destination.m_positionZ = 380.04f;
                             // FIXME find correct speed
                             me->GetMotionMaster()->MoveTakeoff(1, destination, 5.0f); // Check if MoveTakeoff is ok here, a flying unit should have a landing animation, but... just 4 the case
@@ -2002,11 +2017,11 @@ class boss_aerial_unit : public CreatureScript
                     {
                         case PHASE_AERIAL_SOLO__GLOBAL_3:
                             me->SetHealth(me->GetMaxHealth()); 
-                            if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
+                            if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_MIMIRON)))
                                 Mimiron->AI()->DoAction(DO_ACTIVATE_V0L7R0N);
                             break;
                         case PHASE_AERIAL_ASSEMBLED__GLOBAL_4:
-                            if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
+                            if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_MIMIRON)))
                                 Mimiron->AI()->DoAction(DO_AERIAL_SELF_REPAIR_START);
                             DoCast(me, SPELL_SELF_REPAIR);
                             break;
@@ -2242,14 +2257,15 @@ class npc_mimiron_bomb_bot : public CreatureScript
                 {
                     Position pos;
                     pos.Relocate(me);
-                    me->UpdateAllowedPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ, 0, 100.0f);
+                    //me->UpdateAllowedPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ, 0, 100.0f);
+                    me->UpdateAllowedPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ);
                     me->UpdatePosition(pos);
                     DoCast(me, SPELL_BOOM_BOT, true);
                     DoZoneInCombat(me, 100.0f);
                     if (Unit* target = me->FindNearestPlayer(100.0f))
                     {
                         AttackStart(target);
-                        me->AddThreat(target, 100000000.0f);
+                        me->GetThreatManager().AddThreat(target, 100000000.0f);
                         me->GetMotionMaster()->MoveFollow(target, 0.01f, 0.0f);
                     }
                 });
@@ -2263,7 +2279,7 @@ class npc_mimiron_bomb_bot : public CreatureScript
                 if (target->ToPlayer())
                     if (spell->Id == SPELL_BOOM_BOT || spell->Id == SPELL_BOOM_BOT_PERIODIC)
                         if (InstanceScript* instance = me->GetInstanceScript())
-                            if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
+                            if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_MIMIRON)))
                                 mimiron->AI()->DoAction(DATA_AVOIDED_BOOM_BOT_EXPLOSION);
             }
 
@@ -2273,7 +2289,7 @@ class npc_mimiron_bomb_bot : public CreatureScript
                     me->DespawnOrUnsummon(1*IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 DoCast(me, SPELL_BOOM_BOT, true);
             }
@@ -2310,7 +2326,7 @@ class go_not_push_button : public GameObjectScript
                     return false;
 
                 if ((instance->GetBossState(BOSS_MIMIRON) != IN_PROGRESS && instance->GetBossState(BOSS_MIMIRON) != DONE) && player)
-                    if (Creature* mimiron = ObjectAccessor::GetCreature((*player), instance->GetData64(BOSS_MIMIRON)))
+                    if (Creature* mimiron = ObjectAccessor::GetCreature((*player), instance->GetGuidData(BOSS_MIMIRON)))
                     {
                         mimiron->AI()->DoAction(DO_ACTIVATE_HARD_MODE);
                         go->UseDoorOrButton();
@@ -2365,7 +2381,7 @@ class npc_mimiron_flame_trigger : public CreatureScript
 
             void JustSummoned(Creature* /*summon*/) override
             {
-                if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_MIMIRON) : 0))
+                if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(BOSS_MIMIRON) : ObjectGuid::Empty))
                     mimiron->AI()->DoAction(DO_INCREASE_FLAME_COUNT);
             }
 
@@ -2374,7 +2390,7 @@ class npc_mimiron_flame_trigger : public CreatureScript
                 if (_flameTimer <= diff)
                 {
                     // check if flame cap is reached
-                    if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_MIMIRON) : 0))
+                    if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(BOSS_MIMIRON) : ObjectGuid::Empty))
                         if (mimiron->AI()->GetData(DATA_FLAME_COUNT) >= FLAME_CAP)
                         {
                             me->DespawnOrUnsummon();
@@ -2443,7 +2459,7 @@ class npc_mimiron_flame_spread : public CreatureScript
                     case SPELL_FROST_BOMB_EXPLOSION_10:
                     case SPELL_FROST_BOMB_EXPLOSION_25:
                     case SPELL_WATER_SPRAY:
-                        if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_MIMIRON) : 0))
+                        if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(BOSS_MIMIRON) : ObjectGuid::Empty))
                             mimiron->AI()->DoAction(DO_DECREASE_FLAME_COUNT);
                         me->DespawnOrUnsummon(0.5*IN_MILLISECONDS);
                         break;
@@ -2528,8 +2544,8 @@ class npc_mimiron_db_target : public CreatureScript
                 damage = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
-            void EnterEvadeMode() override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
             void UpdateAI(uint32 /*diff*/) override { }
         };
 
@@ -2583,7 +2599,7 @@ class spell_rocket_strike : public SpellScriptLoader
                 if (GetHitPlayer())
                     if (Unit* caster = GetCaster())
                         if (InstanceScript* instance = caster->GetInstanceScript())
-                            if (Creature* mimiron = ObjectAccessor::GetCreature(*caster, instance->GetData64(BOSS_MIMIRON)))
+                            if (Creature* mimiron = ObjectAccessor::GetCreature(*caster, instance->GetGuidData(BOSS_MIMIRON)))
                                 mimiron->AI()->DoAction(DATA_AVOIDED_ROCKET_STRIKES);
             }
 
@@ -2636,7 +2652,7 @@ class achievement_set_up_us_the_bomb__proximity_mines : public AchievementCriter
         {
             if (player)
                 if (InstanceScript* instance = player->GetInstanceScript())
-                    if (Creature* mimiron = ObjectAccessor::GetCreature(*player, instance->GetData64(BOSS_MIMIRON)))
+                    if (Creature* mimiron = ObjectAccessor::GetCreature(*player, instance->GetGuidData(BOSS_MIMIRON)))
                         return (mimiron->AI()->GetData(DATA_AVOIDED_PROXIMITY_MINES));
             return false;
         }
@@ -2651,7 +2667,7 @@ class achievement_set_up_us_the_bomb__rocket_strikes : public AchievementCriteri
         {
             if (player)
                 if (InstanceScript* instance = player->GetInstanceScript())
-                    if (Creature* mimiron = ObjectAccessor::GetCreature(*player, instance->GetData64(BOSS_MIMIRON)))
+                    if (Creature* mimiron = ObjectAccessor::GetCreature(*player, instance->GetGuidData(BOSS_MIMIRON)))
                         return (mimiron->AI()->GetData(DATA_AVOIDED_ROCKET_STRIKES));
             return false;
         }
@@ -2666,7 +2682,7 @@ class achievement_set_up_us_the_bomb__boombot_explosion : public AchievementCrit
         {
             if (player)
                 if (InstanceScript* instance = player->GetInstanceScript())
-                    if (Creature* mimiron = ObjectAccessor::GetCreature(*player, instance->GetData64(BOSS_MIMIRON)))
+                    if (Creature* mimiron = ObjectAccessor::GetCreature(*player, instance->GetGuidData(BOSS_MIMIRON)))
                         return (mimiron->AI()->GetData(DATA_AVOIDED_BOOM_BOT_EXPLOSION));
             return false;
         }

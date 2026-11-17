@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -22,6 +22,7 @@
 #include "SharedDefines.h"
 #include "ObjectMgr.h"
 #include "SpellInfo.h"
+#include "SpellDefines.h"
 #include "PathGenerator.h"
 
 class Unit;
@@ -79,21 +80,6 @@ enum SpellRangeFlag
     SPELL_RANGE_DEFAULT             = 0,
     SPELL_RANGE_MELEE               = 1,     //melee
     SPELL_RANGE_RANGED              = 2      //hunter range and ranged weapon
-};
-
-struct SpellDestination
-{
-    SpellDestination();
-    SpellDestination(float x, float y, float z, float orientation = 0.0f, uint32 mapId = MAPID_INVALID);
-    SpellDestination(Position const& pos);
-    SpellDestination(WorldObject const& wObj);
-
-    void Relocate(Position const& pos);
-    void RelocateOffset(Position const& offset);
-
-    WorldLocation _position;
-    uint64 _transportGUID;
-    Position _transportOffset;
 };
 
 struct SpellLogEnergyzeHelper
@@ -171,139 +157,6 @@ struct SpellLogHelper
     }
 };
 
-class SpellCastTargets
-{
-    public:
-        SpellCastTargets();
-        SpellCastTargets(Unit* caster, uint32 targetMask, uint64 targetGuid, uint64 itemTargetGuid, uint64 srcTransportGuid, uint64 destTransportGuid, Position srcPos, Position destPos, float elevation, float missileSpeed, std::string targetString);
-        ~SpellCastTargets();
-
-        void Read(ByteBuffer& data, Unit* caster);
-        void Write(ByteBuffer& data);
-
-        void Initialize(uint32 flags, uint64 target, uint64 itemTarget, uint64 dest, WorldLocation destPos, uint64 src, WorldLocation srcPos)
-        {
-            m_targetMask = flags;
-            m_objectTargetGUID = target;
-            m_itemTargetGUID = itemTarget;
-
-            // dest
-            m_dst._transportGUID = dest;
-            m_dst._position = destPos;
-            if (dest)
-                m_dst._transportOffset = destPos;
-
-            // src
-            m_src._transportGUID = src;
-            m_src._position = srcPos;
-            if (src)
-                m_src._transportOffset = srcPos;
-        }
-
-        uint32 GetTargetMask() const { return m_targetMask; }
-        void SetTargetMask(uint32 newMask) { m_targetMask = newMask; }
-
-        void SetTargetFlag(SpellCastTargetFlags flag) { m_targetMask |= flag; }
-
-        uint64 GetUnitTargetGUID() const;
-        Unit* GetUnitTarget() const;
-        void SetUnitTarget(Unit* target);
-
-        uint64 GetGOTargetGUID() const;
-        GameObject* GetGOTarget() const;
-        void SetGOTarget(GameObject* target);
-
-        uint64 GetCorpseTargetGUID() const;
-        Corpse* GetCorpseTarget() const;
-
-        WorldObject* GetObjectTarget() const;
-        uint64 GetObjectTargetGUID() const;
-        void RemoveObjectTarget();
-
-        uint64 GetItemTargetGUID() const { return m_itemTargetGUID; }
-        Item* GetItemTarget() const { return m_itemTarget; }
-        uint32 GetItemTargetEntry() const { return m_itemTargetEntry; }
-        void SetItemTarget(Item* item);
-        void SetTradeItemTarget(Player* caster);
-        void UpdateTradeSlotItem();
-
-        SpellDestination const* GetSrc() const;
-        Position const* GetSrcPos() const;
-        void SetSrc(float x, float y, float z);
-        void SetSrc(Position const& pos);
-        void SetSrc(WorldObject const& wObj);
-        void ModSrc(Position const& pos);
-        void RemoveSrc();
-
-        SpellDestination const* GetDst() const;
-        WorldLocation const* GetDstPos() const;
-        void SetDst(float x, float y, float z, float orientation, uint32 mapId = MAPID_INVALID);
-        void SetDst(Position const& pos);
-        void SetDst(WorldObject const& wObj);
-        void SetDst(SpellDestination const& spellDest);
-        void SetDst(SpellCastTargets const& spellTargets);
-        void ModDst(Position const& pos);
-        void ModDst(SpellDestination const& spellDest);
-        void RemoveDst();
-
-        bool HasSrc() const { return GetTargetMask() & TARGET_FLAG_SOURCE_LOCATION; }
-        bool HasDst() const { return GetTargetMask() & TARGET_FLAG_DEST_LOCATION; }
-        bool HasTraj() const { return m_speed != 0; }
-
-        float GetElevation() const { return m_elevation; }
-        void SetElevation(float elevation) { m_elevation = elevation; }
-        float GetSpeed() const { return m_speed; }
-        void SetSpeed(float speed) { m_speed = speed; }
-
-        float GetDist2d() const { return m_src._position.GetExactDist2d(&m_dst._position); }
-        float GetSpeedXY() const { return m_speed * std::cos(m_elevation); }
-        float GetSpeedZ() const { return m_speed * std::sin(m_elevation); }
-
-        void Update(Unit* caster);
-        void OutDebug() const;
-
-        void ClearExtraTargets()
-        {
-            m_extraTargets.clear();
-            m_targetMask &= ~TARGET_FLAG_EXTRA_TARGETS;
-        }
-
-        void AddExtraTarget(uint64 guid, WorldLocation pos)
-        {
-            SpellDestination extraTarget;
-            extraTarget._position = pos;
-            extraTarget._transportGUID = guid;
-
-            m_extraTargets.push_back(extraTarget);
-
-            m_targetMask |= TARGET_FLAG_EXTRA_TARGETS;
-        }
-
-        size_t GetExtraTargetsCount() const { return m_extraTargets.size(); }
-        std::list<SpellDestination> const & GetExtraTargets() const { return m_extraTargets; }
-
-        std::string const& GetTargetString() { return m_strTarget; }
-
-    private:
-        uint32 m_targetMask;
-
-        // objects (can be used at spell creating and after Update at casting)
-        WorldObject* m_objectTarget;
-        Item* m_itemTarget;
-
-        // object GUID/etc, can be used always
-        uint64 m_objectTargetGUID;
-        uint64 m_itemTargetGUID;
-        uint32 m_itemTargetEntry;
-
-        SpellDestination m_src;
-        SpellDestination m_dst;
-        std::list<SpellDestination> m_extraTargets;
-
-        float m_elevation, m_speed;
-        std::string m_strTarget;
-};
-
 struct SpellValue
 {
     explicit  SpellValue(SpellInfo const* proto);
@@ -352,7 +205,7 @@ struct SpellResearchData
     uint32 FragmentCount;
 };
 
-class Spell
+class TC_GAME_API Spell
 {
     friend void Unit::SetCurrentCastedSpell(Spell* pSpell);
     friend class SpellScript;
@@ -501,10 +354,13 @@ class Spell
         void EffectRandomizeDigsite(SpellEffIndex effIndex);
         void EffectBonusRoll(SpellEffIndex effIndex);
         void EffectPlayerChoice(SpellEffIndex effIndex);
+        void EffectUpdatePlayerPhase(SpellEffIndex effIndex);
+        void EffectUpdateZoneAurasAndPhases(SpellEffIndex effIndex);
+        void EffectSummonPersonalGameObject(SpellEffIndex effIndex);
 
         typedef std::set<Aura*> UsedSpellMods;
 
-        Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, uint64 originalCasterGUID = 0, bool skipCheck = false);
+        Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID = ObjectGuid::Empty, bool skipCheck = false);
         ~Spell();
 
         void InitExplicitTargets(SpellCastTargets const& targets);
@@ -528,12 +384,12 @@ class Spell
 
         void SelectEffectTypeImplicitTargets(uint8 effIndex);
 
-        uint32 GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionList* condList);
+        uint32 GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionContainer* condList);
         template<class SEARCHER> void SearchTargets(SEARCHER& searcher, uint32 containerMask, Unit* referer, Position const* pos, float radius);
 
-        WorldObject* SearchNearbyTarget(float range, SpellImplicitTargetInfo const& targetType, ConditionList* condList = NULL);
-        void SearchAreaTargets(std::list<WorldObject*>& targets, float range, Position const* position, Unit* referer, SpellImplicitTargetInfo const& targetType, ConditionList* condList);
-        void SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellImplicitTargetInfo const& targetType, ConditionList* condList, bool isChainHeal);
+        WorldObject* SearchNearbyTarget(float range, SpellImplicitTargetInfo const& targetType, ConditionContainer* condList = NULL);
+        void SearchAreaTargets(std::list<WorldObject*>& targets, float range, Position const* position, Unit* referer, SpellImplicitTargetInfo const& targetType, ConditionContainer* condList);
+        void SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellImplicitTargetInfo const& targetType, ConditionContainer* condList, bool isChainHeal);
 
         GameObject* SearchSpellFocus();
 
@@ -588,7 +444,7 @@ class Spell
         void CheckSrc() { if (!m_targets.HasSrc()) m_targets.SetSrc(*m_caster); }
         void CheckDst() { if (!m_targets.HasDst()) m_targets.SetDst(*m_caster); }
 
-        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE, Opcodes opcode = SMSG_CAST_FAILED);
+        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE, OpcodeServer opcode = SMSG_CAST_FAILED);
         void SendCastResult(SpellCastResult result);
         void SendPetCastResult(SpellCastResult result);
         void SendSpellStart();
@@ -616,7 +472,7 @@ class Spell
 
         SpellInfo const* const m_spellInfo;
         Item* m_CastItem;
-        uint64 m_castItemGUID;
+        ObjectGuid m_castItemGUID;
         uint8 m_cast_count;
         uint32 m_glyphIndex;
         uint32 m_preCastSpell;
@@ -698,13 +554,13 @@ class Spell
         void TriggerGlobalCooldown();
         void CancelGlobalCooldown();
 
-        void SendLoot(uint64 guid, LootType loottype);
+        void SendLoot(ObjectGuid guid, LootType loottype);
 
         Unit* const m_caster;
 
         SpellValue* const m_spellValue;
 
-        uint64 m_originalCasterGUID;                        // real source of cast (aura caster/etc), used for spell targets selection
+        ObjectGuid m_originalCasterGUID;                    // real source of cast (aura caster/etc), used for spell targets selection
                                                             // e.g. damage around area spell trigered by victim aura and damage enemies of aura caster
         Unit* m_originalCaster;                             // cached pointer for m_originalCaster, updated at Spell::UpdatePointers()
 
@@ -790,7 +646,7 @@ class Spell
     public:
         struct TargetInfo
         {
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             uint64 timeDelay;
             SpellMissInfo missCondition:8;
             SpellMissInfo reflectResult:8;
@@ -815,7 +671,7 @@ class Spell
 
         struct GOTargetInfo
         {
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             uint64 timeDelay;
             uint32 effectMask;
             bool   processed:1;
@@ -824,7 +680,7 @@ class Spell
 
         struct CorpseTargetInfo
         {
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             uint64 timeDelay;
             uint8  effectMask : 8;
             bool   processed : 1;
@@ -840,7 +696,7 @@ class Spell
 
         struct ReflectTargetInfo
         {
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             uint64 timeDelay;
             bool processed;
         };
@@ -906,8 +762,8 @@ class Spell
         HitTriggerSpellList m_hitTriggerSpells;
 
         // effect helpers
-        void SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* properties, uint32 numSummons);
-        TempSummon* SummonTotem(uint32 entry, SummonPropertiesEntry const* properties, uint32 duration, bool visibleBySummonerOnly = false);
+        void SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* properties, uint32 numSummons, ObjectGuid privateObjectOwner);
+        TempSummon* SummonTotem(uint32 entry, SummonPropertiesEntry const* properties, uint32 duration, ObjectGuid privateObjectOwner);
         void CalculateJumpSpeeds(uint8 i, float dist, float & speedxy, float & speedz);
 
         SpellCastResult CanOpenLock(uint32 effIndex, uint32 lockid, SkillType& skillid, int32& reqSkillValue, int32& skillValue);
@@ -957,10 +813,10 @@ namespace Trinity
         SpellTargetSelectionCategories _category;
         SpellTargetCheckTypes _targetSelectionType;
         ConditionSourceInfo* _condSrcInfo;
-        ConditionList* _condList;
+        ConditionContainer* _condList;
 
         WorldObjectSpellTargetCheck(Unit* caster, Unit* referer, SpellInfo const* spellInfo,
-            SpellTargetSelectionCategories category, SpellTargetCheckTypes selectionType, ConditionList* condList);
+            SpellTargetSelectionCategories category, SpellTargetCheckTypes selectionType, ConditionContainer* condList);
         ~WorldObjectSpellTargetCheck();
         bool operator()(WorldObject* target);
     };
@@ -970,7 +826,7 @@ namespace Trinity
         float _range;
         Unit const* _caster;
         WorldObjectSpellNearbyTargetCheck(float range, Unit* caster, SpellInfo const* spellInfo,
-            SpellTargetSelectionCategories category, SpellTargetCheckTypes selectionType, ConditionList* condList);
+            SpellTargetSelectionCategories category, SpellTargetCheckTypes selectionType, ConditionContainer* condList);
         bool operator()(WorldObject* target);
     };
 
@@ -979,7 +835,7 @@ namespace Trinity
         float _range;
         Position const* _position;
         WorldObjectSpellAreaTargetCheck(float range, Position const* position, Unit* caster,
-            Unit* referer, SpellInfo const* spellInfo, SpellTargetSelectionCategories category, SpellTargetCheckTypes selectionType, ConditionList* condList);
+            Unit* referer, SpellInfo const* spellInfo, SpellTargetSelectionCategories category, SpellTargetCheckTypes selectionType, ConditionContainer* condList);
         bool operator()(WorldObject* target);
     };
 
@@ -987,7 +843,7 @@ namespace Trinity
     {
         float _coneAngle, _coneOffset;
         WorldObjectSpellConeTargetCheck(float coneAngle, float coneOffset, float range, Unit* caster,
-            SpellInfo const* spellInfo, SpellTargetSelectionCategories category, SpellTargetCheckTypes selectionType, ConditionList* condList);
+            SpellInfo const* spellInfo, SpellTargetSelectionCategories category, SpellTargetCheckTypes selectionType, ConditionContainer* condList);
         bool operator()(WorldObject* target);
     };
 

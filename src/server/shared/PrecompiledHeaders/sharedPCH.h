@@ -17,7 +17,6 @@
  
 //add here most rarely modified headers to speed up debug build compilation
 
-#include <ace/Guard_T.h>
 #include "Common.h"
 #include "Errors.h"
 #include "Log.h"
@@ -26,3 +25,4 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <boost/asio/ip/tcp.hpp>

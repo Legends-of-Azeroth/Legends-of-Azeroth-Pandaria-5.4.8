@@ -83,7 +83,7 @@ class boss_mother_shahraz : public CreatureScript
 
             InstanceScript* instance;
 
-            uint64 TargetGUID[3];
+            ObjectGuid TargetGUID[3];
             uint32 BeamTimer;
             uint32 BeamCount;
             uint32 CurrentBeam;
@@ -104,7 +104,7 @@ class boss_mother_shahraz : public CreatureScript
                     instance->SetData(DATA_MOTHER_SHAHRAZ_EVENT, NOT_STARTED);
 
                 for (uint8 i = 0; i<3; ++i)
-                    TargetGUID[i] = 0;
+                    TargetGUID[i] = ObjectGuid::Empty;
 
                 BeamTimer = 20000; // Timers may be incorrect
                 BeamCount = 0;
@@ -121,7 +121,7 @@ class boss_mother_shahraz : public CreatureScript
                 Enraged = false;
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance || !instance->CheckRequiredBosses(DATA_MOTHER_SHAHRAZ_EVENT, who->ToPlayer()))
                 {
@@ -247,7 +247,7 @@ class boss_mother_shahraz : public CreatureScript
                                 unit = Unit::GetUnit(*me, TargetGUID[i]);
                                 if (unit)
                                     unit->CastSpell(unit, SPELL_ATTRACTION, true);
-                                TargetGUID[i] = 0;
+                                TargetGUID[i] = ObjectGuid::Empty;
                             }
                         }
 

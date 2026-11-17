@@ -123,9 +123,9 @@ class boss_setesh : public CreatureScript
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -194,7 +194,7 @@ class boss_setesh : public CreatureScript
                                 me->GetPositionZ(),
                                 me->GetOrientation(),
                                 IsHeroic()? TEMPSUMMON_DEAD_DESPAWN: TEMPSUMMON_TIMED_DESPAWN,
-                                IsHeroic()? 0: 35000);
+                                Milliseconds(IsHeroic()? 0: 35000));
                             events.ScheduleEvent(EVENT_SUMMON_CHAOS_PORTAL, urand(40000, 45000));
                             break;
                         case EVENT_MOVE:
@@ -229,7 +229,7 @@ class npc_setesh_chaos_portal : public CreatureScript
 
             void SeteshSummon(SeteshSummonTypes type)
             {
-                if (Creature* pSetesh = instance->instance->GetCreature(instance->GetData64(DATA_SETESH)))
+                if (Creature* pSetesh = instance->instance->GetCreature(instance->GetGuidData(DATA_SETESH)))
                 {    
                     switch (type)
                     {
@@ -393,7 +393,7 @@ class npc_setesh_void_seeker : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (urand(0, 1))
                     events.ScheduleEvent(EVENT_ANTI_MAGIC_PRISON, urand(3000, 5000));

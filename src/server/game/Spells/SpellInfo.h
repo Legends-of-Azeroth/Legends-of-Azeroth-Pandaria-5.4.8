@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -40,38 +40,6 @@ struct SpellRadiusEntry;
 struct SpellEntry;
 struct SpellCastTimesEntry;
 struct Condition;
-
-enum SpellCastTargetFlags
-{
-    TARGET_FLAG_NONE            = 0x00000000,
-    TARGET_FLAG_UNUSED_1        = 0x00000001,               // not used
-    TARGET_FLAG_UNIT            = 0x00000002,               // pguid
-    TARGET_FLAG_UNIT_RAID       = 0x00000004,               // not sent, used to validate target (if raid member)
-    TARGET_FLAG_UNIT_PARTY      = 0x00000008,               // not sent, used to validate target (if party member)
-    TARGET_FLAG_ITEM            = 0x00000010,               // pguid
-    TARGET_FLAG_SOURCE_LOCATION = 0x00000020,               // pguid, 3 float
-    TARGET_FLAG_DEST_LOCATION   = 0x00000040,               // pguid, 3 float
-    TARGET_FLAG_UNIT_ENEMY      = 0x00000080,               // not sent, used to validate target (if enemy)
-    TARGET_FLAG_UNIT_ALLY       = 0x00000100,               // not sent, used to validate target (if ally)
-    TARGET_FLAG_CORPSE_ENEMY    = 0x00000200,               // pguid
-    TARGET_FLAG_UNIT_DEAD       = 0x00000400,               // not sent, used to validate target (if dead creature)
-    TARGET_FLAG_GAMEOBJECT      = 0x00000800,               // pguid, used with TARGET_GAMEOBJECT_TARGET
-    TARGET_FLAG_TRADE_ITEM      = 0x00001000,               // pguid
-    TARGET_FLAG_STRING          = 0x00002000,               // string
-    TARGET_FLAG_GAMEOBJECT_ITEM = 0x00004000,               // not sent, used with TARGET_GAMEOBJECT_ITEM_TARGET
-    TARGET_FLAG_CORPSE_ALLY     = 0x00008000,               // pguid
-    TARGET_FLAG_UNIT_MINIPET    = 0x00010000,               // pguid, used to validate target (if non combat pet)
-    TARGET_FLAG_GLYPH_SLOT      = 0x00020000,               // used in glyph spells
-    TARGET_FLAG_DEST_TARGET     = 0x00040000,               // sometimes appears with DEST_TARGET spells (may appear or not for a given spell)
-    TARGET_FLAG_EXTRA_TARGETS   = 0x00080000,               // uint32 counter, loop { vec3 - screen position (?), guid }, not used so far
-    TARGET_FLAG_UNIT_PASSENGER  = 0x00100000,               // guessed, used to validate target (if vehicle passenger)
-
-    TARGET_FLAG_UNIT_MASK = TARGET_FLAG_UNIT | TARGET_FLAG_UNIT_RAID | TARGET_FLAG_UNIT_PARTY
-        | TARGET_FLAG_UNIT_ENEMY | TARGET_FLAG_UNIT_ALLY | TARGET_FLAG_UNIT_DEAD | TARGET_FLAG_UNIT_MINIPET | TARGET_FLAG_UNIT_PASSENGER,
-    TARGET_FLAG_GAMEOBJECT_MASK = TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_GAMEOBJECT_ITEM,
-    TARGET_FLAG_CORPSE_MASK = TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_CORPSE_ENEMY,
-    TARGET_FLAG_ITEM_MASK = TARGET_FLAG_TRADE_ITEM | TARGET_FLAG_ITEM | TARGET_FLAG_GAMEOBJECT_ITEM
-};
 
 enum SpellTargetSelectionCategories
 {
@@ -200,60 +168,13 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_ALWAYS_SEND_TO_CLIENT         = 0x00400000, // 22 To force send SPELL_START and SPELL_GO to client
 };
 
-enum SpellInterruptFlags
-{
-    SPELL_INTERRUPT_FLAG_MOVEMENT                   = 0x01, // why need this for instant?
-    SPELL_INTERRUPT_FLAG_PUSH_BACK                  = 0x02, // push back
-    SPELL_INTERRUPT_FLAG_UNK3                       = 0x04, // any info?
-    SPELL_INTERRUPT_FLAG_INTERRUPT                  = 0x08, // interrupt
-    SPELL_INTERRUPT_FLAG_ABORT_ON_DMG               = 0x10, // _complete_ interrupt on direct damage
-    //SPELL_INTERRUPT_UNK                           = 0x20  // unk, 564 of 727 spells having this spell start with "Glyph"
-};
-
-// See SpellAuraInterruptFlags for other values definitions
-enum SpellChannelInterruptFlags
-{
-    CHANNEL_INTERRUPT_FLAG_INTERRUPT                = 0x08,  // interrupt
-    CHANNEL_FLAG_DELAY                              = 0x4000
-};
-
-enum SpellAuraInterruptFlags
-{
-    AURA_INTERRUPT_FLAG_HITBYSPELL                  = 0x00000001,   // 0    removed when getting hit by a negative spell?
-    AURA_INTERRUPT_FLAG_TAKE_DAMAGE                 = 0x00000002,   // 1    removed by any damage
-    AURA_INTERRUPT_FLAG_CAST                        = 0x00000004,   // 2    cast any spells
-    AURA_INTERRUPT_FLAG_MOVE                        = 0x00000008,   // 3    removed by any movement
-    AURA_INTERRUPT_FLAG_TURNING                     = 0x00000010,   // 4    removed by any turning
-    AURA_INTERRUPT_FLAG_JUMP                        = 0x00000020,   // 5    removed by entering combat
-    AURA_INTERRUPT_FLAG_NOT_MOUNTED                 = 0x00000040,   // 6    removed by dismounting
-    AURA_INTERRUPT_FLAG_NOT_ABOVEWATER              = 0x00000080,   // 7    removed by entering water
-    AURA_INTERRUPT_FLAG_NOT_UNDERWATER              = 0x00000100,   // 8    removed by leaving water
-    AURA_INTERRUPT_FLAG_NOT_SHEATHED                = 0x00000200,   // 9    removed by unsheathing
-    AURA_INTERRUPT_FLAG_TALK                        = 0x00000400,   // 10   talk to npc / loot? action on creature
-    AURA_INTERRUPT_FLAG_USE                         = 0x00000800,   // 11   mine/use/open action on gameobject
-    AURA_INTERRUPT_FLAG_MELEE_ATTACK                = 0x00001000,   // 12   removed by attacking
-    AURA_INTERRUPT_FLAG_SPELL_ATTACK                = 0x00002000,   // 13   ???
-    AURA_INTERRUPT_FLAG_UNK14                       = 0x00004000,   // 14
-    AURA_INTERRUPT_FLAG_TRANSFORM                   = 0x00008000,   // 15   removed by transform?
-    AURA_INTERRUPT_FLAG_UNK16                       = 0x00010000,   // 16
-    AURA_INTERRUPT_FLAG_MOUNT                       = 0x00020000,   // 17   misdirect, aspect, swim speed
-    AURA_INTERRUPT_FLAG_NOT_SEATED                  = 0x00040000,   // 18   removed by standing up (used by food and drink mostly and sleep/Fake Death like)
-    AURA_INTERRUPT_FLAG_CHANGE_MAP                  = 0x00080000,   // 19   leaving map/getting teleported
-    AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION    = 0x00100000,   // 20   removed by auras that make you invulnerable, or make other to lose selection on you
-    AURA_INTERRUPT_FLAG_UNK21                       = 0x00200000,   // 21
-    AURA_INTERRUPT_FLAG_TELEPORTED                  = 0x00400000,   // 22
-    AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT            = 0x00800000,   // 23   removed by entering pvp combat
-    AURA_INTERRUPT_FLAG_DIRECT_DAMAGE               = 0x01000000,   // 24   removed by any direct damage
-    AURA_INTERRUPT_FLAG_LANDING                     = 0x02000000,   // 25   removed by hitting the ground
-
-    AURA_INTERRUPT_FLAG_NOT_VICTIM = (AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_DIRECT_DAMAGE)
-};
-
 enum SpellAuraInterruptFlags2
 {
     AURA_INTERRUPT_FLAG2_SPECIALIZATION_CHANGE      = 0x00000040,
     AURA_INTERRUPT_FLAG2_ENCOUNTER_START            = 0x00000100,
 };
+
+enum SpellAuraInterruptFlags : uint32;
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType);
 
@@ -314,7 +235,7 @@ public:
     uint32    ItemType;
     uint32    TriggerSpell;
     flag128    SpellClassMask;
-    std::list<Condition*>* ImplicitTargetConditions;
+    std::vector<Condition*>* ImplicitTargetConditions;
     // SpellScalingEntry
     float     ScalingMultiplier      = 0.0f;
     float     DeltaScalingMultiplier = 0.0f;
@@ -429,8 +350,8 @@ class SpellInfo
         uint32 SpellVisual[2];
         uint32 SpellIconID;
         uint32 ActiveIconID;
-        DbcStr SpellName;
-        DbcStr Rank;
+        char const* SpellName;
+        char const* Rank;
         uint32 MaxTargetLevel;
         uint32 MaxAffectedTargets;
         uint32 SpellFamilyName;

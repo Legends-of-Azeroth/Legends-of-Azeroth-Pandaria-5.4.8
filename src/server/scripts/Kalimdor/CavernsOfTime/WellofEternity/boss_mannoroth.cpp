@@ -185,7 +185,7 @@ class boss_mannoroth : public CreatureScript
             {
                 _Reset();
 
-                me->SummonCreature(NPC_VAROTHEN, varothenPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                me->SummonCreature(NPC_VAROTHEN, varothenPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
 
                 phase = 0;
                 bVarothen = false;
@@ -211,9 +211,9 @@ class boss_mannoroth : public CreatureScript
                 me->Attack(target, false);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                if (Creature* pVarothen = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VAROTHEN)))
+                if (Creature* pVarothen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VAROTHEN)))
                     if (!pVarothen->IsInCombat())
                         DoZoneInCombat(pVarothen);
 
@@ -359,12 +359,12 @@ class boss_mannoroth : public CreatureScript
                             break;
                         case EVENT_SUMMON_DEBILITATOR_1:
                             for (uint8 i = 0; i < 2; ++i)
-                                me->SummonCreature(NPC_DOOMGUARD_DEBILITATOR, debilitatorPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                                me->SummonCreature(NPC_DOOMGUARD_DEBILITATOR, debilitatorPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
                             break;
                         case EVENT_SUMMON_DEVASTATOR:
                         {
                             uint32 i = urand(0, 2);
-                            me->SummonCreature(NPC_DOOMGUARD_DEVASTATOR, devastatorPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
+                            me->SummonCreature(NPC_DOOMGUARD_DEVASTATOR, devastatorPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000ms);
                             events.ScheduleEvent(EVENT_SUMMON_DEVASTATOR, urand(4000, 7000));
                             break;
                         }
@@ -431,7 +431,7 @@ class boss_mannoroth : public CreatureScript
                                 pIllidan->AI()->Talk(18); // SAY_ILLIDAN_2_BUFF_3
                             break;
                         case EVENT_DESPAWN:
-                            instance->DoRespawnGameObject(instance->GetData64(DATA_MINOR_CACHE), DAY);
+                            instance->DoRespawnGameObject(instance->GetGuidData(DATA_MINOR_CACHE), DAY);
                             me->DespawnOrUnsummon();
                             break;
                         default:
@@ -473,7 +473,7 @@ class boss_mannoroth : public CreatureScript
                                 }
                     }
                 }
-                instance->DoKilledMonsterKredit(QUEST_THE_PATH_TO_THE_DRAGON_SOUL, 54969, 0);
+                instance->DoKilledMonsterKredit(QUEST_THE_PATH_TO_THE_DRAGON_SOUL, 54969, ObjectGuid::Empty);
                 instance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, SPELL_COMPLETE_ENCOUNTER, me); 
                 instance->SetBossState(DATA_MANNOROTH, DONE);
                 instance->DoModifyPlayerCurrencies(CURRENCY_TYPE_JUSTICE_POINTS, 7000);
@@ -523,13 +523,13 @@ class npc_mannoroth_varothen : public CreatureScript
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_VAROTHEN_AGGRO);
                 events.ScheduleEvent(EVENT_MAGNISTRIKE, urand(3000, 7000));
 
                 if (instance)
-                    if (Creature* pMannoroth = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MANNOROTH)))
+                    if (Creature* pMannoroth = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MANNOROTH)))
                         if (!pMannoroth->IsInCombat())
                             DoZoneInCombat(pMannoroth);
             }
@@ -550,7 +550,7 @@ class npc_mannoroth_varothen : public CreatureScript
             {
                 Talk(SAY_VAROTHEN_DEATH);
 
-                if (Creature* pMannoroth = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MANNOROTH)))
+                if (Creature* pMannoroth = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MANNOROTH)))
                     pMannoroth->AI()->DoAction(ACTION_VAROTHEN_DIED);
 
                 Map::PlayerList const &PlayerList = instance->instance->GetPlayers();

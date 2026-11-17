@@ -57,7 +57,7 @@ struct boss_drekthar : public ScriptedAI
         _events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(YELL_AGGRO);
         _events.ScheduleEvent(EVENT_CAST_SPELL_WHIRLWIND, randtime(1s, 20s));
@@ -68,7 +68,7 @@ struct boss_drekthar : public ScriptedAI
         _events.ScheduleEvent(EVENT_DREKTHAR_RESET, 5s);
     }
 
-    void JustRespawned() override
+    void JustAppeared() override
     {
         Reset();
         Talk(YELL_RESPAWN);

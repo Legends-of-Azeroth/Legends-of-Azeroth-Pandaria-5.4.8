@@ -172,9 +172,9 @@ class boss_corla_herald_of_twilight : public CreatureScript
                     me->GetMap()->SetWorldState(WORLDSTATE_ARRESTED_DEVELOPMENT, 1);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 me->CastStop();
                 me->GetMotionMaster()->MoveChase(me->GetVictim());
 
@@ -349,9 +349,9 @@ class npc_corla_netheressence_trigger : public CreatureScript
             void Reset() override
             {
                 me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
-                zealotGuid = 0;
-                channelTargetGuid = 0;
-                lastTargetGuid = 0;
+                zealotGuid.Clear();
+                channelTargetGuid.Clear();
+                lastTargetGuid.Clear();
             }
 
             void UpdateAI(uint32 diff) override
@@ -399,7 +399,7 @@ class npc_corla_netheressence_trigger : public CreatureScript
                                 channelTarget->RemoveAllAuras();
                             if (InstanceScript* instance = me->GetInstanceScript())
                             {
-                                if (Creature* Corla = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_CORLA)))
+                                if (Creature* Corla = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CORLA)))
                                 {
                                     if (channelTarget->ToPlayer())
                                         Corla->CastSpell(channelTarget, SPELL_TWILIGHT_EVOLUTION, true);
@@ -435,15 +435,16 @@ class npc_corla_netheressence_trigger : public CreatureScript
 
                     case ACTION_TRIGGER_STOP_CHANNELING:
                         me->RemoveAllAuras();
-                        lastTargetGuid = channelTargetGuid = 0;
+                        lastTargetGuid.Clear();
+                        channelTargetGuid.Clear();
                         break;
                 }
             }
 
         private:
-            uint64 zealotGuid;
-            uint64 channelTargetGuid;
-            uint64 lastTargetGuid;
+            ObjectGuid zealotGuid;
+            ObjectGuid channelTargetGuid;
+            ObjectGuid lastTargetGuid;
             Map::PlayerList CharmedPlayerList;
 
             // We need np EventMap becouse we have only 1 Event
@@ -468,7 +469,7 @@ class spell_twilight_evolution : public AuraScript
         {
             owner->SetReactState(REACT_AGGRESSIVE);
 
-            if (Creature* corla = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetData64(DATA_CORLA) : 0))
+            if (Creature* corla = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetGuidData(DATA_CORLA) : ObjectGuid::Empty))
                 corla->AI()->SetData(TYPE_EVOLVED_SUCCESSED, 1);
         }
     }

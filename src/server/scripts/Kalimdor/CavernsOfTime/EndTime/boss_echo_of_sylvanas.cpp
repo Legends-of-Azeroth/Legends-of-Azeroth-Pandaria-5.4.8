@@ -132,7 +132,7 @@ class boss_echo_of_sylvanas : public CreatureScript
 
             uint8 ghouls;
             uint8 deadghouls;
-            uint64 ghoulGuids[spawnCount];
+            ObjectGuid ghoulGuids[spawnCount];
             float blightedArrowsAngle;
             bool autoattackStopped;
 
@@ -147,7 +147,7 @@ class boss_echo_of_sylvanas : public CreatureScript
                 ghouls = 0;
                 deadghouls = 0;
                 for (uint8 i = 0; i < spawnCount; ++i)
-                    ghoulGuids[i] = 0;
+                    ghoulGuids[i] = ObjectGuid::Empty;
                 blightedArrowsAngle = 0;
                 autoattackStopped = false;
                 me->GetMap()->SetWorldState(WORLDSTATE_SEVERED_TIES, 0);
@@ -167,7 +167,7 @@ class boss_echo_of_sylvanas : public CreatureScript
                                 DoCast(player, SPELL_ARCHIVED_SYLVANAS, true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_UNHOLY_SHOT, urand(5000, 20000));
@@ -496,14 +496,14 @@ class npc_echo_of_sylvanas_risen_ghoul : public CreatureScript
             }
 
             EventMap events;
-            uint64 _guid;
-            uint64 _visualGuid;
+            ObjectGuid _guid;
+            ObjectGuid _visualGuid;
 
             void Reset() override
             {
                 events.Reset();
-                _guid = 0;
-                _visualGuid = 0;
+                _guid = ObjectGuid::Empty;
+                _visualGuid = ObjectGuid::Empty;
                 me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 5.0f);
                 me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 5.0f);
             }
@@ -513,16 +513,16 @@ class npc_echo_of_sylvanas_risen_ghoul : public CreatureScript
                 me->RemoveAura(SPELL_WRACKING_PAIN_ANY);
                 if (Creature* target = ObjectAccessor::GetCreature(*me, _guid))
                     target->RemoveAura(SPELL_WRACKING_PAIN_ANY);
-                _guid = 0;
+                _guid = ObjectGuid::Empty;
                 if (Creature* target = ObjectAccessor::GetCreature(*me, _visualGuid))
                     target->DespawnOrUnsummon();
-                _visualGuid = 0;
+                _visualGuid = ObjectGuid::Empty;
                 if (Creature* pSylvanas = me->FindNearestCreature(NPC_ECHO_OF_SYLVANAS, 300.0f))
                     pSylvanas->GetAI()->DoAction(ACTION_KILL_GHOUL);
                 me->DespawnOrUnsummon(500);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_SEEPING_SHADOWS_DUMMY, true);
                 if (Creature* ghoulVisual = me->FindNearestCreature(NPC_GHOUL_VISUAL, 10))
@@ -533,18 +533,18 @@ class npc_echo_of_sylvanas_risen_ghoul : public CreatureScript
                 events.ScheduleEvent(EVENT_MOVE_GHOUL, 2000);
             }
             
-            void SetGUID(uint64 guid, int32 type) override
+            void SetGUID(ObjectGuid guid, int32 type) override
             {
                 if (type == DATA_GUID)
                     _guid = guid;
             }
 
-            uint64 GetGUID(int32 type) const override
+            ObjectGuid GetGUID(int32 type) const override
             {
                 if (type == DATA_GUID)
                     return _guid;
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void MovementInform(uint32 type, uint32 pointId) override
@@ -641,7 +641,7 @@ class spell_echo_of_sylvanas_wracking_pain_dmg : public SpellScriptLoader
                     return;
                 }
 
-                uint64 _guid = GetCaster()->GetAI()->GetGUID(DATA_GUID);
+                ObjectGuid _guid = GetCaster()->GetAI()->GetGUID(DATA_GUID);
                 if (Creature* target = ObjectAccessor::GetCreature(*GetCaster(), _guid))
                 {
                     if (target->IsAlive())

@@ -46,35 +46,35 @@ class instance_halls_of_lightning : public InstanceMapScript
 
             uint32 hallOfTheWatchersTriggeredMask = 0;
 
-            uint64 m_uiGeneralBjarngrimGUID;
-            uint64 m_uiIonarGUID;
-            uint64 m_uiLokenGUID;
-            uint64 m_uiVolkhanGUID;
+            ObjectGuid m_uiGeneralBjarngrimGUID;
+            ObjectGuid m_uiIonarGUID;
+            ObjectGuid m_uiLokenGUID;
+            ObjectGuid m_uiVolkhanGUID;
 
-            uint64 m_uiBjarngrimDoorGUID;
-            uint64 m_uiVolkhanDoorGUID;
-            uint64 m_uiIonarDoorGUID;
-            uint64 m_uiLokenDoorGUID;
-            uint64 m_uiLokenGlobeGUID;
-            uint64 m_questGiverGUID;
-            uint64 m_questEnderGUID;
+            ObjectGuid m_uiBjarngrimDoorGUID;
+            ObjectGuid m_uiVolkhanDoorGUID;
+            ObjectGuid m_uiIonarDoorGUID;
+            ObjectGuid m_uiLokenDoorGUID;
+            ObjectGuid m_uiLokenGlobeGUID;
+            ObjectGuid m_questGiverGUID;
+            ObjectGuid m_questEnderGUID;
 
-            void Initialize()
+            void Initialize() override
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-                m_uiGeneralBjarngrimGUID = 0;
-                m_uiVolkhanGUID          = 0;
-                m_uiIonarGUID            = 0;
-                m_uiLokenGUID            = 0;
+                m_uiGeneralBjarngrimGUID = ObjectGuid::Empty;
+                m_uiVolkhanGUID = ObjectGuid::Empty;
+                m_uiIonarGUID = ObjectGuid::Empty;
+                m_uiLokenGUID = ObjectGuid::Empty;
 
-                m_uiBjarngrimDoorGUID    = 0;
-                m_uiVolkhanDoorGUID      = 0;
-                m_uiIonarDoorGUID        = 0;
-                m_uiLokenDoorGUID        = 0;
-                m_uiLokenGlobeGUID       = 0;
-                m_questGiverGUID         = 0;
-                m_questEnderGUID         = 0;
+                m_uiBjarngrimDoorGUID = ObjectGuid::Empty;
+                m_uiVolkhanDoorGUID = ObjectGuid::Empty;
+                m_uiIonarDoorGUID = ObjectGuid::Empty;
+                m_uiLokenDoorGUID = ObjectGuid::Empty;
+                m_uiLokenGlobeGUID = ObjectGuid::Empty;
+                m_questGiverGUID = ObjectGuid::Empty;
+                m_questEnderGUID = ObjectGuid::Empty;
             }
 
             void OnPlayerLeave(Player* player) override
@@ -190,13 +190,13 @@ class instance_halls_of_lightning : public InstanceMapScript
                             if (GameObject* pGlobe = instance->GetGameObject(m_uiLokenGlobeGUID))
                                 pGlobe->SendCustomAnim(0);
 
-                            if (Creature* qStarter = instance->GetCreature(GetData64(NPC_STORMHERALD_ELJRRIN_QG)))
+                            if (Creature* qStarter = instance->GetCreature(GetGuidData(NPC_STORMHERALD_ELJRRIN_QG)))
                             {
                                 qStarter->SetVisible(false);
                                 qStarter->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                             }
 
-                            if (Creature* qEnder = instance->GetCreature(GetData64(NPC_STORMHERALD_ELJRRIN_QG + 1)))
+                            if (Creature* qEnder = instance->GetCreature(GetGuidData(NPC_STORMHERALD_ELJRRIN_QG + 1)))
                             {
                                 qEnder->SetVisible(true);
 
@@ -245,7 +245,7 @@ class instance_halls_of_lightning : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 data) const override
+            ObjectGuid GetGuidData(uint32 data) const override
             {
                 switch (data)
                 {
@@ -262,7 +262,7 @@ class instance_halls_of_lightning : public InstanceMapScript
                     case NPC_STORMHERALD_ELJRRIN_QG + 1:
                         return m_questEnderGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData() override

@@ -25,6 +25,7 @@
 #include "GridReference.h"
 #include "Timer.h"
 #include "Util.h"
+#include "Random.h"
 
 #define DEFAULT_VISIBILITY_NOTIFY_PERIOD      1000
 

@@ -68,7 +68,7 @@ class boss_skeram : public CreatureScript
                 Talk(SAY_SLAY);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
                 if (me->IsSummon())
@@ -123,9 +123,9 @@ class boss_skeram : public CreatureScript
                     me->RemoveCorpse();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.Reset();
 
                 events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(6000, 12000));

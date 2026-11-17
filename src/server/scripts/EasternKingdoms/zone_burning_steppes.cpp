@@ -22,6 +22,8 @@ SDComment:
 SDCategory: Burning Steppes
 EndScriptData */
 
+#include "Random.h"
+
 enum ScrappedGolemsType
 {
     SPELL_CREATE_WAR_REAVER_PARTS_AB = 89413, // Sieve & Piston
@@ -85,7 +87,7 @@ struct npc_burning_steppes_war_reaver : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_UPPERCUTE, 5.5 * IN_MILLISECONDS);
         events.ScheduleEvent(SPELL_FLAME_BLAST, 8 * IN_MILLISECONDS);
@@ -186,20 +188,20 @@ class npc_burning_steppes_chiseled_golem : public CreatureScript
             npc_burning_steppes_chiseled_golemAI(Creature* creature) : customCreatureAI(creature) { }
 
             TaskScheduler scheduler;
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             bool hasDefeat;
 
             void Reset() override
             {
                 events.Reset();
                 scheduler.CancelAll();
-                targetGUID = 0;
+                targetGUID = ObjectGuid::Empty;
                 hasDefeat = false;
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->SetFaction(1474); // default
             }
 
-            void SetGUID(uint64 guid, int32 /*type*/) override
+            void SetGUID(ObjectGuid guid, int32 /*type*/) override
             {
                 targetGUID = guid;
             }
@@ -278,7 +280,7 @@ class npc_burning_steppes_chiseled_golem : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override
             {

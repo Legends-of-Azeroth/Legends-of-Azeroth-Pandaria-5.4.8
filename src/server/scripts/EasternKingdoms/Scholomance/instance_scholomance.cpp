@@ -17,6 +17,7 @@
 
 #include "ScriptPCH.h"
 #include "scholomance.h"
+#include "Random.h"
 
 #define MAX_ENCOUNTER 5
 
@@ -53,7 +54,7 @@ class instance_scholomance : public InstanceMapScript
             instance_scholomance_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
-            std::unordered_map<uint32, uint64> m_mGoEntryGuidMap;
+            std::unordered_map<uint32, ObjectGuid> m_mGoEntryGuidMap;
 
             void Initialize() override
             {
@@ -119,7 +120,7 @@ class instance_scholomance : public InstanceMapScript
             {
                 GameObject* go = NULL;
 
-                std::unordered_map<uint32, uint64>::iterator find = m_mGoEntryGuidMap.find(uiEntry);
+                std::unordered_map<uint32, ObjectGuid>::iterator find = m_mGoEntryGuidMap.find(uiEntry);
 
                 if (find != m_mGoEntryGuidMap.cend())
                     go = instance->GetGameObject(find->second);
@@ -180,7 +181,7 @@ class instance_scholomance : public InstanceMapScript
                 SaveToDB();
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -202,7 +203,7 @@ class instance_scholomance : public InstanceMapScript
                         return LilianSoulGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -215,37 +216,37 @@ class instance_scholomance : public InstanceMapScript
                     switch (type)
                     {
                         case DATA_INSTRUCTOR_CHILLHEART:
-                            HandleGameObject(0, true, GetGameObjectFromStorage(GO_CHILLHEART_INTRO_DOOR));
+                            HandleGameObject(ObjectGuid::Empty, true, GetGameObjectFromStorage(GO_CHILLHEART_INTRO_DOOR));
 
-                            if (Creature* TalkingSkull = instance->GetCreature(GetData64(NPC_TALKING_SKULL)))
+                            if (Creature* TalkingSkull = instance->GetCreature(GetGuidData(NPC_TALKING_SKULL)))
                                 TalkingSkull->AI()->Talk(TALK_CHILLHEART_DEATH);
                             break;
                         case DATA_JANDICE_BAROV:
-                            if (Creature* Gandling = instance->GetCreature(GetData64(DATA_GRANDMASTER_GANDLING_INTRO)))
+                            if (Creature* Gandling = instance->GetCreature(GetGuidData(DATA_GRANDMASTER_GANDLING_INTRO)))
                                 Gandling->AI()->DoAction(ACTION_INTRO);
 
-                            if (Creature* TalkingSkull = instance->GetCreature(GetData64(NPC_TALKING_SKULL)))
+                            if (Creature* TalkingSkull = instance->GetCreature(GetGuidData(NPC_TALKING_SKULL)))
                                 TalkingSkull->AI()->Talk(TALK_JANDICE_DEATH);
                             break;
                         case DATA_RATTLEGORE:
-                            if (Creature* TalkingSkull = instance->GetCreature(GetData64(NPC_TALKING_SKULL)))
+                            if (Creature* TalkingSkull = instance->GetCreature(GetGuidData(NPC_TALKING_SKULL)))
                                 TalkingSkull->AI()->Talk(TALK_RATTLEGORE_DEATH);
                             break;
                         case DATA_LILIAN_VOSS:
                             if (GameObject* Chest = GetGameObjectFromStorage(instance->IsHeroic() ? GO_COFFER_OF_FORGOTTEN_SOULS_HC : GO_COFFER_OF_FORGOTTEN_SOULS))
                                 Chest->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
 
-                            if (Creature* TalkingSkull = instance->GetCreature(GetData64(NPC_TALKING_SKULL)))
+                            if (Creature* TalkingSkull = instance->GetCreature(GetGuidData(NPC_TALKING_SKULL)))
                                 TalkingSkull->AI()->Talk(TALK_LILIAN_DEFEAT);
                             break;
                         case DATA_GRANDMASTER_GANDLING:
 
-                            if (Creature* TalkingSkull = instance->GetCreature(GetData64(NPC_TALKING_SKULL)))
+                            if (Creature* TalkingSkull = instance->GetCreature(GetGuidData(NPC_TALKING_SKULL)))
                                 TalkingSkull->AI()->DoAction(ACTION_ALEXEI);
                             break;
                     }
 
-                    if (Creature* TalkingSkull = instance->GetCreature(GetData64(NPC_TALKING_SKULL)))
+                    if (Creature* TalkingSkull = instance->GetCreature(GetGuidData(NPC_TALKING_SKULL)))
                         TalkingSkull->AI()->DoAction(ACTION_COUNTINUE_MOVE);
                 }
                 return true;
@@ -300,14 +301,14 @@ class instance_scholomance : public InstanceMapScript
             }
 
         protected:
-            uint64 ChillHeartGUID;
-            uint64 JandiceBarovGUID;
-            uint64 RattleGoreGUID;
-            uint64 LilianVossGUID;
-            uint64 GandlingGUID;
-            uint64 GandlingIntroGUID;
-            uint64 LilianSoulGUID;
-            uint64 SkullGUID;
+            ObjectGuid ChillHeartGUID;
+            ObjectGuid JandiceBarovGUID;
+            ObjectGuid RattleGoreGUID;
+            ObjectGuid LilianVossGUID;
+            ObjectGuid GandlingGUID;
+            ObjectGuid GandlingIntroGUID;
+            ObjectGuid LilianSoulGUID;
+            ObjectGuid SkullGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

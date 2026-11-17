@@ -109,7 +109,7 @@
 #endif
 
 // Definition of Windows-specific structures for non-Windows platforms
-#ifndef PLATFORM_WINDOWS
+#ifndef _WIN32
   #if __LP64__
     #define PLATFORM_64BIT
   #else

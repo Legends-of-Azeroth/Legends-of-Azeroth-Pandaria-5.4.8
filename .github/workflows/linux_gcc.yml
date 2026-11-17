@@ -7,16 +7,21 @@ on:
   pull_request:
     paths-ignore:
       - 'sql/**'
-
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
+    if: ${{ !github.event.pull_request.draft }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Dependencies
       run: |
-        sudo apt-get update && sudo apt-get install -yq libboost-all-dev g++-11 libace-dev
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 100 --slave /usr/bin/g++ g++ /usr/bin/g++-11
+        sudo apt-get update && sudo apt-get install -yq libboost-all-dev g++-13 libreadline-dev libbz2-dev
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100 --slave /usr/bin/g++ g++ /usr/bin/g++-13
     - name: Setup
       run: |
         mkdir bin
@@ -27,8 +32,8 @@ jobs:
       run: |
         cd bin
         make -j 4 -k && make install
-    #- name: Check executables
-    #  run: |
-    #    cd bin/check_install/bin
-    #    ./authserver --version
-    #    ./worldserver --version
+    - name: Check executables
+      run: |
+        cd bin/check_install/bin
+        ./authserver --version
+        ./worldserver --version

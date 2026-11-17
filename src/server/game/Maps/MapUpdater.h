@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SF_MAP_UPDATER_H_INCLUDED
-#define SF_MAP_UPDATER_H_INCLUDED
+#ifndef _MAP_UPDATER_H_INCLUDED
+#define _MAP_UPDATER_H_INCLUDED
 
 #include <condition_variable>
 #include <mutex>
@@ -25,22 +25,20 @@
 #include "ProducerConsumerQueue.h"
 
 class Map;
-class UpdateRequest;
-
-extern thread_local Map* CurrentMap;
+class MapUpdateRequest;
 
 class MapUpdater
 {
     public:
 
-        MapUpdater();
-        virtual ~MapUpdater();
+        MapUpdater() : _cancelationToken(false), pending_requests(0) {}
+        ~MapUpdater() { };
 
         friend class MapUpdateRequest;
 
-        int schedule_update(Map& map, uint32 diff);
+        void schedule_update(Map& map, uint32 diff);
 
-        int wait();
+        void wait();
 
         void activate(size_t num_threads);
 
@@ -49,16 +47,20 @@ class MapUpdater
         bool activated();
 
     private:
-        void WorkerThread();
+
+        ProducerConsumerQueue<MapUpdateRequest*> _queue;
 
         std::vector<std::thread> _workerThreads;
-        std::atomic<bool> _cancelationToken;        
-        ProducerConsumerQueue<UpdateRequest*> _queue;
-        std::mutex m_mutex;
-        std::condition_variable m_condition;
+        std::atomic<bool> _cancelationToken;
+
+        std::mutex _lock;
+        std::condition_variable _condition;
         size_t pending_requests;
 
         void update_finished();
+
+        void WorkerThread();
+
 };
 
 #endif //_MAP_UPDATER_H_INCLUDED

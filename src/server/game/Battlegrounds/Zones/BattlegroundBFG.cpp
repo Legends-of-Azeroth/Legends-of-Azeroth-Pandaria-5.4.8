@@ -238,7 +238,7 @@ void BattlegroundBFG::AddPlayer(Player* player)
         player->StartCriteria(CRITERIA_START_TYPE_EVENT, EVENT_START_BATTLE_BFG, (TimeValue::Now() - m_doorOpeningTime).ToMilliseconds());
 }
 
-void BattlegroundBFG::RemovePlayer(Player* player, uint64 guid, uint32 team)
+void BattlegroundBFG::RemovePlayer(Player* player, ObjectGuid guid, uint32 team)
 {
     Battleground::RemovePlayer(player, guid, team);
 }
@@ -354,7 +354,7 @@ void BattlegroundBFG::SendNodeUpdate(uint8 node)
 void BattlegroundBFG::NodeOccupied(uint8 node, Team team)
 {
     if (!AddSpiritGuide(node, BG_BFG_SpiritGuidePos[node][0], BG_BFG_SpiritGuidePos[node][1], BG_BFG_SpiritGuidePos[node][2], BG_BFG_SpiritGuidePos[node][3], team))
-        TC_LOG_ERROR("bg.battleground", "Failed to spawn spirit guide! point: %u, team: %u, ", node, team);
+        TC_LOG_ERROR("bg.battleground", "Failed to spawn spirit guide! point: {}, team: {}, ", node, team);
 
     uint8 capturedNodes = 0;
     for (uint8 i = 0; i < BG_BFG_DYNAMIC_NODES_COUNT; ++i)
@@ -391,11 +391,11 @@ void BattlegroundBFG::NodeDeOccupied(uint8 node)
         DelCreature(node + 5);                    // NULL checks are in DelCreature! 0-5 spirit guides
 
                                                   // Players waiting to resurrect at this node are sent to closest owned graveyard
-    std::vector<uint64> ghost_list = m_ReviveQueue[BgCreatures[node]];
+    std::vector<ObjectGuid> ghost_list = m_ReviveQueue[BgCreatures[node]];
     if (!ghost_list.empty())
     {
         WorldSafeLocsEntry const *ClosestGrave = NULL;
-        for (std::vector<uint64>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
+        for (std::vector<ObjectGuid>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
         {
             Player* player = ObjectAccessor::FindPlayer(*itr);
             if (!player)

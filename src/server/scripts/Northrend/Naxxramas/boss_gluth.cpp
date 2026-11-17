@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,15 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "naxxramas.h"
+
+enum Texts
+{
+    EMOTE_SPOTS_ONE                     = 0,
+    EMOTE_DECIMATE                      = 1,
+    EMOTE_ENRAGE                        = 2,
+    EMOTE_DEVOURS_ALL                   = 3,
+    EMOTE_BERSERKER                     = 4
+};
 
 enum Spells
 {
@@ -49,8 +58,6 @@ enum Events
     EVENT_SUMMON,
 };
 
-#define EMOTE_NEARBY    " spots a nearby zombie to devour!"
-
 class boss_gluth : public CreatureScript
 {
 public:
@@ -75,16 +82,15 @@ public:
             if (who->GetEntry() == NPC_ZOMBIE && me->IsWithinDistInMap(who, 7))
             {
                 SetGazeOn(who);
-                /// @todo use a script text
-                me->MonsterTextEmote(EMOTE_NEARBY, 0, true);
+                Talk(EMOTE_DEVOURS_ALL);
             }
             else
                 BossAI::MoveInLineOfSight(who);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             events.ScheduleEvent(EVENT_WOUND, 10000);
             events.ScheduleEvent(EVENT_ENRAGE, 15000);
             events.ScheduleEvent(EVENT_DECIMATE, 105000);

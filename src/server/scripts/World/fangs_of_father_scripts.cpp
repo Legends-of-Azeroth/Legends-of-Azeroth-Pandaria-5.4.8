@@ -83,7 +83,7 @@ class item_charging_decorder_ring : public ItemScript
 
         bool OnExpire(Player* player, ItemTemplate const* /*itemProto*/) override
         {
-            player->KilledMonsterCredit(55691, 0);
+            player->KilledMonsterCredit(55691, ObjectGuid::Empty);
             player->AddItem(ITEM_CHARGED_DECORDER_RING, 1);
             return true;
         }
@@ -100,7 +100,7 @@ class npc_mostrasz_56314 : public CreatureScript
 
             if (player->GetQuestStatus(QUEST_TO_RAVENHOLDT) == QUEST_STATUS_INCOMPLETE)
             {
-                player->KilledMonsterCredit(56314, 0);
+                player->KilledMonsterCredit(56314, ObjectGuid::Empty);
                 player->TeleportTo(0, 14.685211f, -1463.118896f, 173.92f, 6.23f);
             }
             
@@ -126,7 +126,7 @@ class npc_wrathion_57777 : public CreatureScript
                     return;
 
                 if (who->ToPlayer()->GetQuestStatus(QUEST_TO_CATCH_A_THIEF) == QUEST_STATUS_INCOMPLETE)
-                    who->ToPlayer()->KilledMonsterCredit(56426, 0);
+                    who->ToPlayer()->KilledMonsterCredit(56426, ObjectGuid::Empty);
             }
         };
 
@@ -155,7 +155,7 @@ class npc_lord_hiram_creed : public CreatureScript
                 bDragon = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_BERSERK, 4 * MINUTE * IN_MILLISECONDS);
@@ -165,7 +165,7 @@ class npc_lord_hiram_creed : public CreatureScript
                 events.ScheduleEvent(EVENT_CHECK_DISTANCE, 5000);
             }
 
-            void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon) override
             {
                 if (summon->GetEntry() == NPC_HIRAM_CREEDS_SHADOW_BREATH)
                 {   

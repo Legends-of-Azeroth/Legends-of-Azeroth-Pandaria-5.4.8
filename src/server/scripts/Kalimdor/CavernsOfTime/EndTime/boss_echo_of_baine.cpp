@@ -88,7 +88,7 @@ class boss_echo_of_baine : public CreatureScript
                 me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 5.0f);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 
@@ -100,7 +100,7 @@ class boss_echo_of_baine : public CreatureScript
                 DoZoneInCombat();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 instance->SetData(DATA_PLATFORMS, NOT_STARTED);
                 BossAI::EnterEvadeMode();

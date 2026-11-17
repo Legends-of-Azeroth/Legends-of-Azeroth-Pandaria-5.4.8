@@ -88,8 +88,8 @@ public:
 
     uint64 GetCurrentSummonId() const { return m_summonedBattlePetId; }
     TempSummon* GetCurrentSummon() const;
-    void SetCurrentSummonId(uint64 summonId) { m_summonedBattlePetId = summonId; }
-    void SetCurrentSummon(uint64 guid) { m_summonGuid = guid; if (!guid) m_summonedBattlePetId = 0; }
+    void SetCurrentSummonId(ObjectGuid summonId) { m_summonedBattlePetId = summonId; }
+    void SetCurrentSummon(ObjectGuid guid) { m_summonGuid = guid; if (!guid) m_summonedBattlePetId = ObjectGuid::Empty; }
 
     void UnSummonCurrentBattlePet(bool temporary);
     void ResummonLastBattlePet();
@@ -101,8 +101,8 @@ public:
 
     void UnlockLoadoutSlot(uint8 slot);
     bool HasLoadoutSlot(uint8 slot) const;
-    uint64 GetLoadoutSlot(uint8 slot) const;
-    void SetLoadoutSlot(uint8 slot, uint64 id, bool save = false);
+    ObjectGuid GetLoadoutSlot(uint8 slot) const;
+    void SetLoadoutSlot(uint8 slot, ObjectGuid id, bool save = false);
 
     bool HasLoadoutFlag(uint8 flag) const { return (m_loadoutFlags & flag) != 0; };
     uint8 GetLoadoutFlags() const { return m_loadoutFlags; };
@@ -115,10 +115,10 @@ public:
     bool CanStoreBattlePet(uint16 species) const;
     uint32 GetTrapAbility() const;
 
-    void SendBattlePetDeleted(uint64 id);
+    void SendBattlePetDeleted(ObjectGuid id);
     void SendBattlePetJournalLock();
     void SendBattlePetJournal();
-    void SendBattlePetSlotUpdate(uint8 slot, bool notification, uint64 id = 0);
+    void SendBattlePetSlotUpdate(uint8 slot, bool notification, ObjectGuid id = ObjectGuid::Empty);
     void SendBattlePetUpdate(BattlePet* battlePet, bool notification);
 
     BattlePetSet BattlePets;
@@ -126,13 +126,13 @@ public:
 private:
     Player* m_owner;
 
-    uint64 m_summonGuid = 0;
-    uint64 m_summonedBattlePetId = 0;
-    uint64 m_lastSummonedBattlePetId = 0;
+    ObjectGuid m_summonGuid;
+    ObjectGuid m_summonedBattlePetId;
+    ObjectGuid m_lastSummonedBattlePetId;
 
     bool m_loadoutSave = false;
     uint8 m_loadoutFlags = 0;
-    uint64 m_loadout[BATTLE_PET_MAX_LOADOUT_SLOTS];
+    ObjectGuid m_loadout[BATTLE_PET_MAX_LOADOUT_SLOTS];
 
     BattlePetMgr(const BattlePetMgr&) = delete;
     BattlePetMgr& operator=(const BattlePetMgr&) = delete;

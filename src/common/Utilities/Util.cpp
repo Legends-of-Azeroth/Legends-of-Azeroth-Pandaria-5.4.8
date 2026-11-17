@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -15,29 +15,16 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Util.h"
 #include "Common.h"
-#include "utf8.h"
-//#include "SFMT.h"
 #include "Errors.h" // for ASSERT
-//#include "Random.h"
-#include "SFMTRand.h"
+#include "IpAddress.h"
+#include "Util.h"
+#include "utf8.h"
 #include <memory>
 #include <random>
 #include <cstring>
 #include <sstream>
 #include <cstdarg>
-
-static thread_local std::unique_ptr<SFMTRand> sfmtRand;
-static SFMTEngine engine;
-
-static SFMTRand* GetRng()
-{
-    if (!sfmtRand)
-        sfmtRand = std::make_unique<SFMTRand>();
-
-    return sfmtRand.get();
-}
 
 std::vector<std::string_view> Trinity::Tokenize(std::string_view str, char sep, bool keepEmpty)
 {
@@ -64,58 +51,6 @@ struct tm* localtime_r(time_t const* time, struct tm *result)
     return result;
 }
 #endif
-
-int32 irand(int32 min, int32 max)
-{
-    ASSERT(max >= min);
-    std::uniform_int_distribution<int32> uid(min, max);
-    return uid(engine);
-}
-
-uint32 urand(uint32 min, uint32 max)
-{
-    ASSERT(max >= min);
-    std::uniform_int_distribution<uint32> uid(min, max);
-    return uid(engine);
-}
-
-float frand(float min, float max)
-{
-    ASSERT(max >= min);
-    std::uniform_real_distribution<float> urd(min, max);
-    return urd(engine);
-}
-
-int32 rand32()
-{
-    return GetRng()->RandomUInt32();
-}
-
-Milliseconds randtime(Milliseconds const& min, Milliseconds const& max)
-{
-    long long diff = max.count() - min.count();
-    ASSERT(diff >= 0);
-    ASSERT(diff <= (uint32)-1);
-    return min + Milliseconds(urand(0, diff));
-}
-
-double rand_norm()
-{
-    std::uniform_real_distribution<double> urd;
-    return urd(engine);
-}
-
-double rand_chance()
-{
-    std::uniform_real_distribution<double> urd(0.0, 100.0);
-    return urd(engine);
-}
-
-SFMTEngine& SFMTEngine::Instance()
-{
-    //static SFMTEngine engine;
-    return engine;
-}
 
 Tokenizer::Tokenizer(const std::string &src, const char sep, uint32 vectorReserve)
 {
@@ -284,6 +219,17 @@ std::string TimeToTimestampStr(time_t t)
     char buf[20];
     snprintf(buf, 20, "%04d-%02d-%02d_%02d-%02d-%02d", aTm.tm_year+1900, aTm.tm_mon+1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
     return std::string(buf);
+}
+
+/// Check if the string is a valid ip address representation
+bool IsIPAddress(char const* ipaddress)
+{
+    if (!ipaddress)
+        return false;
+
+    boost::system::error_code error;
+    Trinity::Net::make_address(ipaddress, error);
+    return !error;
 }
 
 /// create PID file
@@ -627,29 +573,26 @@ void vutf8printf(FILE* out, const char *str, va_list* ap)
 #endif
 }
 
-// std::string ByteArrayToHexStr(uint8 const* bytes, uint32 arrayLen, bool reverse /* = false */)
-// {
-//     int32 init = 0;
-//     int32 end = arrayLen;
-//     int8 op = 1;
+bool Utf8ToUpperOnlyLatin(std::string& utf8String)
+{
+    std::wstring wstr;
+    if (!Utf8toWStr(utf8String, wstr))
+        return false;
 
-//     if (reverse)
-//     {
-//         init = arrayLen - 1;
-//         end = -1;
-//         op = -1;
-//     }
+    std::transform(wstr.begin(), wstr.end(), wstr.begin(), wcharToUpperOnlyLatin);
 
-//     std::ostringstream ss;
-//     for (int32 i = init; i != end; i += op)
-//     {
-//         char buffer[4];
-//         sprintf(buffer, "%02X", bytes[i]);
-//         ss << buffer;
-//     }
+    return WStrToUtf8(wstr, utf8String);
+}
 
-//     return ss.str();
-// }
+TC_COMMON_API Optional<std::size_t> RemoveCRLF(std::string & str)
+{
+    std::size_t nextLineIndex = str.find_first_of("\r\n");
+    if (nextLineIndex == std::string::npos)
+        return std::nullopt;
+
+    str.erase(nextLineIndex);
+    return nextLineIndex;
+}
 
 std::string Trinity::Impl::ByteArrayToHexStr(uint8 const* bytes, size_t arrayLen, bool reverse /* = false */)
 {

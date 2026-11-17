@@ -75,7 +75,7 @@ struct npc_dark_master_gandling_quest : public ScriptedAI
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PACIFIED);
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         Talk(SAY_INTRO);
         events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(1.5 * IN_MILLISECONDS, 3 * IN_MILLISECONDS));
@@ -212,5 +212,5 @@ void AddSC_western_plaguelands()
 {
     new creature_script<npc_dark_master_gandling_quest>("npc_dark_master_gandling_quest");
     new npc_thassarian_quest();
-    //new aura_script<spell_shadow_prison_gandling>("spell_shadow_prison_gandling");
+    new aura_script<spell_shadow_prison_gandling>("spell_shadow_prison_gandling");
 }

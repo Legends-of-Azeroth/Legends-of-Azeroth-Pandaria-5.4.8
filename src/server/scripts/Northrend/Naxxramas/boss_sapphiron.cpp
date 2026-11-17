@@ -80,7 +80,7 @@ enum Misc
     MAX_FROST_RESISTANCE    = 100
 };
 
-typedef std::map<uint64, uint64> IceBlockMap;
+typedef std::map<ObjectGuid, ObjectGuid> IceBlockMap;
 
 class boss_sapphiron : public CreatureScript
 {
@@ -120,9 +120,9 @@ class boss_sapphiron : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_HUNDRED_CLUB, 1); // no longer required resist - cuz resistance not exist anymore
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 me->CastSpell(me, SPELL_FROST_AURA, true);
 
@@ -263,7 +263,7 @@ class boss_sapphiron : public CreatureScript
                             case EVENT_BLIZZARD:
                             {
                                 //DoCastAOE(SPELL_SUMMON_BLIZZARD);
-                                if (Creature* summon = DoSummon(NPC_BLIZZARD, me, 0.0f, urand(25, 30) * IN_MILLISECONDS, TEMPSUMMON_TIMED_DESPAWN))
+                                if (Creature* summon = DoSummon(NPC_BLIZZARD, me, 0.0f, Seconds(urand(25, 30)), TEMPSUMMON_TIMED_DESPAWN))
                                     summon->GetMotionMaster()->MoveRandom(40);
                                 events.ScheduleEvent(EVENT_BLIZZARD, RAID_MODE(20, 7) * IN_MILLISECONDS, 0, PHASE_GROUND);
                                 break;
@@ -301,10 +301,9 @@ class boss_sapphiron : public CreatureScript
                             case EVENT_ICEBOLT:
                             {
                                 std::vector<Unit*> targets;
-                                std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
-                                for (; i != me->getThreatManager().getThreatList().end(); ++i)
-                                    if ((*i)->getTarget()->GetTypeId() == TYPEID_PLAYER && !(*i)->getTarget()->HasAura(SPELL_ICEBOLT))
-                                        targets.push_back((*i)->getTarget());
+                                for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
+                                    if (ref->GetVictim()->GetTypeId() == TYPEID_PLAYER && !ref->GetVictim()->HasAura(SPELL_ICEBOLT))
+                                        targets.push_back(ref->GetVictim());
 
                                 if (targets.empty())
                                     _iceboltCount = 0;
@@ -312,7 +311,7 @@ class boss_sapphiron : public CreatureScript
                                 {
                                     std::vector<Unit*>::const_iterator itr = targets.begin();
                                     advance(itr, rand()%targets.size());
-                                    _iceblocks.insert(std::make_pair((*itr)->GetGUID(), 0));
+                                    _iceblocks.insert(std::make_pair((*itr)->GetGUID(), ObjectGuid::Empty));
                                     DoCast(*itr, SPELL_ICEBOLT);
                                     --_iceboltCount;
                                 }
@@ -358,10 +357,9 @@ class boss_sapphiron : public CreatureScript
             {
                 DoZoneInCombat(); // make sure everyone is in threatlist
                 std::vector<Unit*> targets;
-                std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
-                for (; i != me->getThreatManager().getThreatList().end(); ++i)
+                for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
                 {
-                    Unit* target = (*i)->getTarget();
+                    Unit* target = ref->GetVictim();
                     if (target->GetTypeId() != TYPEID_PLAYER)
                         continue;
 

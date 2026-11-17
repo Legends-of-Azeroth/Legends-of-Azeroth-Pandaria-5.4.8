@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,7 @@
 
 #include"ScriptPCH.h"
 #include "blackwing_descent.h"
+#include "Random.h"
 
 enum ScriptTexts
 {
@@ -140,7 +141,7 @@ enum Spells
     // spirit of anvilrage
     SPELL_BESTOWAL_OF_ANVILRAGE          = 80874,
     SPELL_SPIRIT_OF_ANVILRAGE            = 80768,
-    SPELL_STORMBOLT                      = 80648, // править
+    SPELL_STORMBOLT                      = 80648, // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
     // spirit of moltenfist
     SPELL_BESTOWAL_OF_MOLTENFIST         = 80876,
@@ -150,7 +151,7 @@ enum Spells
     // spirit of shadowforge
     SPELL_BESTOWAL_OF_SHADOWFORGE        = 80873,
     SPELL_SPIRIT_OF_SHADOWFORGE          = 80769,
-    SPELL_DWARVEN_CHAIN_LIGHTNING        = 80646, // править
+    SPELL_DWARVEN_CHAIN_LIGHTNING        = 80646, // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
     // lord victor nefarius
     // omnotron
@@ -353,7 +354,7 @@ class npc_golem_sentry : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
 
                 std::list<Creature*> _golems;
@@ -551,7 +552,7 @@ class npc_drakonid_drudge : public CreatureScript
                         DoCast((*itr), SPELL_VENGEFUL_RAGE);            
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 std::list<Creature*> _drudges;
                 GetCreatureListWithEntryInGrid(_drudges, me, NPC_GOLEM_SENTRY, 200.0f);
@@ -631,7 +632,7 @@ class npc_drakonid_chainwielder : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_OVERHEAD_SMASH, urand(5000, 10000));
                 events.ScheduleEvent(EVENT_GRIEVOUS_WOUND, urand(8000, 10000));
@@ -707,7 +708,7 @@ class npc_maimgor: public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_MAIMGOR_BERSERK, urand(5000, 10000));
                 events.ScheduleEvent(EVENT_SHADOWFLAME, urand(8000, 12000));
@@ -786,7 +787,7 @@ class npc_ivoroc: public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SHADOWFLAME, urand(8000, 12000));
                 events.ScheduleEvent(EVENT_CURSE_OF_MENDING, urand(5000, 10000));
@@ -856,7 +857,7 @@ class npc_pyreclaw: public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SHADOWFLAME, urand(8000, 12000));
                 events.ScheduleEvent(EVENT_FLAME_BUFFET, urand(6000, 7000));
@@ -926,7 +927,7 @@ class npc_drakonid_slayer: public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_CLEAVE, urand(5000, 8000));
                 events.ScheduleEvent(EVENT_BLAST_WAVE, urand(10000, 15000));
@@ -1000,7 +1001,7 @@ class npc_drakeadon_mongrel: public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_FROST_BURN, urand(10000, 30000));
                 events.ScheduleEvent(EVENT_INSENERATE, urand(10000, 30000));
@@ -1126,7 +1127,7 @@ class npc_bd_spirit_of_dwarf: public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 switch (me->GetEntry())
                 {
@@ -1516,7 +1517,7 @@ class npc_lord_victor_nefarius_heroic : public CreatureScript
                         case EVENT_JUMP_TO:
                             if (Creature* cloud = me->FindNearestCreature(NPC_CHEMICAL_CLOUD, 200.0f))
                             {
-                                me->GetPosition(&homepos);
+                                homepos = me->GetPosition();
                                 me->JumpTo(cloud, 20.0f);
                                 events.ScheduleEvent(EVENT_GRIP_OF_DEATH, 2000);
                             }
@@ -1540,7 +1541,7 @@ class npc_lord_victor_nefarius_heroic : public CreatureScript
                             me->DespawnOrUnsummon();
                             break;
                         case EVENT_BLAZING_INFERNO:
-                            if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MAGMAW)))
+                            if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAGMAW)))
                             {
                                 Unit* target;
                                 target = pMagmaw->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, -20.0f);
@@ -1554,7 +1555,7 @@ class npc_lord_victor_nefarius_heroic : public CreatureScript
                             events.ScheduleEvent(EVENT_BLAZING_INFERNO, urand(30000, 35000));
                             break;
                         case EVENT_SHADOW_BREATH:
-                            if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MAGMAW)))
+                            if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAGMAW)))
                             {
                                 Unit* target;
                                 target = pMagmaw->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, -20.0f);
@@ -1639,7 +1640,7 @@ class npc_blazing_bone_construct : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_FIERY_SLASH, urand(8000, 12000));
             }
@@ -1742,7 +1743,7 @@ class spell_lord_victor_nefarius_encasing_shadows : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_lord_victor_nefarius_encasing_shadows_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_lord_victor_nefarius_encasing_shadows_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
         };
 

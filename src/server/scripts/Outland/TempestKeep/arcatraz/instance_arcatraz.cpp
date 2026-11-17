@@ -46,41 +46,41 @@ class instance_arcatraz : public InstanceMapScript
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-            uint64 Containment_Core_Security_Field_AlphaGUID;
-            uint64 Containment_Core_Security_Field_BetaGUID;
-            uint64 Pod_AlphaGUID;
-            uint64 Pod_GammaGUID;
-            uint64 Pod_BetaGUID;
-            uint64 Pod_DeltaGUID;
-            uint64 Pod_OmegaGUID;
-            uint64 Wardens_ShieldGUID;
-            uint64 GoSphereGUID;
-            uint64 MellicharGUID;
-            uint64 DalliahGUID;
-            uint64 SoccothratesGUID;
-            uint64 ZerekethGUID;
-            uint64 SkyrissGUID;
-            uint64 CoreDoorGUID;
+            ObjectGuid Containment_Core_Security_Field_AlphaGUID;
+            ObjectGuid Containment_Core_Security_Field_BetaGUID;
+            ObjectGuid Pod_AlphaGUID;
+            ObjectGuid Pod_GammaGUID;
+            ObjectGuid Pod_BetaGUID;
+            ObjectGuid Pod_DeltaGUID;
+            ObjectGuid Pod_OmegaGUID;
+            ObjectGuid Wardens_ShieldGUID;
+            ObjectGuid GoSphereGUID;
+            ObjectGuid MellicharGUID;
+            ObjectGuid DalliahGUID;
+            ObjectGuid SoccothratesGUID;
+            ObjectGuid ZerekethGUID;
+            ObjectGuid SkyrissGUID;
+            ObjectGuid CoreDoorGUID;
 
             void Initialize() override
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-                Containment_Core_Security_Field_AlphaGUID = 0;
-                Containment_Core_Security_Field_BetaGUID  = 0;
-                Pod_AlphaGUID                             = 0;
-                Pod_GammaGUID                             = 0;
-                Pod_BetaGUID                              = 0;
-                Pod_DeltaGUID                             = 0;
-                Pod_OmegaGUID                             = 0;
-                Wardens_ShieldGUID                        = 0;
-                GoSphereGUID                              = 0;
-                MellicharGUID                             = 0;
-                DalliahGUID                               = 0;
-                SoccothratesGUID                          = 0;
-                ZerekethGUID                              = 0;
-                SkyrissGUID                               = 0;
-                CoreDoorGUID                              = 0;
+                Containment_Core_Security_Field_AlphaGUID = ObjectGuid::Empty;
+                Containment_Core_Security_Field_BetaGUID = ObjectGuid::Empty;
+                Pod_AlphaGUID = ObjectGuid::Empty;
+                Pod_GammaGUID = ObjectGuid::Empty;
+                Pod_BetaGUID = ObjectGuid::Empty;
+                Pod_DeltaGUID = ObjectGuid::Empty;
+                Pod_OmegaGUID = ObjectGuid::Empty;
+                Wardens_ShieldGUID = ObjectGuid::Empty;
+                GoSphereGUID = ObjectGuid::Empty;
+                MellicharGUID = ObjectGuid::Empty;
+                DalliahGUID = ObjectGuid::Empty;
+                SoccothratesGUID = ObjectGuid::Empty;
+                ZerekethGUID = ObjectGuid::Empty;
+                SkyrissGUID = ObjectGuid::Empty;
+                CoreDoorGUID = ObjectGuid::Empty;
             }
 
             bool IsEncounterInProgress() const override
@@ -241,7 +241,7 @@ class instance_arcatraz : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 data) const override
+            ObjectGuid GetGuidData(uint32 data) const override
             {
                 switch (data)
                 {
@@ -251,7 +251,7 @@ class instance_arcatraz : public InstanceMapScript
                     case TYPE_SOCCOTHRATES:     return SoccothratesGUID;
                     case TYPE_ZEREKETH:         return ZerekethGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
         };
 

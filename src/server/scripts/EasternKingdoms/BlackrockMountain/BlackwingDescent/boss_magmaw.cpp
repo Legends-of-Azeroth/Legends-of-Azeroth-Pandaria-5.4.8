@@ -198,7 +198,7 @@ class boss_magmaw : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_PARASITE_EVENING, 1);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_BERSERK, 6 * MINUTE * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_MELEE_CHECK, 6000);
@@ -274,12 +274,12 @@ class boss_magmaw : public CreatureScript
                     {
                         /*case EVENT_HEAD_START:
                             SetGrounded(true, 0);
-                            if (Creature* pMagmawhead = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MAGMAW_HEAD)))
+                            if (Creature* pMagmawhead = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAGMAW_HEAD)))
                                 pMagmawhead->AI()->DoAction(ACTION_HEAD_START);
                             events.ScheduleEvent(EVENT_HEAD_END, 20000);
                             break;
                         case EVENT_HEAD_END:
-                            if (Creature* pMagmawhead = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MAGMAW_HEAD)))
+                            if (Creature* pMagmawhead = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAGMAW_HEAD)))
                                 pMagmawhead->AI()->DoAction(ACTION_HEAD_END);
                             SetGrounded(false, 0);
                             events.ScheduleEvent(EVENT_MELEE_CHECK, 6000);
@@ -314,7 +314,7 @@ class boss_magmaw : public CreatureScript
                                 target->GetPositionX(),
                                 target->GetPositionY(),
                                 target->GetPositionZ(),
-                                0.0f, TEMPSUMMON_TIMED_DESPAWN, 8000);
+                                0.0f, TEMPSUMMON_TIMED_DESPAWN, 8000ms);
                             events.ScheduleEvent(EVENT_PILLAR_OF_FLAME, urand(35000, 45000));
                             break;
                         case EVENT_MANGLE:
@@ -430,7 +430,7 @@ class npc_magmaw_head : public CreatureScript
                     case ACTION_HEAD_START:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MAGMAW)))
+                        if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAGMAW)))
                         {
                             me->SetMaxHealth(pMagmaw->GetMaxHealth());
                             me->SetHealth(pMagmaw->GetHealth());
@@ -449,7 +449,7 @@ class npc_magmaw_head : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
-                if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MAGMAW)))
+                if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAGMAW)))
                 {
                     if (me->GetHealth() > damage && pMagmaw->GetHealth() > damage)
                         pMagmaw->SetHealth(pMagmaw->GetHealth() - damage);
@@ -547,7 +547,7 @@ class npc_pillar_of_flame : public CreatureScript
 
             void JustSummoned(Creature* summon) override
             {
-                if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MAGMAW)))
+                if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAGMAW)))
                     if (pMagmaw->IsInCombat())
                         summon->SetInCombatWithZone();
             }

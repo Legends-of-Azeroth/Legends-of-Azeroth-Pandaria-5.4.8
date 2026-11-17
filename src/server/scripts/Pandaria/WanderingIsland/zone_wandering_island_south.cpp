@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -33,11 +33,11 @@ class AreaTrigger_at_mandori : public AreaTriggerScript
            if (player->GetQuestStatus(29792) != QUEST_STATUS_INCOMPLETE)
                return true;
 
-           uint64 playerGuid = player->GetGUID();
+           ObjectGuid playerGuid = player->GetGUID();
 
-            auto const aysa = player->SummonCreature(59986, 698.04f, 3601.79f, 142.82f, 3.254830f, TEMPSUMMON_MANUAL_DESPAWN, 0); // Aysa
-            auto const ji   = player->SummonCreature(59988, 698.06f, 3599.34f, 142.62f, 2.668790f, TEMPSUMMON_MANUAL_DESPAWN, 0); // Ji
-            auto const jojo = player->SummonCreature(59989, 702.78f, 3603.58f, 142.01f, 3.433610f, TEMPSUMMON_MANUAL_DESPAWN, 0); // Jojo
+            auto const aysa = player->SummonCreature(59986, 698.04f, 3601.79f, 142.82f, 3.254830f, TEMPSUMMON_MANUAL_DESPAWN, 0ms); // Aysa
+            auto const ji   = player->SummonCreature(59988, 698.06f, 3599.34f, 142.62f, 2.668790f, TEMPSUMMON_MANUAL_DESPAWN, 0ms); // Ji
+            auto const jojo = player->SummonCreature(59989, 702.78f, 3603.58f, 142.01f, 3.433610f, TEMPSUMMON_MANUAL_DESPAWN, 0ms); // Jojo
 
             if (!aysa || !ji || !jojo)
                 return true;
@@ -62,9 +62,9 @@ class npc_mandori_escort : public CreatureScript
     public:
         npc_mandori_escort() : CreatureScript("npc_mandori_escort") { }
 
-        struct npc_mandori_escortAI : public npc_escortAI
+        struct npc_mandori_escortAI : public EscortAI
         {
-            npc_mandori_escortAI(Creature* creature) : npc_escortAI(creature) { }
+            npc_mandori_escortAI(Creature* creature) : EscortAI(creature) { }
 
             enum escortEntry
             {
@@ -79,10 +79,10 @@ class npc_mandori_escort : public CreatureScript
             uint8  IntroState;
             uint8  doorEventState;
 
-            uint64 playerGuid;
+            ObjectGuid playerGuid;
 
-            uint64 mandoriDoorGuid;
-            uint64 peiwuDoorGuid;
+            ObjectGuid mandoriDoorGuid;
+            ObjectGuid peiwuDoorGuid;
 
             void Reset() override
             {
@@ -92,14 +92,14 @@ class npc_mandori_escort : public CreatureScript
                 IntroState      = 0;
                 doorEventState  = 0;
 
-                playerGuid      = 0;
-                mandoriDoorGuid = 0;
-                peiwuDoorGuid   = 0;
+                playerGuid = ObjectGuid::Empty;
+                mandoriDoorGuid = ObjectGuid::Empty;
+                peiwuDoorGuid = ObjectGuid::Empty;
 
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void SetGUID(uint64 guid, int32 /*type*/) override
+            void SetGUID(ObjectGuid guid, int32 /*type*/) override
             {
                 playerGuid = guid;
 
@@ -124,7 +124,7 @@ class npc_mandori_escort : public CreatureScript
                 return me->GetEntry() == npc_entry;
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
                 switch (waypointId)
                 {
@@ -182,7 +182,7 @@ class npc_mandori_escort : public CreatureScript
                                 IntroTimer = 1000;
                                 break;
                             case 3:
-                                Start(false, true);
+                                SetRun(true); Start(false);
                                 IntroTimer = 0;
                                 break;
                         }
@@ -249,7 +249,7 @@ class npc_mandori_escort : public CreatureScript
                         doorEventTimer -= diff;
                 }
 
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
             }
         };
 
@@ -267,7 +267,7 @@ class npc_korga : public CreatureScript
         bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
         {
             if (quest->GetQuestId() == 30589) // Wrecking the Wreck
-                if (Creature* jiEscort = player->SummonCreature(60900, 424.71f, 3635.59f, 92.70f, 2.498430f, TEMPSUMMON_MANUAL_DESPAWN, 0))
+                if (Creature* jiEscort = player->SummonCreature(60900, 424.71f, 3635.59f, 92.70f, 2.498430f, TEMPSUMMON_MANUAL_DESPAWN, 0ms))
                 {
                     jiEscort->SetExplicitSeerGuid(player->GetGUID());
                     jiEscort->SetReactState(REACT_PASSIVE);
@@ -283,26 +283,24 @@ class npc_ji_forest_escort : public CreatureScript
     public:
         npc_ji_forest_escort() : CreatureScript("npc_ji_forest_escort") { }
 
-        struct npc_ji_forest_escortAI : public npc_escortAI
+        struct npc_ji_forest_escortAI : public EscortAI
         {
-            npc_ji_forest_escortAI(Creature* creature) : npc_escortAI(creature) { }
+            npc_ji_forest_escortAI(Creature* creature) : EscortAI(creature) { }
 
-            uint64 playerGuid;
+            ObjectGuid playerGuid;
             uint32 IntroTimer;
 
             void Reset() override
             {
-                playerGuid      = 0;
+                playerGuid = ObjectGuid::Empty;
                 IntroTimer      = 2000;
             }
 
-            void SetGUID(uint64 guid, int32 /*type*/) override
+            void SetGUID(ObjectGuid guid, int32 /*type*/) override
             {
                 Talk(0);
                 playerGuid = guid;
             }
-
-            void WaypointReached(uint32 /*waypointId*/) override { }
 
             void LastWaypointReached()
             {
@@ -310,13 +308,15 @@ class npc_ji_forest_escort : public CreatureScript
                     player->AddAura(68483, player); // Phase 16384
             }
 
-            void MovementInform(uint32 type, uint32 pointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                if (pointId == 100)
-                    Start(false, true);
+                if (waypointId == 100)
+                {
+                    SetRun(true);
+                    Start(false);
+                }
                 else
                 {
-                    npc_escortAI::MovementInform(type, pointId);
                 }
             }
 
@@ -333,7 +333,7 @@ class npc_ji_forest_escort : public CreatureScript
                         IntroTimer -= diff;
                 }
 
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
             }
         };
 
@@ -390,7 +390,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_AN_ANCIENT_EVIL)
         {
-            if (Creature* const vordraka = player->SummonCreature(NPC_VORDRAKA, 281.74f, 4003.40f, 72.96f, 0.05f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000))
+            if (Creature* const vordraka = player->SummonCreature(NPC_VORDRAKA, 281.74f, 4003.40f, 72.96f, 0.05f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000ms))
             {
                 vordraka->SetExplicitSeerGuid(player->GetGUID());
                 vordraka->AI()->SetGUID(player->GetGUID());
@@ -416,7 +416,7 @@ public:
     {
         boss_vordrakaAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 summonerGUID;
+        ObjectGuid summonerGUID;
         bool summonedAllies;
         EventMap _events;
 
@@ -439,7 +439,7 @@ public:
             _events.ScheduleEvent(SPELL_DEEP_SEA_RUPTURE, 12500);
         }
 
-        void SetGUID(uint64 guid, int32 /*type*/) override
+        void SetGUID(ObjectGuid guid, int32 /*type*/) override
         {
             summonerGUID = guid;
         }
@@ -461,7 +461,7 @@ public:
                 {
                     aysa->AI()->AttackStart(me);
                     AttackStart(aysa);
-                    me->AddThreat(aysa, 1000.0f);
+                    me->GetThreatManager().AddThreat(aysa, 1000.0f);
                 }
 
             ScriptedAI::MoveInLineOfSight(who);
@@ -488,14 +488,13 @@ public:
                 if (Creature* const aysa = GetClosestCreatureWithEntry(me, NPC_AYSA, 30.f))
                 {
                     aysa->AI()->Talk(0);
-                    me->AddThreat(aysa, 1000.0f);
+                    me->GetThreatManager().AddThreat(aysa, 1000.0f);
                 }
 
                 for (int i = 0; i < 3; ++i)
                 {
-                    Position pos;
-                    me->GetRandomNearPosition(pos, 20.f);
-                    if (Creature* const summon = me->SummonCreature(NPC_DEEPSCALE_AGGRESSOR, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
+                    Position pos = me->GetRandomNearPosition(20.f);
+                    if (Creature* const summon = me->SummonCreature(NPC_DEEPSCALE_AGGRESSOR, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000ms))
                         if (Player * const player = Unit::GetPlayer(*me, summonerGUID))
                             summon->AI()->AttackStart(player);
                 }
@@ -543,7 +542,7 @@ class npc_aysa_gunship_crash : public CreatureScript
         {
             if (quest->GetQuestId() == QUEST_RISKING_IT_ALL)
             {
-                if (Creature* aysa = player->SummonCreature(60729, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0))
+                if (Creature* aysa = player->SummonCreature(60729, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0ms))
                 {
                     aysa->SetExplicitSeerGuid(player->GetGUID());
                     aysa->AI()->SetGUID(player->GetGUID());
@@ -598,13 +597,13 @@ class npc_aysa_gunship_crash_escort : public CreatureScript
 public:
     npc_aysa_gunship_crash_escort() : CreatureScript("npc_aysa_gunship_crash_escort") { }
 
-    struct npc_aysa_gunship_crash_escortAI : public npc_escortAI
+    struct npc_aysa_gunship_crash_escortAI : public EscortAI
     {
-        npc_aysa_gunship_crash_escortAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_aysa_gunship_crash_escortAI(Creature* creature) : EscortAI(creature) { }
 
-        uint64 playerGuid;
-        uint64 jiGuid;
-        uint64 fireGuid;
+        ObjectGuid playerGuid;
+        ObjectGuid jiGuid;
+        ObjectGuid fireGuid;
 
         uint32 IntroTimer;
         uint32 discussTimer;
@@ -615,9 +614,9 @@ public:
 
         void Reset() override
         {
-            playerGuid      = 0;
-            jiGuid          = 0;
-            fireGuid        = 0;
+            playerGuid = ObjectGuid::Empty;
+            jiGuid = ObjectGuid::Empty;
+            fireGuid = ObjectGuid::Empty;
 
             IntroTimer      = 100;
             discussTimer    = 0;
@@ -627,11 +626,11 @@ public:
             events.Reset();
         }
 
-        void SetGUID(uint64 guid, int32 /*type*/) override
+        void SetGUID(ObjectGuid guid, int32 /*type*/) override
         {
             playerGuid = guid;
 
-            if (Creature* ji = me->SummonCreature(NPC_JI_FIREPAW, 230.31f, 4006.67f, 87.27f, 3.38f, TEMPSUMMON_MANUAL_DESPAWN, 0))
+            if (Creature* ji = me->SummonCreature(NPC_JI_FIREPAW, 230.31f, 4006.67f, 87.27f, 3.38f, TEMPSUMMON_MANUAL_DESPAWN, 0ms))
             {
                 ji->SetExplicitSeerGuid(playerGuid);
                 jiGuid = ji->GetGUID();
@@ -662,7 +661,7 @@ public:
                     events.ScheduleEvent(EVENT_START_CINEMATIC, 200);
             }
 
-            npc_escortAI::MovementInform(type, pointId);
+            EscortAI::MovementInform(type, pointId);
         }
 
         Creature* getJi()
@@ -672,7 +671,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
             events.Update(diff);
 
             if (uint32 eventId = events.ExecuteEvent())
@@ -681,7 +680,7 @@ public:
                 {
                     case EVENT_AYSA_START:
                         Talk(0, Player::GetPlayer(*me, playerGuid));
-                        Start(false, true);
+                        SetRun(true); Start(false);
                         break;
                     case EVENT_AYSA_TALK_1:
                         Talk(1);
@@ -755,7 +754,7 @@ public:
 
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             if (waypointId == 18)
             {
@@ -1001,7 +1000,7 @@ class npc_shen_healer : public CreatureScript
                 me->CastSpell(me, me->GetEntry() == NPC_HEALER_A ? SPELL_HEALER_A: SPELL_HEALER_H, true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 return;
             }

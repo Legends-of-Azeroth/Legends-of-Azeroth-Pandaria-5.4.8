@@ -44,12 +44,12 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
             bool IsBossDied[3];
 
             //Storing Skeram, Vem and Kri.
-            uint64 SkeramGUID;
-            uint64 VemGUID;
-            uint64 KriGUID;
-            uint64 VeklorGUID;
-            uint64 VeknilashGUID;
-            uint64 ViscidusGUID;
+            ObjectGuid SkeramGUID;
+            ObjectGuid VemGUID;
+            ObjectGuid KriGUID;
+            ObjectGuid VeklorGUID;
+            ObjectGuid VeknilashGUID;
+            ObjectGuid ViscidusGUID;
 
             uint32 BugTrioDeathCount;
 
@@ -64,12 +64,12 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
                 IsBossDied[1] = false;
                 IsBossDied[2] = false;
 
-                SkeramGUID = 0;
-                VemGUID = 0;
-                KriGUID = 0;
-                VeklorGUID = 0;
-                VeknilashGUID = 0;
-                ViscidusGUID = 0;
+                SkeramGUID = ObjectGuid::Empty;
+                VemGUID = ObjectGuid::Empty;
+                KriGUID = ObjectGuid::Empty;
+                VeklorGUID = ObjectGuid::Empty;
+                VeknilashGUID = ObjectGuid::Empty;
+                ViscidusGUID = ObjectGuid::Empty;
 
                 BugTrioDeathCount = 0;
 
@@ -130,7 +130,7 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 identifier) const override
+            ObjectGuid GetGuidData(uint32 identifier) const override
             {
                 switch (identifier)
                 {
@@ -147,7 +147,7 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
                     case DATA_VISCIDUS:
                         return ViscidusGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }                                                       // end GetData64
 
             void SetData(uint32 type, uint32 data) override

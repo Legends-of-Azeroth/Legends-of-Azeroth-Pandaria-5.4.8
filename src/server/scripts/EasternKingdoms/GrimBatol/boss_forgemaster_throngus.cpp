@@ -133,9 +133,9 @@ class boss_forgemaster_throngus : public CreatureScript
                 SetEquipmentSlots(false, 0, 0, 0);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);

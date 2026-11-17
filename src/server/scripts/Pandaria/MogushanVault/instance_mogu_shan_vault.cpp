@@ -59,30 +59,30 @@ class instance_mogu_shan_vault : public InstanceMapScript
             uint32 stoneGuardiansState;
             uint32 actualPetrifierEntry;
 
-            uint64 cursedMogu1Guid;
-            uint64 cursedMogu2Guid;
-            uint64 ghostEssenceGuid;
+            ObjectGuid cursedMogu1Guid;
+            ObjectGuid cursedMogu2Guid;
+            ObjectGuid ghostEssenceGuid;
 
-            uint64 stoneGuardControllerGuid;
-            uint64 fengGuid;
-            uint64 siphonShieldGuid;
-            uint64 spiritKingsControllerGuid;
-            uint64 elegonGuid;
-            uint64 infiniteEnergyGuid;
-            uint64 GarajalGuid;
+            ObjectGuid stoneGuardControllerGuid;
+            ObjectGuid fengGuid;
+            ObjectGuid siphonShieldGuid;
+            ObjectGuid spiritKingsControllerGuid;
+            ObjectGuid elegonGuid;
+            ObjectGuid infiniteEnergyGuid;
+            ObjectGuid GarajalGuid;
 
-            uint64 inversionGobGuid;
-            uint64 stoneGuardExit;
-            uint64 cancelGobGuid;
-            uint64 ancientMoguDoorGuid;
-            uint64 emperorsDoorGuid;
-            uint64 celestialCommandGuid;
+            ObjectGuid inversionGobGuid;
+            ObjectGuid stoneGuardExit;
+            ObjectGuid cancelGobGuid;
+            ObjectGuid ancientMoguDoorGuid;
+            ObjectGuid emperorsDoorGuid;
+            ObjectGuid celestialCommandGuid;
 
-            uint64 energyPlatformGuid;
-            uint64 titanDiskGuid;
-            uint64 janxiGuid;
-            uint64 qinxiGuid;
-            uint64 ancienControlCondoleGUID;
+            ObjectGuid energyPlatformGuid;
+            ObjectGuid titanDiskGuid;
+            ObjectGuid janxiGuid;
+            ObjectGuid qinxiGuid;
+            ObjectGuid ancienControlCondoleGUID;
 
             uint32 HasFengEventDone;
             uint32 HasGarajalEventDone;
@@ -92,13 +92,13 @@ class instance_mogu_shan_vault : public InstanceMapScript
             uint32 ThirdSpirit;
             uint32 FourSpirit;
 
-            std::vector<uint64> stoneGuardGUIDs;
-            std::vector<uint64> fengStatuesGUIDs;
-            std::vector<uint64> spiritKingsGUIDs;
-            std::vector<uint64> titanCirclesGuids;
+            std::vector<ObjectGuid> stoneGuardGUIDs;
+            std::vector<ObjectGuid> fengStatuesGUIDs;
+            std::vector<ObjectGuid> spiritKingsGUIDs;
+            std::vector<ObjectGuid> titanCirclesGuids;
             std::vector<uint32> achievementGuids;
             std::vector<uint32> m_spiritKingsSeq;
-            std::list<uint64> SkullChargerGuids;
+            std::list<ObjectGuid> SkullChargerGuids;
 
             bool isLfr;
             bool lfrSectionFound;
@@ -108,25 +108,25 @@ class instance_mogu_shan_vault : public InstanceMapScript
             {
                 SetBossNumber(ENCOUNTERS);
                 LoadDoorData(doorData);
-                stoneGuardiansState             = NOT_STARTED;
-                stoneGuardControllerGuid        = 0;
-                fengGuid                        = 0;
-                siphonShieldGuid                = 0;
-                inversionGobGuid                = 0;
-                cancelGobGuid                   = 0;
-                ancientMoguDoorGuid             = 0;
-                emperorsDoorGuid                = 0;
-                celestialCommandGuid            = 0;
-                energyPlatformGuid              = 0;
-                titanDiskGuid                   = 0;
-                cursedMogu1Guid                 = 0;
-                cursedMogu2Guid                 = 0;
-                ghostEssenceGuid                = 0;
-                spiritKingsControllerGuid       = 0;
-                qinxiGuid                       = 0;
-                janxiGuid                       = 0;
-                ancienControlCondoleGUID        = 0;
-                GarajalGuid                     = 0;
+                stoneGuardiansState       = NOT_STARTED;
+                stoneGuardControllerGuid  = ObjectGuid::Empty;
+                fengGuid                  = ObjectGuid::Empty;
+                siphonShieldGuid          = ObjectGuid::Empty;
+                inversionGobGuid          = ObjectGuid::Empty;
+                cancelGobGuid             = ObjectGuid::Empty;
+                ancientMoguDoorGuid       = ObjectGuid::Empty;
+                emperorsDoorGuid          = ObjectGuid::Empty;
+                celestialCommandGuid      = ObjectGuid::Empty;
+                energyPlatformGuid        = ObjectGuid::Empty;
+                titanDiskGuid             = ObjectGuid::Empty;
+                cursedMogu1Guid           = ObjectGuid::Empty;
+                cursedMogu2Guid           = ObjectGuid::Empty;
+                ghostEssenceGuid          = ObjectGuid::Empty;
+                spiritKingsControllerGuid = ObjectGuid::Empty;
+                qinxiGuid                 = ObjectGuid::Empty;
+                janxiGuid                 = ObjectGuid::Empty;
+                ancienControlCondoleGUID  = ObjectGuid::Empty;
+                GarajalGuid               = ObjectGuid::Empty;
                 FrenzyDiff = instance->Is25ManRaid() ? 2 : 1;
 
                 stoneGuardGUIDs.clear();
@@ -267,7 +267,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                             if (result)
                                 toDespawnEntry = (*result)[0].GetUInt64();
 
-                            uint64 toDespawn = creature->GetEntry() == toDespawnEntry ? creature->GetGUID() : this->GetData64(toDespawnEntry);
+                            ObjectGuid toDespawn = creature->GetEntry() == toDespawnEntry ? creature->GetGUID() : this->GetGuidData(toDespawnEntry);
                             Creature* stoneGuard = (toDespawn != creature->GetGUID())
                                     ? instance->GetCreature(toDespawn)
                                     : creature;
@@ -626,7 +626,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -715,7 +715,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         return ancienControlCondoleGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool IsWipe(float range, Unit* source) override

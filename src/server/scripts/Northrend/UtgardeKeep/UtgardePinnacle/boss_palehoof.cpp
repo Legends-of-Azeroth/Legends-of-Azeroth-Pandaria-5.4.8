@@ -123,53 +123,53 @@ class boss_palehoof : public CreatureScript
                     instance->SetData(DATA_GORTOK_PALEHOOF_EVENT, NOT_STARTED);
 
                     //Creature* temp;
-                    //if ((temp = Unit::GetCreature(*me, instance->GetData64(DATA_MOB_FRENZIED_WORGEN))) && !temp->IsAlive())
+                    //if ((temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_MOB_FRENZIED_WORGEN))) && !temp->IsAlive())
                     //{
                     //    temp->Respawn();
                     //    temp->AI()->EnterEvadeMode();
                     //}
-                    //if ((temp = Unit::GetCreature(*me, instance->GetData64(DATA_MOB_FEROCIOUS_RHINO))) && !temp->IsAlive())
+                    //if ((temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_MOB_FEROCIOUS_RHINO))) && !temp->IsAlive())
                     //{
                     //    temp->Respawn();
                     //    temp->AI()->EnterEvadeMode();
                     //}
-                    //if ((temp = Unit::GetCreature(*me, instance->GetData64(DATA_MOB_MASSIVE_JORMUNGAR))) && !temp->IsAlive())
+                    //if ((temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_MOB_MASSIVE_JORMUNGAR))) && !temp->IsAlive())
                     //{
                     //    temp->Respawn();
                     //    temp->AI()->EnterEvadeMode();
                     //}
-                    //if ((temp = Unit::GetCreature(*me, instance->GetData64(DATA_MOB_RAVENOUS_FURBOLG))) && !temp->IsAlive())
+                    //if ((temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_MOB_RAVENOUS_FURBOLG))) && !temp->IsAlive())
                     //{
                     //    temp->Respawn();
                     //    temp->AI()->EnterEvadeMode();
                     //}
-                    //if (GameObject* pGo = instance->instance->GetGameObject(instance->GetData64(DATA_GORTOK_PALEHOOF_SPHERE)))
+                    //if (GameObject* pGo = instance->instance->GetGameObject(instance->GetGuidData(DATA_GORTOK_PALEHOOF_SPHERE)))
                     //{
                     //    pGo->SetGoState(GO_STATE_READY);
                     //    pGo->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     //}
 
-                    Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_NPC_FRENZIED_WORGEN));
+                    Creature* temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_NPC_FRENZIED_WORGEN));
                     if (temp && !temp->IsAlive())
                         temp->Respawn();
 
-                        temp = Unit::GetCreature(*me, instance->GetData64(DATA_NPC_FEROCIOUS_RHINO));
+                        temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_NPC_FEROCIOUS_RHINO));
                     if (temp && !temp->IsAlive())
                         temp->Respawn();
 
-                        temp = Unit::GetCreature(*me, instance->GetData64(DATA_NPC_MASSIVE_JORMUNGAR));
+                        temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_NPC_MASSIVE_JORMUNGAR));
                     if (temp && !temp->IsAlive())
                         temp->Respawn();
 
-                        temp = Unit::GetCreature(*me, instance->GetData64(DATA_NPC_RAVENOUS_FURBOLG));
+                        temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_NPC_RAVENOUS_FURBOLG));
                     if (temp && !temp->IsAlive())
                         temp->Respawn();
 
-                        temp = Unit::GetCreature(*me, instance->GetData64(DATA_NPC_ORB));
+                        temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_NPC_ORB));
                     if (temp)
                 temp->DespawnOrUnsummon();
 
-                        GameObject* go = instance->instance->GetGameObject(instance->GetData64(DATA_GORTOK_PALEHOOF_SPHERE));
+                        GameObject* go = instance->instance->GetGameObject(instance->GetGuidData(DATA_GORTOK_PALEHOOF_SPHERE));
                     if (go)
                     {
                         go->SetGoState(GO_STATE_READY);
@@ -192,18 +192,18 @@ class boss_palehoof : public CreatureScript
             //            {
             //                me->SetInCombatWith(i_pl);
             //                i_pl->SetInCombatWith(me);
-            //                me->AddThreat(i_pl, 1.0f);
+            //                me->GetThreatManager().AddThreat(i_pl, 1.0f);
             //            }
             //    }
             //}
 
-            //void EnterCombat(Unit* who) override
+            //void JustEngagedWith(Unit* who) override
             //{
             //    DoScriptText(SAY_AGGRO, me);
             //    SetInCombat();
             //}
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 me->GetMotionMaster()->MoveChase(who);
                 Talk(SAY_AGGRO);
@@ -219,7 +219,7 @@ class boss_palehoof : public CreatureScript
 
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
                     DoStartMovement(who);
@@ -234,7 +234,7 @@ class boss_palehoof : public CreatureScript
                 if (!UpdateVictim())
                     return;
             
-                Creature* temp = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_NPC_ORB) : 0);
+                Creature* temp = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_NPC_ORB) : ObjectGuid::Empty);
                 if (temp && temp->IsAlive())
                     temp->DisappearAndDie();
             
@@ -265,7 +265,7 @@ class boss_palehoof : public CreatureScript
                 Talk(SAY_DEATH);
                 if (instance)
                     instance->SetData(DATA_GORTOK_PALEHOOF_EVENT, DONE);
-                Creature* temp = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_NPC_ORB) : 0);
+                Creature* temp = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_NPC_ORB) : ObjectGuid::Empty);
                 if (temp && temp->IsAlive())
                     temp->DisappearAndDie();
             }
@@ -309,7 +309,7 @@ class boss_palehoof : public CreatureScript
                 move = Sequence[AddCount++];
 
                 // send orb to summon spot
-                Creature* pOrb = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_NPC_ORB) : 0);
+                Creature* pOrb = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_NPC_ORB) : ObjectGuid::Empty);
                 if (pOrb && pOrb->IsAlive())
                 {
                     if (currentPhase == PHASE_NONE)
@@ -374,13 +374,13 @@ class npc_ravenous_furbolg : public CreatureScript
                 if (instance)
                     if (instance->GetData(DATA_GORTOK_PALEHOOF_EVENT)==IN_PROGRESS)
                     {
-                        Creature* pPalehoof = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
+                        Creature* pPalehoof = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : ObjectGuid::Empty);
                         if (pPalehoof && pPalehoof->IsAlive())
                             CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->Reset();
                     }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 me->GetMotionMaster()->MoveChase(who);
             }
@@ -431,7 +431,7 @@ class npc_ravenous_furbolg : public CreatureScript
 
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
                     DoStartMovement(who);
@@ -441,7 +441,7 @@ class npc_ravenous_furbolg : public CreatureScript
             void JustDied(Unit* killer) override
             {
                 if (instance)
-                    if (Creature* pPalehoof = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_GORTOK_PALEHOOF) : 0))
+                    if (Creature* pPalehoof = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : ObjectGuid::Empty))
                         CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->NextPhase();
             }
 
@@ -498,13 +498,13 @@ class npc_frenzied_worgen : public CreatureScript
                 if (instance)
                     if (instance->GetData(DATA_GORTOK_PALEHOOF_EVENT)==IN_PROGRESS)
                     {
-                        Creature* pPalehoof = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
+                        Creature* pPalehoof = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : ObjectGuid::Empty);
                         if (pPalehoof && pPalehoof->IsAlive())
                             CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->Reset();
                     }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 me->GetMotionMaster()->MoveChase(who);
             }
@@ -545,7 +545,7 @@ class npc_frenzied_worgen : public CreatureScript
 
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
                     DoStartMovement(who);
@@ -559,7 +559,7 @@ class npc_frenzied_worgen : public CreatureScript
             {
                 if (instance)
                 {
-                    Creature* pPalehoof = Unit::GetCreature(*me, instance->GetData64(DATA_GORTOK_PALEHOOF));
+                    Creature* pPalehoof = Unit::GetCreature(*me, instance->GetGuidData(DATA_GORTOK_PALEHOOF));
                     if (pPalehoof)
                         CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->NextPhase();
                 }
@@ -619,13 +619,13 @@ class npc_ferocious_rhino : public CreatureScript
                 if (instance)
                     if (instance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
                     {
-                        Creature* pPalehoof = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
+                        Creature* pPalehoof = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : ObjectGuid::Empty);
                         if (pPalehoof && pPalehoof->IsAlive())
                             CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->Reset();
                     }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 me->GetMotionMaster()->MoveChase(who);
             }
@@ -667,7 +667,7 @@ class npc_ferocious_rhino : public CreatureScript
 
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
                     DoStartMovement(who);
@@ -678,7 +678,7 @@ class npc_ferocious_rhino : public CreatureScript
             {
                 if (instance)
                 {
-                    Creature* pPalehoof = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
+                    Creature* pPalehoof = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : ObjectGuid::Empty);
                     if (pPalehoof)
                         CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->NextPhase();
                 }
@@ -742,13 +742,13 @@ class npc_massive_jormungar : public CreatureScript
                 if (instance)
                     if (instance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
                     {
-                        Creature* pPalehoof = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
+                        Creature* pPalehoof = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : ObjectGuid::Empty);
                         if (pPalehoof && pPalehoof->IsAlive())
                             CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->Reset();
                     }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 me->GetMotionMaster()->MoveChase(who);
             }
@@ -771,7 +771,7 @@ class npc_massive_jormungar : public CreatureScript
                         DoCast(me, DUNGEON_MODE(SPELL_ACID_SPLATTER, SPELL_ACID_SPLATTER_H)); //for 2 seconds only?
                         uiAcidSplatterTimer = 25 * IN_MILLISECONDS + rand() % 5 * IN_MILLISECONDS;
                         for (uint8 i = 0; i < 6; ++i)
-                            DoSpawnCreature(NPC_JORMUNGAR_WORM, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+                            DoSpawnCreature(NPC_JORMUNGAR_WORM, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000ms);
                     }
                 } else uiAcidSplatterTimer -= diff;
 
@@ -798,7 +798,7 @@ class npc_massive_jormungar : public CreatureScript
 
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
                     DoStartMovement(who);
@@ -809,7 +809,7 @@ class npc_massive_jormungar : public CreatureScript
             {
                 if (instance)
                 {
-                    Creature* pPalehoof = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
+                    Creature* pPalehoof = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : ObjectGuid::Empty);
                     if (pPalehoof)
                         CAST_AI(boss_palehoof::boss_palehoofAI,pPalehoof->AI())->NextPhase();
                 }
@@ -870,7 +870,7 @@ class npc_palehoof_orb : public CreatureScript
                         {
                             me->SetInCombatWith(i_pl);
                             i_pl->SetInCombatWith(me);
-                            me->AddThreat(i_pl, 1.0f);
+                            me->GetThreatManager().AddThreat(i_pl, 1.0f);
                         }
                 }
             }*/
@@ -888,11 +888,11 @@ class npc_palehoof_orb : public CreatureScript
                        Creature* pNext = NULL;
                        switch (currentPhase)
                        {
-                            case PHASE_FRENZIED_WORGEN:   pNext = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_NPC_FRENZIED_WORGEN)   : 0); break;
-                            case PHASE_RAVENOUS_FURLBORG: pNext = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_NPC_RAVENOUS_FURBOLG)  : 0); break;
-                            case PHASE_MASSIVE_JORMUNGAR: pNext = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_NPC_MASSIVE_JORMUNGAR) : 0); break;
-                            case PHASE_FEROCIOUS_RHINO:   pNext = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_NPC_FEROCIOUS_RHINO)   : 0); break;
-                            case PHASE_GORTOK_PALEHOOF:   pNext = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_GORTOK_PALEHOOF)       : 0); break;
+                           case PHASE_FRENZIED_WORGEN:   pNext = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_NPC_FRENZIED_WORGEN)   : ObjectGuid::Empty); break;
+                            case PHASE_RAVENOUS_FURLBORG: pNext = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_NPC_RAVENOUS_FURBOLG)  : ObjectGuid::Empty); break;
+                            case PHASE_MASSIVE_JORMUNGAR: pNext = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_NPC_MASSIVE_JORMUNGAR) : ObjectGuid::Empty); break;
+                            case PHASE_FEROCIOUS_RHINO:   pNext = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_NPC_FEROCIOUS_RHINO)   : ObjectGuid::Empty); break;
+                            case PHASE_GORTOK_PALEHOOF:   pNext = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF)       : ObjectGuid::Empty); break;
                             default: break;
                        }
 
@@ -924,11 +924,11 @@ class npc_palehoof_orb : public CreatureScript
 
                 switch (pointId)
                 {
-                    case PHASE_FRENZIED_WORGEN:   pNext = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_NPC_FRENZIED_WORGEN)   : 0); break;
-                    case PHASE_RAVENOUS_FURLBORG: pNext = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_NPC_RAVENOUS_FURBOLG)  : 0); break;
-                    case PHASE_MASSIVE_JORMUNGAR: pNext = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_NPC_MASSIVE_JORMUNGAR) : 0); break;
-                    case PHASE_FEROCIOUS_RHINO:   pNext = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_NPC_FEROCIOUS_RHINO)   : 0); break;
-                    case PHASE_GORTOK_PALEHOOF:   pNext = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_GORTOK_PALEHOOF)       : 0); break;
+                    case PHASE_FRENZIED_WORGEN:   pNext = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_NPC_FRENZIED_WORGEN)   : ObjectGuid::Empty); break;
+                    case PHASE_RAVENOUS_FURLBORG: pNext = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_NPC_RAVENOUS_FURBOLG)  : ObjectGuid::Empty); break;
+                    case PHASE_MASSIVE_JORMUNGAR: pNext = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_NPC_MASSIVE_JORMUNGAR) : ObjectGuid::Empty); break;
+                    case PHASE_FEROCIOUS_RHINO:   pNext = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_NPC_FEROCIOUS_RHINO)   : ObjectGuid::Empty); break;
+                    case PHASE_GORTOK_PALEHOOF:   pNext = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF)       : ObjectGuid::Empty); break;
                     default: break;
                 }
 
@@ -957,7 +957,7 @@ class go_palehoof_sphere : public GameObjectScript
         {
             InstanceScript* instance = go->GetInstanceScript();
 
-            Creature* pPalehoof = Unit::GetCreature(*go, instance ? instance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
+            Creature* pPalehoof = Unit::GetCreature(*go, instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : ObjectGuid::Empty);
             if (pPalehoof && pPalehoof->IsAlive())
             {
                 go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -33,6 +33,7 @@
 #include "Battleground.h"
 #include "SpellHistory.h"
 #include "spell_common.h"
+#include "Random.h"
 
 enum HunterSpells
 {
@@ -298,8 +299,7 @@ class spell_hunt_stampede : public SpellScript
                     {
                         Pet* pet = new Pet{ player };
                         pet->SetTemporary();
-                        Position pos;
-                        target->GetRandomNearPosition(pos, MELEE_RANGE + target->GetCombatReach());
+                        Position pos = target->GetRandomNearPosition(MELEE_RANGE + target->GetCombatReach());
                         if (!pet->LoadPetFromDB(PET_LOAD_BY_ENTRY, oldPet->GetEntry(), &pos))
                         {
                             delete pet;
@@ -319,8 +319,7 @@ class spell_hunt_stampede : public SpellScript
 
                 Pet* pet = new Pet{ player };
                 pet->SetTemporary();
-                Position pos;
-                target->GetRandomNearPosition(pos, MELEE_RANGE + target->GetCombatReach());
+                Position pos = target->GetRandomNearPosition(MELEE_RANGE + target->GetCombatReach());
                 if (!pet->LoadPetFromDB(PET_LOAD_BY_SLOT, i, &pos))
                 {
                     delete pet;
@@ -339,6 +338,7 @@ class spell_hunt_stampede : public SpellScript
         pet->SetDuration(20 * IN_MILLISECONDS);
         if (GetExplTargetUnit()->GetCharmerOrOwnerPlayerOrPlayerItself() || pet->GetMap()->IsBattlegroundOrArena())
             pet->CastSpell(pet, SPELL_HUNTER_STAMPEDE_DAMAGE_REDUCTION, true);
+        pet->SetFullHealth();
     }
 
     void Register() override
@@ -1168,19 +1168,19 @@ class sat_hunt_ice_trap : public IAreaTriggerAura
         return object->ToUnit() && GetCaster()->IsValidAttackTarget(object->ToUnit(), sSpellMgr->GetSpellInfo(spellId), nullptr, true);
     }
 
-    void OnTriggeringApply(WorldObject* object)
+    void OnTriggeringApply(WorldObject* object) override
     {
         object->ToUnit()->CastSpell(object->ToUnit(), spellId, true);
     }
 
-    void OnTriggeringUpdate(WorldObject* object)
+    void OnTriggeringUpdate(WorldObject* object) override
     {
         Unit* unit = object->ToUnit();
         if (!unit->HasAura(spellId))
             unit->CastSpell(object->ToUnit(), spellId, true);
     }
 
-    void OnTriggeringRemove(WorldObject* object)
+    void OnTriggeringRemove(WorldObject* object) override
     {
         object->ToUnit()->RemoveAurasDueToSpell(spellId);
     }
@@ -1194,18 +1194,18 @@ class sat_hunt_ice_trap_black_ice : public IAreaTriggerAura
         return object == GetCaster();
     }
 
-    void OnTriggeringApply(WorldObject* object)
+    void OnTriggeringApply(WorldObject* object) override
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_BLACK_ICE, true);
     }
 
-    void OnTriggeringUpdate(WorldObject* object)
+    void OnTriggeringUpdate(WorldObject* object) override
     {
         if (!GetCaster()->HasAura(SPELL_HUNTER_BLACK_ICE))
             GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_BLACK_ICE, true);
     }
 
-    void OnTriggeringRemove(WorldObject* object)
+    void OnTriggeringRemove(WorldObject* object) override
     {
         GetCaster()->RemoveAurasDueToSpell(SPELL_HUNTER_BLACK_ICE);
     }
@@ -1258,7 +1258,7 @@ public:
     std::set<uint64> targetsRight;
     Position startPositon;
     Position destPosition;
-    uint64 mainTarget = 0;
+    ObjectGuid mainTarget = ObjectGuid::Empty;
     TimeValue timeToTarget;
     TimeValue startTime;
     bool done = false;
@@ -1299,7 +1299,7 @@ class spell_hunt_glaive_toss_damage : public SpellScript
 {
     PrepareSpellScript(spell_hunt_glaive_toss_damage);
 
-    uint64 mainTarget = 0;
+    ObjectGuid mainTarget = ObjectGuid::Empty;
     std::list<WorldObject*> selected;
 
     void SelectTargets(std::list<WorldObject*>& targets)
@@ -1637,7 +1637,7 @@ class spell_hunt_camouflage_driver : public AuraScript
 
     Player* hunter = nullptr;
 
-    bool Load()
+    bool Load() override
     {
         hunter = GetOwner()->ToPlayer();
         return hunter != nullptr;
@@ -1935,7 +1935,7 @@ class spell_hunt_aspect_of_the_iron_hawk : public AuraScript
 
     void ScrewThat(AuraEffect const*, AuraEffectHandleModes)
     {
-        GetUnitOwner()->ForceValuesUpdateAtIndex(UNIT_FIELD_SHAPESHIFT_FORM);
+        GetUnitOwner()->ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2);
     }
 
     void Register() override
@@ -2066,7 +2066,7 @@ class spell_hunt_lynx_rush : public AuraScript
 {
     PrepareAuraScript(spell_hunt_lynx_rush);
 
-    std::set<uint64> m_targets;
+    GuidSet m_targets;
 
     void HandleTick(AuraEffect const*)
     {
@@ -2075,7 +2075,7 @@ class spell_hunt_lynx_rush : public AuraScript
         Unit* target = nullptr;
         while (!m_targets.empty())
         {
-            uint64 guid = Trinity::Containers::SelectRandomContainerElement(m_targets);
+            ObjectGuid guid = Trinity::Containers::SelectRandomContainerElement(m_targets);
             target = ObjectAccessor::GetUnit(*pet, guid);
             if (target)
                 break;
@@ -2337,7 +2337,7 @@ class spell_hunt_barrage : public SpellScript
 {
     PrepareSpellScript(spell_hunt_barrage);
 
-    uint64 mainTarget;
+    ObjectGuid mainTarget;
 
     void GetMainTarget(SpellEffIndex)
     {
@@ -2567,12 +2567,12 @@ class sat_hunt_flare : public IAreaTriggerAura
         return target && target->IsAlive() && GetCaster()->IsValidAttackTarget(target, nullptr, nullptr, true) && GetAreaTrigger()->IsWithinLOSInMap(target);
     }
 
-    void OnTriggeringApply(WorldObject* object)
+    void OnTriggeringApply(WorldObject* object) override
     {
         object->ToUnit()->CastSpell(object->ToUnit(), SPELL_HUNTER_FLARE, true);
     }
 
-    void OnTriggeringRemove(WorldObject* object)
+    void OnTriggeringRemove(WorldObject* object) override
     {
         object->ToUnit()->RemoveAurasDueToSpell(SPELL_HUNTER_FLARE);
     }
@@ -2853,7 +2853,7 @@ class spell_hunt_fetch : public SpellScript
 
         if (Unit* pet = GetCaster()->GetGuardianPet())
         {
-            uint64 guid = GetHitCreature()->GetGUID();
+            ObjectGuid guid = GetHitCreature()->GetGUID();
             pet->GetMotionMaster()->MovePoint(0, GetHitCreature()->GetPosition());
             pet->Schedule(Milliseconds(pet->GetSplineDuration()), [=]()
             {
@@ -2934,7 +2934,7 @@ class spell_hunt_glyph_of_distracting_shot : public SpellScript
         if (GetCaster()->HasAura(SPELL_HUNTER_GLYPH_OF_DISTRACTING_SHOT) && pet)
         {
             PreventDefaultEffect(effIndex);
-            GetHitUnit()->AddThreat(pet, GetEffectValue());
+            GetHitUnit()->GetThreatManager().AddThreat(pet, GetEffectValue());
         }
     }
 
@@ -2988,7 +2988,7 @@ class spell_hunt_glyph_of_distracting_shot_taunt : public AuraScript
         {
             PreventDefaultAction();
             glyphed = true;
-            GetTarget()->TauntApply(pet);
+            GetTarget()->GetThreatManager().TauntUpdate();
         }
     }
 
@@ -3000,7 +3000,7 @@ class spell_hunt_glyph_of_distracting_shot_taunt : public AuraScript
 
             if (Unit* hunter = GetCaster())
                 if (Unit* pet = hunter->GetGuardianPet())
-                    GetTarget()->TauntFadeOut(pet);
+                    GetTarget()->GetThreatManager().TauntUpdate();
         }
     }
 
@@ -3053,7 +3053,7 @@ struct npc_pet_hunter_snake : public ScriptedAI
 
     enum { NPC_HUNTER_VIPER = 19921 };
 
-    void EnterCombat(Unit*) override { }
+    void JustEngagedWith(Unit*) override { }
 
     void InitializeAI() override
     {
@@ -3235,7 +3235,7 @@ class spell_hunt_t16_4p_bonus : public AuraScript
 
     Player* hunter = nullptr;
 
-    bool Load()
+    bool Load() override
     {
         hunter = GetOwner()->ToPlayer();
         return hunter != nullptr;

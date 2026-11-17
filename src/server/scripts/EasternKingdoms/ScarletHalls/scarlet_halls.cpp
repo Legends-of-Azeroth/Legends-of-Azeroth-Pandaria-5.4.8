@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -111,7 +111,7 @@ class npc_starving_hound : public CreatureScript
                 attacked = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_HUNGRY_DOG, urand(8000, 15000));
             }
@@ -406,9 +406,9 @@ class npc_commander_lindon : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override 
+            void JustEngagedWith(Unit* /*who*/) override 
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 HandleDoors();
                 if (instance)
                     instance->SetData(DATA_COMANDER_LINDON, IN_PROGRESS);
@@ -418,7 +418,7 @@ class npc_commander_lindon : public CreatureScript
             {
                 if (instance)
                     if (GameObject* Idoor = GetClosestGameObjectWithEntry(me, GO_COMANDER_LINDON_EXIT, 150.0f))
-                        instance->HandleGameObject(0, reset, Idoor);
+                        instance->HandleGameObject(ObjectGuid::Empty, reset, Idoor);
             }
 
             void JustDied(Unit* /*killer*/) override 
@@ -432,7 +432,7 @@ class npc_commander_lindon : public CreatureScript
 
             void JustSummoned(Creature* summon) override
             {
-                summon->SetDisplayId(summon->GetCreatureTemplate()->Modelid1);
+                summon->SetDisplayFromModel(0);
             }
 
             void UpdateAI(uint32 diff) override 
@@ -559,7 +559,7 @@ class npc_scarlet_master_archer : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_BLEEDING_WOUND, urand(2500, 4500));
             }
@@ -649,7 +649,7 @@ class npc_scarlet_scourge_hewer : public CreatureScript
                 SetEquipmentSlots(false, W_DRAGON_REACH, 0, EQUIP_NO_CHANGE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->CastSpell(me, SPELL_SEAL_OF_BLOOD, false);
             }
@@ -701,7 +701,7 @@ class npc_scarlet_myrmidon : public CreatureScript
                 SetEquipmentSlots(false, W_REMORSE, 0, EQUIP_NO_CHANGE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_RAZOR_EDGE, urand(10000, 19000));
             }
@@ -762,7 +762,7 @@ class npc_scarlet_evangelist : public CreatureScript
                 SetEquipmentSlots(false, W_MOULDERING_CORPSE, 0, EQUIP_NO_CHANGE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_HOLY_FIRE, urand(5000, 7000));
                 events.ScheduleEvent(EVENT_HOLY_SMITE, urand(1500, 2500));
@@ -826,7 +826,7 @@ class npc_scarlet_cannoneer : public CreatureScript
 
             EventMap events;
             bool triggered;
-            uint64 CannonGuid;
+            ObjectGuid CannonGuid;
 
             void IsSummonedBy(Unit* summoner) override 
             {
@@ -941,7 +941,7 @@ class npc_scarlet_halls_defender : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_DISARM, urand(9000, 18000));
                 me->CastSpell(me, SPELL_COMMANDING_SHOUT, false);
@@ -999,7 +999,7 @@ class npc_scarlet_evoker : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_FIREBALL, urand(3000, 5000));
                 events.ScheduleEvent(EVENT_FLAMESTRIKE, urand(7000, 15500));
@@ -1060,7 +1060,7 @@ class npc_scarlet_hall_guardian : public CreatureScript
                 SetEquipmentSlots(false, W_REMORSE, W_MAGIC_SHIELD, EQUIP_NO_CHANGE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_JOLT, urand(1500, 3000));
                 events.ScheduleEvent(EVENT_SLASH_ARMOR, urand(7000, 14000));
@@ -1120,7 +1120,7 @@ class npc_scarlet_treasurer : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_TOSS_STATUE, urand(3 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
             }
@@ -1244,7 +1244,7 @@ class npc_scarlet_scholar : public CreatureScript
                 SetEquipmentSlots(false, W_MOULDERING_CORPSE, 0, EQUIP_NO_CHANGE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SCARLET_PROTECTION, urand(3000, 8000));
                 events.ScheduleEvent(EVENT_FIREBALL_VALLEY, urand(9000, 18000));
@@ -1312,7 +1312,7 @@ class npc_scarlet_pupil : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_BEATDOWN, urand(2500, 6000));
             }
@@ -1501,7 +1501,7 @@ class AreaTrigger_at_commander_lindon : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
         {
-            if (Creature* lindon = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetData64(DATA_COMANDER_LINDON) : 0))
+            if (Creature* lindon = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(DATA_COMANDER_LINDON) : ObjectGuid::Empty))
                 lindon->AI()->DoAction(ACTION_GROUND_EXPLOSION);
 
             if (player->HasAura(SPELL_HEROIC_DEFENSE) && player->GetPositionX() > 950.0f)

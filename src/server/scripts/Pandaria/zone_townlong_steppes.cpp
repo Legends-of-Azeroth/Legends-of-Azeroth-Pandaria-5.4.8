@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -361,17 +361,17 @@ struct npc_seething_flashripper : public ScriptedAI
     npc_seething_flashripper(Creature* creature) : ScriptedAI(creature) { }
 
     EventMap events;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
     uint32 delay;
 
     void Reset() override
     {
         events.Reset();
         delay      = 0;
-        targetGUID = 0;
+        targetGUID = ObjectGuid::Empty;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_CORROSIVE_STING, urand(3.5 * IN_MILLISECONDS, 6 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_CLAW_ATTACK, 8.5 * IN_MILLISECONDS);
@@ -430,7 +430,7 @@ struct npc_korthik_timberhusk : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_DOUBLE_BLADE_LUNGE, urand(4 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_TIMBERHUSK, 6 * IN_MILLISECONDS);
@@ -479,7 +479,7 @@ struct npc_rankbite_ancient : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_PROTECTIVE_SHELL, urand(12 * IN_MILLISECONDS, 18 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_RANK_BITE, urand(3.5 * IN_MILLISECONDS, 11.5 * IN_MILLISECONDS));
@@ -528,7 +528,7 @@ struct npc_deadtalker_crusher : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_GORED, 7.5 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_BLOOD_RAGE, 4.5 * IN_MILLISECONDS);
@@ -571,17 +571,17 @@ struct npc_longshadow_mushan : public ScriptedAI
     npc_longshadow_mushan(Creature* creature) : ScriptedAI(creature) { }
 
     EventMap events;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
     uint32 delay;
 
     void Reset() override
     {
         events.Reset();
         delay = 0;
-        targetGUID = 0;
+        targetGUID = ObjectGuid::Empty;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_SPITBALING, urand(8.5 * IN_MILLISECONDS, 18 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_BELLY_FLOP, 10 * IN_MILLISECONDS);
@@ -637,17 +637,17 @@ struct npc_seething_hatred : public ScriptedAI
     npc_seething_hatred(Creature* creature) : ScriptedAI(creature) { }
 
     EventMap events;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
     uint32 delay;
 
     void Reset() override
     {
         events.Reset();
         delay = 0;
-        targetGUID = 0;
+        targetGUID = ObjectGuid::Empty;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_PURE_HATE, urand(3.5 * IN_MILLISECONDS, 7 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_CONSUMING_HATE, 10 * IN_MILLISECONDS);
@@ -714,7 +714,7 @@ struct npc_gnathus : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_ARC_NOVA, 12 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_LIGHTNING_BREATH, urand(4.5 * IN_MILLISECONDS, 9 * IN_MILLISECONDS));
@@ -837,9 +837,9 @@ class go_sikthik_cage : public GameObjectScript
             // If counter is 7 (script is called before counting) max is 8
             if (player->GetQuestObjectiveCounter(OBJECTIVE_SIKTHIK_CAGES_SEARCHED) == 7 && player->GetQuestStatus(QUEST_THE_SEARCH_OF_RESTLESS_LENG) == QUEST_STATUS_INCOMPLETE)
             {
-                if (Creature* leng = player->SummonCreature(NPC_RESTLESS_LENG, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 20000))
+                if (Creature* leng = player->SummonCreature(NPC_RESTLESS_LENG, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 20000ms))
                 {
-                    uint64 playerGuid = player->GetGUID();
+                    ObjectGuid playerGuid = player->GetGUID();
 
                     uint32 delay = 0;
                     leng->m_Events.Schedule(delay += 2000, [leng]()             { leng->AI()->Talk(0); });
@@ -850,7 +850,7 @@ class go_sikthik_cage : public GameObjectScript
                 player->KilledMonsterCredit(NPC_RESTLESS_LENG);
             }
 
-            uint64 goGuid = go->GetGUID();
+            ObjectGuid goGuid = go->GetGUID();
             uint32 delay = 0;
             player->m_Events.Schedule(delay += 8000, [player, goGuid]()
             {
@@ -997,7 +997,7 @@ class npc_longying_ranger : public CreatureScript
         {
             npc_longying_ranger_AI(Creature* creature) : ScriptedAI(creature) { }
 
-            void JustRespawned() override
+            void JustAppeared() override
             {
                 if (GameObject* cage = GetClosestGameObjectWithEntry(me, GO_DRYWOOD_CAGE, 10.f))
                     cage->SetGoState(GO_STATE_READY);
@@ -1042,12 +1042,12 @@ class npc_lin_silentstrike : public CreatureScript
         {
             npc_lin_silentstrikeAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 sunaGUID;
+            ObjectGuid sunaGUID;
             EventMap events;
 
             void Reset() override
             {
-                sunaGUID = 0;
+                sunaGUID = ObjectGuid::Empty;
 
                 events.Reset();
                 events.ScheduleEvent(EVENT_SUNA_KNEEL_TALK, 5000);
@@ -1056,9 +1056,9 @@ class npc_lin_silentstrike : public CreatureScript
                 events.ScheduleEvent(EVENT_SUNA_STAND, 29000);
             }
 
-            void SetGUID(uint64 guid, int32 /*type*/) override
+            void SetGUID(ObjectGuid guid, int32 /*type*/) override
             {
-                if (auto suna = me->SummonCreature(NPC_SUNA_SILENTSTRIKE, 2659.59f, 3268.618f, 425.33f, 5.56f, TEMPSUMMON_TIMED_DESPAWN, 34000))
+                if (auto suna = me->SummonCreature(NPC_SUNA_SILENTSTRIKE, 2659.59f, 3268.618f, 425.33f, 5.56f, TEMPSUMMON_TIMED_DESPAWN, 34000ms))
                 {
                     sunaGUID = suna->GetGUID();
 
@@ -1140,7 +1140,7 @@ class npc_osul_mist_shaman : public CreatureScript
         {
             npc_osul_mist_shamanAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 TorchGUID;
+            ObjectGuid TorchGUID;
             EventMap events;
 
             void Reset() override
@@ -1149,8 +1149,7 @@ class npc_osul_mist_shaman : public CreatureScript
 
                 if (!Torch)
                 {
-                    Position pos;
-                    me->GetRandomNearPosition(pos, 4.5f);
+                    Position pos = me->GetRandomNearPosition(4.5f);
 
                     if (TempSummon* Torch = me->SummonCreature(NPC_MIST_SHAMANS_TORCH, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), urand(0, 2 * M_PI), TEMPSUMMON_MANUAL_DESPAWN))
                         TorchGUID = Torch->GetGUID();
@@ -1160,7 +1159,7 @@ class npc_osul_mist_shaman : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_LIGHTNING_BOLT, urand(1500, 3000));
                 events.ScheduleEvent(EVENT_CAPACITOR_TOTEM, urand(4000, 6000));
@@ -1317,7 +1316,7 @@ class npc_suna_silentstrike : public CreatureScript
                 me->RemoveAura(SPELL_CONSUMED_BY_HATRED_2);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_SUNA_AGGRO);
                 me->CastSpell(me, SPELL_CONSUMED_BY_HATRED_2);
@@ -1424,7 +1423,7 @@ struct npc_townlong_gunpowder_cask : public ScriptedAI
     npc_townlong_gunpowder_cask(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 summonerGUID;
+    ObjectGuid summonerGUID;
 
     void IsSummonedBy(Unit* summoner) override
     {
@@ -1488,13 +1487,13 @@ class cond_burn_mantid_corpse : public ConditionScript
     public:
         cond_burn_mantid_corpse() : ConditionScript("cond_burn_mantid_corpse") { }
 
-        bool OnConditionCheck(Condition* cond, ConditionSourceInfo& source) override
+        bool OnConditionCheck(const Condition* cond, ConditionSourceInfo& source) override
         {
             Player* player = source.mConditionTargets[0]->ToPlayer();
             if (!player)
                 return false;
 
-            Unit* unit = sObjectAccessor->GetUnit(*player, player->GetTarget());
+            Unit* unit = ObjectAccessor::GetUnit(*player, player->GetTarget());
             if (!unit)
                 return false;
 
@@ -1538,7 +1537,7 @@ struct npc_lon_the_bull : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(SAY_LONBULL_AGGRO);
 
@@ -1615,7 +1614,7 @@ struct npc_norlaxx : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(SAY_NORLAXX_AGGRO);
 
@@ -1690,7 +1689,7 @@ struct npc_siltriss_sharpener : public ScriptedAI
         events.ScheduleEvent(EVENT_VICIOUS_REND, 7000);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(SAY_SILTRISS_AGGRO);
     };
@@ -1762,7 +1761,7 @@ struct npc_yul_wildpaw : public ScriptedAI
     {
         events.Reset();
     }
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(SAY_YUL_AGGRO);
 

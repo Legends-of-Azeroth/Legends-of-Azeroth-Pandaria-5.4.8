@@ -44,12 +44,12 @@ class instance_temple_of_jade_serpent : public InstanceMapScript
         {
             instance_temple_of_jade_serpent_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
-            std::list<uint64> corruptedCreatures;
-            std::list<uint64> sunfires;
-            std::list<uint64> suns;
-            std::list<uint64> sunTriggers;
-            std::list<uint64> shaSummoned;
-            std::unordered_map<uint32, uint64> m_mGoEntryGuidMap;
+            std::list<ObjectGuid> corruptedCreatures;
+            std::list<ObjectGuid> sunfires;
+            std::list<ObjectGuid> suns;
+            std::list<ObjectGuid> sunTriggers;
+            std::list<ObjectGuid> shaSummoned;
+            std::unordered_map<uint32, ObjectGuid> m_mGoEntryGuidMap;
 
             uint8 eventChoosen;
             uint32 dataStorage[MAX_DATA];
@@ -58,18 +58,18 @@ class instance_temple_of_jade_serpent : public InstanceMapScript
             uint32 trialDefeated;
             uint32 twinDragonsDoorState;
             uint32 liuState;
-            uint64 wiseMariGUID;
-            uint64 lorewalkerGUID;
-            uint64 zaoGUID;
-            uint64 osongGUID;
-            uint64 scrollGUID;
-            uint64 perilGUID;
-            uint64 strifeGUID;
-            uint64 liuGUID;
-            uint64 yuLonGUID;
-            uint64 shaGUID;
-            uint64 twinDragonsDoorGUID;
-            uint64 shaDoorGUID;
+            ObjectGuid wiseMariGUID;
+            ObjectGuid lorewalkerGUID;
+            ObjectGuid zaoGUID;
+            ObjectGuid osongGUID;
+            ObjectGuid scrollGUID;
+            ObjectGuid perilGUID;
+            ObjectGuid strifeGUID;
+            ObjectGuid liuGUID;
+            ObjectGuid yuLonGUID;
+            ObjectGuid shaGUID;
+            ObjectGuid twinDragonsDoorGUID;
+            ObjectGuid shaDoorGUID;
 
             void Initialize() override
             {
@@ -81,18 +81,18 @@ class instance_temple_of_jade_serpent : public InstanceMapScript
                 trialDefeated         = 0;
                 eventChoosen          = 0;
                 countMinionDeads      = 0;
-                wiseMariGUID          = 0;
-                lorewalkerGUID        = 0;
-                zaoGUID               = 0;
-                osongGUID             = 0;
-                scrollGUID            = 0;
-                perilGUID             = 0;
-                strifeGUID            = 0;
-                liuGUID               = 0;
-                twinDragonsDoorGUID   = 0;
-                shaDoorGUID           = 0;
-                yuLonGUID             = 0;
-                shaGUID               = 0;
+                wiseMariGUID = ObjectGuid::Empty;
+                lorewalkerGUID = ObjectGuid::Empty;
+                zaoGUID = ObjectGuid::Empty;
+                osongGUID = ObjectGuid::Empty;
+                scrollGUID = ObjectGuid::Empty;
+                perilGUID = ObjectGuid::Empty;
+                strifeGUID = ObjectGuid::Empty;
+                liuGUID = ObjectGuid::Empty;
+                twinDragonsDoorGUID = ObjectGuid::Empty;
+                shaDoorGUID = ObjectGuid::Empty;
+                yuLonGUID = ObjectGuid::Empty;
+                shaGUID = ObjectGuid::Empty;
                 memset(dataStorage, 0, MAX_DATA * sizeof(uint32));
 
                 if (instance->IsChallengeDungeon())
@@ -132,7 +132,7 @@ class instance_temple_of_jade_serpent : public InstanceMapScript
             {
                 GameObject* go = NULL;
 
-                std::unordered_map<uint32, uint64>::iterator find = m_mGoEntryGuidMap.find(uiEntry);
+                std::unordered_map<uint32, ObjectGuid>::iterator find = m_mGoEntryGuidMap.find(uiEntry);
 
                 if (find != m_mGoEntryGuidMap.cend())
                     go = instance->GetGameObject(find->second);
@@ -247,7 +247,7 @@ class instance_temple_of_jade_serpent : public InstanceMapScript
                             {
                                 creature->CastSpell(creature, SPELL_FIGMENT_OF_DOUBT, false);
                                 creature->SetDisplayId(summoner->GetDisplayId());
-                                creature->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_MIRROR_IMAGE);
+                                creature->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
                                 summoner->CastSpell(creature, SPELL_COPY_WEAPON, false);
                                 summoner->CastSpell(creature, SPELL_COPY_WEAPON_2, false);
 
@@ -652,7 +652,7 @@ class instance_temple_of_jade_serpent : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -668,7 +668,7 @@ class instance_temple_of_jade_serpent : public InstanceMapScript
                         return lorewalkerGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -684,8 +684,8 @@ class instance_temple_of_jade_serpent : public InstanceMapScript
                         case DATA_WISE_MARI:
                             if (GetBossState(DATA_WISE_MARI) == DONE && GetBossState(DATA_LOREWALKER) == DONE)
                             {
-                                HandleGameObject(0, true, GetGameObjectFromStorage(GAMEOBJECT_DOOR_WISE_MARI_EX_EXIT));
-                                HandleGameObject(0, true, GetGameObjectFromStorage(GAMEOBJECT_DOOR_LOREWALKER_STONSTEP));
+                                HandleGameObject(ObjectGuid::Empty, true, GetGameObjectFromStorage(GAMEOBJECT_DOOR_WISE_MARI_EX_EXIT));
+                                HandleGameObject(ObjectGuid::Empty, true, GetGameObjectFromStorage(GAMEOBJECT_DOOR_LOREWALKER_STONSTEP));
 
                                 SetData(DATA_TWIN_DRAGONS_DOOR, DONE); // should be opened only if both encounters is done
                             }

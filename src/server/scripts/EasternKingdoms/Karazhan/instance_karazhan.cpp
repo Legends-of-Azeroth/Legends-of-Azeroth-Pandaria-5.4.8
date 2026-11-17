@@ -72,36 +72,36 @@ class instance_karazhan : public InstanceMapScript
 
             bool friendlyGame = false;
 
-            uint64 hordeStatusGuid = 0;
-            uint64 allianceStatusGuid = 0;
+            ObjectGuid hordeStatusGuid = ObjectGuid::Empty;
+            ObjectGuid allianceStatusGuid = ObjectGuid::Empty;
 
-            std::list<uint64> chessHordeStalkerList;
-            std::list<uint64> chessAllianceStalkerList;
-            std::list<uint64> chessPiecesAlliance;
-            std::list<uint64> chessPiecesHorde;
-            std::list<uint64> boardSquares;
-            std::vector<uint64> hordeStalkers;
-            std::vector<uint64> allianceStalkers;
+            std::list<ObjectGuid> chessHordeStalkerList;
+            std::list<ObjectGuid> chessAllianceStalkerList;
+            std::list<ObjectGuid> chessPiecesAlliance;
+            std::list<ObjectGuid> chessPiecesHorde;
+            std::list<ObjectGuid> boardSquares;
+            std::vector<ObjectGuid> hordeStalkers;
+            std::vector<ObjectGuid> allianceStalkers;
 
-            uint64 echoOfMedivhGUID = 0;
-            uint64 chessVictoryControllerGUID = 0;
+            ObjectGuid echoOfMedivhGUID = ObjectGuid::Empty;
+            ObjectGuid chessVictoryControllerGUID = ObjectGuid::Empty;
 
-            uint64 m_uiCurtainGUID;
-            uint64 m_uiStageDoorLeftGUID;
-            uint64 m_uiStageDoorRightGUID;
-            uint64 m_uiKilrekGUID;
-            uint64 m_uiTerestianGUID;
-            uint64 m_uiMoroesGUID;
-            uint64 m_uiTenrisGUID = 0;
-            uint64 m_uiLibraryDoor;                    // Door at Shade of Aran
-            uint64 m_uiMassiveDoor;                    // Door at Netherspite
-            uint64 m_uiSideEntranceDoor;               // Side Entrance
-            uint64 m_uiGamesmansDoor;                  // Door before Chess
-            uint64 m_uiGamesmansExitDoor;              // Door after Chess
-            uint64 m_uiNetherspaceDoor;                // Door at Malchezaar
-            uint64 MastersTerraceDoor[2];
-            uint64 ImageGUID;
-            uint64 DustCoveredChest;
+            ObjectGuid m_uiCurtainGUID;
+            ObjectGuid m_uiStageDoorLeftGUID;
+            ObjectGuid m_uiStageDoorRightGUID;
+            ObjectGuid m_uiKilrekGUID;
+            ObjectGuid m_uiTerestianGUID;
+            ObjectGuid m_uiMoroesGUID;
+            ObjectGuid m_uiTenrisGUID = ObjectGuid::Empty;
+            ObjectGuid m_uiLibraryDoor;                    // Door at Shade of Aran
+            ObjectGuid m_uiMassiveDoor;                    // Door at Netherspite
+            ObjectGuid m_uiSideEntranceDoor;               // Side Entrance
+            ObjectGuid m_uiGamesmansDoor;                  // Door before Chess
+            ObjectGuid m_uiGamesmansExitDoor;              // Door after Chess
+            ObjectGuid m_uiNetherspaceDoor;                // Door at Malchezaar
+            ObjectGuid MastersTerraceDoor[2];
+            ObjectGuid ImageGUID;
+            ObjectGuid DustCoveredChest;
 
             void Initialize() override
             {
@@ -112,24 +112,24 @@ class instance_karazhan : public InstanceMapScript
                 m_uiOzDeathCount        = 0;
                 OptionalBossCount       = 0;
 
-                m_uiCurtainGUID         = 0;
-                m_uiStageDoorLeftGUID   = 0;
-                m_uiStageDoorRightGUID  = 0;
+                m_uiCurtainGUID = ObjectGuid::Empty;
+                m_uiStageDoorLeftGUID = ObjectGuid::Empty;
+                m_uiStageDoorRightGUID = ObjectGuid::Empty;
 
-                m_uiKilrekGUID          = 0;
-                m_uiTerestianGUID       = 0;
-                m_uiMoroesGUID          = 0;
+                m_uiKilrekGUID = ObjectGuid::Empty;
+                m_uiTerestianGUID = ObjectGuid::Empty;
+                m_uiMoroesGUID = ObjectGuid::Empty;
 
-                m_uiLibraryDoor         = 0;
-                m_uiMassiveDoor         = 0;
-                m_uiSideEntranceDoor    = 0;
-                m_uiGamesmansDoor       = 0;
-                m_uiGamesmansExitDoor   = 0;
-                m_uiNetherspaceDoor     = 0;
-                MastersTerraceDoor[0]   = 0;
-                MastersTerraceDoor[1]   = 0;
-                ImageGUID               = 0;
-                DustCoveredChest        = 0;
+                m_uiLibraryDoor         = ObjectGuid::Empty;
+                m_uiMassiveDoor         = ObjectGuid::Empty;
+                m_uiSideEntranceDoor    = ObjectGuid::Empty;
+                m_uiGamesmansDoor       = ObjectGuid::Empty;
+                m_uiGamesmansExitDoor   = ObjectGuid::Empty;
+                m_uiNetherspaceDoor     = ObjectGuid::Empty;
+                MastersTerraceDoor[0]   = ObjectGuid::Empty;
+                MastersTerraceDoor[1]   = ObjectGuid::Empty;
+                ImageGUID               = ObjectGuid::Empty;
+                DustCoveredChest        = ObjectGuid::Empty;
             }
 
             bool IsEncounterInProgress() const override
@@ -331,7 +331,7 @@ class instance_karazhan : public InstanceMapScript
                     SaveToDB();
             }
 
-            void SetData64(uint32 type, uint64 data) override
+            void SetGuidData(uint32 type, ObjectGuid data) override
             {
                 switch (type)
                 {
@@ -419,7 +419,7 @@ class instance_karazhan : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 data) const override
+            ObjectGuid GetGuidData(uint32 data) const override
             {
                 switch (data)
                 {
@@ -442,7 +442,7 @@ class instance_karazhan : public InstanceMapScript
                     case NPC_CHESS_VICTORY_CONTROLLER:  return chessVictoryControllerGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void DoPrepareChessEvent() override
@@ -463,7 +463,7 @@ class instance_karazhan : public InstanceMapScript
                             square = GetClosestCreatureWithEntry(chessPiece, NPC_SQUARE_WHITE, 2.0f);
                         if (!square)
                         {
-                            TC_LOG_ERROR("scripts", "Instance Karazhan: ERROR Failed to properly load the Chess square for %u.", chessPiece->GetDBTableGUIDLow());
+                            TC_LOG_ERROR("scripts", "Instance Karazhan: ERROR Failed to properly load the Chess square for {}.", chessPiece->GetDBTableGUIDLow());
                             return;
                         }
 
@@ -483,7 +483,7 @@ class instance_karazhan : public InstanceMapScript
                             square = GetClosestCreatureWithEntry(chessPiece, NPC_SQUARE_WHITE, 2.0f);
                         if (!square)
                         {
-                            TC_LOG_ERROR("scripts", "Instance Karazhan: ERROR Failed to properly load the Chess square for %u.", chessPiece->GetDBTableGUIDLow());
+                            TC_LOG_ERROR("scripts", "Instance Karazhan: ERROR Failed to properly load the Chess square for {}.", chessPiece->GetDBTableGUIDLow());
                             return;
                         }
 
@@ -582,7 +582,7 @@ class instance_karazhan : public InstanceMapScript
                         stalker->SetUInt32Value(UNIT_FIELD_NPC_EMOTESTATE, EMOTE_STATE_APPLAUD);
             }
 
-            std::list<uint64> const& GetChessPiecesByFaction(uint32 faction) const { return faction == FACTION_ID_CHESS_ALLIANCE ? chessPiecesAlliance : chessPiecesHorde; }
+            std::list<ObjectGuid> const& GetChessPiecesByFaction(uint32 faction) const override { return faction == FACTION_ID_CHESS_ALLIANCE ? chessPiecesAlliance : chessPiecesHorde; }
 
             void Update(uint32 diff) override
             {

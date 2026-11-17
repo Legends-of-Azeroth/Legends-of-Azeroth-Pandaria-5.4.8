@@ -95,14 +95,14 @@ public:
             abselected = 0;                                     // just initialization of variable
         }
 
-        uint64 NearbyGUID[3];
+        ObjectGuid NearbyGUID[3];
 
         void ClearBuddyList()
         {
-            NearbyGUID[0] = NearbyGUID[1] = NearbyGUID[2] = 0;
+            NearbyGUID[0] = NearbyGUID[1] = NearbyGUID[2] = ObjectGuid::Empty;
         }
 
-        void AddBuddyToList(uint64 CreatureGUID)
+        void AddBuddyToList(ObjectGuid CreatureGUID)
         {
             if (CreatureGUID == me->GetGUID())
                 return;
@@ -236,7 +236,7 @@ public:
             me->AddAura(id, me);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (gatherOthersWhenAggro)
                 GetOtherSentinels(who);

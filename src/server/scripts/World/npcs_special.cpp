@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -58,6 +58,7 @@ EndContentData */
 #include "Pet.h"
 #include "BlackMarketMgr.h"
 #include "CombatAI.h"
+#include "Random.h"
 
 /*########
 # npc_air_force_bots
@@ -126,7 +127,7 @@ public:
         npc_air_force_botsAI(Creature* creature) : ScriptedAI(creature)
         {
             SpawnAssoc = NULL;
-            SpawnedGUID = 0;
+            SpawnedGUID = ObjectGuid::Empty;
 
             // find the correct spawnhandling
             static uint32 entryCount = sizeof(spawnAssociations) / sizeof(SpawnAssociation);
@@ -141,14 +142,14 @@ public:
             }
 
             if (!SpawnAssoc)
-                TC_LOG_ERROR("sql.sql", "TCSR: Creature template entry %u has ScriptName npc_air_force_bots, but it's not handled by that script", creature->GetEntry());
+                TC_LOG_ERROR("sql.sql", "TCSR: Creature template entry {} has ScriptName npc_air_force_bots, but it's not handled by that script", creature->GetEntry());
             else
             {
                 CreatureTemplate const* spawnedTemplate = sObjectMgr->GetCreatureTemplate(SpawnAssoc->spawnedCreatureEntry);
 
                 if (!spawnedTemplate)
                 {
-                    TC_LOG_ERROR("sql.sql", "TCSR: Creature template entry %u does not exist in DB, which is required by npc_air_force_bots", SpawnAssoc->spawnedCreatureEntry);
+                    TC_LOG_ERROR("sql.sql", "TCSR: Creature template entry {} does not exist in DB, which is required by npc_air_force_bots", SpawnAssoc->spawnedCreatureEntry);
                     SpawnAssoc = NULL;
                     return;
                 }
@@ -156,19 +157,19 @@ public:
         }
 
         SpawnAssociation* SpawnAssoc;
-        uint64 SpawnedGUID;
+        ObjectGuid SpawnedGUID;
 
         void Reset() override { }
 
         Creature* SummonGuard()
         {
-            Creature* summoned = me->SummonCreature(SpawnAssoc->spawnedCreatureEntry, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
+            Creature* summoned = me->SummonCreature(SpawnAssoc->spawnedCreatureEntry, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000ms);
 
             if (summoned)
                 SpawnedGUID = summoned->GetGUID();
             else
             {
-                TC_LOG_ERROR("sql.sql", "TCSR: npc_air_force_bots: wasn't able to spawn Creature %u", SpawnAssoc->spawnedCreatureEntry);
+                TC_LOG_ERROR("sql.sql", "TCSR: npc_air_force_bots: wasn't able to spawn Creature {}", SpawnAssoc->spawnedCreatureEntry);
                 SpawnAssoc = NULL;
             }
 
@@ -203,7 +204,7 @@ public:
 
                 // prevent calling Unit::GetUnit at next MoveInLineOfSight call - speedup
                 if (!lastSpawnedGuard)
-                    SpawnedGUID = 0;
+                    SpawnedGUID = ObjectGuid::Empty;
 
                 switch (SpawnAssoc->spawnType)
                 {
@@ -342,7 +343,7 @@ public:
             me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -459,7 +460,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)override { }
+        void JustEngagedWith(Unit* /*who*/)override { }
 
         void ReceiveEmote(Player* player, uint32 emote) override
         {
@@ -573,7 +574,7 @@ public:
     {
         npc_doctorAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         uint32 SummonPatientTimer;
         uint32 SummonPatientCount;
@@ -582,12 +583,12 @@ public:
 
         bool Event;
 
-        std::list<uint64> Patients;
+        std::list<ObjectGuid> Patients;
         std::vector<Location*> Coordinates;
 
         void Reset() override
         {
-            PlayerGUID = 0;
+            PlayerGUID = ObjectGuid::Empty;
 
             SummonPatientTimer = 10000;
             SummonPatientCount = 0;
@@ -664,7 +665,7 @@ public:
                     {
                         if (!Patients.empty())
                         {
-                            std::list<uint64>::const_iterator itr;
+                            std::list<ObjectGuid>::const_iterator itr;
                             for (itr = Patients.begin(); itr != Patients.end(); ++itr)
                             {
                                 if (Creature* patient = Unit::GetCreature((*me), *itr))
@@ -688,7 +689,7 @@ public:
 
         void UpdateAI(uint32 diff) override;
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
     };
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
@@ -718,12 +719,12 @@ public:
     {
         npc_injured_patientAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 DoctorGUID;
+        ObjectGuid DoctorGUID;
         Location* Coord;
 
         void Reset() override
         {
-            DoctorGUID = 0;
+            DoctorGUID = ObjectGuid::Empty;
             Coord = NULL;
 
             //no select
@@ -733,7 +734,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
             //to make them lay with face down
-            me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, UNIT_STAND_STATE_DEAD);
+            me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
 
             uint32 mobId = me->GetEntry();
 
@@ -754,7 +755,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)override { }
+        void JustEngagedWith(Unit* /*who*/)override { }
 
         void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
@@ -774,7 +775,7 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
             //stand up
-            me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, UNIT_STAND_STATE_STAND);
+            me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
 
             Talk(SAY_DOC);
 
@@ -855,7 +856,7 @@ void npc_doctor::npc_doctorAI::UpdateAI(uint32 diff)
 
             if (Location* point = *itr)
             {
-                if (Creature* Patient = me->SummonCreature(patientEntry, point->x, point->y, point->z, point->o, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+                if (Creature* Patient = me->SummonCreature(patientEntry, point->x, point->y, point->z, point->o, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000ms))
                 {
                     //303, this flag appear to be required for client side item->spell to work (TARGET_SINGLE_FRIEND)
                     Patient->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
@@ -909,14 +910,14 @@ class npc_garments_of_quests : public CreatureScript
 public:
     npc_garments_of_quests() : CreatureScript("npc_garments_of_quests") { }
 
-    struct npc_garments_of_questsAI : public npc_escortAI
+    struct npc_garments_of_questsAI : public EscortAI
     {
-        npc_garments_of_questsAI(Creature* creature) : npc_escortAI(creature)
+        npc_garments_of_questsAI(Creature* creature) : EscortAI(creature)
         {
             Reset();
         }
 
-        uint64 CasterGUID;
+        ObjectGuid CasterGUID;
 
         bool IsHealed;
         bool CanRun;
@@ -925,7 +926,7 @@ public:
 
         void Reset() override
         {
-            CasterGUID = 0;
+            CasterGUID = ObjectGuid::Empty;
 
             IsHealed = false;
             CanRun = false;
@@ -937,7 +938,7 @@ public:
             me->SetHealth(me->CountPctFromMaxHealth(70));
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
@@ -1049,7 +1050,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 /*waypointId*/) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
 
         }
@@ -1081,7 +1082,7 @@ public:
                                 break;
                         }
 
-                        Start(false, true, true);
+                        SetRun(true); Start(false, ObjectGuid(uint64(1)));
                     }
                     else
                         EnterEvadeMode();                       //something went wrong
@@ -1092,7 +1093,7 @@ public:
                     RunAwayTimer -= diff;
             }
 
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
 
@@ -1125,7 +1126,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
         }
 
@@ -1523,7 +1524,7 @@ public:
         npc_steam_tonkAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void OnPossess(bool apply)
         {
@@ -1570,7 +1571,7 @@ public:
             ExplosionTimer = 3000;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void AttackStart(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
@@ -1630,7 +1631,22 @@ class npc_brewfest_reveler : public CreatureScript
 enum TrainingDummy
 {
     NPC_ADVANCED_TARGET_DUMMY                  = 2674,
-    NPC_TARGET_DUMMY                           = 2673
+    NPC_TARGET_DUMMY                           = 2673,
+
+    NPC_SPELL_PRACTICE_CREDIT                  = 44175,
+
+    // Each class's practice spell for the starting zone quests on Training Dummies
+    SPELL_CHARGE                               = 100,    // Warrior
+    SPELL_JUDGMENT                             = 20271,  // Paladin
+    SPELL_SEAL_OF_COMMAND                      = 118215, // Paladin (some starting zones)
+    SPELL_STEADY_SHOT                          = 56641,  // Hunter
+    SPELL_EVISCERATE                           = 2098,   // Rogue
+    SPELL_PRIMAL_STRIKE                        = 73899,  // Shaman
+    SPELL_FROST_NOVA                           = 122,    // Mage
+    SPELL_CORRUPTION                           = 172,    // Warlock
+    SPELL_SHADOW_WORD_PAIN                     = 589,    // Priest
+    SPELL_MOONFIRE                             = 8921,   // Druid
+    SPELL_TIGER_PALM                           = 100787  // Monk
 };
 
 class npc_training_dummy : public CreatureScript
@@ -1649,7 +1665,7 @@ public:
         uint32 entry;
         uint32 resetTimer;
         uint32 despawnTimer;
-        std::unordered_map<uint64, time_t> clearAttackerCombat;
+        std::unordered_map<ObjectGuid, time_t> clearAttackerCombat;
 
         void Reset() override
         {
@@ -1664,7 +1680,7 @@ public:
             clearAttackerCombat.clear();
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
         {
             if (!_EnterEvadeMode())
                 return;
@@ -1674,7 +1690,7 @@ public:
 
         void DamageTaken(Unit* attacker, uint32& damage) override
         {
-            me->getThreatManager().addThreat(attacker, damage);
+            me->GetThreatManager().AddThreat(attacker, damage);
 
             if (Player* owner = attacker->GetCharmerOrOwnerPlayerOrPlayerItself())
                 clearAttackerCombat[owner->GetGUID()] = time(NULL) + 5;
@@ -1684,16 +1700,41 @@ public:
                 damage = 0;
         }
 
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        {
+            switch (spell->Id)
+            {
+                case SPELL_CHARGE:
+                case SPELL_JUDGMENT:
+                case SPELL_SEAL_OF_COMMAND:
+                case SPELL_STEADY_SHOT:
+                case SPELL_EVISCERATE:
+                case SPELL_PRIMAL_STRIKE:
+                case SPELL_FROST_NOVA:
+                case SPELL_CORRUPTION:
+                case SPELL_SHADOW_WORD_PAIN:
+                case SPELL_MOONFIRE:
+                case SPELL_TIGER_PALM:
+                    if (Player* player = caster->ToPlayer())
+                        player->KilledMonsterCredit(NPC_SPELL_PRACTICE_CREDIT);
+                    break;
+                default:
+                    break;
+            }
+        }
+
         void UpdateAI(uint32 diff) override
         {
             // Reapply in case of root fading
             me->AddUnitState(UNIT_STATE_ROTATING | UNIT_STATE_ROOT);
 
-            if (!UpdateVictim())
-                return;
-
             if (entry != NPC_ADVANCED_TARGET_DUMMY && entry != NPC_TARGET_DUMMY)
             {
+                // Pacified dummies (the starting zone ones) never get a victim, so UpdateVictim() would never let
+                // them reach the evade below and attackers would stay in combat
+                if (!me->IsInCombat())
+                    return;
+
                 if (resetTimer <= diff)
                 {
                     EnterEvadeMode();
@@ -1703,23 +1744,24 @@ public:
                     resetTimer -= diff;
                 return;
             }
+
+            if (!UpdateVictim())
+                return;
+
+            if (despawnTimer <= diff)
+                me->DespawnOrUnsummon();
             else
-            {
-                if (despawnTimer <= diff)
-                    me->DespawnOrUnsummon();
-                else
-                    despawnTimer -= diff;
-            }
+                despawnTimer -= diff;
 
             time_t now = time(nullptr);
             for (auto itr = clearAttackerCombat.begin(); itr != clearAttackerCombat.end();)
             {
-                uint64 attackerGuid = itr->first;
+                ObjectGuid attackerGuid = itr->first;
                 time_t clearTime = itr->second;
                 if (now > clearTime)
                 {
                     if (Unit* attacker = ObjectAccessor::GetUnit(*me, attackerGuid))
-                        attacker->getHostileRefManager().deleteReference(me);
+                        me->GetThreatManager().ClearThreat(attacker);
 
                     itr = clearAttackerCombat.erase(itr);
                 }
@@ -2378,7 +2420,7 @@ public:
                             case 1:
                             case 2:
                             case 3:
-                                if (Creature* minion = me->SummonCreature(NPC_MINION_OF_OMEN, me->GetPositionX()+frand(-5.0f, 5.0f), me->GetPositionY()+frand(-5.0f, 5.0f), me->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                                if (Creature* minion = me->SummonCreature(NPC_MINION_OF_OMEN, me->GetPositionX()+frand(-5.0f, 5.0f), me->GetPositionY()+frand(-5.0f, 5.0f), me->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000ms))
                                     minion->AI()->AttackStart(me->SelectNearestPlayer(20.0f));
                                 break;
                             case 9:
@@ -2438,12 +2480,12 @@ public:
         uint32 jumpTimer;
         uint32 bunnyTimer;
         uint32 searchTimer;
-        uint64 rabbitGUID;
+        ObjectGuid rabbitGUID;
 
         void Reset() override
         {
             inLove = false;
-            rabbitGUID = 0;
+            rabbitGUID = ObjectGuid::Empty;
             jumpTimer = urand(5000, 10000);
             bunnyTimer = urand(10000, 20000);
             searchTimer = urand(5000, 10000);
@@ -2451,7 +2493,7 @@ public:
                 me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DoAction(int32 /*param*/) override
         {
@@ -2515,10 +2557,10 @@ struct npc_stone_statue : public ScriptedAI
             DoCastAOE(spellId);
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
     bool CanAIAttack(Unit const* /*who*/) const override { return false; }
     void AttackStart(Unit* /*who*/) override { }
-    void EnterCombat(Unit* /*who*/) override { }
+    void JustEngagedWith(Unit* /*who*/) override { }
     void UpdateAI(uint32 /*diff*/) override { }
 };
 
@@ -2543,10 +2585,10 @@ struct npc_sky_lantern : public ScriptedAI
         }
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
     bool CanAIAttack(Unit const* /*who*/) const override { return false; }
     void AttackStart(Unit* /*who*/) override { }
-    void EnterCombat(Unit* /*who*/) override { }
+    void JustEngagedWith(Unit* /*who*/) override { }
     void UpdateAI(uint32 /*diff*/) override { }
 };
 
@@ -2657,7 +2699,7 @@ struct npc_abominated_greench : public ScriptedAI
     void JustDied(Unit* who) override
     {
         for (auto&& guid : eligiblePlayers)
-            if (Player* player = sObjectAccessor->GetPlayer(*me, guid))
+            if (Player* player = ObjectAccessor::FindPlayer(guid))
                 player->KilledMonsterCredit(15664);
 
         if (Creature* metzen = me->FindNearestCreature(15664, 100.0f))
@@ -2704,14 +2746,14 @@ struct npc_abominated_greench : public ScriptedAI
     }
 
 private:
-    std::set<uint64> eligiblePlayers;
+    std::set<ObjectGuid> eligiblePlayers;
 };
 
 struct npc_anatomical_dummy : public ScriptedAI
 {
     npc_anatomical_dummy(Creature* creature) : ScriptedAI(creature) { }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         talk_timer = 5000;
     }
@@ -2755,7 +2797,7 @@ struct npc_soul_mirror_artifact : public ScriptedAI
         me->SetTarget(summoner->GetGUID());
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 };
 
 enum naaruArrivedsMisc
@@ -2777,7 +2819,7 @@ struct npc_vision_of_the_naaru_stalker : public ScriptedAI
         DoCast(me, SPELL_VISION_OF_NAARU_COSMETIC);
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 };
 
 // Vision of the Naaru 51190
@@ -2786,7 +2828,7 @@ struct npc_vision_of_the_naaru : public ScriptedAI
     npc_vision_of_the_naaru(Creature* creature) : ScriptedAI(creature) { }
 
     float angleFacing, x, y;
-    std::vector<uint64> tinyDraneiGUIDs;
+    std::vector<ObjectGuid> tinyDraneiGUIDs;
 
     void IsSummonedBy(Unit* summoner) override
     {
@@ -2794,13 +2836,13 @@ struct npc_vision_of_the_naaru : public ScriptedAI
         me->SetObjectScale(2.0f);
         x = 0.0f; y = 0.0f;
         angleFacing = Position::NormalizeOrientation(me->GetOrientation() + M_PI - M_PI / 6);
-        tinyDraneiGUIDs.resize(3, 0);
+        tinyDraneiGUIDs.resize(3, ObjectGuid::Empty);
 
         for (uint32 i = 0; i < 3; i++)
         {
             GetPositionWithDistInOrientation(me, 6.0f, Position::NormalizeOrientation(angleFacing + i * (M_PI / 6)), x, y);
 
-            if (Creature* tinyDranei = me->SummonCreature(NPC_VERY_TINY_DRANEI, x, y, me->GetPositionZ(), Position::NormalizeOrientation(angleFacing + i * (M_PI / 6) + M_PI), TEMPSUMMON_TIMED_DESPAWN, 8 * IN_MILLISECONDS))
+            if (Creature* tinyDranei = me->SummonCreature(NPC_VERY_TINY_DRANEI, x, y, me->GetPositionZ(), Position::NormalizeOrientation(angleFacing + i * (M_PI / 6) + M_PI), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(8 * IN_MILLISECONDS)))
             {
                 GetPositionWithDistInOrientation(tinyDranei, 4.5f, tinyDranei->GetOrientation(), x, y);
                 tinyDraneiGUIDs[i] = tinyDranei->GetGUID();
@@ -2835,7 +2877,7 @@ struct npc_sword_dancers_stalker : public ScriptedAI
         DoCast(me, SPELL_SUMMON_SWORD_DANCERS);
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 };
 
 // Sword Dancers 51269, 51270, 51271, 51272
@@ -2899,7 +2941,7 @@ struct npc_mini_mana_bomb : public ScriptedAI
 
     void IsSummonedBy(Unit* summoner) override
     {
-        uint64 summonerGuid = summoner->GetGUID();
+        ObjectGuid summonerGuid = summoner->GetGUID();
         me->AddAura(105729, me);
         me->m_Events.Schedule(1000, [this, summonerGuid]()
         {
@@ -2924,9 +2966,9 @@ enum HauntedMementoEnums
     EVENT_CHECK_SUMMONER_AURA,
 };
 
-struct npc_scourge_haunt : public CreatureAI
+struct npc_scourge_haunt : public ScriptedAI
 {
-    npc_scourge_haunt(Creature* creature) : CreatureAI(creature) { }
+    npc_scourge_haunt(Creature* creature) : ScriptedAI(creature) { }
 
     void IsSummonedBy(Unit* summoner) override
     {
@@ -3141,7 +3183,7 @@ struct npc_ethereal_soul_trader : public ScriptedAI
                 events.ScheduleEvent(EVENT_STEAL_ESSENCE, 1000);
                 while (queuedTargets.size())
                 {
-                    uint64 targetGuid = queuedTargets.front();
+                    ObjectGuid targetGuid = queuedTargets.front();
                     queuedTargets.pop();
                     if (Unit* target = ObjectAccessor::GetUnit(*me, targetGuid))
                         DoCast(target, SPELL_ETHEREAL_PET_ONKILL_STEAL_ESSENCE);
@@ -3177,7 +3219,7 @@ struct npc_ethereal_soul_trader : public ScriptedAI
 
 private:
     EventMap events;
-    std::queue<uint64> queuedTargets;
+    std::queue<ObjectGuid> queuedTargets;
 };
 
 struct npc_sa_demolisher : public VehicleAI
@@ -3211,7 +3253,7 @@ struct npc_rogue_rare_npc : public ScriptedAI
 
     EventMap events;
     uint32 delay = 0;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
 
     void Reset() override
     {
@@ -3226,12 +3268,12 @@ struct npc_rogue_rare_npc : public ScriptedAI
         });
 
         delay = 0;
-        targetGUID = 0;
+        targetGUID = ObjectGuid::Empty;
         events.Reset();
         me->setRegeneratingHealth(true);
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         Talk(0);
         me->setRegeneratingHealth(false);
@@ -3287,7 +3329,7 @@ struct npc_pandaren_firework_launcher : public ScriptedAI
 
     void Reset() override
     {
-        me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+        me->SetDisplayFromModel(1);
 
         scheduler
             .Schedule(Milliseconds(500), [this](TaskContext context)

@@ -80,7 +80,7 @@ class boss_falric : public CreatureScript
                     instance->SetData(DATA_FALRIC_EVENT, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (instance)
                     instance->SetData(DATA_FALRIC_EVENT, IN_PROGRESS);
@@ -98,7 +98,7 @@ class boss_falric : public CreatureScript
                 {
                     instance->SetData(DATA_FALRIC_EVENT, DONE);
 
-                    if (Creature* marwyn = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MARWYN)))
+                    if (Creature* marwyn = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MARWYN)))
                         marwyn->m_Events.Schedule(60000, [marwyn]() { marwyn->AI()->DoAction(ACTION_SAY_GAUNTLET_RESUME); });
                 }
             }
@@ -110,7 +110,7 @@ class boss_falric : public CreatureScript
 
             void DoAction(int32 action) override
             {
-                uint64 playerGuid = 0;
+                ObjectGuid playerGuid = ObjectGuid::Empty;
                 if (Player* player = me->FindNearestPlayer(100.0f))
                     playerGuid = player->GetGUID();
 

@@ -23,6 +23,7 @@
 #include "Pet.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "Random.h"
 
 enum ShamanSpells
 {

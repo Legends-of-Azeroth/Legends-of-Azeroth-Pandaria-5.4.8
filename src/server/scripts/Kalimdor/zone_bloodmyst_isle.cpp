@@ -55,7 +55,7 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void JustDied(Unit* killer) override
         {
@@ -66,7 +66,7 @@ public:
                 case 0:
                     spawnCreatureID = 17681;
                     if (Player* player = killer->ToPlayer())
-                        player->KilledMonsterCredit(spawnCreatureID, 0);
+                        player->KilledMonsterCredit(spawnCreatureID, ObjectGuid::Empty);
                     break;
                 case 1:
                 case 2:
@@ -75,7 +75,7 @@ public:
             }
 
             if (spawnCreatureID)
-                me->SummonCreature(spawnCreatureID, 0.0f, 0.0f, 0.0f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                me->SummonCreature(spawnCreatureID, 0.0f, 0.0f, 0.0f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms);
         }
     };
 

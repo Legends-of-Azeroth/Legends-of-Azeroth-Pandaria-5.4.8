@@ -92,7 +92,7 @@ class boss_elder_nadox : public CreatureScript
                 me->GetMap()->SetWorldState(WORLD_STATE_RESPECT_YOUR_ELDERS, 1);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 
@@ -220,7 +220,7 @@ class npc_ahnkahar_nerubian : public CreatureScript
                     me->GetMap()->SetWorldState(WORLD_STATE_RESPECT_YOUR_ELDERS, 0);
             }
 
-            void EnterCombat(Unit* /*who*/) { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override
             {
@@ -270,7 +270,7 @@ class npc_nadox_eggs : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void AttackStart(Unit* /*who*/) override { }
 

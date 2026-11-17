@@ -88,30 +88,30 @@ class instance_halls_of_reflection : public InstanceMapScript
         {
             instance_halls_of_reflection_InstanceMapScript(Map* map) : InstanceScript(map) { };
 
-            uint64 uiFalric;
-            uint64 uiMarwyn;
-            uint64 uiLichKing;
-            uint64 outroJainaSylvanasGuid;
-            uint64 frostmourneAltarBunnyGuid = 0;
-            std::list<uint64> trashGuids;
-            std::list<uint64> activeTrashGuids;
+            ObjectGuid uiFalric;
+            ObjectGuid uiMarwyn;
+            ObjectGuid uiLichKing;
+            ObjectGuid outroJainaSylvanasGuid;
+            ObjectGuid frostmourneAltarBunnyGuid = ObjectGuid::Empty;
+            std::list<ObjectGuid> trashGuids;
+            std::list<ObjectGuid> activeTrashGuids;
 
-            uint64 CaveInGUID = 0;
+            ObjectGuid CaveInGUID = ObjectGuid::Empty;
 
-            uint64 GunshipGUID = 0;
-            uint64 CaptainsChestGUID = 0;
-            uint64 CaptainGUID = 0;
-            std::set<uint64> GunshipCannonGUIDs;
-            std::set<uint64> GunshipStairGUIDs;
+            ObjectGuid GunshipGUID = ObjectGuid::Empty;
+            ObjectGuid CaptainsChestGUID = ObjectGuid::Empty;
+            ObjectGuid CaptainGUID = ObjectGuid::Empty;
+            std::set<ObjectGuid> GunshipCannonGUIDs;
+            std::set<ObjectGuid> GunshipStairGUIDs;
 
-            uint64 uiFrostmourne;
-            uint64 uiFrontDoor;
-            uint64 uiFrostwornDoor;
-            uint64 uiArthasDoor;
-            uint64 uiRunDoor;
+            ObjectGuid uiFrostmourne;
+            ObjectGuid uiFrontDoor;
+            ObjectGuid uiFrostwornDoor;
+            ObjectGuid uiArthasDoor;
+            ObjectGuid uiRunDoor;
             uint32 uiWall[4];
-            std::vector<uint64> wallGuids;
-            std::vector<uint64> wallTargetGuids;
+            std::vector<ObjectGuid> wallGuids;
+            std::vector<ObjectGuid> wallTargetGuids;
 
             uint32 uiEncounter[MAX_ENCOUNTER];
             uint32 uiTeamInInstance;
@@ -122,19 +122,19 @@ class instance_halls_of_reflection : public InstanceMapScript
 
             EventMap events;
 
-            void Initialize()
+            void Initialize() override
             {
                 events.Reset();
 
-                uiFalric = 0;
-                uiMarwyn = 0;
-                uiLichKing = 0;
-                outroJainaSylvanasGuid = 0;
+                uiFalric = ObjectGuid::Empty;
+                uiMarwyn = ObjectGuid::Empty;
+                uiLichKing = ObjectGuid::Empty;
+                outroJainaSylvanasGuid = ObjectGuid::Empty;
 
-                uiFrostmourne = 0;
-                uiArthasDoor = 0;
-                uiFrostwornDoor = 0;
-                uiFrontDoor = 0;
+                uiFrostmourne = ObjectGuid::Empty;
+                uiArthasDoor = ObjectGuid::Empty;
+                uiFrostwornDoor = ObjectGuid::Empty;
+                uiFrontDoor = ObjectGuid::Empty;
                 uiTeamInInstance = 0;
                 uiWaveCount = 0;
                 uiIntroDone = 0;
@@ -146,7 +146,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                     uiEncounter[i] = NOT_STARTED;
             }
 
-            void OpenDoor(uint64 guid)
+            void OpenDoor(ObjectGuid guid)
             {
                 if (!guid)
                     return;
@@ -155,7 +155,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                     go->SetGoState(GO_STATE_ACTIVE);
             }
 
-            void CloseDoor(uint64 guid)
+            void CloseDoor(ObjectGuid guid)
             {
                 if (!guid)
                     return;
@@ -274,11 +274,11 @@ class instance_halls_of_reflection : public InstanceMapScript
                     case GO_FROSTMOURNE:
                         uiFrostmourne = go->GetGUID();
                         go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                         break;
                     case GO_FROSTMOURNE_ALTAR:
                         go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case GO_FRONT_DOOR:
                         uiFrontDoor = go->GetGUID();
@@ -527,7 +527,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                 return 0;
             }
 
-            void SetData64(uint32 type, uint64 guid) override
+            void SetGuidData(uint32 type, ObjectGuid guid) override
             {
                 if (type == DATA_WAVE_COUNT)
                 {
@@ -538,7 +538,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -553,7 +553,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                     case DATA_GUNSHIP:              return GunshipGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData() override
@@ -717,7 +717,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                     if (trashGuids.empty())
                         break;
 
-                    uint64 guid = Trinity::Containers::SelectRandomContainerElement(trashGuids);
+                    ObjectGuid guid = Trinity::Containers::SelectRandomContainerElement(trashGuids);
                     trashGuids.remove(guid);
 
                     if (Creature* trash = instance->GetCreature(guid))
@@ -771,9 +771,9 @@ class instance_halls_of_reflection : public InstanceMapScript
                         if (Creature* captain = instance->GetCreature(CaptainGUID))
                             captain->AI()->Talk(SAY_BARTLETT_KORM_FIRE);
 
-                        for (uint64 guid : GunshipCannonGUIDs)
+                        for (ObjectGuid guid : GunshipCannonGUIDs)
                         {
-                            uint32 entry = GUID_ENPART(guid);
+                            uint32 entry = guid.GetEntry();
                             if ((entry == NPC_WORLD_TRIGGER && uiTeamInInstance == ALLIANCE) || (entry == NPC_GUNSHIP_CANNON_HORDE && uiTeamInInstance == HORDE))
                                 if (Creature* cannon = instance->GetCreature(guid))
                                     cannon->CastSpell(cannon, SPELL_GUNSHIP_CANNON_FIRE, true);
@@ -783,7 +783,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                         if (Transport* gunship = instance->GetTransport(GunshipGUID))
                             gunship->EnableMovement(false);
 
-                        for (uint64 guid : GunshipStairGUIDs)
+                        for (ObjectGuid guid : GunshipStairGUIDs)
                         {
                             if (GameObject* stairs = instance->GetGameObject(guid))
                             {

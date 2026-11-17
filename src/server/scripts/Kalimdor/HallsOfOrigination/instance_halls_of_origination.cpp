@@ -40,21 +40,21 @@ class instance_halls_of_origination : public InstanceMapScript
             {
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doorData);
-                uiTempleGuardianAnhuurGUID = 0;
-                uiEarthragerPtahGUID = 0;
-                uiAnraphetGUID = 0;
-                uiIsisetGUID = 0;
-                uiAmmunaeGUID = 0;
-                uiSeteshGUID = 0;
-                uiRajhGUID = 0;
-                uiBrannGUID = 0;
+                uiTempleGuardianAnhuurGUID = ObjectGuid::Empty;
+                uiEarthragerPtahGUID = ObjectGuid::Empty;
+                uiAnraphetGUID = ObjectGuid::Empty;
+                uiIsisetGUID = ObjectGuid::Empty;
+                uiAmmunaeGUID = ObjectGuid::Empty;
+                uiSeteshGUID = ObjectGuid::Empty;
+                uiRajhGUID = ObjectGuid::Empty;
+                uiBrannGUID = ObjectGuid::Empty;
 
                 uiWardensDone = 0;
 
-                uiOriginationElevatorGUID = 0;
-                uiAnhuurBridgeGUID = 0;
-                uiAnraphetEntranceDoorGUID = 0;
-                uiAnraphetBossDoorGUID = 0;
+                uiOriginationElevatorGUID = ObjectGuid::Empty;
+                uiAnhuurBridgeGUID = ObjectGuid::Empty;
+                uiAnraphetEntranceDoorGUID = ObjectGuid::Empty;
+                uiAnraphetBossDoorGUID = ObjectGuid::Empty;
 
                 archaeologyQuestAura = 0;
                 instance->SetWorldState(WORLDSTATE_FASTER_THAN_THE_SPEED_OF_LIGHT, 1); // by default, controlled by achiev timer
@@ -146,7 +146,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -171,7 +171,7 @@ class instance_halls_of_origination : public InstanceMapScript
                     case DATA_ANRAPHET_BOSS_DOOR:
                         return uiAnraphetBossDoorGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -269,21 +269,21 @@ class instance_halls_of_origination : public InstanceMapScript
 
             private:
                 uint32 uiTeamInInstance;
-                uint64 uiTempleGuardianAnhuurGUID;
-                uint64 uiEarthragerPtahGUID;
-                uint64 uiAnraphetGUID;
-                uint64 uiIsisetGUID;
-                uint64 uiAmmunaeGUID;
-                uint64 uiSeteshGUID;
-                uint64 uiRajhGUID;
-                uint64 uiBrannGUID;
+                ObjectGuid uiTempleGuardianAnhuurGUID;
+                ObjectGuid uiEarthragerPtahGUID;
+                ObjectGuid uiAnraphetGUID;
+                ObjectGuid uiIsisetGUID;
+                ObjectGuid uiAmmunaeGUID;
+                ObjectGuid uiSeteshGUID;
+                ObjectGuid uiRajhGUID;
+                ObjectGuid uiBrannGUID;
 
                 uint32 uiWardensDone;
 
-                uint64 uiOriginationElevatorGUID;
-                uint64 uiAnhuurBridgeGUID;
-                uint64 uiAnraphetEntranceDoorGUID;
-                uint64 uiAnraphetBossDoorGUID;
+                ObjectGuid uiOriginationElevatorGUID;
+                ObjectGuid uiAnhuurBridgeGUID;
+                ObjectGuid uiAnraphetEntranceDoorGUID;
+                ObjectGuid uiAnraphetBossDoorGUID;
 
                 uint32 archaeologyQuestAura;
         };

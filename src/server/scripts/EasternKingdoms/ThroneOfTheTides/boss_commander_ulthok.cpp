@@ -87,7 +87,7 @@ class boss_commander_ulthok : public CreatureScript
                 {
                     me->SetPhaseMask(PHASEMASK_NORMAL, true);
                     DoCast(me, SPELL_ULTHOK_INTRO);
-                    if (GameObject* pCorales = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_CORALES)))
+                    if (GameObject* pCorales = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_CORALES)))
                     {
                         pCorales->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                         pCorales->SetPhaseMask(2, true);
@@ -95,9 +95,9 @@ class boss_commander_ulthok : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -201,7 +201,7 @@ class at_tott_commander_ulthok : public AreaTriggerScript
                 if (instance->GetData(DATA_COMMANDER_ULTHOK_EVENT) != DONE && instance->GetBossState(DATA_LADY_NAZJAR) == DONE)
                 {
                     instance->SetData(DATA_COMMANDER_ULTHOK_EVENT, DONE);
-                    if (Creature* pUlthok = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_COMMANDER_ULTHOK)))
+                    if (Creature* pUlthok = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_COMMANDER_ULTHOK)))
                     {
                         pUlthok->AI()->DoAction(ACTION_COMMANDER_ULTHOK_START_EVENT);
                     }

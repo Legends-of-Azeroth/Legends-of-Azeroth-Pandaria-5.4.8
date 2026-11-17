@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -36,24 +36,26 @@ struct TempSummonData
     uint32 time;         ///< Despawn time, usable only with certain temp summon types
 };
 
-class TempSummon : public Creature
+class TC_GAME_API TempSummon : public Creature
 {
     public:
         explicit TempSummon(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject);
         virtual ~TempSummon() { }
-        void Update(uint32 time);
-        bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, CreatureData const* data = nullptr);
+        void Update(uint32 time) override;
+        bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, CreatureData const* data = nullptr, bool dynamic = false);
         virtual void InitStats(uint32 lifetime);
         virtual void InitSummon();
         virtual void UnSummon(uint32 msTime = 0);
-        void RemoveFromWorld();
+        void RemoveFromWorld() override;
         void SetTempSummonType(TempSummonType type);
-        void SaveToDB(uint32 /*mapid*/, uint16 /*spawnMask*/, uint32 /*phaseMask*/) { }
+        void SaveToDB(uint32 /*mapid*/, uint16 /*spawnMask*/, uint32 /*phaseMask*/) override { }
         Unit* GetSummoner() const;
         Creature* GetSummonerCreatureBase() const;
-        uint64 GetSummonerGUID() const { return m_summonerGUID; }
+        ObjectGuid GetSummonerGUID() const { return m_summonerGUID; }
         TempSummonType const& GetSummonType() { return m_type; }
         uint32 GetTimer() { return m_timer; }
+        bool CanFollowOwner() const { return m_canFollowOwner; }
+        void SetCanFollowOwner(bool can) { m_canFollowOwner = can; }
 
         const SummonPropertiesEntry* const m_Properties;
 
@@ -69,9 +71,6 @@ class TempSummon : public Creature
         bool IsSummonedByHidden() const { return m_hideSummonedBy; }
         void HideSummonedBy() { m_hideSummonedBy = true; }
 
-        void SetVisibleBySummonerOnly(bool visibleBySummonerOnly) { m_visibleBySummonerOnly = visibleBySummonerOnly; }
-        bool IsVisibleBySummonerOnly() const { return m_visibleBySummonerOnly; }
-
     protected:
         int32  m_slot = -1;
         bool   m_hideSummonedBy = false;
@@ -79,16 +78,16 @@ class TempSummon : public Creature
         TempSummonType m_type;
         uint32 m_timer;
         uint32 m_lifetime;
-        uint64 m_summonerGUID;
-        bool m_visibleBySummonerOnly;
-};
+        ObjectGuid m_summonerGUID;
+        bool m_canFollowOwner;
+    };
 
-class Minion : public TempSummon
+class TC_GAME_API Minion : public TempSummon
 {
     public:
         Minion(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject);
-        void InitStats(uint32 duration);
-        void RemoveFromWorld();
+        void InitStats(uint32 duration) override;
+        void RemoveFromWorld() override;
         Unit* GetOwner() const { return m_owner; }
         float GetFollowAngle() const { return m_followAngle; }
         void SetFollowAngle(float angle) { m_followAngle = angle; }
@@ -100,22 +99,22 @@ class Minion : public TempSummon
         float m_followAngle;
 };
 
-class Guardian : public Minion
+class TC_GAME_API Guardian : public Minion
 {
     public:
         Guardian(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject);
-        void InitStats(uint32 duration);
+        void InitStats(uint32 duration) override;
         bool InitStatsForLevel(uint8 level);
-        void InitSummon();
+        void InitSummon() override;
 
-        bool UpdateStats(Stats stat);
-        bool UpdateAllStats();
-        void UpdateResistances(uint32 school);
-        void UpdateArmor();
-        void UpdateMaxHealth();
-        void UpdateMaxPower(Powers power);
-        void UpdateAttackPowerAndDamage(bool ranged = false);
-        void UpdateDamagePhysical(WeaponAttackType attType);
+        bool UpdateStats(Stats stat) override;
+        bool UpdateAllStats() override;
+        void UpdateResistances(uint32 school) override;
+        void UpdateArmor() override;
+        void UpdateMaxHealth() override;
+        void UpdateMaxPower(Powers power) override;
+        void UpdateAttackPowerAndDamage(bool ranged = false) override;
+        void UpdateDamagePhysical(WeaponAttackType attType) override;
 
         int32 GetBonusDamage() const { return m_bonusSpellDamage; }
         void SetBonusDamage(int32 damage);
@@ -131,21 +130,21 @@ class Guardian : public Minion
         uint32  m_regenTimerCount = 0;
 };
 
-class Puppet : public Minion
+class TC_GAME_API Puppet : public Minion
 {
     public:
         Puppet(SummonPropertiesEntry const* properties, Unit* owner);
-        void InitStats(uint32 duration);
-        void InitSummon();
-        void Update(uint32 time);
-        void RemoveFromWorld();
+        void InitStats(uint32 duration) override;
+        void InitSummon() override;
+        void Update(uint32 time) override;
+        void RemoveFromWorld() override;
 };
 
-class ForcedUnsummonDelayEvent : public BasicEvent
+class TC_GAME_API ForcedUnsummonDelayEvent : public BasicEvent
 {
 public:
     ForcedUnsummonDelayEvent(TempSummon& owner) : BasicEvent(), m_owner(owner) { }
-    bool Execute(uint64 e_time, uint32 p_time);
+    bool Execute(uint64 e_time, uint32 p_time) override;
 
 private:
     TempSummon& m_owner;

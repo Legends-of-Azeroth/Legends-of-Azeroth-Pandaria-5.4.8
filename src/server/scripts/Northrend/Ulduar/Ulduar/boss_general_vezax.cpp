@@ -128,7 +128,7 @@ class boss_general_vezax : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_SHADOW_DODGER, 1);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (who->GetTypeId() != TYPEID_PLAYER)
                 {
@@ -136,7 +136,7 @@ class boss_general_vezax : public CreatureScript
                     return;
                 }
 
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_AURA_OF_DESPAIR);
                 events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS));
@@ -482,7 +482,7 @@ class npc_saronite_vapors : public CreatureScript
                     DoCast(me, SPELL_SARONITE_VAPORS);
                     me->DespawnOrUnsummon(30*IN_MILLISECONDS);
 
-                    if (Creature* Vezax = me->GetCreature(*me, instance->GetData64(BOSS_VEZAX)))
+                    if (Creature* Vezax = me->GetCreature(*me, instance->GetGuidData(BOSS_VEZAX)))
                         Vezax->AI()->DoAction(ACTION_VAPORS_DIE);
                 }
             }
@@ -534,14 +534,14 @@ class npc_vezax_bunny : public CreatureScript
             void JustSummoned(Creature* summon) override
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
-                    if (Creature* vezax = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_VEZAX)))
+                    if (Creature* vezax = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_VEZAX)))
                         vezax->AI()->JustSummoned(summon);
             }
 
             void SummonedCreatureDies(Creature* summon, Unit* killer) override
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
-                    if (Creature* vezax = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_VEZAX)))
+                    if (Creature* vezax = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_VEZAX)))
                         vezax->AI()->SummonedCreatureDies(summon, killer);
             }
 
@@ -613,7 +613,7 @@ class npc_faceless_horror : public CreatureScript
                 percentagesHandled[2] = false;
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.Reset();
                 events.ScheduleEvent(EVENT_DEATH_GRIP, urand(6000, 8000));
@@ -707,7 +707,7 @@ class spell_aura_of_despair_aura : public SpellScriptLoader // Spell 62692
         {
             PrepareAuraScript(spell_aura_of_despair_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_AURA_OF_DESPAIR_EFFECT_DESPAIR))
                     return false;
@@ -763,7 +763,7 @@ class spell_mark_of_the_faceless : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mark_of_the_faceless_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_THE_FACELESS_DAMAGE))
                     return false;

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -154,7 +154,7 @@ void BattlegroundTOK::EventPlayerClickedOnFlag(Player* source, GameObject* targe
     if (m_orbKeepers[index].Guid)    // GO can be double clicked, it's okay
         return;
 
-    uint64 guid = source->GetGUID();
+    ObjectGuid guid = source->GetGUID();
 
     if (HasOrb(guid))
         return;
@@ -211,7 +211,7 @@ void BattlegroundTOK::ReleaseOrb(Player* player)
     player->RemoveAurasDueToSpell(BG_TOK_ALLIANCE_INSIGNIA);
     player->RemoveAurasDueToSpell(BG_TOK_HORDE_INSIGNIA);
 
-    m_orbKeepers[index].Guid = 0;
+    m_orbKeepers[index].Guid.Clear();
     m_scheduler->CancelGroup(index);
 
     UpdateWorldState(OrbsWorldStates[index], 1);
@@ -226,7 +226,7 @@ void BattlegroundTOK::ReleaseOrb(Player* player)
     player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 
-void BattlegroundTOK::RemovePlayer(Player* player, uint64 guid, uint32 team)
+void BattlegroundTOK::RemovePlayer(Player* player, ObjectGuid guid, uint32 team)
 {
     Battleground::RemovePlayer(player, guid, team);
     if (!player)
@@ -247,12 +247,12 @@ void BattlegroundTOK::UpdateTeamScore(Team team)
     UpdateWorldState(worldState, GetTeamScore(team));
 }
 
-void BattlegroundTOK::HandleAreaTrigger(Player* player, uint32 trigger)
+void BattlegroundTOK::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    uint64 playerGuid = player->GetGUID();
+    ObjectGuid playerGuid = player->GetGUID();
     // GM teleported to bg
     if (m_Players.find(playerGuid) == m_Players.end())
         return;
@@ -273,7 +273,7 @@ void BattlegroundTOK::HandleAreaTrigger(Player* player, uint32 trigger)
             break;
         }
         default:
-            Battleground::HandleAreaTrigger(player, trigger);
+            Battleground::HandleAreaTrigger(player, trigger, entered);
             break;
     }
 

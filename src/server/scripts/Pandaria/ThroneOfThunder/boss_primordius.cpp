@@ -19,6 +19,7 @@
 #include "CreatureTextMgr.h"
 #include "Pet.h"
 #include <array>
+#include "Random.h"
 
 enum Spells
 {
@@ -330,9 +331,9 @@ class boss_primordius : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -379,7 +380,7 @@ class boss_primordius : public CreatureScript
                 Talk(TALK_DEATH);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();
@@ -492,7 +493,7 @@ class boss_primordius : public CreatureScript
                             SummonLivingFluid();
                             break;
                         case EVENT_VISCOUS_HORROR:
-                            me->SummonCreature(NPC_VISCOUS_HORROR, aFluidPos[urand(0, 9)], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000 + rand() % 2000);
+                            me->SummonCreature(NPC_VISCOUS_HORROR, aFluidPos[urand(0, 9)], TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(5000 + rand() % 2000));
                             events.ScheduleEvent(EVENT_VISCOUS_HORROR, 30 * IN_MILLISECONDS);
                             break;
                     }
@@ -505,7 +506,7 @@ class boss_primordius : public CreatureScript
             void SummonLivingFluid()
             {
                 for (uint8 i = 0; i < 10; ++i)
-                    me->SummonCreature(NPC_LIVING_FLUID, aFluidPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000 + rand() % 2000);
+                    me->SummonCreature(NPC_LIVING_FLUID, aFluidPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(5000 + rand() % 2000));
 
                 events.ScheduleEvent(EVENT_LIVING_FLUID, 14000);
             }
@@ -588,7 +589,7 @@ class npc_living_fluid : public CreatureScript
                             .SetValidator([this] { return instance && instance->GetBossState(DATA_PRIMORDIUS) == IN_PROGRESS; })
                             .Schedule(Seconds(1), [this](TaskContext context)
                         {
-                            if (Creature* primordius = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_PRIMORDIUS) : 0))
+                            if (Creature* primordius = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_PRIMORDIUS) : ObjectGuid::Empty))
                                 me->GetMotionMaster()->MoveFollow(primordius, 0.0f, me->GetAngle(primordius));
 
                             context.Repeat(Seconds(1));
@@ -602,7 +603,7 @@ class npc_living_fluid : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* primordius = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_PRIMORDIUS) : 0))
+                if (Creature* primordius = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_PRIMORDIUS) : ObjectGuid::Empty))
                     if (Creature* pStalker = primordius->SummonCreature(NPC_AT_STALKER, me->GetPositionX(), me->GetPositionY(), 55.8f, TEMPSUMMON_MANUAL_DESPAWN))
                         pStalker->CastSpell(pStalker, SPELL_MUTAGENIC_POOL, true);
             }
@@ -628,7 +629,7 @@ class npc_living_fluid : public CreatureScript
 
             void Move()
             {
-                if (Creature* primordius = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_PRIMORDIUS) : 0))
+                if (Creature* primordius = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_PRIMORDIUS) : ObjectGuid::Empty))
                     me->GetMotionMaster()->MovePoint(4, *primordius);
 
                 events.ScheduleEvent(EVENT_MOVE, 200);
@@ -636,7 +637,7 @@ class npc_living_fluid : public CreatureScript
 
             void CheckProximity()
             {
-                if (Creature* primordius = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_PRIMORDIUS) : 0))
+                if (Creature* primordius = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_PRIMORDIUS) : ObjectGuid::Empty))
                 {
                     if (me->GetExactDist2d(primordius) < 5.1f)
                     {
@@ -911,7 +912,7 @@ class spell_mutation_primordius : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_mutation_primordius_SpellScript::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_mutation_primordius_SpellScript::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_ENERGIZE);
             }
         };
 
@@ -1310,7 +1311,7 @@ class AreaTrigger_at_primordius_intro : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
-            if (Creature* primordius = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetData64(DATA_PRIMORDIUS) : 0))
+            if (Creature* primordius = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(DATA_PRIMORDIUS) : ObjectGuid::Empty))
                 primordius->AI()->DoAction(ACTION_START_INTRO);
 
             return true;

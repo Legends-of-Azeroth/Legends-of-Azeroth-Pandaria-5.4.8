@@ -45,11 +45,11 @@ class FollowerAI : public ScriptedAI
 
         void MoveInLineOfSight(Unit*);
 
-        void EnterEvadeMode();
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
 
         void JustDied(Unit*);
 
-        void JustRespawned();
+        void JustAppeared();
 
         void UpdateAI(uint32);                        //the "internal" update, calls UpdateFollowerAI()
         virtual void UpdateFollowerAI(uint32);        //used when it's needed to add code in update (abilities, scripted events, etc)
@@ -70,7 +70,7 @@ class FollowerAI : public ScriptedAI
 
         bool AssistPlayerInCombat(Unit* who);
 
-        uint64 m_uiLeaderGUID;
+        ObjectGuid m_uiLeaderGUID;
         uint32 m_uiUpdateFollowTimer;
         uint32 m_uiFollowState;
 

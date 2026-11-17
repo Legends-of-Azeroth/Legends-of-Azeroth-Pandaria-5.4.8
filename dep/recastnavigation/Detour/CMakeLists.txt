@@ -17,7 +17,7 @@ set(Detour_STAT_SRCS
     Source/DetourNavMeshQuery.cpp 
     Source/DetourNode.cpp 
 )
-include_directories(Include)
+
 
 if(WIN32)
   include_directories(
@@ -26,5 +26,15 @@ if(WIN32)
 endif()
 
 add_library(Detour STATIC ${Detour_STAT_SRCS})
+
+target_include_directories(Detour 
+  PUBLIC
+    Include
+)
+
+target_compile_definitions(Detour 
+  PRIVATE
+    -DNDEBUG
+)
 
 target_link_libraries(Detour ${ZLIB_LIBRARIES})

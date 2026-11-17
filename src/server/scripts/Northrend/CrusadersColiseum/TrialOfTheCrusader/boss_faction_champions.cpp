@@ -476,7 +476,7 @@ class boss_toc_champion_controller : public CreatureScript
                         SummonChampions((Team)uiData);
                         break;
                     case 1:
-                        for (std::list<uint64>::iterator i = _summons.begin(); i != _summons.end(); ++i)
+                        for (std::list<ObjectGuid>::iterator i = _summons.begin(); i != _summons.end(); ++i)
                         {
                             if (Creature* temp = Unit::GetCreature(*me, *i))
                             {
@@ -559,7 +559,7 @@ struct boss_faction_championsAI : public BossAI
     void JustReachedHome() override
     {
         if (instance)
-            if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+            if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetGuidData(NPC_CHAMPIONS_CONTROLLER)))
                 pChampionController->AI()->SetData(2, FAIL);
         me->DespawnOrUnsummon();
     }
@@ -574,17 +574,17 @@ struct boss_faction_championsAI : public BossAI
 
     void UpdateThreat()
     {
-        std::list<HostileReference*> const& tList = me->getThreatManager().getThreatList();
-        for (std::list<HostileReference*>::const_iterator itr = tList.begin(); itr != tList.end(); ++itr)
+        auto tList = me->GetThreatManager().GetUnsortedThreatList();
+        for (ThreatReference const* ref : tList)
         {
-            Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-            if (unit && me->getThreatManager().getThreat(unit))
+            Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
+            if (unit && me->GetThreatManager().GetThreat(unit))
             {
                 if (unit->GetTypeId() == TYPEID_PLAYER)
                 {
                     float threat = CalculateThreat(me->GetDistance2d(unit), (float)unit->GetArmor(), unit->GetHealth());
-                    me->getThreatManager().modifyThreatPercent(unit, -100);
-                    me->AddThreat(unit, 1000000.0f * threat);
+                    me->GetThreatManager().ModifyThreatByPercent(unit, -100);
+                    me->GetThreatManager().AddThreat(unit, 1000000.0f * threat);
                 }
             }
         }
@@ -610,16 +610,16 @@ struct boss_faction_championsAI : public BossAI
     {
         if (_aiType != AI_PET)
             if (instance)
-                if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+                if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetGuidData(NPC_CHAMPIONS_CONTROLLER)))
                     pChampionController->AI()->SetData(2, DONE);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         DoCast(me, SPELL_ANTI_AOE, true);
-        _EnterCombat();
+        _JustEngagedWith();
         if (instance)
-            if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+            if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetGuidData(NPC_CHAMPIONS_CONTROLLER)))
                 pChampionController->AI()->SetData(2, IN_PROGRESS);
     }
 
@@ -638,11 +638,11 @@ struct boss_faction_championsAI : public BossAI
             {
                 if (TeamInInstance == ALLIANCE)
                 {
-                    if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(NPC_VARIAN)))
+                    if (Creature* temp = Unit::GetCreature(*me, instance->GetGuidData(NPC_VARIAN)))
                         temp->AI()->Talk(SAY_KILL_PLAYER);
                 }
                 else
-                    if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(NPC_GARROSH)))
+                    if (Creature* temp = Unit::GetCreature(*me, instance->GetGuidData(NPC_GARROSH)))
                         temp->AI()->Talk(SAY_KILL_PLAYER);
 
 
@@ -663,12 +663,11 @@ struct boss_faction_championsAI : public BossAI
 
     Unit* SelectEnemyCaster(bool /*casting*/)
     {
-        std::list<HostileReference*> const& tList = me->getThreatManager().getThreatList();
-        std::list<HostileReference*>::const_iterator iter;
+        auto tList = me->GetThreatManager().GetUnsortedThreatList();
         Unit* target;
-        for (iter = tList.begin(); iter!=tList.end(); ++iter)
+        for (ThreatReference const* ref : tList)
         {
-            target = Unit::GetUnit(*me, (*iter)->getUnitGuid());
+            target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
             if (target && target->GetPowerType() == POWER_MANA)
                 return target;
         }
@@ -677,13 +676,12 @@ struct boss_faction_championsAI : public BossAI
 
     uint32 EnemiesInRange(float distance)
     {
-        std::list<HostileReference*> const& tList = me->getThreatManager().getThreatList();
-        std::list<HostileReference*>::const_iterator iter;
+        auto tList = me->GetThreatManager().GetUnsortedThreatList();
         uint32 count = 0;
         Unit* target;
-        for (iter = tList.begin(); iter != tList.end(); ++iter)
+        for (ThreatReference const* ref : tList)
         {
-            target = Unit::GetUnit(*me, (*iter)->getUnitGuid());
+            target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                 if (target && me->GetDistance2d(target) < distance)
                     ++count;
         }
@@ -697,7 +695,7 @@ struct boss_faction_championsAI : public BossAI
 
         if (me->Attack(who, true))
         {
-            me->AddThreat(who, 10.0f);
+            me->GetThreatManager().AddThreat(who, 10.0f);
             me->SetInCombatWith(who);
             who->SetInCombatWith(me);
 
@@ -1244,9 +1242,9 @@ class npc_toc_warlock : public CreatureScript
                 SetEquipmentSlots(false, 49992, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                boss_faction_championsAI::EnterCombat(who);
+                boss_faction_championsAI::JustEngagedWith(who);
                 DoCast(SPELL_SUMMON_FELHUNTER);
             }
 
@@ -1430,9 +1428,9 @@ class npc_toc_hunter : public CreatureScript
                 SetEquipmentSlots(false, 47156, EQUIP_NO_CHANGE, 48711);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                boss_faction_championsAI::EnterCombat(who);
+                boss_faction_championsAI::JustEngagedWith(who);
                 DoCast(SPELL_CALL_PET);
             }
 
@@ -2055,9 +2053,9 @@ class npc_toc_retro_paladin : public CreatureScript
                 SetEquipmentSlots(false, 47519, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                boss_faction_championsAI::EnterCombat(who);
+                boss_faction_championsAI::JustEngagedWith(who);
                 DoCast(SPELL_SEAL_OF_COMMAND);
             }
 

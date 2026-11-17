@@ -25,6 +25,7 @@
 #include "SpellScript.h"
 #include "Vehicle.h"
 #include "LFGMgr.h"
+#include "Random.h"
 
 // Sungshin Ironpaw 73316
 struct npc_secret_ing_sungshin_iron_paw : public ScriptedAI
@@ -33,7 +34,7 @@ struct npc_secret_ing_sungshin_iron_paw : public ScriptedAI
 
     TaskScheduler scheduler;
     uint32 delay;
-    uint64 selectedScholarGUID;
+    ObjectGuid selectedScholarGUID;
     bool isTraining;
     bool firstSeat;
     bool firstTable;
@@ -50,7 +51,7 @@ struct npc_secret_ing_sungshin_iron_paw : public ScriptedAI
         firstNoodle = true;
         firstDelivery = true;
         firstEaten = true;
-        selectedScholarGUID = 0;
+        selectedScholarGUID = ObjectGuid::Empty;
         waitingQueue.clear();
 
         for (uint32 i = 1; i < 6; i++)
@@ -86,12 +87,12 @@ struct npc_secret_ing_sungshin_iron_paw : public ScriptedAI
         }
     }
 
-    void SetGUID(uint64 guid, int32 /*type*/) override
+    void SetGUID(ObjectGuid guid, int32 /*type*/) override
     {
         selectedScholarGUID = guid;
     }
 
-    uint64 GetGUID(int32 /*type*/) const override
+    ObjectGuid GetGUID(int32 /*type*/) const override
     {
         return selectedScholarGUID;
     }
@@ -106,7 +107,7 @@ struct npc_secret_ing_sungshin_iron_paw : public ScriptedAI
                 scheduler
                     .Schedule(Milliseconds(delay), [this](TaskContext context)
                 {
-                    if (Player* target = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_PLAYER) : 0))
+                    if (Player* target = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_PLAYER) : ObjectGuid::Empty))
                         Talk(TALK_INTRO, target);
                 });
 
@@ -240,7 +241,7 @@ struct npc_secret_ing_noodle_stand : public ScriptedAI
     }
 
     TaskScheduler scheduler;
-    uint64 summonerGUID;
+    ObjectGuid summonerGUID;
     bool hasUse;
 
     void IsSummonedBy(Unit* summoner) override
@@ -276,14 +277,14 @@ struct npc_secret_ing_scholar : public ScriptedAI
     npc_secret_ing_scholar(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 tableGUID;
+    ObjectGuid tableGUID;
     uint32 ourPositionInQueue;
     uint32 leaveNotEaten;
     bool hasInLeaveProgress;
 
     void Reset() override
     {
-        tableGUID = 0;
+        tableGUID = ObjectGuid::Empty;
         hasInLeaveProgress = false;
         ourPositionInQueue = 0;
         leaveNotEaten = 0;
@@ -317,7 +318,7 @@ struct npc_secret_ing_scholar : public ScriptedAI
             return;
         }
 
-        if (Creature* ironPaw = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SUNGSHIN_IRONPAW) : 0))
+        if (Creature* ironPaw = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SUNGSHIN_IRONPAW) : ObjectGuid::Empty))
         {
             if (!me->HasAura(SPELL_TIMER_VISUAL_40) && !ironPaw->AI()->GetData(TYPE_CLICK_ON_TRAINING)) // prevent if time is gone (for training this aura not used)
                 return;
@@ -330,7 +331,7 @@ struct npc_secret_ing_scholar : public ScriptedAI
         }
     }
 
-    void SetGUID(uint64 guid, int32 /*type*/) override
+    void SetGUID(ObjectGuid guid, int32 /*type*/) override
     {
         tableGUID = guid;
     }
@@ -341,7 +342,7 @@ struct npc_secret_ing_scholar : public ScriptedAI
         {
             case ACTION_INTRO:
             {
-                if (Creature* ironPaw = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SUNGSHIN_IRONPAW) : 0))
+                if (Creature* ironPaw = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SUNGSHIN_IRONPAW) : ObjectGuid::Empty))
                 {
                     Movement::MoveSplineInit pInit(me);
 
@@ -359,7 +360,7 @@ struct npc_secret_ing_scholar : public ScriptedAI
                         ourPositionInQueue = ironPaw->AI()->GetData(TYPE_QUEUE_PLACE) - 1;
                         ironPaw->AI()->SetData(TYPE_HOLD_QUEUE, ourPositionInQueue + 1);
 
-                        if (Player* target = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_PLAYER) : 0))
+                        if (Player* target = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_PLAYER) : ObjectGuid::Empty))
                         {
                             float x = scholarPath[2].GetPositionX() + (2.5f * ourPositionInQueue * cos(Position::NormalizeOrientation(target->GetOrientation() + M_PI + M_PI / 2)));
                             float y = scholarPath[2].GetPositionY() + (2.5f * ourPositionInQueue * sin(Position::NormalizeOrientation(target->GetOrientation() + M_PI + M_PI / 2)));
@@ -372,13 +373,13 @@ struct npc_secret_ing_scholar : public ScriptedAI
                     scheduler
                         .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
                     {
-                        if (Player* target = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_PLAYER) : 0))
+                        if (Player* target = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_PLAYER) : ObjectGuid::Empty))
                             me->SetFacingToObject(target);
 
                         DoCast(me, SPELL_WAITING_IN_LINE);
                         me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
 
-                        if (Creature* ironPawMisc = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SUNGSHIN_IRONPAW) : 0))
+                        if (Creature* ironPawMisc = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SUNGSHIN_IRONPAW) : ObjectGuid::Empty))
                         {
                             if (ironPawMisc->AI()->GetData(TYPE_CLICK_ON_TRAINING))
                             {
@@ -414,10 +415,10 @@ struct npc_secret_ing_scholar : public ScriptedAI
                             DoCast(myTable, VEHICLE_SPELL_RIDE_HARDCODED);
                             me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
 
-                            if (Player* coocker = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData(DATA_PLAYER) : 0))
+                            if (Player* coocker = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_PLAYER) : ObjectGuid::Empty))
                                 me->SetFacingTo(me->GetAngle(coocker));
 
-                            if (Creature* ironPaw = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SUNGSHIN_IRONPAW) : 0))
+                            if (Creature* ironPaw = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SUNGSHIN_IRONPAW) : ObjectGuid::Empty))
                                 if (ironPaw->AI()->GetData(TYPE_CLICK_ON_TRAINING))
                                     ironPaw->AI()->DoAction(ACTION_CUSTOMER_AT_TABLE_TRAINING);
                         }
@@ -431,7 +432,7 @@ struct npc_secret_ing_scholar : public ScriptedAI
 
                 hasInLeaveProgress = true;
 
-                if (Creature* ironPaw = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SUNGSHIN_IRONPAW) : 0))
+                if (Creature* ironPaw = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SUNGSHIN_IRONPAW) : ObjectGuid::Empty))
                     ironPaw->AI()->SetData(TYPE_QUEUE_PLACE, ourPositionInQueue + 1);
 
                 if (Creature* table = ObjectAccessor::GetCreature(*me, tableGUID))
@@ -495,7 +496,7 @@ struct npc_secret_ing_seat : public ScriptedAI
 
     void OnSpellClick(Unit* clicker, bool& /*result*/) override
     {
-        if (Creature* ironPaw = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SUNGSHIN_IRONPAW) : 0))
+        if (Creature* ironPaw = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SUNGSHIN_IRONPAW) : ObjectGuid::Empty))
         {
             if (!ironPaw->AI()->GetGUID())
                 return;
@@ -508,7 +509,7 @@ struct npc_secret_ing_seat : public ScriptedAI
                 selectedScholar->RemoveAurasDueToSpell(SPELL_WAITING_IN_LINE);
                 selectedScholar->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                 me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                ironPaw->AI()->SetGUID(0);
+                ironPaw->AI()->SetGUID(ObjectGuid::Empty);
                 selectedScholar->AI()->SetGUID(me->GetGUID());
                 selectedScholar->AI()->DoAction(ACTION_MOVE_TO_TABLE);
             }
@@ -532,14 +533,14 @@ struct npc_secret_ing_noodle_soup : public ScriptedAI
     {
         uint32 visualSoup = invSoupVisualType.find(me->GetEntry())->second[0];
 
-        if (Creature* ironPaw = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SUNGSHIN_IRONPAW) : 0))
+        if (Creature* ironPaw = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SUNGSHIN_IRONPAW) : ObjectGuid::Empty))
             if (ironPaw->AI()->GetData(TYPE_CLICK_ON_TRAINING))
                 visualSoup = SPELL_NOODLE_SOUP_FIRST; // no timer for first
 
         DoCast(me, visualSoup);
         me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
 
-        if (Creature* noodle = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_NOODLE_STAND) : 0))
+        if (Creature* noodle = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NOODLE_STAND) : ObjectGuid::Empty))
             DoCast(noodle, VEHICLE_SPELL_RIDE_HARDCODED);
     }
 
@@ -622,7 +623,7 @@ class spell_secret_ing_make_noodle_soup : public SpellScript
             // Summon Noodle by hands
             caster->SummonCreature(GetSpellInfo()->Effects[EFFECT_0].BasePoints, *caster, TEMPSUMMON_MANUAL_DESPAWN);
 
-            if (Creature* ironPaw = ObjectAccessor::GetCreature(*caster, caster->GetInstanceScript() ? caster->GetInstanceScript()->GetData64(NPC_SUNGSHIN_IRONPAW) : 0))
+            if (Creature* ironPaw = ObjectAccessor::GetCreature(*caster, caster->GetInstanceScript() ? caster->GetInstanceScript()->GetGuidData(NPC_SUNGSHIN_IRONPAW) : ObjectGuid::Empty))
                 if (ironPaw->AI()->GetData(TYPE_CLICK_ON_TRAINING))
                     ironPaw->AI()->DoAction(ACTION_FIRST_NOODLE_IS_READY);
         }
@@ -640,7 +641,7 @@ class spell_secret_ing_make_noodle_soup : public SpellScript
         // Check if we have more 4 noodle on table - prevent it, cuz it`ll break us from vehicle
         bool hasSoMuchNoodleOnTable()
         {
-            if (Creature* noodleStand = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript() ? GetCaster()->GetInstanceScript()->GetData64(NPC_NOODLE_STAND) : 0))
+            if (Creature* noodleStand = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript() ? GetCaster()->GetInstanceScript()->GetGuidData(NPC_NOODLE_STAND) : ObjectGuid::Empty))
             {
                 if (Vehicle * kit = noodleStand->GetVehicleKit())
                 {
@@ -674,7 +675,7 @@ class spell_secret_ing_eating_noodle_soup : public SpellScript
         if (Creature* target = GetHitCreature())
             target->RemoveAurasDueToSpell(SPELL_WAITING_FOR_FOOD);
 
-        if (Creature* ironPaw = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript() ? GetCaster()->GetInstanceScript()->GetData64(NPC_SUNGSHIN_IRONPAW) : 0))
+        if (Creature* ironPaw = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript() ? GetCaster()->GetInstanceScript()->GetGuidData(NPC_SUNGSHIN_IRONPAW) : ObjectGuid::Empty))
             if (ironPaw->AI()->GetData(TYPE_CLICK_ON_TRAINING))
                 ironPaw->AI()->DoAction(ACTION_EAT_SENT);
     }
@@ -697,7 +698,7 @@ class spell_secret_ing_eating_noodle_soup_aura : public AuraScript
             // Scholar Should Leave
             owner->AI()->DoAction(ACTION_SCHOLAR_LEAVE);
 
-            if (Creature* ironPaw = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetData64(NPC_SUNGSHIN_IRONPAW) : 0))
+            if (Creature* ironPaw = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetGuidData(NPC_SUNGSHIN_IRONPAW) : ObjectGuid::Empty))
                 if (ironPaw->AI()->GetData(TYPE_CLICK_ON_TRAINING))
                     ironPaw->AI()->DoAction(ACTION_FIRST_NOODLE_EATEN);
         }
@@ -749,7 +750,7 @@ class spell_secret_ing_make_great_noodle_soup : public SpellScript
         // Check if we have more 4 noodle on table - prevent it, cuz it`ll break us from vehicle
         bool hasSoMuchNoodleOnTable()
         {
-            if (Creature* noodleStand = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript() ? GetCaster()->GetInstanceScript()->GetData64(NPC_NOODLE_STAND) : 0))
+            if (Creature* noodleStand = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript() ? GetCaster()->GetInstanceScript()->GetGuidData(NPC_NOODLE_STAND) : ObjectGuid::Empty))
             {
                 if (Vehicle * kit = noodleStand->GetVehicleKit())
                 {

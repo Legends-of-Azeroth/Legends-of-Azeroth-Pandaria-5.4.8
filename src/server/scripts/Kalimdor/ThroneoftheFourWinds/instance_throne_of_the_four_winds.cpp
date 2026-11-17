@@ -30,11 +30,11 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
             {
                 SetBossNumber(MAX_ENCOUNTER);
 
-                uiConclaveofWind    = 0;
-                uiAnshal            = 0;
-                uiNezir             = 0;
-                uiRohash            = 0;
-                uiAlakir            = 0;
+                uiConclaveofWind    = ObjectGuid::Empty;
+                uiAnshal            = ObjectGuid::Empty;
+                uiNezir             = ObjectGuid::Empty;
+                uiRohash            = ObjectGuid::Empty;
+                uiAlakir            = ObjectGuid::Empty;
                 memset(uiHeartOfWind, 0, sizeof(uiHeartOfWind));
                 bSlipstreamsSpawned = false;
             }
@@ -111,7 +111,7 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -128,9 +128,8 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                     case DATA_HEART_OF_WIND_25H:
                         return uiHeartOfWind[3];
                     default:
-                        return 0;
+                        return ObjectGuid::Empty;
                 }
-                return 0;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -150,7 +149,7 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const override
             {
-                if (player && player->IsGameMaster())
+                if (_SkipCheckRequiredBosses(player))
                     return true;
 
                 if (bossId == DATA_ALAKIR)
@@ -202,12 +201,12 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
             }
 
             private:
-                uint64 uiConclaveofWind;
-                uint64 uiAnshal;
-                uint64 uiNezir;
-                uint64 uiRohash;
-                uint64 uiAlakir;
-                uint64 uiHeartOfWind[MAX_DIFFICULTY];
+                ObjectGuid uiConclaveofWind;
+                ObjectGuid uiAnshal;
+                ObjectGuid uiNezir;
+                ObjectGuid uiRohash;
+                ObjectGuid uiAlakir;
+                ObjectGuid uiHeartOfWind[MAX_DIFFICULTY];
                 bool bSlipstreamsSpawned;
         };
 

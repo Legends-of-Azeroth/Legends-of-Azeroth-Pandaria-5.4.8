@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -41,40 +41,41 @@ public:
     {
         static std::vector<ChatCommand> modifyspeedCommandTable =
         {
-            { "all",        SEC_GAMEMASTER, false,  &HandleModifyASpeedCommand,     },
-            { "backwalk",   SEC_GAMEMASTER, false,  &HandleModifyBWalkCommand,      },
-            { "fly",        SEC_GAMEMASTER, false,  &HandleModifyFlyCommand,        },
-            { "walk",       SEC_GAMEMASTER, false,  &HandleModifySpeedCommand,      },
-            { "swim",       SEC_GAMEMASTER, false,  &HandleModifySwimCommand,       },
-            { "",           SEC_GAMEMASTER, false,  &HandleModifyASpeedCommand,     },
+            { "all",        &HandleModifyASpeedCommand,     rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_ALL,     Trinity::ChatCommands::Console::No },
+            { "backwalk",   &HandleModifyBWalkCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_BACKWALK, Trinity::ChatCommands::Console::No },
+            { "fly",        &HandleModifyFlyCommand,        rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_FLY,     Trinity::ChatCommands::Console::No },
+            { "walk",       &HandleModifySpeedCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_WALK,    Trinity::ChatCommands::Console::No },
+            { "swim",       &HandleModifySwimCommand,       rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_SWIM,    Trinity::ChatCommands::Console::No },
+            { "",           &HandleModifyASpeedCommand,     rbac::RBAC_PERM_COMMAND_MODIFY_SPEED,         Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> modifyCommandTable =
         {
-            { "bit",        SEC_GAMEMASTER, false,  &HandleModifyBitCommand,        },
-            { "drunk",      SEC_GAMEMASTER, false,  &HandleModifyDrunkCommand,      },
-            { "energy",     SEC_GAMEMASTER, false,  &HandleModifyEnergyCommand,     },
-            { "faction",    SEC_GAMEMASTER, false,  &HandleModifyFactionCommand,    },
-            { "gender",     SEC_GAMEMASTER, false,  &HandleModifyGenderCommand,     },
-            { "honor",      SEC_GAMEMASTER, false,  &HandleModifyHonorCommand,      },
-            { "hp",         SEC_GAMEMASTER, false,  &HandleModifyHPCommand,         },
-            { "mana",       SEC_GAMEMASTER, false,  &HandleModifyManaCommand,       },
-            { "money",      SEC_GAMEMASTER, false,  &HandleModifyMoneyCommand,      },
-            { "mount",      SEC_GAMEMASTER, false,  &HandleModifyMountCommand,      },
-            { "phase",      SEC_GAMEMASTER, false,  &HandleModifyPhaseCommand,      },
-            { "rage",       SEC_GAMEMASTER, false,  &HandleModifyRageCommand,       },
-            { "reputation", SEC_GAMEMASTER, false,  &HandleModifyRepCommand,        },
-            { "runicpower", SEC_GAMEMASTER, false,  &HandleModifyRunicPowerCommand, },
-            { "scale",      SEC_GAMEMASTER, false,  &HandleModifyScaleCommand,      },
-            { "speed",      SEC_GAMEMASTER, false,  modifyspeedCommandTable         },
-            { "spell",      SEC_GAMEMASTER, false,  &HandleModifySpellCommand,      },
-            { "standstate", SEC_GAMEMASTER, false,  &HandleModifyStandStateCommand, },
-            { "currency",   SEC_GAMEMASTER, false,  &HandleModifyCurrencyCommand,   },
+            { "bit",        &HandleModifyBitCommand,        rbac::RBAC_PERM_COMMAND_MODIFY_BIT,        Trinity::ChatCommands::Console::No },
+            { "drunk",      &HandleModifyDrunkCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_DRUNK,      Trinity::ChatCommands::Console::No },
+            { "energy",     &HandleModifyEnergyCommand,     rbac::RBAC_PERM_COMMAND_MODIFY_ENERGY,     Trinity::ChatCommands::Console::No },
+            { "faction",    &HandleModifyFactionCommand,    rbac::RBAC_PERM_COMMAND_MODIFY_FACTION,    Trinity::ChatCommands::Console::No },
+            { "gender",     &HandleModifyGenderCommand,     rbac::RBAC_PERM_COMMAND_MODIFY_GENDER,     Trinity::ChatCommands::Console::No },
+            { "honor",      &HandleModifyHonorCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_HONOR,      Trinity::ChatCommands::Console::No },
+            { "hp",         &HandleModifyHPCommand,         rbac::RBAC_PERM_COMMAND_MODIFY_HP,         Trinity::ChatCommands::Console::No },
+            { "mana",       &HandleModifyManaCommand,       rbac::RBAC_PERM_COMMAND_MODIFY_MANA,       Trinity::ChatCommands::Console::No },
+            { "money",      &HandleModifyMoneyCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_MONEY,      Trinity::ChatCommands::Console::No },
+            { "mount",      &HandleModifyMountCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_MOUNT,      Trinity::ChatCommands::Console::No },
+            { "phase",      &HandleModifyPhaseCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_PHASE,      Trinity::ChatCommands::Console::No },
+            { "phaseid", &HandleModifyPhaseIDCommand, rbac::RBAC_PERM_COMMAND_MODIFY_PHASEID, Trinity::ChatCommands::Console::No },
+            { "rage",       &HandleModifyRageCommand,       rbac::RBAC_PERM_COMMAND_MODIFY_RAGE,       Trinity::ChatCommands::Console::No },
+            { "reputation", &HandleModifyRepCommand,        rbac::RBAC_PERM_COMMAND_MODIFY_REPUTATION, Trinity::ChatCommands::Console::No },
+            { "runicpower", &HandleModifyRunicPowerCommand, rbac::RBAC_PERM_COMMAND_MODIFY_RUNICPOWER, Trinity::ChatCommands::Console::No },
+            { "scale",      &HandleModifyScaleCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_SCALE,      Trinity::ChatCommands::Console::No },
+            { "speed",      modifyspeedCommandTable,         rbac::RBAC_PERM_COMMAND_MODIFY_SPEED,      Trinity::ChatCommands::Console::No },
+            { "spell",      &HandleModifySpellCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_SPELL,      Trinity::ChatCommands::Console::No },
+            { "standstate", &HandleModifyStandStateCommand, rbac::RBAC_PERM_COMMAND_MODIFY_STANDSTATE, Trinity::ChatCommands::Console::No },
+            { "currency",   &HandleModifyCurrencyCommand,   rbac::RBAC_PERM_COMMAND_MODIFY_CURRENCY,   Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "morph",      SEC_GAMEMASTER, false,  &HandleModifyMorphCommand,      },
-            { "demorph",    SEC_GAMEMASTER, false,  &HandleDeMorphCommand,          },
-            { "modify",     SEC_GAMEMASTER, false,  modifyCommandTable              },
+            { "morph",      &HandleModifyMorphCommand,      rbac::RBAC_PERM_COMMAND_MORPH,      Trinity::ChatCommands::Console::No },
+            { "demorph",    &HandleDeMorphCommand,          rbac::RBAC_PERM_COMMAND_DEMORPH,    Trinity::ChatCommands::Console::No },
+            { "modify",     modifyCommandTable,              rbac::RBAC_PERM_COMMAND_MODIFY,     Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }
@@ -105,7 +106,7 @@ public:
 
         if (Player* player = target->ToPlayer())
         {
-            if (handler->HasLowerSecurity(player, 0))
+            if (handler->HasLowerSecurity(player, ObjectGuid::Empty))
                 return false;
 
             handler->PSendSysMessage(LANG_YOU_CHANGE_HP, handler->GetNameLink(player).c_str(), hp, hpm);
@@ -147,7 +148,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_MANA, handler->GetNameLink(target).c_str(), mana, manam);
@@ -196,7 +197,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_ENERGY, handler->GetNameLink(target).c_str(), energy/10, energym/10);
@@ -206,7 +207,7 @@ public:
         target->SetMaxPower(POWER_ENERGY, energym);
         target->SetPower(POWER_ENERGY, energy);
 
-        TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_CURRENT_ENERGY), target->GetMaxPower(POWER_ENERGY));
+        TC_LOG_DEBUG("misc", "Current energy: {}", target->GetMaxPower(POWER_ENERGY));
 
         return true;
     }
@@ -247,7 +248,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_RAGE, handler->GetNameLink(target).c_str(), rage/10, ragem/10);
@@ -316,7 +317,7 @@ public:
             uint32 flag      = target->GetUInt32Value(UNIT_FIELD_FLAGS);
             uint32 npcflag   = target->GetUInt32Value(UNIT_FIELD_NPC_FLAGS);
             uint32 dyflag    = target->GetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS);
-            handler->PSendSysMessage(LANG_CURRENT_FACTION, target->GetGUIDLow(), factionid, flag, npcflag, dyflag);
+            handler->PSendSysMessage(LANG_CURRENT_FACTION, target->GetGUID().GetCounter(), factionid, flag, npcflag, dyflag);
             return true;
         }
 
@@ -352,7 +353,7 @@ public:
             return false;
         }
 
-        handler->PSendSysMessage(LANG_YOU_CHANGE_FACTION, target->GetGUIDLow(), factionid, flag, npcflag, dyflag);
+        handler->PSendSysMessage(LANG_YOU_CHANGE_FACTION, target->GetGUID().GetCounter(), factionid, flag, npcflag, dyflag);
 
         target->SetFaction(factionid);
         target->SetUInt32Value(UNIT_FIELD_FLAGS, flag);
@@ -401,7 +402,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_SPELLFLATID, spellflatid, val, mark, handler->GetNameLink(target).c_str());
@@ -442,7 +443,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         std::string targetNameLink = handler->GetNameLink(target);
@@ -490,7 +491,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         std::string targetNameLink = handler->GetNameLink(target);
@@ -535,7 +536,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         std::string targetNameLink = handler->GetNameLink(target);
@@ -580,7 +581,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         std::string targetNameLink = handler->GetNameLink(target);
@@ -625,7 +626,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_FLY_SPEED, FSpeed, handler->GetNameLink(target).c_str());
@@ -662,7 +663,7 @@ public:
         if (Player* player = target->ToPlayer())
         {
             // check online security
-            if (handler->HasLowerSecurity(player, 0))
+            if (handler->HasLowerSecurity(player, ObjectGuid::Empty))
                 return false;
 
             handler->PSendSysMessage(LANG_YOU_CHANGE_SIZE, Scale, handler->GetNameLink(player).c_str());
@@ -910,7 +911,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         handler->PSendSysMessage(LANG_YOU_GIVE_MOUNT, handler->GetNameLink(target).c_str());
@@ -922,20 +923,45 @@ public:
 
         ObjectGuid guid = target->GetGUID();
         WorldPacket data(SMSG_MOVE_SET_RUN_SPEED, (8+4+1+4));
-        data.WriteGuidMask(guid, 1, 7, 4, 2, 5, 3, 6, 0);
-        data.WriteGuidBytes(guid, 1);
+        data.WriteBit(guid[1]);
+data.WriteBit(guid[7]);
+data.WriteBit(guid[4]);
+data.WriteBit(guid[2]);
+data.WriteBit(guid[5]);
+data.WriteBit(guid[3]);
+data.WriteBit(guid[6]);
+data.WriteBit(guid[0]);
+        data.WriteByteSeq(guid[1]);
         data << uint32(0);
-        data.WriteGuidBytes(guid, 7, 3, 0);
+        data.WriteByteSeq(guid[7]);
+data.WriteByteSeq(guid[3]);
+data.WriteByteSeq(guid[0]);
         data << float(speed);
-        data.WriteGuidBytes(guid, 2, 4, 6, 5);
+        data.WriteByteSeq(guid[2]);
+data.WriteByteSeq(guid[4]);
+data.WriteByteSeq(guid[6]);
+data.WriteByteSeq(guid[5]);
         target->SendMessageToSet(&data, true);
 
         data.Initialize(SMSG_MOVE_SET_SWIM_SPEED, (8+4+4));
-        data.WriteGuidMask(guid, 5, 0, 6, 3, 7, 2, 4, 1);
+        data.WriteBit(guid[5]);
+data.WriteBit(guid[0]);
+data.WriteBit(guid[6]);
+data.WriteBit(guid[3]);
+data.WriteBit(guid[7]);
+data.WriteBit(guid[2]);
+data.WriteBit(guid[4]);
+data.WriteBit(guid[1]);
         data << uint32(0);
-        data.WriteGuidBytes(guid, 1, 3);
+        data.WriteByteSeq(guid[1]);
+data.WriteByteSeq(guid[3]);
         data << float(speed);
-        data.WriteGuidBytes(guid, 6, 7, 0, 5, 2, 4);
+        data.WriteByteSeq(guid[6]);
+data.WriteByteSeq(guid[7]);
+data.WriteByteSeq(guid[0]);
+data.WriteByteSeq(guid[5]);
+data.WriteByteSeq(guid[2]);
+data.WriteByteSeq(guid[4]);
         target->SendMessageToSet(&data, true);
 
         return true;
@@ -956,7 +982,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         int64 moneyToAdd = 0;
@@ -971,7 +997,7 @@ public:
         {
             int64 newmoney = int64(targetMoney) + moneyToAdd;
 
-            TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_CURRENT_MONEY), uint32(targetMoney), int32(moneyToAdd), uint32(newmoney));
+            TC_LOG_DEBUG("misc", "Current money: {}, add: {}, new money: {}", uint32(targetMoney), int32(moneyToAdd), uint32(newmoney));
             if (newmoney <= 0)
             {
                 handler->PSendSysMessage(LANG_YOU_TAKE_ALL_MONEY, handler->GetNameLink(target).c_str());
@@ -1007,7 +1033,7 @@ public:
             target->ModifyMoney(moneyToAdd);
         }
 
-        TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_NEW_MONEY), uint32(targetMoney), int32(moneyToAdd), uint32(target->GetMoney()));
+        TC_LOG_DEBUG("misc", "New money: {}, add: {}, result: {}", uint32(targetMoney), int32(moneyToAdd), uint32(target->GetMoney()));
 
         return true;
     }
@@ -1027,7 +1053,7 @@ public:
         }
 
         // check online security
-        if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), 0))
+        if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), ObjectGuid::Empty))
             return false;
 
         char* pField = strtok((char*)args, " ");
@@ -1081,7 +1107,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         int32 amount = (uint32)atoi(args);
@@ -1122,7 +1148,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         char* factionTxt = handler->extractKeyFromLink((char*)args, "Hfaction");
@@ -1221,7 +1247,7 @@ public:
             target = handler->GetSession()->GetPlayer();
 
         // check online security
-        else if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), 0))
+        else if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), ObjectGuid::Empty))
             return false;
 
         target->SetDisplayId(display_id);
@@ -1247,6 +1273,23 @@ public:
         }
         else
             handler->GetSession()->GetPlayer()->GetPhaseMgr().SetCustomPhase(phasemask);
+
+        return true;
+    }
+
+    //set temporary phaseid for player
+    static bool HandleModifyPhaseIDCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        uint32 phase = (uint32)atoi((char*)args);
+
+        Unit* target = handler->getSelectedUnit();
+        if (!target)
+            target = handler->GetSession()->GetPlayer();
+
+        target->SetPhased(phase, true, !target->IsPhased(phase));
 
         return true;
     }
@@ -1331,7 +1374,7 @@ public:
             target = handler->GetSession()->GetPlayer();
 
         // check online security
-        else if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), 0))
+        else if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), ObjectGuid::Empty))
             return false;
 
         target->DeMorph();

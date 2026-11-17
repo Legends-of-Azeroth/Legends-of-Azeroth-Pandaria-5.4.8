@@ -169,12 +169,12 @@ public:
         {
             _Reset();
             gythEvent = false;
-            victorGUID = 0;
+            victorGUID.Clear();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             events.ScheduleEvent(EVENT_WHIRLWIND,     urand(13000, 15000));
             events.ScheduleEvent(EVENT_CLEAVE,        urand(15000, 17000));
             events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(17000, 19000));
@@ -430,8 +430,8 @@ public:
 
         private:
             bool   gythEvent;
-            uint64 victorGUID;
-            uint64 portcullisGUID;
+            ObjectGuid victorGUID;
+            ObjectGuid portcullisGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

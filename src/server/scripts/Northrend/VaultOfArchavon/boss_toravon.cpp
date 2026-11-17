@@ -65,7 +65,7 @@ class boss_toravon : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_FROZEN_MALLET);
 
@@ -73,7 +73,7 @@ class boss_toravon : public CreatureScript
                 events.ScheduleEvent(EVENT_WHITEOUT, 13000);
                 events.ScheduleEvent(EVENT_FREEZING_GROUND, 15000);
 
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void UpdateAI(uint32 diff) override
@@ -135,7 +135,7 @@ class npc_frost_warder : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
 
@@ -193,7 +193,7 @@ public:
             killTimer = 60000; // if after this time there is no victim -> destroy!
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoZoneInCombat();
         }
@@ -256,7 +256,7 @@ class npc_frozen_orb_stalker : public CreatureScript
                     return;
 
                 spawned = true;
-                Unit* toravon = me->GetCreature(*me, instance ? instance->GetData64(DATA_TORAVON) : 0);
+                Unit* toravon = me->GetCreature(*me, instance ? instance->GetGuidData(DATA_TORAVON) : ObjectGuid::Empty);
                 if (!toravon)
                     return;
 
@@ -264,7 +264,7 @@ class npc_frozen_orb_stalker : public CreatureScript
                 for (uint8 i = 0; i < num_orbs; ++i)
                 {
                     Position pos;
-                    me->GetNearPoint(toravon, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, 10.0f, 0.0f);
+                    me->GetNearPoint(toravon, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 10.0f, 0.0f);
                     me->SetPosition(pos);
                     DoCast(me, SPELL_FROZEN_ORB_SUMMON);
                 }

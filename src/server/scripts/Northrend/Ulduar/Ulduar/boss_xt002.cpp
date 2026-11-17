@@ -235,10 +235,10 @@ class boss_xt002 : public CreatureScript
                 DespawnSpawns();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_ENRAGE, TIMER_ENRAGE, 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB, 0, PHASE_ONE);
@@ -390,7 +390,7 @@ class boss_xt002 : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
 
                 _transferHealth = 0;
-                if (Creature* heart = me->SummonCreature(NPC_XT002_HEART, *me, TEMPSUMMON_MANUAL_DESPAWN, 60*IN_MILLISECONDS))
+                if (Creature* heart = me->SummonCreature(NPC_XT002_HEART, *me, TEMPSUMMON_MANUAL_DESPAWN, Milliseconds(60*IN_MILLISECONDS)))
                 {
                     heart->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     heart->EnterVehicle(me, 1);
@@ -516,7 +516,7 @@ class npc_xt002_heart : public CreatureScript
                     return;
 
                 if (instance)
-                    if (Creature* XT002 = me->GetCreature(*me, instance->GetData64(BOSS_XT002)))
+                    if (Creature* XT002 = me->GetCreature(*me, instance->GetGuidData(BOSS_XT002)))
                         if (XT002->AI())
                             XT002->AI()->DoAction(ACTION_ENTER_HARD_MODE);
 
@@ -528,7 +528,7 @@ class npc_xt002_heart : public CreatureScript
 
             void DamageTaken(Unit* /*who*/, uint32& damage) override
             {
-                if (Creature* XT002 = me->GetCreature(*me, instance->GetData64(BOSS_XT002)))
+                if (Creature* XT002 = me->GetCreature(*me, instance->GetGuidData(BOSS_XT002)))
                     if (XT002->AI())
                     {
                         uint32 health = me->GetHealth();
@@ -572,7 +572,7 @@ class npc_scrapbot : public CreatureScript
 
                 rangeCheckTimer = 500;
 
-                if (Creature* pXT002 = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_XT002)))
+                if (Creature* pXT002 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_XT002)))
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.1f, 0.0f);
             }
 
@@ -585,7 +585,7 @@ class npc_scrapbot : public CreatureScript
             {
                 if (rangeCheckTimer <= diff)
                 {
-                    if (Creature* xt002 = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_XT002)))
+                    if (Creature* xt002 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_XT002)))
                     {
                         if (!casted && xt002->IsAlive())
                             if (me->IsWithinMeleeRange(xt002))
@@ -732,26 +732,40 @@ class npc_boombot : public CreatureScript
                     ObjectGuid targetguid = me->GetGUID();
                     ObjectGuid casterguid = me->GetGUID();
                     WorldPacket data(SMSG_SPELLINSTAKILLLOG, 8+8+4);
-                    data.WriteGuidMask(casterguid, 6);
-                    data.WriteGuidMask(targetguid, 0);
-                    data.WriteGuidMask(casterguid, 7);
-                    data.WriteGuidMask(targetguid, 2);
-                    data.WriteGuidMask(casterguid, 3, 1, 2, 0, 4);
-                    data.WriteGuidMask(targetguid, 4, 7, 1, 6, 5);
-                    data.WriteGuidMask(casterguid, 5);
-                    data.WriteGuidMask(targetguid, 3);
+                    data.WriteBit(casterguid[6]);
+                    data.WriteBit(targetguid[0]);
+                    data.WriteBit(casterguid[7]);
+                    data.WriteBit(targetguid[2]);
+                    data.WriteBit(casterguid[3]);
+data.WriteBit(casterguid[1]);
+data.WriteBit(casterguid[2]);
+data.WriteBit(casterguid[0]);
+data.WriteBit(casterguid[4]);
+                    data.WriteBit(targetguid[4]);
+data.WriteBit(targetguid[7]);
+data.WriteBit(targetguid[1]);
+data.WriteBit(targetguid[6]);
+data.WriteBit(targetguid[5]);
+                    data.WriteBit(casterguid[5]);
+                    data.WriteBit(targetguid[3]);
 
-                    data.WriteGuidBytes(casterguid, 0);
-                    data.WriteGuidBytes(targetguid, 1);
-                    data.WriteGuidBytes(casterguid, 3, 4, 5, 7);
-                    data.WriteGuidBytes(targetguid, 0);
-                    data.WriteGuidBytes(casterguid, 6);
-                    data.WriteGuidBytes(targetguid, 2, 4);
-                    data.WriteGuidBytes(casterguid, 1);
+                    data.WriteByteSeq(casterguid[0]);
+                    data.WriteByteSeq(targetguid[1]);
+                    data.WriteByteSeq(casterguid[3]);
+data.WriteByteSeq(casterguid[4]);
+data.WriteByteSeq(casterguid[5]);
+data.WriteByteSeq(casterguid[7]);
+                    data.WriteByteSeq(targetguid[0]);
+                    data.WriteByteSeq(casterguid[6]);
+                    data.WriteByteSeq(targetguid[2]);
+data.WriteByteSeq(targetguid[4]);
+                    data.WriteByteSeq(casterguid[1]);
                     data << int32(SPELL_BOOM);
-                    data.WriteGuidBytes(targetguid, 3);
-                    data.WriteGuidBytes(casterguid, 2);
-                    data.WriteGuidBytes(targetguid, 7, 6, 5);
+                    data.WriteByteSeq(targetguid[3]);
+                    data.WriteByteSeq(casterguid[2]);
+                    data.WriteByteSeq(targetguid[7]);
+data.WriteByteSeq(targetguid[6]);
+data.WriteByteSeq(targetguid[5]);
                     me->SendMessageToSet(&data, false);
 
                     me->DealDamage(me, me->GetHealth(), nullptr, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
@@ -885,7 +899,7 @@ class spell_xt002_searing_light_spawn_life_spark : public SpellScriptLoader
         {
             PrepareAuraScript(spell_xt002_searing_light_spawn_life_spark_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_LIFE_SPARK))
                     return false;
@@ -923,7 +937,7 @@ class spell_xt002_gravity_bomb_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_xt002_gravity_bomb_aura_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_VOID_ZONE))
                     return false;
@@ -975,7 +989,7 @@ class BombTargetSelector
         bool operator()(WorldObject* object) const
         {
             if (Unit* target = object->ToUnit())
-                if (target == _victim && _me->getThreatManager().getThreatList().size() > 1)
+                if (target == _victim && _me->GetThreatManager().GetThreatListSize() > 1)
                     return true;
 
             return false;
@@ -994,7 +1008,7 @@ class spell_xt002_gravity_bomb_aura_target : public SpellScriptLoader
         {
             PrepareSpellScript(spell_xt002_gravity_bomb_targeting_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 _target = nullptr;
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -1075,7 +1089,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
         {
             PrepareSpellScript(spell_xt002_heart_overload_periodic_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_ENERGY_ORB))
                     return false;
@@ -1100,7 +1114,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
                     {
                         std::vector<Unit*> piles;
                         for (uint32 i = 0; i < 4; ++i)
-                            if (Unit* toyPile = ObjectAccessor::GetUnit(*caster, instance->GetData64(DATA_TOY_PILE_0 + i)))
+                            if (Unit* toyPile = ObjectAccessor::GetUnit(*caster, instance->GetGuidData(DATA_TOY_PILE_0 + i)))
                                 if (caster->GetVehicleBase()->GetExactDist2d(toyPile) > 30.0f)
                                     piles.push_back(toyPile);
 

@@ -115,7 +115,7 @@ class boss_skarvald_the_constructor : public CreatureScript
                 ghost = (me->GetEntry() == NPC_SKARVALD_GHOST);
                 if (!ghost && instance)
                 {
-                    if (Creature* dalronn = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_DALRONN)))
+                    if (Creature* dalronn = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DALRONN)))
                         if (dalronn->isDead())
                             dalronn->Respawn();
 
@@ -123,15 +123,15 @@ class boss_skarvald_the_constructor : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!ghost && instance)
                 {
                     Talk(SAY_SKARVALD_AGGRO);
 
-                    if (Creature* dalronn = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_DALRONN)))
+                    if (Creature* dalronn = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DALRONN)))
                         if (dalronn->IsAlive() && !dalronn->GetVictim())
-                            dalronn->getThreatManager().addThreat(who, 0.0f);
+                            dalronn->GetThreatManager().AddThreat(who, 0.0f);
 
                     instance->SetData(DATA_SKARVALD_DALRONN_EVENT, IN_PROGRESS);
                 }
@@ -150,7 +150,7 @@ class boss_skarvald_the_constructor : public CreatureScript
             {
                 if (!ghost && instance)
                 {
-                    if (Creature* dalronn = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_DALRONN)))
+                    if (Creature* dalronn = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DALRONN)))
                     {
                         if (dalronn->isDead())
                         {
@@ -205,7 +205,7 @@ class boss_skarvald_the_constructor : public CreatureScript
                         if (Check_Timer <= diff)
                         {
                             Check_Timer = 5000;
-                            Creature* dalronn = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_DALRONN) : 0);
+                            Creature* dalronn = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_DALRONN) : ObjectGuid::Empty);
                             if (dalronn && dalronn->isDead())
                             {
                                 Dalronn_isDead = true;
@@ -287,7 +287,7 @@ class boss_dalronn_the_controller : public CreatureScript
                 ghost = me->GetEntry() == NPC_DALRONN_GHOST;
                 if (!ghost && instance)
                 {
-                    if (Creature* skarvald = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SKARVALD)))
+                    if (Creature* skarvald = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SKARVALD)))
                         if (skarvald->isDead())
                             skarvald->Respawn();
 
@@ -295,13 +295,13 @@ class boss_dalronn_the_controller : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!ghost && instance)
                 {
-                    if (Creature* skarvald = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SKARVALD)))
+                    if (Creature* skarvald = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SKARVALD)))
                         if (skarvald->IsAlive() && !skarvald->GetVictim())
-                            skarvald->getThreatManager().addThreat(who,0.0f);
+                            skarvald->GetThreatManager().AddThreat(who,0.0f);
 
                     AggroYell_Timer = 5000;
 
@@ -313,7 +313,7 @@ class boss_dalronn_the_controller : public CreatureScript
             {
                 if (!ghost && instance)
                 {
-                    if (Creature* skarvald = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SKARVALD)))
+                    if (Creature* skarvald = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SKARVALD)))
                     {
                         if (skarvald->isDead())
                         {
@@ -376,7 +376,7 @@ class boss_dalronn_the_controller : public CreatureScript
                         if (Check_Timer <= diff)
                         {
                             Check_Timer = 5000;
-                            Creature* skarvald = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_SKARVALD) : 0);
+                            Creature* skarvald = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_SKARVALD) : ObjectGuid::Empty);
                             if (skarvald && skarvald->isDead())
                             {
                                 Skarvald_isDead = true;

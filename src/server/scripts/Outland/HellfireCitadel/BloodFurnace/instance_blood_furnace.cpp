@@ -43,37 +43,37 @@ class instance_blood_furnace : public InstanceMapScript
 
             uint32 teamInInstance;
 
-            uint64 The_MakerGUID;
-            uint64 BroggokGUID;
-            uint64 Kelidan_The_BreakerGUID;
+            ObjectGuid The_MakerGUID;
+            ObjectGuid BroggokGUID;
+            ObjectGuid Kelidan_The_BreakerGUID;
 
-            uint64 Door1GUID;
-            uint64 Door2GUID;
-            uint64 Door3GUID;
-            uint64 Door4GUID;
-            uint64 Door5GUID;
-            uint64 Door6GUID;
+            ObjectGuid Door1GUID;
+            ObjectGuid Door2GUID;
+            ObjectGuid Door3GUID;
+            ObjectGuid Door4GUID;
+            ObjectGuid Door5GUID;
+            ObjectGuid Door6GUID;
 
-            uint64 PrisonCell1GUID;
-            uint64 PrisonCell2GUID;
-            uint64 PrisonCell3GUID;
-            uint64 PrisonCell4GUID;
-            uint64 PrisonCell5GUID;
-            uint64 PrisonCell6GUID;
-            uint64 PrisonCell7GUID;
-            uint64 PrisonCell8GUID;
+            ObjectGuid PrisonCell1GUID;
+            ObjectGuid PrisonCell2GUID;
+            ObjectGuid PrisonCell3GUID;
+            ObjectGuid PrisonCell4GUID;
+            ObjectGuid PrisonCell5GUID;
+            ObjectGuid PrisonCell6GUID;
+            ObjectGuid PrisonCell7GUID;
+            ObjectGuid PrisonCell8GUID;
 
-            std::set<uint64> PrisonersCell5;
-            std::set<uint64> PrisonersCell6;
-            std::set<uint64> PrisonersCell7;
-            std::set<uint64> PrisonersCell8;
+            std::set<ObjectGuid> PrisonersCell5;
+            std::set<ObjectGuid> PrisonersCell6;
+            std::set<ObjectGuid> PrisonersCell7;
+            std::set<ObjectGuid> PrisonersCell8;
 
             uint8 PrisonerCounter5;
             uint8 PrisonerCounter6;
             uint8 PrisonerCounter7;
             uint8 PrisonerCounter8;
 
-            uint64 BroggokLeverGUID;
+            ObjectGuid BroggokLeverGUID;
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
             std::string str_data;
@@ -82,25 +82,25 @@ class instance_blood_furnace : public InstanceMapScript
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-                The_MakerGUID = 0;
-                BroggokGUID = 0;
-                Kelidan_The_BreakerGUID = 0;
+                The_MakerGUID = ObjectGuid::Empty;
+                BroggokGUID = ObjectGuid::Empty;
+                Kelidan_The_BreakerGUID = ObjectGuid::Empty;
 
-                Door1GUID = 0;
-                Door2GUID = 0;
-                Door3GUID = 0;
-                Door4GUID = 0;
-                Door5GUID = 0;
-                Door6GUID = 0;
+                Door1GUID = ObjectGuid::Empty;
+                Door2GUID = ObjectGuid::Empty;
+                Door3GUID = ObjectGuid::Empty;
+                Door4GUID = ObjectGuid::Empty;
+                Door5GUID = ObjectGuid::Empty;
+                Door6GUID = ObjectGuid::Empty;
 
-                PrisonCell1GUID = 0;
-                PrisonCell2GUID = 0;
-                PrisonCell3GUID = 0;
-                PrisonCell4GUID = 0;
-                PrisonCell5GUID = 0;
-                PrisonCell6GUID = 0;
-                PrisonCell7GUID = 0;
-                PrisonCell8GUID = 0;
+                PrisonCell1GUID = ObjectGuid::Empty;
+                PrisonCell2GUID = ObjectGuid::Empty;
+                PrisonCell3GUID = ObjectGuid::Empty;
+                PrisonCell4GUID = ObjectGuid::Empty;
+                PrisonCell5GUID = ObjectGuid::Empty;
+                PrisonCell6GUID = ObjectGuid::Empty;
+                PrisonCell7GUID = ObjectGuid::Empty;
+                PrisonCell8GUID = ObjectGuid::Empty;
 
                 PrisonersCell5.clear();
                 PrisonersCell6.clear();
@@ -112,7 +112,7 @@ class instance_blood_furnace : public InstanceMapScript
                 PrisonerCounter7 = 0;
                 PrisonerCounter8 = 0;
 
-                BroggokLeverGUID = 0;
+                BroggokLeverGUID = ObjectGuid::Empty;
                 teamInInstance   = 0;
             }
 
@@ -195,7 +195,7 @@ class instance_blood_furnace : public InstanceMapScript
                      BroggokLeverGUID = go->GetGUID();       //Broggok lever
             }
 
-            uint64 GetData64(uint32 data) const override
+            ObjectGuid GetGuidData(uint32 data) const override
             {
                 switch (data)
                 {
@@ -218,7 +218,7 @@ class instance_blood_furnace : public InstanceMapScript
                      case DATA_PRISON_CELL8:         return PrisonCell8GUID;
                      case DATA_BROGGOK_LEVER:        return BroggokLeverGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void SetData(uint32 type, uint32 data) override
@@ -324,9 +324,9 @@ class instance_blood_furnace : public InstanceMapScript
                 HandleGameObject(PrisonCell8GUID, false);
             }
 
-            void ResetPrisoners(const std::set<uint64>& prisoners)
+            void ResetPrisoners(const std::set<ObjectGuid>& prisoners)
             {
-                for (std::set<uint64>::const_iterator i = prisoners.begin(); i != prisoners.end(); ++i)
+                for (std::set<ObjectGuid>::const_iterator i = prisoners.begin(); i != prisoners.end(); ++i)
                     if (Creature* prisoner = instance->GetCreature(*i))
                         ResetPrisoner(prisoner);
             }
@@ -378,7 +378,7 @@ class instance_blood_furnace : public InstanceMapScript
                 ResetPrisoner(creature);
             }
 
-            void PrisonerDied(uint64 guid)
+            void PrisonerDied(ObjectGuid guid)
             {
                 if (PrisonersCell5.find(guid) != PrisonersCell5.end() && --PrisonerCounter5 <= 0)
                     ActivateCell(DATA_PRISON_CELL6);
@@ -418,9 +418,9 @@ class instance_blood_furnace : public InstanceMapScript
                 }
             }
 
-            void ActivatePrisoners(const std::set<uint64>& prisoners)
+            void ActivatePrisoners(const std::set<ObjectGuid>& prisoners)
             {
-                for (std::set<uint64>::const_iterator i = prisoners.begin(); i != prisoners.end(); ++i)
+                for (std::set<ObjectGuid>::const_iterator i = prisoners.begin(); i != prisoners.end(); ++i)
                     if (Creature* prisoner = instance->GetCreature(*i))
                     {
                         prisoner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);

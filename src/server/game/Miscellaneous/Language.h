@@ -997,8 +997,8 @@ enum TrinityStrings
     LANG_MOVIE_NOT_EXIST                = 1201,
     LANG_DEBUG_AREATRIGGER_ON           = 1202,
     LANG_DEBUG_AREATRIGGER_OFF          = 1203,
-    LANG_DEBUG_AREATRIGGER_REACHED      = 1204,
-    // Room for more debug                1205-1299 not used
+    LANG_DEBUG_AREATRIGGER_ENTERED      = 1204,
+    // Room for more debug                1206-1299 not used
 
     // Isle of Conquest
     LANG_BG_IC_START_TWO_MINUTES        = 1205,
@@ -1146,6 +1146,7 @@ enum TrinityStrings
     LANG_BG_TOK_PICKEDUP_ORANGE          = 1356,
 
     // FREE IDS                           1334-1999
+    LANG_DEBUG_AREATRIGGER_LEFT          = 1999,
 
     // Ticket Strings 2000-2029
     LANG_COMMAND_TICKETNEW              = 2000,
@@ -1357,9 +1358,9 @@ enum TrinityStrings
     LANG_DIFF_POOR                          = 11005,
     LANG_CHEATER_CHATLOG                    = 11006,
 
+    LANG_NPCINFO_MOVEMENT_DATA              = 11008,
+
     // premium
-    //                                        11007,
-    //                                        11008,
     LANG_PREMIUM_PVE_MODE_NEED_PREMIUM      = 11009,
     LANG_PREMIUM_PVE_NOT_NOW                = 11010,
     LANG_PREMIUM_COMMAND_DISABLED           = 11011,
@@ -1554,6 +1555,9 @@ enum TrinityStrings
     LANG_BG_REWARD_TITLE_POOR               = 12528,
     LANG_BG_REWARD_TITLE_RICH               = 12529,
     LANG_BG_REWARD_BODY                     = 12530,
+
+    LANG_NPCINFO_PHASE_IDS                  = 12531,
+    LANG_NPCINFO_PHASES                     = 12532,
 
     // Word filter
     LANG_WORD_FILTER_FOUND_BAD_WORD_IN_CHAT = 21000,

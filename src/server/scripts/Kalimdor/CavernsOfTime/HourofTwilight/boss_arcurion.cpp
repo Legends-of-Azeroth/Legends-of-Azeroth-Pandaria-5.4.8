@@ -123,10 +123,10 @@ class boss_arcurion : public CreatureScript
                 memset(servitors, 0, sizeof(servitors));
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
                 phase = 0;
                 memset(servitors, 0, sizeof(servitors));
 
@@ -245,7 +245,7 @@ class boss_arcurion : public CreatureScript
                 {
                     if (servitors[i] == 0)
                     {
-                        if (Creature* pServitor = me->SummonCreature(NPC_FROZEN_SERVITOR, servitorPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000))
+                        if (Creature* pServitor = me->SummonCreature(NPC_FROZEN_SERVITOR, servitorPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms))
                         {
                             servitors[i] = pServitor->GetGUID();
                             break;

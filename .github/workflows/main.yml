@@ -8,9 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     name: Issue Labeler
     steps:
-    - name: Issue Labeler
-      id: issue-labeler
-      uses: Legends-of-Azeroth/GitHub-Actions@issue-labeler-prod
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-
+      - name: Issue Labeler
+        id: issue-labeler
+        uses: Legends-of-Azeroth/GitHub-Actions@issue-labeler-prod
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -62,7 +62,7 @@ void Appender::write(LogMessage* message)
         ss << message->getTimeStr() << ' ';
 
     if (flags & APPENDER_FLAGS_PREFIX_LOGLEVEL)
-        ss << Trinity::StringFormat("%-5s ", Appender::getLogLevelString(message->level));
+        ss << Trinity::StringFormat("{:<5} ", Appender::getLogLevelString(message->level));
 
     if (flags & APPENDER_FLAGS_PREFIX_LOGFILTERTYPE)
         ss << '[' << message->type << "] ";

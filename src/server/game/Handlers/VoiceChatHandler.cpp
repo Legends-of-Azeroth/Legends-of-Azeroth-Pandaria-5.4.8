@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -20,21 +20,20 @@
 #include "WorldSession.h"
 #include "Opcodes.h"
 #include "Log.h"
+#include "VoiceChatPackets.h"
 
-void WorldSession::HandleVoiceSessionEnableOpcode(WorldPacket& recvData)
+void WorldSession::HandleVoiceSessionEnableOpcode(WorldPackets::VoiceChat::VoiceSessionEnable& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_VOICE_SESSION_ENABLE");
-    bool isVoiceEnabled, isMicrophoneEnabled;
-    isVoiceEnabled = recvData.ReadBit();
-    isMicrophoneEnabled = recvData.ReadBit();
+    bool isVoiceEnabled = packet.IsVoiceEnabled;
+    bool isMicrophoneEnabled = packet.IsMicrophoneEnabled;
 }
 
-void WorldSession::HandleChannelVoiceOnOpcode(WorldPacket& recvData)
+void WorldSession::HandleChannelVoiceOnOpcode(WorldPackets::Channel::ChannelVoiceOn& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_CHANNEL_VOICE_ON");
     // Enable Voice button in channel context menu
-    recvData.ReadString(recvData.ReadBits(8));
-    //channel->EnableVoice(recvData.GetOpcode() == CMSG_CHANNEL_VOICE_ON);
+    //channel->EnableVoice(packet.GetOpcode() == CMSG_CHANNEL_VOICE_ON);
 }
 
 void WorldSession::HandleSetActiveVoiceChannel(WorldPacket& recvData)

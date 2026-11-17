@@ -339,16 +339,16 @@ class npc_flame_of_azzinoth : public CreatureScript
 
             uint32 FlameBlastTimer;
             uint32 CheckTimer;
-            uint64 GlaiveGUID;
+            ObjectGuid GlaiveGUID;
 
             void Reset() override
             {
                 FlameBlastTimer = 15000;
                 CheckTimer = 5000;
-                GlaiveGUID = 0;
+                GlaiveGUID = ObjectGuid::Empty;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
             }
@@ -358,7 +358,7 @@ class npc_flame_of_azzinoth : public CreatureScript
                 Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 200, false);
                 if (target && (!me->IsWithinCombatRange(target, FLAME_CHARGE_DISTANCE)))
                 {
-                    me->AddThreat(target, 5000000.0f);
+                    me->GetThreatManager().AddThreat(target, 5000000.0f);
                     AttackStart(target);
                     DoCast(target, SPELL_CHARGE);
                     Talk(EMOTE_AZZINOTH_GAZE);
@@ -377,7 +377,7 @@ class npc_flame_of_azzinoth : public CreatureScript
                         Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (target && target->IsAlive())
                         {
-                            me->AddThreat(me->GetVictim(), 5000000.0f);
+                            me->GetThreatManager().AddThreat(me->GetVictim(), 5000000.0f);
                             AttackStart(me->GetVictim());
                         }
                     }
@@ -389,7 +389,7 @@ class npc_flame_of_azzinoth : public CreatureScript
                 }
             }
 
-            void SetGlaiveGUID(uint64 guid)
+            void SetGlaiveGUID(ObjectGuid guid)
             {
                 GlaiveGUID = guid;
             }
@@ -437,7 +437,7 @@ class boss_illidan_stormrage : public CreatureScript
                 instance = creature->GetInstanceScript();
                 me->CastSpell(me, SPELL_DUAL_WIELD, true);
                 //DoCast(me, SPELL_DUAL_WIELD, true);
-                AkamaGUID = 0;
+                AkamaGUID = ObjectGuid::Empty;
             }
 
             InstanceScript* instance;
@@ -449,10 +449,10 @@ class boss_illidan_stormrage : public CreatureScript
             uint32 TransformCount;
             uint32 FlightCount;
             uint32 HoverPoint;
-            uint64 AkamaGUID;
-            uint64 MaievGUID;
-            uint64 FlameGUID[2];
-            uint64 GlaiveGUID[2];
+            ObjectGuid AkamaGUID;
+            ObjectGuid MaievGUID;
+            ObjectGuid FlameGUID[2];
+            ObjectGuid GlaiveGUID[2];
             SummonList Summons;
 
             void Reset() override;
@@ -465,7 +465,7 @@ class boss_illidan_stormrage : public CreatureScript
                 {
                     for (uint8 i = 0; i < 2; ++i)
                         if (summon->GetGUID() == FlameGUID[i])
-                            FlameGUID[i] = 0;
+                            FlameGUID[i] = ObjectGuid::Empty;
 
                     if (!FlameGUID[0] && !FlameGUID[1] && Phase != PHASE_ILLIDAN_NULL)
                     {
@@ -501,7 +501,7 @@ class boss_illidan_stormrage : public CreatureScript
                 });
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->setActive(true);
                 DoZoneInCombat();
@@ -530,7 +530,7 @@ class boss_illidan_stormrage : public CreatureScript
                 instance->SetData(DATA_ILLIDAN_STORMRAGE_EVENT, DONE); // Completed
 
                 for (uint8 i = DATA_GAMEOBJECT_ILLIDAN_DOOR_R; i < DATA_GAMEOBJECT_ILLIDAN_DOOR_L + 1; ++i)
-                    instance->HandleGameObject(instance->GetData64(i), true);
+                    instance->HandleGameObject(instance->GetGuidData(i), true);
             }
 
             void KilledUnit(Unit* victim) override
@@ -546,7 +546,7 @@ class boss_illidan_stormrage : public CreatureScript
                 if (damage >= me->GetHealth() && done_by != me)
                     damage = 0;
                 if (done_by->GetGUID() == MaievGUID)
-                    done_by->AddThreat(me, -(3*(float)damage)/4); // do not let maiev tank him
+                    done_by->GetThreatManager().AddThreat(me, -(3*(float)damage)/4); // do not let maiev tank him
             }
 
             void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
@@ -563,11 +563,11 @@ class boss_illidan_stormrage : public CreatureScript
 
             void DeleteFromThreatList(uint64 TargetGUID)
             {
-                for (std::list<HostileReference*>::const_iterator itr = me->getThreatManager().getThreatList().begin(); itr != me->getThreatManager().getThreatList().end(); ++itr)
+                for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
                 {
-                    if ((*itr)->getUnitGuid() == TargetGUID)
+                    if (ref->GetVictim()->GetGUID() == TargetGUID)
                     {
-                        (*itr)->removeReference();
+                        me->GetThreatManager().ClearThreat(ref->GetVictim());
                         break;
                     }
                 }
@@ -709,7 +709,7 @@ class boss_illidan_stormrage : public CreatureScript
                 final.x = 2 * final.x - initial.x;
                 final.y = 2 * final.y - initial.y;
 
-                Creature* trigger = me->SummonCreature(23069, initial.x, initial.y, initial.z, 0, TEMPSUMMON_TIMED_DESPAWN, 13000);
+                Creature* trigger = me->SummonCreature(23069, initial.x, initial.y, initial.z, 0, TEMPSUMMON_TIMED_DESPAWN, 13000ms);
                 if (!trigger)
                     return;
 
@@ -730,7 +730,7 @@ class boss_illidan_stormrage : public CreatureScript
                 {
                     if (Creature* glaive = ObjectAccessor::GetCreature(*me, GlaiveGUID[i]))
                     {
-                        Creature* flame = me->SummonCreature(FLAME_OF_AZZINOTH, GlaivePosition[i+2].x, GlaivePosition[i+2].y, GlaivePosition[i+2].z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
+                        Creature* flame = me->SummonCreature(FLAME_OF_AZZINOTH, GlaivePosition[i+2].x, GlaivePosition[i+2].y, GlaivePosition[i+2].z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000ms);
                         if (flame)
                         {
                             flame->SetFaction(me->GetFaction()); // Just in case the database has it as a different faction
@@ -783,7 +783,7 @@ class boss_illidan_stormrage : public CreatureScript
                     case 3: // throw one glaive
                         {
                             uint8 i = 1;
-                            Creature* glaive = me->SummonCreature(BLADE_OF_AZZINOTH, GlaivePosition[i].x, GlaivePosition[i].y, GlaivePosition[i].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                            Creature* glaive = me->SummonCreature(BLADE_OF_AZZINOTH, GlaivePosition[i].x, GlaivePosition[i].y, GlaivePosition[i].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
                             if (glaive)
                             {
                                 GlaiveGUID[i] = glaive->GetGUID();
@@ -799,7 +799,7 @@ class boss_illidan_stormrage : public CreatureScript
                         SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
                         {
                             uint8 i = 0;
-                            Creature* glaive = me->SummonCreature(BLADE_OF_AZZINOTH, GlaivePosition[i].x, GlaivePosition[i].y, GlaivePosition[i].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                            Creature* glaive = me->SummonCreature(BLADE_OF_AZZINOTH, GlaivePosition[i].x, GlaivePosition[i].y, GlaivePosition[i].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
                             if (glaive)
                             {
                                 GlaiveGUID[i] = glaive->GetGUID();
@@ -851,7 +851,7 @@ class boss_illidan_stormrage : public CreatureScript
                                     glaive->SetVisible(false);
                                     glaive->setDeathState(JUST_DIED); // Despawn the Glaive
                                 }
-                                GlaiveGUID[i] = 0;
+                                GlaiveGUID[i] = ObjectGuid::Empty;
                             }
                         }
                         Timer[EVENT_FLIGHT_SEQUENCE] = 2000;
@@ -1076,7 +1076,7 @@ class boss_illidan_stormrage : public CreatureScript
                                 DoCast(me, SPELL_SUMMON_SHADOWDEMON);
                             //for (int i = 0; i < 4; i++)
                             //{
-                            //    temp = DoSpawnCreature(SHADOW_DEMON, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
+                            //    temp = DoSpawnCreature(SHADOW_DEMON, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000ms);
                             //    if (temp)
                             //    {
                             //        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true))
@@ -1118,7 +1118,7 @@ class boss_maiev_shadowsong : public CreatureScript
         {
             boss_maievAI(Creature* creature) : ScriptedAI(creature) { };
 
-            uint64 IllidanGUID;
+            ObjectGuid IllidanGUID;
             PhaseIllidan Phase;
             EventMaiev Event;
             uint32 Timer[5];
@@ -1128,7 +1128,7 @@ class boss_maiev_shadowsong : public CreatureScript
             {
                 MaxTimer = 0;
                 Phase = PHASE_NORMAL_MAIEV;
-                IllidanGUID = 0;
+                IllidanGUID = ObjectGuid::Empty;
                 Timer[EVENT_MAIEV_STEALTH] = 0;
                 Timer[EVENT_MAIEV_TAUNT] = 22000 + rand() % 21 * 1000;
                 Timer[EVENT_MAIEV_SHADOW_STRIKE] = 30000;
@@ -1136,11 +1136,11 @@ class boss_maiev_shadowsong : public CreatureScript
                 me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, 32326);
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
             void MoveInLineOfSight(Unit* /*who*/) override { }
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
-            void GetIllidanGUID(uint64 guid)
+            void GetIllidanGUID(ObjectGuid guid)
             {
                 IllidanGUID = guid;
             }
@@ -1380,11 +1380,11 @@ class npc_akama_illidan : public CreatureScript
             bool Event;
             uint32 Timer;
 
-            uint64 IllidanGUID;
-            uint64 ChannelGUID;
-            uint64 SpiritGUID[2];
-            uint64 GateGUID;
-            uint64 DoorGUID[2];
+            ObjectGuid IllidanGUID;
+            ObjectGuid ChannelGUID;
+            ObjectGuid SpiritGUID[2];
+            ObjectGuid GateGUID;
+            ObjectGuid DoorGUID[2];
 
             uint32 ChannelCount;
             uint32 WalkCount;
@@ -1398,10 +1398,10 @@ class npc_akama_illidan : public CreatureScript
                 {
                     instance->SetData(DATA_ILLIDAN_STORMRAGE_EVENT, NOT_STARTED);
 
-                    IllidanGUID = instance->GetData64(DATA_ILLIDAN_STORMRAGE);
-                    GateGUID = instance->GetData64(DATA_GAMEOBJECT_ILLIDAN_GATE);
-                    DoorGUID[0] = instance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_R);
-                    DoorGUID[1] = instance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_L);
+                    IllidanGUID = instance->GetGuidData(DATA_ILLIDAN_STORMRAGE);
+                    GateGUID = instance->GetGuidData(DATA_GAMEOBJECT_ILLIDAN_GATE);
+                    DoorGUID[0] = instance->GetGuidData(DATA_GAMEOBJECT_ILLIDAN_DOOR_R);
+                    DoorGUID[1] = instance->GetGuidData(DATA_GAMEOBJECT_ILLIDAN_DOOR_L);
 
                     if (JustCreated) // close all doors at create
                     {
@@ -1420,15 +1420,15 @@ class npc_akama_illidan : public CreatureScript
                 }
                 else
                 {
-                    IllidanGUID = 0;
-                    GateGUID = 0;
-                    DoorGUID[0] = 0;
-                    DoorGUID[1] = 0;
+                    IllidanGUID = ObjectGuid::Empty;
+                    GateGUID = ObjectGuid::Empty;
+                    DoorGUID[0] = ObjectGuid::Empty;
+                    DoorGUID[1] = ObjectGuid::Empty;
                 }
 
-                ChannelGUID = 0;
-                SpiritGUID[0] = 0;
-                SpiritGUID[1] = 0;
+                ChannelGUID = ObjectGuid::Empty;
+                SpiritGUID[0] = ObjectGuid::Empty;
+                SpiritGUID[1] = ObjectGuid::Empty;
 
                 Phase = PHASE_AKAMA_NULL;
                 Timer = 0;
@@ -1447,15 +1447,16 @@ class npc_akama_illidan : public CreatureScript
             }
 
             // Do not call reset in Akama's evade mode, as this will stop him from summoning minions after he kills the first bit
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 //me->InterruptNonMeleeSpells(true);
                 me->RemoveAllAuras();
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
             void MoveInLineOfSight(Unit* /*who*/) override { }
 
             void MovementInform(uint32 type, uint32 /*pointId*/) override
@@ -1472,11 +1473,11 @@ class npc_akama_illidan : public CreatureScript
 
             void KillAllElites()
             {
-                ThreatContainer::StorageType const& threatList = me->getThreatManager().getThreatList();
+                auto threatList = me->GetThreatManager().GetUnsortedThreatList();
                 std::vector<Unit*> eliteList;
-                for (ThreatContainer::StorageType::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
+                for (ThreatReference const* ref : threatList)
                 {
-                    Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                    Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                     if (unit && unit->GetEntry() == ILLIDARI_ELITE)
                         eliteList.push_back(unit);
                 }
@@ -1494,14 +1495,14 @@ class npc_akama_illidan : public CreatureScript
 
                 if (instance)
                 {
-                    DoorGUID[0] = instance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_R);
-                    DoorGUID[1] = instance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_L);
+                    DoorGUID[0] = instance->GetGuidData(DATA_GAMEOBJECT_ILLIDAN_DOOR_R);
+                    DoorGUID[1] = instance->GetGuidData(DATA_GAMEOBJECT_ILLIDAN_DOOR_L);
                 }
 
                 for (uint8 i = 0; i < 2; ++i)
                     instance->HandleGameObject(DoorGUID[i], false);
 
-                if (Creature* illidan = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ILLIDAN_STORMRAGE)))
+                if (Creature* illidan = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ILLIDAN_STORMRAGE)))
                 {
                     illidan->RemoveAurasDueToSpell(SPELL_KNEEL);
                     me->SetInFront(illidan);
@@ -1521,16 +1522,16 @@ class npc_akama_illidan : public CreatureScript
                     return;
 
                 float x, y, z;
-                // if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_GO_ILLIDAN_GATE))) // not work with new invis system
+                // if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_GO_ILLIDAN_GATE))) // not work with new invis system
                 //     gate->GetPosition(x, y, z);
-                GateGUID = instance->GetData64(DATA_GAMEOBJECT_ILLIDAN_GATE);
+                GateGUID = instance->GetGuidData(DATA_GAMEOBJECT_ILLIDAN_GATE);
                 if (GameObject* obj = instance->instance->GetGameObject(GateGUID))
                     obj->GetPosition(x, y, z);
                 else
                     return; //if door not spawned, don't crash server
 
-                if (Creature* Channel = me->SummonCreature(ILLIDAN_DOOR_TRIGGER, x, y, z+5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
-                //if (Creature* Channel = me->SummonCreature(ILLIDAN_DOOR_TRIGGER, 771.637f, 304.536f, 315.156f, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
+                if (Creature* Channel = me->SummonCreature(ILLIDAN_DOOR_TRIGGER, x, y, z+5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000ms))
+                //if (Creature* Channel = me->SummonCreature(ILLIDAN_DOOR_TRIGGER, 771.637f, 304.536f, 315.156f, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000ms))
                 {
                     ChannelGUID = Channel->GetGUID();
                     Channel->SetDisplayId(11686); // Invisible but spell visuals can still be seen.
@@ -1538,7 +1539,7 @@ class npc_akama_illidan : public CreatureScript
                 }
 
                 for (uint8 i = 0; i < 2; ++i)
-                    if (Creature* Spirit = me->SummonCreature(i ? SPIRIT_OF_OLUM : SPIRIT_OF_UDALO, SpiritSpawns[i].x, SpiritSpawns[i].y, SpiritSpawns[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 20000))
+                    if (Creature* Spirit = me->SummonCreature(i ? SPIRIT_OF_OLUM : SPIRIT_OF_UDALO, SpiritSpawns[i].x, SpiritSpawns[i].y, SpiritSpawns[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 20000ms))
                     {
                         Spirit->SetVisible(false);
                         SpiritGUID[i] = Spirit->GetGUID();
@@ -1568,7 +1569,7 @@ class npc_akama_illidan : public CreatureScript
                             WalkCount = 0;
                         else if (Phase == PHASE_TALK)
                         {
-                            if (Creature* illidan = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ILLIDAN_STORMRAGE)))
+                            if (Creature* illidan = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ILLIDAN_STORMRAGE)))
                                 CAST_AI(boss_illidan_stormrage::boss_illidan_stormrageAI, illidan->AI())->DeleteFromThreatList(me->GetGUID());
                             EnterEvadeMode();
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -1591,9 +1592,9 @@ class npc_akama_illidan : public CreatureScript
                         }
                         break;
                     case PHASE_FIGHT_ILLIDAN:
-                        if (Creature* illidan = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ILLIDAN_STORMRAGE)))
+                        if (Creature* illidan = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ILLIDAN_STORMRAGE)))
                         {
-                            me->AddThreat(illidan, 10000000.0f);
+                            me->GetThreatManager().AddThreat(illidan, 10000000.0f);
                             me->GetMotionMaster()->MoveChase(illidan);
                         }
                         Timer = 30000; //chain lightning
@@ -1621,7 +1622,7 @@ class npc_akama_illidan : public CreatureScript
                 switch (TalkCount)
                 {
                     case 0:
-                        if (Creature* illidan = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ILLIDAN_STORMRAGE)))
+                        if (Creature* illidan = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ILLIDAN_STORMRAGE)))
                         {
                             CAST_AI(boss_illidan_stormrage::boss_illidan_stormrageAI, illidan->AI())->Timer[EVENT_TAUNT] += 30000;
                             illidan->AI()->Talk(SAY_ILLIDAN_MINION);
@@ -1772,7 +1773,7 @@ class npc_akama_illidan : public CreatureScript
                             break;
                         case PHASE_FIGHT_ILLIDAN:
                             {
-                                Creature* illidan = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ILLIDAN_STORMRAGE));
+                                Creature* illidan = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ILLIDAN_STORMRAGE));
                                 if (illidan && illidan->HealthBelowPct(90))
                                     EnterPhase(PHASE_TALK);
                                 else
@@ -1786,17 +1787,17 @@ class npc_akama_illidan : public CreatureScript
                             {
                                 float x, y, z;
                                 me->GetPosition(x, y, z);
-                                Creature* elite = me->SummonCreature(ILLIDARI_ELITE, x+rand()%10, y+rand()%10, z, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000);
-                                //Creature* elite = me->SummonCreature(ILLIDARI_ELITE, x, y, z, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000);
+                                Creature* elite = me->SummonCreature(ILLIDARI_ELITE, x+rand()%10, y+rand()%10, z, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000ms);
+                                //Creature* elite = me->SummonCreature(ILLIDARI_ELITE, x, y, z, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000ms);
                                 if (elite)
                                 {
                                     elite->AI()->AttackStart(me);
-                                    elite->AddThreat(me, 1000000.0f);
+                                    elite->GetThreatManager().AddThreat(me, 1000000.0f);
                                     AttackStart(elite);
-                                    me->AddThreat(elite, 1000000.0f);
+                                    me->GetThreatManager().AddThreat(elite, 1000000.0f);
                                 }
                                 Timer = 10000 + rand() % 6000;
-                                if (Creature* illidan = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ILLIDAN_STORMRAGE)))
+                                if (Creature* illidan = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ILLIDAN_STORMRAGE)))
                                     if (illidan->HealthBelowPct(10))
                                         EnterPhase(PHASE_RETURN);
                             }
@@ -1843,14 +1844,14 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
                 }
             }
         }
-        AkamaGUID = 0;
+        AkamaGUID = ObjectGuid::Empty;
     }
 
-    MaievGUID = 0;
+    MaievGUID = ObjectGuid::Empty;
     for (uint8 i = 0; i < 2; ++i)
     {
-        FlameGUID[i] = 0;
-        GlaiveGUID[i] = 0;
+        FlameGUID[i] = ObjectGuid::Empty;
+        GlaiveGUID[i] = ObjectGuid::Empty;
     }
 
     Phase = PHASE_ILLIDAN_NULL;
@@ -1897,7 +1898,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::JustSummoned(Creature* su
         case SHADOW_DEMON:
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true)) // only on players.
             {
-                summon->AddThreat(target, 5000000.0f);
+                summon->GetThreatManager().AddThreat(target, 5000000.0f);
                 summon->AI()->AttackStart(target);
             }
             break;
@@ -1935,7 +1936,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
             if (Creature* akama = ObjectAccessor::GetCreature(*me, AkamaGUID))
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
-                me->AddThreat(akama, 100.0f);
+                me->GetThreatManager().AddThreat(akama, 100.0f);
                 CAST_AI(npc_akama_illidan::npc_akama_illidanAI, akama->AI())->EnterPhase(PHASE_FIGHT_ILLIDAN);
                 EnterPhase(PHASE_NORMAL);
             }
@@ -1959,7 +1960,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
                 maiev->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
-                maiev->AddThreat(me, 10000000.0f); // Have Maiev add a lot of threat on us so that players don't pull her off if they damage her via AOE
+                maiev->GetThreatManager().AddThreat(me, 10000000.0f); // Have Maiev add a lot of threat on us so that players don't pull her off if they damage her via AOE
                 maiev->AI()->AttackStart(me); // Force Maiev to attack us.
                 EnterPhase(PHASE_NORMAL_MAIEV);
             }
@@ -2011,7 +2012,7 @@ class npc_cage_trap_trigger : public CreatureScript
         {
             cage_trap_triggerAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 IllidanGUID;
+            ObjectGuid IllidanGUID;
             uint32 DespawnTimer;
 
             bool Active;
@@ -2019,7 +2020,7 @@ class npc_cage_trap_trigger : public CreatureScript
 
             void Reset() override
             {
-                IllidanGUID = 0;
+                IllidanGUID = ObjectGuid::Empty;
 
                 Active = false;
                 SummonedBeams = false;
@@ -2029,7 +2030,7 @@ class npc_cage_trap_trigger : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void MoveInLineOfSight(Unit* who) override
             {
@@ -2106,16 +2107,16 @@ class npc_shadow_demon : public CreatureScript
         {
             shadow_demonAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 TargetGUID;
+            ObjectGuid TargetGUID;
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
             }
 
             void Reset() override
             {
-                TargetGUID = 0;
+                TargetGUID = ObjectGuid::Empty;
                 DoCast(me, SPELL_SHADOW_DEMON_PASSIVE, true);
             }
 
@@ -2134,7 +2135,7 @@ class npc_shadow_demon : public CreatureScript
                 if (!me->GetVictim()->HasAura(SPELL_PARALYZE))
                 {
                     TargetGUID = me->GetVictim()->GetGUID();
-                    me->AddThreat(me->GetVictim(), 10000000.0f);
+                    me->GetThreatManager().AddThreat(me->GetVictim(), 10000000.0f);
                     DoCast(me->GetVictim(), SPELL_PURPLE_BEAM, true);
                     DoCast(me->GetVictim(), SPELL_PARALYZE, true);
                 }
@@ -2186,21 +2187,21 @@ class npc_parasitic_shadowfiend : public CreatureScript
             }
 
             InstanceScript* instance;
-            uint64 IllidanGUID;
+            ObjectGuid IllidanGUID;
             uint32 CheckTimer;
 
             void Reset() override
             {
                 if (instance)
-                    IllidanGUID = instance->GetData64(DATA_ILLIDAN_STORMRAGE);
+                    IllidanGUID = instance->GetGuidData(DATA_ILLIDAN_STORMRAGE);
                 else
-                    IllidanGUID = 0;
+                    IllidanGUID = ObjectGuid::Empty;
 
                 CheckTimer = 5000;
                 DoCast(me, SPELL_SHADOWFIEND_PASSIVE, true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
             }

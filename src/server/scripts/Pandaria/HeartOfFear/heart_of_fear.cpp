@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -190,7 +190,7 @@ class npc_wind_lord_meljarak_intro : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->SetCanFly(true);
                 me->SetDisableGravity(true);
-                me->SetAnimationTier(UnitAnimationTier::Hover);
+                me->SetAnimTier(AnimTier::Hover);
                 me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
             }
 
@@ -200,7 +200,7 @@ class npc_wind_lord_meljarak_intro : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->SetCanFly(true); me->SetDisableGravity(true);
-                me->SetAnimationTier(UnitAnimationTier::Hover);
+                me->SetAnimTier(AnimTier::Hover);
                 me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
                 inCombat = false;
 
@@ -224,7 +224,7 @@ class npc_wind_lord_meljarak_intro : public CreatureScript
                     itr->SetReactState(REACT_PASSIVE);
                     itr->SetCanFly(true); 
                     itr->SetDisableGravity(true);
-                    itr->SetAnimationTier(UnitAnimationTier::Hover);
+                    itr->SetAnimTier(AnimTier::Hover);
                     itr->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
                 }
             }
@@ -258,7 +258,7 @@ class npc_wind_lord_meljarak_intro : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void GetNewPositionMove(uint64 owner, uint32 point = 1, float range = 50.0f)
+            void GetNewPositionMove(ObjectGuid owner, uint32 point = 1, float range = 50.0f)
             {
                 float x = 0, y = 0;
                 if (Unit* MeljarakSwarm = ObjectAccessor::GetUnit(*me, owner))
@@ -329,12 +329,15 @@ class npc_wind_lord_meljarak_intro : public CreatureScript
                             Talk(MELJARAK_TALK_EVENT_SUMMON_GARALON);
                             SetMoveOnMeOrFamiliars();
 
-                            if (instance->GetData(DATA_GARALON) != SPECIAL)
+                            if (instance)
                             {
-                                instance->SetData(DATA_GARALON, SPECIAL);
+                                if (instance->GetData(DATA_GARALON) != SPECIAL)
+                                {
+                                    instance->SetData(DATA_GARALON, SPECIAL);
 
-                                if (Creature* Garalon = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_GARALON) : 0))
-                                    Garalon->AI()->DoAction(ACTION_GARALON_INITIALIZE);
+                                    if (Creature* Garalon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GARALON)))
+                                        Garalon->AI()->DoAction(ACTION_GARALON_INITIALIZE);
+                                }
                             }
                             break;
                         case EVENT_MELJARAK_TERRACE_LEAVE:
@@ -670,7 +673,7 @@ class npc_zar_thik_supplicant : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_MASH_AND_GNASH, urand(4.5 * IN_MILLISECONDS, 14 * IN_MILLISECONDS));
             }
@@ -723,7 +726,7 @@ class npc_enslaved_bonesmasher : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_JAWBONE_SLAM, urand(7 * IN_MILLISECONDS, 28 * IN_MILLISECONDS));
 
@@ -788,7 +791,7 @@ class npc_set_thik_tempest : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_WIND_SLASH, urand(4 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
             }
@@ -840,7 +843,7 @@ class npc_set_thik_fanatic : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_GALE_FORCE_WINDS, urand(7 * IN_MILLISECONDS, 27 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_WINDBURST, urand(15 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
@@ -919,7 +922,7 @@ class npc_set_thik_zephyrian : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SUMMON_ZEPHYR, urand(4 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
             }
@@ -986,7 +989,7 @@ class npc_set_thik_gale_slicer : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SWIFT_STEP, urand(4 * IN_MILLISECONDS, 22 * IN_MILLISECONDS));
             }
@@ -1023,9 +1026,9 @@ class npc_set_thik_gale_slicer : public CreatureScript
         }
 };
 
-void CallForHelpMyStudients(uint64 instructorGUID)
+void CallForHelpMyStudients(Creature* me, ObjectGuid instructorGUID)
 {
-    Unit* InstructorType = ObjectAccessor::FindUnit(instructorGUID);
+    Unit* InstructorType = ObjectAccessor::GetUnit(*me, instructorGUID);
 
     if (!InstructorType)
         return;
@@ -1088,17 +1091,17 @@ class npc_instructor_kli_thak : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_WIND_STEP, 7000);
                 events.ScheduleEvent(EVENT_WIND_STEP_2, 15000);
 
-                CallForHelpMyStudients(me->GetGUID());
+                CallForHelpMyStudients(me, me->GetGUID());
             }
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* tayak = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_TAYAK) : 0))
+                if (Creature* tayak = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_TAYAK) : ObjectGuid::Empty))
                     tayak->ToCreature()->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
             }
 
@@ -1187,16 +1190,16 @@ class npc_instructor_tak_thok : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_OVERWHELMING_ASSAULT, 4000);
 
-                CallForHelpMyStudients(me->GetGUID());
+                CallForHelpMyStudients(me, me->GetGUID());
             }
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* tayak = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_TAYAK) : 0))
+                if (Creature* tayak = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_TAYAK) : ObjectGuid::Empty))
                     tayak->ToCreature()->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
             }
 
@@ -1263,7 +1266,7 @@ class npc_instructor_maltik : public CreatureScript
             npc_instructor_maltikAI(Creature* creature) : ScriptedAI(creature) { }
 
             EventMap events;
-            uint64 unseenTank, unseenTarget;
+            ObjectGuid unseenTank, unseenTarget;
             bool unseenReturn, evadeModeEnabled;
             uint32 delay;
             InstanceScript* instance;
@@ -1280,27 +1283,27 @@ class npc_instructor_maltik : public CreatureScript
                 events.Reset();
                 unseenReturn     = false;
                 evadeModeEnabled = false;
-                unseenTank       = 0;
-                unseenTarget     = 0;
+                unseenTank       = ObjectGuid::Empty;
+                unseenTarget     = ObjectGuid::Empty;
                 me->setRegeneratingHealth(true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->setRegeneratingHealth(false);
                 events.ScheduleEvent(EVENT_UNSEEN_STRIKE, urand(18500, 21500));
                 evadeModeEnabled = true;
-                CallForHelpMyStudients(me->GetGUID());
+                CallForHelpMyStudients(me, me->GetGUID());
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->GetMotionMaster()->MoveTargetedHome();
             }
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* tayak = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_TAYAK) : 0))
+                if (Creature* tayak = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_TAYAK) : ObjectGuid::Empty))
                     tayak->ToCreature()->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
             }
 
@@ -1344,7 +1347,7 @@ class npc_instructor_maltik : public CreatureScript
                     {
                         case EVENT_UNSEEN_STRIKE:
                         {
-                            unseenTank = me->GetVictim() ? me->GetVictim()->GetGUID() : 0;
+                            unseenTank = me->GetVictim() ? me->GetVictim()->GetGUID() : ObjectGuid::Empty;
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankSpecTargetSelector()))
                             {
                                 me->CastSpell(target, SPELL_UNSEEN_STRIKE_TR, true);
@@ -1429,16 +1432,16 @@ class npc_instructor_zarik : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_TEMPEST_SLASH, urand(9500, 11000));
 
-                CallForHelpMyStudients(me->GetGUID());
+                CallForHelpMyStudients(me, me->GetGUID());
             }
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* tayak = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_TAYAK) : 0))
+                if (Creature* tayak = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_TAYAK) : ObjectGuid::Empty))
                     tayak->ToCreature()->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
 
                 summons.DespawnAll();
@@ -1580,7 +1583,7 @@ class npc_kor_thik_swarmer : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_UNDERWHELMING_ASSAULT, urand(4 * IN_MILLISECONDS, 8 * IN_MILLISECONDS));
             }
@@ -1634,7 +1637,7 @@ class npc_set_thik_gustwing : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_GUST, urand(3 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
             }
@@ -1699,7 +1702,7 @@ struct npc_zephyr_tornado : public ScriptedAI
         init.Launch();
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 };
 
 // Kaz`rik 64826
@@ -1770,24 +1773,24 @@ class npc_coagulated_amber : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->GetMotionMaster()->Clear();
                 events.ScheduleEvent(EVENT_BURST, 4000);
             }
 
-            uint64 NextAmberPoolStalkerPath()
+            ObjectGuid NextAmberPoolStalkerPath()
             {
                 std::list<Creature*> AmberPoolStalker;
                 GetCreatureListWithEntryInGrid(AmberPoolStalker, me, NPC_AMBER_POOL_STALKER, 200.0f);
 
                 if (AmberPoolStalker.empty())
-                    return 0;
+                    return ObjectGuid::Empty;
 
                 if (Creature* m_stalker = Trinity::Containers::SelectRandomContainerElement(AmberPoolStalker))
                     return m_stalker->GetGUID();
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void DoAction(int32 actionId) override
@@ -1859,14 +1862,14 @@ class npc_korthik_swarmguard : public CreatureScript
         {
             npc_korthik_swarmguardAI(Creature* creature) : ScriptedAI(creature) { }
             EventMap events;
-            uint64 charmerByGUID;
+            ObjectGuid charmerByGUID;
 
             void InitializeAI() override
             {
                 SetEquipmentSlots(false, MELJARAK_2H_WEAPON, 0, EQUIP_NO_CHANGE);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_CARAPASE, urand(10000, 19000));
                 events.ScheduleEvent(EVENT_SWARMGUARDS_AEGIS, urand(9000, 19000));
@@ -1938,7 +1941,7 @@ class npc_srathik_ambercaller : public CreatureScript
                 SetEquipmentSlots(false, ZARTHIK_2H_WEAPON, 0, EQUIP_NO_CHANGE);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->AttackStop();
@@ -1979,7 +1982,7 @@ class npc_korthik_fleshrender : public CreatureScript
                 SetEquipmentSlots(false, MELJARAK_2H_WEAPON, 0, EQUIP_NO_CHANGE);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_GRIEVOUS_WHIRL, urand(12000, 18000));
                 events.ScheduleEvent(EVENT_MORTAL_REND, urand(5000, 9000));
@@ -2050,7 +2053,7 @@ class npc_srathik_pool_tender : public CreatureScript
                 });
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!me->HasAura(SPELL_AMBER_EMANATION))
                     me->AddAura(SPELL_AMBER_EMANATION, me);
@@ -2101,7 +2104,7 @@ class npc_amber_ridden_mushan : public CreatureScript
             npc_amber_ridden_mushanAI(Creature* creature) : ScriptedAI(creature) { }
 
             EventMap events;
-            std::list<uint64> amber;
+            std::list<ObjectGuid> amber;
             uint32 VehPos;
 
             void Reset() override
@@ -2134,11 +2137,9 @@ class npc_amber_ridden_mushan : public CreatureScript
                 return false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                Position pos;
-
-                me->GetRandomNearPosition(pos, 4.0f);
+                Position pos = me->GetRandomNearPosition(4.0f);
 
                 for (uint8 i = 0; i < 4; i++)
                 {
@@ -2212,15 +2213,15 @@ class npc_amber_searsting : public CreatureScript
             npc_amber_searstingAI(Creature* creature) : ScriptedAI(creature) { }
 
             EventMap events;
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
 
             void Reset() override
             {
                 events.Reset();
-                targetGUID = 0;
+                targetGUID = ObjectGuid::Empty;
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_BURNING_STING, urand(8000, 16000));
                 events.ScheduleEvent(EVENT_SEARING_SLASH, urand(5000, 9000));
@@ -2285,7 +2286,7 @@ class npc_korthik_warsinger : public CreatureScript
 
             void InitializeAI() override { SetEquipmentSlots(false, MELJARAK_2H_WEAPON, 0, EQUIP_NO_CHANGE); }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_FRENZIED_ASSAULT, urand(8000, 16000));
                 events.ScheduleEvent(EVENT_CRY_HAVOC, urand(5000, 9000));
@@ -2345,7 +2346,7 @@ class npc_zarthik_augurer : public CreatureScript
                 SetEquipmentSlots(false, ZARTHIK_2H_WEAPON, 0, EQUIP_NO_CHANGE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_TOXIC_HIVEBOMB, urand(8000, 16000));
             }

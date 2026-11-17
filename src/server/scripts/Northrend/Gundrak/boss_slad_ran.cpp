@@ -127,7 +127,7 @@ class boss_slad_ran : public CreatureScript
                     instance->SetData(DATA_SLAD_RAN_EVENT, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 
@@ -226,7 +226,7 @@ class boss_slad_ran : public CreatureScript
                 summons.Summon(summon);
             }
 
-            void SetGUID(uint64 guid, int32 type) override
+            void SetGUID(ObjectGuid guid, int32 type) override
             {
                 if (type == DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES)
                     wrappedPlayers.insert(guid);
@@ -243,8 +243,8 @@ class boss_slad_ran : public CreatureScript
             SummonList summons;
             uint8 phase = 0;
             std::set<uint64> wrappedPlayers;
-            std::vector<uint64> viperSummonerGuids;
-            std::vector<uint64> constrictorSummonerGuids;
+            std::vector<ObjectGuid> viperSummonerGuids;
+            std::vector<ObjectGuid> constrictorSummonerGuids;
 
             void StopSummoning()
             {

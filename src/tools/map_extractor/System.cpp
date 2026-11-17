@@ -23,6 +23,10 @@
 #include <deque>
 #include <list>
 #include <cstdlib>
+#include <vector>
+#include <algorithm>
+#include <cctype>
+#include <string>
 
 #ifdef _WIN32
 #include "direct.h"
@@ -75,12 +79,13 @@ char input_path[128] = ".";
 // **************************************************
 enum Extract
 {
-    EXTRACT_MAP = 1,
-    EXTRACT_DBC = 2
+    EXTRACT_MAP    = 1,
+    EXTRACT_DBC    = 2,
+    EXTRACT_CAMERA = 4
 };
 
 // Select data for extract
-int   CONF_extract = EXTRACT_MAP | EXTRACT_DBC;
+int   CONF_extract = EXTRACT_MAP | EXTRACT_DBC | EXTRACT_CAMERA;
 
 // This option allow limit minimum height to some value (Allow save some memory)
 bool  CONF_allow_height_limit = true;
@@ -99,6 +104,7 @@ uint32 CONF_TargetBuild = 18273;              // 5.4.8 18273 -- current build is
 char const* CONF_mpq_list[] =
 {
     "world.MPQ",
+    "model.MPQ",
     "misc.MPQ",
     "expansion1.MPQ",
     "expansion2.MPQ",
@@ -144,6 +150,18 @@ void CreateDir(std::filesystem::path const& path)
 
     if (!fs::create_directory(path))
         throw std::runtime_error("Unable to create directory" + path.string());
+}
+
+bool FileExists(TCHAR const* fileName)
+{
+    int fp = _open(fileName, OPEN_FLAGS);
+    if(fp != -1)
+    {
+        _close(fp);
+        return true;
+    }
+
+    return false;
 }
 
 void Usage(char const* prg)
@@ -328,7 +346,7 @@ void ReadLiquidTypeTableDBC()
 
 // Map file format data
 static char const* MAP_MAGIC         = "MAPS";
-static char const* MAP_VERSION_MAGIC = "v1.8";
+static uint32 const MAP_VERSION_MAGIC = 10;
 static char const* MAP_AREA_MAGIC    = "AREA";
 static char const* MAP_HEIGHT_MAGIC  = "MHGT";
 static char const* MAP_LIQUID_MAGIC  = "MLIQ";
@@ -435,8 +453,8 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
 
     // Prepare map header
     map_fileheader map;
-    map.mapMagic = *(uint32 const*)MAP_MAGIC;
-    map.versionMagic = *(uint32 const*)MAP_VERSION_MAGIC;
+    map.mapMagic = *reinterpret_cast<uint32 const*>(MAP_MAGIC);
+    map.versionMagic = MAP_VERSION_MAGIC;
     map.buildMagic = build;
 
     // Get area flags data
@@ -1104,6 +1122,77 @@ void ExtractDBCFiles(int l, bool basicLocale)
     printf("Extracted %u DBC files\n\n", count);
 }
 
+void ExtractCameraFiles(int locale, bool basicLocale)
+{
+    printf("Extracting camera files...\n");
+    HANDLE dbcFile;
+    if (!SFileOpenFileEx(LocaleMpq, "DBFilesClient\\CinematicCamera.dbc", SFILE_OPEN_PATCHED_FILE, &dbcFile))
+    {
+        printf("Fatal error: Cannot find CinematicCamera.dbc in archive!\n");
+        exit(1);
+    }
+
+    DBCFile camdbc(dbcFile);
+
+    if (!camdbc.open())
+    {
+        printf("Unable to open CinematicCamera.dbc. Camera extract aborted.\n");
+        return;
+    }
+
+    // get camera file list from DBC
+    std::vector<std::string> camerafiles;
+    size_t cam_count = camdbc.getRecordCount();
+
+    for (size_t i = 0; i < cam_count; ++i)
+    {
+        std::string camFile(camdbc.getRecord(i).getString(1));
+        size_t loc = camFile.find(".mdx");
+        if (loc != std::string::npos)
+            camFile.replace(loc, 4, ".m2");
+        camerafiles.push_back(std::string(camFile));
+    }
+    SFileCloseFile(dbcFile);
+
+    std::string path = output_path;
+    path += "/cameras/";
+    CreateDir(path);
+    if (!basicLocale)
+    {
+        path += Locales[locale];
+        path += "/";
+        CreateDir(path);
+    }
+
+    // extract M2s
+    uint32 count = 0;
+    for (std::string thisFile : camerafiles)
+    {
+        std::string filename = path;
+        std::string camerasFolder = "Cameras\\";
+        HANDLE dbcFile = NULL;
+        filename += (thisFile.c_str() + camerasFolder.length());
+
+        if (FileExists(filename.c_str()))
+            continue;
+
+        if (!SFileOpenFileEx(WorldMpq, thisFile.c_str(), SFILE_OPEN_PATCHED_FILE, &dbcFile))
+        {
+            printf("Unable to open file %s in the archive\n", thisFile.c_str());
+            continue;
+        }
+
+        // dbc has mixed case names, standardize on lower case
+        std::transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
+
+        if (ExtractFile(dbcFile, filename.c_str()))
+            ++count;
+
+        SFileCloseFile(dbcFile);
+    }
+    printf("Extracted %u camera files\n", count);
+}
+
 void ExtractDB2Files(int l, bool basicLocale)
 {
     printf("Extracting db2 files...\n");
@@ -1393,6 +1482,22 @@ int main(int argc, char * arg[])
     {
         printf("No locales detected\n");
         return 0;
+    }
+
+    if (CONF_extract & EXTRACT_CAMERA)
+    {
+        printf("Using locale: %s\n", Locales[FirstLocale]);
+
+        // Open MPQs
+        LoadLocaleMPQFile(FirstLocale);
+        LoadCommonMPQFiles(build);
+
+        // Extract cameras
+        ExtractCameraFiles(FirstLocale, true);
+
+        // Close MPQs
+        SFileCloseArchive(WorldMpq);
+        SFileCloseArchive(LocaleMpq);
     }
 
     if (CONF_extract & EXTRACT_MAP)

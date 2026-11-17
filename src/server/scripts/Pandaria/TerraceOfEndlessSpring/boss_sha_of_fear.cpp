@@ -261,7 +261,7 @@ class boss_sha_of_fear : public CreatureScript
 
             uint32 delay;
             uint32 prevStep, curStep;
-            uint64 VictimGUID;
+            ObjectGuid VictimGUID;
             std::vector<uint32> m_dEvents;
 
             bool isDuringP2Transition;
@@ -328,7 +328,7 @@ class boss_sha_of_fear : public CreatureScript
                 attacksCounter = 0;
                 attackCounterDread = 0;
                 terrorCounter  = 0;
-                VictimGUID     = 0;
+                VictimGUID = ObjectGuid::Empty;
                 m_dEvents.clear();
                 berserkEvents.Reset();
 
@@ -513,7 +513,7 @@ class boss_sha_of_fear : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (isDuringP2Transition)
                     return;
@@ -550,7 +550,7 @@ class boss_sha_of_fear : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 summons.DespawnAll();
 
@@ -662,10 +662,10 @@ class boss_sha_of_fear : public CreatureScript
                         Talk(SAY_INTRO);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
 
-                        if (GameObject* pVortex = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_SHA_VORTEX)))
+                        if (GameObject* pVortex = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_SHA_VORTEX)))
                             pVortex->SetGoState(GO_STATE_ACTIVE);
 
-                        if (GameObject* pVortexWall = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_SHA_VORTEX_WALL)))
+                        if (GameObject* pVortexWall = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_SHA_VORTEX_WALL)))
                             pVortexWall->SetGoState(GO_STATE_ACTIVE);
                         break;
                     case ACTION_BERSERK:
@@ -833,7 +833,7 @@ class boss_sha_of_fear : public CreatureScript
                             {
                                 if (m_uiPhase == PHASE_TERRACE)
                                 {
-                                    if (Creature* pureLight = Creature::GetCreature(*me, instance->GetData64(NPC_PURE_LIGHT_TERRACE)))
+                                    if (Creature* pureLight = Creature::GetCreature(*me, instance->GetGuidData(NPC_PURE_LIGHT_TERRACE)))
                                         me->CastSpell(pureLight, SPELL_BREATH_OF_FEAR, false);
                                     Talk(SAY_BREATH_OF_FEAR);
                                 }
@@ -865,11 +865,11 @@ class boss_sha_of_fear : public CreatureScript
                             {
                                 if (me->GetVictim() && me->GetVictim()->GetGUID() != target->GetGUID())
                                 {
-                                    me->TauntFadeOut(me->GetVictim());
+                                    me->GetThreatManager().TauntUpdate();
                                     DoResetThreat();
                                     AttackStart(target);
-                                    me->TauntApply(target);
-                                    me->AddThreat(target, 5000000.0f);
+                                    me->GetThreatManager().TauntUpdate();
+                                    me->GetThreatManager().AddThreat(target, 5000000.0f);
                                 }
                             }
 
@@ -1097,11 +1097,11 @@ class npc_terror_spawn : public CreatureScript
             void Reset() override
             {
                 if (instance)
-                    if (Creature* pureLight = Creature::GetCreature(*me, instance->GetData64(NPC_PURE_LIGHT_TERRACE)))
+                    if (Creature* pureLight = Creature::GetCreature(*me, instance->GetGuidData(NPC_PURE_LIGHT_TERRACE)))
                         me->SetFacingToObject(pureLight);
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
 
                 me->CastSpell(me, SPELL_DARK_BULWARK, true);
 
@@ -1185,7 +1185,7 @@ class npc_dread_spawn : public CreatureScript
                 events.ScheduleEvent(EVENT_SPEED, 8 * IN_MILLISECONDS);
             }
 
-            uint64 LightTargetGUID()
+            ObjectGuid LightTargetGUID()
             {
                 std::list<Player*> m_players;
                 GetPlayerListInGrid(m_players, me, 300.0f);
@@ -1194,7 +1194,7 @@ class npc_dread_spawn : public CreatureScript
                     if (itr->HasAura(SPELL_CHAMPION_OF_THE_LIGHT))
                         return itr->GetGUID();
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void DoAction(int32 actionId) override
@@ -1458,11 +1458,11 @@ class spell_penetrating_bolt : public SpellScriptLoader
         {
             PrepareSpellScript(spell_penetrating_bolt_SpellScript);
 
-            uint64 targetGuid;
+            ObjectGuid targetGuid;
 
             void CorrectRange(std::list<WorldObject*>& targets)
             {
-                targetGuid = 0;
+                targetGuid = ObjectGuid::Empty;
 
                 if (!targets.empty())
                     Trinity::Containers::RandomResizeList(targets, 1);
@@ -1479,7 +1479,7 @@ class spell_penetrating_bolt : public SpellScriptLoader
                     if (InstanceScript* instance = caster->GetInstanceScript())
                     {
                         if (Player* target = Player::GetPlayer(*caster, targetGuid))
-                            caster->CastSpell(target, SPELL_PENETRATING_BOLT_MISSILE, true, NULL, NULL, instance->GetData64(NPC_SHA_OF_FEAR));
+                            caster->CastSpell(target, SPELL_PENETRATING_BOLT_MISSILE, true, NULL, NULL, instance->GetGuidData(NPC_SHA_OF_FEAR));
                     }
                 }
             }
@@ -1639,7 +1639,7 @@ class npc_sha_of_fear_bowman : public CreatureScript
 
             EventMap m_mLowEvents;
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_DEATH_BLOSSOM, 5000);
@@ -1647,7 +1647,7 @@ class npc_sha_of_fear_bowman : public CreatureScript
                 events.ScheduleEvent(EVENT_DREAD_SPRAY, 8000);
             }
 
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
             void JustDied(Unit* /*killer*/) override
             {
@@ -1777,7 +1777,7 @@ class npc_sha_globe : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
@@ -1961,7 +1961,7 @@ class spell_dread_spray : public SpellScriptLoader
             {
                 if (Unit*  owner = GetUnitOwner())
                 {
-                    owner->SetTarget(0);
+                    owner->SetTarget(ObjectGuid::Empty);
                     float ori = float(rand_norm())*static_cast<float>(2 * M_PI);
                     owner->SetOrientation(ori);
                     owner->SetFacingTo(ori);
@@ -2131,7 +2131,7 @@ class spell_sha_waterspout : public SpellScriptLoader
                 // If remove from player, then summon waterspout stalker and set aura
                 if (Unit* owner = GetOwner()->ToPlayer())
                 {
-                    if (TempSummon* m_waterspout = owner->SummonCreature(NPC_WATERSPOUT, *owner, TEMPSUMMON_TIMED_DESPAWN, 6 * IN_MILLISECONDS))
+                    if (TempSummon* m_waterspout = owner->SummonCreature(NPC_WATERSPOUT, *owner, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(6 * IN_MILLISECONDS)))
                     {
                         m_waterspout->AddAura(SPELL_WATERSPOUT, m_waterspout);
                         m_waterspout->CastSpell(m_waterspout, SPELL_WATERSPOUT_DUMMY, true);

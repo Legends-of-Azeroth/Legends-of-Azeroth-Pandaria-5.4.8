@@ -32,16 +32,16 @@ class instance_proving_grounds : public InstanceMapScript
 
             uint32 chapterOne, chapterTwo, chapterThree;
             uint32 m_auiEncounter[2];
-            uint64 rotunGUID;
-            uint64 controllerGUID;
-            uint64 playerGUID;
-            uint64 sikariGUID;
-            uint64 otoGUID;
-            uint64 kiGUID;
-            uint64 soliGUID;
-            uint64 kavanGUID;
-            std::vector<uint64> barricadeGUIDs;
-            std::vector<uint64> berserkerGUIDs;
+            ObjectGuid rotunGUID;
+            ObjectGuid controllerGUID;
+            ObjectGuid playerGUID;
+            ObjectGuid sikariGUID;
+            ObjectGuid otoGUID;
+            ObjectGuid kiGUID;
+            ObjectGuid soliGUID;
+            ObjectGuid kavanGUID;
+            std::vector<ObjectGuid> barricadeGUIDs;
+            std::vector<ObjectGuid> berserkerGUIDs;
 
             void Initialize() override
             {
@@ -51,14 +51,14 @@ class instance_proving_grounds : public InstanceMapScript
                 chapterOne     = 0;
                 chapterTwo     = 0;
                 chapterThree   = 0;
-                rotunGUID      = 0;
-                controllerGUID = 0;
-                playerGUID     = 0;
-                sikariGUID     = 0;
-                otoGUID        = 0;
-                kiGUID         = 0;
-                soliGUID       = 0;
-                kavanGUID      = 0;
+                rotunGUID = ObjectGuid::Empty;
+                controllerGUID = ObjectGuid::Empty;
+                playerGUID = ObjectGuid::Empty;
+                sikariGUID = ObjectGuid::Empty;
+                otoGUID = ObjectGuid::Empty;
+                kiGUID = ObjectGuid::Empty;
+                soliGUID = ObjectGuid::Empty;
+                kavanGUID = ObjectGuid::Empty;
 
                 barricadeGUIDs.clear();
                 berserkerGUIDs.clear();
@@ -77,7 +77,7 @@ class instance_proving_grounds : public InstanceMapScript
             {
                 if (unit && unit->ToPlayer()) // fail trial (only for tank trial btw, healr & dps couldn`t die)
                 {
-                    if (Creature* controller = instance->GetCreature(GetData64(NPC_PROVING_GROUNDS_2)))
+                    if (Creature* controller = instance->GetCreature(GetGuidData(NPC_PROVING_GROUNDS_2)))
                         controller->AI()->DoAction(ACTION_FAIL_TRIAL);
                 }
             }
@@ -143,7 +143,7 @@ class instance_proving_grounds : public InstanceMapScript
                         if (chapterThree == DONE)
                         {
                             // Reward player for current trial
-                            if (Creature* controller = instance->GetCreature(GetData64(NPC_PROVING_GROUNDS_2)))
+                            if (Creature* controller = instance->GetCreature(GetGuidData(NPC_PROVING_GROUNDS_2)))
                             {
                                 if (uint32 trialEntry = controller->AI()->GetData(TRIAL_DATA)) // get last completed trial and reward by achiev (handle, cuz it haven`t any criteria or not implemented in core)
                                 {
@@ -152,17 +152,17 @@ class instance_proving_grounds : public InstanceMapScript
                                         case TRIAL_HEAL_BRONZE:
                                         case TRIAL_HEAL_SILVER:
                                         case TRIAL_HEAL_GOLD:
-                                            if (Creature* sooli = instance->GetCreature(GetData64(NPC_SOOLI_THE_SURVIVALIST)))
+                                            if (Creature* sooli = instance->GetCreature(GetGuidData(NPC_SOOLI_THE_SURVIVALIST)))
                                                 sooli->AI()->Talk(TALK_HEALER_BRONZE_OUTRO);
                                             break;
                                         default:
                                             // Compelete current trial
-                                            if (Creature* rotun = instance->GetCreature(GetData64(NPC_TRIAL_MASTER_ROTUN)))
+                                            if (Creature* rotun = instance->GetCreature(GetGuidData(NPC_TRIAL_MASTER_ROTUN)))
                                                 rotun->AI()->Talk(TALK_TRIAL_DONE);
                                             break;
                                     }
 
-                                    if (Player* trialOwner = ObjectAccessor::FindPlayer(GetData64(PLAYER_DATA)))
+                                    if (Player* trialOwner = ObjectAccessor::FindPlayer(GetGuidData(PLAYER_DATA)))
                                     {
                                         if (trialEntry < TRIAL_DD_ENDLESS)
                                         {
@@ -254,7 +254,7 @@ class instance_proving_grounds : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -276,7 +276,7 @@ class instance_proving_grounds : public InstanceMapScript
                         return kavanGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void Update(uint32 diff) override

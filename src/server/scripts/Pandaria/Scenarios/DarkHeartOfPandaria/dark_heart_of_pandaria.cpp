@@ -90,7 +90,7 @@ struct npc_darkheart_earthborn_hatred : public customCreatureAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (Creature* urtharges = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_URTHARGES_THE_DESTROYER) : 0))
+        if (Creature* urtharges = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_URTHARGES_THE_DESTROYER) : ObjectGuid::Empty))
             urtharges->AI()->DoAction(4);
     }
 
@@ -108,7 +108,7 @@ struct npc_darkheart_earthborn_hatred : public customCreatureAI
         }
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         DoCast(who, SPELL_SCHARGE);
         events.ScheduleEvent(EVENT_STONE_RAIN, urand(3 * IN_MILLISECONDS, 8 * IN_MILLISECONDS));
@@ -157,7 +157,7 @@ struct npc_darkheart_fiery_anger : public customCreatureAI
         if (!me->GetDBTableGUIDLow())
             return;
 
-        if (Creature* urtharges = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_URTHARGES_THE_DESTROYER) : 0))
+        if (Creature* urtharges = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_URTHARGES_THE_DESTROYER) : ObjectGuid::Empty))
             urtharges->AI()->DoAction(2);
     }
 
@@ -173,7 +173,7 @@ struct npc_darkheart_fiery_anger : public customCreatureAI
         }
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         events.ScheduleEvent(EVENT_MOLTEN_HATRED, urand(3 * IN_MILLISECONDS, 10 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_FIRE_BLAST, urand(5 * IN_MILLISECONDS, 13 * IN_MILLISECONDS));
@@ -225,7 +225,7 @@ struct npc_darkheart_urtharges_the_destroyer : public customCreatureAI
         summons.Summon(summon);
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         Talk(TALK_INTRO);
         events.ScheduleEvent(EVENT_RUPTURE_LINE, 5 * IN_MILLISECONDS);
@@ -362,7 +362,7 @@ class npc_darkheart_grizzle_gearslip : public CreatureScript
                         scheduler.
                             Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
                         {
-                            if (Creature* malkorok = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_MALKOROK) : 0))
+                            if (Creature* malkorok = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MALKOROK) : ObjectGuid::Empty))
                                 malkorok->AI()->DoAction(ACTION_START_INTRO);
                         });
                         break;
@@ -403,7 +403,7 @@ struct npc_darkheart_mouth_of_terror : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         events.ScheduleEvent(EVENT_HOWL_OF_TERROR, urand(3 * IN_MILLISECONDS, 10 * IN_MILLISECONDS));
     }
@@ -474,7 +474,7 @@ class npc_darkheart_crafty_the_ambitious : public CreatureScript
                         if (me->GetInstanceScript())
                             me->GetInstanceScript()->SetData(STEP_END_OF_MINE, DONE);
 
-                        if (GameObject* strangeWall = ObjectAccessor::GetGameObject(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(GO_STRANGE_WALL) : 0))
+                        if (GameObject* strangeWall = ObjectAccessor::GetGameObject(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(GO_STRANGE_WALL) : ObjectGuid::Empty))
                             strangeWall->SetGoState(GO_STATE_ACTIVE);
 
                         Movement::MoveSplineInit init(me);
@@ -504,24 +504,24 @@ class npc_darkheart_crafty_the_ambitious : public CreatureScript
             {
                 if (pointId == EVENT_CHARGE)
                 {
-                    me->SetAnimationTier(UnitAnimationTier::Fly);
+                    me->SetAnimTier(AnimTier::Fly);
                     me->OverrideInhabitType(INHABIT_AIR);
                     me->UpdateMovementFlags();
 
-                    if (Creature* norushen = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_NORUSHEN) : 0))
+                    if (Creature* norushen = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NORUSHEN) : ObjectGuid::Empty))
                         norushen->AI()->Talk(TALK_INTRO);
 
                     me->HandleEmoteStateCommand(EMOTE_STATE_FLYFALL);
 
                     me->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 4.0f);
 
-                    if (GameObject* heartOfYshaarj = ObjectAccessor::GetGameObject(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(GO_STRANGE_WALL) : 0))
+                    if (GameObject* heartOfYshaarj = ObjectAccessor::GetGameObject(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(GO_STRANGE_WALL) : ObjectGuid::Empty))
                         heartOfYshaarj->SetGoState(GO_STATE_ACTIVE);
 
                     scheduler.
                         Schedule(Milliseconds(7000), [this](TaskContext context)
                     {
-                        if (Creature* echo = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_ECHO_OF_YSHAARJ) : 0))
+                        if (Creature* echo = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_ECHO_OF_YSHAARJ) : ObjectGuid::Empty))
                         {
                             echo->SetVisible(true);
                             echo->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
@@ -557,12 +557,12 @@ struct npc_darkheart_echo_of_yshaarj : public customCreatureAI
         hasTriggered = false;
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
-        if (Creature* norushen = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_NORUSHEN) : 0))
+        if (Creature* norushen = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NORUSHEN) : ObjectGuid::Empty))
             norushen->AI()->Talk(TALK_SPECIAL_1);
 
-        if (Creature* controller = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_HEART_CONTROLLER) : 0))
+        if (Creature* controller = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_HEART_CONTROLLER) : ObjectGuid::Empty))
             controller->CastSpell(controller, SPELL_HEART_CORRUPTION, true);
 
         events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, urand(5 * IN_MILLISECONDS, 10 * IN_MILLISECONDS));
@@ -634,14 +634,14 @@ struct npc_darkheart_malkorok : public ScriptedAI
         {
             Talk(TALK_INTRO);
 
-            if (Creature* grizzle = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_GRIZZLE_GEARSLIP + 1) : 0))
+            if (Creature* grizzle = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_GRIZZLE_GEARSLIP + 1) : ObjectGuid::Empty))
                 grizzle->SetFacingToObject(me);
         });
 
         scheduler.
             Schedule(Milliseconds(delay += 5500), [this](TaskContext context)
         {
-            if (Creature* grizzle = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_GRIZZLE_GEARSLIP + 1) : 0))
+            if (Creature* grizzle = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_GRIZZLE_GEARSLIP + 1) : ObjectGuid::Empty))
                 grizzle->AI()->DoAction(ACTION_GRIZZLE_ANSWER);
         });
     }
@@ -657,7 +657,7 @@ struct npc_darkheart_malkorok : public ScriptedAI
             scheduler.
                 Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
             {
-                if (Creature* grizzle = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_GRIZZLE_GEARSLIP + 1) : 0))
+                if (Creature* grizzle = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_GRIZZLE_GEARSLIP + 1) : ObjectGuid::Empty))
                     grizzle->AI()->Talk(TALK_SPECIAL_6);
             });
 
@@ -682,7 +682,7 @@ struct npc_darkheart_malkorok : public ScriptedAI
             scheduler.
                 Schedule(Milliseconds(delay += 5950), [this](TaskContext context)
             {
-                if (Creature* grizzle = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_GRIZZLE_GEARSLIP + 1) : 0))
+                if (Creature* grizzle = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_GRIZZLE_GEARSLIP + 1) : ObjectGuid::Empty))
                     grizzle->AI()->Talk(TALK_SPECIAL_7);
             });
 
@@ -695,7 +695,7 @@ struct npc_darkheart_malkorok : public ScriptedAI
             scheduler.
                 Schedule(Milliseconds(delay += 6000), [this](TaskContext context)
             {
-                if (Creature* grizzle = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_GRIZZLE_GEARSLIP + 1) : 0))
+                if (Creature* grizzle = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_GRIZZLE_GEARSLIP + 1) : ObjectGuid::Empty))
                     grizzle->AI()->DoAction(ACTION_LEAVE_MALKOROK);
             });
         }

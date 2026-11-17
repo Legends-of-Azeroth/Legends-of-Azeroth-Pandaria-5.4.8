@@ -24,15 +24,15 @@ namespace Vignette
     {
         ASSERT(vignetteEntry);
 
-        m_Guid             = 0;
+        m_Guid             = ObjectGuid::Empty;
         m_NeedClientUpdate = false;
     }
 
     Entity::~Entity() { }
 
-    void Entity::Create(Type type, G3D::Vector3 position, uint64 sourceGuid)
+    void Entity::Create(Map* map, Type type, G3D::Vector3 position, ObjectGuid sourceGuid)
     {
-        m_Guid       = MAKE_NEW_GUID(sObjectMgr->GenerateNewVignetteGUID(), m_VignetteEntry->Id, HIGHGUID_VIGNETTE);
+        m_Guid       = ObjectGuid(HighGuid::Vignette, m_VignetteEntry->Id, map->GenerateLowGuid<HighGuid::Vignette>());
         m_Type       = type;
         m_Position   = position;
         m_SourceGuid = sourceGuid;

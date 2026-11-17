@@ -135,7 +135,7 @@ class instance_scarlet_halls : public InstanceMapScript
                 return true;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -151,7 +151,7 @@ class instance_scarlet_halls : public InstanceMapScript
                         return HoodedGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData() override
@@ -193,11 +193,11 @@ class instance_scarlet_halls : public InstanceMapScript
             }
 
             protected:
-                uint64 HoundMaster_BraunGUID;
-                uint64 ArmsMaster_HarlanGUID;
-                uint64 FlameWeaver_KoeglerGUID;
-                uint64 LindonGUID;
-                uint64 HoodedGUID;
+                ObjectGuid HoundMaster_BraunGUID;
+                ObjectGuid ArmsMaster_HarlanGUID;
+                ObjectGuid FlameWeaver_KoeglerGUID;
+                ObjectGuid LindonGUID;
+                ObjectGuid HoodedGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

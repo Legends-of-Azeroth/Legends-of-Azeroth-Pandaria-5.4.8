@@ -610,7 +610,8 @@ class Eluna
             ItemGossipBindings->Clear();
             playerGossipBindings->Clear();
 
-            lua_close(L); // Closing
+            if (L)
+                lua_close(L); // Closing (there is no state when Eluna.Enabled = 0)
         }
 
         struct ElunaBind
@@ -666,7 +667,7 @@ class Eluna
         };
 
         // Doesn't get self
-        struct WorldObjectInRangeCheck
+        class WorldObjectInRangeCheck
         {
             WorldObjectInRangeCheck(bool nearest, WorldObject const* obj, float range,
                                     TypeID typeId = TYPEID_OBJECT, uint32 entry = 0) : i_nearest(nearest),
@@ -709,4 +710,7 @@ class LuaTaxiMgr
         static void StartTaxi(Player* player, uint32 pathid);
         static uint32 AddPath(std::list<TaxiPathNodeEntry> nodes, uint32 mountA, uint32 mountH, uint32 price = 0, uint32 pathId = 0);
 };
+
+void StartEluna(bool restart);
+
 #endif

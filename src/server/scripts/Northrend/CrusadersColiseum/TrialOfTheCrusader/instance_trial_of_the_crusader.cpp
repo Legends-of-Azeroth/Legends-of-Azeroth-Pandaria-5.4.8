@@ -44,28 +44,28 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 TributeToImmortalityEligible = true;
                 NeedSave = false;
 
-                TirionFordringGUID = 0;
-                BarrentGUID = 0;
-                TirionGUID = 0;
-                FizzlebangGUID = 0;
-                GarroshGUID = 0;
-                VarianGUID = 0;
-                GormokGUID = 0;
-                AcidmawGUID = 0;
-                DreadscaleGUID = 0;
-                IcehowlGUID = 0;
-                JaraxxusGUID = 0;
-                ChampionsControllerGUID = 0;
-                DarkbaneGUID = 0;
-                LightbaneGUID = 0;
-                AnubarakGUID = 0;
+                TirionFordringGUID = ObjectGuid::Empty;
+                BarrentGUID = ObjectGuid::Empty;
+                TirionGUID = ObjectGuid::Empty;
+                FizzlebangGUID = ObjectGuid::Empty;
+                GarroshGUID = ObjectGuid::Empty;
+                VarianGUID = ObjectGuid::Empty;
+                GormokGUID = ObjectGuid::Empty;
+                AcidmawGUID = ObjectGuid::Empty;
+                DreadscaleGUID = ObjectGuid::Empty;
+                IcehowlGUID = ObjectGuid::Empty;
+                JaraxxusGUID = ObjectGuid::Empty;
+                ChampionsControllerGUID = ObjectGuid::Empty;
+                DarkbaneGUID = ObjectGuid::Empty;
+                LightbaneGUID = ObjectGuid::Empty;
+                AnubarakGUID = ObjectGuid::Empty;
 
-                TributeChestGUID = 0;
-                MainGateDoorGUID = 0;
-                EastPortcullisGUID = 0;
-                WebDoorGUID = 0;
-                CrusadersCacheGUID = 0;
-                FloorGUID = 0;
+                TributeChestGUID = ObjectGuid::Empty;
+                MainGateDoorGUID = ObjectGuid::Empty;
+                EastPortcullisGUID = ObjectGuid::Empty;
+                WebDoorGUID = ObjectGuid::Empty;
+                CrusadersCacheGUID = ObjectGuid::Empty;
+                FloorGUID = ObjectGuid::Empty;
             }
 
             bool IsEncounterInProgress() const override
@@ -94,16 +94,16 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 // make sure Anub'arak isnt missing and floor is destroyed after a crash
                 if (GetBossState(BOSS_LICH_KING) == DONE && TrialCounter && GetBossState(BOSS_ANUBARAK) != DONE)
                 {
-                    Creature* anubArak = Unit::GetCreature(*player, GetData64(NPC_ANUBARAK));
+                    Creature* anubArak = Unit::GetCreature(*player, GetGuidData(NPC_ANUBARAK));
                     if (!anubArak)
-                        anubArak = player->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
+                        anubArak = player->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(DESPAWN_TIME));
 
-                    if (GameObject* floor = GameObject::GetGameObject(*player, GetData64(GO_ARGENT_COLISEUM_FLOOR)))
+                    if (GameObject* floor = GameObject::GetGameObject(*player, GetGuidData(GO_ARGENT_COLISEUM_FLOOR)))
                         floor->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
                 }
             }
 
-            void OpenDoor(uint64 guid)
+            void OpenDoor(ObjectGuid guid)
             {
                 if (!guid)
                     return;
@@ -112,7 +112,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
             }
 
-            void CloseDoor(uint64 guid)
+            void CloseDoor(ObjectGuid guid)
             {
                 if (!guid)
                     return;
@@ -354,18 +354,18 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                 if (IsEncounterInProgress())
                 {
-                    CloseDoor(GetData64(GO_EAST_PORTCULLIS));
-                    CloseDoor(GetData64(GO_WEB_DOOR));
+                    CloseDoor(GetGuidData(GO_EAST_PORTCULLIS));
+                    CloseDoor(GetGuidData(GO_WEB_DOOR));
                 }
                 else
                 {
-                    OpenDoor(GetData64(GO_EAST_PORTCULLIS));
-                    OpenDoor(GetData64(GO_WEB_DOOR));
+                    OpenDoor(GetGuidData(GO_EAST_PORTCULLIS));
+                    OpenDoor(GetGuidData(GO_WEB_DOOR));
                 }
 
                 if (type < MAX_ENCOUNTERS)
                 {
-                    TC_LOG_INFO("scripts", "[ToCr] BossState(type %u) %u = state %u;", type, GetBossState(type), state);
+                    TC_LOG_INFO("scripts", "[ToCr] BossState(type {}) {} = state {};", type, GetBossState(type), state);
                     if (state == FAIL)
                     {
                         if (instance->IsHeroic())
@@ -380,10 +380,10 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             // if theres no more attemps allowed
                             if (!TrialCounter)
                             {
-                                if (Unit* announcer = instance->GetCreature(GetData64(NPC_BARRENT)))
+                                if (Unit* announcer = instance->GetCreature(GetGuidData(NPC_BARRENT)))
                                     announcer->ToCreature()->DespawnOrUnsummon();
 
-                                if (Creature* anubArak = instance->GetCreature(GetData64(NPC_ANUBARAK)))
+                                if (Creature* anubArak = instance->GetCreature(GetGuidData(NPC_ANUBARAK)))
                                     anubArak->DespawnOrUnsummon();
                             }
                         }
@@ -394,7 +394,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                     if (state == DONE || NeedSave)
                     {
-                        if (Unit* announcer = instance->GetCreature(GetData64(NPC_BARRENT)))
+                        if (Unit* announcer = instance->GetCreature(GetGuidData(NPC_BARRENT)))
                             announcer->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         Save();
                     }
@@ -493,7 +493,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -541,7 +541,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             uint32 GetData(uint32 type) const override
@@ -763,29 +763,29 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 bool   NeedSave;
                 std::string SaveDataBuffer;
 
-                uint64 BarrentGUID;
-                uint64 TirionGUID;
-                uint64 TirionFordringGUID;
-                uint64 FizzlebangGUID;
-                uint64 GarroshGUID;
-                uint64 VarianGUID;
+                ObjectGuid BarrentGUID;
+                ObjectGuid TirionGUID;
+                ObjectGuid TirionFordringGUID;
+                ObjectGuid FizzlebangGUID;
+                ObjectGuid GarroshGUID;
+                ObjectGuid VarianGUID;
 
-                uint64 GormokGUID;
-                uint64 AcidmawGUID;
-                uint64 DreadscaleGUID;
-                uint64 IcehowlGUID;
-                uint64 JaraxxusGUID;
-                uint64 ChampionsControllerGUID;
-                uint64 DarkbaneGUID;
-                uint64 LightbaneGUID;
-                uint64 AnubarakGUID;
+                ObjectGuid GormokGUID;
+                ObjectGuid AcidmawGUID;
+                ObjectGuid DreadscaleGUID;
+                ObjectGuid IcehowlGUID;
+                ObjectGuid JaraxxusGUID;
+                ObjectGuid ChampionsControllerGUID;
+                ObjectGuid DarkbaneGUID;
+                ObjectGuid LightbaneGUID;
+                ObjectGuid AnubarakGUID;
 
-                uint64 CrusadersCacheGUID;
-                uint64 FloorGUID;
-                uint64 TributeChestGUID;
-                uint64 MainGateDoorGUID;
-                uint64 EastPortcullisGUID;
-                uint64 WebDoorGUID;
+                ObjectGuid CrusadersCacheGUID;
+                ObjectGuid FloorGUID;
+                ObjectGuid TributeChestGUID;
+                ObjectGuid MainGateDoorGUID;
+                ObjectGuid EastPortcullisGUID;
+                ObjectGuid WebDoorGUID;
 
                 // Achievement stuff
                 uint32 NotOneButTwoJormungarsTimer;

@@ -20,6 +20,7 @@
 #include "zulfarrak.h"
 #include "Player.h"
 #include "TemporarySummon.h"
+#include "Random.h"
 
 enum Misc
 {
@@ -105,20 +106,20 @@ public:
     {
         instance_zulfarrak_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
-        uint64 ZumrahGUID, BlyGUID, WeegliGUID, OroGUID, RavenGUID, MurtaGUID, EndDoorGUID;
+        ObjectGuid ZumrahGUID, BlyGUID, WeegliGUID, OroGUID, RavenGUID, MurtaGUID, EndDoorGUID;
         uint32 PyramidPhase, GahzRillaEncounter, major_wave_Timer, minor_wave_Timer, addGroupSize, waypoint;
-        std::vector<uint64> PyramideEncounters;
+        std::vector<ObjectGuid> PyramideEncounters;
 
         void Initialize() override
         {
             GahzRillaEncounter = NOT_STARTED;
-            ZumrahGUID         = 0;
-            BlyGUID            = 0;
-            WeegliGUID         = 0;
-            OroGUID            = 0;
-            RavenGUID          = 0;
-            MurtaGUID          = 0;
-            EndDoorGUID        = 0;
+            ZumrahGUID = ObjectGuid::Empty;
+            BlyGUID = ObjectGuid::Empty;
+            WeegliGUID = ObjectGuid::Empty;
+            OroGUID = ObjectGuid::Empty;
+            RavenGUID = ObjectGuid::Empty;
+            MurtaGUID = ObjectGuid::Empty;
+            EndDoorGUID = ObjectGuid::Empty;
             PyramidPhase       = 0;
             major_wave_Timer   = 0;
             minor_wave_Timer   = 0;
@@ -196,7 +197,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 data) const override
+        ObjectGuid GetGuidData(uint32 data) const override
         {
             switch (data)
             {
@@ -215,7 +216,7 @@ public:
                 case GO_END_DOOR:
                     return EndDoorGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data) override
@@ -228,7 +229,7 @@ public:
             };
         }
 
-        virtual void Update(uint32 diff)
+        virtual void Update(uint32 diff) override
         {
             switch (PyramidPhase)
             {
@@ -326,11 +327,11 @@ public:
             };
         }
 
-        std::list<uint64> addsAtBase, movedadds;
+        std::list<ObjectGuid> addsAtBase, movedadds;
 
         void MoveNPCIfAlive(uint32 entry, float x, float y, float z, float o)
         {
-           if (Creature* npc = instance->GetCreature(GetData64(entry)))
+           if (Creature* npc = instance->GetCreature(GetGuidData(entry)))
            {
                if (npc->IsAlive())
                {
@@ -357,7 +358,7 @@ public:
 
         bool IsWaveAllDead()
         {
-            for (std::list<uint64>::iterator itr = addsAtBase.begin(); itr != addsAtBase.end(); ++itr)
+            for (std::list<ObjectGuid>::iterator itr = addsAtBase.begin(); itr != addsAtBase.end(); ++itr)
             {
                 if (Creature* add = instance->GetCreature((*itr)))
                 {
@@ -365,7 +366,7 @@ public:
                         return false;
                 }
             }
-            for (std::list<uint64>::iterator itr = movedadds.begin(); itr != movedadds.end(); ++itr)
+            for (std::list<ObjectGuid>::iterator itr = movedadds.begin(); itr != movedadds.end(); ++itr)
             {
                 if (Creature* add = instance->GetCreature(((*itr))))
                 {

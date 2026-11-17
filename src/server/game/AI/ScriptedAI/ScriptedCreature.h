@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -23,6 +23,7 @@
 #include "CreatureAIImpl.h"
 #include "InstanceScript.h"
 #include "TaskScheduler.h"
+#include <vector>
 
 #define CAST_AI(a, b)   (dynamic_cast<a*>(b))
 
@@ -31,7 +32,7 @@ class InstanceScript;
 class SummonList
 {
     public:
-    typedef std::list<uint64> StorageType;
+    typedef std::list<ObjectGuid> StorageType;
     typedef StorageType::iterator iterator;
     typedef StorageType::const_iterator const_iterator;
     typedef StorageType::size_type size_type;
@@ -82,7 +83,7 @@ class SummonList
         storage_.clear();
     }
 
-    uint64 front()
+    ObjectGuid front()
     {
         return storage_.front();
     }
@@ -111,7 +112,7 @@ class SummonList
     {
         // We need to use a copy of SummonList here, otherwise original SummonList would be modified
         StorageType listCopy = storage_;
-        Trinity::Containers::RandomResizeList<uint64, Predicate>(listCopy, predicate, max);
+        Trinity::Containers::RandomResizeList<ObjectGuid, Predicate>(listCopy, predicate, max);
         for (StorageType::iterator i = listCopy.begin(); i != listCopy.end();)
         {
             Creature* summon = Unit::GetCreature(*me, *i++);
@@ -132,21 +133,17 @@ class SummonList
 class EntryCheckPredicate
 {
     public:
-    EntryCheckPredicate(uint32 entry) : _entry(entry)
-    { }
-    bool operator()(uint64 guid)
-    {
-        return GUID_ENPART(guid) == _entry;
-    }
+        EntryCheckPredicate(uint32 entry) : _entry(entry) { }
+        bool operator()(ObjectGuid guid) { return guid.GetEntry() == _entry; }
 
     private:
-    uint32 _entry;
+        uint32 _entry;
 };
 
 class DummyEntryCheckPredicate
 {
     public:
-    bool operator()(uint64)
+    bool operator()(ObjectGuid)
     {
         return true;
     }
@@ -184,7 +181,7 @@ struct ScriptedAI : public CreatureAI
     //Pure virtual functions
     // *************
 
-    // Called before EnterCombat even before the creature is in combat.
+    // Called before JustEngagedWith even before the creature is in combat.
     void AttackStart(Unit* /*target*/) override;
 
     // *************
@@ -212,6 +209,23 @@ struct ScriptedAI : public CreatureAI
     float DoGetThreat(Unit* unit);
     void DoModifyThreatPercent(Unit* unit, int32 pct);
 
+    //Add specified amount of threat directly to victim (ignores redirection effects) - also puts victim in combat and engages them if necessary
+    void AddThreat(Unit* victim, float amount, Unit* who = nullptr);
+    //Adds/removes the specified percentage from the specified victim's threat (to who, or me if not specified)
+    void ModifyThreatByPercent(Unit* victim, int32 pct, Unit* who = nullptr);
+    //Resets the victim's threat level to who (or me if not specified) to zero
+    void ResetThreat(Unit* victim, Unit* who = nullptr);
+    //Resets the specified unit's threat list (me if not specified) - does not delete entries, just sets their threat to zero
+    void ResetThreatList(Unit* who = nullptr);
+    //Returns the threat level of victim towards who (or me if not specified)
+    float GetThreat(Unit* victim, Unit* who = nullptr);
+    //Stops combat, ignoring restrictions, for the given creature
+    void ForceCombatStop(Creature* who, bool reset = true);
+    //Stops combat, ignoring restrictions, for the found creatures
+    void ForceCombatStopForCreatureEntry(uint32 entry, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true);
+    //Stops combat, ignoring restrictions, for the found creatures
+    void ForceCombatStopForCreatureEntry(std::vector<uint32> creatureEntries, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true);
+
     void DoTeleportTo(float x, float y, float z, uint32 time = 0);
     void DoTeleportTo(float const pos [4]);
 
@@ -232,7 +246,7 @@ struct ScriptedAI : public CreatureAI
     Player* GetPlayerAtMinimumRange(float minRange);
 
     //Spawns a creature relative to me
-    Creature* DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, uint32 despawntime);
+    Creature* DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, Milliseconds despawntime);
 
     bool HealthBelowPct(uint32 pct) const
     {
@@ -449,14 +463,14 @@ class BossAI : public ScriptedAI
         virtual void ScheduleTasks() { }
 
         void Reset() override { _Reset(); }
-        void EnterCombat(Unit* /*who*/) override { _EnterCombat(); }
+        void JustEngagedWith(Unit* who) override { CreatureAI::JustEngagedWith(who); _JustEngagedWith(); }
         void JustDied(Unit* /*killer*/) override { _JustDied(); }
         void JustReachedHome() override { _JustReachedHome(); }
 
 
     protected:
         void _Reset();
-        bool _EnterCombat();
+        bool _JustEngagedWith();
         void _JustDied();
         void _JustReachedHome();
         void _DespawnAtEvade();
@@ -520,12 +534,12 @@ class WorldBossAI : public ScriptedAI
         virtual void ExecuteEvent(uint32 /*eventId*/) { }
 
         void Reset() override { _Reset(); }
-        void EnterCombat(Unit* /*who*/) override { _EnterCombat(); }
+        void JustEngagedWith(Unit* who) override { CreatureAI::JustEngagedWith(who); _JustEngagedWith(); }
         void JustDied(Unit* /*killer*/) override { _JustDied(); }
 
     protected:
         void _Reset();
-        void _EnterCombat();
+        void _JustEngagedWith();
         void _JustDied();
 
         EventMap events;
@@ -586,7 +600,7 @@ struct SpellDummyAI : public ScriptedAI
     }
 
     void UpdateAI(uint32) override { }
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 };
 
 enum TargetPriority
@@ -602,7 +616,7 @@ struct customCreatureAI : public ScriptedAI
 {
     customCreatureAI(Creature* creature) : ScriptedAI(creature), summons(me), isCaster(false) { }
 
-    virtual uint64 GetLowestFriendGUID() { return 0; }
+    virtual ObjectGuid GetLowestFriendGUID() { return ObjectGuid::Empty; }
 
     void ExecuteTargetEvent(uint32 spell_id, uint32 repeat, uint32 event_id, uint32 curEventId, TargetPriority pTarget = PRIORITY_VICTIM)
     {
@@ -684,7 +698,7 @@ struct customCreatureAI : public ScriptedAI
         EventMap events, nonCombatEvents;
         SummonList summons;
         bool isCaster;
-        uint64 targetGUID = 0;
+        ObjectGuid targetGUID = ObjectGuid::Empty;
 
 };
 
@@ -696,7 +710,7 @@ public:
     void Update(uint32 diff);
 private:
     uint32 m_assistTimer = 0;
-    uint64 m_assistTarget = 0;
+    ObjectGuid m_assistTarget = ObjectGuid::Empty;
     Creature* me;
 };
 

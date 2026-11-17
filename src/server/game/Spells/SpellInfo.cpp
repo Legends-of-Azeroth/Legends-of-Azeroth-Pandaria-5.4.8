@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 #include "SpellAuraDefines.h"
 #include "SpellMgr.h"
 #include "Spell.h"
+#include "TemporarySummon.h"
 #include "DBCStores.h"
 #include "ConditionMgr.h"
 #include "Player.h"
@@ -932,11 +933,11 @@ SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 164 SPELL_EFFECT_REMOVE_AURA
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 165 SPELL_EFFECT_165
     {EFFECT_IMPLICIT_TARGET_CASTER,   TARGET_OBJECT_TYPE_UNIT}, // 166 SPELL_EFFECT_GIVE_CURRENCY
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 167 SPELL_EFFECT_167
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 167 SPELL_EFFECT_UPDATE_PLAYER_PHASE
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 168 SPELL_EFFECT_168
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_ITEM}, // 169 SPELL_EFFECT_DESTROY_ITEM
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 170 SPELL_EFFECT_170
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_DEST}, // 171 SPELL_EFFECT_171
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 170 SPELL_EFFECT_UPDATE_ZONE_AURAS_AND_PHASES
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_DEST}, // 171 SPELL_EFFECT_SUMMON_PERSONAL_GAMEOBJECT
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 172 SPELL_EFFECT_172
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 173 SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 174 SPELL_EFFECT_APPLY_AREA_AURA_ENTRY
@@ -1031,7 +1032,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty, uint32 tar
     SpellCooldownsId = spellEntry->SpellCooldownsId;
     SpellEquippedItemsId = spellEntry->SpellEquippedItemsId;
     SpellInterruptsId = spellEntry->SpellInterruptsId;
-    SpellLevelsId = spellEntry->SpellLevelsId;
+    SpellLevelsId = spellEntry->LevelsID;
     SpellReagentsId = spellEntry->SpellReagentsId;
     SpellShapeshiftId = spellEntry->SpellShapeshiftId;
     SpellTargetRestrictionsId = targetRestrictionsId;
@@ -1113,9 +1114,9 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty, uint32 tar
 
     // SpellLevelsEntry
     SpellLevelsEntry const* _levels = GetSpellLevels();
-    MaxLevel = _levels ? _levels->maxLevel : 0;
-    BaseLevel = _levels ? _levels->baseLevel : 0;
-    SpellLevel = _levels ? _levels->spellLevel : 0;
+    MaxLevel = _levels ? _levels->MaxLevel : 0;
+    BaseLevel = _levels ? _levels->BaseLevel : 0;
+    SpellLevel = _levels ? _levels->SpellLevel : 0;
 
     dbc::FillSpellPowers(Id, SpellPowers);
 
@@ -1152,11 +1153,11 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty, uint32 tar
         if (!specializationInfo)
             continue;
 
-        if (specializationInfo->SpellId == Id)
-            SpecializationIdList.push_back(specializationInfo->SpecializationId);
+        if (specializationInfo->SpellID == Id)
+            SpecializationIdList.push_back(specializationInfo->SpecID);
 
         if (specializationInfo->RemovesSpellId == Id)
-            OverrideSpellList.push_back(specializationInfo->SpellId);
+            OverrideSpellList.push_back(specializationInfo->SpellID);
     }
 
     ChainEntry = NULL;
@@ -1222,7 +1223,7 @@ bool SpellInfo::IsLootCrafting() const
     bool jewecrafting = false;
     auto bounds = sSpellMgr->GetSkillLineAbilityMapBounds(Id);
     for (auto it = bounds.first; it != bounds.second; ++it)
-        if (it->second->skillId == SKILL_JEWELCRAFTING)
+        if (it->second->SkillLine == SKILL_JEWELCRAFTING)
             jewecrafting = true;
 
     // different random cards from Inscription (121==Virtuoso Inking Set category) r without explicit item
@@ -1292,10 +1293,10 @@ bool SpellInfo::IsAbilityLearnedWithProfession() const
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
     {
         SkillLineAbilityEntry const* pAbility = _spell_idx->second;
-        if (!pAbility || pAbility->learnOnGetSkill != ABILITY_LEARNED_ON_GET_PROFESSION_SKILL)
+        if (!pAbility || pAbility->AcquireMethod != ABILITY_LEARNED_ON_GET_PROFESSION_SKILL)
             continue;
 
-        if (pAbility->req_skill_value > 0)
+        if (pAbility->MinSkillLineRank > 0)
             return true;
     }
 
@@ -1313,7 +1314,7 @@ bool SpellInfo::IsAbilityOfSkillType(uint32 skillType) const
         return true;
 
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
-        if (_spell_idx->second->skillId == uint32(skillType))
+        if (_spell_idx->second->SkillLine == uint32(skillType))
             return true;
 
     return false;
@@ -1607,7 +1608,7 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
 {
     // talents that learn spells can have stance requirements that need ignore
     // (this requirement only for client-side stance show in talent description)
-    if (GetTalentSpellCost(Id) > 0 &&
+    if (sDBCManager.GetTalentSpellCost(Id) > 0 &&
         (Effects[0].Effect == SPELL_EFFECT_LEARN_SPELL || Effects[1].Effect == SPELL_EFFECT_LEARN_SPELL || Effects[2].Effect == SPELL_EFFECT_LEARN_SPELL))
         return SPELL_CAST_OK;
 
@@ -1626,7 +1627,7 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
         shapeInfo = sSpellShapeshiftFormStore.LookupEntry(form);
         if (!shapeInfo)
         {
-            TC_LOG_ERROR("spells", "GetErrorAtShapeshiftedCast: unknown shapeshift %u", form);
+            TC_LOG_ERROR("spells", "GetErrorAtShapeshiftedCast: unknown shapeshift {}", form);
             return SPELL_CAST_OK;
         }
         actAsShifted = !(shapeInfo->flags1 & 1);            // shapeshift acts as normal form for spells
@@ -1687,7 +1688,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     // continent limitation (virtual continent)
     if (AttributesEx4 & SPELL_ATTR4_CAST_ONLY_IN_OUTLAND)
     {
-        uint32 v_map = GetVirtualMapForMapAndZone(map_id, zone_id);
+        uint32 v_map = sDBCManager.GetVirtualMapForMapAndZone(map_id, zone_id);
         MapEntry const* mapEntry = sMapStore.LookupEntry(v_map);
         if (!mapEntry || mapEntry->addon < 1 || !mapEntry->IsContinent())
             return SPELL_FAILED_INCORRECT_AREA;
@@ -1880,9 +1881,6 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
 
 SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* target, bool implicit) const
 {
-    if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_project_NPC)
-        return SPELL_FAILED_BAD_TARGETS;
-
     if (AttributesEx & SPELL_ATTR1_CANT_TARGET_SELF && caster == target)
         return SPELL_FAILED_BAD_TARGETS;
 
@@ -2039,6 +2037,9 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     if (unitTarget->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION) || unitTarget->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION)) // Temporarily. Some issues which I can't reproduce
         if (HasEffect(SPELL_EFFECT_SELF_RESURRECT) || HasEffect(SPELL_EFFECT_RESURRECT) || HasEffect(SPELL_EFFECT_RESURRECT_NEW))
             return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
+
+    if (!unitTarget->CheckPrivateObjectOwnerVisibility(caster))
+        return SPELL_FAILED_BAD_TARGETS;
 
     return SPELL_CAST_OK;
 }
@@ -2648,7 +2649,7 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, i
         // Else drain all power
         if (power < MAX_POWERS)
             return caster->GetPower(Powers(power));
-        TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type '%d' in spell %d", power, Id);
+        TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type '{}' in spell {}", power, Id);
         return 0;
     }
 
@@ -2688,7 +2689,7 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, i
                 TC_LOG_DEBUG("spells", "CalculateManaCost: Not implemented yet!");
                 break;
             default:
-                TC_LOG_ERROR("spells", "CalculateManaCost: Unknown power type '%d' in spell %d", power, Id);
+                TC_LOG_ERROR("spells", "CalculateManaCost: Unknown power type '{}' in spell {}", power, Id);
                 return 0;
         }
     }
@@ -3288,7 +3289,7 @@ void SpellInfo::_UnloadImplicitTargetConditionLists()
     // find the same instances of ConditionList and delete them.
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        ConditionList* cur = Effects[i].ImplicitTargetConditions;
+        ConditionContainer* cur = Effects[i].ImplicitTargetConditions;
         if (!cur)
             continue;
         for (uint8 j = i; j < MAX_SPELL_EFFECTS; ++j)

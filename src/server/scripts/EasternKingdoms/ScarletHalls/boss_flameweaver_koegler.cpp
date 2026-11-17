@@ -55,9 +55,9 @@ enum Yells
 };
 
 // make mercesed spawn
-Position CalculateMovement(float m_ori, uint64 casterGUID, float m_dist = 8.0f)
+Position CalculateMovement(Creature* me, float m_ori, ObjectGuid casterGUID, float m_dist = 8.0f)
 {
-    Unit* caster = ObjectAccessor::FindUnit(casterGUID);
+    Unit* caster = ObjectAccessor::GetUnit(*me, casterGUID);
 
     if (!caster)
         return{ 0.0f, 0.0f, 0.0f, 0.0f };
@@ -72,10 +72,10 @@ Position CalculateMovement(float m_ori, uint64 casterGUID, float m_dist = 8.0f)
 }
 
 // current range to Koegler
-float GetFocusDistance(uint64 casterGUID, uint64 LiuyangGUID)
+float GetFocusDistance(Creature* me, ObjectGuid casterGUID, ObjectGuid LiuyangGUID)
 {
-    if (Unit* m_caster = ObjectAccessor::FindUnit(casterGUID))
-        if (Unit* Liuyang = ObjectAccessor::FindUnit(LiuyangGUID))
+    if (Unit* m_caster = ObjectAccessor::GetUnit(*me, casterGUID))
+        if (Unit* Liuyang = ObjectAccessor::GetUnit(*me, LiuyangGUID))
             return m_caster->GetExactDist2d(Liuyang);
 
     return 0.0f;
@@ -92,7 +92,7 @@ class boss_flameweaver_koegler : public CreatureScript
 
             EventMap nonCombatEvents;
             bool InDragon, Intro;
-            uint64 victimGUID;
+            ObjectGuid victimGUID;
 
             void Reset() override
             {
@@ -113,7 +113,7 @@ class boss_flameweaver_koegler : public CreatureScript
                 Reset();
 
                 if (instance)
-                    if (Creature* Crusader = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_HOODED_CRUSADER)))
+                    if (Creature* Crusader = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_HOODED_CRUSADER)))
                         Crusader->SetVisible(false);
             }
 
@@ -141,7 +141,7 @@ class boss_flameweaver_koegler : public CreatureScript
 
                 if (instance)
                 {
-                    if (Creature* Crusader = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_HOODED_CRUSADER)))
+                    if (Creature* Crusader = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_HOODED_CRUSADER)))
                     {
                         Crusader->SetVisible(true);
                         Crusader->AI()->DoAction(ACTION_KODEX);
@@ -149,7 +149,7 @@ class boss_flameweaver_koegler : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _DespawnAtEvade();
 
@@ -161,9 +161,9 @@ class boss_flameweaver_koegler : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(TALK_AGGRO);
 
                 if (instance)
@@ -306,9 +306,9 @@ class boss_flameweaver_koegler : public CreatureScript
                     events.ScheduleEvent(EVENT_PYROBLAST, urand(4000, 8000));
                 }
 
-                Creature* SelectedBurningCupboard(uint64 ownerGUID)
+                Creature* SelectedBurningCupboard(ObjectGuid ownerGUID)
                 {
-                    Unit* owner = ObjectAccessor::FindUnit(ownerGUID);
+                    Unit* owner = ObjectAccessor::GetUnit(*me, ownerGUID);
 
                     if (!owner)
                         return NULL;
@@ -433,10 +433,10 @@ class npc_dragon_breath_targeting : public CreatureScript
                     {
                         if (instance)
                         {
-                            if (Unit* Koegler = ObjectAccessor::GetUnit(*me, instance->GetData64(BOSS_FLAMEWEAVER_KOEGLER)))
+                            if (Unit* Koegler = ObjectAccessor::GetUnit(*me, instance->GetGuidData(BOSS_FLAMEWEAVER_KOEGLER)))
                             {
-                                me->GetMotionMaster()->MovePoint(0, CalculateMovement(Position::NormalizeOrientation(Koegler->GetAngle(me) + M_PI / 6), Koegler->GetGUID(), GetFocusDistance(me->GetGUID(), Koegler->GetGUID())).GetPositionX(), CalculateMovement(Position::NormalizeOrientation(Koegler->GetAngle(me) + M_PI / 6), Koegler->GetGUID(), GetFocusDistance(me->GetGUID(), Koegler->GetGUID())).GetPositionY(), CalculateMovement(Position::NormalizeOrientation(Koegler->GetAngle(me) + M_PI / 6), Koegler->GetGUID(), GetFocusDistance(me->GetGUID(), Koegler->GetGUID())).GetPositionZ());
-                                Koegler->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, me->GetGUID());
+                                me->GetMotionMaster()->MovePoint(0, CalculateMovement(me, Position::NormalizeOrientation(Koegler->GetAngle(me) + M_PI / 6), Koegler->GetGUID(), GetFocusDistance(me, me->GetGUID(), Koegler->GetGUID())).GetPositionX(), CalculateMovement(me, Position::NormalizeOrientation(Koegler->GetAngle(me) + M_PI / 6), Koegler->GetGUID(), GetFocusDistance(me, me->GetGUID(), Koegler->GetGUID())).GetPositionY(), CalculateMovement(me, Position::NormalizeOrientation(Koegler->GetAngle(me) + M_PI / 6), Koegler->GetGUID(), GetFocusDistance(me, me->GetGUID(), Koegler->GetGUID())).GetPositionZ());
+                                Koegler->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, me->GetGUID());
                                 Koegler->SetTarget(me->GetGUID());
                             }
                         }
@@ -465,7 +465,7 @@ class spell_dragon_breath_sc : public SpellScriptLoader
             void HandleAfterCast()
             {
                 if (Unit* caster = GetCaster())
-                    caster->SummonCreature(NPC_DRAGON_BREATH_TARGET, DragonBreathMover, TEMPSUMMON_TIMED_DESPAWN, 10 * IN_MILLISECONDS);
+                    caster->SummonCreature(NPC_DRAGON_BREATH_TARGET, DragonBreathMover, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(10 * IN_MILLISECONDS));
             }
 
             void Register() override

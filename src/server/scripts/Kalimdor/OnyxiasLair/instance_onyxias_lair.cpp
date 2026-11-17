@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -52,7 +52,7 @@ public:
         {
             SetBossNumber(EncounterCount);
 
-            onyxiaGUID               = 0;
+            onyxiaGUID = ObjectGuid::Empty;
             onyxiaLiftoffTimer       = 0;
             manyWhelpsCounter        = 0;
             eruptTimer               = 0;
@@ -79,8 +79,7 @@ public:
             switch (go->GetEntry())
             {
                 case GO_WHELP_SPAWNER:
-                    Position goPos;
-                    go->GetPosition(&goPos);
+                    Position goPos = go->GetPosition();
                     go->SetDisplayId(0); // wrong display ID right now
                     if (Creature* temp = go->SummonCreature(NPC_WHELP, goPos, TEMPSUMMON_CORPSE_DESPAWN))
                     {
@@ -103,7 +102,7 @@ public:
             }
         }
 
-        void FloorEruption(uint64 floorEruptedGUID)
+        void FloorEruption(ObjectGuid floorEruptedGUID)
         {
             if (GameObject* floorEruption = instance->GetGameObject(floorEruptedGUID))
             {
@@ -122,7 +121,7 @@ public:
                 {
                     if (((*itr)->GetGOInfo()->displayId == 4392 || (*itr)->GetGOInfo()->displayId == 4472) && (*itr)->GetGOInfo()->trap.spellId == 17731)
                     {
-                        uint64 nearFloorGUID = (*itr)->GetGUID();
+                        ObjectGuid nearFloorGUID = (*itr)->GetGUID();
                         if (FloorEruptionGUID[1].find(nearFloorGUID) != FloorEruptionGUID[1].end() && (*FloorEruptionGUID[1].find(nearFloorGUID)).second == 0)
                         {
                             (*FloorEruptionGUID[1].find(nearFloorGUID)).second = (*FloorEruptionGUID[1].find(floorEruptedGUID)).second+1;
@@ -148,7 +147,7 @@ public:
             }
         }
 
-        void SetData64(uint32 type, uint64 data) override
+        void SetGuidData(uint32 type, ObjectGuid data) override
         {
             switch (type)
             {
@@ -160,7 +159,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 data) const override
+        ObjectGuid GetGuidData(uint32 data) const override
         {
             switch (data)
             {
@@ -168,7 +167,7 @@ public:
                     return onyxiaGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void Update(uint32 diff) override
@@ -246,9 +245,9 @@ public:
         }
 
         protected:
-            std::map<uint64, uint32> FloorEruptionGUID[2];
-            std::queue<uint64> FloorEruptionGUIDQueue;
-            uint64 onyxiaGUID;
+            std::map<ObjectGuid, uint32> FloorEruptionGUID[2];
+            std::queue<ObjectGuid> FloorEruptionGUIDQueue;
+            ObjectGuid onyxiaGUID;
             uint32 onyxiaLiftoffTimer;
             uint32 manyWhelpsCounter;
             uint32 eruptTimer;

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -97,7 +97,7 @@ struct npc_high_seas_cannoneer : public customCreatureAI
         x = 0.0f; y = 0.0f; z = 0.0f;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->RemoveAurasDueToSpell(SPELL_CANNON_LAUNCH);
         DoCast(me, SPELL_CANNONEERS_TORCH);
@@ -115,7 +115,7 @@ struct npc_high_seas_cannoneer : public customCreatureAI
                 if (!me->IsAlive() || !me->IsValidAttackTarget(target))
                     return;
 
-                if (Creature* bunny = me->SummonCreature(NPC_GENERAL_BUNNY_JMF, *target, TEMPSUMMON_TIMED_DESPAWN, 8 * IN_MILLISECONDS))
+                if (Creature* bunny = me->SummonCreature(NPC_GENERAL_BUNNY_JMF, *target, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(8 * IN_MILLISECONDS)))
                 {
                     x = bunny->GetPositionX() + frand(-2.0f, 2.0f);
                     y = bunny->GetPositionY() + frand(-2.0f, 2.0f);
@@ -211,7 +211,7 @@ struct npc_high_seas_swashbuckler : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->RemoveAurasDueToSpell(SPELL_CANNON_LAUNCH);
         events.ScheduleEvent(EVENT_SWASHBUCKLING, 4.5 * IN_MILLISECONDS);
@@ -229,7 +229,7 @@ struct npc_high_seas_swashbuckler : public customCreatureAI
                 if (!me->IsAlive() || !me->IsValidAttackTarget(target))
                     return;
 
-                if (Creature* bunny = me->SummonCreature(NPC_GENERAL_BUNNY_JMF, *target, TEMPSUMMON_TIMED_DESPAWN, 8 * IN_MILLISECONDS))
+                if (Creature* bunny = me->SummonCreature(NPC_GENERAL_BUNNY_JMF, *target, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(8 * IN_MILLISECONDS)))
                 {
                     x = bunny->GetPositionX() + frand(-2.0f, 2.0f);
                     y = bunny->GetPositionY() + frand(-2.0f, 2.0f);
@@ -360,18 +360,18 @@ struct npc_high_seas_admiral_hagman : public ScriptedAI
     }
 
     SummonList summons;
-    std::vector<uint64> allianceDogGUIDs;
+    std::vector<ObjectGuid> allianceDogGUIDs;
     bool isFirstWave;
     bool isSecondWave;
 
     void Reset() override { }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(TALK_INTRO);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
     }
@@ -432,12 +432,12 @@ struct npc_high_seas_transport_cannon : public ScriptedAI
 
     TaskScheduler scheduler;
     bool hasClicked;
-    uint64 clickerGUID;
+    ObjectGuid clickerGUID;
 
     void Reset() override
     {
         hasClicked = false;
-        clickerGUID = 0;
+        clickerGUID = ObjectGuid::Empty;
     }
 
     void OnSpellClick(Unit* clicker, bool& /*result*/) override
@@ -502,7 +502,7 @@ struct npc_high_seas_horde_captain : public customCreatureAI
 
     EventMap events;
     TaskScheduler scheduler;
-    std::vector<uint64> allianceDogGUIDs;
+    std::vector<ObjectGuid> allianceDogGUIDs;
     bool triggered;
     uint32 delay;
     uint32 calculationCount;
@@ -510,12 +510,12 @@ struct npc_high_seas_horde_captain : public customCreatureAI
 
     void Reset() override  { }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_SHOT, 1.5 * IN_MILLISECONDS);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
     }
@@ -624,7 +624,7 @@ struct npc_high_seas_horde_squalsharper : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_WATER_BOLT, 1 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_CHAIN_HEAL, 10 * IN_MILLISECONDS);
@@ -636,7 +636,7 @@ struct npc_high_seas_horde_squalsharper : public customCreatureAI
             damage = 0;
     }
 
-    uint64 GetLowestFriendGUID() override
+    ObjectGuid GetLowestFriendGUID() override
     {
         std::list<Creature*> tmpTargets;
 
@@ -647,14 +647,14 @@ struct npc_high_seas_horde_squalsharper : public customCreatureAI
         GetCreatureListWithEntryInGrid(tmpTargets, me, NPC_HORDE_CAPTAIN, 30.0f);
 
         if (tmpTargets.empty())
-            return 0;
+            return ObjectGuid::Empty;
 
         tmpTargets.sort(Trinity::HealthPctOrderPred());
 
         if (Creature* lowestTarget = tmpTargets.front())
             return lowestTarget->GetGUID();
 
-        return 0;
+        return ObjectGuid::Empty;
     }
 
     void UpdateAI(uint32 diff) override
@@ -682,7 +682,7 @@ struct npc_high_seas_zip : public ScriptedAI
     npc_high_seas_zip(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 summonerGUID;
+    ObjectGuid summonerGUID;
 
     void IsSummonedBy(Unit* summoner) override
     {
@@ -737,7 +737,7 @@ struct npc_high_seas_zip_back : public ScriptedAI
     npc_high_seas_zip_back(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 summonerGUID;
+    ObjectGuid summonerGUID;
 
     void IsSummonedBy(Unit* summoner) override
     {
@@ -806,12 +806,12 @@ struct npc_high_seas_fuse : public ScriptedAI
     npc_high_seas_fuse(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 summonerGUID;
-    uint64 barrelGUID;
+    ObjectGuid summonerGUID;
+    ObjectGuid barrelGUID;
 
     void IsSummonedBy(Unit* summoner) override
     {
-        barrelGUID = 0;
+        barrelGUID = ObjectGuid::Empty;
         summonerGUID = summoner->GetGUID();
     }
 
@@ -860,25 +860,25 @@ struct npc_high_seas_triad_of_lieutenants : public customCreatureAI
 {
     npc_high_seas_triad_of_lieutenants(Creature* creature) : customCreatureAI(creature) { }
 
-    uint64 barrelGUID;
+    ObjectGuid barrelGUID;
 
     void Reset() override
     {
-        barrelGUID = 0;
+        barrelGUID = ObjectGuid::Empty;
         events.Reset();
     }
 
-    void SetGUID(uint64 guid, int32 /*type*/) override
+    void SetGUID(ObjectGuid guid, int32 /*type*/) override
     {
         barrelGUID = guid;
     }
 
-    uint64 GetGUID(int32 /*type*/) const override
+    ObjectGuid GetGUID(int32 /*type*/) const override
     {
         return barrelGUID;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_THROW_BOMB, 4 * IN_MILLISECONDS);
         
@@ -948,7 +948,7 @@ struct npc_high_seas_explosive_barrel_trigger : public ScriptedAI
 
     void Reset() override
     {
-        me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+        me->SetDisplayFromModel(1);
     }
 
     void UpdateAI(uint32 /*diff*/) override { }
@@ -970,7 +970,7 @@ struct npc_high_seas_explosive_barrel : public ScriptedAI
     {
         if (actionId == ACTION_START_INTRO && !hasTriggered)
         {
-            hasTriggered;
+            hasTriggered = true;
 
             if (me->GetEntry() == NPC_PLANT_EXPLOSIVES)
                 me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
@@ -1002,7 +1002,7 @@ struct npc_high_seas_admiral_hodgson : public customCreatureAI
         x = 0.0f; y = 0.0f; z = 0.0f;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(TALK_INTRO);
 
@@ -1035,7 +1035,7 @@ struct npc_high_seas_admiral_hodgson : public customCreatureAI
             {
                 Player* target = Trinity::Containers::SelectRandomContainerElement(targets);
 
-                if (Creature* bunny = me->SummonCreature(NPC_GENERAL_BUNNY_JMF, *target, TEMPSUMMON_TIMED_DESPAWN, 8 * IN_MILLISECONDS))
+                if (Creature* bunny = me->SummonCreature(NPC_GENERAL_BUNNY_JMF, *target, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(8 * IN_MILLISECONDS)))
                 {
                     x = bunny->GetPositionX() + frand(-2.0f, 2.0f);
                     y = bunny->GetPositionY() + frand(-2.0f, 2.0f);
@@ -1065,7 +1065,7 @@ struct npc_high_seas_admiral_hodgson : public customCreatureAI
             Talk(TALK_SPECIAL_3); // Announce
 
             // Allow to use Rapire
-            if (GameObject* rapier = ObjectAccessor::GetGameObject(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(GO_RAPIER) : 0))
+            if (GameObject* rapier = ObjectAccessor::GetGameObject(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(GO_RAPIER) : ObjectGuid::Empty))
                 rapier->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
         }
     }
@@ -1105,7 +1105,7 @@ struct npc_high_seas_net_climber : public ScriptedAI
     npc_high_seas_net_climber(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 summonerGUID;
+    ObjectGuid summonerGUID;
     uint8 posId;
 
     void IsSummonedBy(Unit* summoner) override
@@ -1127,7 +1127,7 @@ struct npc_high_seas_net_climber : public ScriptedAI
 
     void Reset() override
     {
-        me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+        me->SetDisplayFromModel(1);
 
         scheduler
             .Schedule(Milliseconds(1000), [this](TaskContext context)

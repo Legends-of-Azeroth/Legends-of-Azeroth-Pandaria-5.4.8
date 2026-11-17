@@ -94,7 +94,7 @@ class boss_void_reaver : public CreatureScript
                     instance->SetData(DATA_VOIDREAVEREVENT, DONE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 
@@ -119,11 +119,11 @@ class boss_void_reaver : public CreatureScript
                 if (ArcaneOrb_Timer <= diff)
                 {
                     Unit* target = NULL;
-                    std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+                    auto t_list = me->GetThreatManager().GetUnsortedThreatList();
                     std::vector<Unit*> target_list;
-                    for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                    for (ThreatReference const* ref : t_list)
                     {
-                        target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                        target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                         if (!target)
                             continue;
                         // exclude pets & totems, 18 yard radius minimum
@@ -138,7 +138,7 @@ class boss_void_reaver : public CreatureScript
                         target = me->GetVictim();
 
                     if (target)
-                        me->CastSpell(target, SPELL_ARCANE_ORB, false, NULL, NULL, 0);
+                        me->CastSpell(target, SPELL_ARCANE_ORB, false, NULL, NULL, ObjectGuid::Empty);
                     ArcaneOrb_Timer = 3000;
                 }
                 else

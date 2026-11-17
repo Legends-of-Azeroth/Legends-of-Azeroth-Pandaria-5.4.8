@@ -38,8 +38,8 @@ class instance_shadow_labyrinth : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
 
-                AmbassadorHellmawGUID = 0;
-                GrandmasterVorpilGUID = 0;
+                AmbassadorHellmawGUID = ObjectGuid::Empty;
+                GrandmasterVorpilGUID = ObjectGuid::Empty;
                 FelOverseerCount      = 0;
             }
 
@@ -79,7 +79,7 @@ class instance_shadow_labyrinth : public InstanceMapScript
                 }
             }
 
-            void OnUnitDeath(Unit* unit)
+            void OnUnitDeath(Unit* unit) override
             {
                 Creature* creature = unit->ToCreature();
                 if (!creature)
@@ -108,7 +108,7 @@ class instance_shadow_labyrinth : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -117,7 +117,7 @@ class instance_shadow_labyrinth : public InstanceMapScript
                     default:
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData() override
@@ -164,8 +164,8 @@ class instance_shadow_labyrinth : public InstanceMapScript
             }
 
         protected:
-            uint64 AmbassadorHellmawGUID;
-            uint64 GrandmasterVorpilGUID;
+            ObjectGuid AmbassadorHellmawGUID;
+            ObjectGuid GrandmasterVorpilGUID;
             uint32 FelOverseerCount;
         };
 

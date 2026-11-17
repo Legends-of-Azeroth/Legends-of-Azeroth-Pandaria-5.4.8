@@ -56,9 +56,9 @@ class boss_ambassador_hellmaw : public CreatureScript
     public:
         boss_ambassador_hellmaw() : CreatureScript("boss_ambassador_hellmaw") { }
 
-        struct boss_ambassador_hellmawAI : public npc_escortAI
+        struct boss_ambassador_hellmawAI : public EscortAI
         {
-            boss_ambassador_hellmawAI(Creature* creature) : npc_escortAI(creature)
+            boss_ambassador_hellmawAI(Creature* creature) : EscortAI(creature)
             {
                 _instance = creature->GetInstanceScript();
                 _intro = false;
@@ -85,14 +85,14 @@ class boss_ambassador_hellmaw : public CreatureScript
                 if (me->HasAura(SPELL_BANISH))
                     return;
 
-                npc_escortAI::MoveInLineOfSight(who);
+                EscortAI::MoveInLineOfSight(who);
             }
 
-            void WaypointReached(uint32 /*waypointId*/) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
             }
 
-            void DoAction(int32 actionId)
+            void DoAction(int32 actionId) override
             {
                 if (actionId == ACTION_AMBASSADOR_HELLMAW_INTRO)
                     DoIntro();
@@ -114,10 +114,10 @@ class boss_ambassador_hellmaw : public CreatureScript
                     me->RemoveAurasDueToSpell(SPELL_BANISH);
 
                 Talk(SAY_INTRO);
-                Start(true, false, 0, NULL, false, true);
+                Start(true, ObjectGuid::Empty, NULL, false, true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _instance->SetBossState(DATA_AMBASSADOR_HELLMAW, IN_PROGRESS);
                 Talk(SAY_AGGRO);

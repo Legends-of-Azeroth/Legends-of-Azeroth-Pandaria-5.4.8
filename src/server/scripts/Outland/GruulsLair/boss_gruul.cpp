@@ -94,9 +94,9 @@ class boss_gruul : public CreatureScript
                 m_uiReverberation_Timer= 60000+45000;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
             }
 

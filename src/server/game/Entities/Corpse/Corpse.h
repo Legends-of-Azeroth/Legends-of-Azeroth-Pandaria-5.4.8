@@ -51,35 +51,36 @@ class TC_GAME_API Corpse : public WorldObject, public GridObject<Corpse>
         explicit Corpse(CorpseType type = CORPSE_BONES);
         ~Corpse();
 
-        void AddToWorld();
-        void RemoveFromWorld();
+        void AddToWorld() override;
+        void RemoveFromWorld() override;
 
-        bool Create(uint32 guidlow, Map* map);
-        bool Create(uint32 guidlow, Player* owner);
+        bool Create(ObjectGuid::LowType guidlow);
+        bool Create(ObjectGuid::LowType guidlow, Player* owner);
 
         void SaveToDB();
         bool LoadCorpseFromDB(uint32 guid, Field* fields);
 
-        void DeleteBonesFromWorld();
         void DeleteFromDB(CharacterDatabaseTransaction trans);
+        static void DeleteFromDB(ObjectGuid const& ownerGuid, CharacterDatabaseTransaction trans);
 
-        uint64 GetOwnerGUID() const { return GetUInt64Value(CORPSE_FIELD_OWNER); }
+        ObjectGuid GetOwnerGUID() const { return GetGuidValue(CORPSE_FIELD_OWNER); }
 
         time_t const& GetGhostTime() const { return m_time; }
         void ResetGhostTime() { m_time = time(NULL); }
         CorpseType GetType() const { return m_type; }
 
-        GridCoord const& GetGridCoord() const { return _gridCoord; }
-        void SetGridCoord(GridCoord const& gridCoord) { _gridCoord = gridCoord; }
+        CellCoord const& GetCellCoord() const { return _cellCoord; }
+        void SetCellCoord(CellCoord const& cellCoord) { _cellCoord = cellCoord; }
 
         Loot loot;                                          // remove insignia ONLY at BG
         Player* lootRecipient;
         bool lootForBody;
+
         bool IsExpired(time_t t) const;
 
     private:
         CorpseType m_type;
         time_t m_time;
-        GridCoord _gridCoord;                                    // gride for corpse position for fast search
+        CellCoord _cellCoord;
 };
 #endif

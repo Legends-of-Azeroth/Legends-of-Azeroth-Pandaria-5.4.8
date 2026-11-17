@@ -19,46 +19,87 @@
 
 #ifndef WMO_H
 #define WMO_H
+
 #define TILESIZE (533.33333f)
 #define CHUNKSIZE ((TILESIZE) / 16.0f)
 
 #include <string>
+#include <unordered_set>
 #include <set>
+#include <vector>
+#include <memory>
 #include "vec3d.h"
 #include "mpqfile.h"
 
 // MOPY flags
-#define WMO_MATERIAL_NOCAMCOLLIDE    0x01
-#define WMO_MATERIAL_DETAIL          0x02
-#define WMO_MATERIAL_NO_COLLISION    0x04
-#define WMO_MATERIAL_HINT            0x08
-#define WMO_MATERIAL_RENDER          0x10
-#define WMO_MATERIAL_COLLIDE_HIT     0x20
-#define WMO_MATERIAL_WALL_SURFACE    0x40
+enum MopyFlags
+{
+    WMO_MATERIAL_UNK01          = 0x01,
+    WMO_MATERIAL_NOCAMCOLLIDE   = 0x02,
+    WMO_MATERIAL_DETAIL         = 0x04,
+    WMO_MATERIAL_COLLISION      = 0x08,
+    WMO_MATERIAL_HINT           = 0x10,
+    WMO_MATERIAL_RENDER         = 0x20,
+    WMO_MATERIAL_WALL_SURFACE   = 0x40, // Guessed
+    WMO_MATERIAL_COLLIDE_HIT    = 0x80
+};
 
-class WMOInstance;
 class WMOManager;
 class MPQFile;
+namespace ADT { struct MODF; }
+
+namespace WMO
+{
+    struct MODS
+    {
+        char Name[20];
+        uint32 StartIndex;     // index of first doodad instance in this set
+        uint32 Count;          // number of doodad instances in this set
+        char _pad[4];
+    };
+
+    struct MODD
+    {
+        uint32 NameIndex : 24;
+        Vec3D Position;
+        Quaternion Rotation;
+        float Scale;
+        uint32 Color;
+    };
+}
 
 /* for whatever reason a certain company just can't stick to one coordinate system... */
 static inline Vec3D fixCoords(const Vec3D &v){ return Vec3D(v.z, v.x, v.y); }
+
+struct WMODoodadData
+{
+    std::vector<WMO::MODS> Sets;
+    std::unique_ptr<char[]> Paths;
+    std::vector<WMO::MODD> Spawns;
+    std::unordered_set<uint16> References;
+};
 
 class WMORoot
 {
 private:
     std::string filename;
 public:
-    unsigned int col;
-    uint32 nTextures, nGroups, nP, nLights, nModels, nDoodads, nDoodadSets, RootWMOID, liquidType;
+    unsigned int color;
+    uint32 nTextures, nGroups, nPortals, nLights, nDoodadNames, nDoodadDefs, nDoodadSets, RootWMOID, flags;
     float bbcorn1[3];
     float bbcorn2[3];
 
-    WMORoot(std::string& filename);
-    ~WMORoot();
+    std::vector<char> GroupNames;
+    WMODoodadData DoodadData;
+    std::unordered_set<uint32> ValidDoodadNames;
+
+    WMORoot(std::string const& filename);
 
     bool open();
     bool ConvertToVMAPRootWmo(FILE* output);
 };
+
+#pragma pack(push, 1)
 
 struct WMOLiquidHeader
 {
@@ -66,7 +107,7 @@ struct WMOLiquidHeader
     float pos_x;
     float pos_y;
     float pos_z;
-    short type;
+    short material;
 };
 
 struct WMOLiquidVert
@@ -75,6 +116,8 @@ struct WMOLiquidVert
     uint16 unk2;
     float height;
 };
+
+#pragma pack(pop)
 
 class WMOGroup
 {
@@ -100,7 +143,7 @@ public:
     uint16 moprNItems;
     uint16 nBatchA;
     uint16 nBatchB;
-    uint32 nBatchC, fogIdx, liquidType, groupWMOID;
+    uint32 nBatchC, fogIdx, groupLiquid, groupWMOID;
 
     int mopy_size, moba_size;
     int LiquEx_size;
@@ -108,29 +151,20 @@ public:
     int nTriangles; // number when loaded
     uint32 liquflags;
 
+    std::vector<uint16> DoodadReferences;
+
     WMOGroup(std::string const& filename);
     ~WMOGroup();
 
-    bool open();
-    int ConvertToVMAPGroupWmo(FILE* output, WMORoot* rootWMO, bool preciseVectorData);
+    bool open(WMORoot* rootWMO);
+    int ConvertToVMAPGroupWmo(FILE* output, bool preciseVectorData);
+    uint32 GetLiquidTypeId(uint32 liquidTypeId);
+    bool ShouldSkip(WMORoot const* root) const;    
 };
 
-class WMOInstance
+namespace MapObject
 {
-    static std::set<int> ids;
-public:
-    std::string MapName;
-    int currx;
-    int curry;
-    WMOGroup* wmo;
-    int doodadset;
-    Vec3D pos;
-    Vec3D pos2, pos3, rot;
-    uint32 indx, id, d2, d3;
-
-    WMOInstance(MPQFile&f , char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile);
-
-    static void reset();
-};
+    void Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile);
+}
 
 #endif

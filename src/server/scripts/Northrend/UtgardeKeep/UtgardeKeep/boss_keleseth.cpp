@@ -80,22 +80,22 @@ class npc_frost_tomb : public CreatureScript
         {
             npc_frost_tombAI(Creature* creature) : ScriptedAI(creature)
             {
-                FrostTombGUID = 0;
+                FrostTombGUID = ObjectGuid::Empty;
             }
 
-            uint64 FrostTombGUID;
+            ObjectGuid FrostTombGUID;
 
             void SetPrisoner(Unit* uPrisoner)
             {
                 FrostTombGUID = uPrisoner->GetGUID();
             }
 
-            void Reset()
+            void Reset() override
             {
-                FrostTombGUID = 0;
+                FrostTombGUID = ObjectGuid::Empty;
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void AttackStart(Unit* /*who*/) override { }
 
@@ -146,7 +146,7 @@ class boss_keleseth : public CreatureScript
             uint32 SummonSkeletonsTimer;
             uint32 RespawnSkeletonsTimer;
             uint32 ShadowboltTimer;
-            uint64 SkeletonGUID[5];
+            ObjectGuid SkeletonGUID[5];
             bool Skeletons;
             bool RespawnSkeletons;
 
@@ -193,7 +193,7 @@ class boss_keleseth : public CreatureScript
                     instance->SetData(DATA_PRINCEKELESETH_EVENT, DONE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 DoZoneInCombat();
@@ -229,12 +229,12 @@ class boss_keleseth : public CreatureScript
                         Talk(SAY_SKELETONS);
                         for (uint8 i = 0; i < 5; ++i)
                         {
-                            Skeleton = me->SummonCreature(NPC_SKELETON, SkeletonSpawnPoint[i][0], SkeletonSpawnPoint[i][1] , SKELETONSPAWN_Z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
+                            Skeleton = me->SummonCreature(NPC_SKELETON, SkeletonSpawnPoint[i][0], SkeletonSpawnPoint[i][1] , SKELETONSPAWN_Z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000ms);
                             if (Skeleton)
                             {
                                 Skeleton->SetWalk(false);
                                 Skeleton->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY() , me->GetPositionZ());
-                                Skeleton->AddThreat(me->GetVictim(), 0.0f);
+                                Skeleton->GetThreatManager().AddThreat(me->GetVictim(), 0.0f);
                                 DoZoneInCombat(Skeleton);
                             }
                         }
@@ -248,7 +248,7 @@ class boss_keleseth : public CreatureScript
                         if (target->IsAlive())
                         {
                             //DoCast(target, SPELL_FROST_TOMB_SUMMON, true);
-                            if (Creature* pChains = me->SummonCreature(NPC_FROSTTOMB, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000))
+                            if (Creature* pChains = me->SummonCreature(NPC_FROSTTOMB, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000ms))
                             {
                                 CAST_AI(npc_frost_tomb::npc_frost_tombAI, pChains->AI())->SetPrisoner(target);
                                 pChains->CastSpell(target, SPELL_FROST_TOMB, true);
@@ -284,7 +284,7 @@ class npc_vrykul_skeleton : public CreatureScript
 
             InstanceScript* instance;
             uint32 Respawn_Time;
-            uint64 Target_Guid;
+            ObjectGuid Target_Guid;
             uint32 Decrepify_Timer;
 
             bool isDead;
@@ -296,9 +296,9 @@ class npc_vrykul_skeleton : public CreatureScript
                 isDead = false;
             }
 
-            void EnterCombat(Unit* /*who*/) { }
+            void JustEngagedWith(Unit* /*who*/) override { }
             
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage) override
             {
                 if (attacker->GetGUID() == me->GetGUID())
                     return;

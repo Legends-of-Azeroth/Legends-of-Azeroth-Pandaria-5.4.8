@@ -68,7 +68,7 @@ class OutdoorPvPSI : public OutdoorPvP
 
         void SendRemoveWorldStates(Player* player);
 
-        bool HandleAreaTrigger(Player* player, uint32 trigger);
+        bool HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
 
         bool HandleDropFlag(Player* player, uint32 spellId);
 

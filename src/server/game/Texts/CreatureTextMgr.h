@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -115,7 +115,7 @@ class CreatureTextMgr
         template<class Builder>
         void SendChatPacket(WorldObject* source, Builder const& builder, ChatMsg msgType, WorldObject const* whisperTarget = nullptr, CreatureTextRange range = TEXT_RANGE_NORMAL, Team team = TEAM_OTHER, bool gmOnly = false) const;
     private:
-        void SendNonChatPacket(WorldObject* source, WorldPacket* data, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly) const;
+        void SendNonChatPacket(WorldObject* source, WorldPacket const* data, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly) const;
         float GetRangeForChatType(ChatMsg msgType) const;
 
         CreatureTextMap mTextMap;
@@ -191,13 +191,31 @@ class CreatureTextLocalizer
                 whisperGUIDpos = _packetCache[loc_idx]->second;
             }
 
+            ObjectGuid receiverGUID = player->GetGUID();
             WorldPacket data(*messageTemplate);
             switch (_msgType)
             {
                 case CHAT_MSG_MONSTER_WHISPER:
                 case CHAT_MSG_RAID_BOSS_WHISPER:
-                    // data.put<uint64>(whisperGUIDpos, player->GetGUID()); //.GetRawValue()
-                    // data.put<uint64>(whisperGUIDpos + (8 + 3 +8 + 2 + 12 + 1+ 1 + 1 + 8 + 8 + 1 + 8), player->GetGUID());
+                    data.bitwpos(whisperGUIDpos);
+                    data.WriteBit(receiverGUID[7]);
+                    data.WriteBit(receiverGUID[6]);
+                    data.WriteBit(receiverGUID[1]);
+                    data.WriteBit(receiverGUID[4]);
+                    data.WriteBit(receiverGUID[0]);
+                    data.WriteBit(receiverGUID[2]);
+                    data.WriteBit(receiverGUID[3]);
+                    data.WriteBit(receiverGUID[5]);
+
+                    data.bitwpos(whisperGUIDpos+71);
+                    data.WriteByteSeq(receiverGUID[2]);
+                    data.WriteByteSeq(receiverGUID[5]);
+                    data.WriteByteSeq(receiverGUID[3]);
+                    data.WriteByteSeq(receiverGUID[6]);
+                    data.WriteByteSeq(receiverGUID[7]);
+                    data.WriteByteSeq(receiverGUID[4]);
+                    data.WriteByteSeq(receiverGUID[1]);
+                    data.WriteByteSeq(receiverGUID[0]);                  
                     break;
                 default:
                     break;
@@ -289,6 +307,12 @@ void CreatureTextMgr::SendChatPacket(WorldObject* source, Builder const& builder
                         localizer(player);
             return;
         }
+        case TEXT_RANGE_PERSONAL:
+            if (!whisperTarget || !whisperTarget->IsPlayer())
+                return;
+
+            localizer(const_cast<Player*>(whisperTarget->ToPlayer()));
+            return;
         case TEXT_RANGE_NORMAL:
         default:
             break;

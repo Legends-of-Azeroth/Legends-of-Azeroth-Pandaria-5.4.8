@@ -31,10 +31,10 @@ class instance_assault_on_zanvess : public InstanceMapScript
             instance_assault_on_zanvess_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             EventMap events;
-            uint64 gongGUID, templeDoorGUID;
+            ObjectGuid gongGUID, templeDoorGUID;
             uint32 m_auiEncounter[CHAPTERS];
-            std::map<uint32, uint64> AssaultEncounters;
-            std::vector<uint64> gyroGUIDs, NalleyGUIDs;
+            std::map<uint32, ObjectGuid> AssaultEncounters;
+            std::vector<ObjectGuid> gyroGUIDs, NalleyGUIDs;
             uint32 chapterOne, chapterTwo, chapterThird, chapterFour;
             uint32 sonicTowerCount;
             uint32 alterTowerCount;
@@ -66,12 +66,12 @@ class instance_assault_on_zanvess : public InstanceMapScript
 
                 if (teamValue == HORDE)
                 {
-                    if (Creature* admiral = instance->GetCreature(GetData64(NPC_REAR_ADMIRAL_ZIGG)))
+                    if (Creature* admiral = instance->GetCreature(GetGuidData(NPC_REAR_ADMIRAL_ZIGG)))
                         admiral->AI()->Talk(TALK_INTRO, player);
                 }
                 else
                 {
-                    if (Creature* rodgers = instance->GetCreature(GetData64(NPC_SKY_GENERAL_RODGER)))
+                    if (Creature* rodgers = instance->GetCreature(GetGuidData(NPC_SKY_GENERAL_RODGER)))
                         rodgers->AI()->Talk(TALK_INTRO, player);
                 }
 
@@ -187,7 +187,7 @@ class instance_assault_on_zanvess : public InstanceMapScript
                                 if (Creature* gunship = instance->GetCreature(itr))
                                     gunship->AI()->DoAction(ACTION_MOVE_TO_ISLAND);
 
-                            if (Creature* controller = instance->GetCreature(GetData64(NPC_SCENARIO_CONTROLLER)))
+                            if (Creature* controller = instance->GetCreature(GetGuidData(NPC_SCENARIO_CONTROLLER)))
                                 controller->RemoveAurasDueToSpell(SPELL_ISLAND_SHIELD);
 
                             DoCastSpellOnPlayers(SPELL_STRAFING_RAN);
@@ -209,7 +209,7 @@ class instance_assault_on_zanvess : public InstanceMapScript
                                 if (Player* player = itr.GetSource())
                                     sScenarioMgr->SendScenarioState(player, 1050, type, 0);
 
-                            if (Creature* CommanderTelvrak = instance->GetCreature(GetData64(NPC_COMMANDER_TELVRAK)))
+                            if (Creature* CommanderTelvrak = instance->GetCreature(GetGuidData(NPC_COMMANDER_TELVRAK)))
                                 CommanderTelvrak->AI()->DoAction(ACTION_TELVRAK_ASSAULT);
                         }
 
@@ -255,7 +255,7 @@ class instance_assault_on_zanvess : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -266,7 +266,7 @@ class instance_assault_on_zanvess : public InstanceMapScript
                         return AssaultEncounters.find(type)->second;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool IsWipe(float range, Unit* source) override

@@ -36,9 +36,9 @@ class instance_secret_ingridient : public InstanceMapScript
             uint32 availableCook;
             uint32 availableCookWhole;
             uint32 eatenCount;
-            uint64 ironPawGUID;
-            uint64 noodleStandGUID;
-            uint64 playerGUID;
+            ObjectGuid ironPawGUID;
+            ObjectGuid noodleStandGUID;
+            ObjectGuid playerGUID;
 
             void Initialize() override
             {
@@ -47,11 +47,11 @@ class instance_secret_ingridient : public InstanceMapScript
 
                 chapterOne         = 0;
                 chapterTwo         = 0;
-                ironPawGUID        = 0;
-                playerGUID         = 0;
+                ironPawGUID = ObjectGuid::Empty;
+                playerGUID = ObjectGuid::Empty;
                 availableCook      = 0;
                 availableCookWhole = 0;
-                noodleStandGUID    = 0;
+                noodleStandGUID = ObjectGuid::Empty;
                 eatenCount         = 0;
 
                 events.Reset();
@@ -66,7 +66,7 @@ class instance_secret_ingridient : public InstanceMapScript
                 sScenarioMgr->SendScenarioState(player, 1157, DATA_TUTORIAL, 0);
                 player->CastSpell(player, SPELL_COOKING_NOODLE_TIME, true);
 
-                if (Creature* ironPaw = instance->GetCreature(GetData64(NPC_SUNGSHIN_IRONPAW)))
+                if (Creature* ironPaw = instance->GetCreature(GetGuidData(NPC_SUNGSHIN_IRONPAW)))
                     ironPaw->AI()->DoAction(ACTION_INTRO);
 
                 events.ScheduleEvent(1, 1000);
@@ -104,7 +104,7 @@ class instance_secret_ingridient : public InstanceMapScript
                     case DATA_AVAILABLE_COOK_WHOLE:
                         availableCookWhole = data;
 
-                        if (Player* target = ObjectAccessor::FindPlayer(GetData64(DATA_PLAYER)))
+                        if (Player* target = ObjectAccessor::FindPlayer(GetGuidData(DATA_PLAYER)))
                             sScenarioMgr->SendScenarioState(target, 1157, DATA_NOODLE_TIME, 0);
                         break;
                     case DATA_EATEN_COUNT:
@@ -114,7 +114,7 @@ class instance_secret_ingridient : public InstanceMapScript
                         {
                             DoFinishLFGDungeon(745);
 
-                            if (Player* target = ObjectAccessor::FindPlayer(GetData64(DATA_PLAYER)))
+                            if (Player* target = ObjectAccessor::FindPlayer(GetGuidData(DATA_PLAYER)))
                                 target->KilledMonsterCredit(NPC_INGRIDIENT_CREDIT);
                         }
                         break;
@@ -139,7 +139,7 @@ class instance_secret_ingridient : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -151,7 +151,7 @@ class instance_secret_ingridient : public InstanceMapScript
                         return noodleStandGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void Update(uint32 diff) override

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -183,11 +183,11 @@ enum eYells
     TALK_TWILIGHT_DRAKE                = 0
 };
 
-std::list <Creature*> ActivateNearestStalkers(uint64 ownerGUID, uint32 npc_entry)
+std::list <Creature*> ActivateNearestStalkers(Creature* me, ObjectGuid ownerGUID, uint32 npc_entry)
 {
     std::list<Creature*> StalkersInArea;
 
-    Unit* owner = ObjectAccessor::FindUnit(ownerGUID);
+    Unit* owner = ObjectAccessor::GetUnit(*me, ownerGUID);
 
     if (!owner)
         return StalkersInArea;
@@ -197,10 +197,10 @@ std::list <Creature*> ActivateNearestStalkers(uint64 ownerGUID, uint32 npc_entry
     return StalkersInArea;
 }
 
-Creature* GetFrozenServitorTarget(uint64 ownerGUID)
+Creature* GetFrozenServitorTarget(Creature* me, ObjectGuid ownerGUID)
 {
     std::list <Creature*> FrozenServitorsInArea;
-    Unit* owner = ObjectAccessor::FindUnit(ownerGUID);
+    Unit* owner = ObjectAccessor::GetUnit(*me, ownerGUID);
 
     if (!owner)
         return (Creature*)NULL;
@@ -213,10 +213,10 @@ Creature* GetFrozenServitorTarget(uint64 ownerGUID)
     return Trinity::Containers::SelectRandomContainerElement(FrozenServitorsInArea);
 }
 
-uint32 GetCurrentPlayersCount(uint64 ownerGUID)
+uint32 GetCurrentPlayersCount(Creature* me, ObjectGuid ownerGUID)
 {
     std::list <Player*> PlayersInArea;
-    Unit* owner = ObjectAccessor::FindUnit(ownerGUID);
+    Unit* owner = ObjectAccessor::GetUnit(*me, ownerGUID);
 
     if (!owner)
         return 0;
@@ -405,7 +405,7 @@ class npc_hour_of_twilight_life_warden_thrall : public CreatureScript
                         me->GetMotionMaster()->Clear();
 
                         if (instance)
-                            if (Creature* Asira = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ASIRA)))
+                            if (Creature* Asira = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ASIRA)))
                                 Asira->AI()->DoAction(ACTION_ASIRA_FALL);
 
                             me->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), -6.48f, me->GetOrientation());
@@ -587,7 +587,7 @@ class npc_thrall_intro : public CreatureScript
             uint32 timer;
             uint32 wp;
 
-            void Reset()
+            void Reset() override
             {
                 events.Reset();
                 nonCombatEvents.Reset();
@@ -610,7 +610,7 @@ class npc_thrall_intro : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_LAVA_BURST, 1500);
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 30000);
@@ -636,10 +636,10 @@ class npc_thrall_intro : public CreatureScript
                         Talk(TALK_INTRO_3);
                         Talk(TALK_INTRO_4);
 
-                        for (auto itr : ActivateNearestStalkers(me->GetGUID(), NPC_FROZEN_SERVITOR_SPAWN_STALKER_2))
+                        for (auto itr : ActivateNearestStalkers(me, me->GetGUID(), NPC_FROZEN_SERVITOR_SPAWN_STALKER_2))
                             itr->AI()->DoAction(ACTION_SPAWN);
 
-                        for (auto itr : ActivateNearestStalkers(me->GetGUID(), NPC_FROZEN_SERVITOR_SPAWN_STALKER))
+                        for (auto itr : ActivateNearestStalkers(me, me->GetGUID(), NPC_FROZEN_SERVITOR_SPAWN_STALKER))
                             itr->AI()->DoAction(ACTION_SPAWN);
                         break;
                     case 4:
@@ -667,7 +667,7 @@ class npc_thrall_intro : public CreatureScript
                     {
                         case EVENT_INTRO:
                         {
-                            for (auto itr : ActivateNearestStalkers(me->GetGUID(), NPC_FROZEN_SERVITOR_STALKER_ENTRANCE))
+                            for (auto itr : ActivateNearestStalkers(me, me->GetGUID(), NPC_FROZEN_SERVITOR_STALKER_ENTRANCE))
                                 itr->AI()->DoAction(ACTION_SPAWN);
                             me->SetFacingTo(me->GetOrientation() + M_PI);
                             Talk(TALK_INTRO_2);
@@ -776,13 +776,13 @@ class npc_thrall_arcurion : public CreatureScript
                 phase        = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
                 me->HandleEmoteStateCommand(EMOTE_STATE_READY1H);
             }
 
-            void Reset()
+            void Reset() override
             {
                 if (instance && instance->GetBossState(DATA_ARCURION) == DONE)
                 {
@@ -838,7 +838,8 @@ class npc_thrall_arcurion : public CreatureScript
                     case ACTION_TALK_ARCURION_DEATH:
                         summons.DespawnEntry(NPC_ICY_TOMB);
                         events.Reset();
-                        me->DeleteThreatList();
+                        me->GetThreatManager().RemoveMeFromThreatLists();
+                        me->GetThreatManager().ClearAllThreat();
 
                         if (instance)
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
@@ -929,13 +930,13 @@ class npc_thrall_arcurion : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_LAVA_BURST:
-                            if (Creature* Arc = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARCURION)))
+                            if (Creature* Arc = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ARCURION)))
                                 me->CastSpell(Arc, SPELL_LAVA_BURST, false);
 
                             events.ScheduleEvent(EVENT_LAVA_BURST, 6000);
                             break;
                         case EVENT_ATTACK_FROZEN_SERVITOR:
-                            if (Creature* FrozenServitor = GetFrozenServitorTarget(me->GetGUID()))
+                            if (Creature* FrozenServitor = GetFrozenServitorTarget(me, me->GetGUID()))
                                 me->CastSpell(FrozenServitor, SPELL_LAVA_BURST, false);
 
                             events.ScheduleEvent(EVENT_ATTACK_FROZEN_SERVITOR, 5000);
@@ -989,7 +990,7 @@ class npc_thrall_asira : public CreatureScript
                 me->HandleEmoteStateCommand(EMOTE_STATE_CANNIBALIZE);
             }
 
-            void Reset()
+            void Reset() override
             {
                 events.Reset();
                 nonCombatEvents.Reset();
@@ -1030,7 +1031,7 @@ class npc_thrall_asira : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_LAVA_BURST, 1500);
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 30000);
@@ -1137,7 +1138,7 @@ class npc_thrall_asira : public CreatureScript
                             if (Creature* LifeWarden = GetClosestCreatureWithEntry(me, NPC_LIFE_WARDEN_1, 20.0f))
                                 LifeWarden->AI()->DoAction(ACTION_FLY_TO_DRAGON_SOUL);
 
-                            for (uint32 i = 0; i < GetCurrentPlayersCount(me->GetGUID()); i++)
+                            for (uint32 i = 0; i < GetCurrentPlayersCount(me, me->GetGUID()); i++)
                                 me->SummonCreature(NPC_LIFE_WARDEN_2, GenerateMovement(drakePos), TEMPSUMMON_MANUAL_DESPAWN);
                             break;
                         default:
@@ -1253,7 +1254,7 @@ class npc_thrall_trash_benedictus : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void InitializeAI() override
             {
@@ -1275,7 +1276,7 @@ class npc_thrall_trash_benedictus : public CreatureScript
                 {
                     case 2:
                     case 3:
-                        for (auto itr : ActivateNearestStalkers(me->GetGUID(), NPC_DARK_HAZE_STALKER))
+                        for (auto itr : ActivateNearestStalkers(me, me->GetGUID(), NPC_DARK_HAZE_STALKER))
                             itr->AI()->DoAction(ACTION_SPAWN);
 
                         me->SummonCreature(NPC_FLAILING_TENTACLE, TentacleSpawnPos[tentacle], TEMPSUMMON_MANUAL_DESPAWN);
@@ -1284,7 +1285,7 @@ class npc_thrall_trash_benedictus : public CreatureScript
                         nonCombatEvents.ScheduleEvent(EVENT_COMBAT, 1000);
                         break;
                     case 6:
-                        for (auto itr : ActivateNearestStalkers(me->GetGUID(), NPC_DARK_HAZE_STALKER))
+                        for (auto itr : ActivateNearestStalkers(me, me->GetGUID(), NPC_DARK_HAZE_STALKER))
                             itr->AI()->DoAction(ACTION_SPAWN);
 
                         me->SummonCreature(NPC_FLAILING_TENTACLE, TentacleSpawnPos[tentacle], TEMPSUMMON_MANUAL_DESPAWN);
@@ -1417,7 +1418,7 @@ class npc_thrall_benedictus : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_LAVA_BURST, 1500);
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 30000);
@@ -1497,6 +1498,11 @@ class npc_thrall_benedictus : public CreatureScript
         }
 };
 
+enum Texts
+{
+    EMOTE_DARK_HAZE                     = 0,
+};
+
 // Frozen Servitors stalker 55389, 54560, 55384, 55385, 54598
 // Asira stalkers 53488, 3570621, 3570622
 // Faceless stalkers 54628, 3570623
@@ -1551,7 +1557,7 @@ class npc_frozen_servitor_stalker : public CreatureScript
                             case NPC_DARK_HAZE_STALKER:
                                 if (me->HasAura(SPELL_GROW_VISUAL_COSMETIC))
                                     me->RemoveAura(SPELL_GROW_VISUAL_COSMETIC);
-                                me->MonsterTextEmote("Spawn of the Old Gods materialize nearby!", 0, true);
+                                Talk(EMOTE_DARK_HAZE);
                                 me->SummonCreature(NPC_FACELESS_BORER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
                                 me->SummonCreature(NPC_FACELESS_SHADOW_WEAVER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
                                 me->SummonCreature(NPC_FACELESS_BRUTE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
@@ -1630,7 +1636,7 @@ class npc_twilights_hammer : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 switch (me->GetEntry())
                 {
@@ -1793,12 +1799,12 @@ class npc_faceless_minions : public CreatureScript
 
             }
 
-            void EnterEvadeMode() override 
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override 
             {
                 ScriptedAI::EnterEvadeMode();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 switch (me->GetEntry())
                 {
@@ -1909,7 +1915,7 @@ class npc_crystalline_elemental : public CreatureScript
             EventMap events;
             uint32 timer;
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 timer = 3000;
             }
@@ -1952,7 +1958,7 @@ class npc_ice_wall_exit_stalker : public CreatureScript
 
             void Reset() override 
             {
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+                me->SetDisplayFromModel(1);
                 me->SetReactState(REACT_PASSIVE);
             }
 

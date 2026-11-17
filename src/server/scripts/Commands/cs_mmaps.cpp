@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -25,17 +25,17 @@
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "DisableMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "PointMovementGenerator.h"
 #include "PathGenerator.h"
 #include "MMapFactory.h"
 #include "Map.h"
-#include "TargetedMovementGenerator.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
-#include "DisableMgr.h"
+#include "World.h"
 
 class mmaps_commandscript : public CommandScript
 {
@@ -46,38 +46,38 @@ public:
     {
         static std::vector<ChatCommand> mmapEnableCommandTable =
         {
-            { "map",            SEC_GAMEMASTER,     false, &HandleMmapEnableMapCommand,         },
-            { "zone",           SEC_GAMEMASTER,     false, &HandleMmapEnableZoneCommand,        },
-            { "area",           SEC_GAMEMASTER,     false, &HandleMmapEnableAreaCommand,        },
-            { "creature",       SEC_GAMEMASTER,     false, &HandleMmapEnableCreatureCommand,    },
-            { "",               SEC_GAMEMASTER,     false, &HandleMmapEnableCommand,            },
+            { "map", &HandleMmapEnableMapCommand, rbac::RBAC_PERM_COMMAND_MMAP_ENABLE_MAP, Trinity::ChatCommands::Console::No },
+            { "zone", &HandleMmapEnableZoneCommand, rbac::RBAC_PERM_COMMAND_MMAP_ENABLE_ZONE, Trinity::ChatCommands::Console::No },
+            { "area", &HandleMmapEnableAreaCommand, rbac::RBAC_PERM_COMMAND_MMAP_ENABLE_AREA, Trinity::ChatCommands::Console::No },
+            { "creature", &HandleMmapEnableCreatureCommand, rbac::RBAC_PERM_COMMAND_MMAP_ENABLE_CREATURE, Trinity::ChatCommands::Console::No },
+            { "", &HandleMmapEnableCommand, rbac::RBAC_PERM_COMMAND_MMAP_ENABLE, Trinity::ChatCommands::Console::No },
         };
 
         static std::vector<ChatCommand> mmapDisableCommandTable =
         {
-            { "map",            SEC_GAMEMASTER,     false, &HandleMmapDisableMapCommand,        },
-            { "zone",           SEC_GAMEMASTER,     false, &HandleMmapDisableZoneCommand,       },
-            { "area",           SEC_GAMEMASTER,     false, &HandleMmapDisableAreaCommand,       },
-            { "creature",       SEC_GAMEMASTER,     false, &HandleMmapDisableCreatureCommand,   },
-            { "",               SEC_GAMEMASTER,     false, &HandleMmapDisableCommand,           },
+            { "map", &HandleMmapDisableMapCommand, rbac::RBAC_PERM_COMMAND_MMAP_DISABLE_MAP, Trinity::ChatCommands::Console::No },
+            { "zone", &HandleMmapDisableZoneCommand, rbac::RBAC_PERM_COMMAND_MMAP_DISABLE_ZONE, Trinity::ChatCommands::Console::No },
+            { "area", &HandleMmapDisableAreaCommand, rbac::RBAC_PERM_COMMAND_MMAP_DISABLE_AREA, Trinity::ChatCommands::Console::No },
+            { "creature", &HandleMmapDisableCreatureCommand, rbac::RBAC_PERM_COMMAND_MMAP_DISABLE_CREATURE, Trinity::ChatCommands::Console::No },
+            { "", &HandleMmapDisableCommand, rbac::RBAC_PERM_COMMAND_MMAP_DISABLE, Trinity::ChatCommands::Console::No },
         };
 
         static std::vector<ChatCommand> mmapCommandTable =
         {
-            { "loadedtiles",    SEC_GAMEMASTER,     false, &HandleMmapLoadedTilesCommand,   },
-            { "loc",            SEC_GAMEMASTER,     false, &HandleMmapLocCommand,           },
-            { "path",           SEC_GAMEMASTER,     false, &HandleMmapPathCommand,          },
-            { "stats",          SEC_GAMEMASTER,     false, &HandleMmapStatsCommand,         },
-            { "testarea",       SEC_GAMEMASTER,     false, &HandleMmapTestArea,             },
-            { "enable",         SEC_GAMEMASTER,     false, mmapEnableCommandTable           },
-            { "disable",        SEC_GAMEMASTER,     false, mmapDisableCommandTable          },
-            { "visualize",      SEC_GAMEMASTER,     false, &HandleMmapVisualizeCommand,     },
-            
+            { "loadedtiles", &HandleMmapLoadedTilesCommand, rbac::RBAC_PERM_COMMAND_MMAP_LOADEDTILES, Trinity::ChatCommands::Console::No },
+            { "loc",            &HandleMmapLocCommand,           rbac::RBAC_PERM_COMMAND_MMAP_LOC,      Trinity::ChatCommands::Console::No },
+            { "path",           &HandleMmapPathCommand,          rbac::RBAC_PERM_COMMAND_MMAP_PATH,     Trinity::ChatCommands::Console::No },
+            { "stats",          &HandleMmapStatsCommand,         rbac::RBAC_PERM_COMMAND_MMAP_STATS,    Trinity::ChatCommands::Console::No },
+            { "testarea",       &HandleMmapTestArea,             rbac::RBAC_PERM_COMMAND_MMAP_TESTAREA, Trinity::ChatCommands::Console::No },
+            { "enable", mmapEnableCommandTable, rbac::RBAC_PERM_COMMAND_MMAP_ENABLE, Trinity::ChatCommands::Console::No },
+            { "disable", mmapDisableCommandTable, rbac::RBAC_PERM_COMMAND_MMAP_DISABLE, Trinity::ChatCommands::Console::No },
+            { "visualize", &HandleMmapVisualizeCommand, rbac::RBAC_PERM_COMMAND_MMAP_VISUALIZE, Trinity::ChatCommands::Console::No },
+
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "mmap",           SEC_GAMEMASTER,     true,  mmapCommandTable                 },
+            { "mmap",           mmapCommandTable,                 rbac::RBAC_PERM_COMMAND_MMAP,          Trinity::ChatCommands::Console::Yes },
         };
         return commandTable;
     }
@@ -149,7 +149,7 @@ public:
             handler->PSendSysMessage("Enable GM mode to see the path points.");
 
         for (uint32 i = 0; i < pointPath.size(); ++i)
-            player->SummonCreature(VISUAL_WAYPOINT, pointPath[i].x, pointPath[i].y, pointPath[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
+            player->SummonCreature(VISUAL_WAYPOINT, pointPath[i].x, pointPath[i].y, pointPath[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 9000ms);
 
         return true;
     }
@@ -252,13 +252,20 @@ public:
             target = handler->GetSession()->GetPlayer();
 
         uint32 mapId = target->GetMapId();
+        uint32 zoneId = target->GetZoneId();
+        uint32 areaId = target->GetAreaId();
+        uint32 entry = target->GetEntry();
         handler->PSendSysMessage("mmap stats:");
-        handler->PSendSysMessage("  global mmap pathfinding is %sabled|r", MMAP::MMapFactory::IsPathfindingEnabled() ? textEnabled : textDisabled);
-        handler->PSendSysMessage("  current target pathfinding is %sabled|r", MMAP::MMapFactory::IsPathfindingEnabled(mapId, target->GetZoneId(), target->GetAreaId(), target->GetEntry()) ? textEnabled : textDisabled);
-        handler->PSendSysMessage("    in map %u is %sabled|r", mapId, MMAP::MMapFactory::IsPathfindingEnabledInMap(mapId) ? textEnabled : textDisabled);
-        handler->PSendSysMessage("    in zone %u is %sabled|r", target->GetZoneId(), MMAP::MMapFactory::IsPathfindingEnabledInZone(target->GetZoneId()) ? textEnabled : textDisabled);
-        handler->PSendSysMessage("    in area %u is %sabled|r", target->GetAreaId(), MMAP::MMapFactory::IsPathfindingEnabledInArea(target->GetAreaId()) ? textEnabled : textDisabled);
-        handler->PSendSysMessage("    for creature %u is %sabled|r", target->GetEntry(), MMAP::MMapFactory::IsPathfindingEnabledForCreature(target->GetEntry()) ? textEnabled : textDisabled);
+        handler->PSendSysMessage("  global mmap pathfinding is %sabled|r", sWorld->getBoolConfig(CONFIG_ENABLE_MMAPS) ? textEnabled : textDisabled);
+        handler->PSendSysMessage("  current target pathfinding is %sabled|r", sWorld->getBoolConfig(CONFIG_ENABLE_MMAPS)
+            && !DisableMgr::IsDisabledFor(DISABLE_TYPE_MMAP_MAP, mapId, nullptr)
+            && !DisableMgr::IsDisabledFor(DISABLE_TYPE_MMAP_ZONE, zoneId, nullptr)
+            && !DisableMgr::IsDisabledFor(DISABLE_TYPE_MMAP_AREA, areaId, nullptr)
+            && !DisableMgr::IsDisabledFor(DISABLE_TYPE_MMAP_CREATURE, entry, nullptr) ? textEnabled : textDisabled);
+        handler->PSendSysMessage("    in map %u is %sabled|r", mapId, sWorld->getBoolConfig(CONFIG_ENABLE_MMAPS) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_MMAP_MAP, mapId, nullptr) ? textEnabled : textDisabled);
+        handler->PSendSysMessage("    in zone %u is %sabled|r", zoneId, sWorld->getBoolConfig(CONFIG_ENABLE_MMAPS) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_MMAP_ZONE, zoneId, nullptr) ? textEnabled : textDisabled);
+        handler->PSendSysMessage("    in area %u is %sabled|r", areaId, sWorld->getBoolConfig(CONFIG_ENABLE_MMAPS) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_MMAP_AREA, areaId, nullptr) ? textEnabled : textDisabled);
+        handler->PSendSysMessage("    for creature %u is %sabled|r", entry, sWorld->getBoolConfig(CONFIG_ENABLE_MMAPS) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_MMAP_CREATURE, entry, nullptr) ? textEnabled : textDisabled);
 
         MMAP::MMapManager* manager = MMAP::MMapFactory::createOrGetMMapManager();
         handler->PSendSysMessage(" %u maps loaded with %u tiles overall", manager->getLoadedMapsCount(), manager->getLoadedTilesCount());
@@ -361,7 +368,7 @@ public:
         };
         const uint8 TABLE_ENTRIES_COUNT = 4;
 
-        if (!MMAP::MMapFactory::IsPathfindingEnabled())
+        if (!sWorld->getBoolConfig(CONFIG_ENABLE_MMAPS))
         {
             handler->PSendSysMessage("Unable to execute command: pathfinding is globally disabled.");
             handler->SetSentErrorMessage(true);
@@ -380,7 +387,7 @@ public:
                 if (entry == -1)
                     entry = target->GetMapId();
                 if (entry != -1)
-                    skip = MMAP::MMapFactory::IsPathfindingEnabledInMap(entry) != disable;
+                    skip = (sWorld->getBoolConfig(CONFIG_ENABLE_MMAPS) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_MMAP_MAP, entry, nullptr)) != disable;
                 if (MapEntry const* map = sMapStore.LookupEntry(entry))
                     ss << "Map - " << map->name[DEFAULT_LOCALE];
                 break;
@@ -388,7 +395,7 @@ public:
                 if (!entry)
                     entry = target->GetZoneId();
                 if (entry)
-                    skip = MMAP::MMapFactory::IsPathfindingEnabledInZone(entry) != disable;
+                    skip = (sWorld->getBoolConfig(CONFIG_ENABLE_MMAPS) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_MMAP_ZONE, entry, nullptr)) != disable;
                 if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(entry))
                     ss << "Area - " << area->area_name[DEFAULT_LOCALE];
                 break;
@@ -396,7 +403,7 @@ public:
                 if (!entry)
                     entry = target->GetAreaId();
                 if (entry)
-                    skip = MMAP::MMapFactory::IsPathfindingEnabledInArea(entry) != disable;
+                    skip = (sWorld->getBoolConfig(CONFIG_ENABLE_MMAPS) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_MMAP_AREA, entry, nullptr)) != disable;
                 if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(entry))
                     ss << "Area - " << zone->area_name[DEFAULT_LOCALE];
                 break;
@@ -404,7 +411,7 @@ public:
                 if (!entry)
                     entry = target->GetEntry();
                 if (entry)
-                    skip = MMAP::MMapFactory::IsPathfindingEnabledForCreature(entry) != disable;
+                    skip = (sWorld->getBoolConfig(CONFIG_ENABLE_MMAPS) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_MMAP_CREATURE, entry, nullptr)) != disable;
                 ss << "Creature - " << target->GetNameForLocaleIdx(DEFAULT_LOCALE);
                 break;
         }
@@ -443,7 +450,10 @@ public:
             index += 2;
         }
 
-        WorldDatabase.PExecute(disable ? "INSERT INTO disables (sourceType, entry, `comment`) VALUES (%u, %u, \"%s\")" : "DELETE FROM disables WHERE sourceType=%u AND entry=%u", uint32(type), entry, comment.c_str());
+        if (disable)
+            WorldDatabase.PExecute("INSERT INTO disables (sourceType, entry, `comment`) VALUES ({}, {}, \"{}\")", uint32(type), entry, comment.c_str());
+        else
+            WorldDatabase.PExecute("DELETE FROM disables WHERE sourceType={} AND entry={}", uint32(type), entry);
         handler->PSendSysMessage("%sabled pathfinding for %s %u", disable ? "Dis" : "En", name, entry);
         DisableMgr::LoadDisables();
         return true;

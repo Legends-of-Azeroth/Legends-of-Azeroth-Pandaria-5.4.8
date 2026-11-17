@@ -108,9 +108,9 @@ public:
             if (instance)
                 instance->DoStartCriteria(CRITERIA_START_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_IMPALE, urand(10000, 20000));
             events.ScheduleEvent(EVENT_LOCUST, 90000);
@@ -164,12 +164,12 @@ public:
                     case EVENT_LOCUST:
                         /// @todo Add Text
                         DoCast(me, RAID_MODE(SPELL_LOCUST_SWARM_10, SPELL_LOCUST_SWARM_25));
-                        DoSummon(NPC_CRYPT_GUARD, GuardSummonPos, 0, TEMPSUMMON_CORPSE_DESPAWN);
+                        DoSummon(NPC_CRYPT_GUARD, GuardSummonPos, 0ms, TEMPSUMMON_CORPSE_DESPAWN);
                         events.ScheduleEvent(EVENT_LOCUST, 90000);
                         break;
                     case EVENT_SPAWN_GUARDIAN_NORMAL:
                         /// @todo Add Text
-                        DoSummon(NPC_CRYPT_GUARD, GuardSummonPos, 0, TEMPSUMMON_CORPSE_DESPAWN);
+                        DoSummon(NPC_CRYPT_GUARD, GuardSummonPos, 0ms, TEMPSUMMON_CORPSE_DESPAWN);
                         break;
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_BERSERK, true);

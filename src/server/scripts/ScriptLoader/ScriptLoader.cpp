@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -43,6 +43,7 @@ void AddSC_item_spell_scripts();
 void AddSC_holiday_spell_scripts();
 void AddSC_common_spells_script();
 void AddSC_enchantment_spell_scripts();
+void AddSC_pet_spell_scripts();
 
 void AddSC_SmartSCripts();
 
@@ -124,6 +125,9 @@ void AddSC_brawlers_guild();
 void AddSC_on_duel();
 void AddSC_transmog();
 void AddSC_world_map_scripts();
+void AddSC_tarecgosa_scripts();
+void AddSC_fangs_of_father_scripts();
+void AddSC_npc_toy();
 
 //eastern kingdoms
 void AddSC_boss_alizabal();                  //Baradin Hold
@@ -603,6 +607,7 @@ void AddSC_boss_xt002();
 void AddSC_boss_kologarn();
 void AddSC_boss_assembly_of_iron();
 void AddSC_boss_general_vezax();
+void AddSC_ulduar();
 void AddSC_ulduar_teleporter();
 void AddSC_boss_mimiron();
 void AddSC_boss_hodir();
@@ -821,9 +826,6 @@ void AddSC_event_midsummer_fire_festival();
 void AddSC_event_pilgrims_bounty();
 void AddSC_event_winter_veil();
 
-// Custom Event
-void AddSC_event_afd_royale();
-
 // Pandaria
 // Gate of the Setting Sun
 void AddSC_boss_commander_rimok();
@@ -1039,7 +1041,9 @@ void AddSC_boss_sha_of_anger();
 
 // Pets
 void AddSC_generic_pet_scripts();
+void AddSC_monk_pet_scripts();
 void AddSC_priest_pet_scripts();
+void AddSC_warlock_pet_scripts();
 
 // battlegrounds
 
@@ -1084,6 +1088,7 @@ void AddSpellScripts()
     AddSC_holiday_spell_scripts();
     AddSC_common_spells_script();
     AddSC_enchantment_spell_scripts();
+    AddSC_pet_spell_scripts();
 }
 
 void AddCommandScripts()
@@ -1155,6 +1160,9 @@ void AddWorldScripts()
     AddSC_on_duel();
     AddSC_transmog();
     AddSC_world_map_scripts();
+    AddSC_tarecgosa_scripts();
+    AddSC_fangs_of_father_scripts();
+    AddSC_npc_toy();
 #endif
 }
 
@@ -1756,6 +1764,7 @@ void AddNorthrendScripts()
     AddSC_boss_general_vezax();
     AddSC_boss_assembly_of_iron();
     AddSC_boss_kologarn();
+    AddSC_ulduar();
     AddSC_ulduar_teleporter();
     AddSC_boss_mimiron();
     AddSC_boss_hodir();
@@ -1864,6 +1873,13 @@ void AddMaelstromScripts()
 #endif
 }
 
+#ifdef USE_MODULES
+
+extern void AddModulesScripts();
+
+#endif // USE_MODULES
+
+
 void AddEventScripts()
 {
 #ifdef SCRIPTS
@@ -1873,8 +1889,6 @@ void AddEventScripts()
     AddSC_event_midsummer_fire_festival();
     AddSC_event_pilgrims_bounty();
     AddSC_event_winter_veil();
-
-    AddSC_event_afd_royale();
 #endif
 }
 
@@ -2099,7 +2113,9 @@ void AddPetScripts()
 {
 #ifdef SCRIPTS
     AddSC_generic_pet_scripts();
+    AddSC_monk_pet_scripts();
     AddSC_priest_pet_scripts();
+    AddSC_warlock_pet_scripts();
 #endif
 }
 
@@ -2151,6 +2167,10 @@ void AddCustomScripts()
 
 #endif
     AddSC_Anticheat();
+
+#ifdef USE_MODULES
+    AddModulesScripts();
+#endif // USE_MODULES
 }
 
 void AddScripts()

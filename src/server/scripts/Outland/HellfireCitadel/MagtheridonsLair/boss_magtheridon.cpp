@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -36,7 +36,11 @@ enum Yells
     SAY_BANISH                 = 3,
     SAY_CHAMBER_DESTROY        = 4,
     SAY_PLAYER_KILLED          = 5,
-    SAY_DEATH                  = 6
+    SAY_DEATH                  = 6,
+    EMOTE_WEAKEN               = 7,
+    EMOTE_NEARLY_FREE          = 8,
+    EMOTE_BREAKS_FREE          = 9,
+    EMOTE_BLAST_NOVA           = 10    
 };
 
 enum Emotes
@@ -84,7 +88,7 @@ enum Spells
 //count of clickers needed to interrupt blast nova
 #define CLICKERS_COUNT              5
 
-typedef std::map<uint64, uint64> CubeMap;
+typedef std::map<ObjectGuid, ObjectGuid> CubeMap;
 
 class npc_abyssal : public CreatureScript
 {
@@ -135,7 +139,7 @@ class npc_abyssal : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
             }
@@ -255,10 +259,10 @@ class boss_magtheridon : public CreatureScript
                 }
             }
 
-            void SetClicker(uint64 cubeGUID, uint64 clickerGUID)
+            void SetClicker(ObjectGuid cubeGUID, ObjectGuid clickerGUID)
             {
                 // to avoid multiclicks from 1 cube
-                if (uint64 guid = Cube[cubeGUID])
+                if (ObjectGuid guid = Cube[cubeGUID])
                     DebuffClicker(Unit::GetUnit(*me, guid));
                 Cube[cubeGUID] = clickerGUID;
                 NeedCheckCube = true;
@@ -286,7 +290,7 @@ class boss_magtheridon : public CreatureScript
                     if (!clicker || !clicker->HasAura(SPELL_SHADOW_GRASP))
                     {
                         DebuffClicker(clicker);
-                        (*i).second = 0;
+                        (*i).second = ObjectGuid::Empty;
                     }
                     else
                         ++ClickerNum;
@@ -328,7 +332,7 @@ class boss_magtheridon : public CreatureScript
                     ScriptedAI::AttackStart(who);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (instance)
                     instance->SetData(DATA_MAGTHERIDON_EVENT, IN_PROGRESS);
@@ -406,7 +410,7 @@ class boss_magtheridon : public CreatureScript
                     {
                         float x, y, z;
                         target->GetPosition(x, y, z);
-                        Creature* summon = me->SummonCreature(NPC_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        Creature* summon = me->SummonCreature(NPC_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
                         if (summon)
                         {
                             CAST_AI(npc_abyssal::npc_abyssalAI, summon->AI())->SetTrigger(2);
@@ -440,7 +444,7 @@ class boss_magtheridon : public CreatureScript
                         {
                             float x, y, z;
                             target->GetPosition(x, y, z);
-                            Creature* summon = me->SummonCreature(NPC_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                            Creature* summon = me->SummonCreature(NPC_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
                             if (summon)
                                 CAST_AI(npc_abyssal::npc_abyssalAI, summon->AI())->SetTrigger(1);
                         }
@@ -495,7 +499,7 @@ class npc_hellfire_channeler : public CreatureScript
                 Check_Timer = 5000;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (instance)
                     instance->SetData(DATA_CHANNELER_EVENT, IN_PROGRESS);
@@ -596,7 +600,7 @@ public:
 
         if (instance->GetData(DATA_MAGTHERIDON_EVENT) != IN_PROGRESS)
             return true;
-        Creature* Magtheridon =Unit::GetCreature(*go, instance->GetData64(DATA_MAGTHERIDON));
+        Creature* Magtheridon =Unit::GetCreature(*go, instance->GetGuidData(DATA_MAGTHERIDON));
         if (!Magtheridon || !Magtheridon->IsAlive())
             return true;
 

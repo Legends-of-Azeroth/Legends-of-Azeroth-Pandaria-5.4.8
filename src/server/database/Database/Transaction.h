@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -19,11 +19,24 @@
 
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
-#include "SQLOperation.h"
 #include "StringFormat.h"
 #include <functional>
 #include <mutex>
+#include <variant>
 #include <vector>
+
+class MySQLConnection;
+
+struct TransactionData
+{
+    std::variant<std::unique_ptr<PreparedStatementBase>, std::string> query;
+
+    template<typename... Args>
+    TransactionData(Args&&... args) : query(std::forward<Args>(args)...) { }
+
+    static PreparedStatementBase* ToExecutable(std::unique_ptr<PreparedStatementBase> const& stmt) { return stmt.get(); }
+    static char const* ToExecutable(std::string const& sql) { return sql.c_str(); }
+};
 
 /*! Transactions, high level class. */
 class TC_DATABASE_API TransactionBase
@@ -36,13 +49,17 @@ class TC_DATABASE_API TransactionBase
 
     public:
         TransactionBase() : _cleanedUp(false) { }
+        TransactionBase(TransactionBase const&) = delete;
+        TransactionBase(TransactionBase &&) noexcept = default;
+        TransactionBase& operator=(TransactionBase const&) = delete;
+        TransactionBase& operator=(TransactionBase &&) noexcept = default;        
         virtual ~TransactionBase() { Cleanup(); }
 
         void Append(char const* sql);
-        template<typename Format, typename... Args>
-        void PAppend(Format&& sql, Args&&... args)
+        template<typename... Args>
+        void PAppend(Trinity::FormatString<Args...> sql, Args&&... args)
         {
-            Append(Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
+            Append(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str());
         }
 
         std::size_t GetSize() const { return m_queries.size(); }
@@ -50,7 +67,7 @@ class TC_DATABASE_API TransactionBase
     protected:
         void AppendPreparedStatement(PreparedStatementBase* statement);
         void Cleanup();
-        std::vector<SQLElementData> m_queries;
+        std::vector<TransactionData> m_queries;
 
     private:
         bool _cleanedUp;
@@ -68,36 +85,15 @@ public:
 };
 
 /*! Low level class*/
-class TC_DATABASE_API TransactionTask : public SQLOperation
-{
-    template <class T> friend class DatabaseWorkerPool;
-    friend class DatabaseWorker;
-    friend class TransactionCallback;
-
-    public:
-        TransactionTask(std::shared_ptr<TransactionBase> trans) : m_trans(trans) { }
-        ~TransactionTask() { }
-
-    protected:
-        bool Execute() override;
-        int TryExecute();
-        void CleanupOnFailure();
-
-        std::shared_ptr<TransactionBase> m_trans;
-        static std::mutex _deadlockLock;
-};
-
-class TC_DATABASE_API TransactionWithResultTask : public TransactionTask
+class TC_DATABASE_API TransactionTask
 {
 public:
-    TransactionWithResultTask(std::shared_ptr<TransactionBase> trans) : TransactionTask(trans) { }
+    static bool Execute(MySQLConnection* conn, std::shared_ptr<TransactionBase> trans);
 
-    TransactionFuture GetFuture() { return m_result.get_future(); }
+private:
+    static int TryExecute(MySQLConnection* conn, std::shared_ptr<TransactionBase> trans);
 
-protected:
-    bool Execute() override;
-
-    TransactionPromise m_result;
+    static std::mutex _deadlockLock;
 };
 
 class TC_DATABASE_API TransactionCallback

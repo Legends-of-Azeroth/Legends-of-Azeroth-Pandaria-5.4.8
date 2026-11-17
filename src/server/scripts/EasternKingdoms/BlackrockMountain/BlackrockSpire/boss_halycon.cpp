@@ -53,16 +53,16 @@ public:
             Summoned = false;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             events.ScheduleEvent(EVENT_REND, urand(17000,20000));
             events.ScheduleEvent(EVENT_THRASH, urand(10000,12000));
         }
 
         void JustDied(Unit* /*killer*/) override
         {
-            me->SummonCreature(NPC_GIZRUL_THE_SLAVENER, SummonLocation, TEMPSUMMON_TIMED_DESPAWN, 300000);
+            me->SummonCreature(NPC_GIZRUL_THE_SLAVENER, SummonLocation, TEMPSUMMON_TIMED_DESPAWN, 300000ms);
             Talk(EMOTE_DEATH);
 
             Summoned = true;

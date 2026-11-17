@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -20,6 +20,7 @@
 #include "SpellScript.h"
 #include "mechanar.h"
 #include "Player.h"
+#include "Random.h"
 
 enum Spells
 {
@@ -75,9 +76,9 @@ class boss_mechano_lord_capacitus : public CreatureScript
         {
             boss_mechano_lord_capacitusAI(Creature* creature) : BossAI(creature, DATA_MECHANOLORD_CAPACITUS) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(YELL_AGGRO);
                 events.ScheduleEvent(EVENT_HEADCRACK, 10 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_REFLECTIVE_DAMAGE_SHIELD, 15 * IN_MILLISECONDS);
@@ -109,6 +110,7 @@ class boss_mechano_lord_capacitus : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
+                Position pos;
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
@@ -132,9 +134,8 @@ class boss_mechano_lord_capacitus : public CreatureScript
                             events.ScheduleEvent(EVENT_POSITIVE_SHIFT, urand(45, 60) * IN_MILLISECONDS);
                             break;
                         case EVENT_SUMMON_NETHER_CHARGE:
-                            Position pos;
-                            me->GetRandomNearPosition(pos, 5.0f);
-                            me->SummonCreature(NPC_NETHER_CHARGE, pos, TEMPSUMMON_TIMED_DESPAWN, 18000);
+                            pos = me->GetRandomNearPosition(5.0f);
+                            me->SummonCreature(NPC_NETHER_CHARGE, pos, TEMPSUMMON_TIMED_DESPAWN, 18000ms);
                             events.ScheduleEvent(EVENT_SUMMON_NETHER_CHARGE, 10 * IN_MILLISECONDS);
                             break;
                         case EVENT_BERSERK:

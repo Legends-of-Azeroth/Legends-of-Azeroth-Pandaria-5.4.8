@@ -15,15 +15,99 @@
 # READLINE_LIBRARY     - full path to the READLINE library
 # READLINE_FOUND       - TRUE if READLINE was found
 
-FIND_PATH(READLINE_INCLUDE_DIR readline/readline.h)
-FIND_LIBRARY(READLINE_LIBRARY NAMES readline) 
+#[=======================================================================[.rst:
+FindReadline
+-----------
 
-IF (READLINE_INCLUDE_DIR AND READLINE_LIBRARY)
-    SET(READLINE_FOUND TRUE)
-    MESSAGE(STATUS "Found Readline library: ${READLINE_LIBRARY}")
-    MESSAGE(STATUS "Include dir is: ${READLINE_INCLUDE_DIR}")
-    INCLUDE_DIRECTORIES(${READLINE_INCLUDE_DIR})
-ELSE (READLINE_INCLUDE_DIR AND READLINE_LIBRARY)
-    SET(READLINE_FOUND FALSE)
-    MESSAGE(FATAL_ERROR "** Readline library not found!\n** Your distro may provide a binary for Readline e.g. for ubuntu try apt-get install libreadline5-dev")
-ENDIF (READLINE_INCLUDE_DIR AND READLINE_LIBRARY)
+Find The GNU Readline Library.
+
+Imported Targets
+^^^^^^^^^^^^^^^^
+
+This module defines the following :prop_tgt:`IMPORTED` targets:
+
+``Readline::Readline``
+  The Readline library, if found.
+
+Result Variables
+^^^^^^^^^^^^^^^^
+
+This module will set the following variables in your project:
+
+``READLINE_FOUND``
+  System has The GNU Readline Library.
+``READLINE_INCLUDE_DIR``
+  The Readline include directory.
+``READLINE_LIBRARY``
+  The Readline library.
+
+Hints
+^^^^^
+
+Set ``READLINE_ROOT_DIR`` to the root directory of Readline installation.
+#]=======================================================================]
+
+set(_READLINE_ROOT_HINTS
+  ${READLINE_ROOT_DIR}
+  ENV READLINE_ROOT_DIR
+)
+
+if(HOMEBREW_PREFIX)
+  list(APPEND _READLINE_ROOT_HINTS "${HOMEBREW_PREFIX}/opt/readline")
+endif()
+
+find_path(READLINE_INCLUDE_DIR
+  NAMES
+    readline/readline.h
+  HINTS
+    ${_READLINE_ROOT_HINTS}
+  PATH_SUFFIXES
+    include)
+
+find_library(READLINE_LIBRARY
+  NAMES
+    readline
+  HINTS
+    ${_READLINE_ROOT_HINTS}
+  PATH_SUFFIXES
+    lib)
+
+if(READLINE_INCLUDE_DIR AND EXISTS "${READLINE_INCLUDE_DIR}/readline/readline.h")
+  file(STRINGS "${READLINE_INCLUDE_DIR}/readline/readline.h" readline_major
+    REGEX "^#[\t ]*define[\t ]+RL_VERSION_MAJOR[\t ]+([0-9])+.*")
+  file(STRINGS "${READLINE_INCLUDE_DIR}/readline/readline.h" readline_minor
+    REGEX "^#[\t ]*define[\t ]+RL_VERSION_MINOR[\t ]+([0-9])+.*")
+  if (readline_major AND readline_minor)
+    string(REGEX REPLACE "^.*RL_VERSION_MAJOR[\t ]+([0-9])+.*$"
+           "\\1" readline_major "${readline_major}")
+    string(REGEX REPLACE "^.*RL_VERSION_MINOR[\t ]+([0-9])+.*$"
+           "\\1" readline_minor "${readline_minor}")
+    set(READLINE_VERSION "${readline_major}.${readline_minor}")
+  endif()
+endif()
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(Readline
+  REQUIRED_VARS
+    READLINE_LIBRARY
+    READLINE_INCLUDE_DIR
+  VERSION_VAR
+    READLINE_VERSION
+)
+
+mark_as_advanced(READLINE_FOUND READLINE_LIBRARY READLINE_INCLUDE_DIR)
+
+if(READLINE_FOUND)
+  message(STATUS "Found Readline library: ${READLINE_LIBRARY}")
+  message(STATUS "Found Readline headers: ${READLINE_INCLUDE_DIR}")
+
+  if (NOT TARGET Readline::Readline)
+    add_library(Readline::Readline UNKNOWN IMPORTED)
+    set_target_properties(Readline::Readline
+      PROPERTIES
+        IMPORTED_LOCATION
+          "${READLINE_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES
+          "${READLINE_INCLUDE_DIR}")
+  endif()
+endif()

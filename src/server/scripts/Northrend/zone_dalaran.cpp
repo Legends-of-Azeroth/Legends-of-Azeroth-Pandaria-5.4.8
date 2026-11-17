@@ -74,7 +74,7 @@ struct npc_mageguard_dalaran : public ScriptedAI
 
     void Reset() override { }
 
-    void EnterCombat(Unit* /*who*/) override { }
+    void JustEngagedWith(Unit* /*who*/) override { }
 
     void AttackStart(Unit* /*who*/) override { }
 
@@ -140,7 +140,7 @@ struct npc_minigob_manabonk : public ScriptedAI
         me->setActive(true);
     }
 
-    void Reset()
+    void Reset() override
     {
         playerGuid = ObjectGuid();
         me->SetVisible(false);
@@ -285,7 +285,7 @@ struct npc_archmage_landalock : public ScriptedAI
     npc_archmage_landalock(Creature* creature) : ScriptedAI(creature)
     {
         _switchImageTimer = MINUTE * IN_MILLISECONDS;
-        _summonGUID = 0;
+        _summonGUID = ObjectGuid::Empty;
     }
 
     uint32 GetImageEntry(uint32 QuestId)
@@ -338,11 +338,10 @@ struct npc_archmage_landalock : public ScriptedAI
         if (_switchImageTimer > MINUTE*IN_MILLISECONDS)
         {
             _switchImageTimer = 0;
-            QuestRelationBounds objectQR = sObjectMgr->GetCreatureQuestRelationBounds(me->GetEntry());
+            QuestRelationResult objectQR = sObjectMgr->GetCreatureQuestRelations(me->GetEntry());
 
-            for (QuestRelations::const_iterator i = objectQR.first; i != objectQR.second; ++i)
+            for (uint32 questId : objectQR)
             {
-                uint32 questId = i->second;
                 Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
 
                 if (!quest || !quest->IsWeekly())
@@ -350,7 +349,7 @@ struct npc_archmage_landalock : public ScriptedAI
 
                 uint32 newEntry = GetImageEntry(questId);
 
-                if (GUID_ENPART(_summonGUID) != newEntry)
+                if (_summonGUID.GetEntry() != newEntry)
                 {
                     if (Creature* image = ObjectAccessor::GetCreature(*me, _summonGUID))
                         image->DespawnOrUnsummon();
@@ -368,7 +367,7 @@ struct npc_archmage_landalock : public ScriptedAI
 
 private:
     uint32 _switchImageTimer;
-    uint64 _summonGUID;
+    ObjectGuid _summonGUID;
 };
 
 

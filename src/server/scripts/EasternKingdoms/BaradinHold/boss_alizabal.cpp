@@ -108,7 +108,7 @@ class boss_alizabal : public CreatureScript
                     events.ScheduleEvent(EVENT_BLADE_DANCE_AURA, 500);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 uiCharges = 0;
                 events.ScheduleEvent(EVENT_BERSERK, 300000);

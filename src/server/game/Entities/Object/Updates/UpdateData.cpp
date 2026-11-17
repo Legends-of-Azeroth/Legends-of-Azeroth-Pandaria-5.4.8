@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -26,12 +26,12 @@
 
 UpdateData::UpdateData(uint16 map) : m_map(map), m_blockCount(0) { }
 
-void UpdateData::AddOutOfRangeGUID(std::set<uint64>& guids)
+void UpdateData::AddOutOfRangeGUID(std::set<ObjectGuid>& guids)
 {
     m_outOfRangeGUIDs.insert(guids.begin(), guids.end());
 }
 
-void UpdateData::AddOutOfRangeGUID(uint64 guid)
+void UpdateData::AddOutOfRangeGUID(ObjectGuid guid)
 {
     m_outOfRangeGUIDs.insert(guid);
 }
@@ -55,8 +55,8 @@ bool UpdateData::BuildPacket(WorldPacket* packet)
         *packet << uint8(UPDATETYPE_OUT_OF_RANGE_OBJECTS);
         *packet << uint32(m_outOfRangeGUIDs.size());
 
-        for (std::set<uint64>::const_iterator i = m_outOfRangeGUIDs.begin(); i != m_outOfRangeGUIDs.end(); ++i)
-            packet->appendPackGUID(*i);
+        for (GuidSet::const_iterator i = m_outOfRangeGUIDs.begin(); i != m_outOfRangeGUIDs.end(); ++i)
+            *packet << i->WriteAsPacked();
     }
 
     packet->append(m_data);

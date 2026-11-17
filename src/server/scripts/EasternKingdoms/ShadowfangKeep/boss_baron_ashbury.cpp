@@ -92,9 +92,9 @@ class boss_baron_ashbury : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_PARDON_DENIED, 1);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);

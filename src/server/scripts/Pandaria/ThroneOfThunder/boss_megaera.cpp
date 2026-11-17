@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -250,7 +250,7 @@ class boss_megaera : public CreatureScript
             boss_megaeraAI(Creature* creature) : BossAI(creature, DATA_MEGAERA) 
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+                me->SetDisplayFromModel(1);
 
                 // delay for init 
                 me->m_Events.Schedule(1500, [this]()
@@ -269,8 +269,8 @@ class boss_megaera : public CreatureScript
             std::list<uint64> headGuids;
             uint32 remainingHead;
             uint32 killedHeads[4];
-            uint64 movingHeadGuid;
-            uint64 activeHeadGuid;
+            ObjectGuid movingHeadGuid;
+            ObjectGuid activeHeadGuid;
             uint32 fireBonds;
             uint32 frostBonds;
             uint32 poisonBonds;
@@ -370,7 +370,7 @@ class boss_megaera : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 // Just Berserk scheduled here, the other events are handled by the specific heads / through happenings (ex. a head dies -> Rampage, etc).
                 events.ScheduleEvent(EVENT_BERSERK, (IsHeroic() ? TIMER_BERSERK_H : TIMER_BERSERK));
@@ -401,7 +401,7 @@ class boss_megaera : public CreatureScript
                     instance->SetBossState(DATA_MEGAERA, IN_PROGRESS);
                 }
 
-                _EnterCombat();
+                _JustEngagedWith();
 
                 scheduler
                     .Schedule(Milliseconds(IsHeroic() ? TIMER_BERSERK_H : TIMER_BERSERK), [this](TaskContext context)
@@ -502,7 +502,7 @@ class boss_megaera : public CreatureScript
                         scheduler
                             .Schedule(Milliseconds(4500), [this](TaskContext context)
                         {
-                            if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_SLG_GENERIC_MOP) : 0))
+                            if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SLG_GENERIC_MOP) : ObjectGuid::Empty))
                                 announcer->AI()->Talk(ANN_RAMPAGE_ADDIT);
 
                             DoCast(me, SPELL_RAMPAGE, true);
@@ -516,14 +516,14 @@ class boss_megaera : public CreatureScript
                         {
                             me->RemoveAurasDueToSpell(SPELL_RAMPAGE);
 
-                            if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_SLG_GENERIC_MOP) : 0))
+                            if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SLG_GENERIC_MOP) : ObjectGuid::Empty))
                                 announcer->AI()->Talk(ANN_RAMPAGE_DONE);
                         });
                         break;
                 }
             };
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (atEvade)
                     return;
@@ -627,7 +627,7 @@ class boss_megaera : public CreatureScript
                     // We Should Check instance mod
                     instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, NPC_MEGAERA, me);
 
-                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(IsHeroic() ? GO_MEGAERA_CHEST_HEROIC : GO_MEGAERA_CHEST_NORMAL)))
+                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(IsHeroic() ? GO_MEGAERA_CHEST_HEROIC : GO_MEGAERA_CHEST_NORMAL)))
                         instance->DoRespawnGameObject(go->GetGUID(), 7 * DAY);
                 }
 
@@ -711,7 +711,7 @@ struct megaeraHeadsBaseAI : public ScriptedAI
     EventMap events;
     TaskScheduler scheduler;
     InstanceScript* instance;
-    uint64 summonerGUID;
+    ObjectGuid summonerGUID;
     bool inRampage;
     bool atEvade;
 
@@ -761,7 +761,7 @@ struct megaeraHeadsBaseAI : public ScriptedAI
 
         DoCast(me, SPELL_CONCEALING_FOG, true);
 
-        if (Creature* megaeraController = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_MEGAERA) : 0))
+        if (Creature* megaeraController = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_MEGAERA) : ObjectGuid::Empty))
             megaeraController->AI()->JustSummoned(me);
     }
 
@@ -772,7 +772,7 @@ struct megaeraHeadsBaseAI : public ScriptedAI
             damage = 0;
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (!me->GetDBTableGUIDLow() || atEvade)
             return;
@@ -784,10 +784,11 @@ struct megaeraHeadsBaseAI : public ScriptedAI
 
         me->SetVisible(true);
         me->RemoveAllAuras();
-        me->DeleteThreatList();
+        me->GetThreatManager().RemoveMeFromThreatLists();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
 
-        if (Creature* megaera = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_MEGAERA) : 0))
+        if (Creature* megaera = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_MEGAERA) : ObjectGuid::Empty))
             megaera->AI()->EnterEvadeMode();
 
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);
@@ -900,7 +901,7 @@ struct megaeraHeadsBaseAI : public ScriptedAI
 
     void JustDied(Unit* killer) override
     {
-        if (Creature* megaeraController = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_MEGAERA) : 0))
+        if (Creature* megaeraController = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_MEGAERA) : ObjectGuid::Empty))
             megaeraController->AI()->DoAction(me->GetEntry());
 
         if (instance)
@@ -926,7 +927,7 @@ class npc_flaming_head_megaera : public CreatureScript
         {
             npc_flaming_head_megaeraAI(Creature* creature) : megaeraHeadsBaseAI(creature) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (me->GetDBTableGUIDLow())
                     DoCast(me, SPELL_CONCEALING_FOG, true);
@@ -935,7 +936,7 @@ class npc_flaming_head_megaera : public CreatureScript
                 events.ScheduleEvent(EVENT_CINDERS, me->GetDBTableGUIDLow() ? urand(10000, 15000) : urand(32000, 43000));
                 events.ScheduleEvent(EVENT_IGNITE_FLESH, urand(12000, 17000));
 
-                if (Creature* megaeraController = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_MEGAERA) : 0))
+                if (Creature* megaeraController = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_MEGAERA) : ObjectGuid::Empty))
                     if (!megaeraController->IsInCombat())
                         megaeraController->AI()->DoAction(ACTION_SET_IN_COMBAT);
             }
@@ -1024,13 +1025,13 @@ class npc_frozen_head_megaera : public CreatureScript
         {
             npc_frozen_head_megaeraAI(Creature* creature) : megaeraHeadsBaseAI(creature) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_CHECK_MEGAERAS_RAGE, 18900);
                 events.ScheduleEvent(EVENT_TORRENT_OF_ICE, me->GetDBTableGUIDLow() ? urand(14000, 23000) : urand(32000, 43000));
                 events.ScheduleEvent(EVENT_ARCTIC_FREEZE, urand(7000, 12000));
 
-                if (Creature* megaeraController = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_MEGAERA) : 0))
+                if (Creature* megaeraController = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_MEGAERA) : ObjectGuid::Empty))
                     if (!megaeraController->IsInCombat())
                         megaeraController->AI()->DoAction(ACTION_SET_IN_COMBAT);
             }
@@ -1067,20 +1068,20 @@ class npc_frozen_head_megaera : public CreatureScript
                                 {
                                     me->AddAura(SPELL_TORRENT_OF_ICE_TARGET, target);
 
-                                    if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_SLG_GENERIC_MOP) : 0))
+                                    if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SLG_GENERIC_MOP) : ObjectGuid::Empty))
                                         announcer->AI()->Talk(ANN_TORRENT_OF_FROST, target);
 
-                                    if (Creature* torrent = me->SummonCreature(NPC_TORRENT_OF_ICE, *target, TEMPSUMMON_TIMED_DESPAWN, 180000))
+                                    if (Creature* torrent = me->SummonCreature(NPC_TORRENT_OF_ICE, *target, TEMPSUMMON_TIMED_DESPAWN, 180000ms))
                                         torrent->AI()->SetGUID(target->GetGUID());
                                 }
                                 else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankSpecTargetSelector(SPELL_TORRENT_OF_ICE_TARGET)))
                                 {
                                     me->AddAura(SPELL_TORRENT_OF_ICE_TARGET, target);
 
-                                    if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_SLG_GENERIC_MOP) : 0))
+                                    if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SLG_GENERIC_MOP) : ObjectGuid::Empty))
                                         announcer->AI()->Talk(ANN_TORRENT_OF_FROST, target);
 
-                                    if (Creature* torrent = me->SummonCreature(NPC_TORRENT_OF_ICE, *target, TEMPSUMMON_TIMED_DESPAWN, 180000))
+                                    if (Creature* torrent = me->SummonCreature(NPC_TORRENT_OF_ICE, *target, TEMPSUMMON_TIMED_DESPAWN, 180000ms))
                                         torrent->AI()->SetGUID(target->GetGUID());
                                 }
 
@@ -1135,13 +1136,13 @@ class npc_venomous_head_megaera : public CreatureScript
         {
             npc_venomous_head_megaeraAI(Creature* creature) : megaeraHeadsBaseAI(creature) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_CHECK_MEGAERAS_RAGE, 19800);
                 events.ScheduleEvent(EVENT_ACID_RAIN, me->GetDBTableGUIDLow() ? urand(12000, 17000) : urand(32000, 43000));
                 events.ScheduleEvent(EVENT_ROT_ARMOR, urand(10000, 15000));
 
-                if (Creature* megaeraController = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_MEGAERA) : 0))
+                if (Creature* megaeraController = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_MEGAERA) : ObjectGuid::Empty))
                     if (!megaeraController->IsInCombat())
                         megaeraController->AI()->DoAction(ACTION_SET_IN_COMBAT);
             }
@@ -1226,7 +1227,7 @@ class npc_arcane_head_megaera : public CreatureScript
         {
             npc_arcane_head_megaeraAI(Creature* creature) : megaeraHeadsBaseAI(creature) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (me->GetDBTableGUIDLow())
                     DoCast(me, SPELL_CONCEALING_FOG, true);
@@ -1235,7 +1236,7 @@ class npc_arcane_head_megaera : public CreatureScript
                 events.ScheduleEvent(EVENT_NETHER_TEAR, me->GetDBTableGUIDLow() ? urand(12000, 17000) : urand(32000, 43000));
                 events.ScheduleEvent(EVENT_DIFFUSION, urand(7000, 12000));
 
-                if (Creature* megaeraController = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_MEGAERA) : 0))
+                if (Creature* megaeraController = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_MEGAERA) : ObjectGuid::Empty))
                     if (!megaeraController->IsInCombat())
                         megaeraController->AI()->DoAction(ACTION_SET_IN_COMBAT);
             }
@@ -1372,10 +1373,10 @@ struct npc_torrent_of_ice : public ScriptedAI
 
     EventMap events;
     uint32 torrentActive;
-    uint64 targetGUID;
-    uint64 summonerGUID;
+    ObjectGuid targetGUID;
+    ObjectGuid summonerGUID;
 
-    void SetGUID(uint64 guid, int32 /*value*/) override
+    void SetGUID(ObjectGuid guid, int32 /*value*/) override
     {
         targetGUID = guid;
     }
@@ -1457,7 +1458,7 @@ struct npc_nether_wyrm_megaera : public ScriptedAI
 
     void IsSummonedBy(Unit* /*summoner*/) override
     {
-        if (Creature* megaera = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_MEGAERA) : 0))
+        if (Creature* megaera = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_MEGAERA) : ObjectGuid::Empty))
             megaera->AI()->JustSummoned(me);
 
         DoZoneInCombat(me, 150.0f);
@@ -1607,7 +1608,7 @@ class spell_cinders_megaera : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (Unit* target = GetHitUnit())
-            if (Creature* announcer = ObjectAccessor::GetCreature(*target, target->GetInstanceScript() ? target->GetInstanceScript()->GetData64(NPC_SLG_GENERIC_MOP) : 0))
+            if (Creature* announcer = ObjectAccessor::GetCreature(*target, target->GetInstanceScript() ? target->GetInstanceScript()->GetGuidData(NPC_SLG_GENERIC_MOP) : ObjectGuid::Empty))
                 announcer->AI()->Talk(ANN_BURNING_CINDERS, target);
     }
 
@@ -1762,7 +1763,7 @@ class spell_megaera_submerged : public AuraScript
 class correctSummonerPredicate
 {
     private:
-        uint64 uiGuid;
+        ObjectGuid uiGuid;
     public:
         correctSummonerPredicate(uint64 _guid) : uiGuid(_guid) { }
 
@@ -1772,6 +1773,8 @@ class correctSummonerPredicate
             {
                 return target->ToCreature()->GetOwnerGUID() != uiGuid;
             }
+            
+            return false;
         }
 };
 
@@ -1796,7 +1799,7 @@ class spell_acid_rain_summon : public SpellScript
         if (!caster || !target)
             return;
 
-        if (Creature* pRain = caster->SummonCreature(NPC_ACID_RAIN, *target, TEMPSUMMON_TIMED_DESPAWN, 10 * IN_MILLISECONDS))
+        if (Creature* pRain = caster->SummonCreature(NPC_ACID_RAIN, *target, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(10 * IN_MILLISECONDS)))
         {
             pRain->CastSpell(pRain, SPELL_ACID_RAIN_VISUAL, true);
             caster->CastSpell(pRain, SPELL_ACID_RAIN_MISSILE, true);
@@ -1805,11 +1808,11 @@ class spell_acid_rain_summon : public SpellScript
         // In Heroic 3 Globules
         if (caster->GetMap()->IsHeroic())
         {
-            if (Creature* announcer = ObjectAccessor::GetCreature(*caster, caster->GetInstanceScript() ? caster->GetInstanceScript()->GetData64(NPC_SLG_GENERIC_MOP) : 0))
+            if (Creature* announcer = ObjectAccessor::GetCreature(*caster, caster->GetInstanceScript() ? caster->GetInstanceScript()->GetGuidData(NPC_SLG_GENERIC_MOP) : ObjectGuid::Empty))
             {
                 for (uint8 i = 0; i < 2; i++)
                 {
-                    if (Creature* pRain = caster->SummonCreature(NPC_ACID_RAIN, announcer->GetPositionX() + frand(-30.0f, 30.0f), announcer->GetPositionY() + frand(-28.0f, 28.0f), announcer->GetPositionZ(), announcer->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 10 * IN_MILLISECONDS))
+                    if (Creature* pRain = caster->SummonCreature(NPC_ACID_RAIN, announcer->GetPositionX() + frand(-30.0f, 30.0f), announcer->GetPositionY() + frand(-28.0f, 28.0f), announcer->GetPositionZ(), announcer->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(10 * IN_MILLISECONDS)))
                     {
                         pRain->CastSpell(pRain, SPELL_ACID_RAIN_VISUAL, true);
                         caster->CastSpell(pRain, SPELL_ACID_RAIN_MISSILE, true);
@@ -2091,7 +2094,7 @@ class AreaTrigger_into_megaera_water : public AreaTriggerScript
     
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
         {
-            player->JumpTo(trigger->id == 8954 ? 9.0f : 10.0f, trigger->id == 8954 ? 40.0f : 10.0f, false);
+            player->JumpTo(trigger->ID == 8954 ? 9.0f : 10.0f, trigger->ID == 8954 ? 40.0f : 10.0f, false);
     
             return true;
         }
@@ -2102,7 +2105,7 @@ class cond_nether_tear_selector : public ConditionScript
     public:
         cond_nether_tear_selector() : ConditionScript("cond_nether_tear_selector") { }
     
-        bool OnConditionCheck(Condition* cond, ConditionSourceInfo& source) override
+        bool OnConditionCheck(const Condition* cond, ConditionSourceInfo& source) override
         {
             if (source.mConditionTargets[0])
                 if (Creature* target = source.mConditionTargets[0]->ToCreature())

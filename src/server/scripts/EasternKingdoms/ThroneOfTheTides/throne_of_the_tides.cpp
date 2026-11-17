@@ -97,7 +97,7 @@ class at_tott_lady_nazjar_event : public AreaTriggerScript
                     && instance->GetBossState(DATA_COMMANDER_ULTHOK) != DONE)
                 {
                     instance->SetData(DATA_LADY_NAZJAR_EVENT, DONE);
-                    if (Creature* pLadyNazjarEvent = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_LADY_NAZJAR_EVENT)))
+                    if (Creature* pLadyNazjarEvent = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_LADY_NAZJAR_EVENT)))
                         pLadyNazjarEvent->AI()->DoAction(ACTION_LADY_NAZJAR_START_EVENT);
                 }
             }
@@ -110,9 +110,9 @@ class npc_throne_of_the_tides_teleporter: public CreatureScript
     public:
         npc_throne_of_the_tides_teleporter() : CreatureScript("npc_throne_of_the_tides_teleporter") { }
 
-        struct npc_throne_of_the_tides_teleporter_AI : public CreatureAI
+        struct npc_throne_of_the_tides_teleporter_AI : public ScriptedAI
         {
-           npc_throne_of_the_tides_teleporter_AI(Creature* creature) : CreatureAI(creature) { }
+           npc_throne_of_the_tides_teleporter_AI(Creature* creature) : ScriptedAI(creature) { }
 
             void OnSpellClick(Unit* clicker, bool& /*result*/) override
             {

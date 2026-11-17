@@ -220,13 +220,13 @@ class npc_black_harvest_akama : public CreatureScript
                 switch (actionId)
                 {
                     case ACTION_START_INTRO:
-                        if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetData64(PLAYER_DATA) : 0))
+                        if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                             me->GetMotionMaster()->MovePoint(0, target->GetPositionX() + frand(-2.5, 2.5f), target->GetPositionY() + frand(-2.0f, 2.0f), target->GetPositionZ());
 
                         scheduler
                             .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
                         {
-                            if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetData64(PLAYER_DATA) : 0))
+                            if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                                 DoCast(target, SPELL_SAP, true);
 
                             delay = 4 * IN_MILLISECONDS;
@@ -234,7 +234,7 @@ class npc_black_harvest_akama : public CreatureScript
                             scheduler
                                 .Schedule(Milliseconds(delay), [this](TaskContext context)
                             {
-                                if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetData64(PLAYER_DATA) : 0))
+                                if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                                     me->SetFacingToObject(target);
 
                                 me->SetVisible(true);
@@ -250,7 +250,7 @@ class npc_black_harvest_akama : public CreatureScript
                             scheduler
                                 .Schedule(Milliseconds(delay += 5 * IN_MILLISECONDS), [this](TaskContext context)
                             {
-                                if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetData64(PLAYER_DATA) : 0))
+                                if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                                     target->CastSpell(target, SPELL_TRUSTED_BY_ASHTONGUE, true);
 
                                 me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -281,7 +281,7 @@ class npc_black_harvest_akama : public CreatureScript
                             {
                                 me->StopMoving();
 
-                                if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetData64(PLAYER_DATA) : 0))
+                                if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                                     Talk(TALK_SPECIAL_4, target);
 
                                 if (Creature* shaman = me->FindNearestCreature(NPC_ASHTONGUE_SHAMAN, 50.0f, true))
@@ -369,7 +369,7 @@ struct npc_black_harvest_essence_of_order : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(TALK_SPECIAL_1);
         events.ScheduleEvent(EVENT_SPELLFLAME, 7 * IN_MILLISECONDS);
@@ -382,7 +382,7 @@ struct npc_black_harvest_essence_of_order : public customCreatureAI
         {
             hasTriggered = true;
 
-            if (Player* target = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+            if (Player* target = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                 target->CastSpell(target, SPELL_MEMORY_OF_THE_RELICVARY, true);
         }
     }
@@ -486,7 +486,7 @@ struct npc_black_harvest_unbound_centurion : public demon_baseAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_SONIC_STRIKE, 5 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_CLEAVE, urand(1.5 * IN_MILLISECONDS, 3.5 * IN_MILLISECONDS));
@@ -523,7 +523,7 @@ struct npc_black_harvest_unbound_nightlord : public demon_baseAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_SHADOW_INFERNO, 9.5 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_FEAR, urand(5.5 * IN_MILLISECONDS, 10 * IN_MILLISECONDS));
@@ -560,13 +560,13 @@ struct npc_black_harvest_unbound_bonemender : public demon_baseAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_DARK_MENDING, 9.5 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(1.5 * IN_MILLISECONDS, 2.5 * IN_MILLISECONDS));
     }
 
-    uint64 GetLowestFriendGUID() override
+    ObjectGuid GetLowestFriendGUID() override
     {
         std::list<Creature*> tmpTargets;
 
@@ -578,14 +578,14 @@ struct npc_black_harvest_unbound_bonemender : public demon_baseAI
         GetCreatureListWithEntryInGrid(tmpTargets, me, NPC_FREED_IMP, 80.0f);
 
         if (tmpTargets.empty())
-            return 0;
+            return ObjectGuid::Empty;
 
         tmpTargets.sort(Trinity::HealthPctOrderPred());
 
         if (Creature* lowestTarget = tmpTargets.front())
             return lowestTarget->GetGUID();
 
-        return 0;
+        return ObjectGuid::Empty;
     }
 
     void UpdateAI(uint32 diff) override
@@ -619,7 +619,7 @@ struct npc_black_harvest_unbound_succubus : public demon_baseAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_SHADOW_SHOCK, 3.5 * IN_MILLISECONDS);
     }
@@ -654,7 +654,7 @@ struct npc_black_harvest_unbound_shivarra : public demon_baseAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_MELT_FLESH, 3.5 * IN_MILLISECONDS);
     }
@@ -689,7 +689,7 @@ struct npc_black_harvest_freed_imp : public demon_baseAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_FIREBOLT, 1 * IN_MILLISECONDS);
     }
@@ -724,7 +724,7 @@ struct npc_black_harvest_suffering_soul_fragment : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_SOUL_BLAST, 9.5 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(1.5 * IN_MILLISECONDS, 2.5 * IN_MILLISECONDS));
@@ -762,7 +762,7 @@ struct npc_black_harvest_ashtongue_shaman : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         events.ScheduleEvent(EVENT_HEX, 1.5 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_LIGHTNING, 3 * IN_MILLISECONDS);
@@ -780,7 +780,7 @@ struct npc_black_harvest_ashtongue_shaman : public customCreatureAI
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         me->GetMotionMaster()->MoveTargetedHome();
@@ -818,7 +818,7 @@ struct npc_black_harvest_ashtongue_primalist : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         DoCast(who, SPELL_NETTED, true);
         events.ScheduleEvent(EVENT_MULTI_SHOT, 1.5*IN_MILLISECONDS);
@@ -836,7 +836,7 @@ struct npc_black_harvest_ashtongue_primalist : public customCreatureAI
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         me->GetMotionMaster()->MoveTargetedHome();
@@ -904,7 +904,7 @@ struct npc_black_harvest_kanrethad_ebonlocke : public customCreatureAI
         {
             Talk(TALK_SPECIAL_2);
             
-            if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetData64(PLAYER_DATA) : 0))
+            if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                 me->SetFacingTo(me->GetAngle(target));
         });
 
@@ -944,7 +944,7 @@ struct npc_black_harvest_kanrethad_ebonlocke : public customCreatureAI
 
             Talk(TALK_SPECIAL_5);
 
-            if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetData64(PLAYER_DATA) : 0))
+            if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                 DoCast(target, SPELL_DEMONIC_GRASP);
 
             scheduler
@@ -952,13 +952,13 @@ struct npc_black_harvest_kanrethad_ebonlocke : public customCreatureAI
             {
                 Talk(TALK_SPECIAL_6);
 
-                if (Creature* jubeka = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_JUBEKA_SHADOWBREAKER) : 0))
+                if (Creature* jubeka = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_JUBEKA_SHADOWBREAKER) : ObjectGuid::Empty))
                     jubeka->AI()->DoAction(ACTION_START_INTRO);
             });
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (me->HasAura(SPELL_ETERNAL_BANISHMENT))
             return;
@@ -970,7 +970,7 @@ struct npc_black_harvest_kanrethad_ebonlocke : public customCreatureAI
         me->GetMotionMaster()->MoveTargetedHome();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         delay = 0;
 
@@ -984,7 +984,7 @@ struct npc_black_harvest_kanrethad_ebonlocke : public customCreatureAI
             .Schedule(Milliseconds(delay += 4000), [this](TaskContext context)
         {
             // Start call demon here
-            if (Creature* gateWay = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_DEMONIC_GATEWAY) : 0))
+            if (Creature* gateWay = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_DEMONIC_GATEWAY) : ObjectGuid::Empty))
                 DoCast(gateWay, SPELL_SUMMON_PIT_LORD);
         });
 
@@ -999,7 +999,7 @@ struct npc_black_harvest_kanrethad_ebonlocke : public customCreatureAI
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
 
-            if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetData64(PLAYER_DATA) : 0))
+            if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                 me->RemoveChanneledCast(target->GetGUID());
 
             // Events Here
@@ -1011,7 +1011,7 @@ struct npc_black_harvest_kanrethad_ebonlocke : public customCreatureAI
     {
         summons.Summon(summon);
 
-        if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetData64(PLAYER_DATA) : 0))
+        if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
             summon->RemoveChanneledCast(target->GetGUID());
 
     }
@@ -1098,11 +1098,11 @@ struct npc_black_harvest_black_temple_top_credit : public ScriptedAI
     npc_black_harvest_black_temple_top_credit(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 summonerGUID;
+    ObjectGuid summonerGUID;
 
     void IsSummonedBy(Unit* summoner) override
     {
-        if (Creature* jubeka = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_JUBEKA_SHADOWBREAKER) : 0))
+        if (Creature* jubeka = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_JUBEKA_SHADOWBREAKER) : ObjectGuid::Empty))
             jubeka->AI()->Talk(TALK_SPECIAL_2);
 
         summonerGUID = summoner->GetGUID();
@@ -1179,13 +1179,13 @@ struct npc_black_harvest_demonic_soulwell : public customCreatureAI
     npc_black_harvest_demonic_soulwell(Creature* creature) : customCreatureAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 summonGUID;
+    ObjectGuid summonGUID;
     bool hasTriggered;
 
     void Reset() override
     {
         events.Reset();
-        summonGUID = 0;
+        summonGUID = ObjectGuid::Empty;
     }
 
     void OnSpellClick(Unit* clicker, bool& /*result*/) override
@@ -1256,13 +1256,13 @@ struct npc_black_harvest_jubeka_shadowbreaker : public ScriptedAI
 
             me->SetVisible(true);
 
-            if (Creature* kanrethad = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_KANRETHAD_EBONLOCKE) : 0))
+            if (Creature* kanrethad = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_KANRETHAD_EBONLOCKE) : ObjectGuid::Empty))
                 me->GetMotionMaster()->MovePoint(0, kanrethad->GetPositionX() + frand(-5.0f, 5.0f), kanrethad->GetPositionY() + frand(-5.0f, 5.0f), kanrethad->GetPositionZ());
 
             scheduler
                 .Schedule(Milliseconds(2000), [this](TaskContext context)
             {
-                if (Creature* kanrethad = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_KANRETHAD_EBONLOCKE) : 0))
+                if (Creature* kanrethad = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_KANRETHAD_EBONLOCKE) : ObjectGuid::Empty))
                     kanrethad->AI()->Talk(TALK_SPECIAL_7);
             });
 
@@ -1271,10 +1271,10 @@ struct npc_black_harvest_jubeka_shadowbreaker : public ScriptedAI
             {
                 Talk(TALK_INTRO);
 
-                if (Creature* kanrethad = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_KANRETHAD_EBONLOCKE) : 0))
+                if (Creature* kanrethad = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_KANRETHAD_EBONLOCKE) : ObjectGuid::Empty))
                     DoCast(kanrethad, SPELL_ETERNAL_BANISHMENT);
 
-                if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetData64(PLAYER_DATA) : 0))
+                if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                     target->RemoveAurasDueToSpell(SPELL_DEMONIC_GRASP);
             });
 
@@ -1283,7 +1283,7 @@ struct npc_black_harvest_jubeka_shadowbreaker : public ScriptedAI
             {
                 Talk(TALK_INTRO);
 
-                if (Creature* kanrethad = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_KANRETHAD_EBONLOCKE) : 0))
+                if (Creature* kanrethad = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_KANRETHAD_EBONLOCKE) : ObjectGuid::Empty))
                     kanrethad->AI()->Talk(TALK_SPECIAL_8);
             });
 
@@ -1295,7 +1295,7 @@ struct npc_black_harvest_jubeka_shadowbreaker : public ScriptedAI
                 if (instance)
                     instance->SetData(STEP_DEFEAT_KANRETHAD, DONE);
 
-                if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetData64(PLAYER_DATA) : 0))
+                if (Player* target = ObjectAccessor::GetPlayer(*me, instance ? instance->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                     target->KilledMonsterCredit(NPC_HARVEST_CREDIT);
             });
         }
@@ -1319,7 +1319,7 @@ class go_black_harvest_illidari_scroll : public GameObjectScript
             {
                 go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
 
-                if (Creature* akama = ObjectAccessor::GetCreature(*unit, unit->GetInstanceScript() ? unit->GetInstanceScript()->GetData64(NPC_AKAMA) : 0))
+                if (Creature* akama = ObjectAccessor::GetCreature(*unit, unit->GetInstanceScript() ? unit->GetInstanceScript()->GetGuidData(NPC_AKAMA) : ObjectGuid::Empty))
                     akama->AI()->DoAction(ACTION_START_INTRO);
             }
         }
@@ -1357,7 +1357,7 @@ class spell_black_harvest_place_empowered_soulcore : public AuraScript
     void HandleAuraEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
     {
         if (Unit* owner = GetOwner()->ToUnit())
-            if (Creature* soulwell = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetData64(NPC_DEMONIC_SOULWELL) : 0))
+            if (Creature* soulwell = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetGuidData(NPC_DEMONIC_SOULWELL) : ObjectGuid::Empty))
                 soulwell->AI()->DoAction(ACTION_START_INTRO);
     }
 

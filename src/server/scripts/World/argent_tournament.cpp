@@ -135,13 +135,13 @@ struct npc_ring_rider_base : ScriptedAI
     uint32 movementTimerMin, movementTimerMax;
     Position center;
 
-    void Reset()
+    void Reset() override
     {
         me->SetFaction(35);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
     }
 
-    bool CanAIAttack(Unit const* target) const
+    bool CanAIAttack(Unit const* target) const override
     {
         if (target->GetTypeId() == TYPEID_UNIT)
             if (Vehicle* vehicle = target->GetVehicleKit())
@@ -177,7 +177,7 @@ struct npc_ring_rider_base : ScriptedAI
         return dest;
     }
 
-    void UpdateAI(const uint32 uiDiff)
+    void UpdateAI(const uint32 uiDiff) override
     {
         if (!UpdateVictim())
             return;
@@ -241,7 +241,7 @@ class npc_ring_valiants : public CreatureScript
 public:
     npc_ring_valiants() : CreatureScript("npc_ring_valiants") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature) override
     {
         if (((pPlayer->GetQuestStatus(13665) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13745) == QUEST_STATUS_INCOMPLETE ||
             pPlayer->GetQuestStatus(13761) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13767) == QUEST_STATUS_INCOMPLETE ||
@@ -264,7 +264,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
@@ -290,7 +290,7 @@ public:
             movementTimerMax = TIMER_MOVEMENT_MAX;
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE || id != POINT_INTRO)
                 return;
@@ -298,7 +298,7 @@ public:
             center.Relocate(*me);
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage)
+        void DamageTaken(Unit* attacker, uint32& damage) override
         {
             if (attacker && damage > me->GetHealth())
             {
@@ -317,7 +317,7 @@ public:
             }
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) override
         {
             if (Player* player = victim->GetCharmerOrOwnerPlayerOrPlayerItself())
                 Talk(SAY_FACTION_VALIANT_WIN, player);
@@ -327,7 +327,7 @@ public:
             DoEvade();
         }
 
-        void EnterCombat(Unit* who)
+        void JustEngagedWith(Unit* who) override
         {
             if (Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself())
                 Talk(SAY_FACTION_VALIANT_START, player);
@@ -338,7 +338,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_ring_valiantsAI(creature);
     }
@@ -349,7 +349,7 @@ class npc_ring_champions : public CreatureScript
 public:
     npc_ring_champions() : CreatureScript("npc_ring_champions") { }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if ((player->GetQuestStatus(13790) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(13793) == QUEST_STATUS_INCOMPLETE ||
             player->GetQuestStatus(13811) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(13814) == QUEST_STATUS_INCOMPLETE) &&
@@ -367,7 +367,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
@@ -393,7 +393,7 @@ public:
             movementTimerMax = TIMER_MOVEMENT_MAX_2;
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE || id != POINT_INTRO)
                 return;
@@ -404,7 +404,7 @@ public:
             me->CastSpell(me, SPELL_DEFEND, true);
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage)
+        void DamageTaken(Unit* attacker, uint32& damage) override
         {
             if (attacker && damage > me->GetHealth())
             {
@@ -423,7 +423,7 @@ public:
             }
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) override
         {
             if (Player* player = victim->GetCharmerOrOwnerPlayerOrPlayerItself())
                 Talk(SAY_FACTION_CHAMPION_WIN, player);
@@ -433,7 +433,7 @@ public:
             DoEvade();
         }
 
-        void EnterCombat(Unit* who)
+        void JustEngagedWith(Unit* who) override
         {
             if (Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself())
                 Talk(SAY_FACTION_CHAMPION_START, player);
@@ -442,7 +442,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_ring_championsAI(creature);
     }

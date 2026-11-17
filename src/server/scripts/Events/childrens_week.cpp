@@ -172,13 +172,13 @@ enum Misc
     NPC_ETYMIDIAN                           = 28092,
 };
 
-uint64 getOrphanGUID(Player* player, uint32 orphan)
+ObjectGuid getOrphanGUID(Player* player, uint32 orphan)
 {
     if (Aura* orphanOut = player->GetAura(SPELL_ORPHAN_OUT))
         if (orphanOut->GetCaster() && orphanOut->GetCaster()->GetEntry() == orphan)
             return orphanOut->GetCaster()->GetGUID();
 
-    return 0;
+    return ObjectGuid::Empty;
 }
 
 /*######
@@ -200,8 +200,8 @@ class npc_winterfin_playmate : public CreatureScript
             {
                 timer = 0;
                 phase = 0;
-                playerGUID = 0;
-                orphanGUID = 0;
+                playerGUID = ObjectGuid::Empty;
+                orphanGUID = ObjectGuid::Empty;
             }
 
             void MoveInLineOfSight(Unit* who) override
@@ -271,8 +271,8 @@ class npc_winterfin_playmate : public CreatureScript
         private:
             uint32 timer;
             int8 phase;
-            uint64 playerGUID;
-            uint64 orphanGUID;
+            ObjectGuid playerGUID;
+            ObjectGuid orphanGUID;
 
         };
 
@@ -301,8 +301,8 @@ class npc_snowfall_glade_playmate : public CreatureScript
             {
                 timer = 0;
                 phase = 0;
-                playerGUID = 0;
-                orphanGUID = 0;
+                playerGUID = ObjectGuid::Empty;
+                orphanGUID = ObjectGuid::Empty;
             }
 
             void MoveInLineOfSight(Unit* who) override
@@ -372,8 +372,8 @@ class npc_snowfall_glade_playmate : public CreatureScript
         private:
             uint32 timer;
             int8 phase;
-            uint64 playerGUID;
-            uint64 orphanGUID;
+            ObjectGuid playerGUID;
+            ObjectGuid orphanGUID;
         };
 
         CreatureAI* GetAI(Creature* pCreature) const
@@ -401,8 +401,8 @@ class npc_high_oracle_soo_roo : public CreatureScript
             {
                 timer = 0;
                 phase = 0;
-                playerGUID = 0;
-                orphanGUID = 0;
+                playerGUID = ObjectGuid::Empty;
+                orphanGUID = ObjectGuid::Empty;
             }
 
             void MoveInLineOfSight(Unit* who) override
@@ -462,8 +462,8 @@ class npc_high_oracle_soo_roo : public CreatureScript
         private:
             uint32 timer;
             int8 phase;
-            uint64 playerGUID;
-            uint64 orphanGUID;
+            ObjectGuid playerGUID;
+            ObjectGuid orphanGUID;
 
         };
 
@@ -492,8 +492,8 @@ class npc_elder_kekek : public CreatureScript
             {
                 timer = 0;
                 phase = 0;
-                playerGUID = 0;
-                orphanGUID = 0;
+                playerGUID = ObjectGuid::Empty;
+                orphanGUID = ObjectGuid::Empty;
             }
 
             void MoveInLineOfSight(Unit* who) override
@@ -552,8 +552,8 @@ class npc_elder_kekek : public CreatureScript
         private:
             uint32 timer;
             int8 phase;
-            uint64 playerGUID;
-            uint64 orphanGUID;
+            ObjectGuid playerGUID;
+            ObjectGuid orphanGUID;
 
         };
 
@@ -579,8 +579,8 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
             {
                 timer = 0;
                 phase = 0;
-                playerGUID = 0;
-                orphanGUID = 0;
+                playerGUID = ObjectGuid::Empty;
+                orphanGUID = ObjectGuid::Empty;
                 me->SetReactState(REACT_AGGRESSIVE); // To make MoveInLineOfSight work
             }
 
@@ -713,8 +713,8 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
             private:
                 int8 phase;
                 uint32 timer;
-                uint64 playerGUID;
-                uint64 orphanGUID;
+                ObjectGuid playerGUID;
+                ObjectGuid orphanGUID;
 
         };
 
@@ -741,7 +741,7 @@ class at_bring_your_orphan_to : public AreaTriggerScript
             uint32 questId = 0;
             uint32 orphanId = 0;
 
-            switch (trigger->id)
+            switch (trigger->ID)
             {
                 case AT_DOWN_AT_THE_DOCKS:
                     questId = QUEST_DOWN_AT_THE_DOCKS;
@@ -782,7 +782,7 @@ struct DialogBuilder
     DialogBuilder& MoveRandom(Creature* who, float dist, TimeValue time)
     {
         Unit* host = me;
-        uint64 guid = who->GetGUID();
+        ObjectGuid guid = who->GetGUID();
 
         host->m_Events.Schedule(currentTimer.ToMilliseconds(), [=]
         {
@@ -797,8 +797,8 @@ struct DialogBuilder
     DialogBuilder& Turn(Creature* who, WorldObject* to)
     {
         Unit* host = me;
-        uint64 guid = who->GetGUID();
-        uint64 toGuid = to->GetGUID();
+        ObjectGuid guid = who->GetGUID();
+        ObjectGuid toGuid = to->GetGUID();
 
         host->m_Events.Schedule(currentTimer.ToMilliseconds(), [=]
         {
@@ -815,7 +815,7 @@ struct DialogBuilder
     DialogBuilder& Talk(Creature* speaker, uint32 text, TimeValue delay)
     {
         Unit* host = me;
-        uint64 guid = speaker->GetGUID();
+        ObjectGuid guid = speaker->GetGUID();
 
         host->m_Events.Schedule(currentTimer.ToMilliseconds(), [=]
         {
@@ -829,7 +829,7 @@ struct DialogBuilder
     DialogBuilder& Evade(Creature* who)
     {
         Unit* host = me;
-        uint64 guid = who->GetGUID();
+        ObjectGuid guid = who->GetGUID();
 
         host->m_Events.Schedule(currentTimer.ToMilliseconds(), [=]
         {
@@ -842,7 +842,7 @@ struct DialogBuilder
     DialogBuilder& Cast(Creature* who, uint32 spell, Unit* target)
     {
         Unit* host = me;
-        uint64 guid = who->GetGUID();
+        ObjectGuid guid = who->GetGUID();
 
         host->m_Events.Schedule(currentTimer.ToMilliseconds(), [=]
         {
@@ -945,7 +945,7 @@ struct npc_cw_area_trigger : public ScriptedAI
                             return;
                     }
 
-                    uint64 orphanGuid = getOrphanGUID(player, orphanId);
+                    ObjectGuid orphanGuid = getOrphanGUID(player, orphanId);
                     if (orphanGuid && player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
                         CompleteQuest(player, questId, orphanGuid);
                 }
@@ -979,7 +979,7 @@ struct npc_cw_area_trigger : public ScriptedAI
         }
     }
 
-    void CompleteQuest(Player* player, uint32 questId, uint64 orphanGuid)
+    void CompleteQuest(Player* player, uint32 questId, ObjectGuid orphanGuid)
     {
         player->AreaExploredOrEventHappens(questId);
 
@@ -994,7 +994,7 @@ struct npc_cw_area_trigger : public ScriptedAI
         }
     }
 
-    void RunSceneTheBanseeQueen(uint64 orphanGuid)
+    void RunSceneTheBanseeQueen(ObjectGuid orphanGuid)
     {
         Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGuid);
         Creature* ambassador = me->FindNearestCreature(NPC_AMBASSADOR, 50.0f);
@@ -1016,7 +1016,7 @@ struct npc_cw_area_trigger : public ScriptedAI
             .Evade(orphan);
     }
 
-    void RunSceneTheFallenChieftain(uint64 orphanGuid)
+    void RunSceneTheFallenChieftain(ObjectGuid orphanGuid)
     {
         Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGuid);
         if (orphan)
@@ -1027,7 +1027,7 @@ struct npc_cw_area_trigger : public ScriptedAI
             .Evade(orphan);
     }
 
-    void RunSceneTheBiggestDiamondEver(uint64 orphanGuid)
+    void RunSceneTheBiggestDiamondEver(ObjectGuid orphanGuid)
     {
         Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGuid);
         Creature* guard = me->FindNearestCreature(NPC_HONOR_GUARD_DUNSTAD, 50.0f);
@@ -1052,7 +1052,7 @@ struct npc_cw_area_trigger : public ScriptedAI
             .Evade(advisor);
     }
 
-    void RunSceneMalfurionHasReturned(uint64 orphanGuid)
+    void RunSceneMalfurionHasReturned(ObjectGuid orphanGuid)
     {
         Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGuid);
         Creature* malfurion = me->FindNearestCreature(NPC_MALFURION, 50.0f);
@@ -1073,7 +1073,7 @@ struct npc_cw_area_trigger : public ScriptedAI
         // Random movement started in aura script and handled in AI
     }
 
-    void RunSceneTheBiggestTreeEver(uint64 orphanGuid)
+    void RunSceneTheBiggestTreeEver(ObjectGuid orphanGuid)
     {
         Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGuid);
         if (!orphan)
@@ -1089,7 +1089,7 @@ struct npc_cw_area_trigger : public ScriptedAI
             .Evade(orphan);
     }
 
-    void RunSceneMeetingGreateOne(uint64 orphanGuid)
+    void RunSceneMeetingGreateOne(ObjectGuid orphanGuid)
     {
         Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGuid);
         Creature* etymidian = me->FindNearestCreature(NPC_ETYMIDIAN, 50.0f);
@@ -1170,7 +1170,7 @@ struct npc_summoned_orphan : public PassiveAI
                 me->DespawnOrUnsummon();
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         scheduler.CancelAll();
         PassiveAI::EnterEvadeMode();

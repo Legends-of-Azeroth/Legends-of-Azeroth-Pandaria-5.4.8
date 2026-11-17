@@ -197,7 +197,7 @@ class boss_warlord_zonozz: public CreatureScript
                 bIntro = true;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (instance->GetBossState(DATA_MORCHOK) != DONE)
                 {
@@ -438,13 +438,13 @@ class boss_warlord_zonozz: public CreatureScript
                     max_claws = 2;
 
                 for (uint8 i = 0; i < max_eyes; ++i)
-                    me->SummonCreature(NPC_EYE_OF_GORATH, tentaclePos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                    me->SummonCreature(NPC_EYE_OF_GORATH, tentaclePos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
                 
                 for (uint8 i = 8; i < (8 + max_flails); ++i)
-                    me->SummonCreature(NPC_FLAIL_OF_GORATH, tentaclePos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                    me->SummonCreature(NPC_FLAIL_OF_GORATH, tentaclePos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
                 
                 for (uint8 i = 12; i < (12 + max_claws); ++i)
-                    me->SummonCreature(NPC_CLAW_OF_GORATH, tentaclePos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                    me->SummonCreature(NPC_CLAW_OF_GORATH, tentaclePos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
             }
         };
 
@@ -541,7 +541,7 @@ class npc_warlord_zonozz_void_of_the_unmaking : public CreatureScript
                                 {
                                     if (aur->GetStackAmount() >= 9)
                                         if (InstanceScript* instance = me->GetInstanceScript())
-                                            if (Creature* pZonozz = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZONOZZ)))
+                                            if (Creature* pZonozz = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ZONOZZ)))
                                                 pZonozz->AI()->SetData(DATA_ACHIEVE, 1);
                                 }
                                 
@@ -664,7 +664,7 @@ class npc_warlord_zonozz_tentacle : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 switch (me->GetEntry())
                 {

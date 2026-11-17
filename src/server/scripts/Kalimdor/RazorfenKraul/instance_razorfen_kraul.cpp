@@ -43,13 +43,13 @@ public:
     {
         instance_razorfen_kraul_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
-        uint64 DoorWardGUID;
+        ObjectGuid DoorWardGUID;
         int WardKeeperDeath;
 
         void Initialize() override
         {
             WardKeeperDeath = 0;
-            DoorWardGUID = 0;
+            DoorWardGUID = ObjectGuid::Empty;
         }
 
         Player* GetPlayerInMap()
@@ -77,7 +77,7 @@ public:
             }
         }
 
-        void Update(uint32 /*diff*/)
+        void Update(uint32 /*diff*/) override
         {
             if (WardKeeperDeath == WARD_KEEPERS_NR)
                 if (GameObject* go = instance->GetGameObject(DoorWardGUID))

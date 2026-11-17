@@ -249,32 +249,32 @@ class BattlegroundAB : public Battleground
         ~BattlegroundAB();
 
         void AddPlayer(Player* player) override;
-        void StartingEventCloseDoors();
-        void StartingEventOpenDoors();
-        void RemovePlayer(Player* player, uint64 guid, uint32 team);
-        void HandleAreaTrigger(Player* Source, uint32 Trigger);
-        bool SetupBattleground();
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
+        void HandleAreaTrigger(Player* Source, uint32 Trigger, bool entered) override;
+        bool SetupBattleground() override;
         void Reset() override;
         void EndBattleground(uint32 winner);
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
 
         /* Scorekeeping */
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true) override;
 
-        void FillInitialWorldStates(WorldStateBuilder& builder);
+        void FillInitialWorldStates(WorldStateBuilder& builder) override;
 
         /* Nodes occupying */
-        void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
+        void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj) override;
 
         /* achievement req. */
-        bool IsAllNodesControlledByTeam(uint32 team) const;
+        bool IsAllNodesControlledByTeam(uint32 team) const override;
 
-        uint32 GetPrematureWinner();
+        uint32 GetPrematureWinner() override;
 
         uint32 GetRBGLoserReward(uint32 team) const override;
 
     private:
-        void PostUpdateImpl(uint32 diff);
+        void PostUpdateImpl(uint32 diff) override;
         /* Gameobject spawning/despawning */
         void _CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay);
         void _DelBanner(uint8 node, uint8 type, uint8 teamIndex);

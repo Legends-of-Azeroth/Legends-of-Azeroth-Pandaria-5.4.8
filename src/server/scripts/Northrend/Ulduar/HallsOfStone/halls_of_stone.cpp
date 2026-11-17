@@ -155,7 +155,7 @@ public:
         bool bMarnakActivated;
         bool bAbedneumActivated;
 
-        std::list<uint64> KaddrakGUIDList;
+        std::list<ObjectGuid> KaddrakGUIDList;
 
         void Reset() override
         {
@@ -169,10 +169,10 @@ public:
 
             if (instance)
             {
-                instance->HandleGameObject(instance->GetData64(DATA_GO_KADDRAK), false);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_MARNAK), false);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_ABEDNEUM), false);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_SKY_FLOOR), false);
+                instance->HandleGameObject(instance->GetGuidData(DATA_GO_KADDRAK), false);
+                instance->HandleGameObject(instance->GetGuidData(DATA_GO_MARNAK), false);
+                instance->HandleGameObject(instance->GetGuidData(DATA_GO_ABEDNEUM), false);
+                instance->HandleGameObject(instance->GetGuidData(DATA_GO_SKY_FLOOR), false);
             }
 
             KaddrakGUIDList.clear();
@@ -212,7 +212,7 @@ public:
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         if (!KaddrakGUIDList.empty())
-                            for (std::list<uint64>::const_iterator itr = KaddrakGUIDList.begin(); itr != KaddrakGUIDList.end(); ++itr)
+                            for (std::list<ObjectGuid>::const_iterator itr = KaddrakGUIDList.begin(); itr != KaddrakGUIDList.end(); ++itr)
                             {
                                 if (Creature* pKaddrak = Unit::GetCreature(*me, *itr))
                                 {
@@ -229,7 +229,7 @@ public:
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
-                        if (Creature* summon = me->SummonCreature(NPC_DARK_MATTER_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 1000))
+                        if (Creature* summon = me->SummonCreature(NPC_DARK_MATTER_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 1000ms))
                         {
                             summon->SetDisplayId(11686);
                             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -245,7 +245,7 @@ public:
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
-                        if (Creature* summon = me->SummonCreature(NPC_SEARING_GAZE_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 1000))
+                        if (Creature* summon = me->SummonCreature(NPC_SEARING_GAZE_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 1000ms))
                         {
                             summon->SetDisplayId(11686);
                             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -292,9 +292,9 @@ public:
         return true;
     }
 
-    struct npc_brann_hosAI : public npc_escortAI
+    struct npc_brann_hosAI : public EscortAI
     {
-        npc_brann_hosAI(Creature* creature) : npc_escortAI(creature)
+        npc_brann_hosAI(Creature* creature) : EscortAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -302,8 +302,8 @@ public:
         uint32 uiStep;
         uint32 uiPhaseTimer;
 
-        uint64 uiControllerGUID;
-        std::list<uint64> lDwarfGUIDList;
+        ObjectGuid uiControllerGUID;
+        std::list<ObjectGuid> lDwarfGUIDList;
 
         InstanceScript* instance;
 
@@ -318,7 +318,7 @@ public:
                 bIsBattle = false;
                 uiStep = 0;
                 uiPhaseTimer = 0;
-                uiControllerGUID = 0;
+                uiControllerGUID = ObjectGuid::Empty;
 
                 DespawnDwarf();
 
@@ -333,16 +333,16 @@ public:
         {
             if (lDwarfGUIDList.empty())
                 return;
-            for (std::list<uint64>::const_iterator itr = lDwarfGUIDList.begin(); itr != lDwarfGUIDList.end(); ++itr)
+            for (std::list<ObjectGuid>::const_iterator itr = lDwarfGUIDList.begin(); itr != lDwarfGUIDList.end(); ++itr)
             {
-                Creature* temp = Unit::GetCreature(*me, instance ? (*itr) : 0);
+                Creature* temp = Unit::GetCreature(*me, instance ? (*itr) : ObjectGuid::Empty);
                 if (temp && temp->IsAlive())
                     temp->DespawnOrUnsummon();
             }
             lDwarfGUIDList.clear();
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             switch (waypointId)
             {
@@ -363,7 +363,7 @@ public:
                 case 17:
                     Talk(SAY_EVENT_INTRO_2);
                     if (instance)
-                        instance->HandleGameObject(instance->GetData64(DATA_GO_TRIBUNAL_CONSOLE), true);
+                        instance->HandleGameObject(instance->GetGuidData(DATA_GO_TRIBUNAL_CONSOLE), true);
                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
                     SetEscortPaused(true);
                     JumpToNextStep(8500);
@@ -382,16 +382,16 @@ public:
                {
                    uint32 uiSpawnNumber = DUNGEON_MODE(2, 3);
                    for (uint8 i = 0; i < uiSpawnNumber; ++i)
-                       me->SummonCreature(NPC_DARK_RUNE_PROTECTOR, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
-                   me->SummonCreature(NPC_DARK_RUNE_STORMCALLER, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                       me->SummonCreature(NPC_DARK_RUNE_PROTECTOR, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000ms);
+                   me->SummonCreature(NPC_DARK_RUNE_STORMCALLER, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000ms);
                    break;
                }
                case 2:
                    for (uint8 i = 0; i < 2; ++i)
-                       me->SummonCreature(NPC_DARK_RUNE_STORMCALLER, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                       me->SummonCreature(NPC_DARK_RUNE_STORMCALLER, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000ms);
                    break;
                case 3:
-                   me->SummonCreature(NPC_IRON_GOLEM_CUSTODIAN, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                   me->SummonCreature(NPC_IRON_GOLEM_CUSTODIAN, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000ms);
                    break;
            }
          }
@@ -399,7 +399,7 @@ public:
         void JustSummoned(Creature* summoned) override
         {
             lDwarfGUIDList.push_back(summoned->GetGUID());
-            summoned->AddThreat(me, 0.0f);
+            summoned->GetThreatManager().AddThreat(me, 0.0f);
             summoned->AI()->AttackStart(me);
         }
 
@@ -447,7 +447,7 @@ public:
                         break;
                     case 5:
                         if (instance)
-                            if (Creature* temp = (Unit::GetCreature(*me, instance->GetData64(DATA_ABEDNEUM))))
+                            if (Creature* temp = (Unit::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM))))
                                 temp->AI()->Talk(SAY_EVENT_INTRO_3_ABED);
                             JumpToNextStep(8500);
                         break;
@@ -457,14 +457,14 @@ public:
                         break;
                     case 7:
                         if (instance)
-                            if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_KADDRAK)))
+                            if (Creature* temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_KADDRAK)))
                                 temp->AI()->Talk(SAY_EVENT_A_2_KADD);
                             JumpToNextStep(12500);
                         break;
                     case 8:
                         Talk(SAY_EVENT_A_3);
                         if (instance)
-                            instance->HandleGameObject(instance->GetData64(DATA_GO_KADDRAK), true);
+                            instance->HandleGameObject(instance->GetGuidData(DATA_GO_KADDRAK), true);
                         if (Creature* temp = Unit::GetCreature(*me, uiControllerGUID))
                             CAST_AI(npc_tribuna_controller::npc_tribuna_controllerAI, temp->AI())->bKaddrakActivated = true;
                         JumpToNextStep(5000);
@@ -480,7 +480,7 @@ public:
                         break;
                     case 11:
                         if (instance)
-                            if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_MARNAK)))
+                            if (Creature* temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_MARNAK)))
                                 temp->AI()->Talk(SAY_EVENT_B_2_MARN);
                         SpawnDwarf(1);
                         JumpToNextStep(20000);
@@ -488,7 +488,7 @@ public:
                     case 12:
                         Talk(SAY_EVENT_B_3);
                         if (instance)
-                            instance->HandleGameObject(instance->GetData64(DATA_GO_MARNAK), true);
+                            instance->HandleGameObject(instance->GetGuidData(DATA_GO_MARNAK), true);
                         if (Creature* temp = Unit::GetCreature(*me, uiControllerGUID))
                             CAST_AI(npc_tribuna_controller::npc_tribuna_controllerAI, temp->AI())->bMarnakActivated = true;
                         JumpToNextStep(10000);
@@ -512,7 +512,7 @@ public:
                         break;
                     case 17:
                         if (instance)
-                            if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_ABEDNEUM)))
+                            if (Creature* temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
                                 temp->AI()->Talk(SAY_EVENT_C_2_ABED);
                             SpawnDwarf(1);
                         JumpToNextStep(20000);
@@ -520,7 +520,7 @@ public:
                     case 18:
                         Talk(SAY_EVENT_C_3);
                         if (instance)
-                            instance->HandleGameObject(instance->GetData64(DATA_GO_ABEDNEUM), true);
+                            instance->HandleGameObject(instance->GetGuidData(DATA_GO_ABEDNEUM), true);
                         if (Creature* temp = Unit::GetCreature(*me, uiControllerGUID))
                             CAST_AI(npc_tribuna_controller::npc_tribuna_controllerAI, temp->AI())->bAbedneumActivated = true;
                         JumpToNextStep(5000);
@@ -540,7 +540,7 @@ public:
                         break;
                     case 22:
                         if (instance)
-                            if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_ABEDNEUM)))
+                            if (Creature* temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
                                 temp->AI()->Talk(SAY_EVENT_D_2_ABED);
                         SpawnDwarf(1);
                         JumpToNextStep(5000);
@@ -564,7 +564,7 @@ public:
                         break;
                     case 27:
                         if (instance)
-                            if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_ABEDNEUM)))
+                            if (Creature* temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
                                 temp->AI()->Talk(SAY_EVENT_D_4_ABED);
                         SpawnDwarf(1);
                         JumpToNextStep(10000);
@@ -574,7 +574,7 @@ public:
                         Talk(SAY_EVENT_END_01);
                         me->SetStandState(UNIT_STAND_STATE_STAND);
                         if (instance)
-                            instance->HandleGameObject(instance->GetData64(DATA_GO_SKY_FLOOR), true);
+                            instance->HandleGameObject(instance->GetGuidData(DATA_GO_SKY_FLOOR), true);
                         if (Creature* temp = Unit::GetCreature(*me, uiControllerGUID))
                             temp->DealDamage(temp, temp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                         bIsBattle = true;
@@ -590,7 +590,7 @@ public:
                         break;
                     case 30:
                         if (instance)
-                            if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_ABEDNEUM)))
+                            if (Creature* temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
                                 temp->AI()->Talk(SAY_EVENT_END_03_ABED);
                         JumpToNextStep(8500);
                         break;
@@ -600,7 +600,7 @@ public:
                         break;
                     case 32:
                         if (instance)
-                            if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_ABEDNEUM)))
+                            if (Creature* temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
                                 temp->AI()->Talk(SAY_EVENT_END_05_ABED);
                             JumpToNextStep(11500);
                         break;
@@ -610,7 +610,7 @@ public:
                         break;
                     case 34:
                         if (instance)
-                            if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_ABEDNEUM)))
+                            if (Creature* temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
                                 temp->AI()->Talk(SAY_EVENT_END_07_ABED);
                             JumpToNextStep(22500);
                         break;
@@ -620,7 +620,7 @@ public:
                         break;
                     case 36:
                         if (instance)
-                            if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_KADDRAK)))
+                            if (Creature* temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_KADDRAK)))
                                 temp->AI()->Talk(SAY_EVENT_END_09_KADD);
                         JumpToNextStep(18500);
                         break;
@@ -630,7 +630,7 @@ public:
                         break;
                     case 38:
                         if (instance)
-                            if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_KADDRAK)))
+                            if (Creature* temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_KADDRAK)))
                                 temp->AI()->Talk(SAY_EVENT_END_11_KADD);
                             JumpToNextStep(20500);
                         break;
@@ -640,7 +640,7 @@ public:
                         break;
                     case 40:
                         if (instance)
-                            if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_KADDRAK)))
+                            if (Creature* temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_KADDRAK)))
                                 temp->AI()->Talk(SAY_EVENT_END_13_KADD);
                         JumpToNextStep(19500);
                         break;
@@ -650,7 +650,7 @@ public:
                         break;
                     case 42:
                         if (instance)
-                            if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_MARNAK)))
+                            if (Creature* temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_MARNAK)))
                                 temp->AI()->Talk(SAY_EVENT_END_15_MARN);
                             JumpToNextStep(6500);
                         break;
@@ -660,7 +660,7 @@ public:
                         break;
                     case 44:
                         if (instance)
-                            if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_MARNAK)))
+                            if (Creature* temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_MARNAK)))
                                 temp->AI()->Talk(SAY_EVENT_END_17_MARN);
                             JumpToNextStep(25500);
                         break;
@@ -670,7 +670,7 @@ public:
                         break;
                     case 46:
                         if (instance)
-                            if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_MARNAK)))
+                            if (Creature* temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_MARNAK)))
                                 temp->AI()->Talk(SAY_EVENT_END_19_MARN);
                             JumpToNextStep(3500);
                         break;
@@ -680,7 +680,7 @@ public:
                         break;
                     case 48:
                         if (instance)
-                            if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_ABEDNEUM)))
+                            if (Creature* temp = Unit::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
                                 temp->AI()->Talk(SAY_EVENT_END_21_ABED);
                             JumpToNextStep(5500);
                         break;
@@ -688,10 +688,10 @@ public:
                     {
                         if (instance)
                         {
-                            instance->HandleGameObject(instance->GetData64(DATA_GO_KADDRAK), false);
-                            instance->HandleGameObject(instance->GetData64(DATA_GO_MARNAK), false);
-                            instance->HandleGameObject(instance->GetData64(DATA_GO_ABEDNEUM), false);
-                            instance->HandleGameObject(instance->GetData64(DATA_GO_SKY_FLOOR), false);
+                            instance->HandleGameObject(instance->GetGuidData(DATA_GO_KADDRAK), false);
+                            instance->HandleGameObject(instance->GetGuidData(DATA_GO_MARNAK), false);
+                            instance->HandleGameObject(instance->GetGuidData(DATA_GO_ABEDNEUM), false);
+                            instance->HandleGameObject(instance->GetGuidData(DATA_GO_SKY_FLOOR), false);
                         }
                         Player* player = GetPlayerForEscort();
                         if (player)

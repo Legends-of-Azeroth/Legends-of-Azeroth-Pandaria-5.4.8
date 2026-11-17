@@ -24,7 +24,7 @@
 #include "ObjectAccessor.h"
 #include "MovementStructures.h"
 
-void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
+void WorldSession::HandleDismissControlledVehicle(WorldPackets::Vehicle::MoveDismissVehicle& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_DISMISS_CONTROLLED_VEHICLE");
 
@@ -32,14 +32,13 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 
     if (!vehicleGUID)                                       // something wrong here...
     {
-        recvData.rfinish();                                // prevent warnings spam
         return;
     }
 
-    MovementInfo mi;
-    _player->ReadMovementInfo(recvData, &mi);
+    MovementInfo mi = packet.Mi;
 
     _player->m_movementInfo = mi;
+
 
     _player->ExitVehicle();
 }
@@ -59,8 +58,8 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
     if (!seat->CanSwitchFromSeat())
     {
         recvData.rfinish();                                // prevent warnings spam
-        TC_LOG_ERROR("network", "HandleChangeSeatsOnControlledVehicle, Opcode: %u, Player %u tried to switch seats but current seatflags %u don't permit that.",
-            recvData.GetOpcode(), GetPlayer()->GetGUIDLow(), seat->m_flags);
+        TC_LOG_ERROR("network", "HandleChangeSeatsOnControlledVehicle, Opcode: {}, Player {} tried to switch seats but current seatflags {} don't permit that.",
+            recvData.GetOpcode(), GetPlayer()->GetGUID().GetCounter(), seat->m_flags);
         return;
     }
 
@@ -100,7 +99,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
             GetPlayer()->ReadMovementInfo(recvData, &movementInfo, &extra);
             vehicle_base->m_movementInfo = movementInfo;
 
-            uint64 accessory = extra.Data.guid;
+            ObjectGuid accessory = extra.Data.guid;
             int8 seatId = extra.Data.byteData;
 
             if (vehicle_base->GetGUID() != movementInfo.guid)
@@ -122,11 +121,23 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
             recvData >> seatId;
 
             ObjectGuid guid;    // current vehicle guid
-            uint8 maskorder[8] = { 7, 3, 0, 1, 6, 4, 5, 2 };
-            recvData.ReadBitInOrder(guid, maskorder);
+            guid[7] = recvData.ReadBit();
+            guid[3] = recvData.ReadBit();
+            guid[0] = recvData.ReadBit();
+            guid[1] = recvData.ReadBit();
+            guid[6] = recvData.ReadBit();
+            guid[4] = recvData.ReadBit();
+            guid[5] = recvData.ReadBit();
+            guid[2] = recvData.ReadBit();
 
-            uint8 byteorder[8] = { 5, 0, 2, 3, 7, 4, 6, 1 };
-            recvData.ReadBytesSeq(guid, byteorder);
+            recvData.ReadByteSeq(guid[5]);
+            recvData.ReadByteSeq(guid[0]);
+            recvData.ReadByteSeq(guid[2]);
+            recvData.ReadByteSeq(guid[3]);
+            recvData.ReadByteSeq(guid[7]);
+            recvData.ReadByteSeq(guid[4]);
+            recvData.ReadByteSeq(guid[6]);
+            recvData.ReadByteSeq(guid[1]);
 
             if (vehicle_base->GetGUID() == guid)
                 GetPlayer()->ChangeSeat(seatId);
@@ -141,26 +152,9 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleEnterPlayerVehicle(WorldPacket& recvData)
+void WorldSession::HandleEnterPlayerVehicle(WorldPackets::Vehicle::PlayerVehicleEnter& packet)
 {
-    ObjectGuid Guid;
-    Guid[5] = recvData.ReadBit();
-    Guid[7] = recvData.ReadBit();
-    Guid[3] = recvData.ReadBit();
-    Guid[0] = recvData.ReadBit();
-    Guid[2] = recvData.ReadBit();
-    Guid[4] = recvData.ReadBit();
-    Guid[6] = recvData.ReadBit();
-    Guid[1] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(Guid[5]);
-    recvData.ReadByteSeq(Guid[3]);
-    recvData.ReadByteSeq(Guid[1]);
-    recvData.ReadByteSeq(Guid[2]);
-    recvData.ReadByteSeq(Guid[7]);
-    recvData.ReadByteSeq(Guid[0]);
-    recvData.ReadByteSeq(Guid[6]);
-    recvData.ReadByteSeq(Guid[4]);
+    ObjectGuid Guid = packet.Guid;
 
     if (Player* player = ObjectAccessor::FindPlayer(Guid))
     {
@@ -175,73 +169,74 @@ void WorldSession::HandleEnterPlayerVehicle(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleEjectPassenger(WorldPacket& data)
+void WorldSession::HandleEjectPassenger(WorldPackets::Vehicle::EjectPassenger& packet)
 {
     Vehicle* vehicle = _player->GetVehicleKit();
     if (!vehicle)
     {
-        data.rfinish();                                     // prevent warnings spam
-        TC_LOG_ERROR("network", "HandleEjectPassenger: Player %u is not in a vehicle!", GetPlayer()->GetGUIDLow());
+        TC_LOG_ERROR("network", "HandleEjectPassenger: Player {} is not in a vehicle!", GetPlayer()->GetGUID().GetCounter());
         return;
     }
 
-    ObjectGuid guid;
-    data.ReadGuidMask(guid, 4, 2, 1, 6, 5, 0, 7, 3);
-    data.ReadGuidBytes(guid, 2, 7, 0, 6, 4, 3, 5, 1);
+    ObjectGuid guid = packet.Guid;
 
-    if (IS_PLAYER_GUID(guid))
+    if (guid.IsPlayer())
     {
         Player* player = ObjectAccessor::FindPlayer(guid);
         if (!player)
         {
-            TC_LOG_ERROR("network", "Player %u tried to eject player %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
+            TC_LOG_ERROR("network", "Player {} tried to eject player {} from vehicle, but the latter was not found in world!", GetPlayer()->GetGUID().GetCounter(), guid.GetCounter());
             return;
         }
 
         if (!player->IsOnVehicle(vehicle->GetBase()))
         {
-            TC_LOG_ERROR("network", "Player %u tried to eject player %u, but they are not in the same vehicle", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
+            TC_LOG_ERROR("network", "Player {} tried to eject player {}, but they are not in the same vehicle", GetPlayer()->GetGUID().GetCounter(), guid.GetCounter());
             return;
         }
 
         VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(player);
         ASSERT(seat);
         if (seat->IsEjectable())
+        {
+
             player->ExitVehicle();
+        }
         else
-            TC_LOG_ERROR("network", "Player %u attempted to eject player %u from non-ejectable seat.", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
+            TC_LOG_ERROR("network", "Player {} attempted to eject player {} from non-ejectable seat.", GetPlayer()->GetGUID().GetCounter(), guid.GetCounter());
     }
 
-    else if (IS_CREATURE_GUID(guid))
+    else if (guid.IsCreature())
     {
         Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
         if (!unit) // creatures can be ejected too from player mounts
         {
-            TC_LOG_ERROR("network", "Player %u tried to eject creature guid %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
+            TC_LOG_ERROR("network", "Player {} tried to eject creature guid {} from vehicle, but the latter was not found in world!", GetPlayer()->GetGUID().GetCounter(), guid.GetCounter());
             return;
         }
 
         if (!unit->IsOnVehicle(vehicle->GetBase()))
         {
-            TC_LOG_ERROR("network", "Player %u tried to eject unit %u, but they are not in the same vehicle", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
+            TC_LOG_ERROR("network", "Player {} tried to eject unit {}, but they are not in the same vehicle", GetPlayer()->GetGUID().GetCounter(), guid.GetCounter());
             return;
         }
 
         VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(unit);
         ASSERT(seat);
-        if (seat->IsEjectable())
-        {
-            ASSERT(GetPlayer() == vehicle->GetBase());
-            unit->ExitVehicle();
-        }
+            if (seat->IsEjectable())
+            {
+                ASSERT(GetPlayer() == vehicle->GetBase());
+
+                unit->ExitVehicle();
+            }
         else
-            TC_LOG_ERROR("network", "Player %u attempted to eject creature GUID %u from non-ejectable seat.", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
+            TC_LOG_ERROR("network", "Player {} attempted to eject creature GUID {} from non-ejectable seat.", GetPlayer()->GetGUID().GetCounter(), guid.GetCounter());
     }
     else
-        TC_LOG_ERROR("network", "HandleEjectPassenger: Player %u tried to eject invalid GUID " UI64FMTD, GetPlayer()->GetGUIDLow(), uint64(guid));
+        TC_LOG_ERROR("network", "HandleEjectPassenger: Player {} tried to eject invalid GUID " UI64FMTD, GetPlayer()->GetGUID().GetCounter(), uint64(guid));
 }
 
-void WorldSession::HandleRequestVehicleExit(WorldPacket& recvData)
+void WorldSession::HandleRequestVehicleExit(WorldPackets::Vehicle::RequestVehicleExit& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_REQUEST_VEHICLE_EXIT");
 
@@ -250,29 +245,41 @@ void WorldSession::HandleRequestVehicleExit(WorldPacket& recvData)
         if (VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(GetPlayer()))
         {
             if (seat->CanEnterOrExit())
+            {
+
                 GetPlayer()->ExitVehicle();
+            }
             else
-                TC_LOG_ERROR("network", "Player %u tried to exit vehicle, but seatflags %u (ID: %u) don't permit that.",
-                GetPlayer()->GetGUIDLow(), seat->m_ID, seat->m_flags);
+                TC_LOG_ERROR("network", "Player {} tried to exit vehicle, but seatflags {} (ID: {}) don't permit that.",
+                GetPlayer()->GetGUID().GetCounter(), seat->m_ID, seat->m_flags);
         }
     }
 }
 
-void WorldSession::HandleMoveSetVehicleRecAck(WorldPacket& recvData)
+void WorldSession::HandleMoveSetVehicleRecAck(WorldPackets::Vehicle::MoveSetVehicleRecIdAck& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_SET_VEHICLE_REC_ID_ACK");
 
-    static MovementStatusElements const vehicleIdExtra = MSEExtraInt32;
-    Movement::ExtraMovementStatusElement extras(&vehicleIdExtra);
-    MovementInfo movementInfo;
-    GetPlayer()->ReadMovementInfo(recvData, &movementInfo, &extras);
-
-    uint32 vehicleId = extras.Data.extraInt32Data;
+    uint32 vehicleId = packet.VehicleId;
 
     ObjectGuid vehicleGuid = GetPlayer()->GetGUID();
     WorldPacket data(SMSG_SET_VEHICLE_REC_ID, 8 + 4);
-    data.WriteGuidMask(vehicleGuid, 5, 7, 2, 1, 4, 0, 3, 6);
-    data.WriteGuidBytes(vehicleGuid, 5, 7, 4, 6, 2, 1, 3, 0);
+    data.WriteBit(vehicleGuid[5]);
+    data.WriteBit(vehicleGuid[7]);
+    data.WriteBit(vehicleGuid[2]);
+    data.WriteBit(vehicleGuid[1]);
+    data.WriteBit(vehicleGuid[4]);
+    data.WriteBit(vehicleGuid[0]);
+    data.WriteBit(vehicleGuid[3]);
+    data.WriteBit(vehicleGuid[6]);
+    data.WriteByteSeq(vehicleGuid[5]);
+    data.WriteByteSeq(vehicleGuid[7]);
+    data.WriteByteSeq(vehicleGuid[4]);
+    data.WriteByteSeq(vehicleGuid[6]);
+    data.WriteByteSeq(vehicleGuid[2]);
+    data.WriteByteSeq(vehicleGuid[1]);
+    data.WriteByteSeq(vehicleGuid[3]);
+    data.WriteByteSeq(vehicleGuid[0]);
     data << uint32(vehicleId);
     GetPlayer()->SendMessageToSet(&data, true);
 }

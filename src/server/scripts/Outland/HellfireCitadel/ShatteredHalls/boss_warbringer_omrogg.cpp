@@ -135,8 +135,8 @@ class boss_warbringer_omrogg : public CreatureScript
         {
             boss_warbringer_omroggAI(Creature* creature) : BossAI(creature, DATA_OMROGG)
             {
-                LeftHeadGUID  = 0;
-                RightHeadGUID = 0;
+                LeftHeadGUID = ObjectGuid::Empty;
+                RightHeadGUID = ObjectGuid::Empty;
             }
 
             void Reset() override
@@ -144,13 +144,13 @@ class boss_warbringer_omrogg : public CreatureScript
                 if (Unit* LeftHead  = Unit::GetUnit(*me, LeftHeadGUID))
                 {
                     LeftHead->setDeathState(JUST_DIED);
-                    LeftHeadGUID = 0;
+                    LeftHeadGUID = ObjectGuid::Empty;
                 }
 
                 if (Unit* RightHead  = Unit::GetUnit(*me, RightHeadGUID))
                 {
                     RightHead->setDeathState(JUST_DIED);
-                    RightHeadGUID = 0;
+                    RightHeadGUID = ObjectGuid::Empty;
                 }
 
                 AggroYell = false;
@@ -188,10 +188,10 @@ class boss_warbringer_omrogg : public CreatureScript
                 ThreatYell = true;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                me->SummonCreature(NPC_LEFT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
-                me->SummonCreature(NPC_RIGHT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
+                me->SummonCreature(NPC_LEFT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0ms);
+                me->SummonCreature(NPC_RIGHT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0ms);
 
                 if (Creature* LeftHead = Creature::GetCreature(*me, LeftHeadGUID))
                 {
@@ -338,7 +338,7 @@ class boss_warbringer_omrogg : public CreatureScript
                     {
                         DoYellForThreat();
                         DoResetThreat();
-                        me->AddThreat(target, 0.0f);
+                        me->GetThreatManager().AddThreat(target, 0.0f);
                     }
                     ResetThreat_Timer = 25000+rand()%15000;
                 }
@@ -365,8 +365,8 @@ class boss_warbringer_omrogg : public CreatureScript
             }
 
             private:
-                uint64 LeftHeadGUID;
-                uint64 RightHeadGUID;
+                ObjectGuid LeftHeadGUID;
+                ObjectGuid RightHeadGUID;
                 int iaggro;
                 int ithreat;
                 int ikilling;
@@ -409,9 +409,9 @@ class npc_omrogg_heads : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
-            void SetData(uint32 data, uint32 value)
+            void SetData(uint32 data, uint32 value) override
             {
                 if (data == SETDATA_DATA && value == SETDATA_YELL)
                 {

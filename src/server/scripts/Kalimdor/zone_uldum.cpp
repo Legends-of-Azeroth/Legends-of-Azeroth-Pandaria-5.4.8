@@ -159,7 +159,7 @@ class boss_akmahat : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SHOCKWAVE, 16000);
                 events.ScheduleEvent(EVENT_FURY_OF_THE_SANDS, 9000);
@@ -422,7 +422,7 @@ class npc_quest_ramkahen_prisoner : public CreatureScript
         {
             npc_quest_ramkahen_prisonerAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 ownerGUID;
+            ObjectGuid ownerGUID;
             uint32 delay = 0;
 
             void IsSummonedBy(Unit* summoner) override
@@ -507,7 +507,7 @@ class npc_neferset_enforcer_quest : public CreatureScript
         {
             npc_neferset_enforcer_questAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 prisonerGUID;
+            ObjectGuid prisonerGUID;
 
             void IsSummonedBy(Unit* summoner) override
             {
@@ -519,7 +519,7 @@ class npc_neferset_enforcer_quest : public CreatureScript
 
                     if (uint32 targetLOW = summoner->ToCreature()->AI()->GetData(TYPE_NEFERSET_PRISON_PLAYER))
                     {
-                        if (Player* pPlayer = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(targetLOW, 0, HIGHGUID_PLAYER)))
+                        if (Player* pPlayer = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player, targetLOW)))
                         {
                             me->GetMotionMaster()->MoveChase(pPlayer);
                             me->Attack(pPlayer, true);
@@ -601,7 +601,7 @@ class npc_caimat_pit_master : public CreatureScript
         {
             npc_caimat_pit_masterAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 playerGUID;
+            ObjectGuid playerGUID;
             uint32 delay, krokoCount;
 
             void IsSummonedBy(Unit* summoner) override
@@ -709,7 +709,7 @@ class npc_krokolisks_quest : public CreatureScript
         {
             npc_krokolisks_questAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 summonerGUID;
+            ObjectGuid summonerGUID;
 
             void IsSummonedBy(Unit* summoner) override
             {
@@ -717,7 +717,7 @@ class npc_krokolisks_quest : public CreatureScript
 
                 if (uint32 targetLOW = summoner->ToCreature()->AI()->GetData(TYPE_PIT_MASTER_PLAYER))
                 {
-                    if (Player* pPlayer = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(targetLOW, 0, HIGHGUID_PLAYER)))
+                    if (Player* pPlayer = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player, targetLOW)))
                     {
                         me->GetMotionMaster()->MoveChase(pPlayer);
                         me->Attack(pPlayer, true);
@@ -785,7 +785,7 @@ class spell_dormus_rage : public SpellScriptLoader
                     return;
 
                 caster->GetMap()->LoadGrid(dormusSummonPos.GetPositionX(), dormusSummonPos.GetPositionY());
-                caster->SummonCreature(NPC_DORMUS, dormusSummonPos, TEMPSUMMON_TIMED_DESPAWN, 1200000);
+                caster->SummonCreature(NPC_DORMUS, dormusSummonPos, TEMPSUMMON_TIMED_DESPAWN, 1200000ms);
                 caster->CastSpell(caster, SPELL_SANDSTORM_TELEPORT, true);
             }
 

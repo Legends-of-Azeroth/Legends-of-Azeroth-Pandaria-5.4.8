@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
 #ifndef _DATABASEWORKERPOOL_H
 #define _DATABASEWORKERPOOL_H
 
+#include "AsioHacksFwd.h"
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
 #include "StringFormat.h"
@@ -25,10 +26,6 @@
 #include <string>
 #include <vector>
 
-template <typename T>
-class ProducerConsumerQueue;
-
-class SQLOperation;
 struct MySQLConnectionInfo;
 
 template <class T>
@@ -72,13 +69,13 @@ class DatabaseWorkerPool
 
         //! Enqueues a one-way SQL operation in string format -with variable args- that will be executed asynchronously.
         //! This method should only be used for queries that are only executed once, e.g during startup.
-        template<typename Format, typename... Args>
-        void PExecute(Format&& sql, Args&&... args)
+        template<typename... Args>
+        void PExecute(Trinity::FormatString<Args...> sql, Args&&... args)
         {
             if (Trinity::IsFormatEmptyOrNull(sql))
                 return;
 
-            Execute(Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
+            Execute(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str());
         }
 
         //! Enqueues a one-way SQL operation in prepared statement format that will be executed asynchronously.
@@ -95,13 +92,13 @@ class DatabaseWorkerPool
 
         //! Directly executes a one-way SQL operation in string format -with variable args-, that will block the calling thread until finished.
         //! This method should only be used for queries that are only executed once, e.g during startup.
-        template<typename Format, typename... Args>
-        void DirectPExecute(Format&& sql, Args&&... args)
+        template<typename... Args>
+        void DirectPExecute(Trinity::FormatString<Args...> sql, Args&&... args)
         {
             if (Trinity::IsFormatEmptyOrNull(sql))
                 return;
 
-            DirectExecute(Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
+            DirectExecute(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str());
         }
 
         //! Directly executes a one-way SQL operation in prepared statement format, that will block the calling thread until finished.
@@ -118,24 +115,24 @@ class DatabaseWorkerPool
 
         //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
-        template<typename Format, typename... Args>
-        QueryResult PQuery(Format&& sql, T* conn, Args&&... args)
+        template<typename... Args>
+        QueryResult PQuery(Trinity::FormatString<Args...> sql, T* conn, Args&&... args)
         {
             if (Trinity::IsFormatEmptyOrNull(sql))
                 return QueryResult(nullptr);
 
-            return Query(Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str(), conn);
+            return Query(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str(), conn);
         }
 
         //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
-        template<typename Format, typename... Args>
-        QueryResult PQuery(Format&& sql, Args&&... args)
+        template<typename... Args>
+        QueryResult PQuery(Trinity::FormatString<Args...> sql, Args&&... args)
         {
             if (Trinity::IsFormatEmptyOrNull(sql))
                 return QueryResult(nullptr);
 
-            return Query(Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
+            return Query(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str());
         }
 
         //! Directly executes an SQL query in prepared format that will block the calling thread until finished.
@@ -220,16 +217,20 @@ class DatabaseWorkerPool
 
         unsigned long EscapeString(char* to, char const* from, unsigned long length);
 
-        void Enqueue(SQLOperation* op);
-
         //! Gets a free connection in the synchronous connection pool.
         //! Caller MUST call t->Unlock() after touching the MySQL context to prevent deadlocks.
         T* GetFreeConnection();
 
+        T* GetAsyncConnectionForCurrentThread() const;
+
         char const* GetDatabaseName() const;
 
+        struct QueueSizeTracker;
+        friend QueueSizeTracker;
+
         //! Queue shared by async worker threads.
-        std::unique_ptr<ProducerConsumerQueue<SQLOperation*>> _queue;
+        std::unique_ptr<Trinity::Asio::IoContext> _ioContext;
+        std::atomic<size_t> _queueSize;
         std::array<std::vector<std::unique_ptr<T>>, IDX_SIZE> _connections;
         std::unique_ptr<MySQLConnectionInfo> _connectionInfo;
         std::vector<uint8> _preparedStatementSize;

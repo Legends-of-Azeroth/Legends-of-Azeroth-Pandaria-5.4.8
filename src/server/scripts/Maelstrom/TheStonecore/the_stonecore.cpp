@@ -124,7 +124,7 @@ class npc_crystalspawn_giant : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_QUAKE, 5000 + rand()%5000);
             }
@@ -176,7 +176,7 @@ public:
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_FELL_FIREBALL, 1000);
             }
@@ -251,7 +251,7 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_MILL_FEAR, 10000);
                 events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 7000 + rand()%10000);
@@ -362,9 +362,9 @@ class npc_stonecore_instance_portal: public CreatureScript
     public:
         npc_stonecore_instance_portal() : CreatureScript("npc_stonecore_instance_portal") { }
 
-        struct npc_stonecore_instance_portal_AI : public CreatureAI
+        struct npc_stonecore_instance_portal_AI : public ScriptedAI
         {
-           npc_stonecore_instance_portal_AI(Creature* creature) : CreatureAI(creature) { }
+           npc_stonecore_instance_portal_AI(Creature* creature) : ScriptedAI(creature) { }
 
             void OnSpellClick(Unit* clicker, bool& /*result*/) override
             {

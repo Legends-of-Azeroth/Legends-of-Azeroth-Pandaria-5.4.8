@@ -20,9 +20,9 @@
 #include "Vehicle.h"
 #include "scarlet_monastery.h"
 
-bool HasHandleOneShotEmote(uint64 guid)
+bool HasHandleOneShotEmote(Creature* me, ObjectGuid guid)
 {
-    if (Unit* owner = ObjectAccessor::FindUnit(guid))
+    if (Unit* owner = ObjectAccessor::GetUnit(*me, guid))
         return owner&& owner->ToCreature() && (owner->ToCreature()->GetDBTableGUIDLow() == 537443 || owner->ToCreature()->GetDBTableGUIDLow() == 537459 || owner->ToCreature()->GetDBTableGUIDLow() == 537451);
 
     return false;
@@ -105,7 +105,7 @@ class npc_scarlet_flamethower : public CreatureScript
             }
 
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 nonCombatEvents.Reset();
                 events.ScheduleEvent(EVENT_FLAMETHOWER_COMBAT, urand(1500, 2000));
@@ -241,7 +241,7 @@ class npc_frenzied_spirit : public CreatureScript
                 me->RemoveAllAuras();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_FRENZIED, 1000);
             }
@@ -322,7 +322,7 @@ class npc_scarlet_fanatic : public CreatureScript
                     nonCombatEvents.ScheduleEvent(EVENT_REPRODUCE_EMOTE, 2000);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_HANDS_OF_PURITY, 1000);
                 events.ScheduleEvent(EVENT_FANATICAL_STRIKE, urand(2000, 4000));
@@ -398,18 +398,18 @@ class npc_scarlet_judicator : public CreatureScript
 
             void InitializeAI() override
             {
-                if (HasHandleOneShotEmote(me->GetGUID()))
+                if (HasHandleOneShotEmote(me, me->GetGUID()))
                     nonCombatEvents.ScheduleEvent(EVENT_REPRODUCE_EMOTE, 2000);
             }
 
             void Reset() override
             {
-                if (HasHandleOneShotEmote(me->GetGUID()))
+                if (HasHandleOneShotEmote(me, me->GetGUID()))
                     nonCombatEvents.ScheduleEvent(EVENT_REPRODUCE_EMOTE, 2000);
                 me->RemoveAllAuras();
             }
 
-            void EnterCombat(Unit* /*who*/) override 
+            void JustEngagedWith(Unit* /*who*/) override 
             {
                 nonCombatEvents.Reset();
             }
@@ -478,7 +478,7 @@ class npc_pile_corpses : public CreatureScript
                 DoCast(me, SPELL_PILE_OF_CORPSES);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->AddUnitState(UNIT_STATE_ROOT);
@@ -544,7 +544,7 @@ class npc_scarlet_centurion : public CreatureScript
                 me->RemoveAllAuras();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 nonCombatEvents.Reset();
                 events.ScheduleEvent(EVENT_CLEAVE, urand(2000, 4000));
@@ -630,7 +630,7 @@ class npc_zombified_corpse : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void JustDied(Unit* /*killer*/) override { }
 
@@ -692,9 +692,9 @@ class npc_scarlet_zealot : public CreatureScript
             npc_scarlet_zealotAI(Creature* creature) : ScriptedAI(creature) { }
 
             EventMap events;
-            uint64 ResTarget;
+            ObjectGuid ResTarget;
 
-            void EnterCombat(Unit* /*who*/) override 
+            void JustEngagedWith(Unit* /*who*/) override 
             {
                 events.ScheduleEvent(EVENT_HEAL, 10000);
                 events.ScheduleEvent(EVENT_SMITE, urand(4000, 6000));
@@ -703,7 +703,7 @@ class npc_scarlet_zealot : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override 
             {
-                me->SummonCreature(NPC_SPIRIT_OF_REDEMPTION, me->GetPositionX() + frand(-2.0f, 2.0f), me->GetPositionY() + frand(-1.5f, 1.5f), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 12000);
+                me->SummonCreature(NPC_SPIRIT_OF_REDEMPTION, me->GetPositionX() + frand(-2.0f, 2.0f), me->GetPositionY() + frand(-1.5f, 1.5f), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 12000ms);
             }
 
             void DoAction(int32 actionId) override
@@ -763,7 +763,7 @@ class npc_scarlet_zealot : public CreatureScript
             }
 
             private:
-                uint64 GetLowestFriendlyGUID()
+                ObjectGuid GetLowestFriendlyGUID()
                 {
                     std::list<Creature*> tmpTargets;
 
@@ -773,17 +773,17 @@ class npc_scarlet_zealot : public CreatureScript
                     GetCreatureListWithEntryInGrid(tmpTargets, me, NPC_SCARLET_PURIFIER, 50.0f);
 
                     if (tmpTargets.empty())
-                        return 0;
+                        return ObjectGuid::Empty;
 
                     tmpTargets.sort(Trinity::HealthPctOrderPred());
 
                     if (Creature* lowestTarget = tmpTargets.front())
                         return lowestTarget->GetGUID();
 
-                    return 0;
+                    return ObjectGuid::Empty;
                 }
 
-                uint64 RessurectionTarget()
+                ObjectGuid RessurectionTarget()
                 {
                     std::list<Creature*> CorpsedScarlet;
                     GetCreatureListWithEntryInGrid(CorpsedScarlet, me, NPC_SCARLET_PURIFIER, 50.0f);
@@ -795,7 +795,7 @@ class npc_scarlet_zealot : public CreatureScript
                         if (!itr->IsAlive()) // ignore alive targets
                             return itr->GetGUID(); // just take first corpse on our way
 
-                    return 0;
+                    return ObjectGuid::Empty;
                 }
         };
 
@@ -835,7 +835,7 @@ class npc_sc_spirit_of_redemption : public CreatureScript
             }
 
             private:
-                uint64 GetLowestFriendlyGUID()
+                ObjectGuid GetLowestFriendlyGUID()
                 {
                     std::list<Creature*> tmpTargets;
 
@@ -845,14 +845,14 @@ class npc_sc_spirit_of_redemption : public CreatureScript
                     GetCreatureListWithEntryInGrid(tmpTargets, me, NPC_SCARLET_PURIFIER, 50.0f);
 
                     if (tmpTargets.empty())
-                        return 0;
+                        return ObjectGuid::Empty;
 
                     tmpTargets.sort(Trinity::HealthPctOrderPred());
 
                     if (Creature* lowestTarget = tmpTargets.front())
                         return lowestTarget->GetGUID();
 
-                    return 0;
+                    return ObjectGuid::Empty;
                 }
         };
 
@@ -888,7 +888,7 @@ class npc_scarlet_purifier : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_FLAMESTRIKE, 9000);
                 events.ScheduleEvent(EVENT_PURIFYING_FLAMES, urand(4000, 6000));
@@ -964,7 +964,7 @@ class spell_sc_cleave : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_sc_cleave_SpellScript::RecalculateDamage, EFFECT_0, SPELL_EFFECT_WEAPON_DAMAGE);
+                OnEffectHitTarget += SpellEffectFn(spell_sc_cleave_SpellScript::RecalculateDamage, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
             }
         };
 

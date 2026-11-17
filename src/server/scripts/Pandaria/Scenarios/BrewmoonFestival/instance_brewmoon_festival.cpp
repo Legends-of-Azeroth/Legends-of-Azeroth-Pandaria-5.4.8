@@ -31,9 +31,9 @@ class instance_brewmoon_festival : public InstanceMapScript
             instance_brewmoon_festival_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             uint32 m_auiEncounter[CHAPTERS];
-            std::map<uint32, uint64> m_BrewmoonEncounters;
+            std::map<uint32, ObjectGuid> m_BrewmoonEncounters;
             std::map<uint64, uint32> m_ScoutsType;
-            std::list<uint64> m_vilmanGuids, m_waterspiritGuids, m_yaungolAttack;
+            std::list<ObjectGuid> m_vilmanGuids, m_waterspiritGuids, m_yaungolAttack;
             uint32 chapterOne, chapterTwo, chapterThree, chapterFour, m_cBridge, m_cWest, m_cCarvens, s1_chapterTwo, s2_chapterTwo, s3_chapterTwo, m_currentType;
             EventMap m_mEvents;
 
@@ -109,7 +109,7 @@ class instance_brewmoon_festival : public InstanceMapScript
                     switch (unit->GetEntry())
                     {
                         case NPC_HUNGRY_VIRMEN:
-                            for (std::list<uint64>::iterator it = m_vilmanGuids.begin(); it != m_vilmanGuids.end(); ++it)
+                            for (std::list<ObjectGuid>::iterator it = m_vilmanGuids.begin(); it != m_vilmanGuids.end(); ++it)
                             {
                                 if (*it == unit->GetGUID())
                                 {
@@ -120,17 +120,17 @@ class instance_brewmoon_festival : public InstanceMapScript
 
                             if (m_vilmanGuids.empty())
                             {
-                                if (Creature* m_uiBurrowed = instance->GetCreature(GetData64(NPC_SPAWN_BURROWED)))
+                                if (Creature* m_uiBurrowed = instance->GetCreature(GetGuidData(NPC_SPAWN_BURROWED)))
                                     m_uiBurrowed->CastSpell(m_uiBurrowed, SPELL_BURROW_COSMETIC, false);
                             }
 
                             // Assistant kieu Intro
                             if (m_vilmanGuids.size() == 6)
-                                if (Creature* Kieu = instance->GetCreature(GetData64(NPC_ASSISTANT_KIEU)))
+                                if (Creature* Kieu = instance->GetCreature(GetGuidData(NPC_ASSISTANT_KIEU)))
                                     Kieu->AI()->DoAction(ACTION_INTRO);
                             break;
                         case NPC_WATER_SPIRIT:
-                            for (std::list<uint64>::iterator it = m_waterspiritGuids.begin(); it != m_waterspiritGuids.end(); ++it)
+                            for (std::list<ObjectGuid>::iterator it = m_waterspiritGuids.begin(); it != m_waterspiritGuids.end(); ++it)
                             {
                                 if (*it == unit->GetGUID())
                                 {
@@ -141,7 +141,7 @@ class instance_brewmoon_festival : public InstanceMapScript
 
                             if (m_waterspiritGuids.empty())
                             {
-                                if (Creature* m_uiLiTe = instance->GetCreature(GetData64(NPC_LI_TE)))
+                                if (Creature* m_uiLiTe = instance->GetCreature(GetGuidData(NPC_LI_TE)))
                                     m_uiLiTe->AI()->DoAction(ACTION_INTRO);
                             }
                             break;
@@ -173,7 +173,7 @@ class instance_brewmoon_festival : public InstanceMapScript
                             break;
                         case NPC_BATAARI_FLAMECALLER:
                         case NPC_BATAARI_OUTRUNNER:
-                            for (std::list<uint64>::iterator it = m_yaungolAttack.begin(); it != m_yaungolAttack.end(); ++it)
+                            for (std::list<ObjectGuid>::iterator it = m_yaungolAttack.begin(); it != m_yaungolAttack.end(); ++it)
                             {
                                 if (*it == unit->GetGUID())
                                 {
@@ -248,14 +248,14 @@ class instance_brewmoon_festival : public InstanceMapScript
                         switch (data)
                         {
                             case NPC_DEN_MOTHER_MOOF:
-                                if (Creature* Kieu = instance->GetCreature(GetData64(NPC_ASSISTANT_KIEU)))
+                                if (Creature* Kieu = instance->GetCreature(GetGuidData(NPC_ASSISTANT_KIEU)))
                                     Kieu->AI()->DoAction(ACTION_BREWMOON_FESTIVAL);
                                 break;
                             case NPC_LI_TE:
-                                if (Creature* m_globe = instance->GetCreature(GetData64(NPC_PURE_WATER_GLOBE)))
+                                if (Creature* m_globe = instance->GetCreature(GetGuidData(NPC_PURE_WATER_GLOBE)))
                                     m_globe->CastSpell(m_globe, SPELL_SPAWN_WATER_GLOBE, false);
 
-                                if (Creature* Tart = instance->GetCreature(GetData64(NPC_ASSISTANT_TART)))
+                                if (Creature* Tart = instance->GetCreature(GetGuidData(NPC_ASSISTANT_TART)))
                                     Tart->AI()->DoAction(ACTION_BREWMOON_FESTIVAL);
                                 break;
                             case NPC_KARSAR_BLOODLETTER:
@@ -273,7 +273,7 @@ class instance_brewmoon_festival : public InstanceMapScript
                                     sScenarioMgr->SendScenarioState(player, 1051, DATA_SCOUTS_REPORT, 0);
 
                             // Festival Event
-                            if (Creature* Brewmaster = instance->GetCreature(GetData64(NPC_BREWMASTER_BOOF)))
+                            if (Creature* Brewmaster = instance->GetCreature(GetGuidData(NPC_BREWMASTER_BOOF)))
                                 Brewmaster->AI()->DoAction(ACTION_INTRO);
 
                             // Yaungol Scouts
@@ -301,7 +301,7 @@ class instance_brewmoon_festival : public InstanceMapScript
                         SaveToDB();
 
                         if (chapterThree == 1)
-                            if (Creature* bo = instance->GetCreature(GetData64(NPC_BREWMASTER_BOOF)))
+                            if (Creature* bo = instance->GetCreature(GetGuidData(NPC_BREWMASTER_BOOF)))
                                 bo->AI()->Talk(TALK_SPECIAL_7);
 
                         if (chapterThree >= DONE)
@@ -325,7 +325,7 @@ class instance_brewmoon_festival : public InstanceMapScript
                         if (chapterFour == DONE)
                             DoFinishLFGDungeon(539);
 
-                        if (Creature* bo = instance->GetCreature(GetData64(NPC_BREWMASTER_BOOF)))
+                        if (Creature* bo = instance->GetCreature(GetGuidData(NPC_BREWMASTER_BOOF)))
                             bo->AI()->Talk(TALK_SPECIAL_8);
                         break;
                     case DATA_CARVENS:
@@ -384,7 +384,7 @@ class instance_brewmoon_festival : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -403,7 +403,7 @@ class instance_brewmoon_festival : public InstanceMapScript
                         return m_BrewmoonEncounters.find(type)->second;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool IsWipe(float range, Unit* source) override

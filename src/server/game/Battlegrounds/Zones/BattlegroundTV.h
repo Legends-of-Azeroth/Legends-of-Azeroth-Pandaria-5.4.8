@@ -53,12 +53,12 @@ public:
     void StartingEventCloseDoors() override;
     void StartingEventOpenDoors() override;
 
-    void RemovePlayer(Player* player, uint64 guid, uint32 team);
-    void HandleAreaTrigger(Player* Source, uint32 Trigger);
-    bool SetupBattleground();
+    void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
+    void HandleAreaTrigger(Player* Source, uint32 Trigger, bool Entered) override;
+    bool SetupBattleground() override;
     void Reset() override;
     void FillInitialWorldStates(WorldStateBuilder& builder) override;
-    void HandleKillPlayer(Player* player, Player* killer);
-    bool HandlePlayerUnderMap(Player* player);
+    void HandleKillPlayer(Player* player, Player* killer) override;
+    bool HandlePlayerUnderMap(Player* player) override;
 };
 #endif

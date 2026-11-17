@@ -14,7 +14,6 @@
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
-#include <ace/Guard_T.h>  
 #include "CellImpl.h"
 #include "CreatureAIImpl.h"
 #include "GridNotifiersImpl.h"
@@ -30,3 +29,4 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "Chat.h"
+#include "Random.h"

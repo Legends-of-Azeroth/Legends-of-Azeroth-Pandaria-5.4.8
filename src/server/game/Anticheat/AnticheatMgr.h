@@ -71,8 +71,7 @@ struct AnticheatData
     time_t reportAnnounceCooldown[MAX_REPORT_TYPES];
 };
 
-// GUIDLow is the key.
-typedef std::unordered_map<uint32, AnticheatData> AnticheatPlayersDataMap;
+typedef std::unordered_map<ObjectGuid, AnticheatData> AnticheatPlayersDataMap;
 
 class AnticheatMgr
 {
@@ -95,13 +94,13 @@ class AnticheatMgr
         void HandlePlayerLogin(Player* player);
         void HandlePlayerLogout(Player* player);
 
-        uint32 GetTotalReports(uint32 lowGUID);
-        float GetAverage(uint32 lowGUID);
-        uint32 GetTypeReports(uint32 lowGUID, uint8 type);
+        uint32 GetTotalReports(ObjectGuid guid);
+        float GetAverage(ObjectGuid guid);
+        uint32 GetTypeReports(ObjectGuid guid, uint8 type);
         AnticheatData* GetDataFor(Player* player);
 
         void AnticheatGlobalCommand(ChatHandler* handler);
-        void AnticheatDeleteCommand(uint32 guid);
+        void AnticheatDeleteCommand(ObjectGuid guid);
 
         void ResetDailyReportStates();
 

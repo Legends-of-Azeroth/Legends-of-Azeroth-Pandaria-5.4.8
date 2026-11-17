@@ -40,17 +40,17 @@ public:
     {
         static std::vector<ChatCommand> guildCommandTable =
         {
-            { "create",     SEC_ADMINISTRATOR,  true,   &HandleGuildCreateCommand,      },
-            { "delete",     SEC_ADMINISTRATOR,  true,   &HandleGuildDeleteCommand,      },
-            { "invite",     SEC_ADMINISTRATOR,  true,   &HandleGuildInviteCommand,      },
-            { "uninvite",   SEC_ADMINISTRATOR,  true,   &HandleGuildUninviteCommand,    },
-            { "rank",       SEC_ADMINISTRATOR,  true,   &HandleGuildRankCommand,        },
-            { "level",      SEC_ADMINISTRATOR,  true,   &HandleGuildLevelCommand,       },
-            { "rename",     SEC_ADMINISTRATOR,  true,   &HandleGuildRenameCommand,      },
+            { "create",     &HandleGuildCreateCommand,      rbac::RBAC_PERM_COMMAND_GUILD_CREATE,  Trinity::ChatCommands::Console::Yes },
+            { "delete",     &HandleGuildDeleteCommand,      rbac::RBAC_PERM_COMMAND_GUILD_DELETE,  Trinity::ChatCommands::Console::Yes },
+            { "invite",     &HandleGuildInviteCommand,      rbac::RBAC_PERM_COMMAND_GUILD_INVITE,  Trinity::ChatCommands::Console::Yes },
+            { "uninvite",   &HandleGuildUninviteCommand,    rbac::RBAC_PERM_COMMAND_GUILD_UNINVITE, Trinity::ChatCommands::Console::Yes },
+            { "rank",       &HandleGuildRankCommand,        rbac::RBAC_PERM_COMMAND_GUILD_RANK,    Trinity::ChatCommands::Console::Yes },
+            { "level", &HandleGuildLevelCommand, rbac::RBAC_PERM_COMMAND_GUILD_LEVEL, Trinity::ChatCommands::Console::Yes },
+            { "rename",     &HandleGuildRenameCommand,      rbac::RBAC_PERM_COMMAND_GUILD_RENAME,  Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "guild",      SEC_ADMINISTRATOR,  true,   guildCommandTable               },
+            { "guild",      guildCommandTable,               rbac::RBAC_PERM_COMMAND_GUILD,         Trinity::ChatCommands::Console::Yes },
         };
         return commandTable;
     }
@@ -130,7 +130,7 @@ public:
             return false;
 
         // if not guild name only (in "") then player name
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
         if (!handler->extractPlayerTarget(*args != '"' ? (char*)args : NULL, NULL, &targetGuid))
             return false;
 
@@ -154,7 +154,7 @@ public:
     static bool HandleGuildUninviteCommand(ChatHandler* handler, char const* args)
     {
         Player* target;
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid))
             return false;
 
@@ -179,7 +179,7 @@ public:
             return false;
 
         Player* target;
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
         std::string target_name;
         if (!handler->extractPlayerTarget(nameStr, &target, &targetGuid, &target_name))
             return false;
@@ -206,7 +206,7 @@ public:
             return false;
 
         Player* target;
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
         std::string target_name;
 
         if (!handler->extractPlayerTarget(nameStr, &target, &targetGuid, &target_name))

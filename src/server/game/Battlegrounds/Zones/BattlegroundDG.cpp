@@ -170,8 +170,8 @@ void BattlegroundDG::Reset()
         m_nodeTimers[i] = 0;
     }
 
-    m_flagKeepers[TEAM_ALLIANCE]     = 0;
-    m_flagKeepers[TEAM_HORDE]        = 0;
+    m_flagKeepers[TEAM_ALLIANCE].Clear();
+    m_flagKeepers[TEAM_HORDE].Clear();
     m_flagState[TEAM_ALLIANCE]       = BG_DG_CART_STATE_ON_BASE;
     m_flagState[TEAM_HORDE]          = BG_DG_CART_STATE_ON_BASE;
     m_flagGold[TEAM_ALLIANCE]        = 0;
@@ -808,7 +808,7 @@ void BattlegroundDG::EventPlayerClickedOnFlag(Player* player, GameObject* gameOb
     player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 
-void BattlegroundDG::HandleAreaTrigger(Player* player, uint32 triggerId)
+void BattlegroundDG::HandleAreaTrigger(Player* player, uint32 triggerId, bool entered)
 {
     switch (triggerId)
     {
@@ -836,11 +836,11 @@ void BattlegroundDG::HandleAreaTrigger(Player* player, uint32 triggerId)
         case 9301: // on the roof
         case 9302: // flying => should tp outside the mine when triggered
         case 9303: // flying => should tp outside the mine when triggered
-            TC_LOG_DEBUG("bg.battleground", "BattlegroundDG : Handled AreaTrigger(ID : %u) have been activated by Player %s (ID : %u)",
-                triggerId, player->GetName().c_str(), GUID_LOPART(player->GetGUID()));
+            TC_LOG_DEBUG("bg.battleground", "BattlegroundDG : Handled AreaTrigger(ID : {}) have been activated by Player {} (ID : {})",
+                triggerId, player->GetName().c_str(), player->GetGUID().GetCounter());
             break;
         default:
-            Battleground::HandleAreaTrigger(player, triggerId);
+            Battleground::HandleAreaTrigger(player, triggerId, entered);
             break;
     }
 }
@@ -900,7 +900,7 @@ void BattlegroundDG::EventPlayerCapturedFlag(Player* player)
         if (!IsHordeFlagPickedup())
             return;
 
-        SetHordeFlagPicker(0);                              // must be before aura remove to prevent 2 events (drop+capture) at the same time
+        SetHordeFlagPicker(ObjectGuid::Empty);                         // must be before aura remove to prevent 2 events (drop+capture) at the same time
         SendClearFlagsPositions();
         // horde flag in base (but not respawned yet)
         m_flagState[TEAM_HORDE] = BG_DG_CART_STATE_ON_BASE;
@@ -917,7 +917,7 @@ void BattlegroundDG::EventPlayerCapturedFlag(Player* player)
         if (!IsAllianceFlagPickedup())
             return;
 
-        SetAllianceCartPicker(0);                           // must be before aura remove to prevent 2 events (drop+capture) at the same time
+        SetAllianceCartPicker(ObjectGuid::Empty);                       // must be before aura remove to prevent 2 events (drop+capture) at the same time
         SendClearFlagsPositions();
 
         // alliance flag in base (but not respawned yet)
@@ -963,7 +963,7 @@ void BattlegroundDG::EventPlayerDroppedFlag(Player* player)
 
             if (GetFlagPickerGUID(TEAM_HORDE) == player->GetGUID())
             {
-                SetHordeFlagPicker(0);
+                SetHordeFlagPicker(ObjectGuid::Empty);
                 SendClearFlagsPositions();
                 player->RemoveAurasDueToSpell(BG_DG_HORDE_MINE_CART);
                 player->RemoveAurasDueToSpell(BG_DG_HORDE_CART_HOLDER_AURA);
@@ -976,7 +976,7 @@ void BattlegroundDG::EventPlayerDroppedFlag(Player* player)
 
             if (GetFlagPickerGUID(TEAM_ALLIANCE) == player->GetGUID())
             {
-                SetAllianceCartPicker(0);
+                SetAllianceCartPicker(ObjectGuid::Empty);
                 player->RemoveAurasDueToSpell(BG_DG_ALLIANCE_MINE_CART);
                 player->RemoveAurasDueToSpell(BG_DG_ALLIANCE_CART_HOLDER_AURA);
 
@@ -994,7 +994,7 @@ void BattlegroundDG::EventPlayerDroppedFlag(Player* player)
 
         if (GetFlagPickerGUID(TEAM_HORDE) == player->GetGUID())
         {
-            SetHordeFlagPicker(0);
+            SetHordeFlagPicker(ObjectGuid::Empty);
             SendClearFlagsPositions();
             player->RemoveAurasDueToSpell(BG_DG_HORDE_MINE_CART);
             player->RemoveAurasDueToSpell(BG_DG_HORDE_CART_HOLDER_AURA);
@@ -1017,7 +1017,7 @@ void BattlegroundDG::EventPlayerDroppedFlag(Player* player)
 
         if (GetFlagPickerGUID(TEAM_ALLIANCE) == player->GetGUID())
         {
-            SetAllianceCartPicker(0);
+            SetAllianceCartPicker(ObjectGuid::Empty);
             SendClearFlagsPositions();
             player->RemoveAurasDueToSpell(BG_DG_ALLIANCE_MINE_CART);
             player->RemoveAurasDueToSpell(BG_DG_ALLIANCE_CART_HOLDER_AURA);
@@ -1063,7 +1063,7 @@ void BattlegroundDG::UpdateCartState(uint32 team, uint32 value)
 /************************************************************************/
 /*                        ENDING BATTLEGROUND                           */
 /************************************************************************/
-void BattlegroundDG::RemovePlayer(Player* player, uint64 guid, uint32 team)
+void BattlegroundDG::RemovePlayer(Player* player, ObjectGuid guid, uint32 team)
 {
     Battleground::RemovePlayer(player, guid, team);
     // Sometimes flag aura not removed :(
@@ -1072,7 +1072,7 @@ void BattlegroundDG::RemovePlayer(Player* player, uint64 guid, uint32 team)
         if (!player)
         {
             TC_LOG_ERROR("bg.battleground", "BattlegroundWS: Removing offline player who has the FLAG!!");
-            SetAllianceCartPicker(0);
+            SetAllianceCartPicker(ObjectGuid::Empty);
             SendClearFlagsPositions();
             m_flagState[TEAM_ALLIANCE] = BG_DG_CART_STATE_ON_BASE;
             SpawnBGObject(BG_DG_OBJECT_CART_ALLIANCE, RESPAWN_IMMEDIATELY);
@@ -1086,7 +1086,7 @@ void BattlegroundDG::RemovePlayer(Player* player, uint64 guid, uint32 team)
         if (!player)
         {
             TC_LOG_ERROR("bg.battleground", "BattlegroundWS: Removing offline player who has the FLAG!!");
-            SetHordeFlagPicker(0);
+            SetHordeFlagPicker(ObjectGuid::Empty);
             SendClearFlagsPositions();
             m_flagState[TEAM_HORDE] = BG_DG_CART_STATE_ON_BASE;
             SpawnBGObject(BG_DG_OBJECT_CART_HORDE, RESPAWN_IMMEDIATELY);

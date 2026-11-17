@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -373,7 +373,12 @@ class spell_gen_gather_muddy_water : public SpellScriptLoader
                 {
                     if (!player->HasAura(106284))
                     {
-                        player->MonsterTextEmote("Mudmug's vial will slowly spill water while you are moving. Plan your path carefully!", player, true);
+                        BroadcastText const* bct = sObjectMgr->GetBroadcastText(55303);
+                        LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
+                        std::string baseText = "";
+                        if (bct)
+                            baseText = bct->GetText(loc_idx, player->GetGender());                   
+                        player->TextEmote(baseText);
                         player->CastSpell(player, 106284, true);
                     }
                     else
@@ -600,7 +605,7 @@ class npc_q29982 : public CreatureScript
 
             if (action == GOSSIP_ACTION_INFO_DEF + 1)
             {
-                uint64 playerGuid = player->GetGUID();
+                ObjectGuid playerGuid = player->GetGUID();
                 uint32 delay = 0;
                 switch (creature->GetEntry())
                 {
@@ -614,7 +619,7 @@ class npc_q29982 : public CreatureScript
                         wei->m_Events.Schedule(delay += 3000, [wei, playerGuid]()
                         {
                             wei->AI()->Talk(1);
-                            if (Creature* creat = wei->SummonCreature(NPC_IKTHIK_AMBUSHER, -318.643f, 2377.642f, 140.410f, 2.3762f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
+                            if (Creature* creat = wei->SummonCreature(NPC_IKTHIK_AMBUSHER, -318.643f, 2377.642f, 140.410f, 2.3762f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms))
                                 if (Player* player = ObjectAccessor::GetPlayer(*wei, playerGuid))
                                     creat->AI()->AttackStart(player);
                         });
@@ -673,12 +678,12 @@ class npc_q29982 : public CreatureScript
                         haiyunSum->SetFacingToObject(player);
                         haiyunSum->AI()->Talk(0);
 
-                        uint64 haiyunGuid = haiyun->GetGUID();
-                        uint64 yingGuid = ying->GetGUID();
-                        uint64 huizhongGuid = huizhong->GetGUID();
-                        uint64 yingSumGuid = yingSum->GetGUID();
-                        uint64 haiyunSumGuid = haiyunSum->GetGUID();
-                        uint64 huizhongSumGuid = huizhongSum->GetGUID();
+                        ObjectGuid haiyunGuid = haiyun->GetGUID();
+                        ObjectGuid yingGuid = ying->GetGUID();
+                        ObjectGuid huizhongGuid = huizhong->GetGUID();
+                        ObjectGuid yingSumGuid = yingSum->GetGUID();
+                        ObjectGuid haiyunSumGuid = haiyunSum->GetGUID();
+                        ObjectGuid huizhongSumGuid = huizhongSum->GetGUID();
 
                         haiyunSum->m_Events.Schedule(delay += 3000, [haiyunSum, huizhongSumGuid, yingSumGuid]()
                         {
@@ -922,7 +927,7 @@ class AreaTrigger_cavern_of_endless_echoes : public AreaTriggerScript
             if (!summons.empty())
                 fish = summons.back();
 
-            switch (trigger->id)
+            switch (trigger->ID)
             {
                 case AT_CAVE_ENTRANCE:
                     if (!player->GetQuestObjectiveCounter(OBJ_FIND_CAVE_ENTRANCE))
@@ -985,11 +990,11 @@ struct npc_liang_thunderfoot : public ScriptedAI
 
     void JustSummoned(Creature* summoned) override
     {
-        uint64 guid = playerGUID;
+        ObjectGuid guid = playerGUID;
         uint32 delay = 0;
         summoned->m_Events.Schedule(delay += 1000, [this, summoned, guid]()
         {
-            if (Player* player = sObjectAccessor->GetPlayer(*me, guid))
+            if (Player* player = ObjectAccessor::GetPlayer(*me, guid))
             {
                 summoned->SetOwnerGUID(player->GetGUID());
                 summoned->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, M_PI);
@@ -998,7 +1003,7 @@ struct npc_liang_thunderfoot : public ScriptedAI
     }
 
 private:
-    uint64 playerGUID;
+    ObjectGuid playerGUID;
 };
 
 struct npc_francis_the_shepherd_boy : public ScriptedAI
@@ -1166,7 +1171,7 @@ struct npc_granary_vandal : public ScriptedAI
         me->SetReactState(REACT_DEFENSIVE);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.Reset();
     }
@@ -1185,7 +1190,7 @@ struct npc_granary_vandal : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_THROW_GRAIN:
-                    me->GetRandomNearPosition(pos, 15.0f);
+                    pos = me->GetRandomNearPosition(15.0f);
                     me->CastSpell(pos, SPELL_THROW_GRAIN);
                     events.ScheduleEvent(EVENT_THROW_GRAIN, urand(7, 10) * IN_MILLISECONDS);
                     break;
@@ -1343,7 +1348,7 @@ struct npc_vfw_adolescent_mushan : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_BELLY_FLOP, 4 * IN_MILLISECONDS);
     }
@@ -1378,7 +1383,7 @@ struct npc_vfw_wyrmhorn_turtle : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_BUBBLE_BLAST, urand(2 * IN_MILLISECONDS, 5 * IN_MILLISECONDS));
     }
@@ -1413,7 +1418,7 @@ struct npc_vfw_lupello : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_FEARSOME_HOWL, 10 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_PREY_POUNCE, 5 * IN_MILLISECONDS);
@@ -1450,7 +1455,7 @@ struct npc_vfw_snagtooth_hooligan : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_CHUCK_WATERMELON, 1.5 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_WIGGLE_FLIP, 5 * IN_MILLISECONDS);
@@ -1487,7 +1492,7 @@ struct npc_vfw_frenzyhop : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_FRENZIED_HOP, 6 * IN_MILLISECONDS);
     }
@@ -1522,7 +1527,7 @@ struct npc_vfw_hornbill_strider : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         DoCast(me, SPELL_DASH);
         events.ScheduleEvent(EVENT_DASH, 18 * IN_MILLISECONDS);
@@ -1563,7 +1568,7 @@ struct npc_vfw_grainhunter_hawk : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_DIVE, 2.5 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_HAWK_REND, 5 * IN_MILLISECONDS);
@@ -1600,7 +1605,7 @@ struct npc_vfw_springtail_gnasher : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_GNASH, 8 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_WIGGLE_FLIP, 5 * IN_MILLISECONDS);
@@ -1637,7 +1642,7 @@ struct npc_vfw_mothfighter : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_SUNDER_ARMOR, 4 * IN_MILLISECONDS);
     }
@@ -1672,7 +1677,7 @@ struct npc_vfw_wildscale_herbalist : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_WRATH, 1 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_HEALING_WAVE, 12 * IN_MILLISECONDS);
@@ -1709,7 +1714,7 @@ struct npc_vfw_ikthik_vanguard : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_THRASH, urand(5 * IN_MILLISECONDS, 8 * IN_MILLISECONDS));
     }
@@ -1745,7 +1750,7 @@ struct npc_vfw_darkhide : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_BLUDGEON, 3.5 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_GROUND_AND_POUND, 10 * IN_MILLISECONDS);
@@ -1820,7 +1825,7 @@ struct npc_vfw_barrel_of_fireworks : public ScriptedAI
     npc_vfw_barrel_of_fireworks(Creature* creature) : ScriptedAI(creature) { }
     
     TaskScheduler scheduler;
-    uint64 summonerGUID;
+    ObjectGuid summonerGUID;
 
     void IsSummonedBy(Unit* summoner) override
     {
@@ -1886,16 +1891,16 @@ struct npc_vfw_ik_thik_wing_commander : public customCreatureAI
     npc_vfw_ik_thik_wing_commander(Creature* creature) : customCreatureAI(creature), summons(me) { }
 
     SummonList summons;
-    uint64 maskApplyGUID;
+    ObjectGuid maskApplyGUID;
 
     void Reset() override
     {
         events.Reset();
         me->SetReactState(REACT_AGGRESSIVE);
-        maskApplyGUID = 0;
+        maskApplyGUID = ObjectGuid::Empty;
     }
 
-    void SetGUID(uint64 guid, int32 /*type*/) override
+    void SetGUID(ObjectGuid guid, int32 /*type*/) override
     {
         maskApplyGUID = guid;
     }
@@ -1908,7 +1913,7 @@ struct npc_vfw_ik_thik_wing_commander : public customCreatureAI
             summon->AI()->AttackStart(target);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_PANICKED_STRIKE, 3.5 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_LASH_OUT, 6 * IN_MILLISECONDS);
@@ -1969,7 +1974,7 @@ struct npc_vfw_manifestation_of_fear : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_FAR_REACHING_FEAR, 2.5 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_WHAT_LURK_BENEATH, 8 * IN_MILLISECONDS);
@@ -2018,15 +2023,15 @@ struct npc_vfw_krungko_fingerlicker : public customCreatureAI
     npc_vfw_krungko_fingerlicker(Creature* creature) : customCreatureAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 summonerGUID;
-    uint64 helperGUID;
+    ObjectGuid summonerGUID;
+    ObjectGuid helperGUID;
     bool hasTriggered;
 
     void IsSummonedBy(Unit* summoner) override
     {
         summonerGUID = summoner->GetGUID();
         
-        if (Creature* hozenHunter = me->SummonCreature(NPC_KUNZEN_HUNTER, *me, TEMPSUMMON_TIMED_DESPAWN, 300 * IN_MILLISECONDS))
+        if (Creature* hozenHunter = me->SummonCreature(NPC_KUNZEN_HUNTER, *me, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(300 * IN_MILLISECONDS)))
             helperGUID = hozenHunter->GetGUID();
 
         if (Player* target = ObjectAccessor::GetPlayer(*me, summonerGUID))
@@ -2065,7 +2070,7 @@ struct npc_vfw_krungko_fingerlicker : public customCreatureAI
         });
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
 
@@ -2081,7 +2086,7 @@ struct npc_vfw_krungko_fingerlicker : public customCreatureAI
         hasTriggered = false;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_HOZEN_STRIKE, 2.5 * IN_MILLISECONDS);
     }
@@ -2136,11 +2141,11 @@ struct npc_vfw_unbarreled_pandaren : public customCreatureAI
     npc_vfw_unbarreled_pandaren(Creature* creature) : customCreatureAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 summonerGUID;
+    ObjectGuid summonerGUID;
 
     void IsSummonedBy(Unit* summoner) override
     {
-        me->ToTempSummon()->SetVisibleBySummonerOnly(true);
+        me->ToTempSummon()->SetPrivateObjectOwner(summoner->GetGUID());
         summonerGUID = summoner->GetGUID();
 
         uint32 delay = 2000;
@@ -2157,8 +2162,7 @@ struct npc_vfw_unbarreled_pandaren : public customCreatureAI
             .Schedule(Milliseconds(delay += 3000), [this](TaskContext context)
         {
             // Move away!
-            Position pos;
-            me->GetNearPosition(pos, 15.0f, frand(0.0f, 2 * M_PI));
+            Position pos = me->GetNearPosition(15.0f, frand(0.0f, 2 * M_PI));
             me->GetMotionMaster()->MovePoint(0, pos);
             me->DespawnOrUnsummon(me->GetSplineDuration());
         });
@@ -2197,11 +2201,10 @@ class spell_vfw_krungko_timer : public AuraScript
         if (Player* owner = GetOwner()->ToPlayer())
         {
             //owner->CastSpell(owner, SPELL_SUMMON_KRUNGKO, true);
-            Position pos;
-            owner->GetNearPosition(pos, frand(40.0f, 45.0f), frand(0.0f, 2 * M_PI));
+            Position pos = owner->GetNearPosition(frand(40.0f, 45.0f), frand(0.0f, 2 * M_PI));
             float z = owner->GetPositionZ();
             owner->UpdateAllowedPositionZ(pos.GetPositionX(), pos.GetPositionY(), z);
-            owner->SummonCreature(NPC_KRUNGKO_FINGERLICKER, pos.GetPositionX(), pos.GetPositionY(), z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 300 * IN_MILLISECONDS);
+            owner->SummonCreature(NPC_KRUNGKO_FINGERLICKER, pos.GetPositionX(), pos.GetPositionY(), z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(300 * IN_MILLISECONDS));
         }
     }
 

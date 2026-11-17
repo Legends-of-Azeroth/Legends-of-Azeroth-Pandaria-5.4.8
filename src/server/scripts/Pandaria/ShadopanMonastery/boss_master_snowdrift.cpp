@@ -127,13 +127,13 @@ class boss_master_snowdrift : public CreatureScript
             bool aggroDone, isBossSummoned, isFightWon;
             uint8 phase, hurlChiCnt;
             uint8 randIndex[3];
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
 
             void InitializeAI() override
             {
                 isFightWon = false;
                 me->setActive(true);
-                targetGUID = 0;
+                targetGUID = ObjectGuid::Empty;
                 me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                 for (uint8 i = 0; i < 3; ++i)
                     randIndex[i] = i;
@@ -186,10 +186,10 @@ class boss_master_snowdrift : public CreatureScript
                 isBossSummoned = false;
                 aggroDone = false;
                 hurlChiCnt = 0;
-                targetGUID = 0;
+                targetGUID = ObjectGuid::Empty;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (!aggroDone)
                 {
@@ -208,12 +208,12 @@ class boss_master_snowdrift : public CreatureScript
                     me->m_Events.Schedule(delay += 2500, 10, [this]()
                     {
                         if (me->IsInCombat())
-                            _EnterCombat();
+                            _JustEngagedWith();
                     });
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)
@@ -328,7 +328,8 @@ class boss_master_snowdrift : public CreatureScript
                         me->SetFaction(35);
                         me->RemoveAllAuras();
                         me->CombatStop(true);
-                        me->DeleteThreatList();
+                        me->GetThreatManager().RemoveMeFromThreatLists();
+                        me->GetThreatManager().ClearAllThreat();
                         me->SetReactState(REACT_PASSIVE);
                         me->SetStandState(UNIT_STAND_STATE_KNEEL);
                         events.Reset();
@@ -362,7 +363,7 @@ class boss_master_snowdrift : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_POSSESIONS:
-                            if (auto const possesions = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_POSSESSIONS)))
+                            if (auto const possesions = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_POSSESSIONS)))
                                 possesions->RemoveFromWorld();
                             break;
                         case EVENT_INTRO_1:
@@ -375,7 +376,7 @@ class boss_master_snowdrift : public CreatureScript
                             break;
                         case EVENT_INTRO_3:
                             if (instance)
-                                if (Creature* referee = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PANDAREN_REFEREE)))
+                                if (Creature* referee = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_PANDAREN_REFEREE)))
                                     referee->AI()->DoAction(ACTION_START_EVENT);
                             break;
                         case EVENT_OUTRO_1:
@@ -659,7 +660,7 @@ class npc_spm_pandaren_referee : public CreatureScript
                     case 1:
                     {
                         if (instance)
-                            if (Creature* snowdrift = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MASTER_SNOWDRIFT)))
+                            if (Creature* snowdrift = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MASTER_SNOWDRIFT)))
                                 snowdrift->AI()->DoAction(5); //ACTION_TALK_WAVE_1_S
 
                         for (uint8 i = 0; i < 5; i++)
@@ -672,7 +673,7 @@ class npc_spm_pandaren_referee : public CreatureScript
                     }
                     case 2:
                         if (instance)
-                            if (auto const snowdrift = Unit::GetCreature(*me, instance->GetData64(DATA_MASTER_SNOWDRIFT)))
+                            if (auto const snowdrift = Unit::GetCreature(*me, instance->GetGuidData(DATA_MASTER_SNOWDRIFT)))
                                 if (snowdrift->IsAIEnabled)
                                     snowdrift->AI()->DoAction(3); //ACTION_TALK_WAVE_2
 
@@ -695,7 +696,7 @@ class npc_spm_pandaren_referee : public CreatureScript
                         events.ScheduleEvent(EVENT_1_WAVE_END, 8 * IN_MILLISECONDS);
                         if (instance)
                         {
-                            if (auto const snowdrift = Unit::GetCreature(*me, instance->GetData64(DATA_MASTER_SNOWDRIFT)))
+                            if (auto const snowdrift = Unit::GetCreature(*me, instance->GetGuidData(DATA_MASTER_SNOWDRIFT)))
                                if (snowdrift->IsAIEnabled)
                                    snowdrift->AI()->DoAction(2); //ACTION_TALK_WAVE_1
                         }
@@ -705,7 +706,7 @@ class npc_spm_pandaren_referee : public CreatureScript
                         {
                             events.Reset();
 
-                            if (auto const snowdrift = Unit::GetCreature(*me, instance->GetData64(DATA_MASTER_SNOWDRIFT)))
+                            if (auto const snowdrift = Unit::GetCreature(*me, instance->GetGuidData(DATA_MASTER_SNOWDRIFT)))
                                if (snowdrift->IsAIEnabled)
                                    snowdrift->AI()->DoAction(4); //ACTION_TALK_OUTRO
                         }
@@ -721,7 +722,7 @@ class npc_spm_pandaren_referee : public CreatureScript
                                 case 10:
                                 case 15:
                                 case 20:
-                                    if (auto const snowdrift = Unit::GetCreature(*me, instance->GetData64(DATA_MASTER_SNOWDRIFT)))
+                                    if (auto const snowdrift = Unit::GetCreature(*me, instance->GetGuidData(DATA_MASTER_SNOWDRIFT)))
                                         if (snowdrift->IsAIEnabled)
                                              snowdrift->AI()->DoAction(1); //ACTION_NOVOCE_DEFEAT
                                 break;
@@ -848,9 +849,9 @@ class npc_snowdrift_novice : public CreatureScript
                     me->SetStandState(UNIT_STAND_STATE_STAND);
                     if (instance)
                     {
-                        if (auto const targetGUID = instance->GetData64(DATA_RANDOM_SECOND_POS))
+                        if (auto const targetGUID = instance->GetGuidData(DATA_RANDOM_SECOND_POS))
                         {
-                            if (auto const target = ObjectAccessor::FindUnit(targetGUID))
+                            if (auto const target = ObjectAccessor::GetUnit(*me, targetGUID))
                             {
                                 me->AddUnitState(UNIT_STATE_ROOT | UNIT_STATE_CANNOT_TURN);
                                 me->CastSpell(target, SPELL_JUMP, false);
@@ -877,7 +878,8 @@ class npc_snowdrift_novice : public CreatureScript
                     me->SetFaction(35);
                     me->RemoveAllAuras();
                     me->CombatStop(true);
-                    me->DeleteThreatList();
+                    me->GetThreatManager().RemoveMeFromThreatLists();
+                    me->GetThreatManager().ClearAllThreat();
                     me->SetReactState(REACT_PASSIVE);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
@@ -886,12 +888,11 @@ class npc_snowdrift_novice : public CreatureScript
                     events.Reset();
                     events.ScheduleEvent(EVENT_JUMP, 2 * IN_MILLISECONDS);
 
-                    if (auto const referee = Unit::GetCreature(*me, instance->GetData64(DATA_PANDAREN_REFEREE)))
+                    if (auto const referee = Unit::GetCreature(*me, instance->GetGuidData(DATA_PANDAREN_REFEREE)))
                        if (referee->IsAIEnabled)
                             referee->AI()->DoAction(3); // ACTION_NOVICE_DEFEAT
 
-                    if (instance)
-                        instance->SetData(DATA_DEFEATED_NOVICE, 1);
+                    instance->SetData(DATA_DEFEATED_NOVICE, 1);
                 }
             }
 
@@ -926,9 +927,9 @@ class npc_snowdrift_novice : public CreatureScript
                         case EVENT_JUMP:
                             if (instance)
                             {
-                                if (auto const targetGUID = instance->GetData64(DATA_RANDOM_FIRST_POS))
+                                if (auto const targetGUID = instance->GetGuidData(DATA_RANDOM_FIRST_POS))
                                 {
-                                    if (auto const target = ObjectAccessor::FindUnit(targetGUID))
+                                    if (auto const target = ObjectAccessor::GetUnit(*me, targetGUID))
                                     {
                                         me->AddUnitState(UNIT_STATE_ROOT | UNIT_STATE_CANNOT_TURN);
                                         me->CastSpell(target, SPELL_JUMP, false);
@@ -1010,7 +1011,7 @@ class npc_snowdrift_miniboss : public CreatureScript
             InstanceScript* instance;       
             bool stillInFight;
 
-            void PassengerBoarded(Unit* who, int8 seatId, bool apply)
+            void PassengerBoarded(Unit* who, int8 seatId, bool apply) override
             {
                 if (who->GetTypeId() != TYPEID_UNIT)
                     return;
@@ -1076,7 +1077,8 @@ class npc_snowdrift_miniboss : public CreatureScript
                     me->SetFaction(35);
                     me->RemoveAllAuras();
                     me->CombatStop(true);
-                    me->DeleteThreatList();
+                    me->GetThreatManager().RemoveMeFromThreatLists();
+                    me->GetThreatManager().ClearAllThreat();
                     me->SetReactState(REACT_PASSIVE);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
@@ -1102,9 +1104,9 @@ class npc_snowdrift_miniboss : public CreatureScript
                     {
                         case EVENT_MOVE_AWAY:
                             {
-                               if (uint64 targetGUID = instance->GetData64(DATA_RANDOM_MINIBOSS_POS))
+                               if (ObjectGuid targetGUID = instance->GetGuidData(DATA_RANDOM_MINIBOSS_POS))
                                {
-                                   if (Unit* target = ObjectAccessor::FindUnit(targetGUID))
+                                   if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
                                    {
                                        me->AddUnitState(UNIT_STATE_ROOT | UNIT_STATE_CANNOT_TURN);
                                        me->CastSpell(target, SPELL_JUMP, false);
@@ -1206,12 +1208,12 @@ class npc_spm_jade_staff : public CreatureScript
                 switch (actionId)
                 {
                     case ACTION_START_COMBAT:
-                        me->SetUInt32Value(UNIT_FIELD_SHAPESHIFT_FORM, 1); //UNIT_FIELD_BYTES_2
+                        me->SetUInt32Value(UNIT_FIELD_BYTES_2, 1); //UNIT_FIELD_BYTES_2
                         events.ScheduleEvent(EVENT_STAFF_STRIKE, urand(4, 6) * IN_MILLISECONDS);
                         break;
                     case ACTION_STOP_COMBAT:
                         events.Reset();
-                        me->SetUInt32Value(UNIT_FIELD_SHAPESHIFT_FORM, 0); //UNIT_FIELD_BYTES_2
+                        me->SetUInt32Value(UNIT_FIELD_BYTES_2, 0); //UNIT_FIELD_BYTES_2
                         break;
                 }
             }
@@ -1302,7 +1304,7 @@ class AreaTrigger_at_before_snowdrift : public AreaTriggerScript
                 if (instance->GetData(DATA_SNOWDRIFT_STATE) != IN_PROGRESS && instance->GetData(DATA_SNOWDRIFT_STATE) != DONE)
                 {
                     instance->SetData(DATA_SNOWDRIFT_STATE, IN_PROGRESS);
-                    if (auto const snowdrift = Unit::GetCreature(*player, instance->GetData64(DATA_MASTER_SNOWDRIFT)))
+                    if (auto const snowdrift = Unit::GetCreature(*player, instance->GetGuidData(DATA_MASTER_SNOWDRIFT)))
                         if (snowdrift->IsAIEnabled)
                             snowdrift->AI()->DoAction(ACTION_START_EVENT);
                 }

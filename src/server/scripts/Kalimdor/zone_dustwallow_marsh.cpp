@@ -169,7 +169,7 @@ public:
         if (action == GOSSIP_SENDER_INFO)
         {
             player->CLOSE_GOSSIP_MENU();
-            player->KilledMonsterCredit(NPC_THERAMORE_GUARD, 0);
+            player->KilledMonsterCredit(NPC_THERAMORE_GUARD, ObjectGuid::Empty);
             creature->AI()->Talk(SAY_QUEST1);
             creature->CastSpell(creature, SPELL_DOCTORED_LEAFLET, false);
             creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -503,17 +503,17 @@ public:
                  creature->SetFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
                  creature->SetStandState(UNIT_STAND_STATE_STAND);
                  creature->AI()->Talk(SAY_QUEST_ACCEPTED);
-                 pEscortAI->Start(false, false, player->GetGUID());
+                 pEscortAI->Start(false, player->GetGUID());
              }
          }
          return true;
     }
 
-    struct npc_stinkyAI : public npc_escortAI
+    struct npc_stinkyAI : public EscortAI
     {
-       npc_stinkyAI(Creature* creature) : npc_escortAI(creature) { }
+       npc_stinkyAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -558,7 +558,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             Talk(SAY_ATTACKED_1, who);
         }
@@ -580,7 +580,7 @@ public:
 
        void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (!UpdateVictim())
                 return;

@@ -43,16 +43,16 @@ class instance_end_time : public InstanceMapScript
                 first_encounter = 0;
                 second_encounter = 0;
                 tyrande_event = 0;
-                uiMurozondCacheGUID = 0;
-                uiTyrandeGUID = 0;
-                uiJainaGUID = 0;
-                uiPlatform1GUID = 0;
-                uiPlatform2GUID = 0;
-                uiPlatform3GUID = 0;
-                uiPlatform4GUID = 0;
-                uiImageOfNozdormuGUID = 0;
-                uiMurozondGUID = 0;
-                uiHourglassGUID = 0;
+                uiMurozondCacheGUID = ObjectGuid::Empty;
+                uiTyrandeGUID = ObjectGuid::Empty;
+                uiJainaGUID = ObjectGuid::Empty;
+                uiPlatform1GUID = ObjectGuid::Empty;
+                uiPlatform2GUID = ObjectGuid::Empty;
+                uiPlatform3GUID = ObjectGuid::Empty;
+                uiPlatform4GUID = ObjectGuid::Empty;
+                uiImageOfNozdormuGUID = ObjectGuid::Empty;
+                uiMurozondGUID = ObjectGuid::Empty;
+                uiHourglassGUID = ObjectGuid::Empty;
                 memset(nozdormu_dialog, 0, sizeof(nozdormu_dialog));
             }
 
@@ -124,7 +124,7 @@ class instance_end_time : public InstanceMapScript
                 }
             }
 
-            void SetData(uint32 type,uint32 data)
+            void SetData(uint32 type,uint32 data) override
             {
                 switch (type)
                 {
@@ -220,7 +220,7 @@ class instance_end_time : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -237,9 +237,8 @@ class instance_end_time : public InstanceMapScript
                     case DATA_HOURGLASS:
                         return uiHourglassGUID;
                     default:
-                        return 0;
+                        return ObjectGuid::Empty;
                 }
-                return 0;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -374,17 +373,17 @@ class instance_end_time : public InstanceMapScript
                 uint32 second_encounter;
                 uint32 tyrande_event;
                 uint32 nozdormu_dialog[4];
-                uint64 uiMurozondCacheGUID;
-                uint64 uiTyrandeGUID;
-                uint64 uiJainaGUID;
-                uint64 uiPlatform1GUID;
-                uint64 uiPlatform2GUID;
-                uint64 uiPlatform3GUID;
-                uint64 uiPlatform4GUID;
-                uint64 uiImageOfNozdormuGUID;
-                uint64 uiMurozondGUID;
-                uint64 uiHourglassGUID;
-                uint64 uiNozdormuGUID;
+                ObjectGuid uiMurozondCacheGUID;
+                ObjectGuid uiTyrandeGUID;
+                ObjectGuid uiJainaGUID;
+                ObjectGuid uiPlatform1GUID;
+                ObjectGuid uiPlatform2GUID;
+                ObjectGuid uiPlatform3GUID;
+                ObjectGuid uiPlatform4GUID;
+                ObjectGuid uiImageOfNozdormuGUID;
+                ObjectGuid uiMurozondGUID;
+                ObjectGuid uiHourglassGUID;
+                ObjectGuid uiNozdormuGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

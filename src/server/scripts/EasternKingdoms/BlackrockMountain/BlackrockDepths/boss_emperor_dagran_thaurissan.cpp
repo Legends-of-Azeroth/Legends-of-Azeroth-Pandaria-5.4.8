@@ -60,7 +60,7 @@ public:
             //Counter= 0;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
             me->CallForHelp(VISIBLE_RANGE);
@@ -73,7 +73,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* Moira = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_MOIRA) : 0))
+            if (Creature* Moira = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_MOIRA) : ObjectGuid::Empty))
             {
                 Moira->AI()->EnterEvadeMode();
                 Moira->SetFaction(35);

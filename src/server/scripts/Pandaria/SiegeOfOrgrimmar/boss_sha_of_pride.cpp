@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -364,9 +364,9 @@ struct boss_norushen_pride : public ScriptedAI
     }
 };
 
-struct lorewalkerAI : public CreatureAI
+struct lorewalkerAI : public ScriptedAI
 {
-    lorewalkerAI(Creature* creature) : CreatureAI(creature) { }
+    lorewalkerAI(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
     float x, y, z;
@@ -471,7 +471,7 @@ class boss_sha_of_pride : public CreatureScript
                             me->RemoveAurasDueToSpell(SPELL_EMERGE_SUBMERGE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
 
-                            if (Creature* norushen = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_NORUSHEN_2)))
+                            if (Creature* norushen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_NORUSHEN_2)))
                                 norushen->AI()->Talk(SAY_NORUSHEN_INTRO_2);
                             else if (Creature* norushen = me->SummonCreature(NPC_NORUSHEN_2, norushenShaRoom, TEMPSUMMON_MANUAL_DESPAWN))// in case - norushen defeat - server crash
                                 norushen->AI()->Talk(SAY_NORUSHEN_INTRO_2);
@@ -561,9 +561,9 @@ class boss_sha_of_pride : public CreatureScript
                     Talk(SAY_SHA_OF_PRIDE_KILL);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 Talk(SAY_SHA_OF_PRIDE_AGGRO);
 
@@ -581,7 +581,7 @@ class boss_sha_of_pride : public CreatureScript
                 berserkerEvents.ScheduleEvent(EVENT_CHECK_EVADE, 1 * IN_MILLISECONDS);
                 HandleExecuteSwellingPride();
 
-                if (Creature* norushen = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_NORUSHEN_2) : 0))
+                if (Creature* norushen = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_NORUSHEN_2) : ObjectGuid::Empty))
                     norushen->AI()->DoAction(ACTION_START_INTRO);
 
                 if (IsHeroic())
@@ -600,7 +600,7 @@ class boss_sha_of_pride : public CreatureScript
                 summon->SetInCombatWithZone();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();
@@ -621,7 +621,7 @@ class boss_sha_of_pride : public CreatureScript
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERCOME_CHARMED);
                     instance->DoRemoveBloodLustDebuffSpellOnPlayers();
 
-                    if (Creature* norushen = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_NORUSHEN_2)))
+                    if (Creature* norushen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_NORUSHEN_2)))
                     {
                         norushen->AI()->Reset();
                         norushen->Respawn();
@@ -661,7 +661,7 @@ class boss_sha_of_pride : public CreatureScript
                 HandleDeactivateTraps();
 
                 if (!instance->GetData(DATA_LFR))
-                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance ? instance->GetData64(IsHeroic() ? GO_VAULT_OF_FORBIDDEN_TREASURES_HC : GO_VAULT_OF_FORBIDDEN_TREASURES) : 0))
+                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance ? instance->GetGuidData(IsHeroic() ? GO_VAULT_OF_FORBIDDEN_TREASURES_HC : GO_VAULT_OF_FORBIDDEN_TREASURES) : ObjectGuid::Empty))
                         instance->DoRespawnGameObject(go->GetGUID(), 7 * DAY);
 
                 _JustDied();
@@ -936,7 +936,7 @@ struct npc_self_reflection : public ScriptedAI
         DoCast(me, SPELL_SELF_REFLECTION_VISUAL, true);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-        if (Creature* shaOfPride = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_SHA_OF_PRIDE) : 0))
+        if (Creature* shaOfPride = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_SHA_OF_PRIDE) : ObjectGuid::Empty))
             shaOfPride->AI()->JustSummoned(me);
     }
 
@@ -975,7 +975,7 @@ struct npc_rift_of_corruption : public ScriptedAI
 
     void Reset() override
     {
-        me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
+        me->SetDisplayFromModel(0);
         DoCast(me, SPELL_RIFT_OF_CORRUPTION_VIS);
         DoCast(me, SPELL_BOLT_OF_CORRUPTION_DUMMY);
         DoCast(me, SPELL_RIFT_OF_CORRUPTION_AT);
@@ -1332,7 +1332,7 @@ class spell_sha_of_pride_mocking_blast : public SpellScript
             {
                 target->SetPower(POWER_ALTERNATE_POWER, target->GetPower(POWER_ALTERNATE_POWER) + 5);
                 
-                if (Creature* norushen = ObjectAccessor::GetCreature(*target, target->GetInstanceScript() ? target->GetInstanceScript()->GetData64(NPC_NORUSHEN_2) : 0))
+                if (Creature* norushen = ObjectAccessor::GetCreature(*target, target->GetInstanceScript() ? target->GetInstanceScript()->GetGuidData(NPC_NORUSHEN_2) : ObjectGuid::Empty))
                     if (norushen->IsAlive())
                         target->GetMap()->SetWorldState(WORLDSTATE_SHALLOW_YOUR_PRIDE, 0);
             }
@@ -1391,7 +1391,7 @@ class spell_sha_of_pride_last_word : public SpellScript
             {
                 target->SetPower(POWER_ALTERNATE_POWER, target->GetPower(POWER_ALTERNATE_POWER) + 5);
 
-                if (Creature* norushen = ObjectAccessor::GetCreature(*target, target->GetInstanceScript() ? target->GetInstanceScript()->GetData64(NPC_NORUSHEN_2) : 0))
+                if (Creature* norushen = ObjectAccessor::GetCreature(*target, target->GetInstanceScript() ? target->GetInstanceScript()->GetGuidData(NPC_NORUSHEN_2) : ObjectGuid::Empty))
                     if (norushen->IsAlive())
                         target->GetMap()->SetWorldState(WORLDSTATE_SHALLOW_YOUR_PRIDE, 0);
             }
@@ -1552,7 +1552,7 @@ class spell_sha_of_pride_imprison : public SpellScript
                 caster->CastSpell(target, prisonSpellId, true);
 
                 // Interaction With Prison
-                if (Creature* shaOfPride = ObjectAccessor::GetCreature(*target, target->GetInstanceScript() ? target->GetInstanceScript()->GetData64(DATA_SHA_OF_PRIDE) : 0))
+                if (Creature* shaOfPride = ObjectAccessor::GetCreature(*target, target->GetInstanceScript() ? target->GetInstanceScript()->GetGuidData(DATA_SHA_OF_PRIDE) : ObjectGuid::Empty))
                     shaOfPride->CastSpell(pridePrisonsPos[prisonPosId].GetPositionX(), pridePrisonsPos[prisonPosId].GetPositionY(), pridePrisonsPos[prisonPosId].GetPositionZ(), SPELL_CORRUPTED_PRISON_ACTIV, true);
             }
         }
@@ -1686,7 +1686,7 @@ class spell_sha_of_pride_corrupted_prison : public AuraScript
                     arcPrison->SetGoState(GO_STATE_ACTIVE);
 
             // Free Slot for this Prison
-            if (Creature* shaOfPride = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetData64(DATA_SHA_OF_PRIDE) : 0))
+            if (Creature* shaOfPride = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetGuidData(DATA_SHA_OF_PRIDE) : ObjectGuid::Empty))
                 shaOfPride->AI()->SetData(TYPE_PRISON_ID, GetSpellInfo()->Id);
         }
     }

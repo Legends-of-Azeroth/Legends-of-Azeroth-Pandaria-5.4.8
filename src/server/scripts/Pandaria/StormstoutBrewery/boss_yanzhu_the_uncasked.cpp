@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -30,7 +30,7 @@ static const ValuePair yanzhuPairs[3] =
     { NPC_BLOATED_ALEMENTAL, NPC_STOUT_ALEMENTAL    },
 };
 
-static const Position gaoWaypoints[] = 
+static const Position gaoWaypoints[] =
 {
     { 0.f, 0.f, 0.f                    },
     { -703.3f, 1187.5f, 166.7f         },
@@ -72,11 +72,17 @@ static const Position middleBrewPos[] =
     { -706.43f, 1157.70f, 166.22f, 0.25f },
 };
 
-static const Position yanzhuPos[] = { -703.44f, 1162.43f, 166.22f, 0.24f };
-static const Position gaoPotPos[] = { -676.96f, 1193.96f, 166.79f, 1.82f };
+static const Position yanzhuPos[] =
+{
+    { -703.44f, 1162.43f, 166.22f, 0.24f }
+};
+static const Position gaoPotPos[] =
+{
+    { -676.96f, 1193.96f, 166.79f, 1.82f }
+};
 
-static const Position sudsPos[2] = 
-{ 
+static const Position sudsPos[2] =
+{
     { -696.25f, 1138.78f, 166.75f, 1.82f },
     { -663.20f, 1172.84f, 166.74f, 3.38f }
 };
@@ -93,14 +99,14 @@ class AliveCheck
     public:
         AliveCheck(Creature* creature) : _creature(creature) { }
 
-        bool operator()(uint64 guid) 
+        bool operator()(ObjectGuid guid)
         {
             return (GetAffectedCreature(guid) && !GetAffectedCreature(guid)->IsAlive());
         }
 
     private:
         Creature* _creature;
-        Creature* GetAffectedCreature(uint64 guid)
+        Creature* GetAffectedCreature(ObjectGuid guid)
         {
             Creature* creature = ObjectAccessor::GetCreature(*_creature, guid);
             return creature ? creature : nullptr;
@@ -185,7 +191,7 @@ class npc_uncle_gao : public CreatureScript
             uint32 encounterStage;
             uint32 waypoint;
             uint32 addStore[3];
-            std::list<uint64> currentStageGuidList;
+            std::list<ObjectGuid> currentStageGuidList;
             EventMap events;
             InstanceScript* instance;
 
@@ -201,7 +207,7 @@ class npc_uncle_gao : public CreatureScript
                 {
                     encounterStarted = true;
 
-                    me->NearTeleportTo(gaoWaypoints[3].m_positionX, gaoWaypoints[3].m_positionY, gaoWaypoints[3].m_positionZ, gaoWaypoints[3].m_orientation);
+                    me->NearTeleportTo(gaoWaypoints[3].m_positionX, gaoWaypoints[3].m_positionY, gaoWaypoints[3].m_positionZ, gaoWaypoints[3].GetOrientation());
 
                     GetChenAndDoAction(4);
                     return;
@@ -239,7 +245,7 @@ class npc_uncle_gao : public CreatureScript
                 if (n < 0)
                     return false;
 
-                if (Creature* creature = me->SummonCreature(addStore[0], smallBrewPos[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, urand(14000, 24000)))
+                if (Creature* creature = me->SummonCreature(addStore[0], smallBrewPos[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(urand(14000, 24000))))
                 {
                     currentStageGuidList.push_back(creature->GetGUID());
                     creature->CastSpell(creature, SPELL_SMALL_SPAWN);
@@ -253,7 +259,7 @@ class npc_uncle_gao : public CreatureScript
                 if (n < 0)
                     return false;
 
-                if (Creature* creature = me->SummonCreature(addStore[1], middleBrewPos[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, urand(14000, 24000)))
+                if (Creature* creature = me->SummonCreature(addStore[1], middleBrewPos[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(urand(14000, 24000))))
                 {
                     currentStageGuidList.push_back(creature->GetGUID());
                     creature->CastSpell(creature, SPELL_MEDIUM_SPAWN);
@@ -267,7 +273,7 @@ class npc_uncle_gao : public CreatureScript
                 if (n < 0)
                     return false;
 
-                if (Creature* creature = me->SummonCreature(addStore[2], largeBrewPos[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, urand(14000, 24000)))
+                if (Creature* creature = me->SummonCreature(addStore[2], largeBrewPos[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(urand(14000, 24000))))
                 {
                     currentStageGuidList.push_back(creature->GetGUID());
                     creature->CastSpell(creature, SPELL_LARGE_SPAWN);
@@ -279,7 +285,7 @@ class npc_uncle_gao : public CreatureScript
             void GetChenAndDoAction(int32 action)
             {
                 if (instance)
-                    if (Creature* chen = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_CHEN_YANZHU)))
+                    if (Creature* chen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_CHEN_YANZHU)))
                         chen->AI()->DoAction(action);
             }
 
@@ -303,10 +309,10 @@ class npc_uncle_gao : public CreatureScript
                     case 3:
                         waypoint++;
                         events.ScheduleEvent(EVENT_OUTRO_7, 3400);
-                        me->SetFacingTo(gaoWaypoints[pointId].m_orientation);
+                        me->SetFacingTo(gaoWaypoints[pointId].GetOrientation());
                         break;
                     case 101:
-                        me->SetFacingTo(gaoPotPos->m_orientation);
+                        me->SetFacingTo(gaoPotPos->GetOrientation());
                         me->HandleEmoteCommand(EMOTE_STATE_USE_STANDING);
                         break;
                 }
@@ -322,7 +328,7 @@ class npc_uncle_gao : public CreatureScript
 
                         if (instance)
                         {
-                            if (Creature* yanZhu = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_YAN_ZHU)))
+                            if (Creature* yanZhu = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_YAN_ZHU)))
                             {
                                 float x, y;
                                 GetPositionWithDistInOrientation(me, (me->GetDistance(yanZhu) - 1.5f), me->GetAngle(yanZhu), x, y);
@@ -453,7 +459,7 @@ class npc_uncle_gao : public CreatureScript
                             me->SetStandState(UNIT_STAND_STATE_STAND);
 
                             // Start Chen's part of the script
-                            if (Creature* chen = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_CHEN_YANZHU)))
+                            if (Creature* chen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_CHEN_YANZHU)))
                             {
                                 chen->SetVisible(true);
                                 chen->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
@@ -509,7 +515,7 @@ class npc_uncle_gao : public CreatureScript
                                     events.CancelEvent(EVENT_UPDATE_ENCOUNTER);
 
                                     DoTalk(TALK_SUMMON_BOSS);
-                                    if (Creature* creature = me->SummonCreature(NPC_YAN_ZHU, *yanzhuPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5 * MINUTE*IN_MILLISECONDS))
+                                    if (Creature* creature = me->SummonCreature(NPC_YAN_ZHU, *yanzhuPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(5 * MINUTE*IN_MILLISECONDS)))
                                     {
                                         currentStageGuidList.push_back(creature->GetGUID());
                                         creature->CastSpell(creature, SPELL_LARGE_SPAWN);
@@ -635,7 +641,7 @@ class npc_chen_yanzhu : public CreatureScript
                         events.ScheduleEvent(EVENT_CARE, 2400);
                         break;
                     case 2:
-                        me->SetFacingTo(chenWaypoints[pointId].m_orientation);
+                        me->SetFacingTo(chenWaypoints[pointId].GetOrientation());
                         break;
                 }
 
@@ -645,17 +651,17 @@ class npc_chen_yanzhu : public CreatureScript
             void GetGaoAndDoAction(int32 action)
             {
                 if (instance)
-                    if (Creature* gao = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_UNCLE_GAO)))
+                    if (Creature* gao = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_UNCLE_GAO)))
                         gao->AI()->DoAction(action);
             }
-            
+
             void InitializeMyself()
             {
                 if (instance)
                 {
                     if (instance->GetBossState(DATA_YAN_ZHU) == DONE)
                     {
-                        me->NearTeleportTo(chenWaypoints[2].m_positionX, chenWaypoints[2].m_positionY, chenWaypoints[2].m_positionZ, chenWaypoints[2].m_orientation);
+                        me->NearTeleportTo(chenWaypoints[2].m_positionX, chenWaypoints[2].m_positionY, chenWaypoints[2].m_positionZ, chenWaypoints[2].GetOrientation());
                         me->SetVisible(true);
                     }
                 }
@@ -686,7 +692,7 @@ class npc_chen_yanzhu : public CreatureScript
                         case EVENT_MOVEBOSS:
                             if (instance)
                             {
-                                if (Creature* yanzhu = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_YAN_ZHU)))
+                                if (Creature* yanzhu = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_YAN_ZHU)))
                                 {
                                     float x, y;
                                     GetPositionWithDistInOrientation(me, (me->GetDistance(yanzhu) - 1.5f), me->GetAngle(yanzhu), x, y);
@@ -741,7 +747,7 @@ class boss_yanzhu : public CreatureScript
         {
             boss_yanzhuAI(Creature* creature) : BossAI(creature, DATA_YAN_ZHU) { }
 
-            std::vector<uint64> guidsVector;
+            std::vector<ObjectGuid> guidsVector;
             float bubleFacing;
             uint32 largeEventType, lowEventType;
 
@@ -753,9 +759,9 @@ class boss_yanzhu : public CreatureScript
                 Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 // Disabled until targeting type is fixed
                 /* if (me->HasAura(SPELL_SUDSY_BREW))
@@ -821,7 +827,7 @@ class boss_yanzhu : public CreatureScript
                 }
             }
 
-            bool SudsyInCenterQuadr(uint64 playerGUID)
+            bool SudsyInCenterQuadr(ObjectGuid playerGUID)
             {
                 Player* itr = ObjectAccessor::FindPlayer(playerGUID);
                 if (!itr)
@@ -834,7 +840,7 @@ class boss_yanzhu : public CreatureScript
                 return false;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
 
@@ -864,7 +870,7 @@ class boss_yanzhu : public CreatureScript
 
                 if (instance)
                 {
-                    if (Creature* gao = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_UNCLE_GAO)))
+                    if (Creature* gao = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_UNCLE_GAO)))
                         gao->AI()->DoAction(0);
 
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SUDSY);
@@ -895,11 +901,10 @@ class boss_yanzhu : public CreatureScript
                 if (n < 0)
                     return false;
 
-                Position pos;
-                me->GetRandomNearPosition(pos, 20.f);
+                Position pos = me->GetRandomNearPosition(20.f);
                 pos.m_positionZ += frand(1.5f, 3.0f);
 
-                me->SummonCreature(NPC_FIZZY_BUBBLE, pos, TEMPSUMMON_TIMED_DESPAWN, 12 * IN_MILLISECONDS);
+                me->SummonCreature(NPC_FIZZY_BUBBLE, pos, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(12 * IN_MILLISECONDS));
 
                 return DoSummonFizzyBubbles(n - 1);
             }
@@ -943,9 +948,9 @@ class boss_yanzhu : public CreatureScript
                                         itr++;
                                 }
 
-                                for (auto&& itr : me->getThreatManager().getThreatList())
+                                for (auto&& ref : me->GetThreatManager().GetUnsortedThreatList())
                                 {
-                                    if (Unit* unit = ObjectAccessor::GetUnit(*me, (*itr).getUnitGuid()))
+                                    if (Unit* unit = ObjectAccessor::GetUnit(*me, ref->GetVictim()->GetGUID()))
                                     {
                                         if (me->GetDistance(unit) < 70.f)
                                         {
@@ -990,10 +995,9 @@ class boss_yanzhu : public CreatureScript
                 if (n < 0)
                     return false;
 
-                Position pos;
-                me->GetRandomNearPosition(pos, frand(5.f, 11.f));
+                Position pos = me->GetRandomNearPosition(frand(5.f, 11.f));
 
-                if (Creature* pAdd = me->SummonCreature(NPC_YEASTY_ALEMENTAL, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, urand(6000, 14000)))
+                if (Creature* pAdd = me->SummonCreature(NPC_YEASTY_ALEMENTAL, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(urand(6000, 14000))))
                 {
                     if (pAdd->AI())
                         pAdd->AI()->DoZoneInCombat();
@@ -1093,7 +1097,7 @@ class npc_yeasty_alemental : public CreatureScript
             EventMap events;
             InstanceScript* instance;
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_FERMENT, 10000);
 
@@ -1120,7 +1124,7 @@ class npc_yeasty_alemental : public CreatureScript
                         case EVENT_FERMENT:
                             if (instance)
                             {
-                                if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_YAN_ZHU)))
+                                if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_YAN_ZHU)))
                                     DoCast(boss, SPELL_FERMENT);
 
                                 events.ScheduleEvent(EVENT_FERMENT, 15000);
@@ -1152,7 +1156,7 @@ class npc_sudsy_alemental : public CreatureScript
 {
     public:
         npc_sudsy_alemental() : CreatureScript("npc_sudsy_alemental") { }
-        
+
         enum Spells
         {
             SPELL_BREW_BOLT   = 115650,
@@ -1178,7 +1182,7 @@ class npc_sudsy_alemental : public CreatureScript
 
             EventMap events;
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_SUDS, urand(5000, 15000));
                 events.ScheduleEvent(EVENT_BREW_BOLT, urand(4000, 11000));
@@ -1198,7 +1202,7 @@ class npc_sudsy_alemental : public CreatureScript
                     summon->CastSpell(summon, SPELL_SUDS_AURA, true);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->AttackStop();
                 me->CombatStop(true);
@@ -1265,7 +1269,7 @@ class npc_fizzy_alemental : public CreatureScript
 
             EventMap events;
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_CARBONATION, urand(5000, 15000));
                 events.ScheduleEvent(EVENT_BREW_BOLT, urand(4000, 11000));
@@ -1279,7 +1283,7 @@ class npc_fizzy_alemental : public CreatureScript
 
             void Reset() override { }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->AttackStop();
                 me->CombatStop(true);
@@ -1348,7 +1352,7 @@ class npc_bloated_alemental : public CreatureScript
 
             EventMap events;
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_BLOAT, urand(5000, 15000));
                 events.ScheduleEvent(EVENT_BREW_BOLT, urand(4000, 11000));
@@ -1362,7 +1366,7 @@ class npc_bloated_alemental : public CreatureScript
 
             void Reset() override { }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->AttackStop();
                 me->CombatStop(true);
@@ -1431,7 +1435,7 @@ class npc_stout_alemental : public CreatureScript
 
             EventMap events;
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_BLACKOUT, 8000);
                 events.ScheduleEvent(EVENT_BREW_BOLT, urand(4000, 11000));
@@ -1445,7 +1449,7 @@ class npc_stout_alemental : public CreatureScript
 
             void Reset() override { }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->AttackStop();
                 me->CombatStop(true);
@@ -1516,7 +1520,7 @@ class npc_bubbling_alemental : public CreatureScript
         {
             npc_bubbling_alementalAI(Creature* creature) : ScriptedAI(creature) { }
 
-            std::vector<uint64> guidsVector;
+            std::vector<ObjectGuid> guidsVector;
             EventMap events, cosmeticEvents;
             uint32 wp;
 
@@ -1536,7 +1540,7 @@ class npc_bubbling_alemental : public CreatureScript
                 cosmeticEvents.Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_BUBBLE_SHIELD, 5000);
                 me->GetMotionMaster()->Clear();
@@ -1572,7 +1576,7 @@ class npc_bubbling_alemental : public CreatureScript
                 cosmeticEvents.ScheduleEvent(EVENT_MOVE, urand(100, 200));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 for (auto&& guid : guidsVector)
                 {
@@ -1800,14 +1804,14 @@ class npc_bubble_shield : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            uint64 summonerGUID;
+            ObjectGuid summonerGUID;
             InstanceScript* instance;
 
             void IsSummonedBy(Unit* summoner) override
             {
                 summonerGUID = summoner->GetGUID();
             }
-            
+
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (damage >= me->GetHealth())
@@ -2089,7 +2093,7 @@ class spell_bloat_aura : public SpellScriptLoader
                     Position pos = GetOwner()->GetPosition();
                     for (int i = 0; i < 2; ++i)
                     {
-                        if (Creature* stalker = GetOwner()->SummonCreature(NPC_BLOATED_STALKER, GetOwner()->GetPositionX(), GetOwner()->GetPositionY(), GetOwner()->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                        if (Creature* stalker = GetOwner()->SummonCreature(NPC_BLOATED_STALKER, GetOwner()->GetPositionX(), GetOwner()->GetPositionY(), GetOwner()->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 30000ms))
                         {
                             stalker->CastSpell(GetOwner()->ToUnit(), SPELL_FORCE_VEHICLE, true);
                             stalker->CastSpell(stalker, SPELL_GUSHING_BREW, true);

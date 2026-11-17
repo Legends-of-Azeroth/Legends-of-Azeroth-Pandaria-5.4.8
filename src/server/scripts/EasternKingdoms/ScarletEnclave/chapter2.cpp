@@ -55,13 +55,13 @@ public:
 
         uint32 speechTimer;
         uint32 speechCounter;
-        uint64 playerGUID;
+        ObjectGuid playerGUID;
 
         void Reset() override
         {
             speechTimer = 0;
             speechCounter = 0;
-            playerGUID = 0;
+            playerGUID = ObjectGuid::Empty;
             me->SetReactState(REACT_AGGRESSIVE);
             me->RestoreFaction();
         }
@@ -197,15 +197,15 @@ public:
         {
             creature->SetStandState(UNIT_STAND_STATE_STAND);
 
-            if (npc_escortAI* escortAI = CAST_AI(npc_koltira_deathweaver::npc_koltira_deathweaverAI, creature->AI()))
-                escortAI->Start(false, false, player->GetGUID());
+            if (EscortAI* escortAI = CAST_AI(npc_koltira_deathweaver::npc_koltira_deathweaverAI, creature->AI()))
+                escortAI->Start(false, player->GetGUID());
         }
         return true;
     }
 
-    struct npc_koltira_deathweaverAI : public npc_escortAI
+    struct npc_koltira_deathweaverAI : public EscortAI
     {
-        npc_koltira_deathweaverAI(Creature* creature) : npc_escortAI(creature)
+        npc_koltira_deathweaverAI(Creature* creature) : EscortAI(creature)
         {
             me->SetReactState(REACT_DEFENSIVE);
         }
@@ -216,7 +216,7 @@ public:
             {
                 wave = 0;
                 waveTimer = 3000;
-                valrothGUID = 0;
+                valrothGUID = ObjectGuid::Empty;
                 me->LoadEquipment(0, true);
                 me->RemoveAurasDueToSpell(SPELL_ANTI_MAGIC_ZONE);
                 me->RemoveAurasDueToSpell(SPELL_KOLTIRA_TRANSFORM);
@@ -224,7 +224,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             switch (waypointId)
             {
@@ -272,12 +272,12 @@ public:
         void SummonAcolyte(uint32 uiAmount)
         {
             for (uint32 i = 0; i < uiAmount; ++i)
-                me->SummonCreature(NPC_CRIMSON_ACOLYTE, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                me->SummonCreature(NPC_CRIMSON_ACOLYTE, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000ms);
         }
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (HasEscortState(STATE_ESCORT_PAUSED))
             {
@@ -302,7 +302,7 @@ public:
                             break;
                         case 3:
                             Talk(SAY_BREAKOUT6);
-                            me->SummonCreature(NPC_HIGH_INQUISITOR_VALROTH, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+                            me->SummonCreature(NPC_HIGH_INQUISITOR_VALROTH, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000ms);
                             waveTimer = 1000;
                             break;
                         case 4:
@@ -343,7 +343,7 @@ public:
     private:
         uint8 wave;
         uint32 waveTimer;
-        uint64 valrothGUID;
+        ObjectGuid valrothGUID;
 
     };
 
@@ -387,7 +387,7 @@ public:
             uiStage_timer = 3000;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_TREE2);
             me->Dismount();
@@ -480,7 +480,7 @@ public:
             uiValroth_Smite_timer = 1000;
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             Talk(SAY_VALROTH_AGGRO);
             DoCast(who, SPELL_VALROTH_SMITE);
@@ -607,13 +607,13 @@ public:
 
         uint32 ExecuteSpeech_Timer;
         uint32 ExecuteSpeech_Counter;
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         void Reset() override
         {
             ExecuteSpeech_Timer = 0;
             ExecuteSpeech_Counter = 0;
-            PlayerGUID = 0;
+            PlayerGUID = ObjectGuid::Empty;
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }

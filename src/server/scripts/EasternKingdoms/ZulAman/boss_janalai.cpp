@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -165,7 +165,7 @@ class boss_janalai : public CreatureScript
             bool bEnraged;
 
             uint8 bombsCount;
-            uint64 FireBombsGUID[40];
+            ObjectGuid FireBombsGUID[40];
 
             void Reset() override
             {
@@ -190,7 +190,7 @@ class boss_janalai : public CreatureScript
                 Talk(SAY_KILL);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 bEnraged = false;
                 Talk(SAY_AGGRO);
@@ -205,7 +205,7 @@ class boss_janalai : public CreatureScript
             {
                 for (uint8 i = 0; i < 4; i++)
                 {
-                    if (Creature* pTrigger = me->SummonCreature(NPC_WORLD_TRIGGER, posFireWall[i], TEMPSUMMON_TIMED_DESPAWN, 12000))
+                    if (Creature* pTrigger = me->SummonCreature(NPC_WORLD_TRIGGER, posFireWall[i], TEMPSUMMON_TIMED_DESPAWN, 12000ms))
                         pTrigger->CastSpell(pTrigger, SPELL_FIRE_WALL, true);
                 }
             }
@@ -218,7 +218,7 @@ class boss_janalai : public CreatureScript
                     dx = float(irand(-area_dx / 2, area_dx / 2));
                     dy = float(irand(-area_dy / 2, area_dy / 2));
 
-                    if (Creature* pBomb = DoSpawnCreature(NPC_FIRE_BOMB, dx, dy, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                    if (Creature* pBomb = DoSpawnCreature(NPC_FIRE_BOMB, dx, dy, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 10000ms))
                         FireBombsGUID[i] = pBomb->GetGUID();
                 }
             }
@@ -261,9 +261,9 @@ class boss_janalai : public CreatureScript
                         case EVENT_SUMMON_HATCHERS:
                             Talk(SAY_HATCHER);
                             if (!summons.HasEntry(NPC_AMANISHI_HATCHER1))
-                                me->SummonCreature(NPC_AMANISHI_HATCHER1, posHatchersWay[0][0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                                me->SummonCreature(NPC_AMANISHI_HATCHER1, posHatchersWay[0][0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000ms);
                             if (!summons.HasEntry(NPC_AMANISHI_HATCHER2))
-                                me->SummonCreature(NPC_AMANISHI_HATCHER2, posHatchersWay[1][0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                                me->SummonCreature(NPC_AMANISHI_HATCHER2, posHatchersWay[1][0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000ms);
                             events.ScheduleEvent(EVENT_SUMMON_HATCHERS, 90000);
                             break;
                         case EVENT_SPAWN_BOMBS:
@@ -488,7 +488,7 @@ class npc_janalai_hatchling : public CreatureScript
                 //me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
             }
 
-            void EnterCombat(Unit* /*who*/) override 
+            void JustEngagedWith(Unit* /*who*/) override 
             {
                 events.ScheduleEvent(EVENT_FLAMEBUFFET, urand(7000, 15000));
             }
@@ -545,8 +545,7 @@ class spell_janalai_flame_breath : public SpellScriptLoader
                     return;
 
                 count++;
-                Position pos;
-                GetCaster()->GetNearPosition(pos, 4.0f * count, 0.0f);
+                Position pos = GetCaster()->GetNearPosition(4.0f * count, 0.0f);
                 GetCaster()->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_FLAME_BREATH_1, true);
             }
 

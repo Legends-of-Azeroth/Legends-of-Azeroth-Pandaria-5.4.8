@@ -74,9 +74,9 @@ public:
 
         bool enraged;
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             enraged = false;
             events.ScheduleEvent(EVENT_WRAP, 20000);
             events.ScheduleEvent(EVENT_SPRAY, 40000);
@@ -111,7 +111,7 @@ public:
                                 target->RemoveAura(RAID_MODE(SPELL_WEB_SPRAY_10, SPELL_WEB_SPRAY_25));
                                 uint8 pos = rand()%MAX_POS_WRAP;
                                 target->GetMotionMaster()->MoveJump(PosWrap[pos].GetPositionX(), PosWrap[pos].GetPositionY(), PosWrap[pos].GetPositionZ(), 20, 20);
-                                if (Creature* wrap = DoSummon(NPC_WEB_WRAP, PosWrap[pos], 0, TEMPSUMMON_CORPSE_DESPAWN))
+                                if (Creature* wrap = DoSummon(NPC_WEB_WRAP, PosWrap[pos], 0ms, TEMPSUMMON_CORPSE_DESPAWN))
                                     wrap->AI()->SetGUID(target->GetGUID());
                             }
                         }
@@ -137,7 +137,7 @@ public:
                         /// @todo Add missing text
                         uint8 amount = urand(8, 10);
                         for (uint8 i = 0; i < amount; ++i)
-                            DoSummon(NPC_SPIDERLING, me, 0, TEMPSUMMON_CORPSE_DESPAWN);
+                            DoSummon(NPC_SPIDERLING, me, 0, 30s, TEMPSUMMON_CORPSE_DESPAWN);
                         events.ScheduleEvent(EVENT_SUMMON, 40000);
                         break;
                 }
@@ -161,11 +161,11 @@ public:
 
     struct npc_webwrapAI : public NullCreatureAI
     {
-        npc_webwrapAI(Creature* creature) : NullCreatureAI(creature), victimGUID(0) { }
+        npc_webwrapAI(Creature* creature) : NullCreatureAI(creature), victimGUID() { }
 
-        uint64 victimGUID;
+        ObjectGuid victimGUID;
 
-        void SetGUID(uint64 guid, int32 /*param*/) override
+        void SetGUID(ObjectGuid guid, int32 /*param*/) override
         {
             victimGUID = guid;
             if (me->m_spells[0] && victimGUID)

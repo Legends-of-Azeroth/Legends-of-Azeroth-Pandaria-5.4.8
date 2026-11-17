@@ -70,20 +70,20 @@ class boss_buru : public CreatureScript
             {
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
 
-                for (std::list<uint64>::iterator i = Eggs.begin(); i != Eggs.end(); ++i)
+                for (std::list<ObjectGuid>::iterator i = Eggs.begin(); i != Eggs.end(); ++i)
                     if (Creature* egg = me->GetMap()->GetCreature(*Eggs.begin()))
                         egg->Respawn();
 
                 Eggs.clear();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(EMOTE_TARGET, who);
                 DoCast(me, SPELL_THORNS);
 
@@ -125,7 +125,7 @@ class boss_buru : public CreatureScript
                 }
             }
 
-            void ManageRespawn(uint64 EggGUID)
+            void ManageRespawn(ObjectGuid EggGUID)
             {
                 ChaseNewVictim();
                 Eggs.push_back(EggGUID);
@@ -182,7 +182,7 @@ class boss_buru : public CreatureScript
             }
         private:
             uint8 _phase;
-            std::list<uint64> Eggs;
+            std::list<ObjectGuid> Eggs;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -204,9 +204,9 @@ class npc_buru_egg : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void EnterCombat(Unit* attacker) override
+            void JustEngagedWith(Unit* attacker) override
             {
-                if (Creature* buru = me->GetMap()->GetCreature(_instance->GetData64(DATA_BURU)))
+                if (Creature* buru = me->GetMap()->GetCreature(_instance->GetGuidData(DATA_BURU)))
                     if (!buru->IsInCombat())
                         buru->AI()->AttackStart(attacker);
             }
@@ -214,7 +214,7 @@ class npc_buru_egg : public CreatureScript
             void JustSummoned(Creature* who) override
             {
                 if (who->GetEntry() == NPC_HATCHLING)
-                    if (Creature* buru = me->GetMap()->GetCreature(_instance->GetData64(DATA_BURU)))
+                    if (Creature* buru = me->GetMap()->GetCreature(_instance->GetGuidData(DATA_BURU)))
                         if (Unit* target = buru->AI()->SelectTarget(SELECT_TARGET_RANDOM))
                             who->AI()->AttackStart(target);
             }
@@ -225,7 +225,7 @@ class npc_buru_egg : public CreatureScript
                 DoCastAOE(SPELL_EXPLODE_2, true); // Unknown purpose
                 DoCast(me, SPELL_SUMMON_HATCHLING, true);
 
-                if (Creature* buru = me->GetMap()->GetCreature(_instance->GetData64(DATA_BURU)))
+                if (Creature* buru = me->GetMap()->GetCreature(_instance->GetGuidData(DATA_BURU)))
                     if (boss_buru::boss_buruAI* buruAI = dynamic_cast<boss_buru::boss_buruAI*>(buru->AI()))
                         buruAI->ManageRespawn(me->GetGUID());
             }

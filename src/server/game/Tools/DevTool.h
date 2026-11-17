@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -467,7 +467,7 @@ union DevToolSettings
             }
 
             Creature* creature = new Creature();
-            if (creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), player->GetMap(), player->GetPhaseMask() == PHASEMASK_ANYWHERE ? PHASEMASK_NORMAL : player->GetPhaseMask(), ID, 0, 0, x, y, z, o))
+            if (creature->Create(player->GetMap()->GenerateLowGuid<HighGuid::Unit>(), player->GetMap(), player->GetPhaseMask() == PHASEMASK_ANYWHERE ? PHASEMASK_NORMAL : player->GetPhaseMask(), ID, 0, 0, x, y, z, o))
             {
                 player->GetMap()->AddToMap(creature);
                 if (SaveToDB)
@@ -562,7 +562,7 @@ union DevToolSettings
             }
 
             GameObject* go = new GameObject();
-            if (go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), ID, player->GetMap(), player->GetPhaseMask() == PHASEMASK_ANYWHERE ? PHASEMASK_NORMAL : player->GetPhaseMask(), x, y, z, o, { Rotation[0], Rotation[1], Rotation[2], Rotation[3] }, 255, GO_STATE_READY))
+            if (go->Create(player->GetMap()->GenerateLowGuid<HighGuid::GameObject>(), ID, player->GetMap(), player->GetPhaseMask() == PHASEMASK_ANYWHERE ? PHASEMASK_NORMAL : player->GetPhaseMask(), x, y, z, o, { Rotation[0], Rotation[1], Rotation[2], Rotation[3] }, 255, GO_STATE_READY))
             {
                 player->GetMap()->AddToMap(go);
                 if (SaveToDB)
@@ -629,7 +629,7 @@ union DevToolSettings
         }
         bool Execute(Player* player, Unit* target, float x, float y, float z, float o)
         {
-            uint64 playerGUID = player->GetGUID();
+            ObjectGuid playerGUID = player->GetGUID();
             static std::set<uint64> continousGUIDs;
             std::set<uint64>* guids = &continousGUIDs;
 #ifdef ICORE_BUILD

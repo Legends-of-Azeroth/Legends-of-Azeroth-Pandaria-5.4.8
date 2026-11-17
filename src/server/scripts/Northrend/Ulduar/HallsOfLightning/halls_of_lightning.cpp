@@ -251,7 +251,7 @@ class at_hall_of_the_watchers : public AreaTriggerScript
             uint32 packMask;
             uint32 packCount;
 
-            switch (trigger->id)
+            switch (trigger->ID)
             {
                 case AT_HALL_OF_THE_WATCHERS_1:
                     dataMask = 0x1;

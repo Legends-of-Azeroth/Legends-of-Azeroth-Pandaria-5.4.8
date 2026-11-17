@@ -70,7 +70,7 @@ class boss_gekkan : public CreatureScript
         {
             boss_gekkan_AI(Creature* creature) : BossAI(creature, DATA_GEKKAN) {}
 
-            std::list<uint64> m_uilGekkanAdds;
+            std::list<ObjectGuid> m_uilGekkanAdds;
             bool m_bYelled, m_FeignDeath;
 
             void InitializeAI() override
@@ -109,7 +109,7 @@ class boss_gekkan : public CreatureScript
                 DoCast(SPELL_RECKLESS_INSPIRATION_2);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 DoZoneInCombat();
 
@@ -211,7 +211,7 @@ class boss_gekkan : public CreatureScript
                     script->SetData(TYPE_GEKKAN, DONE);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)
@@ -312,7 +312,7 @@ class boss_gekkan : public CreatureScript
             }
 
             private:
-                bool VictimOnBalcony(uint64 vict) // If someone try to taunt us at balcony, not at our battle area
+                bool VictimOnBalcony(ObjectGuid vict) // If someone try to taunt us at balcony, not at our battle area
                 {
                     if (Unit* victim = ObjectAccessor::GetUnit(*me, vict))
                         return victim->GetPositionZ() > -50.0f ? true : false;
@@ -350,7 +350,7 @@ class npc_glintrok_skulker : public CreatureScript
                     me->CastSpell(me, SPELL_STEALTH, false);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(1, 2000);
 
@@ -432,7 +432,7 @@ class npc_glintrok_ironhide : public CreatureScript
                 DoCast(me, SPELL_IRON_PROTECTOR);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->ClearUnitState(UNIT_STATE_CASTING);
                 events.ScheduleEvent(1, 2000);
@@ -493,7 +493,7 @@ class npc_glintrok_oracle : public CreatureScript
                     SetCombatMovement(false);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(1, 16000);
                 events.ScheduleEvent(2, 4000);
@@ -572,7 +572,7 @@ class npc_glintrok_hexxer : public CreatureScript
                     SetCombatMovement(false);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(1, 10000);
                 events.ScheduleEvent(2, 4000);

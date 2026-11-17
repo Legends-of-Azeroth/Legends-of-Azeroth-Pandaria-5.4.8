@@ -105,7 +105,7 @@ public:
         }
 
         Horsemen id;
-        uint64 uiEventStarterGUID;
+        ObjectGuid uiEventStarterGUID;
         uint8 nextWP;
         uint32 punishTimer;
         bool caster;
@@ -125,7 +125,7 @@ public:
                 instance->SetData(DATA_HORSEMEN0 + id, NOT_STARTED);
 
             me->SetReactState(REACT_AGGRESSIVE);
-            uiEventStarterGUID = 0;
+            uiEventStarterGUID = ObjectGuid::Empty;
             nextWP = 0;
             punishTimer = 2000;
             nextMovementStarted = false;
@@ -144,10 +144,10 @@ public:
             if (!instance)
                 return false;
 
-            Creature* Thane = Unit::GetCreature(*me, instance->GetData64(DATA_THANE));
-            Creature* Lady = Unit::GetCreature(*me, instance->GetData64(DATA_LADY));
-            Creature* Baron = Unit::GetCreature(*me, instance->GetData64(DATA_BARON));
-            Creature* Sir = Unit::GetCreature(*me, instance->GetData64(DATA_SIR));
+            Creature* Thane = Unit::GetCreature(*me, instance->GetGuidData(DATA_THANE));
+            Creature* Lady = Unit::GetCreature(*me, instance->GetGuidData(DATA_LADY));
+            Creature* Baron = Unit::GetCreature(*me, instance->GetGuidData(DATA_BARON));
+            Creature* Sir = Unit::GetCreature(*me, instance->GetGuidData(DATA_SIR));
 
             if (Thane && Lady && Baron && Sir)
             {
@@ -260,8 +260,8 @@ public:
         {
             if (me->GetVictim() && me->GetDistanceOrder(who, me->GetVictim()) && me->IsValidAttackTarget(who))
             {
-                me->getThreatManager().modifyThreatPercent(me->GetVictim(), -100);
-                me->AddThreat(who, 1000000.0f);
+                me->GetThreatManager().ModifyThreatByPercent(me->GetVictim(), -100);
+                me->GetThreatManager().AddThreat(who, 1000000.0f);
             }
         }
 
@@ -319,9 +319,9 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
 
             events.ScheduleEvent(EVENT_MARK, 15000);

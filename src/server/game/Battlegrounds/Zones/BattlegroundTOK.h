@@ -197,8 +197,8 @@ public:
 
     void EventPlayerClickedOnFlag(Player* source, GameObject* targetObj) override;
 
-    void RemovePlayer(Player*, uint64, uint32) override;
-    void HandleAreaTrigger(Player* source, uint32 trigger) override;
+    void RemovePlayer(Player*, ObjectGuid, uint32) override;
+    void HandleAreaTrigger(Player* source, uint32 trigger, bool entered) override;
     void HandleKillPlayer(Player* player, Player* killer) override;
     bool SetupBattleground() override;
     WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
@@ -222,9 +222,9 @@ public:
         return BG_TOK_MAX_ORBS;
     }
 
-    std::vector<uint64> GetOrbPickersGUID() const
+    std::vector<ObjectGuid> GetOrbPickersGUID() const
     {
-        std::vector<uint64> guids;
+        std::vector<ObjectGuid> guids;
         for (auto&& itr : m_orbKeepers)
             guids.push_back(itr.Guid);
         return guids;
@@ -247,13 +247,13 @@ public:
 private:
     struct OrbKeeperInfo
     {
-        uint64 Guid = 0;
+        ObjectGuid Guid = ObjectGuid::Empty;
         TimeValue AchievementTimer;
     };
 
     OrbKeeperInfo m_orbKeepers[BG_TOK_MAX_ORBS];
 
-    std::map<uint64, BG_TOK_Zone> m_playersZone;
+    std::map<ObjectGuid, BG_TOK_Zone> m_playersZone;
 
     uint32 m_reputationCapture;
     uint32 m_honorWinKills;

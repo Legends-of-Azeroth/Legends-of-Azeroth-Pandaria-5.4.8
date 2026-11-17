@@ -66,7 +66,7 @@ public:
             RaiseUndeadScarab_Timer = 3000;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
         }
 
@@ -78,7 +78,7 @@ public:
 
         void RaiseUndeadScarab(Unit* victim)
         {
-            if (Creature* pUndeadScarab = DoSpawnCreature(10876, float(irand(-9, 9)), float(irand(-9, 9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
+            if (Creature* pUndeadScarab = DoSpawnCreature(10876, float(irand(-9, 9)), float(irand(-9, 9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000ms))
                 if (pUndeadScarab->AI())
                     pUndeadScarab->AI()->AttackStart(victim);
         }

@@ -66,7 +66,7 @@ public:
             //Possess_Timer = 35000;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
         }
 

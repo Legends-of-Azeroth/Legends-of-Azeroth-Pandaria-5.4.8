@@ -20,10 +20,10 @@
 
 enum TradeSlots
 {
-    TRADE_SLOT_COUNT = 7,
-    TRADE_SLOT_TRADED_COUNT = 6,
-    TRADE_SLOT_NONTRADED = 6,
-    TRADE_SLOT_INVALID = -1
+    TRADE_SLOT_COUNT          = 7,
+    TRADE_SLOT_TRADED_COUNT   = 6,
+    TRADE_SLOT_NONTRADED      = 6,
+    TRADE_SLOT_INVALID        = -1
 };
 
 class Item;
@@ -34,54 +34,33 @@ class TC_GAME_API TradeData
 public:                                                 // constructors
     TradeData(Player* player, Player* trader, Player* initiator) :
         m_player(player), m_trader(trader), m_initiator(initiator), m_accepted(false), m_acceptProccess(false),
-        m_money(0), m_spell(0), m_spellCastItem(0)
+        m_money(0), m_spell(0), m_spellCastItem()
     {
-        memset(m_items, 0, TRADE_SLOT_COUNT * sizeof(uint64));
+        //memset(m_items, 0, TRADE_SLOT_COUNT * sizeof(uint64));
     }
 
-    Player* GetTrader() const
-    {
-        return m_trader;
-    }
+    Player* GetTrader() const { return m_trader; }
     TradeData* GetTraderData() const;
 
     Item* GetItem(TradeSlots slot) const;
-    bool HasItem(uint64 itemGuid) const;
-    TradeSlots GetTradeSlotForItem(uint64 itemGuid) const;
-    void SetItem(TradeSlots slot, Item* item);
+    bool HasItem(ObjectGuid itemGuid) const;
+    TradeSlots GetTradeSlotForItem(ObjectGuid itemGuid) const;
+    void SetItem(TradeSlots slot, Item* item, bool update = false);
 
-    uint32 GetSpell() const
-    {
-        return m_spell;
-    }
+    uint32 GetSpell() const { return m_spell; }
     void SetSpell(uint32 spell_id, Item* castItem = NULL);
 
     Item*  GetSpellCastItem() const;
-    bool HasSpellCastItem() const
-    {
-        return m_spellCastItem != 0;
-    }
+    bool HasSpellCastItem() const { return !m_spellCastItem.IsEmpty(); }
 
-    uint64 GetMoney() const
-    {
-        return m_money;
-    }
+    uint64 GetMoney() const { return m_money; }
     void SetMoney(uint64 money);
 
-    bool IsAccepted() const
-    {
-        return m_accepted;
-    }
+    bool IsAccepted() const { return m_accepted; }
     void SetAccepted(bool state, bool crosssend = false);
 
-    bool IsInAcceptProcess() const
-    {
-        return m_acceptProccess;
-    }
-    void SetInAcceptProcess(bool state)
-    {
-        m_acceptProccess = state;
-    }
+    bool IsInAcceptProcess() const { return m_acceptProccess; }
+    void SetInAcceptProcess(bool state) { m_acceptProccess = state; }
 
     bool IsInitiator(Player const* player) const { return m_initiator == player; }
 
@@ -101,9 +80,9 @@ private:                                                // internal functions
     uint64     m_money;                                 // m_player place money to trade
 
     uint32     m_spell;                                 // m_player apply spell to non-traded slot item
-    uint64     m_spellCastItem;                         // applied spell casted by item use
+    ObjectGuid m_spellCastItem;                         // applied spell casted by item use
 
-    uint64     m_items [TRADE_SLOT_COUNT];               // traded items from m_player side including non-traded slot
+    ObjectGuid m_items[TRADE_SLOT_COUNT];               // traded items from m_player side including non-traded slot
 };
 
 #endif // TradeData_h__

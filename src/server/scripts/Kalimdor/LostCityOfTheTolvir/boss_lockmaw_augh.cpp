@@ -131,9 +131,9 @@ class boss_lockmaw : public CreatureScript
                 uiPrevAughId = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -165,7 +165,7 @@ class boss_lockmaw : public CreatureScript
                 {
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
-                    if (Creature* augh = Unit::GetCreature(*me, instance->GetData64(DATA_AUGH)))
+                    if (Creature* augh = Unit::GetCreature(*me, instance->GetGuidData(DATA_AUGH)))
                         augh->AI()->DoAction(ACTION_LOCKMAW_IS_DONE);
                 }
             }
@@ -289,7 +289,7 @@ class npc_frenzied_croc : public CreatureScript
                 events.ScheduleEvent(EVENT_VICIOUS_CROC_VICIOUS_BITE, urand(5000, 10000));
                 InstanceScript* instance = creature->GetInstanceScript();
 
-                if (Creature* lockmaw = Unit::GetCreature(*me, instance->GetData64(DATA_LOCKMAW)))
+                if (Creature* lockmaw = Unit::GetCreature(*me, instance->GetGuidData(DATA_LOCKMAW)))
                     lockmaw->AI()->JustSummoned(me);
             }
 
@@ -304,9 +304,9 @@ class npc_frenzied_croc : public CreatureScript
                     if (Player* player = itr->GetSource())
                     {
                         if (player->HasAura(SPELL_SCENT_OF_BLOOD))
-                            me->AddThreat(player, 100500.0f);
+                            me->GetThreatManager().AddThreat(player, 100500.0f);
                         else
-                            me->getThreatManager().modifyThreatPercent(player, -10);
+                            me->GetThreatManager().ModifyThreatByPercent(player, -10);
                     }
             }
 
@@ -412,7 +412,7 @@ class npc_augh_blow_dart : public CreatureScript
                 if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 100.0f, true))
                     AttackStart(target);
 
-                if (Creature* lockmaw = Unit::GetCreature(*me, instance->GetData64(DATA_LOCKMAW)))
+                if (Creature* lockmaw = Unit::GetCreature(*me, instance->GetGuidData(DATA_LOCKMAW)))
                     lockmaw->AI()->JustSummoned(me);
             }
 
@@ -478,7 +478,7 @@ class npc_augh_whirlwind : public CreatureScript
                     me->CastSpell(target, 50231, false);
                 }
 
-                if (Creature* lockmaw = Unit::GetCreature(*me, instance->GetData64(DATA_LOCKMAW)))
+                if (Creature* lockmaw = Unit::GetCreature(*me, instance->GetGuidData(DATA_LOCKMAW)))
                     lockmaw->AI()->JustSummoned(me);
             }
 
@@ -541,7 +541,7 @@ class npc_augh_dragons_breath : public CreatureScript
                 uiPhase = AUGH_PHASE_NONE;
                 instance = creature->GetInstanceScript();
 
-                if (Creature* lockmaw = Unit::GetCreature(*me, instance->GetData64(DATA_LOCKMAW)))
+                if (Creature* lockmaw = Unit::GetCreature(*me, instance->GetGuidData(DATA_LOCKMAW)))
                 {
                     lockmaw->AI()->JustSummoned(me);
 
@@ -675,9 +675,9 @@ class boss_augh : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 Intro = false;
                 me->CastSpell(me, 91415, false);

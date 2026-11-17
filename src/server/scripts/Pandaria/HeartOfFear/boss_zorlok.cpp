@@ -149,11 +149,11 @@ static Position const zealousBugPosition[ZEALOUS_BUGS_COUNT]
     { -2309.958f, 262.9740f, 406.6287f },
 };
 
-bool HasCorrectRangeForNoise(float x, float y, float z, std::list<Position> prev, uint64 m_owner)
+bool HasCorrectRangeForNoise(Creature* me, float x, float y, float z, std::list<Position> prev, ObjectGuid m_owner)
 {
     Position pos = { x, y, z, frand(0, 2 * M_PI) };
     bool m_available = true;
-    Unit* caster = ObjectAccessor::FindUnit(m_owner);
+    Unit* caster = ObjectAccessor::GetUnit(*me, m_owner);
 
     if (!caster)
         return m_available;
@@ -206,10 +206,10 @@ class boss_zorlok : public CreatureScript
             bool PreCombatPhase, CanCombat, clocksideRings, TargetInLos, InFlyOrAfterLanding, lastEcho, inPulse;
             std::map <uint32, uint32> PlatformDict, m_RepEvents;
             std::list<Position> PredNoise;
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             float NoiseMod, m_pulse_ori_right, m_pulse_ori_left, sonicStep;
 
-            uint64 zealousBugs[ZEALOUS_BUGS_COUNT];
+            ObjectGuid zealousBugs[ZEALOUS_BUGS_COUNT];
 
             void InitializeAI() override
             {
@@ -217,7 +217,7 @@ class boss_zorlok : public CreatureScript
                 // Set Flying
                 me->SetCanFly(true);
                 me->SetSpeed(MOVE_FLIGHT, 4.5f);
-                me->SetAnimationTier(UnitAnimationTier::Hover);
+                me->SetAnimTier(AnimTier::Hover);
                 me->SetDisableGravity(true);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -229,7 +229,7 @@ class boss_zorlok : public CreatureScript
                 inPulse = false;
                 wp          = 4;
                 PlatformMod = 0;
-                targetGUID  = 0;
+                targetGUID = ObjectGuid::Empty;
                 delay       = 0;
                 NoiseMod    = 2.5f;
                 // Platform Dictionary
@@ -283,7 +283,7 @@ class boss_zorlok : public CreatureScript
                     me->ResetPlayerDamageReq();
                 }
 
-                std::fill(std::begin(zealousBugs), std::end(zealousBugs), 0);
+                std::fill(std::begin(zealousBugs), std::end(zealousBugs), ObjectGuid::Empty);
             }
 
             void Reset() override
@@ -293,7 +293,7 @@ class boss_zorlok : public CreatureScript
                 // Make sure we can target zorlok
                 me->SetCanFly(true);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PACIFIED);
-                me->SetAnimationTier(UnitAnimationTier::Hover);
+                me->SetAnimTier(AnimTier::Hover);
                 me->SetDisableGravity(true);
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->RemoveAllAreasTrigger();
@@ -301,7 +301,7 @@ class boss_zorlok : public CreatureScript
                 exhaleTarget = 0;
                 sonicSpirals = 0;
                 CurrentEvent = 0;
-                targetGUID   = 0;
+                targetGUID = ObjectGuid::Empty;
                 delay        = 0;
                 clocksideRings = true;
                 lastEcho = false;
@@ -375,7 +375,7 @@ class boss_zorlok : public CreatureScript
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                 me->SetDisableGravity(true);
                 me->SendMovementFlagUpdate();
-                me->SetAnimationTier(UnitAnimationTier::Hover);
+                me->SetAnimTier(AnimTier::Hover);
                 me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PACIFIED);
 
@@ -392,7 +392,7 @@ class boss_zorlok : public CreatureScript
                 me->SetCanFly(false);
                 me->SetDisableGravity(false);
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
-                me->SetAnimationTier(UnitAnimationTier::Ground);
+                me->SetAnimTier(AnimTier::Ground);
                 me->SendMovementFlagUpdate();
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PACIFIED);
                 me->SetReactState(REACT_AGGRESSIVE);
@@ -500,7 +500,7 @@ class boss_zorlok : public CreatureScript
                 DoCast(me, m_echo);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();
@@ -566,9 +566,9 @@ class boss_zorlok : public CreatureScript
                     instance->SetBossState(DATA_ZORLOK, FAIL);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 Talk(TALK_AGGRO);
                 me->CastSpell(tabCenter.GetPositionX(), tabCenter.GetPositionY(), tabCenter.GetPositionZ(), SPELL_PHEROMONES_CLOUD, false);
@@ -898,7 +898,7 @@ class boss_zorlok : public CreatureScript
                                 {
                                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankSpecTargetSelector()))
                                     {
-                                        exhaleTarget = target->GetGUIDLow();
+                                        exhaleTarget = target->GetGUID().GetCounter();
                                         Talk(TALK_EXHALE);
 
                                         if (Unit* vict = me->GetVictim())
@@ -915,7 +915,7 @@ class boss_zorlok : public CreatureScript
                                     }
                                     else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, TankSpecTargetSelector()))
                                     {
-                                        exhaleTarget = target->GetGUIDLow();
+                                        exhaleTarget = target->GetGUID().GetCounter();
                                         Talk(TALK_EXHALE);
 
                                         if (Unit* vict = me->GetVictim())
@@ -1004,7 +1004,7 @@ class boss_zorlok : public CreatureScript
                                 } 
                                 // then check if our planned pos not in wall/texture or not beside prev noise cancelling.
                                 // now we`ll check each used position over current.
-                                while (!HasCorrectRangeForNoise(x, y, me->GetPositionZ(), PredNoise, me->GetGUID())); 
+                                while (!HasCorrectRangeForNoise(me, x, y, me->GetPositionZ(), PredNoise, me->GetGUID()));
 
                                 PredNoise.push_back({ x, y, me->GetPositionZ(), me->GetOrientation() }); // save next position
                                 me->CastSpell(x, y, me->GetPositionZ(), SPELL_MISSILE_NOISE_CANC, false);
@@ -1123,15 +1123,15 @@ class boss_zorlok : public CreatureScript
 
                     if (Creature* bug = ObjectAccessor::GetCreature(*me, zealousBugs[i]))
                         bug->DespawnOrUnsummon();
-                    zealousBugs[i] = 0;
+                    zealousBugs[i] = ObjectGuid::Empty;
                 }
             }
 
-            void OnZealousBugUsed(uint64 bugGuid)
+            void OnZealousBugUsed(ObjectGuid bugGuid)
             {
                 for (uint32 i = 0; i < ZEALOUS_BUGS_COUNT; ++i)
                     if (zealousBugs[i] == bugGuid)
-                        zealousBugs[i] = 0;
+                        zealousBugs[i] = ObjectGuid::Empty;
             }
         };
 
@@ -1257,7 +1257,7 @@ class npc_zorlok_echo_of_power : public CreatureScript
                 instance = me->GetInstanceScript();
 
                 // Last echo should move
-                if (Creature* zorlok = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_ZORLOK) : 0))
+                if (Creature* zorlok = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_ZORLOK) : ObjectGuid::Empty))
                     if (!zorlok->AI()->GetData(TYPE_ZORLOK_LAST_ECHO))
                         SetCombatMovement(false);
 
@@ -1269,7 +1269,7 @@ class npc_zorlok_echo_of_power : public CreatureScript
             EventMap events;
             uint32 m_eventType, sonicValue;
             bool clocksideRings, TargetInLos, inPulse;
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             float NoiseMod, m_pulse_ori_right, m_pulse_ori_left, sonicStep;
             std::list<Position> PredNoise;
 
@@ -1462,7 +1462,7 @@ class npc_zorlok_echo_of_power : public CreatureScript
                                 }
                                 // then check if our planned pos not in wall/texture or not beside prev noise cancelling.
                                 // now we`ll check each used position over current.
-                                while (!HasCorrectRangeForNoise(x, y, me->GetPositionZ(), PredNoise, me->GetGUID()));
+                                while (!HasCorrectRangeForNoise(me, x, y, me->GetPositionZ(), PredNoise, me->GetGUID()));
 
                                 PredNoise.push_back({ x, y, me->GetPositionZ(), me->GetOrientation() }); // save next position
                                 me->CastSpell(x, y, me->GetPositionZ(), SPELL_MISSILE_NOISE_CANC, false);
@@ -1471,7 +1471,7 @@ class npc_zorlok_echo_of_power : public CreatureScript
                             // When Echo cast Force and Verve, it should spawn noise in zorlok current area also
                             PredNoise.clear(); // remove all pos for next schedule
 
-                            if (Creature* zorlok = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_ZORLOK) : 0))
+                            if (Creature* zorlok = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_ZORLOK) : ObjectGuid::Empty))
                             {
                                 for (int i = 1; i < count - 2; ++i)
                                 {
@@ -1482,7 +1482,7 @@ class npc_zorlok_echo_of_power : public CreatureScript
                                     }
                                     // then check if our planned pos not in wall/texture or not beside prev noise cancelling.
                                     // now we`ll check each used position over current.
-                                    while (!HasCorrectRangeForNoise(x, y, zorlok->GetPositionZ(), PredNoise, zorlok->GetGUID()));
+                                    while (!HasCorrectRangeForNoise(me, x, y, zorlok->GetPositionZ(), PredNoise, zorlok->GetGUID()));
 
                                     PredNoise.push_back({ x, y, zorlok->GetPositionZ(), zorlok->GetOrientation() }); // save next position
                                     me->CastSpell(x, y, zorlok->GetPositionZ(), SPELL_MISSILE_NOISE_CANC, false);
@@ -1805,7 +1805,7 @@ class ExhaleTargetFilter
         bool operator()(WorldObject* object) const
         {
             uint32 exhaleLowId = CAST_AI(boss_zorlok::boss_zorlokAI, _caster->GetAI())->GetData(TYPE_EXHALE_TARGET);
-            Player* exhaleTarget = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(exhaleLowId, 0, HIGHGUID_PLAYER));
+            Player* exhaleTarget = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player, exhaleLowId));
 
             if (!exhaleTarget)
                 return false;
@@ -1837,7 +1837,7 @@ class spell_zorlok_exhale : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                Player* target = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(TYPEID_PLAYER, 0, caster->GetAI()->GetData(TYPE_EXHALE_TARGET)));
+                Player* target = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player, caster->GetAI()->GetData(TYPE_EXHALE_TARGET)));
 
                 // No target? Then we pick a random one
                 if (!target || !target->IsAlive())
@@ -1896,7 +1896,7 @@ class spell_zorlok_exhale_damage : public SpellScriptLoader
                 if (targets.empty() || !caster)
                     return;
 
-                Unit* currentTarget = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(TYPEID_PLAYER, 0, caster->GetAI()->GetData(TYPE_EXHALE_TARGET)));
+                Unit* currentTarget = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player, caster->GetAI()->GetData(TYPE_EXHALE_TARGET)));
                 if (!currentTarget)
                     return;
 
@@ -2034,7 +2034,7 @@ class spell_zorlok_achievement_loot_bug : public SpellScript
 
         bug->CastSpell(GetHitUnit(), SPELL_ZEALOUS_PARASITE, true);
         if (auto* instance = bug->GetInstanceScript())
-            if (Creature* zorlok = ObjectAccessor::GetCreature(*bug, instance->GetData64(DATA_ZORLOK)))
+            if (Creature* zorlok = ObjectAccessor::GetCreature(*bug, instance->GetGuidData(DATA_ZORLOK)))
                 if (auto script = dynamic_cast<boss_zorlok::boss_zorlokAI*>(zorlok->AI()))
                     script->OnZealousBugUsed(bug->GetGUID());
     }

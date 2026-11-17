@@ -72,7 +72,7 @@ public:
             Submerged = false;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoCastVictim(SPELL_BIRTH);
         }

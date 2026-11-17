@@ -209,7 +209,7 @@ class boss_archbishop_benedictus : public CreatureScript
                 }
             }
 
-            void Reset()
+            void Reset() override
             {
                 _Reset();
 
@@ -221,11 +221,11 @@ class boss_archbishop_benedictus : public CreatureScript
 
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetReactState(REACT_AGGRESSIVE);
                 bPhase = false;
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_PURIFYING_LIGHT, 10000);
                 events.ScheduleEvent(EVENT_SMITE, urand(1000, 2000));
                 events.ScheduleEvent(EVENT_RIGHTEOUS_SNEAR, urand(5000, 10000));
@@ -351,7 +351,7 @@ class boss_archbishop_benedictus : public CreatureScript
                             break;
                         case EVENT_PURIFYING_LIGHT:
                             for (uint8 i = 0; i < 3; ++i)
-                                me->SummonCreature(NPC_PURIFYING_LIGHT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 15.0f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 20000);
+                                me->SummonCreature(NPC_PURIFYING_LIGHT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 15.0f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 20000ms);
                             DoCast(me, SPELL_PURIFYING_LIGHT);
                             for (auto itr : GetSphereStalkers(me, NPC_PURIFYING_LIGHT))
                                 itr->AI()->DoAction(ACTION_BLAST);
@@ -374,7 +374,7 @@ class boss_archbishop_benedictus : public CreatureScript
                             break;
                         case EVENT_CORRUPTING_TWILIGHT:
                             for (uint8 i = 0; i < 3; ++i)
-                                me->SummonCreature(NPC_TWILIGHT_BLAST, me->GetPositionX() + frand(-5.0f, 5.0f), me->GetPositionY() + frand(-3.0f, 3.0f), me->GetPositionZ() + 15.0f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 20000);
+                                me->SummonCreature(NPC_TWILIGHT_BLAST, me->GetPositionX() + frand(-5.0f, 5.0f), me->GetPositionY() + frand(-3.0f, 3.0f), me->GetPositionZ() + 15.0f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 20000ms);
                             DoCast(me, SPELL_CORRUPTING_TWILIGHT);
                             for (auto itr : GetSphereStalkers(me, NPC_TWILIGHT_BLAST))
                                 itr->AI()->DoAction(ACTION_BLAST);
@@ -659,7 +659,7 @@ class spell_light_wall_cosmetic : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_light_wall_cosmetic_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_light_wall_cosmetic_SpellScript::FilterTargets, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
             }
         };
 

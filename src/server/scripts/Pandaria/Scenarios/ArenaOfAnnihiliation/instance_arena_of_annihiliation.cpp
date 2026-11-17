@@ -31,11 +31,11 @@ class instance_arena_of_annihiliation : public InstanceMapScript
             instance_arena_of_annihiliation_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             EventMap events;
-            uint64 gongGUID, templeDoorGUID;
+            ObjectGuid gongGUID, templeDoorGUID;
             uint32 m_auiEncounter[CHAPTERS];
-            std::map<uint32, uint64> m_ArenaEncounters;
+            std::map<uint32, ObjectGuid> m_ArenaEncounters;
             std::map<uint32, uint32> m_GurthockDefeats;
-            uint64 makiGUID;
+            ObjectGuid makiGUID;
             bool hasAssassinActivated;
             bool hasChaganActivated;
 
@@ -52,7 +52,7 @@ class instance_arena_of_annihiliation : public InstanceMapScript
                 m_GurthockDefeats.insert(std::pair<uint32, uint32>(DATA_LIUYANG,    TALK_LIUYANG_DEFEAT));
                 m_GurthockDefeats.insert(std::pair<uint32, uint32>(DATA_CHAGAN,     TALK_CHAGAN_DEFEAT));
                 m_GurthockDefeats.insert(std::pair<uint32, uint32>(DATA_ASSASSIN,   TALK_ASSASSIN_DEFEAT));
-                makiGUID = 0;
+                makiGUID = ObjectGuid::Empty;
                 hasAssassinActivated = false;
                 hasChaganActivated   = false;
             }
@@ -120,30 +120,30 @@ class instance_arena_of_annihiliation : public InstanceMapScript
                 {
                     case DATA_SCAR_SHELL - 1: // begun
                     {
-                        if (Creature* ScarShell = instance->GetCreature(GetData64(NPC_SCAR_SHELL)))
+                        if (Creature* ScarShell = instance->GetCreature(GetGuidData(NPC_SCAR_SHELL)))
                             ScarShell->AI()->DoAction(ACTION_INTRO);
 
-                        if (Creature* Gurgthock = instance->GetCreature(GetData64(NPC_GURGTHOCK)))
+                        if (Creature* Gurgthock = instance->GetCreature(GetGuidData(NPC_GURGTHOCK)))
                             Gurgthock->AI()->Talk(TALK_SCAR_SHELL_INTRO);
 
                         break;
                     }
                     case DATA_SCAR_SHELL:
                     {
-                        if (Creature* JolGrum = instance->GetCreature(GetData64(NPC_JOL_GRUM)))
+                        if (Creature* JolGrum = instance->GetCreature(GetGuidData(NPC_JOL_GRUM)))
                             JolGrum->AI()->DoAction(ACTION_INTRO);
 
-                        if (Creature* Gurgthock = instance->GetCreature(GetData64(NPC_GURGTHOCK)))
+                        if (Creature* Gurgthock = instance->GetCreature(GetGuidData(NPC_GURGTHOCK)))
                             Gurgthock->AI()->Talk(TALK_JOL_GRUM_INTRO);
 
                         break;
                     }
                     case DATA_JOL_GRUM:
                     {
-                        if (Creature* Liuyang = instance->GetCreature(GetData64(NPC_LITTLE_LIUYANG)))
+                        if (Creature* Liuyang = instance->GetCreature(GetGuidData(NPC_LITTLE_LIUYANG)))
                             Liuyang->AI()->DoAction(ACTION_INTRO);
 
-                        if (Creature* Gurgthock = instance->GetCreature(GetData64(NPC_GURGTHOCK)))
+                        if (Creature* Gurgthock = instance->GetCreature(GetGuidData(NPC_GURGTHOCK)))
                             Gurgthock->AI()->Talk(TALK_LIUYANG_INTRO);
 
                         break;
@@ -155,10 +155,10 @@ class instance_arena_of_annihiliation : public InstanceMapScript
 
                         hasChaganActivated = true;
 
-                        if (Creature* Chagan = instance->GetCreature(GetData64(NPC_CHAGAN_FIREHOOF)))
+                        if (Creature* Chagan = instance->GetCreature(GetGuidData(NPC_CHAGAN_FIREHOOF)))
                             Chagan->AI()->DoAction(ACTION_INTRO);
 
-                        if (Creature* Gurgthock = instance->GetCreature(GetData64(NPC_GURGTHOCK)))
+                        if (Creature* Gurgthock = instance->GetCreature(GetGuidData(NPC_GURGTHOCK)))
                             Gurgthock->AI()->Talk(TALK_CHAGAN_INTRO);
 
                         break;
@@ -173,11 +173,11 @@ class instance_arena_of_annihiliation : public InstanceMapScript
                         std::vector<uint32> assassinChallengers = { NPC_SATAY_BYU, NPC_CLOUDBENDER_KOBO, NPC_MAKI_WATERBLADE};
                         uint32 assassinChallenger = Trinity::Containers::SelectRandomContainerElement(assassinChallengers);
 
-                        if (Creature* Gurghock = instance->GetCreature(GetData64(NPC_GURGTHOCK)))
+                        if (Creature* Gurghock = instance->GetCreature(GetGuidData(NPC_GURGTHOCK)))
                         {
                             Gurghock->AI()->Talk(TALK_ASSASSIN_INTRO);
 
-                            if (Creature* assassin = instance->GetCreature(GetData64(assassinChallenger)))
+                            if (Creature* assassin = instance->GetCreature(GetGuidData(assassinChallenger)))
                                 assassin->AI()->DoAction(ACTION_INTRO);
                             else if (Creature* maki = Gurghock->SummonCreature(assassinChallenger, makiSpawnPos, TEMPSUMMON_MANUAL_DESPAWN)) // in case if maki was select
                                 maki->AI()->DoAction(ACTION_INTRO);
@@ -199,7 +199,7 @@ class instance_arena_of_annihiliation : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -216,7 +216,7 @@ class instance_arena_of_annihiliation : public InstanceMapScript
                         return makiGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool IsWipe(float range, Unit* source) override
@@ -249,7 +249,7 @@ class instance_arena_of_annihiliation : public InstanceMapScript
                         case DATA_JOL_GRUM:
                         case DATA_LIUYANG:
                         case DATA_CHAGAN:
-                            if (Creature* Gurgthock = instance->GetCreature(GetData64(NPC_GURGTHOCK)))
+                            if (Creature* Gurgthock = instance->GetCreature(GetGuidData(NPC_GURGTHOCK)))
                                 Gurgthock->AI()->Talk(m_GurthockDefeats.find(type)->second);
 
                             for (auto&& itr : instance->GetPlayers())
@@ -262,7 +262,7 @@ class instance_arena_of_annihiliation : public InstanceMapScript
                                 gong->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
                             break;
                         case DATA_ASSASSIN:
-                            if (Creature* Gurgthock = instance->GetCreature(GetData64(NPC_GURGTHOCK)))
+                            if (Creature* Gurgthock = instance->GetCreature(GetGuidData(NPC_GURGTHOCK)))
                                 Gurgthock->AI()->Talk(m_GurthockDefeats.find(type)->second);
 
                             events.ScheduleEvent(2, 2500);
@@ -286,14 +286,14 @@ class instance_arena_of_annihiliation : public InstanceMapScript
                     switch (eventId)
                     {
                         case 1:
-                            if (Creature* Gurgthock = instance->GetCreature(GetData64(NPC_GURGTHOCK)))
+                            if (Creature* Gurgthock = instance->GetCreature(GetGuidData(NPC_GURGTHOCK)))
                                 Gurgthock->AI()->Talk(TALK_NEW_CHALLENGE);
                             break;
                         case 2:
-                            if (Creature* Gurgthock = instance->GetCreature(GetData64(NPC_GURGTHOCK)))
+                            if (Creature* Gurgthock = instance->GetCreature(GetGuidData(NPC_GURGTHOCK)))
                                 Gurgthock->AI()->Talk(TALK_DONE);
 
-                            if (Creature* Wodin = instance->GetCreature(GetData64(NPC_WODIN_TROLL_SERVANT)))
+                            if (Creature* Wodin = instance->GetCreature(GetGuidData(NPC_WODIN_TROLL_SERVANT)))
                             {
                                 Wodin->HandleEmoteStateCommand(EMOTE_STATE_NONE);
                                 Wodin->GetMotionMaster()->MoveJump(Wodin->GetPositionX() - 2.0f, Wodin->GetPositionY(), 639.69f, 5.0f, 3.0f, EVENT_JUMP);

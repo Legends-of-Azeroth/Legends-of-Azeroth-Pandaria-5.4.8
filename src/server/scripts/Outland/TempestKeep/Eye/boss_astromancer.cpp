@@ -171,7 +171,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                     instance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, DONE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 DoZoneInCombat();
@@ -182,7 +182,7 @@ class boss_high_astromancer_solarian : public CreatureScript
 
             void SummonMinion(uint32 entry, float x, float y, float z)
             {
-                Creature* Summoned = me->SummonCreature(entry, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                Creature* Summoned = me->SummonCreature(entry, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000ms);
                 if (Summoned)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -321,7 +321,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                         }
                         for (int i=0; i <= 2; ++i)
                         {
-                            if (Creature* Summoned = me->SummonCreature(NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O, TEMPSUMMON_TIMED_DESPAWN, Phase2_Timer+Phase3_Timer+AppearDelay_Timer+1700))
+                            if (Creature* Summoned = me->SummonCreature(NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(Phase2_Timer+Phase3_Timer+AppearDelay_Timer+1700)))
                             {
                                 Summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 Summoned->CastSpell(Summoned, SPELL_SPOTLIGHT, false);
@@ -451,7 +451,7 @@ class npc_solarium_priest : public CreatureScript
                 aoesilenceTimer = 15000;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
             }
 
@@ -467,7 +467,7 @@ class npc_solarium_priest : public CreatureScript
                     {
                         case 0:
                             if (instance)
-                                target = Unit::GetUnit(*me, instance->GetData64(DATA_ASTROMANCER));
+                                target = Unit::GetUnit(*me, instance->GetGuidData(DATA_ASTROMANCER));
                             break;
                         case 1:
                             target = me;

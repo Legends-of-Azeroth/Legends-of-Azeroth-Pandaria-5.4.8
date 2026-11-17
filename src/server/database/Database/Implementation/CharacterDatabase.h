@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -120,6 +120,9 @@ enum CharacterDatabaseStatements : uint32
     CHAR_SEL_AUCTION_BY_TIME,
     CHAR_UPD_AUCTION_BID,
     CHAR_SEL_AUCTIONS,
+    CHAR_SEL_AUCTION_BIDDERS,
+    CHAR_INS_AUCTION_BIDDERS,
+    CHAR_DEL_AUCTION_BIDDERS,
     CHAR_INS_MAIL,
     CHAR_DEL_MAIL_BY_ID,
     CHAR_INS_MAIL_ITEM,
@@ -290,8 +293,8 @@ enum CharacterDatabaseStatements : uint32
     CHAR_SEL_CORPSES,
     CHAR_INS_CORPSE,
     CHAR_DEL_CORPSE,
-    CHAR_DEL_PLAYER_CORPSES,
-    CHAR_DEL_OLD_CORPSES,
+    CHAR_DEL_CORPSES_FROM_MAP,
+    CHAR_SEL_CORPSE_LOCATION,
 
     CHAR_SEL_CREATURE_RESPAWNS,
     CHAR_REP_CREATURE_RESPAWN,
@@ -318,8 +321,6 @@ enum CharacterDatabaseStatements : uint32
     CHAR_INS_GM_SURVEY,
     CHAR_INS_GM_SUBSURVEY,
     CHAR_INS_LAG_REPORT,
-
-    CHAR_SEL_EXPIRED_AUCTIONS,
 
     CHAR_INS_CHARACTER,
     CHAR_UPD_CHARACTER,
@@ -646,8 +647,7 @@ public:
     typedef CharacterDatabaseStatements Statements;
 
     //- Constructors for sync and async connections
-    CharacterDatabaseConnection(MySQLConnectionInfo& connInfo);
-    CharacterDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo);
+    CharacterDatabaseConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags);
     ~CharacterDatabaseConnection();
 
     //- Loads database type specific prepared statements

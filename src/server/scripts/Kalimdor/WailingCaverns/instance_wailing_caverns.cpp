@@ -45,14 +45,14 @@ public:
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
         bool yelled;
-        uint64 NaralexGUID;
+        ObjectGuid NaralexGUID;
 
         void Initialize() override
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
             yelled = false;
-            NaralexGUID = 0;
+            NaralexGUID = ObjectGuid::Empty;
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -122,10 +122,10 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 data) const override
+        ObjectGuid GetGuidData(uint32 data) const override
         {
             if (data == DATA_NARALEX)return NaralexGUID;
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData() override

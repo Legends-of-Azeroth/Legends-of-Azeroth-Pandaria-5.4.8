@@ -76,7 +76,7 @@ public:
                 instance->SetData(DATA_ANETHERONEVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             if (instance && IsEvent)
                 instance->SetData(DATA_ANETHERONEVENT, IN_PROGRESS);
@@ -88,13 +88,14 @@ public:
             Talk(SAY_ONSLAY);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             if (waypointId == 7 && instance)
             {
-                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_JAINAPROUDMOORE));
+                Unit* target = Unit::GetUnit(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
                 if (target && target->IsAlive())
-                    me->AddThreat(target, 0.0f);
+                    me->GetThreatManager().AddThreat(target, 0.0f);
             }
         }
 
@@ -110,8 +111,8 @@ public:
         {
             if (IsEvent)
             {
-                //Must update npc_escortAI
-                npc_escortAI::UpdateAI(diff);
+                //Must update EscortAI
+                EscortAI::UpdateAI(diff);
                 if (!go)
                 {
                     go = true;
@@ -125,7 +126,7 @@ public:
                         AddWaypoint(5, 5026.27f,    -1736.89f,    1323.02f);
                         AddWaypoint(6, 5037.77f,    -1770.56f,    1324.36f);
                         AddWaypoint(7, 5067.23f,    -1789.95f,    1321.17f);
-                        Start(false, true);
+                        SetRun(true); Start(false);
                         SetDespawnAtEnd(false);
                     }
                 }
@@ -188,12 +189,12 @@ public:
         {
             instance = creature->GetInstanceScript();
             if (instance)
-                AnetheronGUID = instance->GetData64(DATA_ANETHERON);
+                AnetheronGUID = instance->GetGuidData(DATA_ANETHERON);
         }
 
         uint32 ImmolationTimer;
         uint32 CheckTimer;
-        uint64 AnetheronGUID;
+        ObjectGuid AnetheronGUID;
         InstanceScript* instance;
 
         void Reset() override
@@ -203,7 +204,7 @@ public:
             CheckTimer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
         }
 

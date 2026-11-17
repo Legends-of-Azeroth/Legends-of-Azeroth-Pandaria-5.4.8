@@ -157,9 +157,9 @@ class boss_temple_guardian_anhuur : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -253,7 +253,7 @@ class boss_temple_guardian_anhuur : public CreatureScript
                     beacons = 0;
                     phase++;
                     for (uint32 i = 0; i < 21; ++i)
-                        me->SummonCreature(NPC_PIT_SNAKE,SpawnPosition[i],TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                        me->SummonCreature(NPC_PIT_SNAKE,SpawnPosition[i],TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
                     
                     if (GameObject* go = me->FindNearestGameObject(GO_BEACON_LEFT, 100.0f))
                         go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
@@ -331,7 +331,7 @@ class npc_pit_snake : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_POISON_TIPPED_FANGS, urand(2000, 8000));
             }

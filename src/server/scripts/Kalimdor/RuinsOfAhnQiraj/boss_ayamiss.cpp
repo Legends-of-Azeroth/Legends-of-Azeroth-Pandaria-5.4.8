@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -122,15 +122,15 @@ class boss_ayamiss : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->ClearUnitState(UNIT_STATE_ROOT);
                 BossAI::EnterEvadeMode();
             }
 
-            void EnterCombat(Unit* attacker) override
+            void JustEngagedWith(Unit* attacker) override
             {
-                BossAI::EnterCombat(attacker);
+                BossAI::JustEngagedWith(attacker);
 
                 events.ScheduleEvent(EVENT_STINGER_SPRAY, urand(20000, 30000));
                 events.ScheduleEvent(EVENT_POISON_STINGER, 5000);
@@ -155,8 +155,7 @@ class boss_ayamiss : public CreatureScript
                     _phase = PHASE_GROUND;
                     SetCombatMovement(true);
                     me->SetCanFly(false);
-                    Position VictimPos;
-                    me->GetVictim()->GetPosition(&VictimPos);
+                    Position VictimPos = me->GetVictim()->GetPosition();
                     me->GetMotionMaster()->MovePoint(POINT_GROUND, VictimPos);
                     DoResetThreat();
                     events.ScheduleEvent(EVENT_LASH, urand(5000, 8000));
@@ -175,6 +174,7 @@ class boss_ayamiss : public CreatureScript
                     _enraged = true;
                 }
 
+                Position Pos;
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
@@ -193,12 +193,12 @@ class boss_ayamiss : public CreatureScript
                                 DoCast(target, SPELL_PARALYZE);
                                 instance->SetData64(DATA_PARALYZED, target->GetGUID());
                                 uint8 Index = urand(0, 1);
-                                me->SummonCreature(NPC_LARVA, LarvaPos[Index], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+                                me->SummonCreature(NPC_LARVA, LarvaPos[Index], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000ms);
                             }
                             events.ScheduleEvent(EVENT_PARALYZE, 15000);
                             break;
                         case EVENT_SWARMER_ATTACK:
-                            for (std::list<uint64>::iterator i = _swarmers.begin(); i != _swarmers.end(); ++i)
+                            for (std::list<ObjectGuid>::iterator i = _swarmers.begin(); i != _swarmers.end(); ++i)
                                 if (Creature* swarmer = me->GetMap()->GetCreature(*i))
                                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                         swarmer->AI()->AttackStart(target);
@@ -207,8 +207,7 @@ class boss_ayamiss : public CreatureScript
                             events.ScheduleEvent(EVENT_SWARMER_ATTACK, 60000);
                             break;
                         case EVENT_SUMMON_SWARMER:
-                            Position Pos;
-                            me->GetRandomPoint(SwarmerPos, 80.0f, Pos);
+                            Pos = me->GetRandomPoint(SwarmerPos, 80.0f);
                             me->SummonCreature(NPC_SWARMER, Pos);
                             events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5000);
                             break;
@@ -224,7 +223,7 @@ class boss_ayamiss : public CreatureScript
                 }
             }
         private:
-            std::list<uint64> _swarmers;
+            std::list<ObjectGuid> _swarmers;
             uint8 _phase;
             bool _enraged;
         };
@@ -251,7 +250,7 @@ class npc_hive_zara_larva : public CreatureScript
             {
                 if (type == POINT_MOTION_TYPE)
                     if (id == POINT_PARALYZE)
-                        if (Player* target = ObjectAccessor::GetPlayer(*me, _instance->GetData64(DATA_PARALYZED)))
+                        if (Player* target = ObjectAccessor::GetPlayer(*me, _instance->GetGuidData(DATA_PARALYZED)))
                             DoCast(target, SPELL_FEED); // Omnomnom
             }
 

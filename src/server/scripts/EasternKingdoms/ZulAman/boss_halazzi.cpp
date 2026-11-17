@@ -17,6 +17,7 @@
 
 #include "ScriptPCH.h"
 #include "zulaman.h"
+#include "Random.h"
 
 enum ScriptTexts
 {
@@ -121,7 +122,7 @@ class boss_halazzi : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_TUNNEL_VISION, 1);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 phase = 0;
@@ -294,7 +295,7 @@ class npc_halazzi_lynx : public CreatureScript
                 bDespawn = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SHRED_ARMOR, urand(3000, 10000));
                 events.ScheduleEvent(EVENT_LYNX_FLURRY, urand(5000, 8000));
@@ -393,7 +394,7 @@ class npc_halazzi_lightning_totem : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_LIGHTNING, 1000);
             }

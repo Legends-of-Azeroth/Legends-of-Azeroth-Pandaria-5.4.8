@@ -172,7 +172,7 @@ class boss_lorewalker_stonestep : public CreatureScript
                             if (instance)
                             {
                                 instance->SetData(DATA_SUN, DONE);
-                                if (Creature* zao = Unit::GetCreature(*me, instance->GetData64(DATA_ZAO)))
+                                if (Creature* zao = Unit::GetCreature(*me, instance->GetGuidData(DATA_ZAO)))
                                    if (zao->IsAIEnabled)
                                       zao->AI()->DoAction(1);
                             }
@@ -379,7 +379,7 @@ class npc_zao : public CreatureScript
                 summons.Summon(summon);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
                 summons.DespawnAll();
@@ -489,11 +489,11 @@ class npc_haunting_sha : public CreatureScript
             {
                 instance = me->GetInstanceScript();
 
-                if (Creature* zao = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_ZAO) : 0))
+                if (Creature* zao = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_ZAO) : ObjectGuid::Empty))
                     zao->AI()->JustSummoned(me);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_HAUNTING_GAZE, 1 * IN_MILLISECONDS);
             }
@@ -504,9 +504,9 @@ class npc_haunting_sha : public CreatureScript
                 {
                     if (instance)
                     {
-                        if (Creature* zao = Unit::GetCreature(*me, instance->GetData64(DATA_ZAO)))
+                        if (Creature* zao = Unit::GetCreature(*me, instance->GetGuidData(DATA_ZAO)))
                         {
-                            me->getThreatManager().addThreat(zao, 1000000.f);
+                            me->GetThreatManager().AddThreat(zao, 1000000.f);
                             me->AI()->AttackStart(zao);
                         }
                     }
@@ -532,7 +532,7 @@ class npc_haunting_sha : public CreatureScript
                             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                             {
                                 if (Player* plr = i->GetSource())
-                                    me->getThreatManager().addThreat(plr, 1.0f);
+                                    me->GetThreatManager().AddThreat(plr, 1.0f);
                             }
                         }
                     }
@@ -638,7 +638,7 @@ class npc_strife_peril : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_AGONY, 1 * IN_MILLISECONDS);
             }
@@ -714,7 +714,7 @@ class npc_nodding_tiger : public CreatureScript
 
             EventMap events;
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_CLAW, 2 * IN_MILLISECONDS);
             }
@@ -767,7 +767,7 @@ class npc_golden_beetle : public CreatureScript
 
             EventMap events;
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_SERRATED_SLASH, 2 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_SHROUD_OF_GOLD, 4 * IN_MILLISECONDS);
@@ -832,7 +832,7 @@ class npc_jiang_xiang : public CreatureScript
 
             EventMap events;
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_AERIALISTS_KICK, 2 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_THROW_TORCH, 4 * IN_MILLISECONDS);
@@ -890,7 +890,7 @@ class npc_songbird_queen : public CreatureScript
 
             EventMap events;
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_SONGBIRD_SERENADE, 2 * IN_MILLISECONDS);
             }
@@ -994,7 +994,7 @@ class npc_talking_fish : public CreatureScript
 
             EventMap events;
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(TALK_0);
                 events.ScheduleEvent(EVENT_BUBBLE_SPRAY, 2000);

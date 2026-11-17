@@ -96,7 +96,7 @@ struct theramore_guard_typeAI : public ScriptedAI
     EventMap events, nonCombatEvents;
     bool hasInterrupted, intro;
     uint32 prevSpellId, delay;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
 
     void DoAction(int32 actionId) override
     {
@@ -183,7 +183,7 @@ struct theramore_guard_typeAI : public ScriptedAI
         return false;
     }
 
-    uint64 GetLowestFriendlyGUID()
+    ObjectGuid GetLowestFriendlyGUID()
     {
         std::list<Creature*> tmpTargets;
 
@@ -194,14 +194,14 @@ struct theramore_guard_typeAI : public ScriptedAI
         GetCreatureListWithEntryInGrid(tmpTargets, me, NPC_KNIGHT_OF_THERAMORE, 80.0f);
 
         if (tmpTargets.empty())
-            return 0;
+            return ObjectGuid::Empty;
 
         tmpTargets.sort(Trinity::HealthPctOrderPred());
 
         if (Creature* lowestTarget = tmpTargets.front())
             return lowestTarget->GetGUID();
 
-        return 0;
+        return ObjectGuid::Empty;
     }
 };
 
@@ -246,7 +246,7 @@ class npc_theramore_footman : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_CLEAVE, urand(5 * IN_MILLISECONDS, 12.8*IN_MILLISECONDS));
             }
@@ -313,7 +313,7 @@ class npc_theramore_arcanist : public CreatureScript
                 prevSpellId = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_ARCANE_BLAST, urand(2 * IN_MILLISECONDS, 6 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_SECOND_ABILITY, urand(7 * IN_MILLISECONDS, 13 * IN_MILLISECONDS));
@@ -434,7 +434,7 @@ class npc_theramore_marksman : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SHOT, urand(2 * IN_MILLISECONDS, 4 * IN_MILLISECONDS));
             }
@@ -495,7 +495,7 @@ class npc_knight_of_theramore : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_CHARGE, 1 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_HEAL_ANOTHER, urand(8 * IN_MILLISECONDS, 21 * IN_MILLISECONDS));
@@ -567,7 +567,7 @@ class npc_theramore_faithful : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_HOLLY_SMITE, urand(2 * IN_MILLISECONDS, 4 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_HEAL, 9 * IN_MILLISECONDS);
@@ -674,7 +674,7 @@ class npc_baldruc : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_KITE_FIGHT, 1);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(TALK_SPECIAL_1);
                 events.ScheduleEvent(EVENT_STORM_TOTEM, urand(4 * IN_MILLISECONDS, 9.5 * IN_MILLISECONDS));
@@ -753,11 +753,11 @@ class npc_big_bessa : public CreatureScript
             {
                 events.Reset();
                 summons.DespawnAll();
-                targetGUID = 0;
+                targetGUID = ObjectGuid::Empty;
                 me->GetMap()->SetWorldState(WORLDSTATE_NO_KITE_YOU, 1);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(TALK_INTRO);
                 events.ScheduleEvent(EVENT_SIGHTS, 1 * IN_MILLISECONDS);
@@ -785,7 +785,7 @@ class npc_big_bessa : public CreatureScript
                         case EVENT_SIGHTS:
                             if (Unit* target = ObjectAccessor::GetUnit(*me, GetNextFixateTarget()))
                             {
-                                me->getThreatManager().addThreat(target, 10000.0f);
+                                me->GetThreatManager().AddThreat(target, 10000.0f);
                                 me->CastSpell(target, SPELL_WAR_ENGINE_SIGHTS, true);
 
                                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
@@ -796,7 +796,7 @@ class npc_big_bessa : public CreatureScript
                             break;
                         case EVENT_CANNON:
                             if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 150.0f, true))
-                                if (TempSummon* cannonTarget = me->SummonCreature(NPC_TANK_TARGET, *target, TEMPSUMMON_TIMED_DESPAWN, 4 * IN_MILLISECONDS))
+                                if (TempSummon* cannonTarget = me->SummonCreature(NPC_TANK_TARGET, *target, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(4 * IN_MILLISECONDS)))
                                     DoCast(target, SPELL_BIG_BESSA_CANNON, false);
 
                             events.ScheduleEvent(EVENT_CANNON, urand(11.5 * IN_MILLISECONDS, 17 * IN_MILLISECONDS));
@@ -808,7 +808,7 @@ class npc_big_bessa : public CreatureScript
             }
 
             private:
-                uint64 GetNextFixateTarget()
+                ObjectGuid GetNextFixateTarget()
                 {
                     std::list<Player*> pList;
                     GetPlayerListInGrid(pList, me, 150.0f);
@@ -819,7 +819,7 @@ class npc_big_bessa : public CreatureScript
                     if (!pList.empty())
                         return Trinity::Containers::SelectRandomContainerElement(pList)->GetGUID();
 
-                    return 0;
+                    return ObjectGuid::Empty;
                 }
 
         };
@@ -1077,7 +1077,7 @@ class AreaTrigger_at_theramore_songweaver_prison : public AreaTriggerScript
                 if (instance->GetData(DATA_TANKS_FOR_NOTHING) != DONE)
                     return false;
 
-                if (Creature* Talen = ObjectAccessor::GetCreature(*player, instance->GetData64(NPC_THALEN_SONGWEAVER)))
+                if (Creature* Talen = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_THALEN_SONGWEAVER)))
                     Talen->AI()->DoAction(ACTION_INTRO_SONGWEAVER);
             }
 
@@ -1095,7 +1095,7 @@ class AreaTrigger_at_captain_drok_ship : public AreaTriggerScript
         {
             if (InstanceScript* instance = player->GetInstanceScript())
             {
-                if (Creature* Drok = ObjectAccessor::GetCreature(*player, instance->GetData64(NPC_CAPTAIN_DROK)))
+                if (Creature* Drok = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_CAPTAIN_DROK)))
                     Drok->AI()->DoAction(ACTION_INTRO_SHIP);
             }
 

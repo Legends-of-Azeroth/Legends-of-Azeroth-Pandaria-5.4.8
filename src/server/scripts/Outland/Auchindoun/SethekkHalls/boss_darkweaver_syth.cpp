@@ -80,9 +80,9 @@ public:
             summon10 = false;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             events.ScheduleEvent(EVENT_FLAME_SHOCK, 2000);
             events.ScheduleEvent(EVENT_ARCANE_SHOCK, 4000);
             events.ScheduleEvent(EVENT_FROST_SHOCK, 6000);
@@ -219,7 +219,7 @@ public:
             flamebuffet_timer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -278,7 +278,7 @@ public:
             arcanebuffet_timer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -332,7 +332,7 @@ public:
             frostbuffet_timer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -387,7 +387,7 @@ public:
             shadowbuffet_timer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {

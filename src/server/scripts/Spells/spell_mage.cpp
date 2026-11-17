@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -32,6 +32,7 @@
 #include "Containers.h"
 #include "Pet.h"
 #include "spell_common.h"
+#include "Random.h"
 
 enum MageSpells
 {
@@ -136,6 +137,10 @@ enum MageSpells
     SPELL_MAGE_INVISIBILITY                      = 32612,
     SPELL_MAGE_UNBOUND_WATER_ELEMENTAL_TRANSFORM = 147358,
     SPELL_MAGE_TEMPORAL_SHIELD_HEAL              = 115611,
+    ICON_MAGE_IMPROVED_FREEZE                    = 94,
+    SPELL_MAGE_TEMPORAL_DISPLACEMENT             = 80354,
+    SPELL_SHAMAN_SATED                           = 57724,
+    SPELL_HUNTER_INSANITY                        = 95809,
 
     SPELL_FROZEN_ORB_DUMMY                       = 123605,
     SPELL_FROZEN_ORB_PERIODIC                    = 84717,
@@ -623,12 +628,6 @@ class spell_mage_incanters_absorbtion_base_AuraScript : public AuraScript
             SPELL_MAGE_INCANTERS_ABSORBTION_R1 = 44394,
         };
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return sSpellMgr->GetSpellInfo(SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED)
-                && sSpellMgr->GetSpellInfo(SPELL_MAGE_INCANTERS_ABSORBTION_R1);
-        }
-
         void Trigger(AuraEffect *aurEff, DamageInfo& /*dmgInfo*/, uint32& absorbAmount)
         {
             Unit* target = GetTarget();
@@ -960,7 +959,7 @@ class spell_mage_mirror_image : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_mage_mirror_image::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_mage_mirror_image::HandleDummy, EFFECT_ALL, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1049,10 +1048,10 @@ class spell_mastery_icicles_periodic : public AuraScript
 {
     PrepareAuraScript(spell_mastery_icicles_periodic);
 
-    uint64 targetGuid = 0;
+    ObjectGuid targetGuid = ObjectGuid::Empty;
 
 public:
-    void SetTarget(uint64 target)
+    void SetTarget(ObjectGuid target)
     {
         targetGuid = target;
     }
@@ -1440,7 +1439,7 @@ class spell_mage_ignite : public AuraScript
     void HandleProc(AuraEffect const* mastery, ProcEventInfo& eventInfo)
     {
         Unit* caster  = GetCaster();
-        uint64 targetGuid  = eventInfo.GetProcTarget()->GetGUID();
+        ObjectGuid targetGuid  = eventInfo.GetProcTarget()->GetGUID();
         if (mastery->GetFloatAmount() <= 0.0f)
             return;
 
@@ -1530,7 +1529,7 @@ class spell_mage_nether_tempest_selector : public SpellScript
             if (target->GetTypeId() == TYPEID_PLAYER)
                 return false;
 
-            if (!target->ToUnit()->getThreatManager().getThreat(GetCaster()))
+            if (!target->ToUnit()->GetThreatManager().GetThreat(GetCaster()))
                 return true;
             return false;
         });
@@ -1881,7 +1880,7 @@ class spell_mage_alter_time_cast : public SpellScript
     {
         health = GetCaster()->GetHealth();
         mana = GetCaster()->GetPower(POWER_MANA);
-        GetCaster()->GetPosition(&pos);
+        pos = GetCaster()->GetWorldLocation();
         pos.m_mapId = GetCaster()->GetMapId();
         for (auto&& it : GetCaster()->GetAppliedAuras())
         {
@@ -2256,7 +2255,7 @@ protected:
         Unit* target = GetTarget();
         if (Player* mage = target->ToPlayer())
         {
-            mage->SetUInt16Value(PLAYER_FIELD_OVERRIDE_SPELLS_ID, 0, 16384); // TODO: Need more research
+            mage->SetUInt16Value(PLAYER_FIELD_BYTES2, 0, 16384); // TODO: Need more research
             if (Pet* pet = mage->GetPet())
                 pet->CastSpell(pet, GetId(), true);
         }
@@ -2267,7 +2266,7 @@ protected:
     void HandleRemove(AuraEffect const*, AuraEffectHandleModes)
     {
         if (Player* mage = GetTarget()->ToPlayer())
-            mage->SetUInt16Value(PLAYER_FIELD_OVERRIDE_SPELLS_ID, 0, 0);
+            mage->SetUInt16Value(PLAYER_FIELD_BYTES2, 0, 0);
     }
 
     void Register() override
@@ -2297,7 +2296,7 @@ class spell_mage_greater_invisibility: public spell_mage_invisibility
             }
         }
         target->CastSpell(target, SPELL_MAGE_GREATER_INVISIBILITY_LESS_DAMAGE, true);  // In sniffs it is not triggered, but it's broke aura =/
-        target->getThreatManager().resetAllAggro();
+        target->GetThreatManager().ResetAllThreat();
     }
 
     void HandleRemove(AuraEffect const* eff, AuraEffectHandleModes mode)
@@ -2358,7 +2357,7 @@ class spell_mage_invisibility_threat_reduction: public SpellScript
         targets.remove_if([this](WorldObject* obj)
         {
             if (Unit* target = obj->ToUnit())
-                if (target->IsInCombat() && target->CanHaveThreatList() && target->getThreatManager().getThreat(GetCaster()) > 0)
+                if (target->IsInCombat() && target->CanHaveThreatList() && target->GetThreatManager().GetThreat(GetCaster()) > 0)
                     return false;
 
             return true;
@@ -2538,7 +2537,7 @@ struct npc_mage_mirror_image : ScriptedAI
     }
 
     // Do not reload Creature templates on evade mode enter - prevent visual lost
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (me->IsInEvadeMode() || !me->IsAlive())
             return;
@@ -2567,7 +2566,7 @@ class spell_mage_glyph_of_icy_veins : public SpellScript
         if (mage->HasAura(SPELL_MAGE_ICY_VEINS_GLYPHED))
         {
             Unit* caster = GetCaster();
-            uint64 guid = GetSpell()->m_targets.GetUnitTargetGUID();
+            ObjectGuid guid = GetSpell()->m_targets.GetUnitTargetGUID();
             uint32 spell = GetSpellId();
 
             float mult = 0.4f;   // Primiry mod
@@ -2957,7 +2956,6 @@ class spell_mage_frostbolt : public SpellScript
     void Register() override
     {
         OnCheckCast += SpellCheckCastFn(spell_mage_frostbolt::CheckCast);
-        OnEffectLaunchTarget += SpellEffectFn(spell_mage_frostbolt::HandleDamage, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
         OnEffectLaunchTarget += SpellEffectFn(spell_mage_frostbolt::HandleDamage, EFFECT_ALL, SPELL_EFFECT_SCHOOL_DAMAGE);
         OnEffectHitTarget += SpellEffectFn(spell_mage_frostbolt::HandleHeal, EFFECT_ALL, SPELL_EFFECT_SCRIPT_EFFECT);
     }
@@ -3076,6 +3074,54 @@ class spell_mage_dragons_breath : public AuraScript
     }
 };
 
+// 44544 - Fingers of Frost (Improved Freeze)
+class spell_mage_water_elemental_freeze : public AuraScript
+{
+    PrepareAuraScript(spell_mage_water_elemental_freeze);
+
+    void Register() override
+    {
+    }
+};
+
+// 12043 - Alter Time (Time Warp)
+class spell_mage_time_warp : public SpellScript
+{
+    PrepareSpellScript(spell_mage_time_warp);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sSpellMgr->GetSpellInfo(SPELL_MAGE_TEMPORAL_DISPLACEMENT);
+    }
+
+    void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([=](WorldObject const* target)
+        {
+            Unit const* unit = target->ToUnit();
+            if (!unit)
+                return true;
+            return unit->HasAura(SPELL_SHAMAN_SATED) ||
+                   unit->HasAura(SPELL_HUNTER_INSANITY) ||
+                   unit->HasAura(SPELL_MAGE_TEMPORAL_DISPLACEMENT);
+        });
+    }
+
+    void ApplyDebuff()
+    {
+        if (Unit* target = GetHitUnit())
+            target->CastSpell(target, SPELL_MAGE_TEMPORAL_DISPLACEMENT, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp::RemoveInvalidTargets, EFFECT_2, TARGET_UNIT_CASTER_AREA_RAID);
+        AfterHit += SpellHitFn(spell_mage_time_warp::ApplyDebuff);
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_flamestrike();
@@ -3163,4 +3209,6 @@ void AddSC_mage_spell_scripts()
     new aura_script<spell_mage_exclusive_polymorph>("spell_mage_exclusive_polymorph");
     new aura_script<spell_mage_glyph_of_armors>("spell_mage_glyph_of_armors");
     new aura_script<spell_mage_dragons_breath>("spell_mage_dragons_breath");
+    new aura_script<spell_mage_water_elemental_freeze>("spell_mage_water_elemental_freeze");
+    new spell_script<spell_mage_time_warp>("spell_mage_time_warp");
 }

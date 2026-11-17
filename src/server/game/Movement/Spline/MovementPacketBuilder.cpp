@@ -393,8 +393,22 @@ namespace Movement
     void PacketBuilder::WriteSplineSync(MoveSpline const& mov, ByteBuffer& data, Unit* unit)
     {
         ObjectGuid guid = unit->GetGUID();
-        data.WriteGuidMask(guid, 6, 4, 2, 7, 1, 3, 0, 5);
-        data.WriteGuidBytes(guid, 2, 7, 5, 1, 4, 6, 0, 3);
+        data.WriteBit(guid[6]);
+data.WriteBit(guid[4]);
+data.WriteBit(guid[2]);
+data.WriteBit(guid[7]);
+data.WriteBit(guid[1]);
+data.WriteBit(guid[3]);
+data.WriteBit(guid[0]);
+data.WriteBit(guid[5]);
+        data.WriteByteSeq(guid[2]);
+data.WriteByteSeq(guid[7]);
+data.WriteByteSeq(guid[5]);
+data.WriteByteSeq(guid[1]);
+data.WriteByteSeq(guid[4]);
+data.WriteByteSeq(guid[6]);
+data.WriteByteSeq(guid[0]);
+data.WriteByteSeq(guid[3]);
         data << float(mov.timePassed() / mov.Duration());
     }
 }

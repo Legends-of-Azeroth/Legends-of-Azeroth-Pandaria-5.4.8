@@ -48,18 +48,18 @@ class instance_firelands : public InstanceMapScript
             {
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doordata);
-                uiShannoxGUID = 0;
-                uiRiplimbGUID = 0;
-                uiRagefaceGUID = 0;
-                uiBalerocGUID = 0;
-                uiRhyolithGUID = 0;
-                uiRagnarosGUID = 0;
-                uiFirewallBalerockGUID = 0;
-                uiSulfuronBridgeGUID = 0;
+                uiShannoxGUID = ObjectGuid::Empty;
+                uiRiplimbGUID = ObjectGuid::Empty;
+                uiRagefaceGUID = ObjectGuid::Empty;
+                uiBalerocGUID = ObjectGuid::Empty;
+                uiRhyolithGUID = ObjectGuid::Empty;
+                uiRagnarosGUID = ObjectGuid::Empty;
+                uiFirewallBalerockGUID = ObjectGuid::Empty;
+                uiSulfuronBridgeGUID = ObjectGuid::Empty;
                 uiRhyolithHealth = 0;
-                uiRagnarosFloor = 0;
-                uiRagnarosCache10 = 0;
-                uiRagnarosCache25 = 0;
+                uiRagnarosFloor = ObjectGuid::Empty;
+                uiRagnarosCache10 = ObjectGuid::Empty;
+                uiRagnarosCache25 = ObjectGuid::Empty;
                 uiTimer = 0;
                 uiRitualCompleted = 0;
                 bRitualAchievementFailed = false;
@@ -127,7 +127,7 @@ class instance_firelands : public InstanceMapScript
                 {
                     case GO_FIRE_WALL_BALEROC:
                         uiFirewallBalerockGUID = go->GetGUID();
-                        HandleGameObject(0, (GetBossState(DATA_SHANNOX)==DONE) && (GetBossState(DATA_RHYOLITH)==DONE) && (GetBossState(DATA_BETHTILAC)==DONE) && (GetBossState(DATA_ALYSRAZOR)==DONE), go);
+                        HandleGameObject(ObjectGuid::Empty, (GetBossState(DATA_SHANNOX)==DONE) && (GetBossState(DATA_RHYOLITH)==DONE) && (GetBossState(DATA_BETHTILAC)==DONE) && (GetBossState(DATA_ALYSRAZOR)==DONE), go);
                         break;
                     case GO_STICKY_WEB:
                     case GO_RAID_BRIDGE_FORMING:
@@ -218,7 +218,7 @@ class instance_firelands : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -232,9 +232,8 @@ class instance_firelands : public InstanceMapScript
                     case DATA_RAGNAROS_CACHE_25: return uiRagnarosCache25;
                     case DATA_VOLCANO: return volcanoGUID;
                     case DATA_FIRELANDS_EVENT_BUNNY: return firelandsEventBunnyGUID;
-                    default: return 0;
+                    default: return ObjectGuid::Empty;
                 }
-                return 0;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -278,7 +277,7 @@ class instance_firelands : public InstanceMapScript
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const override
             {
-                if (player && !AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()))
+                if (_SkipCheckRequiredBosses(player))
                     return true;
 
                 switch (bossId)
@@ -415,20 +414,20 @@ class instance_firelands : public InstanceMapScript
                 uint32 uiRitualCompleted;
                 bool bRitualAchievementFailed;
                 bool bEvent;
-                uint64 uiShannoxGUID;
-                uint64 uiRiplimbGUID;
-                uint64 uiRagefaceGUID;
-                uint64 uiBalerocGUID;
-                uint64 uiRagnarosGUID;
-                uint64 uiFirewallBalerockGUID;
-                uint64 uiSulfuronBridgeGUID;
-                uint64 uiRhyolithGUID;
-                uint64 uiRagnarosFloor;
-                uint64 uiRagnarosCache10;
-                uint64 uiRagnarosCache25;
-                uint64 volcanoGUID;
-                uint64 firelandsEventBunnyGUID;
-                uint64 uiRitualGUIDs[2];
+                ObjectGuid uiShannoxGUID;
+                ObjectGuid uiRiplimbGUID;
+                ObjectGuid uiRagefaceGUID;
+                ObjectGuid uiBalerocGUID;
+                ObjectGuid uiRagnarosGUID;
+                ObjectGuid uiFirewallBalerockGUID;
+                ObjectGuid uiSulfuronBridgeGUID;
+                ObjectGuid uiRhyolithGUID;
+                ObjectGuid uiRagnarosFloor;
+                ObjectGuid uiRagnarosCache10;
+                ObjectGuid uiRagnarosCache25;
+                ObjectGuid volcanoGUID;
+                ObjectGuid firelandsEventBunnyGUID;
+                ObjectGuid uiRitualGUIDs[2];
                 uint32 uiRitualStartedTime;
                 std::list<GameObject*> gameobjectPortals;
                 std::list<Creature*> creaturePortals;

@@ -36,32 +36,6 @@
 #  define PLATFORM PLATFORM_UNIX
 #endif
 
-#define COMPILER_MICROSOFT 0
-#define COMPILER_GNU       1
-#define COMPILER_BORLAND   2
-#define COMPILER_INTEL     3
-
-#ifdef _MSC_VER
-#  define COMPILER COMPILER_MICROSOFT
-#include <sdkddkver.h>
-#elif defined( __BORLANDC__ )
-#  define COMPILER COMPILER_BORLAND
-#elif defined( __INTEL_COMPILER )
-#  define COMPILER COMPILER_INTEL
-#elif defined( __GNUC__ )
-#  define COMPILER COMPILER_GNU
-#  define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-#else
-#  error "FATAL ERROR: Unknown compiler."
-#endif
-
-#if defined(__cplusplus) && __cplusplus == 201402L
-#  define COMPILER_HAS_CPP14_SUPPORT 1
-#else
-#  define COMPILER_HAS_CPP14_SUPPORT 0
-#endif
-
-
 #define TRINITY_PLATFORM_WINDOWS 0
 #define TRINITY_PLATFORM_UNIX    1
 #define TRINITY_PLATFORM_APPLE   2

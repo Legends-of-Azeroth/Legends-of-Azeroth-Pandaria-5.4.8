@@ -59,9 +59,9 @@ class npc_emily : public CreatureScript
 public:
     npc_emily() : CreatureScript("npc_emily") { }
 
-    struct npc_emilyAI : public npc_escortAI
+    struct npc_emilyAI : public EscortAI
     {
-        npc_emilyAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_emilyAI(Creature* creature) : EscortAI(creature) { }
 
         void JustSummoned(Creature* summoned) override
         {
@@ -71,7 +71,7 @@ public:
                 summoned->AI()->AttackStart(me->GetVictim());
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -87,7 +87,7 @@ public:
                     if (Unit::GetCreature(*me, _mrfloppyGUID))
                     {
                         Talk(SAY_WORGHAGGRO1);
-                        me->SummonCreature(NPC_HUNGRY_WORG, me->GetPositionX()+5, me->GetPositionY()+2, me->GetPositionZ()+1, 3.229f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
+                        me->SummonCreature(NPC_HUNGRY_WORG, me->GetPositionX()+5, me->GetPositionY()+2, me->GetPositionZ()+1, 3.229f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000ms);
                     }
                     break;
                 case 11:
@@ -98,7 +98,7 @@ public:
                     if (Creature* Mrfloppy = Unit::GetCreature(*me, _mrfloppyGUID))
                         Mrfloppy->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                     Talk(SAY_WORGRAGGRO3);
-                    if (Creature* RWORG = me->SummonCreature(NPC_RAVENOUS_WORG, me->GetPositionX()+10, me->GetPositionY()+8, me->GetPositionZ()+2, 3.229f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
+                    if (Creature* RWORG = me->SummonCreature(NPC_RAVENOUS_WORG, me->GetPositionX()+10, me->GetPositionY()+8, me->GetPositionZ()+2, 3.229f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000ms))
                     {
                         RWORG->SetFaction(35);
                         _RavenousworgGUID = RWORG->GetGUID();
@@ -172,20 +172,20 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*Who*/) override
+        void JustEngagedWith(Unit* /*Who*/) override
         {
             Talk(SAY_RANDOMAGGRO);
         }
 
         void Reset() override
         {
-            _mrfloppyGUID     = 0;
-            _RavenousworgGUID = 0;
+            _mrfloppyGUID = ObjectGuid::Empty;
+            _RavenousworgGUID = ObjectGuid::Empty;
         }
 
         private:
-            uint64   _RavenousworgGUID;
-            uint64   _mrfloppyGUID;
+            ObjectGuid   _RavenousworgGUID;
+            ObjectGuid   _mrfloppyGUID;
     };
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
@@ -196,8 +196,8 @@ public:
             if (Creature* Mrfloppy = GetClosestCreatureWithEntry(creature, NPC_MRFLOPPY, 180.0f))
                 Mrfloppy->GetMotionMaster()->MoveFollow(creature, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_emily::npc_emilyAI, (creature->AI())))
-                pEscortAI->Start(true, false, player->GetGUID());
+            if (EscortAI* pEscortAI = CAST_AI(npc_emily::npc_emilyAI, (creature->AI())))
+                pEscortAI->Start(true, player->GetGUID());
         }
         return true;
     }
@@ -220,7 +220,7 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* Who) override
+        void JustEngagedWith(Unit* Who) override
         {
             if (Creature* Emily = GetClosestCreatureWithEntry(me, NPC_EMILY, 50.0f))
             {
@@ -238,7 +238,7 @@ public:
             }
         }
 
-        void EnterEvadeMode() override { }
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
@@ -461,7 +461,7 @@ public:
         void Reset() override
         {
             _despawnTimer = 5000;
-            _playerGUID = 0;
+            _playerGUID = ObjectGuid::Empty;
         }
 
         void MovementInform(uint32, uint32 id) override
@@ -495,7 +495,7 @@ public:
             DoMeleeAttackIfReady();
         }
         private:
-            uint64 _playerGUID;
+            ObjectGuid _playerGUID;
             uint32 _despawnTimer;
     };
 
@@ -539,7 +539,7 @@ public:
 
         void Reset() override
         {
-            _playerGUID   = 0;
+            _playerGUID = ObjectGuid::Empty;
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
             me->SetReactState(REACT_AGGRESSIVE);
@@ -601,7 +601,7 @@ public:
 
         private:
             EventMap _events;
-            uint64 _playerGUID;
+            ObjectGuid _playerGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

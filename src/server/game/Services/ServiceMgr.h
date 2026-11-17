@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -175,7 +175,7 @@ private:
     void _LoadReClassRoutine();
     void LoadSpells();
 
-    std::list<uint64> _aucGUIDs[2];
+    std::list<ObjectGuid> _aucGUIDs[2];
     ReclassData _reclassData[12];
     static ProfSkill _profs[11];
     std::set<uint32> _classSpells[2][12];

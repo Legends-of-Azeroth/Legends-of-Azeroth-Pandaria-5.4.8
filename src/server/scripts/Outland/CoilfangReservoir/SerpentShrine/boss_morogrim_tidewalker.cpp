@@ -154,7 +154,7 @@ public:
                 instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, DONE);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             PlayerList = &me->GetMap()->GetPlayers();
             Playercount = PlayerList->getSize();
@@ -194,7 +194,7 @@ public:
                     for (uint8 i = 0; i < 10; ++i)
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            if (Creature* Murloc = me->SummonCreature(NPC_TIDEWALKER_LURKER, MurlocCords[i][0], MurlocCords[i][1], MurlocCords[i][2], MurlocCords[i][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
+                            if (Creature* Murloc = me->SummonCreature(NPC_TIDEWALKER_LURKER, MurlocCords[i][0], MurlocCords[i][1], MurlocCords[i][2], MurlocCords[i][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000ms))
                                 Murloc->AI()->AttackStart(target);
                     }
                     Talk(EMOTE_EARTHQUAKE);
@@ -311,7 +311,7 @@ public:
             me->SetFaction(14);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void MoveInLineOfSight(Unit* who) override
 

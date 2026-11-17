@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -255,10 +255,10 @@ class boss_ysondre : public CreatureScript
                 events.ScheduleEvent(EVENT_LIGHTNING_WAVE, 12000);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_YSONDRE_AGGRO);
-                WorldBossAI::EnterCombat(who);
+                WorldBossAI::JustEngagedWith(who);
             }
 
             // Summon druid spirits on 75%, 50% and 25% health
@@ -343,10 +343,10 @@ class boss_lethon : public CreatureScript
                 events.ScheduleEvent(EVENT_SHADOW_BOLT_WHIRL, 10000);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_LETHON_AGGRO);
-                WorldBossAI::EnterCombat(who);
+                WorldBossAI::JustEngagedWith(who);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
@@ -363,9 +363,8 @@ class boss_lethon : public CreatureScript
             {
                 if (spell->Id == SPELL_DRAW_SPIRIT && target->GetTypeId() == TYPEID_PLAYER)
                 {
-                    Position targetPos;
-                    target->GetPosition(&targetPos);
-                    me->SummonCreature(NPC_SPIRIT_SHADE, targetPos, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 50000);
+                    Position targetPos = target->GetPosition();
+                    me->SummonCreature(NPC_SPIRIT_SHADE, targetPos, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 50000ms);
                 }
             }
 
@@ -400,7 +399,7 @@ class npc_spirit_shade : public CreatureScript
 
         struct npc_spirit_shadeAI : public PassiveAI
         {
-            npc_spirit_shadeAI(Creature* creature) : PassiveAI(creature), _summonerGuid(0)
+            npc_spirit_shadeAI(Creature* creature) : PassiveAI(creature), _summonerGuid()
             {
             }
 
@@ -420,7 +419,7 @@ class npc_spirit_shade : public CreatureScript
             }
 
         private:
-            uint64 _summonerGuid;
+            ObjectGuid _summonerGuid;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -473,10 +472,10 @@ class boss_emeriss : public CreatureScript
                 emerald_dragonAI::KilledUnit(who);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_EMERISS_AGGRO);
-                WorldBossAI::EnterCombat(who);
+                WorldBossAI::JustEngagedWith(who);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
@@ -565,10 +564,10 @@ class boss_taerar : public CreatureScript
                 events.ScheduleEvent(EVENT_BELLOWING_ROAR, 30000);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_TAERAR_AGGRO);
-                emerald_dragonAI::EnterCombat(who);
+                emerald_dragonAI::JustEngagedWith(who);
             }
 
             void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) override
@@ -755,7 +754,7 @@ class spell_mark_of_nature : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mark_of_nature_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mark_of_nature_SpellScript::FilterTargets, EFFECT_0, TARGET_DEST_CASTER);
                 OnEffectHitTarget += SpellEffectFn(spell_mark_of_nature_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
         };

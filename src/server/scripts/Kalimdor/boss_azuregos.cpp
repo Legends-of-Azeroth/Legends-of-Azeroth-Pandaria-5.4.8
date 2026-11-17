@@ -78,7 +78,7 @@ public:
             Enraged = false;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -89,11 +89,10 @@ public:
             if (TeleportTimer <= diff)
             {
                 Talk(SAY_TELEPORT);
-                ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
-                ThreatContainer::StorageType::const_iterator i = threatlist.begin();
-                for (i = threatlist.begin(); i != threatlist.end(); ++i)
+                auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+                for (ThreatReference const* ref : threatlist)
                 {
-                    Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
+                    Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                     if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                     {
                         DoTeleportPlayer(unit, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+3, unit->GetOrientation());

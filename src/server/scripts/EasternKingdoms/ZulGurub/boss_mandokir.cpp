@@ -115,19 +115,19 @@ class boss_mandokir : public CreatureScript
                 me->SummonCreatureGroup(SUMMON_GROUP_CHAINED_SPIRIT);
                 me->GetMap()->SetWorldState(WORLDSTATE_OHGANOT_SO_FAST, 1);
                 _reanimateOhganCooldown = false;
-                _reviveGUID = 0;
+                _reviveGUID = ObjectGuid::Empty;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
                 DoCastAOE(SPELL_BLOODLORD_AURA);
 
                 if (!summons.empty())
                 {
-                    for (std::list<uint64>::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
+                    for (std::list<ObjectGuid>::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
                     {
                         if (Creature* chainedSpirit = ObjectAccessor::GetCreature(*me, *itr))
                             if (chainedSpirit->GetEntry() == NPC_CHAINED_SPIRIT && chainedSpirit->AI())
@@ -193,7 +193,7 @@ class boss_mandokir : public CreatureScript
                             {
                                 chainedSpirit->AI()->SetGUID(_reviveGUID);
                                 chainedSpirit->AI()->DoAction(ACTION_REVIVE);
-                                _reviveGUID = 0;
+                                _reviveGUID = ObjectGuid::Empty;
                             }
                         }
                         break;
@@ -204,7 +204,7 @@ class boss_mandokir : public CreatureScript
                 }
             }
 
-            void SetGUID(uint64 guid, int32 /*type*/) override
+            void SetGUID(ObjectGuid guid, int32 /*type*/) override
             {
                 _reviveGUID = guid;
             }
@@ -268,7 +268,7 @@ class boss_mandokir : public CreatureScript
 
         private:
             bool _reanimateOhganCooldown;
-            uint64 _reviveGUID;
+            ObjectGuid _reviveGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -289,7 +289,7 @@ class npc_ohgan : public CreatureScript
                 instance = me->GetInstanceScript();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCastAOE(SPELL_OHGAN_ORDERS, true);
             }
@@ -301,11 +301,11 @@ class npc_ohgan : public CreatureScript
                     damage = 0;
                     me->AttackStop();
                     me->SetHealth(0);
-                    me->SetTarget(0);
+                    me->SetTarget(ObjectGuid::Empty);
                     DoCast(me, SPELL_CLEAR_ALL, true);
                     DoCast(me, SPELL_PERMANENT_FEIGN_DEATH);
 
-                    if (Creature* mandokir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MANDOKIR)))
+                    if (Creature* mandokir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MANDOKIR)))
                         mandokir->AI()->DoAction(ACTION_OHGAN_IS_DEATH);
                 }
             }
@@ -353,10 +353,10 @@ class npc_chained_spirit : public CreatureScript
 
             void Reset() override
             {
-                _revivePlayerGUID = 0;
+                _revivePlayerGUID = ObjectGuid::Empty;
             }
 
-            void SetGUID(uint64 guid, int32 /*type*/) override
+            void SetGUID(ObjectGuid guid, int32 /*type*/) override
             {
                 _revivePlayerGUID = guid;
             }
@@ -368,7 +368,7 @@ class npc_chained_spirit : public CreatureScript
                     Position pos;
                     if (Player* target = ObjectAccessor::GetPlayer(*me, _revivePlayerGUID))
                     {
-                        target->GetNearPoint(me, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, 5.0f, target->GetAngle(me));
+                        target->GetNearPoint(me, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 5.0f, target->GetAngle(me));
                         me->GetMotionMaster()->MovePoint(POINT_START_REVIVE, pos);
                     }
                 }
@@ -394,7 +394,7 @@ class npc_chained_spirit : public CreatureScript
                 if (!target || target->IsAlive())
                     return;
 
-                if (Creature* mandokir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MANDOKIR)))
+                if (Creature* mandokir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MANDOKIR)))
                 {
                     mandokir->GetAI()->SetGUID(target->GetGUID());
                     mandokir->GetAI()->DoAction(ACTION_START_REVIVE);
@@ -407,7 +407,7 @@ class npc_chained_spirit : public CreatureScript
 
         private:
             InstanceScript* instance;
-            uint64 _revivePlayerGUID;
+            ObjectGuid _revivePlayerGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -466,7 +466,7 @@ class spell_mandokir_bloodletting : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mandokir_bloodletting_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_BLOODLETTING_DAMAGE))
                     return false;
@@ -535,7 +535,7 @@ class DevastatingSlamTargetSelector
 
         bool operator() (WorldObject* target)
         {
-            if (target == _victim && _me->getThreatManager().getThreatList().size() > 1)
+            if (target == _victim && _me->GetThreatManager().GetThreatListSize() > 1)
                 return true;
 
             if (target->GetTypeId() != TYPEID_PLAYER)
@@ -662,9 +662,10 @@ class spell_mandokir_ohgan_orders_trigger : public SpellScriptLoader
                     // HACK: research better way
                     caster->ClearUnitState(UNIT_STATE_CASTING);
                     caster->GetMotionMaster()->Clear();
-                    caster->DeleteThreatList();
-                    caster->AddThreat(target, 50000000.0f);
-                    caster->TauntApply(target);
+                    caster->GetThreatManager().RemoveMeFromThreatLists();
+                    caster->GetThreatManager().ClearAllThreat();
+                    caster->GetThreatManager().AddThreat(target, 50000000.0f);
+                    caster->GetThreatManager().TauntUpdate();
                 }
             }
 

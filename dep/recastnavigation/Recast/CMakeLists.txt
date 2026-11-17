@@ -15,7 +15,7 @@ set(Recast_STAT_SRCS
     Source/RecastArea.cpp 
     Source/RecastContour.cpp 
     Source/RecastFilter.cpp 
-	Source/RecastLayers.cpp
+    Source/RecastLayers.cpp
     Source/RecastMesh.cpp 
     Source/RecastMeshDetail.cpp 
     Source/RecastRasterization.cpp 
@@ -31,5 +31,15 @@ if(WIN32)
 endif()
 
 add_library(Recast STATIC ${Recast_STAT_SRCS})
+
+target_include_directories(Recast 
+  PUBLIC
+    Include
+)
+
+target_compile_definitions(Recast 
+  PRIVATE
+    -DNDEBUG
+)
 
 target_link_libraries(Recast ${ZLIB_LIBRARIES})

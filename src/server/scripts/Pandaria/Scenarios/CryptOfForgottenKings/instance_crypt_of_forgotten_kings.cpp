@@ -38,11 +38,11 @@ class instance_crypt_of_forgotten_kings : public InstanceMapScript
             EventMap events;
 
             uint32 chapterOne, chapterTwo, chapterThree, m_essense;
-            uint64 jinGUID, AbominationGUID, LifePoolGUID, CryptGuardianHallGUID, CryptGuardianVaultGUID;
-            std::list<uint64> CryptGuardians;
+            ObjectGuid jinGUID, AbominationGUID, LifePoolGUID, CryptGuardianHallGUID, CryptGuardianVaultGUID;
+            std::list<ObjectGuid> CryptGuardians;
             std::list<Player*> PlayersIn;
             uint32 m_auiEncounter[CHAPTERS];
-            std::unordered_map<uint32, uint64> m_mGoEntryGuidMap;
+            std::unordered_map<uint32, ObjectGuid> m_mGoEntryGuidMap;
 
             void Initialize() override
             {
@@ -50,8 +50,8 @@ class instance_crypt_of_forgotten_kings : public InstanceMapScript
                 LoadDoorData(doorData);
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-                jinGUID         = 0;
-                AbominationGUID = 0;
+                jinGUID = ObjectGuid::Empty;
+                AbominationGUID = ObjectGuid::Empty;
                 chapterOne      = 0;
                 chapterTwo      = 0;
                 chapterThree    = 0;
@@ -84,7 +84,7 @@ class instance_crypt_of_forgotten_kings : public InstanceMapScript
             {
                 GameObject* go = NULL;
 
-                std::unordered_map<uint32, uint64>::iterator find = m_mGoEntryGuidMap.find(uiEntry);
+                std::unordered_map<uint32, ObjectGuid>::iterator find = m_mGoEntryGuidMap.find(uiEntry);
 
                 if (find != m_mGoEntryGuidMap.cend())
                     go = instance->GetGameObject(find->second);
@@ -257,7 +257,7 @@ class instance_crypt_of_forgotten_kings : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -269,7 +269,7 @@ class instance_crypt_of_forgotten_kings : public InstanceMapScript
                         return LifePoolGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool IsWipe(float range, Unit* source) override

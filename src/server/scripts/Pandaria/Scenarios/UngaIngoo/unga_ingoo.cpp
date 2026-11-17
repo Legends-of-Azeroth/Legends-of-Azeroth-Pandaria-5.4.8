@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -74,9 +74,9 @@ enum Events
 };
 
 // Make spawn any type of hozens on dest location with some variations
-void DoSpawnHozensByType(uint64 ownerGUID, float x, float y, float z, uint32 type, uint8 count)
+void DoSpawnHozensByType(Unit* me, ObjectGuid ownerGUID, float x, float y, float z, uint32 type, uint8 count)
 {
-    if (Unit* owner = ObjectAccessor::FindUnit(ownerGUID))
+    if (Unit* owner = ObjectAccessor::GetUnit(*me, ownerGUID))
     {
         if (count < 2)
             owner->SummonCreature(type, x, y, z, TEMPSUMMON_MANUAL_DESPAWN);
@@ -160,7 +160,7 @@ class npc_brewmaster_bo_escort : public CreatureScript
                 ScriptedAI::MoveInLineOfSight(who);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_REJ_MIST, 5 * IN_MILLISECONDS);
             }
@@ -191,7 +191,7 @@ class npc_brewmaster_bo_escort : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
             }
@@ -208,7 +208,7 @@ class npc_brewmaster_bo_escort : public CreatureScript
                 {
                     case 0:
                         Talk(TALK_SPECIAL_2);
-                        DoSpawnHozensByType(me->GetGUID(), HozenInitPoint.GetPositionX(), HozenInitPoint.GetPositionY(), HozenInitPoint.GetPositionZ(), NPC_UNGA_SPEARSCAMP, 3);
+                        DoSpawnHozensByType(me, me->GetGUID(), HozenInitPoint.GetPositionX(), HozenInitPoint.GetPositionY(), HozenInitPoint.GetPositionZ(), NPC_UNGA_SPEARSCAMP, 3);
                         break;
                     case 4:
                         me->GetMotionMaster()->Clear();
@@ -218,7 +218,7 @@ class npc_brewmaster_bo_escort : public CreatureScript
                     case 5:
                         DoCast(me, SPELL_COLLECTED_BREW);
 
-                        if (Creature* ungaKeg = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_UNGA_BREW_KEG)))
+                        if (Creature* ungaKeg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_UNGA_BREW_KEG)))
                             ungaKeg->CastSpell(me, VEHICLE_SPELL_RIDE_HARDCODED, true);
 
                         nonCombatEvents.ScheduleEvent(EVENT_SPECIAL, 6 * IN_MILLISECONDS);
@@ -234,7 +234,7 @@ class npc_brewmaster_bo_escort : public CreatureScript
                         Talk(TALK_SPECIAL_7);
 
                         for (auto&& itr : gladiators)
-                            if (Creature* m_glad = ObjectAccessor::GetCreature(*me, instance->GetData64(itr)))
+                            if (Creature* m_glad = ObjectAccessor::GetCreature(*me, instance->GetGuidData(itr)))
                                 m_glad->AI()->DoAction(ACTION_INTRO);
                         break;
                     case 12:
@@ -466,7 +466,7 @@ struct npc_unga_spearscamp : public ScriptedAI
     InstanceScript* instance;
     EventMap events;
 
-    void IsSummonedBy(Unit* summoner)
+    void IsSummonedBy(Unit* summoner) override
     {
         Movement::MoveSplineInit init(me);
         for (auto itr : SpearscampPath)
@@ -482,7 +482,7 @@ struct npc_unga_spearscamp : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_NET_TOS, urand(5 * IN_MILLISECONDS, 10 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_THROW_SPEAR, urand(3 * IN_MILLISECONDS, 11 * IN_MILLISECONDS));
@@ -593,7 +593,7 @@ struct npc_unga_gladiators : public ScriptedAI
         nonCombatEvents.ScheduleEvent(EVENT_COSMETIC, 1 * IN_MILLISECONDS);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         nonCombatEvents.Reset();
         me->RemoveAurasDueToSpell(SPELL_FRENZIED_STRIKES);
@@ -710,7 +710,7 @@ struct npc_unga_captain_ook : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         nonCombatEvents.Reset();
         events.ScheduleEvent(EVENT_GONNA_OOK, urand(8 * IN_MILLISECONDS, 16 * IN_MILLISECONDS));
@@ -815,7 +815,7 @@ struct npc_unga_banana_ship : public ScriptedAI
         scheduler
             .Schedule(Milliseconds(me->GetSplineDuration()), [this](TaskContext context)
         {
-            if (Creature* Ook = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_CAPTAIN_OOK) : 0))
+            if (Creature* Ook = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_CAPTAIN_OOK) : ObjectGuid::Empty))
                 Ook->AI()->DoAction(ACTION_CAPTAIN_ASSAULT);
 
             me->DespawnOrUnsummon();
@@ -842,7 +842,7 @@ struct npc_unga_pirate : public ScriptedAI
             DoAction(ACTION_INTRO);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         switch (me->GetEntry())
         {
@@ -929,7 +929,7 @@ struct npc_unga_pirate : public ScriptedAI
             {
                 case EVENT_COSMETIC:
                 {
-                    if (Creature* brewMaster = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_BREWMASTER_BO_BREW) : 0))
+                    if (Creature* brewMaster = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_BREWMASTER_BO_BREW) : ObjectGuid::Empty))
                         brewMaster->AI()->Talk(TALK_SPECIAL_12);
 
                     me->StopMoving();
@@ -949,7 +949,7 @@ struct npc_unga_pirate : public ScriptedAI
                         {
                             me->GetInstanceScript()->SetData(DATA_BARRELS_PROGRESS, me->GetInstanceScript()->GetData(DATA_BARRELS_PROGRESS) - 10);
 
-                            if (Creature* boBrew = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_BREWMASTER_BO_BREW) : 0))
+                            if (Creature* boBrew = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_BREWMASTER_BO_BREW) : ObjectGuid::Empty))
                                 boBrew->AI()->SetData(TYPE_KEG_STILLED, 1);
                         }
 
@@ -1029,7 +1029,7 @@ struct npc_unga_ookie : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(TALK_INTRO);
         events.ScheduleEvent(EVENT_CLEAVE_TOSS, 5 * IN_MILLISECONDS);
@@ -1117,7 +1117,7 @@ class spell_calling_birds : public AuraScript
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* owner = GetOwner()->ToUnit())
-            DoSpawnHozensByType(owner->GetGUID(), owner->GetPositionX(), owner->GetPositionY(), 22.136f, NPC_TRAINED_JUNGLE_LORY, 8);
+            DoSpawnHozensByType(owner, owner->GetGUID(), owner->GetPositionX(), owner->GetPositionY(), 22.136f, NPC_TRAINED_JUNGLE_LORY, 8);
     }
 
     void Register() override
@@ -1196,7 +1196,7 @@ class spell_unga_encumbered : public AuraScript
     void HandleAuraEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
     {
         if (Unit* owner = GetOwner()->ToUnit())
-            if (Creature* brewMaster = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetData64(NPC_BREWMASTER_BO_BREW) : 0))
+            if (Creature* brewMaster = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetGuidData(NPC_BREWMASTER_BO_BREW) : ObjectGuid::Empty))
                 brewMaster->AI()->Talk(TALK_SPECIAL_17, owner);
     }
 

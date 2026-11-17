@@ -131,7 +131,7 @@ class boss_ra_den : public CreatureScript
 
             bool introDone, hasBeenDefeated;
             float x, y;
-            uint64 targetGUID, currentAnima, currentVita;
+            ObjectGuid targetGUID, currentAnima, currentVita;
             uint32 delay;
             uint8 phase;
 
@@ -175,8 +175,8 @@ class boss_ra_den : public CreatureScript
                 phase = PHASE_NONE;
                 me->SetReactState(REACT_AGGRESSIVE);
                 x = 0.0f; y = 0.0f;
-                currentAnima = 0;
-                currentVita  = 0;
+                currentAnima = ObjectGuid::Empty;
+                currentVita  = ObjectGuid::Empty;
 
                 me->SetPowerType(POWER_MANA);
                 me->SetMaxPower(POWER_MANA, 100);
@@ -193,10 +193,10 @@ class boss_ra_den : public CreatureScript
                 }
             }
     
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(TALK_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
 
                 instance->DoUpdateWorldState(WORLDSTATE_ATTEMPS_REMAINING, 50);
                 events.ScheduleEvent(EVENT_MATERIALS_OF_CREATION, 10.5 * IN_MILLISECONDS);
@@ -499,7 +499,7 @@ class boss_ra_den : public CreatureScript
                 summon->SetInCombatWithZone();
             }
     
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();
@@ -664,13 +664,13 @@ struct npc_essence_of_creation : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (Creature* raDen = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_RA_DEN) : 0))
+        if (Creature* raDen = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_RA_DEN) : ObjectGuid::Empty))
             raDen->AI()->DoAction(me->GetEntry() == NPC_ESSENSE_OF_ANIMA ? ACTION_ABSORB_VITA : ACTION_ABSORB_ANIMA);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        if (Creature* raDen = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_RA_DEN) : 0))
+        if (Creature* raDen = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_RA_DEN) : ObjectGuid::Empty))
         {
             if (raDen->IsWithinDist(me, 2.0f, false))
                 raDen->AI()->DoAction(me->GetEntry() == NPC_ESSENSE_OF_ANIMA ? ACTION_ABSORB_ANIMA : ACTION_ABSORB_VITA);
@@ -752,7 +752,7 @@ struct npc_corrupted_essence_of_creation : public ScriptedAI
         if (!choiseMe)
             return;
 
-        if (Creature* raDen = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_RA_DEN) : 0))
+        if (Creature* raDen = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_RA_DEN) : ObjectGuid::Empty))
         {
             if (raDen->IsWithinDist(me, 2.0f, false))
             {
@@ -982,7 +982,7 @@ class spell_unstable_vita_aura : public AuraScript
     {
         if (Unit* owner = GetOwner()->ToUnit())
             // jump only if same phase is active
-            if (Creature* raDen = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetData64(DATA_RA_DEN) : 0))
+            if (Creature* raDen = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetGuidData(DATA_RA_DEN) : ObjectGuid::Empty))
                 if (raDen->AI()->GetData(TYPE_CURRENT_PHASE) == PHASE_VITA_ESSENCE)
                     owner->CastSpell(owner, SPELL_UNSTABLE_VITA, true);
     }
@@ -1145,7 +1145,7 @@ class spell_unstable_anima_aura : public AuraScript
             owner->RemoveAurasDueToSpell(SPELL_UNSTABLE_ANIMA_VISUAL);
 
             // only if owner dead (or smth else) while same phase is active
-            if (Creature* raDen = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetData64(DATA_RA_DEN) : 0))
+            if (Creature* raDen = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetGuidData(DATA_RA_DEN) : ObjectGuid::Empty))
                 if (raDen->AI()->GetData(TYPE_CURRENT_PHASE) == PHASE_ANIMA_ESSENCE)
                     raDen->CastSpell(raDen, SPELL_UNSTABLE_ANIMA_INIT, true);
         }
@@ -1219,7 +1219,7 @@ class spell_unstable_anima_eff : public SpellScript
         // if damage aren`t split - wipe
         if (targets.empty())
             if (Unit* caster = GetCaster())
-                if (Creature* raDen = ObjectAccessor::GetCreature(*caster, caster->GetInstanceScript() ? caster->GetInstanceScript()->GetData64(DATA_RA_DEN) : 0))
+                if (Creature* raDen = ObjectAccessor::GetCreature(*caster, caster->GetInstanceScript() ? caster->GetInstanceScript()->GetGuidData(DATA_RA_DEN) : ObjectGuid::Empty))
                     raDen->CastSpell(raDen, SPELL_ANIMA_EXPLOSION, true);
 
         targetsCount = targets.size();
@@ -1257,7 +1257,7 @@ class spell_twisted_anima : public SpellScript
         // if damage aren`t split - wipe
         if (targets.empty())
             if (Unit* caster = GetCaster())
-                if (Creature* raDen = ObjectAccessor::GetCreature(*caster, caster->GetInstanceScript() ? caster->GetInstanceScript()->GetData64(DATA_RA_DEN) : 0))
+                if (Creature* raDen = ObjectAccessor::GetCreature(*caster, caster->GetInstanceScript() ? caster->GetInstanceScript()->GetGuidData(DATA_RA_DEN) : ObjectGuid::Empty))
                     raDen->CastSpell(raDen, SPELL_ANIMA_EXPLOSION, true);
 
         targetsCount = targets.size();
@@ -1341,7 +1341,7 @@ class AreaTrigger_forward_ra_den : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                if (Creature* raden = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_RA_DEN)))
+                if (Creature* raden = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_RA_DEN)))
                     raden->AI()->DoAction(ACTION_START_INTRO);
     
             return true;

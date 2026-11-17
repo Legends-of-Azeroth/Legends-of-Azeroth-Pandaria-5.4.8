@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -357,7 +357,7 @@ class npc_dread_kunchong : public CreatureScript
                 events.ScheduleEvent(EVENT_UNSTABLE_SERUM_3, 22000);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Player* player = who->ToPlayer();
 
@@ -877,7 +877,7 @@ class npc_ik_thik_terrorclaw : public CreatureScript
                 events.ScheduleEvent(EVENT_UNSTABLE_SERUM_9, 22000);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Player* player = who->ToPlayer();
 
@@ -1346,7 +1346,7 @@ class npc_wake_of_horror : public CreatureScript
                 events.ScheduleEvent(EVENT_UNSTABLE_SERUM_14, 20000);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Player* player = who->ToPlayer();
 
@@ -2035,7 +2035,7 @@ struct npc_shekzeer_clutch_keeper : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_SHA_BLAST, urand(3.5 * IN_MILLISECONDS, 8 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_DREAD_QUICK, 11 * IN_MILLISECONDS);
@@ -2074,17 +2074,17 @@ struct npc_mistblade_reapper : public ScriptedAI
     npc_mistblade_reapper(Creature* creature) : ScriptedAI(creature) { }
 
     EventMap events;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
     uint32 delay;
 
     void Reset() override
     {
         events.Reset();
         delay      = 0;
-        targetGUID = 0;
+        targetGUID = ObjectGuid::Empty;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_SLOWING_POISON, urand(4.5 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_SHADOWSTEP, 7.5 * IN_MILLISECONDS);
@@ -2144,7 +2144,7 @@ struct npc_coldbite_matriarch : public ScriptedAI
         triggered = false;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_INFECTED_BITE, urand(4.5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_SNAPJAW_1, 8 * IN_MILLISECONDS);
@@ -2206,7 +2206,7 @@ struct npc_ik_thik_whisperer : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_RAIN_OF_SHA, urand(3.5 * IN_MILLISECONDS, 6 * IN_MILLISECONDS));
     }
@@ -2246,7 +2246,7 @@ struct npc_ik_thik_clutch_guard : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_DREAD_STRENGTH, 6 * IN_MILLISECONDS);
     }
@@ -2407,9 +2407,8 @@ class spell_zet_uk_sha_eruption_periodic_summon : public SpellScriptLoader
                     return;
 
                 float dist = (float)aurEff->GetTickNumber() * 6.0f; // radius of damage spell * 2
-                Position pos;
-                caster->GetNearPosition(pos, dist, 0.0f);
-                if (Creature* summon = caster->SummonCreature(NPC_SHA_ERUPTION_FIRE, pos, TEMPSUMMON_TIMED_DESPAWN, 20000)) // Summon spell target type NYI (138)
+                Position pos = caster->GetNearPosition(dist, 0.0f);
+                if (Creature* summon = caster->SummonCreature(NPC_SHA_ERUPTION_FIRE, pos, TEMPSUMMON_TIMED_DESPAWN, 20000ms)) // Summon spell target type NYI (138)
                     summon->CastSpell(summon, SPELL_SHA_ERUPTION_DAMAGE, true);
             }
 
@@ -2442,7 +2441,7 @@ class AreaTrigger_at_q_wood_and_shade : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
         {
-            if (trigger->id == 8124)
+            if (trigger->ID == 8124)
                 player->KilledMonsterCredit(62955);
             else
                 player->KilledMonsterCredit(62956);
@@ -2463,9 +2462,8 @@ class go_full_crab_pot : public GameObjectScript
                 /*player->CastSpell(player, 89404, true);
                 player->TeleportTo(player->GetMapId(), -9207.99f, -1560.32f, 65.46f, 0.82f);*/
                 player->KilledMonsterCredit(64006);
-                Position pos;
-                go->GetPosition(&pos);
-                if (auto crabTrap = player->SummonCreature(64009, pos, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                Position pos = go->GetPosition();
+                if (auto crabTrap = player->SummonCreature(64009, pos, TEMPSUMMON_TIMED_DESPAWN, 10000ms))
                 {
                     crabTrap->CastSpell(crabTrap, 124959, true);
                     pos.m_positionZ = pos.m_positionZ + 20;
@@ -2523,9 +2521,8 @@ class npc_hisek_the_swarmkeeper : public CreatureScript
         {
             if (quest->GetQuestId() == 31441)
             {
-                Position pos;
-                creature->GetPosition(&pos);
-                uint64 playerGUID = player->GetGUID();
+                Position pos = creature->GetPosition();
+                ObjectGuid playerGUID = player->GetGUID();
                 if (auto qgiver = creature->SummonCreature(64705, pos))
                 {
                     qgiver->SetExplicitSeerGuid(playerGUID);
@@ -2548,18 +2545,18 @@ class npc_hisek_the_swarmkeeper_summon : public CreatureScript
 
             uint8 phase;
             uint32 phaseTimer;
-            uint64 playerGUID;
-            uint64 traitorGUID;
+            ObjectGuid playerGUID;
+            ObjectGuid traitorGUID;
 
             void Reset() override
             {
                 phase = 0;
                 phaseTimer = 500;
-                traitorGUID = 0;
-                playerGUID = 0;
+                traitorGUID = ObjectGuid::Empty;
+                playerGUID = ObjectGuid::Empty;
             }
 
-            void SetGUID(uint64 guid, int32 /*type*/) override
+            void SetGUID(ObjectGuid guid, int32 /*type*/) override
             {
                 playerGUID = guid;
             }
@@ -2613,7 +2610,7 @@ class npc_hisek_the_swarmkeeper_summon : public CreatureScript
                             traitor->AI()->Talk(4);
                             traitor->UpdateEntry(64583);
                             AttackStart(traitor);
-                            playerGUID = 0;
+                            playerGUID = ObjectGuid::Empty;
                         }
                     }
 
@@ -2707,7 +2704,7 @@ class AreaTrigger_q31185 : public AreaTriggerScript
             if (player->GetDistance(dog) > 10.0f)
                 return true;
 
-            switch (trigger->id)
+            switch (trigger->ID)
             {
                 case AT_SILT_VENS:
                     if (!player->GetQuestObjectiveCounter(OBJ_CREDIT_SILT_VENS))
@@ -2842,7 +2839,7 @@ class npc_kilruk_wind_reaver : public CreatureScript
             {
                 player->SetPhaseMask(3, true);
 
-                if (Creature* Kilruk_reaver = player->SummonCreature(NPC_KILRUK_QUEST, *creature, TEMPSUMMON_TIMED_DESPAWN, 300 * IN_MILLISECONDS))
+                if (Creature* Kilruk_reaver = player->SummonCreature(NPC_KILRUK_QUEST, *creature, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(300 * IN_MILLISECONDS)))
                     Kilruk_reaver->SetPhaseMask(2, true);
             }
 
@@ -2862,7 +2859,7 @@ class npc_kilruk_quest_shadow_of_empire : public CreatureScript
         {
             npc_kilruk_quest_shadow_of_empireAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 summonerGUID;
+            ObjectGuid summonerGUID;
             uint32 delay;
 
             void IsSummonedBy(Unit* summoner) override
@@ -3018,7 +3015,7 @@ class npc_malik_the_unscathed_quest_empress_gambit_trigger : public CreatureScri
         {
             npc_malik_the_unscathed_quest_empress_gambit_triggerAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 summonerGUID;
+            ObjectGuid summonerGUID;
             uint32 delay;
             float x, y;
 
@@ -3076,7 +3073,7 @@ class npc_grand_vizier_zorlok_quest_empress_gambit : public CreatureScript
         {
             npc_grand_vizier_zorlok_quest_empress_gambitAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 summonerGUID;
+            ObjectGuid summonerGUID;
             uint32 delay;
             float x, y;
 
@@ -3267,13 +3264,13 @@ class AreaTrigger_q31087 : public AreaTriggerScript
                 return true;
 
             for (uint32 i = 0; i < 3; i++)
-                player->SummonCreature(65486, eventPos[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                player->SummonCreature(65486, eventPos[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms);
 
             player->m_Events.Schedule(10000, [=]()
             {
-                if (Creature* korik = player->SummonCreature(65475, eventPos[3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 66000))
+                if (Creature* korik = player->SummonCreature(65475, eventPos[3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 66000ms))
                     korik->HandleEmoteStateCommand(EMOTE_STATE_STRANGULATE);
-                if (Creature* adjunct = player->SummonCreature(65478, eventPos[4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 66000))
+                if (Creature* adjunct = player->SummonCreature(65478, eventPos[4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 66000ms))
                     adjunct->AI()->Talk(0);
             });
 
@@ -3320,7 +3317,7 @@ struct npc_dread_waster_dread_lurker : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_DREAD_CLAW_2, 4 * IN_MILLISECONDS);
     }
@@ -3361,7 +3358,7 @@ struct npc_dread_waster_nagging_dreadling : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_SHADOW_CLAW, urand(3 * IN_MILLISECONDS, 8 * IN_MILLISECONDS));
     }
@@ -3401,7 +3398,7 @@ class spell_dread_waster_gather_shade : public SpellScript
     {
         if (Player* target = GetHitPlayer())
             if (target->GetQuestStatus(QUEST_BOUND_WITH_SHADES) == QUEST_STATUS_INCOMPLETE)
-                target->KilledMonsterCredit(NPC_SHADE_CREDIT, 0, GetSpellInfo()->Effects[effIndex].BasePoints);
+                target->KilledMonsterCredit(NPC_SHADE_CREDIT, ObjectGuid::Empty, GetSpellInfo()->Effects[effIndex].BasePoints);
     }
 
     void Register() override

@@ -4,6 +4,8 @@
 * Please see the included DOCS/LICENSE.TXT for more information
 */
 
+#include "LuaFunctions.h"
+#include "Includes.h"
 #include "LuaEngine.h"
 #include "Define.h"
 #include "GlobalMethods.h"
@@ -93,14 +95,6 @@ void RegisterGlobals(lua_State* L)
     lua_register(L, "SaveAllPlayers", &LuaGlobalFunctions::SaveAllPlayers);                                 // SaveAllPlayers() - Saves all players
     lua_register(L, "SendMail", &LuaGlobalFunctions::SendMail);                                             // SendMail(subject, text, receiverLowGUID[, sender, stationary, delay, itemEntry, itemAmount, itemEntry2, itemAmount2...]) - Sends a mail to player with lowguid. use nil to use default values on optional arguments. Sender is an optional player object. UNDOCUMENTED
     lua_register(L, "AddTaxiPath", &LuaGlobalFunctions::AddTaxiPath);                                       // AddTaxiPath(pathTable, mountA, mountH[, price, pathId]) - Adds a new taxi path. Returns the path's ID. Will replace an existing path if pathId provided and already used. path table structure: T = {{map, x, y, z[, actionFlag, delay, arrivalEvId, departEvId]}, {...}, ...} UDOCUMENTED
-    lua_register(L, "AddCorpse", &LuaGlobalFunctions::AddCorpse);                                           // AddCorpse(corpse) - Adds the player's corpse to the world. More specifically, the cell.
-    lua_register(L, "RemoveCorpse", &LuaGlobalFunctions::RemoveCorpse);                                     // RemoveCorpse(corpse) - Removes the player's corpse from the world.
-    lua_register(L, "ConvertCorpseForPlayer", &LuaGlobalFunctions::ConvertCorpseForPlayer);                 // ConvertCorpseFromPlayer(guid[, insignia]) - Converts the player's corpse to bones. Adding insignia for PvP is optional (true or false).
-    lua_register(L, "RemoveOldCorpses", &LuaGlobalFunctions::RemoveOldCorpses);                             // RemoveOldCorpses() - Converts (removes) old corpses that aren't bones.
-    lua_register(L, "FindWeather", &LuaGlobalFunctions::FindWeather);                                       // FindWeather(zoneId) - Finds the weather by zoneId and returns the weather
-    lua_register(L, "AddWeather", &LuaGlobalFunctions::AddWeather);                                         // AddWeather(zoneId) - Adds weather to the following zone, also returns weather
-    lua_register(L, "RemoveWeather", &LuaGlobalFunctions::RemoveWeather);                                   // RemoveWeather(zoneId) - Removes weather from a zone
-    lua_register(L, "SendFineWeatherToPlayer", &LuaGlobalFunctions::SendFineWeatherToPlayer);               // SendFineWeatherToPlayer(player) - Sends WEATHER_STATE_FINE weather to the
 }
 
 ElunaRegister<Object> ObjectMethods[] =
@@ -191,7 +185,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetCurrentSpell", &LuaUnit::GetCurrentSpell},         // :GetCurrentSpell(type) - Returns the currently casted spell of given type if any
     {"GetCreatureType", &LuaUnit::GetCreatureType},         // :GetCreatureType() - Returns the unit's type
     // {"GetNearbyTarget", &LuaUnit::GetNearbyTarget},      // :GetNearbyTarget([radius[, exclude]]) - Returns nearby target within sight or given radius. Excludes current target and given unit
-    {"GetMountId", &LuaUnit::GetMountId},                   // :GetMountId()
+    {"GetMountDisplayId", &LuaUnit::GetMountDisplayId},     // :GetMountId()
     {"GetDistance", &LuaUnit::GetDistance},                 // :GetDistance(WorldObject or x, y, z){"GetRelativePoint", &LuaUnit::GetRelativePoint},       // :GetRelativePoint(dist, rad) - Returns the X, Y and orientation of a point dist away from unit.
     {"GetOwnerGUID", &LuaUnit::GetOwnerGUID},               // :GetOwnerGUID() - Returns the GUID of the owner
     {"GetOwner", &LuaUnit::GetOwner},                       // :GetOwner() - Returns the owner
@@ -366,7 +360,7 @@ ElunaRegister<Player> PlayerMethods[] =
     {"GetQuestLevel", &LuaPlayer::GetQuestLevel},           // :GetQuestLevel(quest) - Returns quest's level
     {"GetChatTag", &LuaPlayer::GetChatTag},                 // :GetChatTag() - Returns player chat tag ID
     {"GetRestBonus", &LuaPlayer::GetRestBonus},             // :GetRestBonus() - Gets player's rest bonus
-    {"GetRestType", &LuaPlayer::GetRestType},               // :GetRestType() - Returns the player's rest type
+    {"HasRestFlag", &LuaPlayer::HasRestFlag},               // :HasRestFlag() - Returns whether the player has the given rest flag set
     {"GetPhaseMaskForSpawn", &LuaPlayer::GetPhaseMaskForSpawn},                                               // :GetPhaseMaskForSpawn() - Gets the real phasemask for spawning things. Used if the player is in GM mode
     {"GetReqKillOrCastCurrentCount", &LuaPlayer::GetReqKillOrCastCurrentCount},                                        // :GetReqKillOrCastCurrentCount(questId, entry) - Gets the objective (kill or cast) current count done
     {"GetQuestStatus", &LuaPlayer::GetQuestStatus},         // :GetQuestStatus(entry) - Gets the quest's status
@@ -430,7 +424,7 @@ ElunaRegister<Player> PlayerMethods[] =
     {"SetPvPDeath", &LuaPlayer::SetPvPDeath},               // :SetPvPDeath([on]) - Sets PvP death on or off
     {"SetAcceptWhispers", &LuaPlayer::SetAcceptWhispers},   // :SetAcceptWhispers([on]) - Sets whisper accepting death on or off
     {"SetRestBonus", &LuaPlayer::SetRestBonus},             // :SetRestBonus(bonusrate) - Sets new restbonus rate
-    {"SetRestType", &LuaPlayer::SetRestType},               // :SetRestType() - Sets rest type
+    {"SetRestFlag", &LuaPlayer::SetRestFlag},               // :SetRestFlag() - Sets rest flag
     {"SetQuestStatus", &LuaPlayer::SetQuestStatus},         // :SetQuestStatus(entry, status) - Sets the quest's status
     {"SetReputation", &LuaPlayer::SetReputation},           // :SetReputation(faction, value) - Sets the faction reputation for the player
     {"SetFreeTalentPoints", &LuaPlayer::SetFreeTalentPoints}, // :SetFreeTalentPoints(points) - Sets the amount of unused talent points
@@ -577,7 +571,7 @@ ElunaRegister<Player> PlayerMethods[] =
     // {"BindToInstance", &LuaPlayer::BindToInstance},      // :BindToInstance() - Binds the player to the current instance
     {"UnbindInstance", &LuaPlayer::UnbindInstance},         // :UnbindInstance(map, difficulty) - Unbinds the player from an instance
     {"RemoveFromBattlegroundOrBattlefieldRaid", &LuaPlayer::RemoveFromBattlegroundOrBattlefieldRaid},         // :RemoveFromBattlegroundOrBattlefieldRaid() - Removes the player from a battleground or battlefield raid
-    {"ResetAchievements", &LuaPlayer::ResetAchievements},   // :ResetAchievements() - Resets playeräs achievements
+    {"ResetAchievements", &LuaPlayer::ResetAchievements},   // :ResetAchievements() - Resets playerï¿½s achievements
     {"KickPlayer", &LuaPlayer::KickPlayer},                 // :KickPlayer() - Kicks player from server
     {"LogoutPlayer", &LuaPlayer::LogoutPlayer},             // :LogoutPlayer([save]) - Logs the player out and saves if true
     {"SendTrainerList", &LuaPlayer::SendTrainerList},       // :SendTrainerList(WorldObject) - Sends trainer list from object to player
@@ -880,7 +874,7 @@ ElunaRegister<Quest> QuestMethods[] =
     {"GetPrevQuestId", &LuaQuest::GetPrevQuestId},          // :GetPrevQuestId() - Returns the quest's previous quest ID
     {"GetNextQuestInChain", &LuaQuest::GetNextQuestInChain},// :GetNexQuestInChain() - Returns the next quest in its chain
     {"GetFlags", &LuaQuest::GetFlags},                      // :GetFlags() - Returns the quest's flags
-    {"GetType", &LuaQuest::GetType},                        // :GetType() - Returns the quest's type
+    {"GetQuestInfoID", &LuaQuest::GetQuestInfoID},          // :GetQuestInfoID() - Returns the quest's type
 
     // Boolean
     {"HasFlag", &LuaQuest::HasFlag},                        // :HasFlag(flag) - Returns true or false if the quest has the specified flag
@@ -1052,7 +1046,6 @@ ElunaRegister<Corpse> CorpseMethods[] =
     {"GetType", &LuaCorpse::GetType},                       // :GetType() - Returns the (CorpseType) of a corpse
     {"ResetGhostTime", &LuaCorpse::ResetGhostTime},         // :ResetGhostTime() - Resets the corpse's ghost time
     {"SaveToDB", &LuaCorpse::SaveToDB},                     // :SaveToDB() - Saves to database
-    {"DeleteBonesFromWorld", &LuaCorpse::DeleteBonesFromWorld},                                             // :DeleteBonesFromWorld() - Deletes all bones from the world
 
     {NULL, NULL}
 };

@@ -129,31 +129,31 @@ class instance_violet_hold : public InstanceMapScript
         {
             instance_violet_hold_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
-            uint64 uiMoragg;
-            uint64 uiErekem;
-            uint64 uiErekemGuard[2];
-            uint64 uiIchoron;
-            uint64 uiLavanthor;
-            uint64 uiXevozz;
-            uint64 uiZuramat;
-            uint64 uiCyanigosa;
-            uint64 uiSinclari;
-            uint64 uiSinclariTeleport;
-            uint64 uiSinclariTrigger;
+            ObjectGuid uiMoragg;
+            ObjectGuid uiErekem;
+            ObjectGuid uiErekemGuard[2];
+            ObjectGuid uiIchoron;
+            ObjectGuid uiLavanthor;
+            ObjectGuid uiXevozz;
+            ObjectGuid uiZuramat;
+            ObjectGuid uiCyanigosa;
+            ObjectGuid uiSinclari;
+            ObjectGuid uiSinclariTeleport;
+            ObjectGuid uiSinclariTrigger;
 
-            uint64 uiMoraggCell;
-            uint64 uiErekemCell;
-            uint64 uiErekemLeftGuardCell;
-            uint64 uiErekemRightGuardCell;
-            uint64 uiIchoronCell;
-            uint64 uiLavanthorCell;
-            uint64 uiXevozzCell;
-            uint64 uiZuramatCell;
-            uint64 uiMainDoor;
-            uint64 uiTeleportationPortal;
-            uint64 uiSaboteurPortal;
+            ObjectGuid uiMoraggCell;
+            ObjectGuid uiErekemCell;
+            ObjectGuid uiErekemLeftGuardCell;
+            ObjectGuid uiErekemRightGuardCell;
+            ObjectGuid uiIchoronCell;
+            ObjectGuid uiLavanthorCell;
+            ObjectGuid uiXevozzCell;
+            ObjectGuid uiZuramatCell;
+            ObjectGuid uiMainDoor;
+            ObjectGuid uiTeleportationPortal;
+            ObjectGuid uiSaboteurPortal;
 
-            std::vector<uint64> uiActivationCrystals;
+            std::vector<ObjectGuid> uiActivationCrystals;
 
             uint32 uiActivationTimer;
             uint32 uiCyanigosaEventTimer;
@@ -183,28 +183,28 @@ class instance_violet_hold : public InstanceMapScript
 
             void Initialize() override
             {
-                uiMoragg = 0;
-                uiErekem = 0;
-                uiIchoron = 0;
-                uiLavanthor = 0;
-                uiXevozz = 0;
-                uiZuramat = 0;
-                uiCyanigosa = 0;
-                uiSinclari = 0;
-                uiSinclariTeleport = 0;
-                uiSinclariTrigger = 0;
+                uiMoragg = ObjectGuid::Empty;
+                uiErekem = ObjectGuid::Empty;
+                uiIchoron = ObjectGuid::Empty;
+                uiLavanthor = ObjectGuid::Empty;
+                uiXevozz = ObjectGuid::Empty;
+                uiZuramat = ObjectGuid::Empty;
+                uiCyanigosa = ObjectGuid::Empty;
+                uiSinclari = ObjectGuid::Empty;
+                uiSinclariTeleport = ObjectGuid::Empty;
+                uiSinclariTrigger = ObjectGuid::Empty;
 
-                uiMoraggCell = 0;
-                uiErekemCell = 0;
-                uiErekemGuard[0] = 0;
-                uiErekemGuard[1] = 0;
-                uiIchoronCell = 0;
-                uiLavanthorCell = 0;
-                uiXevozzCell = 0;
-                uiZuramatCell = 0;
-                uiMainDoor = 0;
-                uiTeleportationPortal = 0;
-                uiSaboteurPortal = 0;
+                uiMoraggCell = ObjectGuid::Empty;
+                uiErekemCell = ObjectGuid::Empty;
+                uiErekemGuard[0] = ObjectGuid::Empty;
+                uiErekemGuard[1] = ObjectGuid::Empty;
+                uiIchoronCell = ObjectGuid::Empty;
+                uiLavanthorCell = ObjectGuid::Empty;
+                uiXevozzCell = ObjectGuid::Empty;
+                uiZuramatCell = ObjectGuid::Empty;
+                uiMainDoor = ObjectGuid::Empty;
+                uiTeleportationPortal = ObjectGuid::Empty;
+                uiSaboteurPortal = ObjectGuid::Empty;
 
                 uiRemoveNpc = 0;
 
@@ -472,7 +472,7 @@ class instance_violet_hold : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -500,7 +500,7 @@ class instance_violet_hold : public InstanceMapScript
                     case DATA_SABOTEUR_PORTAL:          return uiSaboteurPortal;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void SpawnPortal()

@@ -86,9 +86,9 @@ public:
 
     bool IsClosed() const { return _closedBy; }
     bool IsAssigned() const { return _assignedTo != 0; }
-    bool IsFromPlayer(uint64 guid) const { return guid == _playerGuid; }
-    bool IsAssignedTo(uint64 guid) const { return guid == _assignedTo; }
-    bool IsAssignedNotTo(uint64 guid) const { return IsAssigned() && !IsAssignedTo(guid); }
+    bool IsFromPlayer(ObjectGuid guid) const { return guid == _playerGuid; }
+    bool IsAssignedTo(ObjectGuid guid) const { return guid == _assignedTo; }
+    bool IsAssignedNotTo(ObjectGuid guid) const { return IsAssigned() && !IsAssignedTo(guid); }
 
     std::string const& GetComment() const { return _comment; }
     std::string const& GetPlayerName() const { return _playerName; }
@@ -96,21 +96,21 @@ public:
 
     uint32 GetTicketId() const { return _ticketId; }
     uint32 GetMapId() const { return _mapId; }
-    uint64 GetPlayerGuid() const { return _playerGuid; }
-    uint64 GetAssignedToGUID() const { return _assignedTo; }
+    ObjectGuid GetPlayerGuid() const { return _playerGuid; }
+    ObjectGuid GetAssignedToGUID() const { return _assignedTo; }
 
     Player* GetPlayer() const { return ObjectAccessor::FindPlayer(_playerGuid); }
     Player* GetAssignedPlayer() const { return ObjectAccessor::FindPlayer(_assignedTo); }
 
     void SetComment(std::string comment){ _comment = comment; }
     void SetPosition(uint32 MapID, G3D::Vector3 pos);
-    void SetClosedBy(uint64 closer) { _closedBy = closer; }
+    void SetClosedBy(ObjectGuid closer) { _closedBy = closer; }
     void SetComment(std::string &comment) { _comment = comment; }
 
     void TeleportTo(Player* player) const;
 
-    virtual void SetAssignedTo(uint64 assignedTo, bool /*isAdmin*/ = false) { _assignedTo = assignedTo; }
-    virtual void SetUnassigned() { _assignedTo = 0; }
+    virtual void SetAssignedTo(ObjectGuid assignedTo, bool /*isAdmin*/ = false) { _assignedTo = assignedTo; }
+    virtual void SetUnassigned() { _assignedTo = ObjectGuid::Empty; }
 
     virtual void LoadFromDB(Field* fields) = 0;
     virtual void SaveToDB(CharacterDatabaseTransaction trans) const = 0;
@@ -123,9 +123,9 @@ protected:
     uint32 _ticketId;
     uint32 _ticketCreateTime;
     uint32 _mapId;
-    uint64 _playerGuid;
-    uint64 _closedBy;
-    uint64 _assignedTo;
+    ObjectGuid _playerGuid;
+    ObjectGuid _closedBy;
+    ObjectGuid _assignedTo;
     std::string _comment;
     std::string _playerName;
     G3D::Vector3 _pos;
@@ -141,7 +141,7 @@ public:
     void AppendResponse(std::string const& response) { _response += response; }
     void SetEscalatedStatus(GMTicketEscalationStatus escalatedStatus) { _escalatedStatus = escalatedStatus; }
     void SetViewed() { _viewed = true; }
-    void SetUnassigned();
+    void SetUnassigned() override;
     void SetChatLog(std::list<uint32> time, std::string const& log);
     void SetCompleted() { _completed = true; }
     void SetMessage(std::string const& message);

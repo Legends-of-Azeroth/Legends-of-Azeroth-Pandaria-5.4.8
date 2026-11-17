@@ -87,15 +87,15 @@ class BattlegroundDS : public Battleground
         /* inherited from BattlegroundClass */
         void AddPlayer(Player* player) override;
         void OnInvite(Player* player, GroupQueueInfo const* ginfo) override;
-        void StartingEventCloseDoors();
-        void StartingEventOpenDoors();
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
 
-        void RemovePlayer(Player* player, uint64 guid, uint32 team);
-        void HandleAreaTrigger(Player* Source, uint32 Trigger);
-        bool SetupBattleground();
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
+        void HandleAreaTrigger(Player* Source, uint32 Trigger, bool Entered) override;
+        bool SetupBattleground() override;
         void Reset() override;
-        void FillInitialWorldStates(WorldStateBuilder& builder);
-        void HandleKillPlayer(Player* player, Player* killer);
+        void FillInitialWorldStates(WorldStateBuilder& builder) override;
+        void HandleKillPlayer(Player* player, Player* killer) override;
     private:
         uint32 _waterfallTimer;
         uint8 _waterfallStatus;
@@ -103,7 +103,7 @@ class BattlegroundDS : public Battleground
         uint32 _pipeKnockBackTimer;
         uint8 _pipeKnockBackCount;
 
-        void PostUpdateImpl(uint32 diff);
+        void PostUpdateImpl(uint32 diff) override;
     protected:
         uint32 getWaterFallStatus() { return _waterfallStatus; }
         void setWaterFallStatus(uint8 status) { _waterfallStatus = status; }

@@ -100,7 +100,7 @@ class boss_shade_of_aran : public CreatureScript
 
             uint32 FlameWreathTimer;
             uint32 FlameWreathCheckTime;
-            uint64 FlameWreathTarget[3];
+            ObjectGuid FlameWreathTarget[3];
             float FWTargPosX[3];
             float FWTargPosY[3];
 
@@ -143,7 +143,7 @@ class boss_shade_of_aran : public CreatureScript
                 {
                     // not in progress
                     instance->SetData(TYPE_ARAN, NOT_STARTED);
-                    instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), true);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), true);
                 }
             }
 
@@ -159,33 +159,33 @@ class boss_shade_of_aran : public CreatureScript
                 if (instance)
                 {
                     instance->SetData(TYPE_ARAN, DONE);
-                    instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), true);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), true);
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 
                 if (instance)
                 {
                     instance->SetData(TYPE_ARAN, IN_PROGRESS);
-                    instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), false);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), false);
                 }
             }
 
             void FlameWreathEffect()
             {
                 std::vector<Unit*> targets;
-                std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
+                auto t_list = me->GetThreatManager().GetUnsortedThreatList();
 
-                if (t_list.empty())
+                if (me->GetThreatManager().IsThreatListEmpty())
                     return;
 
                 // store the threat list in a different container
-                for (auto&& itr : t_list)
+                for (auto&& ref : t_list)
                 {
-                    Unit* target = Unit::GetUnit(*me, itr->getUnitGuid());
+                    Unit* target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                     // only on alive players
                     if (target && target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
                         targets.push_back(target);
@@ -217,7 +217,7 @@ class boss_shade_of_aran : public CreatureScript
                     {
                         if (instance)
                         {
-                            instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), false);
+                            instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), false);
                             CloseDoorTimer = 0;
                         }
                     } else CloseDoorTimer -= diff;
@@ -384,9 +384,9 @@ class boss_shade_of_aran : public CreatureScript
                             FlameWreathTimer = 20000;
                             FlameWreathCheckTime = 500;
 
-                            FlameWreathTarget[0] = 0;
-                            FlameWreathTarget[1] = 0;
-                            FlameWreathTarget[2] = 0;
+                            FlameWreathTarget[0] = ObjectGuid::Empty;
+                            FlameWreathTarget[1] = ObjectGuid::Empty;
+                            FlameWreathTarget[2] = ObjectGuid::Empty;
 
                             FlameWreathEffect();
                             break;
@@ -394,7 +394,7 @@ class boss_shade_of_aran : public CreatureScript
                         case SUPER_BLIZZARD:
                             Talk(SAY_BLIZZARD);
 
-                            if (Creature* spawn = me->SummonCreature(CREATURE_ARAN_BLIZZARD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 25000))
+                            if (Creature* spawn = me->SummonCreature(CREATURE_ARAN_BLIZZARD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 25000ms))
                             {
                                 spawn->SetFaction(me->GetFaction());
                                 spawn->CastSpell(spawn, SPELL_CIRCULAR_BLIZZARD, false);
@@ -411,7 +411,7 @@ class boss_shade_of_aran : public CreatureScript
 
                     for (uint32 i = 0; i < 4; ++i)
                     {
-                        if (Creature* unit = me->SummonCreature(CREATURE_WATER_ELEMENTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 90000))
+                        if (Creature* unit = me->SummonCreature(CREATURE_WATER_ELEMENTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 90000ms))
                         {
                             unit->Attack(me->GetVictim(), true);
                             unit->SetFaction(me->GetFaction());
@@ -425,7 +425,7 @@ class boss_shade_of_aran : public CreatureScript
                 {
                     for (uint32 i = 0; i < 5; ++i)
                     {
-                        if (Creature* unit = me->SummonCreature(CREATURE_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+                        if (Creature* unit = me->SummonCreature(CREATURE_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000ms))
                         {
                             unit->Attack(me->GetVictim(), true);
                             unit->SetFaction(me->GetFaction());
@@ -456,7 +456,7 @@ class boss_shade_of_aran : public CreatureScript
                             {
                                 unit->CastSpell(unit, 20476, true, 0, 0, me->GetGUID());
                                 unit->CastSpell(unit, 11027, true);
-                                FlameWreathTarget[i] = 0;
+                                FlameWreathTarget[i] = ObjectGuid::Empty;
                             }
                         }
                         FlameWreathCheckTime = 500;
@@ -517,7 +517,7 @@ class npc_aran_elemental : public CreatureScript
                 CastTimer = 2000 + (rand() % 3000);
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override
             {

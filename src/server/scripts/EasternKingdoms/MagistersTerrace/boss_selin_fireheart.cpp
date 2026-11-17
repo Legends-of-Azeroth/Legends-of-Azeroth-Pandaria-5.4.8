@@ -82,8 +82,8 @@ public:
                 for (uint8 i = 0; i < size; ++i)
                 {
                     instance->SetData64(DATA_FEL_CRYSTAL, i);
-                    uint64 guid = instance->GetData64(DATA_FEL_CRYSTAL);
-                    TC_LOG_DEBUG("scripts", "Selin: Adding Fel Crystal " UI64FMTD " to list", guid);
+                    ObjectGuid guid = instance->GetGuidData(DATA_FEL_CRYSTAL);
+                    TC_LOG_DEBUG("scripts", "Selin: Adding Fel Crystal " "{}" " to list", guid.GetRawValue());
                     Crystals.push_back(guid);
                 }
             }
@@ -91,7 +91,7 @@ public:
 
         InstanceScript* instance;
 
-        std::list<uint64> Crystals;
+        std::list<ObjectGuid> Crystals;
 
         uint32 DrainLifeTimer;
         uint32 DrainManaTimer;
@@ -102,14 +102,14 @@ public:
         bool IsDraining;
         bool DrainingCrystal;
 
-        uint64 CrystalGUID;                                     // This will help us create a pointer to the crystal we are draining. We store GUIDs, never units in case unit is deleted/offline (offline if player of course).
+        ObjectGuid CrystalGUID;                                     // This will help us create a pointer to the crystal we are draining. We store GUIDs, never units in case unit is deleted/offline (offline if player of course).
 
         void Reset() override
         {
             if (instance)
             {
                 //for (uint8 i = 0; i < CRYSTALS_NUMBER; ++i)
-                for (std::list<uint64>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
+                for (std::list<ObjectGuid>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
                 {
                     //Unit* unit = Unit::GetUnit(*me, FelCrystals[i]);
                     if (Creature* creature = Unit::GetCreature(*me, *itr))
@@ -137,7 +137,7 @@ public:
 
             IsDraining = false;
             DrainingCrystal = false;
-            CrystalGUID = 0;
+            CrystalGUID = ObjectGuid::Empty;
         }
 
         void SelectNearestCrystal()
@@ -146,11 +146,11 @@ public:
                 return;
 
             //float ShortestDistance = 0;
-            CrystalGUID = 0;
+            CrystalGUID = ObjectGuid::Empty;
             Unit* pCrystal = NULL;
             Unit* CrystalChosen = NULL;
             //for (uint8 i =  0; i < CRYSTALS_NUMBER; ++i)
-            for (std::list<uint64>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
+            for (std::list<ObjectGuid>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
             {
                 pCrystal = NULL;
                 //pCrystal = Unit::GetUnit(*me, FelCrystals[i]);
@@ -187,7 +187,7 @@ public:
                 return;
 
             //for (uint8 i = 0; i < CRYSTALS_NUMBER; ++i)
-            for (std::list<uint64>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
+            for (std::list<ObjectGuid>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
             {
                 //Creature* pCrystal = (Unit::GetCreature(*me, FelCrystals[i]));
                 Creature* pCrystal = Unit::GetCreature(*me, *itr);
@@ -196,7 +196,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
             if (instance)
@@ -306,7 +306,7 @@ public:
                             // Use Deal Damage to kill it, not setDeathState.
                             CrystalChosen->Kill(CrystalChosen);
 
-                        CrystalGUID = 0;
+                        CrystalGUID = ObjectGuid::Empty;
 
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MoveChase(me->GetVictim());
@@ -334,7 +334,7 @@ public:
         npc_fel_crystalAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void AttackStart(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
@@ -344,7 +344,7 @@ public:
         {
             if (InstanceScript* instance = me->GetInstanceScript())
             {
-                Creature* Selin = (Unit::GetCreature(*me, instance->GetData64(DATA_SELIN)));
+                Creature* Selin = (Unit::GetCreature(*me, instance->GetGuidData(DATA_SELIN)));
                 if (Selin && Selin->IsAlive())
                 {
                     if (CAST_AI(boss_selin_fireheart::boss_selin_fireheartAI, Selin->AI())->CrystalGUID == me->GetGUID())

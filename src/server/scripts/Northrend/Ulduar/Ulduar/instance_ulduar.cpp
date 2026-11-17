@@ -73,81 +73,81 @@ class instance_ulduar : public InstanceMapScript
             instance_ulduarinstanceMapScript(InstanceMap* map) : InstanceScript(map) { }
 
             // Creatures
-            uint64 LoreKeeperOfNorgannonGUID;
-            uint64 BronzebeardRadioGUID;
-            uint64 LeviathanGUID;
-            uint64 OrbitalSupportGUID;
-            uint64 IgnisGUID;
-            uint64 RazorscaleGUID;
-            uint64 RazorscaleController;
-            uint64 ExpeditionCommanderGUID;
-            uint64 XT002GUID;
-            uint64 XTToyPileGUIDs[4];
-            uint64 AssemblyGUIDs[3];
-            uint64 KologarnGUID;
-            uint64 AuriayaGUID;
-            uint64 HodirGUID;
-            uint64 ThorimGUID;
-            uint64 ThorimCtrlGUID;
-            uint64 RunicColossusGUID;
-            uint64 RuneGiantGUID;
-            uint64 FreyaGUID;
-            uint64 ElderGUIDs[3];
-            uint64 MimironGUID;
-            uint64 LeviathanMKIIGUID;
-            uint64 VX001GUID;
-            uint64 AerialUnitGUID;
-            uint64 VezaxGUID;
-            uint64 YoggSaronGUID;
-            uint64 KeeperGUIDs[4];
-            uint64 VoiceOfYoggSaronGUID;
-            uint64 SaraGUID;
-            uint64 BrainOfYoggSaronGUID;
-            uint64 AlgalonGUID;
-            uint64 BrannBronzebeardAlgGUID;
+            ObjectGuid LoreKeeperOfNorgannonGUID;
+            ObjectGuid BronzebeardRadioGUID;
+            ObjectGuid LeviathanGUID;
+            ObjectGuid OrbitalSupportGUID;
+            ObjectGuid IgnisGUID;
+            ObjectGuid RazorscaleGUID;
+            ObjectGuid RazorscaleController;
+            ObjectGuid ExpeditionCommanderGUID;
+            ObjectGuid XT002GUID;
+            ObjectGuid XTToyPileGUIDs[4];
+            ObjectGuid AssemblyGUIDs[3];
+            ObjectGuid KologarnGUID;
+            ObjectGuid AuriayaGUID;
+            ObjectGuid HodirGUID;
+            ObjectGuid ThorimGUID;
+            ObjectGuid ThorimCtrlGUID;
+            ObjectGuid RunicColossusGUID;
+            ObjectGuid RuneGiantGUID;
+            ObjectGuid FreyaGUID;
+            ObjectGuid ElderGUIDs[3];
+            ObjectGuid MimironGUID;
+            ObjectGuid LeviathanMKIIGUID;
+            ObjectGuid VX001GUID;
+            ObjectGuid AerialUnitGUID;
+            ObjectGuid VezaxGUID;
+            ObjectGuid YoggSaronGUID;
+            ObjectGuid KeeperGUIDs[4];
+            ObjectGuid VoiceOfYoggSaronGUID;
+            ObjectGuid SaraGUID;
+            ObjectGuid BrainOfYoggSaronGUID;
+            ObjectGuid AlgalonGUID;
+            ObjectGuid BrannBronzebeardAlgGUID;
 
             // GameObjects
-            uint64 LeviathanGateGUID;
-            uint64 LeviDoorGUID;
-            uint64 TowerofStormsCrystalGUID;
-            uint64 TowerofFlamesCrystalGUID;
-            uint64 TowerofFrostCrystalGUID;
-            uint64 TowerofLifeCrystalGUID;
-            uint64 RazorHarpoonGUIDs[4];
-            uint64 KologarnChestGUID;
-            uint64 KologarnBridgeGUID;
-            uint64 ActivateTramGUID = 0;
-            uint64 CallTramLastGUID = 0;
-            uint64 CallTramFirstGUID = 0;
-            uint64 MimironTrainGUID;
-            uint64 MimironElevatorGUID;
-            uint64 MimironChestGUID;
-            uint64 MimironChestHardGUID;
-            uint64 HodirChestGUID;
-            uint64 HodirChestHardGUID;
+            ObjectGuid LeviathanGateGUID;
+            ObjectGuid LeviDoorGUID;
+            ObjectGuid TowerofStormsCrystalGUID;
+            ObjectGuid TowerofFlamesCrystalGUID;
+            ObjectGuid TowerofFrostCrystalGUID;
+            ObjectGuid TowerofLifeCrystalGUID;
+            ObjectGuid RazorHarpoonGUIDs[4];
+            ObjectGuid KologarnChestGUID;
+            ObjectGuid KologarnBridgeGUID;
+            ObjectGuid ActivateTramGUID;
+            ObjectGuid CallTramLastGUID;
+            ObjectGuid CallTramFirstGUID;
+            ObjectGuid MimironTrainGUID;
+            ObjectGuid MimironElevatorGUID;
+            ObjectGuid MimironChestGUID;
+            ObjectGuid MimironChestHardGUID;
+            ObjectGuid HodirChestGUID;
+            ObjectGuid HodirChestHardGUID;
             uint32 HodirRareCacheData;
-            uint64 RunicDoorGUID;
-            uint64 StoneDoorGUID;
-            uint64 ThorimChestGUID;
-            uint64 ThorimChestHardGUID;
-            uint64 ThorimDarkIronPortCullisGUID;
-            uint64 AlgalonSigilDoorGUID[3];
-            uint64 BrainRoomDoorGUIDs[3];
-            uint64 AlgalonFloorGUID[2];
-            uint64 AlgalonUniverseGUID;
-            uint64 AlgalonTrapdoorGUID;
-            uint64 GiftOfTheObserverGUID;
+            ObjectGuid RunicDoorGUID;
+            ObjectGuid StoneDoorGUID;
+            ObjectGuid ThorimChestGUID;
+            ObjectGuid ThorimChestHardGUID;
+            ObjectGuid ThorimDarkIronPortCullisGUID;
+            ObjectGuid AlgalonSigilDoorGUID[3];
+            ObjectGuid BrainRoomDoorGUIDs[3];
+            ObjectGuid AlgalonFloorGUID[2];
+            ObjectGuid AlgalonUniverseGUID;
+            ObjectGuid AlgalonTrapdoorGUID;
+            ObjectGuid GiftOfTheObserverGUID;
 
             // Teleports
-            uint64 TeleporterBaseCampGUID;
-            uint64 TeleporterGroundsGUID;
-            uint64 TeleporterForgeGUID;
-            uint64 TeleporterScrapyardGUID;
-            uint64 TeleporterAntchemberGUID;
-            uint64 TeleporterShatteredGUID;
-            uint64 TeleporterConservatoryGUID;
-            uint64 TeleporterImaginationGUID;
-            uint64 TeleporterDescentGUID;
+            ObjectGuid TeleporterBaseCampGUID;
+            ObjectGuid TeleporterGroundsGUID;
+            ObjectGuid TeleporterForgeGUID;
+            ObjectGuid TeleporterScrapyardGUID;
+            ObjectGuid TeleporterAntchemberGUID;
+            ObjectGuid TeleporterShatteredGUID;
+            ObjectGuid TeleporterConservatoryGUID;
+            ObjectGuid TeleporterImaginationGUID;
+            ObjectGuid TeleporterDescentGUID;
 
             // Miscellaneous
             uint32 TeamInInstance;
@@ -173,52 +173,52 @@ class instance_ulduar : public InstanceMapScript
             {
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doorData);
-                TeleporterBaseCampGUID           = 0;
-                TeleporterGroundsGUID            = 0;
-                TeleporterForgeGUID              = 0;
-                TeleporterScrapyardGUID          = 0;
-                TeleporterAntchemberGUID         = 0;
-                TeleporterShatteredGUID          = 0;
-                TeleporterConservatoryGUID       = 0;
-                TeleporterImaginationGUID        = 0;
-                TeleporterDescentGUID            = 0;
-                LeviathanGUID                    = 0;
-                OrbitalSupportGUID               = 0;
-                IgnisGUID                        = 0;
-                RazorscaleGUID                   = 0;
-                RazorscaleController             = 0;
-                ExpeditionCommanderGUID          = 0;
-                XT002GUID                        = 0;
-                KologarnGUID                     = 0;
-                AuriayaGUID                      = 0;
-                MimironGUID                      = 0;
-                HodirGUID                        = 0;
-                ThorimGUID                       = 0;
-                FreyaGUID                        = 0;
-                VezaxGUID                        = 0;
-                YoggSaronGUID                    = 0;
-                VoiceOfYoggSaronGUID             = 0;
-                SaraGUID                         = 0;
-                BrainOfYoggSaronGUID             = 0;
-                AlgalonGUID                      = 0;
-                KologarnBridgeGUID               = 0;
-                ThorimCtrlGUID                   = 0;
-                RunicColossusGUID                = 0;
-                RuneGiantGUID                    = 0;
-                RunicDoorGUID                    = 0;
-                StoneDoorGUID                    = 0;
-                ThorimChestGUID                  = 0;
-                ThorimDarkIronPortCullisGUID     = 0;
-                LeviathanGateGUID                = 0;
-                AlgalonUniverseGUID              = 0;
-                AlgalonTrapdoorGUID              = 0;
-                BrannBronzebeardAlgGUID          = 0;
-                GiftOfTheObserverGUID            = 0;
-                MimironTrainGUID                 = 0;
-                LeviathanMKIIGUID                = 0;
-                VX001GUID                        = 0;
-                AerialUnitGUID                   = 0;
-                MimironElevatorGUID              = 0;
+                TeleporterBaseCampGUID = ObjectGuid::Empty;
+                TeleporterGroundsGUID = ObjectGuid::Empty;
+                TeleporterForgeGUID = ObjectGuid::Empty;
+                TeleporterScrapyardGUID = ObjectGuid::Empty;
+                TeleporterAntchemberGUID = ObjectGuid::Empty;
+                TeleporterShatteredGUID = ObjectGuid::Empty;
+                TeleporterConservatoryGUID = ObjectGuid::Empty;
+                TeleporterImaginationGUID = ObjectGuid::Empty;
+                TeleporterDescentGUID = ObjectGuid::Empty;
+                LeviathanGUID = ObjectGuid::Empty;
+                OrbitalSupportGUID = ObjectGuid::Empty;
+                IgnisGUID = ObjectGuid::Empty;
+                RazorscaleGUID = ObjectGuid::Empty;
+                RazorscaleController             = ObjectGuid::Empty;
+                ExpeditionCommanderGUID = ObjectGuid::Empty;
+                XT002GUID                        = ObjectGuid::Empty;
+                KologarnGUID = ObjectGuid::Empty;
+                AuriayaGUID = ObjectGuid::Empty;
+                MimironGUID = ObjectGuid::Empty;
+                HodirGUID = ObjectGuid::Empty;
+                ThorimGUID = ObjectGuid::Empty;
+                FreyaGUID = ObjectGuid::Empty;
+                VezaxGUID = ObjectGuid::Empty;
+                YoggSaronGUID = ObjectGuid::Empty;
+                VoiceOfYoggSaronGUID = ObjectGuid::Empty;
+                SaraGUID = ObjectGuid::Empty;
+                BrainOfYoggSaronGUID = ObjectGuid::Empty;
+                AlgalonGUID = ObjectGuid::Empty;
+                KologarnBridgeGUID = ObjectGuid::Empty;
+                ThorimCtrlGUID = ObjectGuid::Empty;
+                RunicColossusGUID = ObjectGuid::Empty;
+                RuneGiantGUID = ObjectGuid::Empty;
+                RunicDoorGUID = ObjectGuid::Empty;
+                StoneDoorGUID = ObjectGuid::Empty;
+                ThorimChestGUID = ObjectGuid::Empty;
+                ThorimDarkIronPortCullisGUID = ObjectGuid::Empty;
+                LeviathanGateGUID = ObjectGuid::Empty;
+                AlgalonUniverseGUID = ObjectGuid::Empty;
+                AlgalonTrapdoorGUID = ObjectGuid::Empty;
+                BrannBronzebeardAlgGUID = ObjectGuid::Empty;
+                GiftOfTheObserverGUID = ObjectGuid::Empty;
+                MimironTrainGUID = ObjectGuid::Empty;
+                LeviathanMKIIGUID = ObjectGuid::Empty;
+                VX001GUID                        = ObjectGuid::Empty;
+                AerialUnitGUID = ObjectGuid::Empty;
+                MimironElevatorGUID = ObjectGuid::Empty;
                 TramData                         = 0;
                 _algalonTimer                    = 61;
                 _maxArmorItemLevel               = 0;
@@ -232,18 +232,18 @@ class instance_ulduar : public InstanceMapScript
                 BrightleafDeath                  = 0;
                 StonebarkDeath                   = 0;
                 IronbranchDeath                  = 0;
-                TowerofStormsCrystalGUID         = 0;
-                TowerofFlamesCrystalGUID         = 0;
-                TowerofFrostCrystalGUID          = 0;
-                TowerofLifeCrystalGUID           = 0;
-                LeviDoorGUID                     = 0;
-                KologarnChestGUID                = 0;
-                MimironChestGUID                 = 0;
-                MimironChestHardGUID             = 0;
-                HodirChestGUID                   = 0;
-                HodirChestHardGUID               = 0;
-                ThorimChestGUID                  = 0;
-                ThorimChestHardGUID              = 0;
+                TowerofStormsCrystalGUID = ObjectGuid::Empty;
+                TowerofFlamesCrystalGUID = ObjectGuid::Empty;
+                TowerofFrostCrystalGUID = ObjectGuid::Empty;
+                TowerofLifeCrystalGUID = ObjectGuid::Empty;
+                LeviDoorGUID = ObjectGuid::Empty;
+                KologarnChestGUID = ObjectGuid::Empty;
+                MimironChestGUID = ObjectGuid::Empty;
+                MimironChestHardGUID = ObjectGuid::Empty;
+                HodirChestGUID = ObjectGuid::Empty;
+                HodirChestHardGUID = ObjectGuid::Empty;
+                ThorimChestGUID = ObjectGuid::Empty;
+                ThorimChestHardGUID = ObjectGuid::Empty;
                 ThorimHardMode                   = false;
                 MimironHardMode                  = false;
                 uiUpdateTimer                    = 3000;
@@ -282,7 +282,7 @@ class instance_ulduar : public InstanceMapScript
                 builder.AppendState(uint32(WORLD_STATE_ALGALON_DESPAWN_TIMER), uint32(std::min<uint32>(_algalonTimer, 60)));
             }
 
-            void OnPlayerEnter(Player* player)
+            void OnPlayerEnter(Player* player) override
             {
                 if (!LeviathanGUID || !OrbitalSupportGUID)
                 {
@@ -631,7 +631,7 @@ class instance_ulduar : public InstanceMapScript
                 }
             }
 
-            void OnCreatureRemove(Creature* creature)
+            void OnCreatureRemove(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -639,13 +639,13 @@ class instance_ulduar : public InstanceMapScript
                         for (uint8 i = 0; i < 4; ++i)
                             if (XTToyPileGUIDs[i] == creature->GetGUID())
                             {
-                                XTToyPileGUIDs[i] = 0;
+                                XTToyPileGUIDs[i] = ObjectGuid::Empty;
                                 break;
                             }
                         break;
                     case NPC_BRANN_BRONZBEARD_ALG:
                         if (BrannBronzebeardAlgGUID == creature->GetGUID())
-                            BrannBronzebeardAlgGUID = 0;
+                            BrannBronzebeardAlgGUID = ObjectGuid::Empty;
                         break;
                     default:
                         break;
@@ -664,57 +664,57 @@ class instance_ulduar : public InstanceMapScript
                         if (teleportPosX > -708.0f && teleportPosX < -704.0f)
                         {
                             TeleporterBaseCampGUID = go->GetGUID();
-                            HandleGameObject(0, (GetData(DATA_COLOSSUS) == 2 || GetBossState(BOSS_LEVIATHAN) == DONE), go);
+                            HandleGameObject(ObjectGuid::Empty, (GetData(DATA_COLOSSUS) == 2 || GetBossState(BOSS_LEVIATHAN) == DONE), go);
                             go->ApplyModFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE, !(GetData(DATA_COLOSSUS) == 2 || GetBossState(BOSS_LEVIATHAN) == DONE));
                         }
                         // Teleport to the Formation Grounds
                         else if (teleportPosX > 130.0f && teleportPosX < 132.0f)
                         {
                             TeleporterGroundsGUID = go->GetGUID();
-                            HandleGameObject(0, (GetData(DATA_COLOSSUS) == 2 || GetBossState(BOSS_LEVIATHAN) == DONE), go);
+                            HandleGameObject(ObjectGuid::Empty, (GetData(DATA_COLOSSUS) == 2 || GetBossState(BOSS_LEVIATHAN) == DONE), go);
                             go->ApplyModFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE, !(GetData(DATA_COLOSSUS) == 2 || GetBossState(BOSS_LEVIATHAN) == DONE));
                         }
                         // Teleport to the Colossal Forge
                         else if (teleportPosX > 552.0f && teleportPosX < 554.0f)
                         {
                             TeleporterForgeGUID = go->GetGUID();
-                            HandleGameObject(0, GetBossState(BOSS_LEVIATHAN) == DONE, go);
+                            HandleGameObject(ObjectGuid::Empty, GetBossState(BOSS_LEVIATHAN) == DONE, go);
                         }
                         // Teleport to the Scrapyard
                         else if (teleportPosX > 925.0f && teleportPosX < 927.0f)
                         {
                             TeleporterScrapyardGUID = go->GetGUID();
-                            HandleGameObject(0, GetBossState(BOSS_XT002) == DONE, go);
+                            HandleGameObject(ObjectGuid::Empty, GetBossState(BOSS_XT002) == DONE, go);
                         }
                         // Teleport to the Antechamber of Ulduar
                         else if (teleportPosX > 1497.0f && teleportPosX < 1499.0f)
                         {
                             TeleporterAntchemberGUID = go->GetGUID();
-                            HandleGameObject(0, GetBossState(BOSS_XT002) == DONE, go);
+                            HandleGameObject(ObjectGuid::Empty, GetBossState(BOSS_XT002) == DONE, go);
                         }
                         // Teleport to the Shattered Walkway
                         else if (teleportPosX > 1858.0f && teleportPosX < 1860.0f)
                         {
                             TeleporterShatteredGUID = go->GetGUID();
-                            HandleGameObject(0, GetBossState(BOSS_KOLOGARN) == DONE, go);
+                            HandleGameObject(ObjectGuid::Empty, GetBossState(BOSS_KOLOGARN) == DONE, go);
                         }
                         // Teleport to the Conservatory of Life
                         else if (teleportPosX > 2085.0f && teleportPosX < 2087.0f)
                         {
                             TeleporterConservatoryGUID = go->GetGUID();
-                            HandleGameObject(0, GetBossState(BOSS_AURIAYA) == DONE, go);
+                            HandleGameObject(ObjectGuid::Empty, GetBossState(BOSS_AURIAYA) == DONE, go);
                         }
                         // Teleport to the Spark of Imagination
                         else if (teleportPosX > 2516.0f && teleportPosX < 2518.0f)
                         {
                             TeleporterImaginationGUID = go->GetGUID();  // NIY
-                            HandleGameObject(0, (GetData(DATA_TRAM) == DONE || GetBossState(BOSS_MIMIRON) == DONE), go);
+                            HandleGameObject(ObjectGuid::Empty, (GetData(DATA_TRAM) == DONE || GetBossState(BOSS_MIMIRON) == DONE), go);
                         }
                         // Teleport to the Descent into Madness
                         else if (teleportPosX > 1854.0f && teleportPosX < 1856.0f)
                         {
                             TeleporterDescentGUID = go->GetGUID();
-                            HandleGameObject(0, GetBossState(BOSS_VEZAX) == DONE, go);
+                            HandleGameObject(ObjectGuid::Empty, GetBossState(BOSS_VEZAX) == DONE, go);
                         }
                         break;
                     }
@@ -733,7 +733,7 @@ class instance_ulduar : public InstanceMapScript
                     case GO_LEVIATHAN_DOOR:
                         LeviDoorGUID = go->GetGUID();
                         if (GetBossState(BOSS_LEVIATHAN) == DONE)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case GO_RAZOR_HARPOON_1:
                         RazorHarpoonGUIDs[0] = go->GetGUID();
@@ -759,7 +759,7 @@ class instance_ulduar : public InstanceMapScript
                     case GO_KOLOGARN_BRIDGE:
                         KologarnBridgeGUID = go->GetGUID();
                         if (GetBossState(BOSS_KOLOGARN) == DONE)
-                            HandleGameObject(0, false, go);
+                            HandleGameObject(ObjectGuid::Empty, false, go);
                         break;
                     case GO_HODIR_CHEST_10:
                     case GO_HODIR_CHEST_25:
@@ -912,7 +912,7 @@ class instance_ulduar : public InstanceMapScript
                         AddDoor(go, false);
                         break;
                     case GO_WAY_TO_YOGG:
-                        _ancientGateOfTheKeepersGUID = 0;
+                        _ancientGateOfTheKeepersGUID = ObjectGuid::Empty;
                         break;
                     default:
                         break;
@@ -1343,7 +1343,7 @@ class instance_ulduar : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 data) const override
+            ObjectGuid GetGuidData(uint32 data) const override
             {
                 switch (data)
                 {
@@ -1486,7 +1486,7 @@ class instance_ulduar : public InstanceMapScript
                         return BrannBronzebeardAlgGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             uint32 GetData(uint32 type) const override
@@ -1656,7 +1656,7 @@ class instance_ulduar : public InstanceMapScript
                         go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
             }
 
-            std::string GetSaveData()
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -1672,7 +1672,7 @@ class instance_ulduar : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(char const* strIn)
+            void Load(char const* strIn) override
             {
                 if (!strIn)
                 {
@@ -1749,7 +1749,7 @@ class instance_ulduar : public InstanceMapScript
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
 
-            void Update(uint32 diff)
+            void Update(uint32 diff) override
             {
                 if (_events.Empty())
                     return;
@@ -1812,8 +1812,8 @@ class instance_ulduar : public InstanceMapScript
             uint32 _maxArmorItemLevel;
             uint32 _maxWeaponItemLevel;
             uint32 _CoUAchivePlayerDeathMask;
-            std::vector<uint64> vehiclesGUIDs;
-            uint64 _ancientGateOfTheKeepersGUID = 0;
+            std::vector<ObjectGuid> vehiclesGUIDs;
+            ObjectGuid _ancientGateOfTheKeepersGUID;
             std::set<uint32> triggeredAreaTriggers;
         };
 
@@ -1855,7 +1855,7 @@ class transport_ulduar_tram : public TransportScript
         {
             Map* map = transport->GetMap();
             GameObject* go = new GameObject();
-            if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), GO_ACTIVATE_TRAM, map, PHASEMASK_NORMAL, 0.0f, -10.30644f, 0.0f, 1.570796f, { 0.0f, 0.0f, 0.7071066f, 0.7071069f }, 0/*Blizzlike: 255, but we handle it in a strange way, making it despawn*/, GO_STATE_READY))
+            if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), GO_ACTIVATE_TRAM, map, PHASEMASK_NORMAL, 0.0f, -10.30644f, 0.0f, 1.570796f, { 0.0f, 0.0f, 0.7071066f, 0.7071069f }, 0/*Blizzlike: 255, but we handle it in a strange way, making it despawn*/, GO_STATE_READY))
             {
                 delete go;
                 return;

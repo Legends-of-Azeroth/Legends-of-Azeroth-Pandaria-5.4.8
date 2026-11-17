@@ -48,27 +48,27 @@ class instance_sunwell_plateau : public InstanceMapScript
             uint32 m_auiEncounter[MAX_ENCOUNTER];
 
             // Creatures
-            uint64 KalecgosDragonGUID;
-            uint64 KalecgosHumanGUID;
-            uint64 SathrovarrGUID;
-            uint64 BrutallusGUID;
-            uint64 MadrigosaGUID;
-            uint64 FelmystGUID;
-            uint64 AlythessGUID;
-            uint64 SacrolashGUID;
-            uint64 MuruGUID;
-            uint64 KilJaedenGUID;
-            uint64 KilJaedenControllerGUID;
-            uint64 AnveenaGUID;
-            uint64 KalecgosKJGUID;
+            ObjectGuid KalecgosDragonGUID;
+            ObjectGuid KalecgosHumanGUID;
+            ObjectGuid SathrovarrGUID;
+            ObjectGuid BrutallusGUID;
+            ObjectGuid MadrigosaGUID;
+            ObjectGuid FelmystGUID;
+            ObjectGuid AlythessGUID;
+            ObjectGuid SacrolashGUID;
+            ObjectGuid MuruGUID;
+            ObjectGuid KilJaedenGUID;
+            ObjectGuid KilJaedenControllerGUID;
+            ObjectGuid AnveenaGUID;
+            ObjectGuid KalecgosKJGUID;
             uint32 SpectralPlayersGUID;
 
             // GameObjects
-            uint64 ForceFieldGUID;                                      // Kalecgos Encounter
-            uint64 OrbsGUIDs[4];
-            uint64 KalecgosWall[2];
-            uint64 FireBarrierGUID;                                     // Felmysts Encounter
-            uint64 MurusGateGUIDs[2];                                   // Murus Encounter
+            ObjectGuid ForceFieldGUID;                                      // Kalecgos Encounter
+            ObjectGuid OrbsGUIDs[4];
+            ObjectGuid KalecgosWall[2];
+            ObjectGuid FireBarrierGUID;                                     // Felmysts Encounter
+            ObjectGuid MurusGateGUIDs[2];                                   // Murus Encounter
 
             // Misc
             uint32 SpectralRealmTimer;
@@ -79,32 +79,32 @@ class instance_sunwell_plateau : public InstanceMapScript
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
                 // Creatures
-                KalecgosDragonGUID         = 0;
-                KalecgosHumanGUID          = 0;
-                SathrovarrGUID             = 0;
-                BrutallusGUID              = 0;
-                MadrigosaGUID              = 0;
-                FelmystGUID                = 0;
-                AlythessGUID               = 0;
-                SacrolashGUID              = 0;
-                MuruGUID                   = 0;
-                KilJaedenGUID              = 0;
-                KilJaedenControllerGUID    = 0;
-                AnveenaGUID                = 0;
-                KalecgosKJGUID             = 0;
-                SpectralPlayersGUID        = 0;
+                KalecgosDragonGUID = ObjectGuid::Empty;
+                KalecgosHumanGUID = ObjectGuid::Empty;
+                SathrovarrGUID = ObjectGuid::Empty;
+                BrutallusGUID = ObjectGuid::Empty;
+                MadrigosaGUID = ObjectGuid::Empty;
+                FelmystGUID = ObjectGuid::Empty;
+                AlythessGUID = ObjectGuid::Empty;
+                SacrolashGUID = ObjectGuid::Empty;
+                MuruGUID = ObjectGuid::Empty;
+                KilJaedenGUID = ObjectGuid::Empty;
+                KilJaedenControllerGUID = ObjectGuid::Empty;
+                AnveenaGUID = ObjectGuid::Empty;
+                KalecgosKJGUID = ObjectGuid::Empty;
+                SpectralPlayersGUID = ObjectGuid::Empty;
 
                 // GameObjects
-                ForceFieldGUID             = 0;
-                OrbsGUIDs[0]               = 0;
-                OrbsGUIDs[1]               = 0;
-                OrbsGUIDs[2]               = 0;
-                OrbsGUIDs[3]               = 0;
-                FireBarrierGUID            = 0;
-                MurusGateGUIDs[0]          = 0;
-                MurusGateGUIDs[1]          = 0;
-                KalecgosWall[0]            = 0;
-                KalecgosWall[1]            = 0;
+                ForceFieldGUID = ObjectGuid::Empty;
+                OrbsGUIDs[0]               = ObjectGuid::Empty;
+                OrbsGUIDs[1]               = ObjectGuid::Empty;
+                OrbsGUIDs[2]               = ObjectGuid::Empty;
+                OrbsGUIDs[3]               = ObjectGuid::Empty;
+                FireBarrierGUID = ObjectGuid::Empty;
+                MurusGateGUIDs[0]          = ObjectGuid::Empty;
+                MurusGateGUIDs[1]          = ObjectGuid::Empty;
+                KalecgosWall[0]            = ObjectGuid::Empty;
+                KalecgosWall[1]            = ObjectGuid::Empty;
 
                 // Misc
                 SpectralRealmTimer         = 5000;
@@ -172,13 +172,13 @@ class instance_sunwell_plateau : public InstanceMapScript
                     case 188524: KalecgosWall[0]        = go->GetGUID(); break;
                     case 188075:
                         if (m_auiEncounter[2] == DONE)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         FireBarrierGUID = go->GetGUID();
                         break;
                     case 187990: MurusGateGUIDs[0]      = go->GetGUID(); break;
                     case 188118:
                         if (m_auiEncounter[4] == DONE)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         MurusGateGUIDs[1]               = go->GetGUID();
                         break;
                     case 187869: OrbsGUIDs[0]           = go->GetGUID(); break;
@@ -202,7 +202,7 @@ class instance_sunwell_plateau : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 id) const override
+            ObjectGuid GetGuidData(uint32 id) const override
             {
                 switch (id)
                 {
@@ -223,7 +223,7 @@ class instance_sunwell_plateau : public InstanceMapScript
                     case DATA_PLAYER_GUID:
                     {
                         Player* target = GetPlayerInMap();
-                        return target ? target->GetGUID() : 0;
+                        return target ? target->GetGUID() : ObjectGuid::Empty;
                     }
                     case DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_1:
                     case DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_2:
@@ -231,7 +231,7 @@ class instance_sunwell_plateau : public InstanceMapScript
                     case DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_4:
                         return OrbsGUIDs[id - DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_1];
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void SetData(uint32 id, uint32 data) override

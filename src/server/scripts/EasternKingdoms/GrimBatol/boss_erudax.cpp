@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -105,9 +105,9 @@ class boss_erudax : public CreatureScript
                 me->setActive(true);
             }
 
-            uint64 FacelessPortalStalkerGUID;
-            uint64 ShadowGaleTriggerGUID;
-            uint64 targetGUID;
+            ObjectGuid FacelessPortalStalkerGUID;
+            ObjectGuid ShadowGaleTriggerGUID;
+            ObjectGuid targetGUID;
 
             void Reset() override
             {
@@ -117,9 +117,9 @@ class boss_erudax : public CreatureScript
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
                 summons.DespawnAll();
-                targetGUID = 0;
-                ShadowGaleTriggerGUID = 0;
-                FacelessPortalStalkerGUID = 0;
+                targetGUID = ObjectGuid::Empty;
+                ShadowGaleTriggerGUID = ObjectGuid::Empty;
+                FacelessPortalStalkerGUID = ObjectGuid::Empty;
 
                 for (uint8 i = 0; i < 13; i++)
                     me->SummonCreature(NPC_ALEXSTRASZA_EGG, eggPos[i]);
@@ -142,9 +142,9 @@ class boss_erudax : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -237,7 +237,7 @@ class boss_erudax : public CreatureScript
 
                                 me->PrepareChanneledCast(me->GetOrientation());
 
-                                uint64 bindingGUID = target->GetGUID();
+                                ObjectGuid bindingGUID = target->GetGUID();
                                 scheduler
                                     .Schedule(Milliseconds(500), [this, bindingGUID](TaskContext context)
                                 {
@@ -258,7 +258,7 @@ class boss_erudax : public CreatureScript
 
                                 me->PrepareChanneledCast(me->GetOrientation());
 
-                                uint64 bindingGUID = target->GetGUID();
+                                ObjectGuid bindingGUID = target->GetGUID();
                                 scheduler
                                     .Schedule(Milliseconds(500), [this, bindingGUID](TaskContext context)
                                 {
@@ -365,7 +365,7 @@ struct npc_erudax_faceless_corruptor : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_UMBRAL_MENDING:
-                    if (Creature* erudax = Unit::GetCreature(*me, instance->GetData64(DATA_ERUDAX)))
+                    if (Creature* erudax = Unit::GetCreature(*me, instance->GetGuidData(DATA_ERUDAX)))
                         DoCast(erudax, SPELL_UMBRAL_MENDING);
 
                     events.ScheduleEvent(EVENT_UMBRAL_MENDING, urand(15000, 20000));
@@ -412,7 +412,7 @@ struct npc_alexstrasza_egg : public ScriptedAI
 
         if (summon->GetEntry() == NPC_TWILIGHT_HATCHLING)
         {
-            if (Creature* _erudax = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ERUDAX)))
+            if (Creature* _erudax = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ERUDAX)))
             {
                 if (Unit* target = _erudax->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                 {

@@ -241,10 +241,10 @@ struct boss_twin_baseAI : public BossAI
     // Called when sister pointer needed
     Creature* GetSister()
     {
-        return Unit::GetCreature((*me), instance->GetData64(SisterNpcId));
+        return Unit::GetCreature((*me), instance->GetGuidData(SisterNpcId));
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->SetInCombatWithZone();
         if (instance)
@@ -416,25 +416,25 @@ class boss_fjola : public CreatureScript
                 boss_twin_baseAI::Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (instance)
                     instance->DoStartCriteria(CRITERIA_START_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
 
                 me->SummonCreature(NPC_BULLET_CONTROLLER, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
-                boss_twin_baseAI::EnterCombat(who);
+                boss_twin_baseAI::JustEngagedWith(who);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
-                instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
                 boss_twin_baseAI::EnterEvadeMode();
             }
 
             void JustReachedHome() override
             {
                 if (instance)
-                    instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                    instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
 
                 boss_twin_baseAI::JustReachedHome();
             }
@@ -824,7 +824,7 @@ class spell_power_of_the_twins : public SpellScriptLoader
             {
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                 {
-                    if (Creature* Valk = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(GetCaster()->GetEntry())))
+                    if (Creature* Valk = ObjectAccessor::GetCreature(*GetCaster(), instance->GetGuidData(GetCaster()->GetEntry())))
                         CAST_AI(boss_twin_baseAI, Valk->AI())->EnableDualWield(true);
                 }
             }
@@ -833,7 +833,7 @@ class spell_power_of_the_twins : public SpellScriptLoader
             {
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                 {
-                    if (Creature* Valk = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(GetCaster()->GetEntry())))
+                    if (Creature* Valk = ObjectAccessor::GetCreature(*GetCaster(), instance->GetGuidData(GetCaster()->GetEntry())))
                         CAST_AI(boss_twin_baseAI, Valk->AI())->EnableDualWield(false);
                 }
             }

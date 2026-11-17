@@ -16,6 +16,7 @@
 */
 
 #include "ScriptMgr.h"
+#include "MapManager.h"
 #include "OutdoorPvPHP.h"
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
@@ -253,15 +254,19 @@ void OPvPCapturePointHP::ChangeState()
         break;
     }
 
-    GameObject* flag = HashMapHolder<GameObject>::Find(m_capturePointGUID);
-    GameObject* flag2 = HashMapHolder<GameObject>::Find(m_Objects[m_TowerType]);
-    if (flag)
+    Map* map = sMapMgr->FindBaseMap(m_capturePoint->m_mapId);
+    if (map)
     {
-        flag->SetGoArtKit(artkit);
-    }
-    if (flag2)
-    {
-        flag2->SetGoArtKit(artkit2);
+        GameObject *flag  = map->GetGameObject(m_capturePointGUID);
+        GameObject *flag2 = map->GetGameObject(m_Objects[m_TowerType]);
+        if (flag)
+        {
+            flag->SetGoArtKit(artkit);
+        }
+        if (flag2)
+        {
+            flag2->SetGoArtKit(artkit2);
+        }
     }
 
     // send world state update
@@ -270,7 +275,7 @@ void OPvPCapturePointHP::ChangeState()
 
     // complete quest objective
     if (m_State == OBJECTIVESTATE_ALLIANCE || m_State == OBJECTIVESTATE_HORDE)
-        SendObjectiveComplete(HP_CREDITMARKER[m_TowerType], 0);
+        SendObjectiveComplete(HP_CREDITMARKER[m_TowerType], ObjectGuid::Empty);
 }
 
 void OPvPCapturePointHP::SendChangePhase()

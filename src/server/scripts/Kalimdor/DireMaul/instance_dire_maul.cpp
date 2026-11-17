@@ -35,11 +35,11 @@ class instance_dire_maul : public InstanceMapScript
         {
             instance_dire_maul_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
-            uint64 conservatoryDoorGUID;
+            ObjectGuid conservatoryDoorGUID;
 
             void Initialize() override
             {
-                conservatoryDoorGUID = 0;
+                conservatoryDoorGUID = ObjectGuid::Empty;
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -48,12 +48,12 @@ class instance_dire_maul : public InstanceMapScript
                     conservatoryDoorGUID = go->GetGUID();
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 if (type == GO_CONSERVATORY_DOOR)
                     return conservatoryDoorGUID;
 
-                return 0;
+                return ObjectGuid::Empty;
             }
         };
 

@@ -215,7 +215,7 @@ struct greenstone_village_pillager_typeAI : public ScriptedAI
                 nonCombatEvents.ScheduleEvent(EVENT_COSMETIC, urand(3 * IN_MILLISECONDS, 18 * IN_MILLISECONDS));
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         nonCombatEvents.Reset();
     }
@@ -284,7 +284,7 @@ class npc_greenstone_wily_woodling : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_WRATH, 1500);
                 events.ScheduleEvent(EVENT_REJV, 8 * IN_MILLISECONDS);
@@ -359,7 +359,7 @@ class npc_greenstone_village_terror : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_TERROR_SHARDS, urand(3 * IN_MILLISECONDS, 8 * IN_MILLISECONDS));
             }
@@ -418,7 +418,7 @@ class npc_greenstone_belligerent_blossom : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_POLLEN_PUFF, urand(3 * IN_MILLISECONDS, 8 * IN_MILLISECONDS));
             }
@@ -483,7 +483,7 @@ class npc_greenstone_village_cursed_brew : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_KEG_SLAM, urand(4 * IN_MILLISECONDS, 8 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_BREW_BUBLE, urand(9 * IN_MILLISECONDS, 16 * IN_MILLISECONDS));
@@ -625,7 +625,7 @@ class npc_greenstone_village_brewmaster_tzu : public CreatureScript
                         // Select any monstrosity
                         uint32 m_uiMonstrosity = urand(0, 1) ? NPC_BEAST_OF_JADE : NPC_JADE_DESTROYER;
 
-                        if (Creature* monstrosity = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(m_uiMonstrosity) : 0))
+                        if (Creature* monstrosity = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(m_uiMonstrosity) : ObjectGuid::Empty))
                         {
                             monstrosity->SetVisible(true);
                             monstrosity->SetFaction(16);
@@ -708,7 +708,7 @@ class npc_greenstone_village_monstrosity : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 switch (me->GetEntry())
                 {
@@ -927,7 +927,7 @@ class npc_greenstone_vengeful_hui : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (me->HasAura(SPELL_GIANT_HUI))
                     me->CastSpell(me, SPELL_GIANT_HUI, false);
@@ -1200,28 +1200,28 @@ class AreaTrigger_at_greenstone_village : public AreaTriggerScript
             {
                 Creature* m_owner = NULL;
 
-                switch (trigger->id)
+                switch (trigger->ID)
                 {
                     case AT_INTRO:
-                        m_owner = ObjectAccessor::GetCreature(*player, instance->GetData64(NPC_COWARDLY_ZUE));
+                        m_owner = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_COWARDLY_ZUE));
                         break;
                     case AT_BEFORE_SHUNG:
-                        m_owner = ObjectAccessor::GetCreature(*player, instance->GetData64(NPC_PORTLY_SHUNG));
+                        m_owner = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_PORTLY_SHUNG));
                         break;
                     case AT_BEFORE_LIUPO:
-                        m_owner = ObjectAccessor::GetCreature(*player, instance->GetData64(NPC_WOODCARVER_LIUPO));
+                        m_owner = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_WOODCARVER_LIUPO));
                         break;
                     case AT_BEFORE_LIN:
-                        m_owner = ObjectAccessor::GetCreature(*player, instance->GetData64(NPC_MAYOR_LIN));
+                        m_owner = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_MAYOR_LIN));
                         break;
                     case AT_BEFORE_MEILA:
-                        m_owner = ObjectAccessor::GetCreature(*player, instance->GetData64(NPC_MEILA));
+                        m_owner = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_MEILA));
                         break;
                     case AT_BEFORE_SWAN:
-                        m_owner = ObjectAccessor::GetCreature(*player, instance->GetData64(NPC_GRACEFUL_SWAN));
+                        m_owner = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_GRACEFUL_SWAN));
                         break;
                     case AT_BEFORE_RINJI: 
-                        m_owner = ObjectAccessor::GetCreature(*player, instance->GetData64(NPC_SCRIBE_RINJI));
+                        m_owner = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_SCRIBE_RINJI));
                         break;
                 }
 
@@ -1241,13 +1241,16 @@ class AreaTrigger_at_behind_tzu : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
         {
+            if (!player)
+                return false;
+
             if (InstanceScript* instance = player->GetInstanceScript())
             {
-                if (player && player->IsOnVehicle() && player->GetVehicleBase() && player->GetVehicleBase()->ToCreature())
+                if (player->IsOnVehicle() && player->GetVehicleBase() && player->GetVehicleBase()->ToCreature())
                 {
                     player->CastSpell(player->GetVehicleBase(), SPELL_KEG_DELIVERY_CREDIT, false);
 
-                    Creature* owner = ObjectAccessor::GetCreature(*player, instance->GetData64(NPC_BREWMASTER_TZU));
+                    Creature* owner = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_BREWMASTER_TZU));
 
                     if (owner && owner->AI())
                         owner->AI()->DoAction(ACTION_SPECIAL_1);

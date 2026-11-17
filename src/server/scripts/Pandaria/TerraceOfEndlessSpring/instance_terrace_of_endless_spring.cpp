@@ -44,41 +44,41 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
             std::string strSaveData;
 
             std::list<Unit*> protectorList;
-            std::vector<uint64> animatedList;
-            std::vector<uint64> returnTerraceList;
-            std::unordered_map<uint32, uint64> m_mGoEntryGuidMap;
+            std::vector<ObjectGuid> animatedList;
+            std::vector<ObjectGuid> returnTerraceList;
+            std::unordered_map<uint32, ObjectGuid> m_mGoEntryGuidMap;
 
             bool ritualOfPurification;
             bool introDone;
             uint32 leiShiProtectorsCount;
             // Protectors of the Endless
-            uint64 ancientRegailGuid;
-            uint64 ancientAsaniGuid;
-            uint64 protectorKaolanGuid;
-            uint64 minionOfFearControllerGuid;
+            ObjectGuid ancientRegailGuid;
+            ObjectGuid ancientAsaniGuid;
+            ObjectGuid protectorKaolanGuid;
+            ObjectGuid minionOfFearControllerGuid;
 
             // Tsulong
-            uint64 tsulongGuid;
-            uint64 enchantedPlantGuid = 0;
+            ObjectGuid tsulongGuid;
+            ObjectGuid enchantedPlantGuid;
 
             // Lei Shi
-            uint64 leiShiGuid;
-            uint64 leiShiReflectionGuid;
+            ObjectGuid leiShiGuid;
+            ObjectGuid leiShiReflectionGuid;
 
             // Sha of Fear
-            uint64 shaOfFearGuid;
-            uint64 pureLightTerraceGuid;
+            ObjectGuid shaOfFearGuid;
+            ObjectGuid pureLightTerraceGuid;
 
-            uint64 shaVortexGuid;
-            uint64 shaVortexWallGuid;
+            ObjectGuid shaVortexGuid;
+            ObjectGuid shaVortexWallGuid;
 
             // Council's Vortex
-            uint64 wallOfCouncilsVortexGuid;
-            uint64 councilsVortexGuid;
+            ObjectGuid wallOfCouncilsVortexGuid;
+            ObjectGuid councilsVortexGuid;
 
             // Lei Shi's Vortex
-            uint64 wallOfLeiShisVortexGuid;
-            uint64 leiShisVortexGuid;
+            ObjectGuid wallOfLeiShisVortexGuid;
+            ObjectGuid leiShisVortexGuid;
 
             void Initialize() override
             {
@@ -88,24 +88,24 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                 ritualOfPurification        = false;
                 introDone                   = false;
 
-                ancientRegailGuid           = 0;
-                ancientAsaniGuid            = 0;
-                protectorKaolanGuid         = 0;
-                minionOfFearControllerGuid  = 0;
+                ancientRegailGuid = ObjectGuid::Empty;
+                ancientAsaniGuid = ObjectGuid::Empty;
+                protectorKaolanGuid = ObjectGuid::Empty;
+                minionOfFearControllerGuid = ObjectGuid::Empty;
 
-                tsulongGuid                 = 0;
+                tsulongGuid = ObjectGuid::Empty;
 
-                leiShiGuid                  = 0;
-                leiShiReflectionGuid        = 0;
+                leiShiGuid = ObjectGuid::Empty;
+                leiShiReflectionGuid = ObjectGuid::Empty;
 
-                shaOfFearGuid               = 0;
-                pureLightTerraceGuid        = 0;
+                shaOfFearGuid = ObjectGuid::Empty;
+                pureLightTerraceGuid = ObjectGuid::Empty;
 
-                wallOfCouncilsVortexGuid    = 0;
-                councilsVortexGuid          = 0;
+                wallOfCouncilsVortexGuid = ObjectGuid::Empty;
+                councilsVortexGuid = ObjectGuid::Empty;
 
-                wallOfLeiShisVortexGuid     = 0;
-                leiShisVortexGuid           = 0;
+                wallOfLeiShisVortexGuid = ObjectGuid::Empty;
+                leiShisVortexGuid = ObjectGuid::Empty;
                 leiShiProtectorsCount       = 0;
 
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
@@ -185,7 +185,7 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
             {
                 GameObject* go = NULL;
 
-                std::unordered_map<uint32, uint64>::iterator find = m_mGoEntryGuidMap.find(uiEntry);
+                std::unordered_map<uint32, ObjectGuid>::iterator find = m_mGoEntryGuidMap.find(uiEntry);
 
                 if (find != m_mGoEntryGuidMap.cend())
                     go = instance->GetGameObject(find->second);
@@ -233,7 +233,7 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                 {
                     unit->RemoveAurasDueToSpell(120268);
 
-                    if (Creature* sha = instance->GetCreature(GetData64(NPC_SHA_OF_FEAR)))
+                    if (Creature* sha = instance->GetCreature(GetGuidData(NPC_SHA_OF_FEAR)))
                         sha->AI()->DoAction(4);
                 }
 
@@ -268,7 +268,7 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
 
                 if (type == DATA_PROTECTORS && state == DONE)
                 {
-                    if (Creature* creature = instance->GetCreature(GetData64(NPC_TSULONG)))
+                    if (Creature* creature = instance->GetCreature(GetGuidData(NPC_TSULONG)))
                     {
                         instance->LoadGrid(creature->GetPositionX(), creature->GetPositionY());
                         creature->AI()->DoAction(ACTION_START_TSULONG_WAYPOINT);
@@ -306,14 +306,14 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                     switch (eventId)
                     {
                         case 1: // Start Tsulong Movement
-                            if (Creature* c = instance->GetCreature(GetData64(NPC_TSULONG)))
+                            if (Creature* c = instance->GetCreature(GetGuidData(NPC_TSULONG)))
                             {
                                 instance->LoadGrid(c->GetPositionX(), c->GetPositionY());
                                 c->AI()->DoAction(ACTION_START_TSULONG_WAYPOINT);
                             }
                             break;
                         case 3: // Set Tsulong Invisible
-                            if (Creature* c = instance->GetCreature(GetData64(NPC_TSULONG)))
+                            if (Creature* c = instance->GetCreature(GetGuidData(NPC_TSULONG)))
                             {
                                 instance->LoadGrid(c->GetPositionX(), c->GetPositionY());
                                 c->SetDisplayId(17612);
@@ -321,7 +321,7 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                             }
                             break;
                         case 4: // Make Lei Shi accessible
-                            if (Creature* c = instance->GetCreature(GetData64(leiShiGuid)))
+                            if (Creature* c = instance->GetCreature(GetGuidData(leiShiGuid)))
                             {
                                 instance->LoadGrid(c->GetPositionX(), c->GetPositionY());
                                 c->AI()->DoAction(ACTION_LEISHI_INTRO);
@@ -393,7 +393,7 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                             }
                             break;
                         case 2:
-                            if (Creature* sha = instance->GetCreature(GetData64(NPC_SHA_OF_FEAR)))
+                            if (Creature* sha = instance->GetCreature(GetGuidData(NPC_SHA_OF_FEAR)))
                             {
                                 // Lei`s Hope active only till second phase
                                 if (!sha->AI()->GetData(TYPE_DREAD_TERRACE))
@@ -616,7 +616,7 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -656,7 +656,7 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool IsWipe(float range, Unit* source) override

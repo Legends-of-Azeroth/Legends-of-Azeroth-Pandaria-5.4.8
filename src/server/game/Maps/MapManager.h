@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -20,8 +20,10 @@
 
 #include "Object.h"
 #include "Map.h"
+#include "MapInstanced.h"
 #include "GridStates.h"
 #include "MapUpdater.h"
+#include <boost/dynamic_bitset_fwd.hpp>
 
 #include <mutex>
 
@@ -29,7 +31,7 @@
 class Transport;
 struct TransportCreatureProto;
 
-class MapManager
+class TC_GAME_API MapManager
 {
 
     public:
@@ -39,20 +41,20 @@ class MapManager
         Map* CreateMap(uint32 mapId, Player* player);
         Map* FindMap(uint32 mapId, uint32 instanceId) const;
 
-        uint32 GetAreaId(uint32 mapid, float x, float y, float z) const
+        uint32 GetAreaId(uint32 phaseMask, uint32 mapid, float x, float y, float z) const
         {
             Map const* m = const_cast<MapManager*>(this)->CreateBaseMap(mapid);
-            return m->GetAreaId(x, y, z);
+            return m->GetAreaId(phaseMask, x, y, z);
         }
-        uint32 GetZoneId(uint32 mapid, float x, float y, float z) const
+        uint32 GetZoneId(uint32 phaseMask, uint32 mapid, float x, float y, float z) const
         {
             Map const* m = const_cast<MapManager*>(this)->CreateBaseMap(mapid);
-            return m->GetZoneId(x, y, z);
+            return m->GetZoneId(phaseMask, x, y, z);
         }
-        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, uint32 mapid, float x, float y, float z)
+        void GetZoneAndAreaId(uint32 phaseMask, uint32& zoneid, uint32& areaid, uint32 mapid, float x, float y, float z) const
         {
             Map const* m = const_cast<MapManager*>(this)->CreateBaseMap(mapid);
-            m->GetZoneAndAreaId(zoneid, areaid, x, y, z);
+            m->GetZoneAndAreaId(phaseMask, zoneid, areaid, x, y, z);
         }
 
         void Initialize(void);
@@ -96,9 +98,14 @@ class MapManager
             return IsValidMAP(mapid, false) && Trinity::IsValidMapCoord(x, y, z, o);
         }
 
+        static bool IsValidMapCoord(uint32 mapid, Position const& pos)
+        {
+            return IsValidMapCoord(mapid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+        }
+
         static bool IsValidMapCoord(WorldLocation const& loc)
         {
-            return IsValidMapCoord(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation());
+            return IsValidMapCoord(loc.GetMapId(), loc);
         }
 
         void DoDelayedMovesAndRemoves();
@@ -121,9 +128,21 @@ class MapManager
 
         MapUpdater * GetMapUpdater() { return &m_updater; }
 
+        template<typename Worker>
+        void DoForAllMaps(Worker&& worker);
+
+        template<typename Worker>
+        void DoForAllMapsWithMapId(uint32 mapId, Worker&& worker);
+
+        Map* FindBaseMap(uint32 mapId) const
+        {
+            MapMapType::const_iterator iter = i_maps.find(mapId);
+            return (iter == i_maps.end() ? nullptr : iter->second);
+        }
+
     private:
         typedef std::unordered_map<uint32, Map*> MapMapType;
-        typedef std::vector<bool> InstanceIds;
+        typedef boost::dynamic_bitset<size_t> InstanceIds;
 
         // debugging code, should be deleted some day
         void checkAndCorrectGridStatesArray();              // just for debugging to find some memory overwrites
@@ -133,25 +152,58 @@ class MapManager
         MapManager();
         ~MapManager();
 
-    public:
-        Map* FindBaseMap(uint32 mapId) const
-        {
-            MapMapType::const_iterator iter = i_maps.find(mapId);
-            return (iter == i_maps.end() ? NULL : iter->second);
-        }
-    private:
-
         MapManager(const MapManager &);
         MapManager& operator=(const MapManager &);
 
-        std::mutex Lock;
+        mutable std::shared_mutex _mapsLock;
         uint32 i_gridCleanUpDelay;
         MapMapType i_maps;
         IntervalTimer i_timer;
 
-        InstanceIds _instanceIds;
+        std::unique_ptr<InstanceIds> _freeInstanceIds;
         uint32 _nextInstanceId;
         MapUpdater m_updater;
 };
+
+template<typename Worker>
+inline void MapManager::DoForAllMaps(Worker&& worker)
+{
+    std::shared_lock<std::shared_mutex> lock(_mapsLock);
+
+    for (auto& mapPair : i_maps)
+    {
+        Map* map = mapPair.second;
+        if (MapInstanced* mapInstanced = map->ToMapInstanced())
+        {
+            MapInstanced::InstancedMaps& instances = mapInstanced->GetInstancedMaps();
+            for (auto& instancePair : instances)
+                worker(instancePair.second);
+        }
+        else
+            worker(map);
+    }
+}
+
+template<typename Worker>
+void MapManager::DoForAllMapsWithMapId(uint32 mapId, Worker&& worker)
+{
+    std::shared_lock<std::shared_mutex> lock(_mapsLock);
+
+    auto itr = i_maps.find(mapId);
+    if (itr != i_maps.end())
+    {
+        Map* map = itr->second;
+        if (MapInstanced* mapInstanced = map->ToMapInstanced())
+        {
+            MapInstanced::InstancedMaps& instances = mapInstanced->GetInstancedMaps();
+            for (auto& p : instances)
+                worker(p.second);
+        }
+        else
+            worker(map);
+    }
+}
+
 #define sMapMgr MapManager::instance()
+
 #endif

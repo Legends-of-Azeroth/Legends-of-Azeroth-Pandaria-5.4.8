@@ -235,17 +235,17 @@ class BattlegroundSM : public Battleground
 
         /* inherited from BattlegroundClass */
         void AddPlayer(Player* player) override;
-        void StartingEventCloseDoors();
-        void StartingEventOpenDoors();
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
 
-        void HandleKillPlayer(Player* player, Player* killer);
+        void HandleKillPlayer(Player* player, Player* killer) override;
         bool SetupBattleground() override;
         void Reset() override;
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
-        void PostUpdateImpl(uint32 diff);
+        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        void PostUpdateImpl(uint32 diff) override;
         void UpdateTeamScore(uint32 team);
         void EndBattleground(uint32 winner);
-        void UpdatePlayerScore(Player* source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* source, uint32 type, uint32 value, bool doAddHonor = true) override;
         void FillInitialWorldStates(WorldStateBuilder& builder) override;
         void EventPlayerClickedOnFlag(Player* player, Unit* target) override;
 

@@ -163,26 +163,26 @@ class npc_barnes : public CreatureScript
                 case GOSSIP_ACTION_INFO_DEF + 3:
                     player->CLOSE_GOSSIP_MENU();
                     barnesAI->m_uiEventId = EVENT_OZ;
-                    TC_LOG_DEBUG("scripts", "TSCR: player (GUID " UI64FMTD ") manually set Opera event to EVENT_OZ", player->GetGUID());
+                    TC_LOG_DEBUG("scripts", "TSCR: player ({}) manually set Opera event to EVENT_OZ", player->GetGUID().ToString().c_str());
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 4:
                     player->CLOSE_GOSSIP_MENU();
                     barnesAI->m_uiEventId = EVENT_HOOD;
-                    TC_LOG_DEBUG("scripts", "TSCR: player (GUID " UI64FMTD ") manually set Opera event to EVENT_HOOD", player->GetGUID());
+                    TC_LOG_DEBUG("scripts", "TSCR: player ({}) manually set Opera event to EVENT_HOOD", player->GetGUID().ToString().c_str());
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 5:
                     player->CLOSE_GOSSIP_MENU();
                     barnesAI->m_uiEventId = EVENT_RAJ;
-                    TC_LOG_DEBUG("scripts", "TSCR: player (GUID " UI64FMTD ") manually set Opera event to EVENT_RAJ", player->GetGUID());
+                    TC_LOG_DEBUG("scripts", "TSCR: player ({}) manually set Opera event to EVENT_RAJ", player->GetGUID().ToString().c_str());
                     break;
             }
 
             return true;
         }
 
-        struct npc_barnesAI : public npc_escortAI
+        struct npc_barnesAI : public EscortAI
         {
-            npc_barnesAI(Creature* creature) : npc_escortAI(creature)
+            npc_barnesAI(Creature* creature) : EscortAI(creature)
             {
                 RaidWiped = false;
                 m_uiEventId = 0;
@@ -191,7 +191,7 @@ class npc_barnes : public CreatureScript
 
             InstanceScript* instance;
 
-            uint64 m_uiSpotlightGUID;
+            ObjectGuid m_uiSpotlightGUID;
 
             uint32 TalkCount;
             uint32 TalkTimer;
@@ -203,7 +203,7 @@ class npc_barnes : public CreatureScript
 
             void Reset() override
             {
-                m_uiSpotlightGUID = 0;
+                m_uiSpotlightGUID = ObjectGuid::Empty;
 
                 TalkCount = 0;
                 TalkTimer = 2000;
@@ -226,27 +226,27 @@ class npc_barnes : public CreatureScript
                 if (m_uiEventId == EVENT_OZ)
                     instance->SetData(DATA_OPERA_OZ_DEATHCOUNT, IN_PROGRESS);
 
-                Start(false, false);
+                Start(false);
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
-            void WaypointReached(uint32 i)
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
                 if (!instance)
                     return;
 
-                switch (i)
+                switch (waypointId)
                 {
                     case 0:
                         DoCast(me, SPELL_TUXEDO, false);
-                        instance->DoUseDoorOrButton(instance->GetData64(DATA_GO_STAGEDOORLEFT));
+                        instance->DoUseDoorOrButton(instance->GetGuidData(DATA_GO_STAGEDOORLEFT));
                         break;
                     case 4:
                         TalkCount = 0;
                         SetEscortPaused(true);
 
-                        if (Creature* spotlight = me->SummonCreature(NPC_SPOTLIGHT, me->GetPosition(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
+                        if (Creature* spotlight = me->SummonCreature(NPC_SPOTLIGHT, me->GetPosition(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000ms))
                         {
                             spotlight->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             spotlight->CastSpell(spotlight, SPELL_SPOTLIGHT, false);
@@ -254,12 +254,12 @@ class npc_barnes : public CreatureScript
                         }
                         break;
                     case 8:
-                        instance->DoUseDoorOrButton(instance->GetData64(DATA_GO_STAGEDOORLEFT));
+                        instance->DoUseDoorOrButton(instance->GetGuidData(DATA_GO_STAGEDOORLEFT));
                         PerformanceReady = true;
                         break;
                     case 9:
                         PrepareEncounter();
-                        instance->DoUseDoorOrButton(instance->GetData64(DATA_GO_CURTAINS));
+                        instance->DoUseDoorOrButton(instance->GetGuidData(DATA_GO_CURTAINS));
                         break;
                 }
             }
@@ -296,7 +296,7 @@ class npc_barnes : public CreatureScript
 
             void PrepareEncounter()
             {
-                TC_LOG_DEBUG("scripts", "TSCR: Barnes Opera Event - Introduction complete - preparing encounter %d", m_uiEventId);
+                TC_LOG_DEBUG("scripts", "TSCR: Barnes Opera Event - Introduction complete - preparing encounter {}", m_uiEventId);
                 uint8 index = 0;
                 uint8 count = 0;
 
@@ -321,7 +321,7 @@ class npc_barnes : public CreatureScript
                     uint32 entry = ((uint32)Spawns[index][0]);
                     float PosX = Spawns[index][1];
 
-                    if (Creature* creature = me->SummonCreature(entry, PosX, SPAWN_Y, SPAWN_Z, SPAWN_O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
+                    if (Creature* creature = me->SummonCreature(entry, PosX, SPAWN_Y, SPAWN_Z, SPAWN_O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, Milliseconds(HOUR*2*IN_MILLISECONDS)))
                     {
                         // In case database has bad flags
                         creature->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
@@ -334,7 +334,7 @@ class npc_barnes : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (HasEscortState(STATE_ESCORT_PAUSED))
                 {
@@ -499,7 +499,7 @@ class npc_image_of_medivh : public CreatureScript
 
             InstanceScript* instance;
 
-            uint64 ArcanagosGUID;
+            ObjectGuid ArcanagosGUID;
 
             uint32 YellTimer;
             uint32 Step;
@@ -510,9 +510,9 @@ class npc_image_of_medivh : public CreatureScript
 
             void Reset() override
             {
-                ArcanagosGUID = 0;
+                ArcanagosGUID = ObjectGuid::Empty;
 
-                if (instance && instance->GetData64(DATA_IMAGE_OF_MEDIVH) == 0)
+                if (instance && instance->GetGuidData(DATA_IMAGE_OF_MEDIVH) == 0)
                 {
                     instance->SetData64(DATA_IMAGE_OF_MEDIVH, me->GetGUID());
                     me->GetMotionMaster()->MovePoint(1, MedivPos[0], MedivPos[1], MedivPos[2]);
@@ -524,9 +524,9 @@ class npc_image_of_medivh : public CreatureScript
                     me->RemoveCorpse();
                 }
             }
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 type, uint32 id) override
             {
                 if (type != POINT_MOTION_TYPE)
                     return;
@@ -538,7 +538,7 @@ class npc_image_of_medivh : public CreatureScript
             {
                 Step = 1;
                 EventStarted = true;
-                Creature* arcanagos = me->SummonCreature(NPC_ARCANAGOS, ArcanagosPos[0], ArcanagosPos[1], ArcanagosPos[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
+                Creature* arcanagos = me->SummonCreature(NPC_ARCANAGOS, ArcanagosPos[0], ArcanagosPos[1], ArcanagosPos[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000ms);
                 if (!arcanagos)
                     return;
                 ArcanagosGUID = arcanagos->GetGUID();

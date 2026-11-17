@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -93,9 +93,9 @@ class boss_corborus : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -117,7 +117,7 @@ class boss_corborus : public CreatureScript
                     case NPC_ROCK_BORER:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                         {
-                            summon->AddThreat(target, 10.0f);
+                            summon->GetThreatManager().AddThreat(target, 10.0f);
                             summon->Attack(target, true);
                             summon->GetMotionMaster()->MoveChase(target);
                         }
@@ -125,7 +125,7 @@ class boss_corborus : public CreatureScript
                     case NPC_CRYSTAL_SHARD:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                         {
-                            summon->AddThreat(target, 10.0f);
+                            summon->GetThreatManager().AddThreat(target, 10.0f);
                             summon->Attack(target, true);
                             summon->GetMotionMaster()->MoveChase(target);
                         }
@@ -154,7 +154,7 @@ class boss_corborus : public CreatureScript
                 {
                     me->SetHomePosition(*me);
 
-                    if (Creature* Manastorm = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_MILLHOUSE_MANASTORM)))
+                    if (Creature* Manastorm = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_MILLHOUSE_MANASTORM)))
                         Manastorm->AI()->DoAction(ACTION_MANASTORM_PULL);
                 }
             }
@@ -183,7 +183,7 @@ class boss_corborus : public CreatureScript
                                 DoCast(target, SPELL_CRYSTAL_BARRAGE);
                                 if (IsHeroic())
                                 {
-                                    target->GetPosition(&barragePos);
+                                    barragePos = target->GetPosition();
                                     events.ScheduleEvent(EVENT_CRYSTAL_BARRAGE_H, 4000);
                                 }    
                             }
@@ -259,7 +259,7 @@ class npc_rock_borer : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_ROCK_BORE, 2000);
             }

@@ -19,6 +19,8 @@
 #include "ScriptedCreature.h"
 #include "Object.h"
 #include "Player.h"
+#include "Random.h"
+#include "TemporarySummon.h"
 
 enum TirisfalGlades
 {
@@ -217,6 +219,11 @@ enum TirisfalGlades
 
     QUEST_EVER_SO_LONELY                    = 24974,
 
+    NPC_DARNELL_RECRUITMENT                 = 49337,
+    POINT_SCARLET_CORPSE                    = 49340,
+
+    NPC_LILIAN_VOSS_GUARDIAN                = 66185,
+
     TEXT_CAPTURE_READY                      = 0,
 
     EVENT_CHECK_PLAYER                      = 999
@@ -332,7 +339,7 @@ struct npc_deathknell_grave_target : public ScriptedAI
         m_phase = TirisfalGlades::GRAVE_TARGET_PHASE_00;
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell)
+    void SpellHit(Unit* caster, SpellInfo const* spell) override
     {
         if (spell->Id == TirisfalGlades::SPELL_RAISE_UNDEAD)
         {
@@ -548,7 +555,7 @@ struct npc_undertaker_mordo : public ScriptedAI
         {
             case TirisfalGlades::UNDERTAKER_MORDO_PHASE_00:
                 if (Creature* npc_trigger = me->FindNearestCreature(TirisfalGlades::NPC_DEATHKNELL_GRAVE_TARGET, 20.0f))
-                    if (m_npc = me->SummonCreature(TirisfalGlades::NPC_RISEN_RECRUIT, npc_trigger->GetPositionX(), npc_trigger->GetPositionY(), npc_trigger->GetPositionZ(), 1.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 46 * TimeConstants::IN_MILLISECONDS))
+                    if (m_npc = me->SummonCreature(TirisfalGlades::NPC_RISEN_RECRUIT, npc_trigger->GetPositionX(), npc_trigger->GetPositionY(), npc_trigger->GetPositionZ(), 1.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, Milliseconds(46 * TimeConstants::IN_MILLISECONDS)))
                         m_npc->GetMotionMaster()->MovePath(TirisfalGlades::RISEN_RECRUIT_PATH_01, false);
 
                 m_timer = 5 * TimeConstants::IN_MILLISECONDS;
@@ -556,65 +563,65 @@ struct npc_undertaker_mordo : public ScriptedAI
                 break;
             case TirisfalGlades::UNDERTAKER_MORDO_PHASE_01:
                 Talk(UNDERTAKER_MORDO_TEXT_01);
-                me->HandleEmoteCommand(Emote::EMOTE_ONESHOT_TALK);
+                //me->HandleEmoteCommand(Emote::EMOTE_ONESHOT_TALK);
                 m_timer = 3 * TimeConstants::IN_MILLISECONDS;
                 m_phase = TirisfalGlades::UNDERTAKER_MORDO_PHASE_02;
                 break;
             case TirisfalGlades::UNDERTAKER_MORDO_PHASE_02:
-                if (m_npc && m_npc->IsAlive())
+                //if (m_npc && m_npc->IsAlive())
                 {
-                    m_npc->SetStandState(UnitStandStateType::UNIT_STAND_STATE_KNEEL);
-                    m_npc->SetFacingToObject(me);
+                    //m_npc->SetStandState(UnitStandStateType::UNIT_STAND_STATE_KNEEL);
+                    //m_npc->SetFacingToObject(me);
                 }
                 m_timer = 1 * TimeConstants::IN_MILLISECONDS;
                 m_phase = TirisfalGlades::UNDERTAKER_MORDO_PHASE_03;
                 break;
             case TirisfalGlades::UNDERTAKER_MORDO_PHASE_03:
-                me->m_Events.Schedule(4 * TimeConstants::IN_MILLISECONDS, [this]() { me->SetUInt32Value(UNIT_FIELD_NPC_EMOTESTATE, Emote::EMOTE_STATE_USE_STANDING); });
-                me->m_Events.Schedule(6 * TimeConstants::IN_MILLISECONDS, [this]() { me->SetUInt32Value(UNIT_FIELD_NPC_EMOTESTATE, Emote::EMOTE_STATE_NONE); });
+                //me->m_Events.Schedule(4 * TimeConstants::IN_MILLISECONDS, [this]() { me->SetUInt32Value(UNIT_FIELD_NPC_EMOTESTATE, Emote::EMOTE_STATE_USE_STANDING); });
+                //me->m_Events.Schedule(6 * TimeConstants::IN_MILLISECONDS, [this]() { me->SetUInt32Value(UNIT_FIELD_NPC_EMOTESTATE, Emote::EMOTE_STATE_NONE); });
                 m_timer = uint32(7.5) * TimeConstants::IN_MILLISECONDS;
                 m_phase = TirisfalGlades::UNDERTAKER_MORDO_PHASE_04;
                 break;
             case TirisfalGlades::UNDERTAKER_MORDO_PHASE_04:
-                me->HandleEmoteCommand(Emote::EMOTE_ONESHOT_POINT);
+                //me->HandleEmoteCommand(Emote::EMOTE_ONESHOT_POINT);
                 m_timer = uint32(3.5) * TimeConstants::IN_MILLISECONDS;
                 m_phase = TirisfalGlades::UNDERTAKER_MORDO_PHASE_05;
                 break;
             case TirisfalGlades::UNDERTAKER_MORDO_PHASE_05:
                 Talk(UNDERTAKER_MORDO_TEXT_02);
-                me->HandleEmoteCommandWithDelay(1 * TimeConstants::IN_MILLISECONDS, Emote::EMOTE_ONESHOT_TALK);
+                //me->HandleEmoteCommandWithDelay(1 * TimeConstants::IN_MILLISECONDS, Emote::EMOTE_ONESHOT_TALK);
                 m_timer = uint32(0.5) * TimeConstants::IN_MILLISECONDS;
                 m_phase = TirisfalGlades::UNDERTAKER_MORDO_PHASE_06;
                 break;
             case TirisfalGlades::UNDERTAKER_MORDO_PHASE_06:
-                if (m_npc && m_npc->IsAlive())
+                //if (m_npc && m_npc->IsAlive())
                 {
-                    m_npc->AddAura(TirisfalGlades::SPELL_RISEN_DEAD_TRANSFORM, m_npc);
-                    m_npc->CastSpell(m_npc, TirisfalGlades::SPELL_RISEN_DEAD_TRANSFORM);
-                    m_npc->SetDisplayId(36775);
-                    m_npc->SetStandState(UnitStandStateType::UNIT_STAND_STATE_STAND);
+                    //m_npc->AddAura(TirisfalGlades::SPELL_RISEN_DEAD_TRANSFORM, m_npc);
+                    //m_npc->CastSpell(m_npc, TirisfalGlades::SPELL_RISEN_DEAD_TRANSFORM);
+                    //m_npc->SetDisplayId(36775);
+                    //m_npc->SetStandState(UnitStandStateType::UNIT_STAND_STATE_STAND);
                 }
                 m_timer = 2 * TimeConstants::IN_MILLISECONDS;
                 m_phase = TirisfalGlades::UNDERTAKER_MORDO_PHASE_07;
                 break;
             case TirisfalGlades::UNDERTAKER_MORDO_PHASE_07:
-                if (m_npc && m_npc->IsAlive())
+                //if (m_npc && m_npc->IsAlive())
                 {
-                    m_npc->HandleEmoteCommand(Emote::EMOTE_ONESHOT_TALK);
-                    m_npc->AI()->Talk(RISEN_RECRUIT_TEXT_01);
+                    //m_npc->HandleEmoteCommand(Emote::EMOTE_ONESHOT_TALK);
+                    //m_npc->AI()->Talk(RISEN_RECRUIT_TEXT_01);
                 }
                 m_timer = 3 * TimeConstants::IN_MILLISECONDS;
                 m_phase = TirisfalGlades::UNDERTAKER_MORDO_PHASE_08;
                 break;
             case TirisfalGlades::UNDERTAKER_MORDO_PHASE_08:
-                if (m_npc && m_npc->IsAlive())
-                    m_npc->HandleEmoteCommand(Emote::EMOTE_ONESHOT_SALUTE);
+                //if (m_npc && m_npc->IsAlive())
+                    //m_npc->HandleEmoteCommand(Emote::EMOTE_ONESHOT_SALUTE);
                 m_timer = 2 * TimeConstants::IN_MILLISECONDS;
                 m_phase = TirisfalGlades::UNDERTAKER_MORDO_PHASE_09;
                 break;
             case TirisfalGlades::UNDERTAKER_MORDO_PHASE_09:
-                if (m_npc && m_npc->IsAlive())
-                    m_npc->GetMotionMaster()->MovePath(TirisfalGlades::RISEN_RECRUIT_PATH_02, false);
+                //if (m_npc && m_npc->IsAlive())
+                    //m_npc->GetMotionMaster()->MovePath(TirisfalGlades::RISEN_RECRUIT_PATH_02, false);
                 m_timer = urand(15, 45) * TimeConstants::IN_MILLISECONDS;
                 m_phase = TirisfalGlades::UNDERTAKER_MORDO_PHASE_00;
                 break;
@@ -688,7 +695,7 @@ struct npc_mindless_zombie : public ScriptedAI
     }
 };
 
-enum PlaceDescription
+enum class PlaceDescription : uint8
 {
     Unknown                                 = 0,
     Outsite                                 = 1,
@@ -707,11 +714,15 @@ struct npc_darnell : public ScriptedAI
         m_timer = urand(30, 45) * TimeConstants::IN_MILLISECONDS;
         m_phase = TirisfalGlades::DARNELL_PHASE_00;
         m_method = TirisfalGlades::DARNELL_METHOD_00;
+        m_player = nullptr;
+        m_playerGUID = ObjectGuid::Empty;
 
         if (Unit* npc = me->GetCharmerOrOwner())
         {
-            if (m_player = npc->ToPlayer())
+            m_player = npc->ToPlayer();
+            if (m_player)
             {
+                m_playerGUID = m_player->GetGUID();
                 if (m_player->GetQuestStatus(TirisfalGlades::QUEST_THE_SHADOW_GRAVE) == QuestStatus::QUEST_STATUS_INCOMPLETE)
                 {
                     m_method = TirisfalGlades::DARNELL_METHOD_01;
@@ -741,7 +752,10 @@ struct npc_darnell : public ScriptedAI
 
     void MoveInLineOfSight(Unit* who) override
     {
-        if (who->GetGUID() != m_player->GetGUID())
+        if (!m_playerGUID || who->GetGUID() != m_playerGUID)
+            return;
+        m_player = who->ToPlayer();
+        if (!m_player)
             return;
 
         m_player_pos = who->GetPositionAlternate();
@@ -964,7 +978,8 @@ struct npc_darnell : public ScriptedAI
 
     bool CheckPlayerValid()
     {
-        if (!m_player->IsInWorld() ||
+        m_player = m_playerGUID ? ObjectAccessor::GetPlayer(*me, m_playerGUID) : nullptr;
+        if (!m_player || !m_player->IsInWorld() ||
             m_player->isDead() ||
             m_player->GetQuestStatus(TirisfalGlades::QUEST_THE_SHADOW_GRAVE) != QuestStatus::QUEST_STATUS_INCOMPLETE ||
             (m_player->GetAreaId() != TirisfalGlades::AREA_THE_DEATHKNELL_GRAVES && m_player->GetAreaId() != TirisfalGlades::AREA_SHADOW_GRAVE))
@@ -1021,6 +1036,7 @@ private:
     uint32 m_timer;
     uint32 m_phase;
     Player* m_player;
+    ObjectGuid m_playerGUID;
     bool m_FoundGround;
     bool m_ItemsFound;
 };
@@ -1051,6 +1067,7 @@ public:
         uint32 m_timer;
         uint32 m_phase;
         Player* m_player;
+        ObjectGuid m_playerGUID;
 
         void Reset() override
         {
@@ -1058,6 +1075,7 @@ public:
             m_timer = 0;
             m_phase = TirisfalGlades::MARSHAL_REDPATH_PHASE_00;
             m_player = NULL;
+            m_playerGUID.Clear();
         }
 
         void StartAnimation(Player* player)
@@ -1066,6 +1084,7 @@ public:
             {
                 me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                 m_player = player;
+                m_playerGUID = player->GetGUID();
                 m_phase = TirisfalGlades::MARSHAL_REDPATH_PHASE_01;
                 m_timer = 100;
             }
@@ -1083,6 +1102,15 @@ public:
 
         void StartVisual()
         {
+            if (m_playerGUID)
+            {
+                m_player = ObjectAccessor::GetPlayer(*me, m_playerGUID);
+                if (!m_player)
+                {
+                    Reset();
+                    return;
+                }
+            }
             switch (m_phase)
             {
                 case TirisfalGlades::MARSHAL_REDPATH_PHASE_01:
@@ -1144,6 +1172,7 @@ public:
         uint32 m_timer;
         uint32 m_phase;
         Player* m_player;
+        ObjectGuid m_playerGUID;
 
         void Reset() override
         {
@@ -1151,6 +1180,7 @@ public:
             m_timer = 0;
             m_phase = TirisfalGlades::LILIAN_VOSS_PHASE_00;
             m_player = NULL;
+            m_playerGUID.Clear();
         }
 
         void StartAnimation(Player* player)
@@ -1159,6 +1189,7 @@ public:
             {
                 me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                 m_player = player;
+                m_playerGUID = player->GetGUID();
                 m_phase = TirisfalGlades::LILIAN_VOSS_PHASE_01;
                 m_timer = 100;
             }
@@ -1176,6 +1207,15 @@ public:
 
         void StartVisual()
         {
+            if (m_playerGUID)
+            {
+                m_player = ObjectAccessor::GetPlayer(*me, m_playerGUID);
+                if (!m_player)
+                {
+                    Reset();
+                    return;
+                }
+            }
             switch (m_phase)
             {
                 case TirisfalGlades::LILIAN_VOSS_PHASE_01:
@@ -1242,6 +1282,7 @@ public:
         uint32 m_timer;
         uint32 m_phase;
         Player* m_player;
+        ObjectGuid m_playerGUID;
 
         void Reset() override
         {
@@ -1249,6 +1290,7 @@ public:
             m_timer = 0;
             m_phase = TirisfalGlades::VALDRED_MORAY_PHASE_00;
             m_player = NULL;
+            m_playerGUID.Clear();
         }
 
         void StartAnimation(Player* player)
@@ -1258,6 +1300,7 @@ public:
                 me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 m_player = player;
+                m_playerGUID = player->GetGUID();
                 m_phase = TirisfalGlades::VALDRED_MORAY_PHASE_01;
                 m_timer = 100;
             }
@@ -1275,6 +1318,15 @@ public:
 
         void StartVisual()
         {
+            if (m_playerGUID)
+            {
+                m_player = ObjectAccessor::GetPlayer(*me, m_playerGUID);
+                if (!m_player)
+                {
+                    Reset();
+                    return;
+                }
+            }
             switch (m_phase)
             {
                 case TirisfalGlades::VALDRED_MORAY_PHASE_01:
@@ -1314,19 +1366,19 @@ struct npc_vile_fin_puddlejumper : public ScriptedAI
 {
     npc_vile_fin_puddlejumper(Creature* creature) : ScriptedAI(creature) { }
 
-    uint64 m_playerGUID;
+    ObjectGuid m_playerGUID;
 
     void Reset() override
     {
         uint64 m_playerGUID = 0;
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         me->CastSpell(who, TirisfalGlades::SPELL_LEAPING_RUSH);
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) 
+    void DamageTaken(Unit* attacker, uint32& damage) override
     { 
         if (Player* player = attacker->ToPlayer())
         {
@@ -1339,13 +1391,13 @@ struct npc_vile_fin_puddlejumper : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell)
+    void SpellHit(Unit* caster, SpellInfo const* spell) override
     {
         if (caster->ToPlayer())
         {
             if (spell->Id == TirisfalGlades::SPELL_MURLOC_LEACH)
             {
-                me->CastSpell(caster, TirisfalGlades::SPELL_SUMMON_PUDDLEJUMPER);
+                me->CastSpell(caster, TirisfalGlades::SPELL_SUMMON_PUDDLEJUMPER, true);
                 me->DespawnOrUnsummon(500);
             }
         }
@@ -1362,7 +1414,7 @@ struct npc_vile_fin_minor_oracle : public ScriptedAI
 {
     npc_vile_fin_minor_oracle(Creature* creature) : ScriptedAI(creature) { }
 
-    uint64 m_playerGUID;
+    ObjectGuid m_playerGUID;
     uint32 m_lightning_bolt_timer;
     uint32 m_lightning_shield_timer;
 
@@ -1374,7 +1426,7 @@ struct npc_vile_fin_minor_oracle : public ScriptedAI
         m_lightning_shield_timer = 10 * MINUTE * IN_MILLISECONDS;
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage)
+    void DamageTaken(Unit* attacker, uint32& damage) override
     {
         if (Player* player = attacker->ToPlayer())
         {
@@ -1387,19 +1439,19 @@ struct npc_vile_fin_minor_oracle : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell)
+    void SpellHit(Unit* caster, SpellInfo const* spell) override
     {
         if (caster->ToPlayer())
         {
             if (spell->Id == TirisfalGlades::SPELL_MURLOC_LEACH)
             {
-                me->CastSpell(caster, TirisfalGlades::SPELL_SUMMON_ORACLE);
+                me->CastSpell(caster, TirisfalGlades::SPELL_SUMMON_ORACLE, true);
                 me->DespawnOrUnsummon(500);
             }
         }
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 diff) override
     {
         if (m_lightning_shield_timer <= diff)
         {
@@ -1473,21 +1525,120 @@ class spell_murloc_leash : public SpellScript
     }
 };
 
+// 91938 - Summon Darnell
+class spell_summon_darnell : public AuraScript
+{
+    PrepareAuraScript(spell_summon_darnell);
+
+    // Darnell only accompanies the player while this aura is up. It is not saved: spell_area casts it again
+    // (summoning Darnell) on login or area change while Beyond the Graves or Recruitment is in the quest log,
+    // and removes it on an area change once the quest is no longer there.
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        if (Creature* darnell = ObjectAccessor::GetCreature(*target, target->m_SummonSlot[SUMMON_SLOT_QUEST]))
+            if (darnell->GetEntry() == TirisfalGlades::NPC_DARNELL_RECRUITMENT)
+                if (TempSummon* summon = darnell->ToTempSummon())
+                    summon->UnSummon();
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_summon_darnell::HandleRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 73306 - Summon Lilian Voss (Guardian)
+class spell_summon_lilian_voss_guardian : public SpellScript
+{
+    PrepareSpellScript(spell_summon_lilian_voss_guardian);
+
+    // spell_area casts this on login or on entering the Scarlet Watch Post while A Daughter's Embrace is in the quest log.
+    // Lilian already following the player keeps doing so; one who died or was left behind is replaced (she takes the
+    // quest summon slot, so the new one unsummons the old one).
+    void HandleSummon(SpellEffIndex effIndex)
+    {
+        Unit* caster = GetCaster();
+        if (Creature* lilian = ObjectAccessor::GetCreature(*caster, caster->m_SummonSlot[SUMMON_SLOT_QUEST]))
+            if (lilian->GetEntry() == TirisfalGlades::NPC_LILIAN_VOSS_GUARDIAN && lilian->IsAlive() && lilian->IsWithinDist(caster, 50.0f))
+                PreventHitDefaultEffect(effIndex);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_summon_lilian_voss_guardian::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+    }
+};
+
+// 91942 - Select Scarlet Corpse
+class spell_select_scarlet_corpse : public SpellScript
+{
+    PrepareSpellScript(spell_select_scarlet_corpse);
+
+    // The player points at the clicked corpse and sends their Darnell to it; the corpse's
+    // SmartAI picks itself up once Darnell is close (it also checks this spell's aura).
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Player* player = GetCaster()->ToPlayer();
+        Unit* corpse = GetHitUnit();
+        if (!player || !corpse)
+            return;
+
+        player->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
+
+        if (Creature* darnell = ObjectAccessor::GetCreature(*player, player->m_SummonSlot[SUMMON_SLOT_QUEST]))
+            if (darnell->GetEntry() == TirisfalGlades::NPC_DARNELL_RECRUITMENT)
+                darnell->GetMotionMaster()->MovePoint(TirisfalGlades::POINT_SCARLET_CORPSE, corpse->GetPositionX(), corpse->GetPositionY(), corpse->GetPositionZ());
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_select_scarlet_corpse::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 91945 - Reverse Cast Ride Vehicle
+class spell_reverse_cast_ride_vehicle_darnell : public SpellScript
+{
+    PrepareSpellScript(spell_reverse_cast_ride_vehicle_darnell);
+
+    // Darnell casts this on a Scarlet Corpse he reached, and the corpse casts Ride Vehicle (46598) back on him: his vehicle
+    // has a seat for each of the 6 corpses. Darnell is a personal summon, and spells cannot target another unit's private
+    // objects, so the corpse shares his owner while it casts.
+    void HandleScript(SpellEffIndex effIndex)
+    {
+        Unit* darnell = GetCaster();
+        Unit* corpse = GetHitUnit();
+        if (!corpse)
+            return;
+
+        ObjectGuid const previousOwner = corpse->GetPrivateObjectOwner();
+        corpse->SetPrivateObjectOwner(darnell->GetPrivateObjectOwner());
+        corpse->CastSpell(darnell, uint32(GetSpellInfo()->Effects[effIndex].BasePoints), true);
+        corpse->SetPrivateObjectOwner(previousOwner);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_reverse_cast_ride_vehicle_darnell::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 struct npc_captured_vile_fin_puddlejumper : public ScriptedAI
 {
     npc_captured_vile_fin_puddlejumper(Creature* creature) : ScriptedAI(creature) { }
 
     EventMap m_events;
-    uint64 m_playerGUID;
+    ObjectGuid m_playerGUID;
 
-    void Reset()
+    void Reset() override
     {
         m_events.Reset();
         m_events.ScheduleEvent(TirisfalGlades::EVENT_CHECK_PLAYER, 1 * IN_MILLISECONDS);
         uint64 m_playerGUID = 0;
     }
 
-    void IsSummonedBy(Unit* summoner)
+    void IsSummonedBy(Unit* summoner) override
     { 
         if (Player* player = summoner->ToPlayer())
         {
@@ -1505,7 +1656,7 @@ struct npc_captured_vile_fin_minor_oracle : public ScriptedAI
     npc_captured_vile_fin_minor_oracle(Creature* creature) : ScriptedAI(creature) { }
 
     EventMap m_events;
-    uint64 m_playerGUID;
+    ObjectGuid m_playerGUID;
 
     void Reset() override
     {
@@ -1514,7 +1665,7 @@ struct npc_captured_vile_fin_minor_oracle : public ScriptedAI
         uint64 m_playerGUID = 0;
     }
 
-    void IsSummonedBy(Unit* summoner)
+    void IsSummonedBy(Unit* summoner) override
     {
         if (Player* player = summoner->ToPlayer())
         {
@@ -1596,6 +1747,10 @@ void AddSC_tirisfal_glades()
     new creature_script<npc_vile_fin_puddlejumper>("npc_vile_fin_puddlejumper");
     new creature_script<npc_vile_fin_minor_oracle>("npc_vile_fin_minor_oracle");
     new spell_script<spell_murloc_leash>("spell_murloc_leash");
+    new aura_script<spell_summon_darnell>("spell_summon_darnell");
+    new spell_script<spell_summon_lilian_voss_guardian>("spell_summon_lilian_voss_guardian");
+    new spell_script<spell_select_scarlet_corpse>("spell_select_scarlet_corpse");
+    new spell_script<spell_reverse_cast_ride_vehicle_darnell>("spell_reverse_cast_ride_vehicle_darnell");
     new creature_script<npc_captured_vile_fin_puddlejumper>("npc_captured_vile_fin_puddlejumper");
     new creature_script<npc_captured_vile_fin_minor_oracle>("npc_captured_vile_fin_minor_oracle");
     new creature_script<npc_sedrick_calston>("npc_sedrick_calston");

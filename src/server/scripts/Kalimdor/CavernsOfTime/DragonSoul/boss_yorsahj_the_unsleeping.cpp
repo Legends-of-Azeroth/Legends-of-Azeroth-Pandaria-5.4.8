@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -218,7 +218,7 @@ class boss_yorsahj_the_unsleeping: public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_TASTE_THE_RAINBOW_PY, 0);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (instance->GetBossState(DATA_MORCHOK) != DONE)
                 {
@@ -363,7 +363,7 @@ class boss_yorsahj_the_unsleeping: public CreatureScript
                                     default: return;
                                 }
 
-                                if (Creature* pGlobule = me->SummonCreature((*itr), globulesPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000))
+                                if (Creature* pGlobule = me->SummonCreature((*itr), globulesPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms))
                                 {
                                     pGlobule->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                     pGlobule->SetDisplayId(11686);
@@ -425,7 +425,7 @@ class boss_yorsahj_the_unsleeping: public CreatureScript
                                             events.ScheduleEvent(EVENT_SEARING_BLOOD, urand(5000, 7000));
                                             break;
                                         case NPC_ACIDIC_GLOBULE: 
-                                            me->SummonCreature(NPC_MAW_OF_SHUMA, mawofshumaPos, TEMPSUMMON_TIMED_DESPAWN, 60000);
+                                            me->SummonCreature(NPC_MAW_OF_SHUMA, mawofshumaPos, TEMPSUMMON_TIMED_DESPAWN, 60000ms);
                                             DoCast(me, SPELL_ACIDIC_BLOOD_OF_SHUMA, true);
                                             DoCast(me, SPELL_DIGESTIVE_ACID_DUMMY, true);
                                             events.ScheduleEvent(EVENT_DIGESTIVE_ACID, urand(7000, 9000));
@@ -769,7 +769,7 @@ class npc_yorsahj_the_unsleeping_forgotten_one: public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             {
-                                me->AddThreat(target, 1000000.0f);
+                                me->GetThreatManager().AddThreat(target, 1000000.0f);
                                 AttackStart(target);
                                 events.ScheduleEvent(EVENT_PSYCHIC_SLICE, urand(6000, 20000));
                             }
@@ -898,7 +898,7 @@ class spell_yorsahj_the_unsleeping_deep_corruption : public SpellScriptLoader
                     {
                         if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                         {
-                            if (uint64 guid = instance->GetData64(DATA_YORSAHJ))
+                            if (ObjectGuid guid = instance->GetGuidData(DATA_YORSAHJ))
                                 GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_DEEP_CORRUPTION_DMG, true, 0, NULL, guid);
                         }
                         else
@@ -1032,7 +1032,7 @@ class spell_yorsahj_the_unsleeping_mana_void : public SpellScriptLoader
                             return true;
                         if (unit->ToPlayer()->GetPowerType() == POWER_MANA)
                             return false;
-                        return GetPowerIndexByClass(POWER_MANA, unit->ToPlayer()->GetClass()) == MAX_POWERS;
+                        return sDBCManager.GetPowerIndexByClass(POWER_MANA, unit->ToPlayer()->GetClass()) == MAX_POWERS;
                     }
             };
 

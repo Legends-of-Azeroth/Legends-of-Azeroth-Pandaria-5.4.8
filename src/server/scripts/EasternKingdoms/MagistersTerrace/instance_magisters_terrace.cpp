@@ -66,17 +66,17 @@ public:
         uint32 Encounter[MAX_ENCOUNTER];
         uint32 DelrissaDeathCount;
 
-        std::vector<uint64> FelCrystals;
+        std::vector<ObjectGuid> FelCrystals;
 
-        uint64 SelinGUID;
-        uint64 DelrissaGUID;
-        uint64 VexallusDoorGUID;
-        uint64 SelinDoorGUID;
-        uint64 SelinEncounterDoorGUID;
-        uint64 DelrissaDoorGUID;
-        uint64 KaelDoorGUID;
-        uint64 KaelStatue[2];
-        uint64 EscapeOrbGUID;
+        ObjectGuid SelinGUID;
+        ObjectGuid DelrissaGUID;
+        ObjectGuid VexallusDoorGUID;
+        ObjectGuid SelinDoorGUID;
+        ObjectGuid SelinEncounterDoorGUID;
+        ObjectGuid DelrissaDoorGUID;
+        ObjectGuid KaelDoorGUID;
+        ObjectGuid KaelStatue[2];
+        ObjectGuid EscapeOrbGUID;
         uint32 StatuesState;
         uint8 felCristalIndex;
 
@@ -88,16 +88,16 @@ public:
 
             DelrissaDeathCount = 0;
 
-            SelinGUID = 0;
-            DelrissaGUID = 0;
-            VexallusDoorGUID = 0;
-            SelinDoorGUID = 0;
-            SelinEncounterDoorGUID = 0;
-            DelrissaDoorGUID = 0;
-            KaelDoorGUID = 0;
-            KaelStatue[0] = 0;
-            KaelStatue[1] = 0;
-            EscapeOrbGUID = 0;
+            SelinGUID = ObjectGuid::Empty;
+            DelrissaGUID = ObjectGuid::Empty;
+            VexallusDoorGUID = ObjectGuid::Empty;
+            SelinDoorGUID = ObjectGuid::Empty;
+            SelinEncounterDoorGUID = ObjectGuid::Empty;
+            DelrissaDoorGUID = ObjectGuid::Empty;
+            KaelDoorGUID = ObjectGuid::Empty;
+            KaelStatue[0] = ObjectGuid::Empty;
+            KaelStatue[1] = ObjectGuid::Empty;
+            EscapeOrbGUID = ObjectGuid::Empty;
             StatuesState = 0;
             felCristalIndex = 0;
         }
@@ -110,7 +110,7 @@ public:
             return false;
         }
 
-        uint32 GetData(uint32 identifier) const
+        uint32 GetData(uint32 identifier) const override
         {
             switch (identifier)
             {
@@ -130,7 +130,7 @@ public:
             return 0;
         }
 
-        void SetData(uint32 identifier, uint32 data)
+        void SetData(uint32 identifier, uint32 data) override
         {
             switch (identifier)
             {
@@ -267,7 +267,7 @@ public:
             OUT_LOAD_INST_DATA_COMPLETE;
         }
 
-        uint64 GetData64(uint32 identifier) const
+        ObjectGuid GetGuidData(uint32 identifier) const override
         {
             switch (identifier)
             {
@@ -291,15 +291,15 @@ public:
                     if (FelCrystals.size() < felCristalIndex)
                     {
                         TC_LOG_ERROR("scripts", "Magisters Terrace: No Fel Crystals loaded in Inst Data");
-                        return 0;
+                        return ObjectGuid::Empty;
                     }
 
                     return FelCrystals.at(felCristalIndex);
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
-        void SetData64(uint32 identifier, uint64 value)
+        void SetData64(uint32 identifier, uint64 value) override
         {
             if (identifier == DATA_FEL_CRYSTAL)
                 felCristalIndex = value;

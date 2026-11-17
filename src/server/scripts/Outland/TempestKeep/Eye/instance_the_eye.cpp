@@ -47,13 +47,13 @@ class instance_the_eye : public InstanceMapScript
         {
             instance_the_eye_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
-            uint64 ThaladredTheDarkener;
-            uint64 LordSanguinar;
-            uint64 GrandAstromancerCapernian;
-            uint64 MasterEngineerTelonicus;
-            uint64 Kaelthas;
-            uint64 Astromancer;
-            uint64 Alar;
+            ObjectGuid ThaladredTheDarkener;
+            ObjectGuid LordSanguinar;
+            ObjectGuid GrandAstromancerCapernian;
+            ObjectGuid MasterEngineerTelonicus;
+            ObjectGuid Kaelthas;
+            ObjectGuid Astromancer;
+            ObjectGuid Alar;
             uint8 KaelthasEventPhase;
             uint8 AlarEventPhase;
 
@@ -63,13 +63,13 @@ class instance_the_eye : public InstanceMapScript
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-                ThaladredTheDarkener = 0;
-                LordSanguinar = 0;
-                GrandAstromancerCapernian = 0;
-                MasterEngineerTelonicus = 0;
-                Kaelthas = 0;
-                Astromancer = 0;
-                Alar = 0;
+                ThaladredTheDarkener = ObjectGuid::Empty;
+                LordSanguinar = ObjectGuid::Empty;
+                GrandAstromancerCapernian = ObjectGuid::Empty;
+                MasterEngineerTelonicus = ObjectGuid::Empty;
+                Kaelthas = ObjectGuid::Empty;
+                Astromancer = ObjectGuid::Empty;
+                Alar = ObjectGuid::Empty;
 
                 KaelthasEventPhase = 0;
                 AlarEventPhase = 0;
@@ -112,7 +112,7 @@ class instance_the_eye : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 identifier) const override
+            ObjectGuid GetGuidData(uint32 identifier) const override
             {
                 switch (identifier)
                 {
@@ -124,7 +124,7 @@ class instance_the_eye : public InstanceMapScript
                 case DATA_ASTROMANCER:                  return Astromancer;
                 case DATA_ALAR:                         return Alar;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void SetData(uint32 type, uint32 data) override

@@ -60,7 +60,7 @@ class boss_sha_of_violence : public CreatureScript
 
             bool enrageDone;
             uint32 shaCount;
-            std::vector<uint64> prisonedShaGUIDs;
+            std::vector<ObjectGuid> prisonedShaGUIDs;
 
             void InitializeAI() override
             {
@@ -83,9 +83,9 @@ class boss_sha_of_violence : public CreatureScript
                     me->SummonCreature(itr.first, itr.second, TEMPSUMMON_MANUAL_DESPAWN);
             }
              
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(TALK_AGGRO);
                 if (instance)
                 {
@@ -129,7 +129,7 @@ class boss_sha_of_violence : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
 
@@ -139,16 +139,16 @@ class boss_sha_of_violence : public CreatureScript
                     instance->SetData(DATA_SHA_VIOLENCE, FAIL);
                     instance->SetBossState(DATA_SHA_VIOLENCE, FAIL);
 
-                    if (GameObject* prison1 = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_SHA_PRISON_1)))
+                    if (GameObject* prison1 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_SHA_PRISON_1)))
                         prison1->SetGoState(GO_STATE_READY);
 
-                    if (GameObject* prison2 = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_SHA_PRISON_2)))
+                    if (GameObject* prison2 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_SHA_PRISON_2)))
                         prison2->SetGoState(GO_STATE_READY);
 
-                    if (GameObject* prison3 = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_SHA_PRISON_3)))
+                    if (GameObject* prison3 = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_SHA_PRISON_3)))
                         prison3->SetGoState(GO_STATE_READY);
 
-                    if (GameObject* button = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_CONTAINMENT_OVERRIDE)))
+                    if (GameObject* button = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_CONTAINMENT_OVERRIDE)))
                     {
                         button->SetGoState(GO_STATE_READY);
                         button->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
@@ -284,7 +284,7 @@ struct npc_achiev_prisoned_sha : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         if (me->GetEntry() == NPC_SHA_MANIFESTATION)
         {
@@ -298,7 +298,7 @@ struct npc_achiev_prisoned_sha : public ScriptedAI
         if (me->GetDBTableGUIDLow())
             return;
 
-        if (Creature* shaOfViolence = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SHA_VIOLENCE) : 0))
+        if (Creature* shaOfViolence = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SHA_VIOLENCE) : ObjectGuid::Empty))
             shaOfViolence->AI()->SetData(TYPE_OBVIOUS_SOLUTION, 1);
     }
 
@@ -431,17 +431,17 @@ class go_containment_override : public GameObjectScript
             if (state != GO_STATE_ACTIVE)
                 return;
 
-            if (GameObject* prison1 = ObjectAccessor::GetGameObject(*go, go->GetInstanceScript() ? go->GetInstanceScript()->GetData64(DATA_SHA_PRISON_1) : 0))
+            if (GameObject* prison1 = ObjectAccessor::GetGameObject(*go, go->GetInstanceScript() ? go->GetInstanceScript()->GetGuidData(DATA_SHA_PRISON_1) : ObjectGuid::Empty))
                 prison1->SetGoState(GO_STATE_ACTIVE);
 
-            if (GameObject* prison2 = ObjectAccessor::GetGameObject(*go, go->GetInstanceScript() ? go->GetInstanceScript()->GetData64(DATA_SHA_PRISON_2) : 0))
+            if (GameObject* prison2 = ObjectAccessor::GetGameObject(*go, go->GetInstanceScript() ? go->GetInstanceScript()->GetGuidData(DATA_SHA_PRISON_2) : ObjectGuid::Empty))
                 prison2->SetGoState(GO_STATE_ACTIVE);
 
-            if (GameObject* prison3 = ObjectAccessor::GetGameObject(*go, go->GetInstanceScript() ? go->GetInstanceScript()->GetData64(DATA_SHA_PRISON_3) : 0))
+            if (GameObject* prison3 = ObjectAccessor::GetGameObject(*go, go->GetInstanceScript() ? go->GetInstanceScript()->GetGuidData(DATA_SHA_PRISON_3) : ObjectGuid::Empty))
                 prison3->SetGoState(GO_STATE_ACTIVE);
 
             // Force sha to attack players
-            if (Creature* shaOfViolence = ObjectAccessor::GetCreature(*go, go->GetInstanceScript() ? go->GetInstanceScript()->GetData64(NPC_SHA_VIOLENCE) : 0))
+            if (Creature* shaOfViolence = ObjectAccessor::GetCreature(*go, go->GetInstanceScript() ? go->GetInstanceScript()->GetGuidData(NPC_SHA_VIOLENCE) : ObjectGuid::Empty))
                 shaOfViolence->AI()->DoAction(0);
         }
 };

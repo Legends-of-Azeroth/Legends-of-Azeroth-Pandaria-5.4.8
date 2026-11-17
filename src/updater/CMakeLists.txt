@@ -18,7 +18,6 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
     ${CMAKE_SOURCE_DIR}/dep/utf8cpp
     ${Boost_INCLUDE_DIRS}
-    ${ACE_INCLUDE_DIR}
     ${MYSQL_INCLUDE_DIR}
     ${OPENSSL_INCLUDE_DIR}
 )

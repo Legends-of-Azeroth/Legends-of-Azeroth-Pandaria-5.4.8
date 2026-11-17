@@ -115,9 +115,9 @@ class boss_general_husam : public CreatureScript
                     me->CastSpell(who, SPELL_HURL_SCRIPT, false);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -400,13 +400,13 @@ class npc_shockwave_stalker : public CreatureScript
                         float x, y, _x, _y, z = me->GetPositionZ();
                         summoner->GetPosition(_x, _y);
                         pos.Relocate(_x, _y, z);
-                        me->GetNearPoint2D(x, y, 40.0f, M_PI - me->GetAngle(_x, _y));
+                        me->GetNearPoint2D(nullptr, x, y, 40.0f, M_PI - me->GetAngle(_x, _y));
                         me->GetMotionMaster()->MovePoint(0, x, y, z);
                     }
             }
 
             InstanceScript* instance;
-            std::list<uint64> lSummonedGUID;
+            std::list<ObjectGuid> lSummonedGUID;
             Position pos;
             uint32 uiCheckTimer;
             bool CanCheck;
@@ -417,10 +417,10 @@ class npc_shockwave_stalker : public CreatureScript
                 summon->SetInCombatWithZone();
                 summon->AddAura(SPELL_SHOCKWAVE_STALKER_VISUAL, summon);
 
-                if (Creature* husam = Unit::GetCreature(*me, instance->GetData64(DATA_GENERAL_HUSAM)))
+                if (Creature* husam = Unit::GetCreature(*me, instance->GetGuidData(DATA_GENERAL_HUSAM)))
                     husam->AI()->JustSummoned(summon);
 
-                if (uint64 uiGUID = summon->GetGUID())
+                if (ObjectGuid uiGUID = summon->GetGUID())
                     lSummonedGUID.push_back(uiGUID);
             }
 
@@ -435,7 +435,7 @@ class npc_shockwave_stalker : public CreatureScript
                     if (lSummonedGUID.empty())
                         return;
 
-                    for (std::list<uint64>::const_iterator itr = lSummonedGUID.begin(); itr != lSummonedGUID.end(); ++itr)
+                    for (std::list<ObjectGuid>::const_iterator itr = lSummonedGUID.begin(); itr != lSummonedGUID.end(); ++itr)
                         if (Creature* shockwave = Unit::GetCreature(*me, (*itr)))
                         {
                             shockwave->CastSpell(shockwave, SPELL_SHOCKWAVE_DAMAGE, true);
@@ -458,7 +458,7 @@ class npc_shockwave_stalker : public CreatureScript
                         {
                             float dist = me->GetDistance(pos);
                             float _x, _y, _z = me->GetPositionZ();
-                            me->GetNearPoint2D(_x, _y, dist - 4.0f, me->GetAngle(&pos));
+                            me->GetNearPoint2D(nullptr, _x, _y, dist - 4.0f, me->GetAngle(&pos));
                             me->CastSpell(_x, _y, _z, SPELL_SUMMON_SHOCKWAVE, true);
                         }
                     }

@@ -19,6 +19,7 @@
 #define TRINITY_GRIDDEFINES_H
 
 #include "Common.h"
+#include "ObjectGuid.h"
 #include "NGrid.h"
 #include <cmath>
 
@@ -58,6 +59,7 @@ class AreaTrigger;
 // Creature used instead pet to simplify *::Visit templates (not required duplicate code for Creature->Pet case)
 typedef TYPELIST_4(Player, Creature/*pets*/, Corpse/*resurrectable*/, DynamicObject/*farsight target*/) AllWorldObjectTypes;
 typedef TYPELIST_5(Creature/*except pets*/, GameObject, DynamicObject, Corpse/*Bones*/, AreaTrigger) AllGridObjectTypes;
+typedef TYPELIST_6(Creature, GameObject, DynamicObject, Pet, Corpse, AreaTrigger) AllMapStoredObjectTypes;
 
 typedef GridRefManager<Corpse>          CorpseMapType;
 typedef GridRefManager<Creature>        CreatureMapType;
@@ -82,6 +84,7 @@ typedef NGrid<MAX_NUMBER_OF_CELLS, Player, AllWorldObjectTypes, AllGridObjectTyp
 
 typedef TypeMapContainer<AllGridObjectTypes> GridTypeMapContainer;
 typedef TypeMapContainer<AllWorldObjectTypes> WorldTypeMapContainer;
+typedef TypeUnorderedMapContainer<AllMapStoredObjectTypes, ObjectGuid> MapStoredObjectTypesContainer;
 
 template<uint32 LIMIT>
 struct CoordPair
@@ -186,6 +189,13 @@ namespace Trinity
     inline GridCoord ComputeGridCoord(float x, float y)
     {
         return Compute<GridCoord, CENTER_GRID_ID>(x, y, CENTER_GRID_OFFSET, SIZE_OF_GRIDS);
+    }
+
+    inline GridCoord ComputeGridCoordSimple(float x, float y)
+    {
+        int gx = (int)(CENTER_GRID_ID - x / SIZE_OF_GRIDS);
+        int gy = (int)(CENTER_GRID_ID - y / SIZE_OF_GRIDS);
+        return GridCoord((MAX_NUMBER_OF_GRIDS - 1) - gx, (MAX_NUMBER_OF_GRIDS - 1) - gy);
     }
 
     inline CellCoord ComputeCellCoord(float x, float y)

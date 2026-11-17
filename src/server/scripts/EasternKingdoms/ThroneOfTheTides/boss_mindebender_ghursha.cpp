@@ -118,7 +118,7 @@ class boss_erunak_stonespeaker : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/) override
             {
-                if (Creature* pGhursha = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MINDBENDER_GHURSHA)))
+                if (Creature* pGhursha = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MINDBENDER_GHURSHA)))
                     pGhursha->AI()->Talk(SAY_KILL);
             }
 
@@ -131,7 +131,7 @@ class boss_erunak_stonespeaker : public CreatureScript
                                 me->InterruptSpell(CURRENT_GENERIC_SPELL);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_EARTH_SHARDS, 8000);
                 events.ScheduleEvent(EVENT_EMBERSTRIKE, 11000);
@@ -162,7 +162,7 @@ class boss_erunak_stonespeaker : public CreatureScript
                     events.Reset();
                     me->SetFaction(35);
                     EnterEvadeMode();
-                    if (Creature* pGhursha = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MINDBENDER_GHURSHA)))
+                    if (Creature* pGhursha = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MINDBENDER_GHURSHA)))
                         pGhursha->AI()->DoAction(ACTION_GHURSHA_START);
                     return;
                 }
@@ -240,7 +240,7 @@ class boss_mindbender_ghursha : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 events.Reset();
-                if (Creature* pErunak = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ERUNAK_STONESPEAKER)))
+                if (Creature* pErunak = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ERUNAK_STONESPEAKER)))
                     pErunak->AI()->EnterEvadeMode();
             }
 
@@ -256,9 +256,9 @@ class boss_mindbender_ghursha : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -318,7 +318,7 @@ class boss_mindbender_ghursha : public CreatureScript
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
                 Talk(SAY_DEATH);
-                if (Creature* pErunak = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ERUNAK_STONESPEAKER)))
+                if (Creature* pErunak = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ERUNAK_STONESPEAKER)))
                 {
                     //pErunak->AI()->EnterEvadeMode();
                     pErunak->AI()->Talk(SAY_VICTORY);

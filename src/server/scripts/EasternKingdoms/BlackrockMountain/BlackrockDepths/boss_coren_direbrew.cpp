@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -119,13 +119,13 @@ class npc_coren_direbrew : public CreatureScript
                 _spawnedUrsula = false;
 
                 for (uint8 i = 0; i < 3; ++i)
-                    if (Creature* creature = me->SummonCreature(NPC_DIREBREW_MINION, AddSpawn[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15 * IN_MILLISECONDS))
+                    if (Creature* creature = me->SummonCreature(NPC_DIREBREW_MINION, AddSpawn[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(15 * IN_MILLISECONDS)))
                         _add[i] = creature->GetGUID();
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void JustEngagedWith(Unit* /*who*/)
             {
                 SetEquipmentSlots(false, EQUIP_ID_TANKARD, EQUIP_ID_TANKARD, EQUIP_NO_CHANGE);
 
@@ -139,7 +139,7 @@ class npc_coren_direbrew : public CreatureScript
                             creature->SetFaction(FACTION_HOSTILE_COREN);
                             creature->SetInCombatWithZone();
                         }
-                        _add[i] = 0;
+                        _add[i] = ObjectGuid::Empty;
                     }
                 }
 
@@ -172,7 +172,7 @@ class npc_coren_direbrew : public CreatureScript
                             float posX, posY, posZ;
                             target->GetPosition(posX, posY, posZ);
                             target->CastSpell(target, SPELL_MOLE_MACHINE_EMERGE, true, 0, 0, me->GetGUID());
-                            me->SummonCreature(NPC_DIREBREW_MINION, posX, posY, posZ, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_DIREBREW_MINION, posX, posY, posZ, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(15 * IN_MILLISECONDS));
 
                             _addTimer = 15 * IN_MILLISECONDS;
                             if (_spawnedIlsa)
@@ -188,13 +188,13 @@ class npc_coren_direbrew : public CreatureScript
 
                 if (!_spawnedIlsa && HealthBelowPct(66))
                 {
-                    DoSpawnCreature(NPC_ILSA_DIREBREW, 0, 0, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15 * IN_MILLISECONDS);
+                    DoSpawnCreature(NPC_ILSA_DIREBREW, 0, 0, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15s);
                     _spawnedIlsa = true;
                 }
 
                 if (!_spawnedUrsula && HealthBelowPct(33))
                 {
-                    DoSpawnCreature(NPC_URSULA_DIREBREW, 0, 0, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15 * IN_MILLISECONDS);
+                    DoSpawnCreature(NPC_URSULA_DIREBREW, 0, 0, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15s);
                     _spawnedUrsula = true;
                 }
 
@@ -227,7 +227,7 @@ class npc_coren_direbrew : public CreatureScript
             }
 
             private:
-                uint64 _add[3];
+                ObjectGuid _add[3];
                 uint32 _addTimer;
                 uint32 _disarmTimer;
                 bool _spawnedIlsa;
@@ -252,7 +252,7 @@ struct npc_brewmaiden : public ScriptedAI
         barrelTimer = 5 * IN_MILLISECONDS;
     }
 
-    void EnterCombat(Unit* /*who*/)
+    void JustEngagedWith(Unit* /*who*/)
     {
         me->SetInCombatWithZone();
     }
@@ -264,7 +264,7 @@ struct npc_brewmaiden : public ScriptedAI
 
         if (me->Attack(who, true))
         {
-            me->AddThreat(who, 1.0f);
+            me->GetThreatManager().AddThreat(who, 1.0f);
             me->SetInCombatWith(who);
             who->SetInCombatWith(me);
 

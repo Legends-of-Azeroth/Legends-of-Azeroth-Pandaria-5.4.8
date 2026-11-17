@@ -117,7 +117,7 @@ class boss_houndmaster_braun : public CreatureScript
                 HandleDoors(true);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)
@@ -129,9 +129,9 @@ class boss_houndmaster_braun : public CreatureScript
                 HandleDoors(true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(TALK_INTO);
                 if (instance)
                 {
@@ -147,7 +147,7 @@ class boss_houndmaster_braun : public CreatureScript
             {
                 if (instance)
                     if (GameObject* Idoor = GetClosestGameObjectWithEntry(me, GO_COMANDER_LINDON_EXIT, 150.0f))
-                        instance->HandleGameObject(0, reset, Idoor);
+                        instance->HandleGameObject(ObjectGuid::Empty, reset, Idoor);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -311,7 +311,7 @@ class npc_obediend_hound : public CreatureScript
 
                         if (_instance)
                         {
-                            if (Unit* Braun = ObjectAccessor::GetUnit(*me, _instance->GetData64(BOSS_HOUNDMASTER_BRAUN)))
+                            if (Unit* Braun = ObjectAccessor::GetUnit(*me, _instance->GetGuidData(BOSS_HOUNDMASTER_BRAUN)))
                             {
                                 me->Attack(Braun, true);
                                 me->GetMotionMaster()->MoveChase(Braun);
@@ -326,7 +326,7 @@ class npc_obediend_hound : public CreatureScript
                         break;
                     case ACTION_EATING:
                         if (_instance)
-                            if (Unit* Braun = ObjectAccessor::GetUnit(*me, _instance->GetData64(BOSS_HOUNDMASTER_BRAUN)))
+                            if (Unit* Braun = ObjectAccessor::GetUnit(*me, _instance->GetGuidData(BOSS_HOUNDMASTER_BRAUN)))
                                 me->CastSpell(Braun, IsHeroic() ? SPELL_RAKE_HEROIC : SPELL_RAKE_NORMAL, true);
                         break;
                 }

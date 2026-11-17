@@ -85,7 +85,7 @@ public:
             creature->CastSpell(creature, SPELL_SYLVANAS_CAST, false);
 
             for (uint8 i = 0; i < 4; ++i)
-                creature->SummonCreature(ENTRY_HIGHBORNE_LAMENTER, HighborneLoc[i][0], HighborneLoc[i][1], HIGHBORNE_LOC_Y, HighborneLoc[i][2], TEMPSUMMON_TIMED_DESPAWN, 160000);
+                creature->SummonCreature(ENTRY_HIGHBORNE_LAMENTER, HighborneLoc[i][0], HighborneLoc[i][1], HIGHBORNE_LOC_Y, HighborneLoc[i][2], TEMPSUMMON_TIMED_DESPAWN, 160000ms);
         }
 
         return true;
@@ -102,7 +102,7 @@ public:
 
         uint32 LamentEventTimer;
         bool LamentEvent;
-        uint64 targetGUID;
+        ObjectGuid targetGUID;
 
         uint32 FadeTimer;
         uint32 SummonSkeletonTimer;
@@ -114,7 +114,7 @@ public:
         {
             LamentEventTimer = 5000;
             LamentEvent = false;
-            targetGUID = 0;
+            targetGUID = ObjectGuid::Empty;
 
             FadeTimer = 30000;
             SummonSkeletonTimer = 20000;
@@ -123,7 +123,7 @@ public:
             MultiShotTimer = 10000;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             me->PlayDistanceSound(5886);
         }
@@ -150,7 +150,7 @@ public:
             {
                 if (LamentEventTimer <= diff)
                 {
-                    DoSummon(ENTRY_HIGHBORNE_BUNNY, me, 10.0f, 3000, TEMPSUMMON_TIMED_DESPAWN);
+                    DoSummon(ENTRY_HIGHBORNE_BUNNY, me, 10.0f, 3000ms, TEMPSUMMON_TIMED_DESPAWN);
 
                     LamentEventTimer = 2000;
                     if (!me->HasAura(SPELL_SYLVANAS_CAST))
@@ -248,7 +248,7 @@ public:
             EventCast = true;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {

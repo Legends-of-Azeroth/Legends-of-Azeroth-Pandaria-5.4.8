@@ -60,15 +60,15 @@ class instance_utgarde_keep : public InstanceMapScript
         {
             instance_utgarde_keep_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
-            uint64 kelesethGUID;
-            uint64 skarvaldGUID;
-            uint64 dalronnGUID;
-            uint64 ingvarGUID;
+            ObjectGuid kelesethGUID;
+            ObjectGuid skarvaldGUID;
+            ObjectGuid dalronnGUID;
+            ObjectGuid ingvarGUID;
 
-            uint64 forge_bellow[3];
-            uint64 forge_fire[3];
-            uint64 forge_anvil[3];
-            uint64 portcullis[2];
+            ObjectGuid forge_bellow[3];
+            ObjectGuid forge_fire[3];
+            ObjectGuid forge_anvil[3];
+            ObjectGuid portcullis[2];
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
             uint32 forge_event[3];
@@ -78,21 +78,21 @@ class instance_utgarde_keep : public InstanceMapScript
            {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-                kelesethGUID = 0;
-                skarvaldGUID = 0;
-                dalronnGUID = 0;
-                ingvarGUID = 0;
+                kelesethGUID = ObjectGuid::Empty;
+                skarvaldGUID = ObjectGuid::Empty;
+                dalronnGUID = ObjectGuid::Empty;
+                ingvarGUID = ObjectGuid::Empty;
 
                 for (uint8 i = 0; i < 3; ++i)
                 {
-                    forge_bellow[i] = 0;
-                    forge_fire[i] = 0;
-                    forge_anvil[i] = 0;
+                    forge_bellow[i] = ObjectGuid::Empty;
+                    forge_fire[i] = ObjectGuid::Empty;
+                    forge_anvil[i] = ObjectGuid::Empty;
                     forge_event[i] = NOT_STARTED;
                 }
 
-                portcullis[0] = 0;
-                portcullis[1] = 0;
+                portcullis[0] = ObjectGuid::Empty;
+                portcullis[1] = ObjectGuid::Empty;
             }
 
             bool IsEncounterInProgress() const override
@@ -146,54 +146,54 @@ class instance_utgarde_keep : public InstanceMapScript
                     case GO_BELLOW_1: 
                         forge_bellow[0] = go->GetGUID();
                         if (forge_event[0] != NOT_STARTED)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                             break;
                     case GO_BELLOW_2:
                         forge_bellow[1] = go->GetGUID();
                         if (forge_event[1] != NOT_STARTED)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case GO_BELLOW_3: forge_bellow[2] = go->GetGUID();
                         if (forge_event[2] != NOT_STARTED)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case GO_FORGEFIRE_1: forge_fire[0] = go->GetGUID();
                         if (forge_event[0] != NOT_STARTED)
-                            HandleGameObject(0,true,go);
+                            HandleGameObject(ObjectGuid::Empty,true,go);
                         break;
                     case GO_FORGEFIRE_2: forge_fire[1] = go->GetGUID();
                         if (forge_event[1] != NOT_STARTED)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case GO_FORGEFIRE_3: forge_fire[2] = go->GetGUID();
                         if (forge_event[2] != NOT_STARTED)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case GO_GLOWING_ANVIL_1: forge_anvil[0] = go->GetGUID();
                         if (forge_event[0] != NOT_STARTED)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case GO_GLOWING_ANVIL_2: forge_anvil[1] = go->GetGUID();
                         if (forge_event[1] != NOT_STARTED)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case GO_GLOWING_ANVIL_3: forge_anvil[2] = go->GetGUID();
                         if (forge_event[2] != NOT_STARTED)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case GO_GIANT_PORTCULLIS_1: portcullis[0] = go->GetGUID();
                         if (m_auiEncounter[2] == DONE)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case GO_GIANT_PORTCULLIS_2:
                         portcullis[1] = go->GetGUID();
                         if (m_auiEncounter[2] == DONE)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -203,7 +203,7 @@ class instance_utgarde_keep : public InstanceMapScript
                     case DATA_INGVAR:         return ingvarGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void SetData(uint32 type, uint32 data) override

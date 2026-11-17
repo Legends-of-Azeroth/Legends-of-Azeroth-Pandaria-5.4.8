@@ -31,4 +31,30 @@ inline void dtCustomFree(void* ptr)
     delete [] (unsigned char*)ptr;
 }
 
+namespace Trinity
+{
+    namespace Impl
+    {
+        template<typename T, typename Del>
+        struct unique_ptr_deleter
+        {
+            using pointer = T*;
+            unique_ptr_deleter(Del deleter) : _deleter(std::move(deleter)) { }
+
+            void operator()(pointer ptr) const { _deleter(ptr); }
+
+        private:
+            Del _deleter;
+        };
+    }
+
+    template<typename T, typename Del>
+    auto make_unique_ptr_with_deleter(T* ptr, Del&& deleter)
+    {
+        using Deleter_t = Impl::unique_ptr_deleter<T, Del>;
+
+        return std::unique_ptr<T, Deleter_t>(ptr, Deleter_t(std::forward<Del>(deleter)));
+    }
+}
+
 #endif

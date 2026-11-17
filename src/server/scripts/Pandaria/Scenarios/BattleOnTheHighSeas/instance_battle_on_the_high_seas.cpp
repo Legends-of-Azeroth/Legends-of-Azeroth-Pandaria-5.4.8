@@ -36,18 +36,18 @@ class instance_battle_on_the_high_seas : public InstanceMapScript
             uint32 factionId;
             uint32 explosiveBarrelsCount;
             uint32 plantBarrelCount;
-            uint64 hodgsonGUID;
-            uint64 hagmanGUID;
-            uint64 hordeMainTransportCannonGUID;
-            uint64 hordeCaptainGUID;
-            uint64 hordeRopeGUID;
-            uint64 hordeOutTransportCannonGUID;
-            uint64 rapierGUID;
-            uint64 allianceRopeGUID;
-            std::vector<uint64> fireBunnyGUIDs;
-            std::vector<uint64> allianceToHordeTransportGUIDs;
-            std::vector<uint64> barrelGUIDs;
-            std::vector<uint64> plantGUIDs;
+            ObjectGuid hodgsonGUID;
+            ObjectGuid hagmanGUID;
+            ObjectGuid hordeMainTransportCannonGUID;
+            ObjectGuid hordeCaptainGUID;
+            ObjectGuid hordeRopeGUID;
+            ObjectGuid hordeOutTransportCannonGUID;
+            ObjectGuid rapierGUID;
+            ObjectGuid allianceRopeGUID;
+            std::vector<ObjectGuid> fireBunnyGUIDs;
+            std::vector<ObjectGuid> allianceToHordeTransportGUIDs;
+            std::vector<ObjectGuid> barrelGUIDs;
+            std::vector<ObjectGuid> plantGUIDs;
 
             void Initialize() override
             {
@@ -57,17 +57,17 @@ class instance_battle_on_the_high_seas : public InstanceMapScript
                 chapterTwo                   = 0;
                 chapterThree                 = 0;
                 chapterFour                  = 0;
-                hodgsonGUID                  = 0;
-                hagmanGUID                   = 0;
-                hordeMainTransportCannonGUID = 0;
+                hodgsonGUID = ObjectGuid::Empty;
+                hagmanGUID = ObjectGuid::Empty;
+                hordeMainTransportCannonGUID = ObjectGuid::Empty;
                 factionId                    = 0;
-                hordeCaptainGUID             = 0;
-                hordeRopeGUID                = 0;
-                hordeOutTransportCannonGUID  = 0;
+                hordeCaptainGUID = ObjectGuid::Empty;
+                hordeRopeGUID = ObjectGuid::Empty;
+                hordeOutTransportCannonGUID = ObjectGuid::Empty;
                 explosiveBarrelsCount        = 0;
                 plantBarrelCount             = 0;
-                rapierGUID                   = 0;
-                allianceRopeGUID             = 0;
+                rapierGUID = ObjectGuid::Empty;
+                allianceRopeGUID = ObjectGuid::Empty;
 
                 fireBunnyGUIDs.clear();
                 allianceToHordeTransportGUIDs.clear();
@@ -161,11 +161,11 @@ class instance_battle_on_the_high_seas : public InstanceMapScript
                             if (Player* player = itr.GetSource())
                                 sScenarioMgr->SendScenarioState(player, 1099, DATA_EXPLOSIVES_ACQUICITION, 0);
 
-                        if (Creature* hagman = instance->GetCreature(GetData64(NPC_ADMIRAL_HAGMAN)))
+                        if (Creature* hagman = instance->GetCreature(GetGuidData(NPC_ADMIRAL_HAGMAN)))
                             hagman->AI()->Talk(TALK_SPECIAL_1);
 
                         // Actiate Transport cannon
-                        if (Creature* transportCannon = instance->GetCreature(GetData64(NPC_TRANSPORT_CANNON_H_A_1)))
+                        if (Creature* transportCannon = instance->GetCreature(GetGuidData(NPC_TRANSPORT_CANNON_H_A_1)))
                         {
                             transportCannon->SetVisible(true);
                             transportCannon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -179,7 +179,7 @@ class instance_battle_on_the_high_seas : public InstanceMapScript
                         }
                         
                         // Summon new wave on next ship
-                        if (Creature* hordeCaptain = instance->GetCreature(GetData64(NPC_HORDE_CAPTAIN)))
+                        if (Creature* hordeCaptain = instance->GetCreature(GetGuidData(NPC_HORDE_CAPTAIN)))
                         {
                             for (auto&& itr : invSecondAssaultSpawnPos)
                                 hordeCaptain->SummonCreature(itr.first, itr.second, TEMPSUMMON_MANUAL_DESPAWN);
@@ -195,7 +195,7 @@ class instance_battle_on_the_high_seas : public InstanceMapScript
                         if (data == IN_PROGRESS)
                         {
                             // Allow to use Zipline
-                            if (GameObject* rope = instance->GetGameObject(GetData64(GO_ROPE_PILE_TO_ALLIANCE_SHIP)))
+                            if (GameObject* rope = instance->GetGameObject(GetGuidData(GO_ROPE_PILE_TO_ALLIANCE_SHIP)))
                                 rope->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
 
                             // Set barrels selectable for spell (idk why it not selectable at start)
@@ -220,7 +220,7 @@ class instance_battle_on_the_high_seas : public InstanceMapScript
                             }
 
                             // Announe from captain
-                            if (Creature* hordeCaptain = instance->GetCreature(GetData64(NPC_HORDE_CAPTAIN)))
+                            if (Creature* hordeCaptain = instance->GetCreature(GetGuidData(NPC_HORDE_CAPTAIN)))
                                 hordeCaptain->AI()->Talk(TALK_SPECIAL_3);
                         }
                         break;
@@ -229,7 +229,7 @@ class instance_battle_on_the_high_seas : public InstanceMapScript
 
                         if (data == IN_PROGRESS)
                         {
-                            if (Creature* hordeCaptain = instance->GetCreature(GetData64(NPC_HORDE_CAPTAIN)))
+                            if (Creature* hordeCaptain = instance->GetCreature(GetGuidData(NPC_HORDE_CAPTAIN)))
                             {
                                 hordeCaptain->AI()->Talk(TALK_SPECIAL_4);
 
@@ -237,7 +237,7 @@ class instance_battle_on_the_high_seas : public InstanceMapScript
                                 hordeCaptain->AI()->DoAction(ACTION_EXPLOSIVE_SHIP);
 
                                 // Allow to use rope on this ship
-                                if (GameObject* rope = instance->GetGameObject(GetData64(GO_ROPE_PILE_TO_HORDE_SHIP)))
+                                if (GameObject* rope = instance->GetGameObject(GetGuidData(GO_ROPE_PILE_TO_HORDE_SHIP)))
                                     rope->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
                             }
                         }
@@ -248,7 +248,7 @@ class instance_battle_on_the_high_seas : public InstanceMapScript
                                     sScenarioMgr->SendScenarioState(player, 1099, DATA_DEFEAT_THE_ADMIRAL, 0, GetData(FACTION_DATA) ? CRITERIA_TREE_ID_DEFEAT_ADMIRAL_HORDE : CRITERIA_TREE_ID_DEFEAT_ADMIRAL_ALLIANCE, GetData(FACTION_DATA) ? SCENARIO_ID_NAVAL_BATTLE_HORDE : SCENARIO_ID_NAVAL_BATTLE_ALLIANCE);
 
                             // Allow to use last transport cannon
-                            if (Creature* transportCannon = instance->GetCreature(GetData64(NPC_TRANSPORT_CANNON_2_H_A_1)))
+                            if (Creature* transportCannon = instance->GetCreature(GetGuidData(NPC_TRANSPORT_CANNON_2_H_A_1)))
                             {
                                 transportCannon->SetVisible(true);
                                 transportCannon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -260,7 +260,7 @@ class instance_battle_on_the_high_seas : public InstanceMapScript
                                     fireBunny->SetVisible(true);
 
                             // Activate Enemy Admiral
-                            if (Creature* hodgson = instance->GetCreature(GetData64(NPC_ADMIRAL_HODGSON)))
+                            if (Creature* hodgson = instance->GetCreature(GetGuidData(NPC_ADMIRAL_HODGSON)))
                             {
                                 hodgson->SetVisible(true);
                                 hodgson->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PACIFIED);
@@ -282,7 +282,7 @@ class instance_battle_on_the_high_seas : public InstanceMapScript
                     case HORDE_ASSAULT_DATA:
                         for (auto&& itr : allianceToHordeTransportGUIDs)
                         {
-                            if (Creature* hagman = instance->GetCreature(GetData64(NPC_ADMIRAL_HAGMAN)))
+                            if (Creature* hagman = instance->GetCreature(GetGuidData(NPC_ADMIRAL_HAGMAN)))
                                 if (Creature* transport = instance->GetCreature(itr))
                                     if (Creature* assaulter = hagman->SummonCreature(urand(0, 1) ? NPC_ALLIANCE_CANNONEER : NPC_ALLIANCE_SWASHBUCKLER, *transport, TEMPSUMMON_MANUAL_DESPAWN))
                                         assaulter->AI()->DoAction(ACTION_START_INTRO);
@@ -327,7 +327,7 @@ class instance_battle_on_the_high_seas : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -349,7 +349,7 @@ class instance_battle_on_the_high_seas : public InstanceMapScript
                         return allianceRopeGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void Update(uint32 diff) override
@@ -362,7 +362,7 @@ class instance_battle_on_the_high_seas : public InstanceMapScript
                     {
                         if (GetData(FACTION_DATA)) // Init horde scenario
                         {
-                            if (Creature* hagman = instance->GetCreature(GetData64(NPC_ADMIRAL_HAGMAN)))
+                            if (Creature* hagman = instance->GetCreature(GetGuidData(NPC_ADMIRAL_HAGMAN)))
                             {
                                 for (auto&& itr : firstAllianceAssaultSpawnPos)
                                     hagman->SummonCreature(NPC_ALLIANCE_SWASHBUCKLER, itr, TEMPSUMMON_MANUAL_DESPAWN);

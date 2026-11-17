@@ -170,7 +170,7 @@ class boss_skadi : public CreatureScript
                 _Reset();
                 Initialize();
                 me->SetReactState(REACT_PASSIVE);
-                if (Creature* grauf = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GRAUF)))
+                if (Creature* grauf = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAUF)))
                     grauf->DespawnOrUnsummon();
                 me->SummonCreature(NPC_GRAUF, GraufLoc);
 
@@ -178,7 +178,7 @@ class boss_skadi : public CreatureScript
                 me->GetMap()->SetWorldState(WORLD_STATE_LOVES_TO_SKADI_ALL_THE_TIME, 1);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 summons.DespawnAll();
                 _DespawnAtEvade();
@@ -203,14 +203,14 @@ class boss_skadi : public CreatureScript
             void SpawnFirstWave()
             {
                 for (uint8 i = 0; i < FIRST_WAVE_MAX_WARRIORS; i++)
-                    if (Creature* summon = me->SummonCreature(NPC_YMIRJAR_WARRIOR, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+                    if (Creature* summon = me->SummonCreature(NPC_YMIRJAR_WARRIOR, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000ms))
                         summon->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[i]);
 
-                if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_WITCH_DOCTOR, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+                if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_WITCH_DOCTOR, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000ms))
                     crea->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[10]);
-                if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+                if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000ms))
                     crea->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[11]);
-                if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+                if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000ms))
                     crea->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[12]);
 
                 firstWaveSummoned = true;
@@ -250,7 +250,7 @@ class boss_skadi : public CreatureScript
                             })
                             .Schedule(Seconds(2), [this](TaskContext /*context*/)
                             {
-                                if (Creature* grauf = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GRAUF)))
+                                if (Creature* grauf = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAUF)))
                                     DoCast(grauf, SPELL_RIDE_GRAUF);
                             });
 
@@ -346,7 +346,7 @@ class npc_grauf : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* skadi = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SKADI_THE_RUTHLESS)))
+                if (Creature* skadi = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SKADI_THE_RUTHLESS)))
                     skadi->AI()->DoAction(ACTION_GAUNTLET_END);
 
                 me->DespawnOrUnsummon(6000);
@@ -413,7 +413,7 @@ class npc_grauf : public CreatureScript
                             {
                                 me->GetMotionMaster()->MovePath(GRAUF_PATH_LEFT, false);
                                 DoCast(SPELL_FREEZING_CLOUD_LEFT_PERIODIC);
-                                if (Creature* skadi = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SKADI_THE_RUTHLESS)))
+                                if (Creature* skadi = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SKADI_THE_RUTHLESS)))
                                     skadi->AI()->DoAction(ACTION_FLAME);
                             })
                             .Schedule(Seconds(10), [this](TaskContext /*context*/)
@@ -432,7 +432,7 @@ class npc_grauf : public CreatureScript
                             {
                                 me->GetMotionMaster()->MovePath(GRAUF_PATH_RIGHT, false);
                                 DoCast(SPELL_FREEZING_CLOUD_RIGHT_PERIODIC);
-                                if (Creature* skadi = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SKADI_THE_RUTHLESS)))
+                                if (Creature* skadi = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SKADI_THE_RUTHLESS)))
                                     skadi->AI()->DoAction(ACTION_FLAME);
                             })
                             .Schedule(Seconds(10), [this](TaskContext /*context*/)
@@ -448,7 +448,7 @@ class npc_grauf : public CreatureScript
             void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_LAUNCH_HARPOON)
-                    if (Creature* skadi = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SKADI_THE_RUTHLESS)))
+                    if (Creature* skadi = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SKADI_THE_RUTHLESS)))
                         skadi->AI()->DoAction(ACTION_HARPOON_HIT);
             }
 
@@ -494,15 +494,15 @@ struct npc_skadi_trashAI : public ScriptedAI
         });
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
-        CreatureAI::EnterCombat(who);
+        CreatureAI::JustEngagedWith(who);
         ScheduleTasks();
     }
 
     void IsSummonedBy(Unit* /*summoner*/) override
     {
-        if (Creature* skadi = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SKADI_THE_RUTHLESS)))
+        if (Creature* skadi = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SKADI_THE_RUTHLESS)))
             skadi->AI()->JustSummoned(me);
     }
 
@@ -998,7 +998,7 @@ class at_skadi_gaunlet : public AreaTriggerScript
             if (InstanceScript* instance = player->GetInstanceScript())
             {
                 if (instance->GetBossState(DATA_SKADI_THE_RUTHLESS) == NOT_STARTED)
-                    if (Creature* skadi = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_SKADI_THE_RUTHLESS)))
+                    if (Creature* skadi = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_SKADI_THE_RUTHLESS)))
                     {
                         skadi->AI()->DoAction(ACTION_START_ENCOUNTER);
                         return true;

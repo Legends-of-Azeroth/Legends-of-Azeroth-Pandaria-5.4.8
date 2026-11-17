@@ -72,7 +72,7 @@ class boss_ambassador_flamelash : public CreatureScript
                 SpiritsPos = { 0, 1, 2, 3, 4, 5, 6 };
             }
 
-            void EnterCombat(Unit* /*who*/) override 
+            void JustEngagedWith(Unit* /*who*/) override 
             {
                 Talk(TALK_INTRO);
                 SummonSpirits();
@@ -141,7 +141,7 @@ class npc_blackrock_burning_spirit : public CreatureScript
         {
             npc_blackrock_burning_spiritAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
 
             void IsSummonedBy(Unit* summoner) override
             {

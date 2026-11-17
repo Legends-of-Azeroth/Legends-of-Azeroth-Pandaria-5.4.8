@@ -37,14 +37,14 @@ class instance_mechanar : public InstanceMapScript
             {
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                cacheGUID      = 0;
+                cacheGUID = ObjectGuid::Empty;
                 chestAvailable = false;
             }
 
-            uint64 cacheGUID;
+            ObjectGuid cacheGUID;
             bool chestAvailable;
 
-            void OnGameObjectCreate(GameObject* gameObject)
+            void OnGameObjectCreate(GameObject* gameObject) override
             {
                 switch (gameObject->GetEntry())
                 {

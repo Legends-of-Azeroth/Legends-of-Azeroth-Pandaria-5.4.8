@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -45,73 +45,73 @@ public:
     {
         static std::vector<ChatCommand> debugPlayCommandTable =
         {
-            { "cinematic",      SEC_ADMINISTRATOR,  false,  &HandleDebugPlayCinematicCommand,       },
-            { "movie",          SEC_ADMINISTRATOR,  false,  &HandleDebugPlayMovieCommand,           },
-            { "sound",          SEC_ADMINISTRATOR,  false,  &HandleDebugPlaySoundCommand,           },
-            { "visual",         SEC_ADMINISTRATOR,  false,  &HandleDebugPlayVisualCommand,          },
-            { "visualkit",      SEC_ADMINISTRATOR,  false,  &HandleDebugPlayVisualKitCommand        },
+            { "cinematic", &HandleDebugPlayCinematicCommand, rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_CINEMATIC, Trinity::ChatCommands::Console::No },
+            { "movie", &HandleDebugPlayMovieCommand, rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_MOVIE, Trinity::ChatCommands::Console::No },
+            { "sound", &HandleDebugPlaySoundCommand, rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_SOUND, Trinity::ChatCommands::Console::No },
+            { "visual", &HandleDebugPlayVisualCommand, rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_VISUAL, Trinity::ChatCommands::Console::No },
+            { "visualkit", &HandleDebugPlayVisualKitCommand, rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_VISUALKIT, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> debugSendCommandTable =
         {
-            { "buyerror",       SEC_ADMINISTRATOR,  false,  &HandleDebugSendBuyErrorCommand,        },
-            { "channelnotify",  SEC_ADMINISTRATOR,  false,  &HandleDebugSendChannelNotifyCommand,   },
-            { "chatmessage",    SEC_ADMINISTRATOR,  false,  &HandleDebugSendChatMsgCommand,         },
-            { "equiperror",     SEC_ADMINISTRATOR,  false,  &HandleDebugSendEquipErrorCommand,      },
-            { "largepacket",    SEC_ADMINISTRATOR,  false,  &HandleDebugSendLargePacketCommand,     },
-            { "opcode",         SEC_ADMINISTRATOR,  false,  &HandleDebugSendOpcodeCommand,          },
-            { "qpartymsg",      SEC_ADMINISTRATOR,  false,  &HandleDebugSendQuestPartyMsgCommand,   },
-            { "qinvalidmsg",    SEC_ADMINISTRATOR,  false,  &HandleDebugSendQuestInvalidMsgCommand, },
-            { "sellerror",      SEC_ADMINISTRATOR,  false,  &HandleDebugSendSellErrorCommand,       },
-            { "setphaseshift",  SEC_ADMINISTRATOR,  false,  &HandleDebugSendSetPhaseShiftCommand,   },
-            { "spellfail",      SEC_ADMINISTRATOR,  false,  &HandleDebugSendSpellFailCommand,       },
+            { "buyerror", &HandleDebugSendBuyErrorCommand, rbac::RBAC_PERM_COMMAND_DEBUG_SEND_BUYERROR, Trinity::ChatCommands::Console::No },
+            { "channelnotify", &HandleDebugSendChannelNotifyCommand, rbac::RBAC_PERM_COMMAND_DEBUG_SEND_CHANNELNOTIFY, Trinity::ChatCommands::Console::No },
+            { "chatmessage", &HandleDebugSendChatMsgCommand, rbac::RBAC_PERM_COMMAND_DEBUG_SEND_CHATMESSAGE, Trinity::ChatCommands::Console::No },
+            { "equiperror", &HandleDebugSendEquipErrorCommand, rbac::RBAC_PERM_COMMAND_DEBUG_SEND_EQUIPERROR, Trinity::ChatCommands::Console::No },
+            { "largepacket", &HandleDebugSendLargePacketCommand, rbac::RBAC_PERM_COMMAND_DEBUG_SEND_LARGEPACKET, Trinity::ChatCommands::Console::No },
+            { "opcode", &HandleDebugSendOpcodeCommand, rbac::RBAC_PERM_COMMAND_DEBUG_SEND_OPCODE, Trinity::ChatCommands::Console::No },
+            { "qpartymsg", &HandleDebugSendQuestPartyMsgCommand, rbac::RBAC_PERM_COMMAND_DEBUG_SEND_QPARTYMSG, Trinity::ChatCommands::Console::No },
+            { "qinvalidmsg", &HandleDebugSendQuestInvalidMsgCommand, rbac::RBAC_PERM_COMMAND_DEBUG_SEND_QINVALIDMSG, Trinity::ChatCommands::Console::No },
+            { "sellerror", &HandleDebugSendSellErrorCommand, rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SELLERROR, Trinity::ChatCommands::Console::No },
+            { "setphaseshift", &HandleDebugSendSetPhaseShiftCommand, rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SETPHASESHIFT, Trinity::ChatCommands::Console::No },
+            { "spellfail", &HandleDebugSendSpellFailCommand, rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SPELLFAIL, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> debugCommandTable =
         {
-            { "setbit",         SEC_ADMINISTRATOR,  false,  &HandleDebugSet32BitCommand,            },
-            { "threat",         SEC_ADMINISTRATOR,  false,  &HandleDebugThreatListCommand,          },
-            { "hostil",         SEC_ADMINISTRATOR,  false,  &HandleDebugHostileRefListCommand,      },
-            { "anim",           SEC_ADMINISTRATOR,  false,  &HandleDebugAnimCommand,                },
-            { "arena",          SEC_ADMINISTRATOR,  false,  &HandleDebugArenaCommand,               },
-            { "bg",             SEC_ADMINISTRATOR,  false,  &HandleDebugBattlegroundCommand,        },
-            { "ratedbg",        SEC_ADMINISTRATOR,  false,  &HandleDebugRatedBgCommand              },
-            { "getitemstate",   SEC_ADMINISTRATOR,  false,  &HandleDebugGetItemStateCommand,        },
-            { "lootrecipient",  SEC_ADMINISTRATOR,  false,  &HandleDebugGetLootRecipientCommand,    },
-            { "getvalue",       SEC_ADMINISTRATOR,  false,  &HandleDebugGetValueCommand,            },
-            { "getitemvalue",   SEC_ADMINISTRATOR,  false,  &HandleDebugGetItemValueCommand,        },
-            { "Mod32Value",     SEC_ADMINISTRATOR,  false,  &HandleDebugMod32ValueCommand,          },
-            { "play",           SEC_ADMINISTRATOR,  false,  debugPlayCommandTable                   },
-            { "send",           SEC_ADMINISTRATOR,  false,  debugSendCommandTable                   },
-            { "setaurastate",   SEC_ADMINISTRATOR,  false,  &HandleDebugSetAuraStateCommand,        },
-            { "setitemvalue",   SEC_ADMINISTRATOR,  false,  &HandleDebugSetItemValueCommand,        },
-            { "setvalue",       SEC_ADMINISTRATOR,  false,  &HandleDebugSetValueCommand,            },
-            { "spawnvehicle",   SEC_ADMINISTRATOR,  false,  &HandleDebugSpawnVehicleCommand,        },
-            { "setvid",         SEC_ADMINISTRATOR,  false,  &HandleDebugSetVehicleIdCommand,        },
-            { "entervehicle",   SEC_ADMINISTRATOR,  false,  &HandleDebugEnterVehicleCommand,        },
-            { "uws",            SEC_ADMINISTRATOR,  false,  &HandleDebugUpdateWorldStateCommand,    },
-            { "update",         SEC_ADMINISTRATOR,  false,  &HandleDebugUpdateCommand,              },
-            { "itemexpire",     SEC_ADMINISTRATOR,  false,  &HandleDebugItemExpireCommand,          },
-            { "areatriggers",   SEC_ADMINISTRATOR,  false,  &HandleDebugAreaTriggersCommand,        },
-            { "los",            SEC_ADMINISTRATOR,  false,  &HandleDebugLoSCommand,                 },
-            { "moveflags",      SEC_ADMINISTRATOR,  false,  &HandleDebugMoveflagsCommand,           },
-            { "transport",      SEC_ADMINISTRATOR,  false,  &HandleDebugTransportCommand,           },
-            { "phase",          SEC_ADMINISTRATOR,  false,  &HandleDebugPhaseCommand,               },
-            { "casterror",      SEC_ADMINISTRATOR,  false,  &HandleDebugCastErrorCommand,           },
-            { "set",            SEC_ADMINISTRATOR,  false,  {
-                { "ap",         SEC_ADMINISTRATOR,  false,  &HandleDebugSetAttackPower              },
-                { "sp",         SEC_ADMINISTRATOR,  false,  &HandleDebugSetSpellPower               },
-            } },
-            { "archaeology",    SEC_ADMINISTRATOR,  false,  {
-                { "find",       SEC_ADMINISTRATOR,  false,  &HandleDebugArchaeologyFind             },
-                { "digsite",    SEC_ADMINISTRATOR,  false,  &HandleDebugArchaeologyDigsite          },
-            } },
-            { "vignette",       SEC_ADMINISTRATOR,  false,  &HandleDebugVignette,                   },
-            { "value",          SEC_ADMINISTRATOR,  true,   &HandleDebugValueCommand,               },
-            { "",               SEC_ADMINISTRATOR,  true,   &HandleDebugValueCommand,               },
+            { "setbit", &HandleDebugSet32BitCommand, rbac::RBAC_PERM_COMMAND_DEBUG_SETBIT, Trinity::ChatCommands::Console::No },
+            { "threat", &HandleDebugThreatListCommand, rbac::RBAC_PERM_COMMAND_DEBUG_THREAT, Trinity::ChatCommands::Console::No },
+            { "hostil", &HandleDebugHostileRefListCommand, rbac::RBAC_PERM_COMMAND_DEBUG_HOSTIL, Trinity::ChatCommands::Console::No },
+            { "anim", &HandleDebugAnimCommand, rbac::RBAC_PERM_COMMAND_DEBUG_ANIM, Trinity::ChatCommands::Console::No },
+            { "arena", &HandleDebugArenaCommand, rbac::RBAC_PERM_COMMAND_DEBUG_ARENA, Trinity::ChatCommands::Console::No },
+            { "bg", &HandleDebugBattlegroundCommand, rbac::RBAC_PERM_COMMAND_DEBUG_BG, Trinity::ChatCommands::Console::No },
+            { "ratedbg", &HandleDebugRatedBgCommand, rbac::RBAC_PERM_COMMAND_DEBUG_RATEDBG, Trinity::ChatCommands::Console::No },
+            { "getitemstate", &HandleDebugGetItemStateCommand, rbac::RBAC_PERM_COMMAND_DEBUG_GETITEMSTATE, Trinity::ChatCommands::Console::No },
+            { "lootrecipient", &HandleDebugGetLootRecipientCommand, rbac::RBAC_PERM_COMMAND_DEBUG_LOOTRECIPIENT, Trinity::ChatCommands::Console::No },
+            { "getvalue", &HandleDebugGetValueCommand, rbac::RBAC_PERM_COMMAND_DEBUG_GETVALUE, Trinity::ChatCommands::Console::No },
+            { "getitemvalue", &HandleDebugGetItemValueCommand, rbac::RBAC_PERM_COMMAND_DEBUG_GETITEMVALUE, Trinity::ChatCommands::Console::No },
+            { "Mod32Value", &HandleDebugMod32ValueCommand, rbac::RBAC_PERM_COMMAND_DEBUG_MOD32VALUE, Trinity::ChatCommands::Console::No },
+            { "play", debugPlayCommandTable, rbac::RBAC_PERM_COMMAND_DEBUG_PLAY, Trinity::ChatCommands::Console::No },
+            { "send", debugSendCommandTable, rbac::RBAC_PERM_COMMAND_DEBUG_SEND, Trinity::ChatCommands::Console::No },
+            { "setaurastate", &HandleDebugSetAuraStateCommand, rbac::RBAC_PERM_COMMAND_DEBUG_SETAURASTATE, Trinity::ChatCommands::Console::No },
+            { "setitemvalue", &HandleDebugSetItemValueCommand, rbac::RBAC_PERM_COMMAND_DEBUG_SETITEMVALUE, Trinity::ChatCommands::Console::No },
+            { "setvalue", &HandleDebugSetValueCommand, rbac::RBAC_PERM_COMMAND_DEBUG_SETVALUE, Trinity::ChatCommands::Console::No },
+            { "spawnvehicle", &HandleDebugSpawnVehicleCommand, rbac::RBAC_PERM_COMMAND_DEBUG_SPAWNVEHICLE, Trinity::ChatCommands::Console::No },
+            { "setvid", &HandleDebugSetVehicleIdCommand, rbac::RBAC_PERM_COMMAND_DEBUG_SETVID, Trinity::ChatCommands::Console::No },
+            { "entervehicle", &HandleDebugEnterVehicleCommand, rbac::RBAC_PERM_COMMAND_DEBUG_ENTERVEHICLE, Trinity::ChatCommands::Console::No },
+            { "uws", &HandleDebugUpdateWorldStateCommand, rbac::RBAC_PERM_COMMAND_DEBUG_UWS, Trinity::ChatCommands::Console::No },
+            { "update", &HandleDebugUpdateCommand, rbac::RBAC_PERM_COMMAND_DEBUG_UPDATE, Trinity::ChatCommands::Console::No },
+            { "itemexpire", &HandleDebugItemExpireCommand, rbac::RBAC_PERM_COMMAND_DEBUG_ITEMEXPIRE, Trinity::ChatCommands::Console::No },
+            { "areatriggers", &HandleDebugAreaTriggersCommand, rbac::RBAC_PERM_COMMAND_DEBUG_AREATRIGGERS, Trinity::ChatCommands::Console::No },
+            { "los", &HandleDebugLoSCommand, rbac::RBAC_PERM_COMMAND_DEBUG_LOS, Trinity::ChatCommands::Console::No },
+            { "moveflags", &HandleDebugMoveflagsCommand, rbac::RBAC_PERM_COMMAND_DEBUG_MOVEFLAGS, Trinity::ChatCommands::Console::No },
+            { "transport", &HandleDebugTransportCommand, rbac::RBAC_PERM_COMMAND_DEBUG_TRANSPORT, Trinity::ChatCommands::Console::No },
+            { "phase",          &HandleDebugPhaseCommand,               rbac::RBAC_PERM_COMMAND_DEBUG_PHASE, Trinity::ChatCommands::Console::No },
+            { "casterror", &HandleDebugCastErrorCommand, rbac::RBAC_PERM_COMMAND_DEBUG_CASTERROR, Trinity::ChatCommands::Console::No },
+            { "set", {
+                { "ap", &HandleDebugSetAttackPower, rbac::RBAC_PERM_COMMAND_DEBUG_SET_AP, Trinity::ChatCommands::Console::No },
+                { "sp", &HandleDebugSetSpellPower, rbac::RBAC_PERM_COMMAND_DEBUG_SET_SP, Trinity::ChatCommands::Console::No },
+            }, rbac::RBAC_PERM_COMMAND_DEBUG_SET, Trinity::ChatCommands::Console::No },
+            { "archaeology", {
+                { "find", &HandleDebugArchaeologyFind, rbac::RBAC_PERM_COMMAND_DEBUG_ARCHAEOLOGY_FIND, Trinity::ChatCommands::Console::No },
+                { "digsite", &HandleDebugArchaeologyDigsite, rbac::RBAC_PERM_COMMAND_DEBUG_ARCHAEOLOGY_DIGSITE, Trinity::ChatCommands::Console::No },
+            }, rbac::RBAC_PERM_COMMAND_DEBUG_ARCHAEOLOGY, Trinity::ChatCommands::Console::No },
+            { "vignette", &HandleDebugVignette, rbac::RBAC_PERM_COMMAND_DEBUG_VIGNETTE, Trinity::ChatCommands::Console::No },
+            { "value", &HandleDebugValueCommand, rbac::RBAC_PERM_COMMAND_DEBUG_VALUE, Trinity::ChatCommands::Console::Yes },
+            { "",               &HandleDebugValueCommand,               rbac::RBAC_PERM_COMMAND_DEBUG,       Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "debug",          SEC_ADMINISTRATOR,  true,   debugCommandTable                       },
-            { "wpgps",          SEC_ADMINISTRATOR,  false,  &HandleWPGPSCommand,                    },
+            { "debug",          debugCommandTable,                       rbac::RBAC_PERM_COMMAND_DEBUG,       Trinity::ChatCommands::Console::Yes },
+            { "wpgps", &HandleWPGPSCommand, rbac::RBAC_PERM_COMMAND_WPGPS, Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }
@@ -312,7 +312,7 @@ public:
             return false;
 
         SellResult msg = SellResult(atoi(args));
-        handler->GetSession()->GetPlayer()->SendSellError(msg, 0, 0);
+        handler->GetSession()->GetPlayer()->SendSellError(msg, 0, ObjectGuid::Empty);
         return true;
     }
 
@@ -386,7 +386,7 @@ public:
         uint32 opcode;
         parsedStream >> opcode;
 
-        WorldPacket data(Opcodes(opcode), 0);
+        WorldPacket data(opcode, 0);
 
         while (!parsedStream.eof())
         {
@@ -434,11 +434,11 @@ public:
             }
             else if (type == "appitsguid")
             {
-                data.append(unit->GetPackGUID());
+                data << unit->GetPackGUID();
             }
             else if (type == "appmyguid")
             {
-                data.append(player->GetPackGUID());
+                data << player->GetPackGUID();
             }
             else if (type == "appgoguid")
             {
@@ -450,7 +450,7 @@ public:
                     ifs.close();
                     return false;
                 }
-                data.append(obj->GetPackGUID());
+                data << obj->GetPackGUID();
             }
             else if (type == "goguid")
             {
@@ -486,11 +486,11 @@ public:
             }
             else
             {
-                TC_LOG_ERROR("misc", "Sending opcode that has unknown type '%s'", type.c_str());
+                TC_LOG_ERROR("misc", "Sending opcode that has unknown type '{}'", type.c_str());
                 break;
             }
         }
-        TC_LOG_DEBUG("network", "Sending opcode %u", data.GetOpcode());
+        TC_LOG_DEBUG("network", "Sending opcode {}", data.GetOpcode());
         data.hexlike();
         player->GetSession()->SendPacket(&data, true);
         handler->PSendSysMessage(LANG_COMMAND_OPCODESENT, data.GetOpcode(), unit->GetName().c_str());
@@ -573,7 +573,7 @@ public:
             return false;
 
         handler->PSendSysMessage("Loot recipient for creature %s (GUID %u, DB GUID %u) is %s",
-            target->GetName().c_str(), target->GetGUIDLow(), target->GetDBTableGUIDLow(),
+            target->GetName().c_str(), target->GetGUID().GetCounter(), target->GetDBTableGUIDLow(),
             target->HasLootRecipient() ? (target->GetLootRecipient() ? target->GetLootRecipient()->GetName().c_str() : "offline") : "no loot recipient");
         return true;
     }
@@ -631,10 +631,10 @@ public:
                         for (uint8 j = 0; j < bag->GetBagSize(); ++j)
                             if (Item* item2 = bag->GetItemByPos(j))
                                 if (item2->GetState() == state)
-                                    handler->PSendSysMessage("bag: 255 slot: %d guid: %d owner: %d", item2->GetSlot(), item2->GetGUIDLow(), GUID_LOPART(item2->GetOwnerGUID()));
+                                    handler->PSendSysMessage("bag: 255 slot: %d guid: %d owner: %d", item2->GetSlot(), item2->GetGUID().GetCounter(), item2->GetOwnerGUID().GetCounter());
                     }
                     else if (item->GetState() == state)
-                        handler->PSendSysMessage("bag: 255 slot: %d guid: %d owner: %d", item->GetSlot(), item->GetGUIDLow(), GUID_LOPART(item->GetOwnerGUID()));
+                        handler->PSendSysMessage("bag: 255 slot: %d guid: %d owner: %d", item->GetSlot(), item->GetGUID().GetCounter(), item->GetOwnerGUID().GetCounter());
                 }
             }
         }
@@ -668,7 +668,7 @@ public:
                         break;
                 }
 
-                handler->PSendSysMessage("bag: %d slot: %d guid: %d - state: %s", bagSlot, item->GetSlot(), item->GetGUIDLow(), st.c_str());
+                handler->PSendSysMessage("bag: %d slot: %d guid: %d - state: %s", bagSlot, item->GetSlot(), item->GetGUID().GetCounter(), st.c_str());
             }
             if (updateQueue.empty())
                 handler->PSendSysMessage("The player's updatequeue is empty");
@@ -689,21 +689,21 @@ public:
 
                 if (item->GetSlot() != i)
                 {
-                    handler->PSendSysMessage("Item with slot %d and guid %d has an incorrect slot value: %d", i, item->GetGUIDLow(), item->GetSlot());
+                    handler->PSendSysMessage("Item with slot %d and guid %d has an incorrect slot value: %d", i, item->GetGUID().GetCounter(), item->GetSlot());
                     error = true;
                     continue;
                 }
 
                 if (item->GetOwnerGUID() != player->GetGUID())
                 {
-                    handler->PSendSysMessage("The item with slot %d and itemguid %d does have non-matching owner guid (%d) and player guid (%d) !", item->GetSlot(), item->GetGUIDLow(), GUID_LOPART(item->GetOwnerGUID()), player->GetGUIDLow());
+                    handler->PSendSysMessage("The item with slot %d and itemguid %d does have non-matching owner guid (%d) and player guid (%d) !", item->GetSlot(), item->GetGUID().GetCounter(), item->GetOwnerGUID().GetCounter(), player->GetGUID().GetCounter());
                     error = true;
                     continue;
                 }
 
                 if (Bag* container = item->GetContainer())
                 {
-                    handler->PSendSysMessage("The item with slot %d and guid %d has a container (slot: %d, guid: %d) but shouldn't!", item->GetSlot(), item->GetGUIDLow(), container->GetSlot(), container->GetGUIDLow());
+                    handler->PSendSysMessage("The item with slot %d and guid %d has a container (slot: %d, guid: %d) but shouldn't!", item->GetSlot(), item->GetGUID().GetCounter(), container->GetSlot(), container->GetGUID().GetCounter());
                     error = true;
                     continue;
                 }
@@ -713,28 +713,28 @@ public:
                     uint16 qp = item->GetQueuePos();
                     if (qp > updateQueue.size())
                     {
-                        handler->PSendSysMessage("The item with slot %d and guid %d has its queuepos (%d) larger than the update queue size! ", item->GetSlot(), item->GetGUIDLow(), qp);
+                        handler->PSendSysMessage("The item with slot %d and guid %d has its queuepos (%d) larger than the update queue size! ", item->GetSlot(), item->GetGUID().GetCounter(), qp);
                         error = true;
                         continue;
                     }
 
                     if (updateQueue[qp] == NULL)
                     {
-                        handler->PSendSysMessage("The item with slot %d and guid %d has its queuepos (%d) pointing to NULL in the queue!", item->GetSlot(), item->GetGUIDLow(), qp);
+                        handler->PSendSysMessage("The item with slot %d and guid %d has its queuepos (%d) pointing to NULL in the queue!", item->GetSlot(), item->GetGUID().GetCounter(), qp);
                         error = true;
                         continue;
                     }
 
                     if (updateQueue[qp] != item)
                     {
-                        handler->PSendSysMessage("The item with slot %d and guid %d has a queuepos (%d) that points to another item in the queue (bag: %d, slot: %d, guid: %d)", item->GetSlot(), item->GetGUIDLow(), qp, updateQueue[qp]->GetBagSlot(), updateQueue[qp]->GetSlot(), updateQueue[qp]->GetGUIDLow());
+                        handler->PSendSysMessage("The item with slot %d and guid %d has a queuepos (%d) that points to another item in the queue (bag: %d, slot: %d, guid: %d)", item->GetSlot(), item->GetGUID().GetCounter(), qp, updateQueue[qp]->GetBagSlot(), updateQueue[qp]->GetSlot(), updateQueue[qp]->GetGUID().GetCounter());
                         error = true;
                         continue;
                     }
                 }
                 else if (item->GetState() != ITEM_UNCHANGED)
                 {
-                    handler->PSendSysMessage("The item with slot %d and guid %d is not in queue but should be (state: %d)!", item->GetSlot(), item->GetGUIDLow(), item->GetState());
+                    handler->PSendSysMessage("The item with slot %d and guid %d is not in queue but should be (state: %d)!", item->GetSlot(), item->GetGUID().GetCounter(), item->GetState());
                     error = true;
                     continue;
                 }
@@ -749,14 +749,14 @@ public:
 
                         if (item2->GetSlot() != j)
                         {
-                            handler->PSendSysMessage("The item in bag %d and slot %d (guid: %d) has an incorrect slot value: %d", bag->GetSlot(), j, item2->GetGUIDLow(), item2->GetSlot());
+                            handler->PSendSysMessage("The item in bag %d and slot %d (guid: %d) has an incorrect slot value: %d", bag->GetSlot(), j, item2->GetGUID().GetCounter(), item2->GetSlot());
                             error = true;
                             continue;
                         }
 
                         if (item2->GetOwnerGUID() != player->GetGUID())
                         {
-                            handler->PSendSysMessage("The item in bag %d at slot %d and with itemguid %d, the owner's guid (%d) and the player's guid (%d) don't match!", bag->GetSlot(), item2->GetSlot(), item2->GetGUIDLow(), GUID_LOPART(item2->GetOwnerGUID()), player->GetGUIDLow());
+                            handler->PSendSysMessage("The item in bag %d at slot %d and with itemguid %d, the owner's guid (%d) and the player's guid (%d) don't match!", bag->GetSlot(), item2->GetSlot(), item2->GetGUID().GetCounter(), item2->GetOwnerGUID().GetCounter(), player->GetGUID().GetCounter());
                             error = true;
                             continue;
                         }
@@ -764,14 +764,14 @@ public:
                         Bag* container = item2->GetContainer();
                         if (!container)
                         {
-                            handler->PSendSysMessage("The item in bag %d at slot %d with guid %d has no container!", bag->GetSlot(), item2->GetSlot(), item2->GetGUIDLow());
+                            handler->PSendSysMessage("The item in bag %d at slot %d with guid %d has no container!", bag->GetSlot(), item2->GetSlot(), item2->GetGUID().GetCounter());
                             error = true;
                             continue;
                         }
 
                         if (container != bag)
                         {
-                            handler->PSendSysMessage("The item in bag %d at slot %d with guid %d has a different container(slot %d guid %d)!", bag->GetSlot(), item2->GetSlot(), item2->GetGUIDLow(), container->GetSlot(), container->GetGUIDLow());
+                            handler->PSendSysMessage("The item in bag %d at slot %d with guid %d has a different container(slot %d guid %d)!", bag->GetSlot(), item2->GetSlot(), item2->GetGUID().GetCounter(), container->GetSlot(), container->GetGUID().GetCounter());
                             error = true;
                             continue;
                         }
@@ -781,28 +781,28 @@ public:
                             uint16 qp = item2->GetQueuePos();
                             if (qp > updateQueue.size())
                             {
-                                handler->PSendSysMessage("The item in bag %d at slot %d having guid %d has a queuepos (%d) larger than the update queue size! ", bag->GetSlot(), item2->GetSlot(), item2->GetGUIDLow(), qp);
+                                handler->PSendSysMessage("The item in bag %d at slot %d having guid %d has a queuepos (%d) larger than the update queue size! ", bag->GetSlot(), item2->GetSlot(), item2->GetGUID().GetCounter(), qp);
                                 error = true;
                                 continue;
                             }
 
                             if (updateQueue[qp] == NULL)
                             {
-                                handler->PSendSysMessage("The item in bag %d at slot %d having guid %d has a queuepos (%d) that points to NULL in the queue!", bag->GetSlot(), item2->GetSlot(), item2->GetGUIDLow(), qp);
+                                handler->PSendSysMessage("The item in bag %d at slot %d having guid %d has a queuepos (%d) that points to NULL in the queue!", bag->GetSlot(), item2->GetSlot(), item2->GetGUID().GetCounter(), qp);
                                 error = true;
                                 continue;
                             }
 
                             if (updateQueue[qp] != item2)
                             {
-                                handler->PSendSysMessage("The item in bag %d at slot %d having guid %d has a queuepos (%d) that points to another item in the queue (bag: %d, slot: %d, guid: %d)", bag->GetSlot(), item2->GetSlot(), item2->GetGUIDLow(), qp, updateQueue[qp]->GetBagSlot(), updateQueue[qp]->GetSlot(), updateQueue[qp]->GetGUIDLow());
+                                handler->PSendSysMessage("The item in bag %d at slot %d having guid %d has a queuepos (%d) that points to another item in the queue (bag: %d, slot: %d, guid: %d)", bag->GetSlot(), item2->GetSlot(), item2->GetGUID().GetCounter(), qp, updateQueue[qp]->GetBagSlot(), updateQueue[qp]->GetSlot(), updateQueue[qp]->GetGUID().GetCounter());
                                 error = true;
                                 continue;
                             }
                         }
                         else if (item2->GetState() != ITEM_UNCHANGED)
                         {
-                            handler->PSendSysMessage("The item in bag %d at slot %d having guid %d is not in queue but should be (state: %d)!", bag->GetSlot(), item2->GetSlot(), item2->GetGUIDLow(), item2->GetState());
+                            handler->PSendSysMessage("The item in bag %d at slot %d having guid %d is not in queue but should be (state: %d)!", bag->GetSlot(), item2->GetSlot(), item2->GetGUID().GetCounter(), item2->GetState());
                             error = true;
                             continue;
                         }
@@ -818,14 +818,14 @@ public:
 
                 if (item->GetOwnerGUID() != player->GetGUID())
                 {
-                    handler->PSendSysMessage("queue(%lu): For the item with guid %d, the owner's guid (%d) and the player's guid (%d) don't match!", i, item->GetGUIDLow(), GUID_LOPART(item->GetOwnerGUID()), player->GetGUIDLow());
+                    handler->PSendSysMessage("queue(%lu): For the item with guid %d, the owner's guid (%d) and the player's guid (%d) don't match!", i, item->GetGUID().GetCounter(), item->GetOwnerGUID().GetCounter(), player->GetGUID().GetCounter());
                     error = true;
                     continue;
                 }
 
                 if (item->GetQueuePos() != i)
                 {
-                    handler->PSendSysMessage("queue(%lu): For the item with guid %d, the queuepos doesn't match it's position in the queue!", i, item->GetGUIDLow());
+                    handler->PSendSysMessage("queue(%lu): For the item with guid %d, the queuepos doesn't match it's position in the queue!", i, item->GetGUID().GetCounter());
                     error = true;
                     continue;
                 }
@@ -837,14 +837,14 @@ public:
 
                 if (test == NULL)
                 {
-                    handler->PSendSysMessage("queue(%lu): The bag(%d) and slot(%d) values for the item with guid %d are incorrect, the player doesn't have any item at that position!", i, item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow());
+                    handler->PSendSysMessage("queue(%lu): The bag(%d) and slot(%d) values for the item with guid %d are incorrect, the player doesn't have any item at that position!", i, item->GetBagSlot(), item->GetSlot(), item->GetGUID().GetCounter());
                     error = true;
                     continue;
                 }
 
                 if (test != item)
                 {
-                    handler->PSendSysMessage("queue(%lu): The bag(%d) and slot(%d) values for the item with guid %d are incorrect, an item which guid is %d is there instead!", i, item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow(), test->GetGUIDLow());
+                    handler->PSendSysMessage("queue(%lu): The bag(%d) and slot(%d) values for the item with guid %d are incorrect, an item which guid is %d is there instead!", i, item->GetBagSlot(), item->GetSlot(), item->GetGUID().GetCounter(), test->GetGUID().GetCounter());
                     error = true;
                     continue;
                 }
@@ -880,17 +880,16 @@ public:
         if (!target || target->IsTotem() || target->IsPet())
             return false;
 
-        ThreatContainer::StorageType const &threatList = target->getThreatManager().getThreatList();
-        ThreatContainer::StorageType::const_iterator itr;
+        auto threatList = target->GetThreatManager().GetUnsortedThreatList();
         uint32 count = 0;
-        handler->PSendSysMessage("Threat list of %s (guid %u)", target->GetName().c_str(), target->GetGUIDLow());
-        for (itr = threatList.begin(); itr != threatList.end(); ++itr)
+        handler->PSendSysMessage("Threat list of %s (guid %u)", target->GetName().c_str(), target->GetGUID().GetCounter());
+        for (ThreatReference const* ref : threatList)
         {
-            Unit* unit = (*itr)->getTarget();
+            Unit* unit = ref->GetVictim();
             if (!unit)
                 continue;
             ++count;
-            handler->PSendSysMessage("   %u.   %s   (guid %u)  - threat %f", count, unit->GetName().c_str(), unit->GetGUIDLow(), (*itr)->getThreat());
+            handler->PSendSysMessage("   %u.   %s   (guid %u)  - threat %f", count, unit->GetName().c_str(), unit->GetGUID().GetCounter(), ref->GetThreat());
         }
         handler->SendSysMessage("End of threat list.");
         return true;
@@ -901,17 +900,15 @@ public:
         Unit* target = handler->getSelectedUnit();
         if (!target)
             target = handler->GetSession()->GetPlayer();
-        HostileReference* ref = target->getHostileRefManager().getFirst();
         uint32 count = 0;
-        handler->PSendSysMessage("Hostil reference list of %s (guid %u)", target->GetName().c_str(), target->GetGUIDLow());
-        while (ref)
+        handler->PSendSysMessage("Hostil reference list of %s (guid %u)", target->GetName().c_str(), target->GetGUID().GetCounter());
+        for (auto const& threatEntry : target->GetThreatManager().GetThreatenedByMeList())
         {
-            if (Unit* unit = ref->GetSource()->GetOwner())
+            if (Unit* unit = threatEntry.second->GetOwner())
             {
                 ++count;
-                handler->PSendSysMessage("   %u.   %s   (guid %u)  - threat %f", count, unit->GetName().c_str(), unit->GetGUIDLow(), ref->getThreat());
+                handler->PSendSysMessage("   %u.   %s   (guid %u)  - threat %f", count, unit->GetName().c_str(), unit->GetGUID().GetCounter(), threatEntry.second->GetThreat());
             }
-            ref = ref->next();
         }
         handler->SendSysMessage("End of hostil reference list.");
         return true;
@@ -1006,11 +1003,14 @@ public:
 
         Map* map = handler->GetSession()->GetPlayer()->GetMap();
 
-        if (!v->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_VEHICLE), map, handler->GetSession()->GetPlayer()->GetPhaseMask(), entry, id, handler->GetSession()->GetPlayer()->GetTeam(), x, y, z, o))
+        if (!v->Create(map->GenerateLowGuid<HighGuid::Vehicle>(), map, handler->GetSession()->GetPlayer()->GetPhaseMask(), entry, id, handler->GetSession()->GetPlayer()->GetTeam(), x, y, z, o))
         {
             delete v;
             return false;
         }
+
+        for (auto phase : handler->GetSession()->GetPlayer()->GetPhases())
+            v->SetPhased(phase, false, true);
 
         map->AddToMap(v->ToCreature());
 
@@ -1065,7 +1065,7 @@ public:
         uint32 guid = (uint32)atoi(e);
         uint32 index = (uint32)atoi(f);
 
-        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HIGHGUID_ITEM));
+        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid(HighGuid::Item, guid));
 
         if (!i)
             return false;
@@ -1096,7 +1096,7 @@ public:
         uint32 index = (uint32)atoi(f);
         uint32 value = (uint32)atoi(g);
 
-        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HIGHGUID_ITEM));
+        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid(HighGuid::Item, guid));
 
         if (!i)
             return false;
@@ -1120,7 +1120,7 @@ public:
 
         uint32 guid = (uint32)atoi(e);
 
-        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HIGHGUID_ITEM));
+        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid(HighGuid::Item, guid));
 
         if (!i)
             return false;
@@ -1145,7 +1145,7 @@ public:
     static bool HandleDebugLoSCommand(ChatHandler* handler, char const* /*args*/)
     {
         if (Unit* unit = handler->getSelectedUnit())
-            handler->PSendSysMessage("Unit %s (GuidLow: %u) is %sin LoS", unit->GetName().c_str(), unit->GetGUIDLow(), handler->GetSession()->GetPlayer()->IsWithinLOSInMap(unit) ? "" : "not ");
+            handler->PSendSysMessage("Unit %s (GuidLow: %u) is %sin LoS", unit->GetName().c_str(), unit->GetGUID().GetCounter(), handler->GetSession()->GetPlayer()->IsWithinLOSInMap(unit) ? "" : "not ");
         return true;
     }
 
@@ -1199,12 +1199,12 @@ public:
             return false;
         }
 
-        uint64 guid = target->GetGUID();
+        ObjectGuid guid = target->GetGUID();
 
         uint32 opcode = (uint32)atoi(x);
         if (opcode >= target->GetValuesCount())
         {
-            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, opcode, GUID_LOPART(guid), target->GetValuesCount());
+            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, opcode, guid.GetCounter(), target->GetValuesCount());
             return false;
         }
 
@@ -1216,13 +1216,13 @@ public:
         {
             uint32 value = (uint32)atoi(y);
             target->SetUInt32Value(opcode, value);
-            handler->PSendSysMessage(LANG_SET_UINT_FIELD, GUID_LOPART(guid), opcode, value);
+            handler->PSendSysMessage(LANG_SET_UINT_FIELD, guid.GetCounter(), opcode, value);
         }
         else
         {
             float value = (float)atof(y);
             target->SetFloatValue(opcode, value);
-            handler->PSendSysMessage(LANG_SET_FLOAT_FIELD, GUID_LOPART(guid), opcode, value);
+            handler->PSendSysMessage(LANG_SET_FLOAT_FIELD, guid.GetCounter(), opcode, value);
         }
 
         return true;
@@ -1247,12 +1247,12 @@ public:
             return false;
         }
 
-        uint64 guid = target->GetGUID();
+        ObjectGuid guid = target->GetGUID();
 
         uint32 opcode = (uint32)atoi(x);
         if (opcode >= target->GetValuesCount())
         {
-            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, opcode, GUID_LOPART(guid), target->GetValuesCount());
+            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, opcode, guid.GetCounter(), target->GetValuesCount());
             return false;
         }
 
@@ -1263,12 +1263,12 @@ public:
         if (isInt32)
         {
             uint32 value = target->GetUInt32Value(opcode);
-            handler->PSendSysMessage(LANG_GET_UINT_FIELD, GUID_LOPART(guid), opcode, value);
+            handler->PSendSysMessage(LANG_GET_UINT_FIELD, guid.GetCounter(), opcode, value);
         }
         else
         {
             float value = target->GetFloatValue(opcode);
-            handler->PSendSysMessage(LANG_GET_FLOAT_FIELD, GUID_LOPART(guid), opcode, value);
+            handler->PSendSysMessage(LANG_GET_FLOAT_FIELD, guid.GetCounter(), opcode, value);
         }
 
         return true;
@@ -1290,7 +1290,7 @@ public:
 
         if (opcode >= handler->GetSession()->GetPlayer()->GetValuesCount())
         {
-            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, opcode, handler->GetSession()->GetPlayer()->GetGUIDLow(), handler->GetSession()->GetPlayer()->GetValuesCount());
+            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, opcode, handler->GetSession()->GetPlayer()->GetGUID().GetCounter(), handler->GetSession()->GetPlayer()->GetValuesCount());
             return false;
         }
 
@@ -1340,13 +1340,13 @@ public:
         {
             value = unit->GetUInt32Value(updateIndex);
 
-            handler->PSendSysMessage(LANG_UPDATE, unit->GetGUIDLow(), updateIndex, value);
+            handler->PSendSysMessage(LANG_UPDATE, unit->GetGUID().GetCounter(), updateIndex, value);
             return true;
         }
 
         value = atoi(val);
 
-        handler->PSendSysMessage(LANG_UPDATE_CHANGE, unit->GetGUIDLow(), updateIndex, value);
+        handler->PSendSysMessage(LANG_UPDATE_CHANGE, unit->GetGUID().GetCounter(), updateIndex, value);
 
         unit->SetUInt32Value(updateIndex, value);
 
@@ -1433,7 +1433,7 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
 
-        TC_LOG_INFO("sql.dev", "(@PATH, XX, %.3f, %.3f, %.5f, 0, 0, 0, 100, 0),", player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+        TC_LOG_INFO("sql.dev", "(@PATH, XX, {}, {}, {}, 0, 0, 0, 100, 0),", player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
 
         handler->PSendSysMessage("Waypoint SQL written to SQL Developer log");
         return true;
@@ -1606,7 +1606,7 @@ public:
             return false;
 
         uint32 vignetteID = atoi(vignetteIDStr);
-        uint64 vignetteGUID = MAKE_NEW_GUID(selectedUnit->GetGUIDLow(), vignetteID, HIGHGUID_VIGNETTE);
+        ObjectGuid vignetteGUID(HighGuid::Vignette, vignetteID, selectedUnit->GetGUID().GetCounter());
 
         ByteBuffer playersAddBuffer, objectAddBuffer;
         WorldPacket data(SMSG_VIGNETTE_UPDATE);
@@ -1622,20 +1622,46 @@ public:
 
         data.WriteBits(1, 24);                                // Added count
         {
-            data.WriteGuidMask(vignetteGUID, 1, 4, 3, 6, 2, 0, 7, 5);
-            playersAddBuffer.WriteGuidBytes(vignetteGUID, 7, 1, 0, 6, 2, 3, 4, 5);
+            data.WriteBit(vignetteGUID[1]);
+            data.WriteBit(vignetteGUID[4]);
+            data.WriteBit(vignetteGUID[3]);
+            data.WriteBit(vignetteGUID[6]);
+            data.WriteBit(vignetteGUID[2]);
+            data.WriteBit(vignetteGUID[0]);
+            data.WriteBit(vignetteGUID[7]);
+            data.WriteBit(vignetteGUID[5]);
+            playersAddBuffer.WriteByteSeq(vignetteGUID[7]);
+            playersAddBuffer.WriteByteSeq(vignetteGUID[1]);
+            playersAddBuffer.WriteByteSeq(vignetteGUID[0]);
+            playersAddBuffer.WriteByteSeq(vignetteGUID[6]);
+            playersAddBuffer.WriteByteSeq(vignetteGUID[2]);
+            playersAddBuffer.WriteByteSeq(vignetteGUID[3]);
+            playersAddBuffer.WriteByteSeq(vignetteGUID[4]);
+            playersAddBuffer.WriteByteSeq(vignetteGUID[5]);
         }
 
         data.WriteBits(1, 20);
         {
-            data.WriteGuidMask(vignetteGUID, 5, 3, 7, 4, 2, 0, 6, 1);
-            objectAddBuffer.WriteGuidBytes(vignetteGUID, 2, 5);
+            data.WriteBit(vignetteGUID[5]);
+            data.WriteBit(vignetteGUID[3]);
+            data.WriteBit(vignetteGUID[7]);
+            data.WriteBit(vignetteGUID[4]);
+            data.WriteBit(vignetteGUID[2]);
+            data.WriteBit(vignetteGUID[0]);
+            data.WriteBit(vignetteGUID[6]);
+            data.WriteBit(vignetteGUID[1]);
+            objectAddBuffer.WriteByteSeq(vignetteGUID[2]);
+            objectAddBuffer.WriteByteSeq(vignetteGUID[5]);
             objectAddBuffer << float(selectedUnit->GetPositionZ());
             objectAddBuffer << uint32(vignetteID);
             objectAddBuffer << float(selectedUnit->GetPositionY());
-            objectAddBuffer.WriteGuidBytes(vignetteGUID, 1);
+            objectAddBuffer.WriteByteSeq(vignetteGUID[1]);
             objectAddBuffer << float(selectedUnit->GetPositionX());
-            objectAddBuffer.WriteGuidBytes(vignetteGUID, 6, 7, 4, 3, 0);
+            objectAddBuffer.WriteByteSeq(vignetteGUID[6]);
+            objectAddBuffer.WriteByteSeq(vignetteGUID[7]);
+            objectAddBuffer.WriteByteSeq(vignetteGUID[4]);
+            objectAddBuffer.WriteByteSeq(vignetteGUID[3]);
+            objectAddBuffer.WriteByteSeq(vignetteGUID[0]);
         }
 
         data.WriteBits(0, 20);                                // UpdateDataCount

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -15,23 +15,12 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "DatabaseEnv.h"
 #include "MapUpdater.h"
 #include "Map.h"
-#include "MapInstanced.h"
+#include <mutex>
 
-thread_local Map* CurrentMap = nullptr;
-
-class UpdateRequest
-{
-public:
-    UpdateRequest() = default;
-    virtual ~UpdateRequest() = default;
-
-    virtual int call() = 0;
-};
-
-
-class MapUpdateRequest : public UpdateRequest
+class MapUpdateRequest
 {
     private:
 
@@ -46,32 +35,20 @@ class MapUpdateRequest : public UpdateRequest
         {
         }
 
-        virtual int call()
+        void call()
         {
-            CurrentMap = &m_map;
+            //TC_METRIC_TIMER("map_update_time_diff", TC_METRIC_TAG("map_id", std::to_string(m_map.GetId())));
             m_map.Update (m_diff);
-            CurrentMap = nullptr;
             m_updater.update_finished();
-            return 0;
         }
 };
-
-MapUpdater::MapUpdater(): pending_requests(0)
-{
-}
-
-
-MapUpdater::~MapUpdater()
-{
-    deactivate();
-}
 
 void MapUpdater::activate(size_t num_threads)
 {
     for (size_t i = 0; i < num_threads; ++i)
     {
         _workerThreads.push_back(std::thread(&MapUpdater::WorkerThread, this));
-    }    
+    }
 }
 
 void MapUpdater::deactivate()
@@ -86,30 +63,25 @@ void MapUpdater::deactivate()
     {
         thread.join();
     }
-
 }
 
-int MapUpdater::wait()
+void MapUpdater::wait()
 {
-    std::unique_lock<std::mutex> guard(m_mutex);
+    std::unique_lock<std::mutex> lock(_lock);
 
     while (pending_requests > 0)
-        m_condition.wait(guard);
+        _condition.wait(lock);
 
-    guard.unlock();
-    return 0;
+    lock.unlock();
 }
 
-int MapUpdater::schedule_update(Map& map, uint32 diff)
+void MapUpdater::schedule_update(Map& map, uint32 diff)
 {
-
-    std::lock_guard<std::mutex> guard(m_mutex);
+    std::lock_guard<std::mutex> lock(_lock);
 
     ++pending_requests;
 
     _queue.Push(new MapUpdateRequest(map, *this, diff));
-
-    return 0;
 }
 
 bool MapUpdater::activated()
@@ -119,22 +91,25 @@ bool MapUpdater::activated()
 
 void MapUpdater::update_finished()
 {
-
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::mutex> lock(_lock);
 
     --pending_requests;
 
-    m_condition.notify_all();
-
+    _condition.notify_all();
 }
 
 void MapUpdater::WorkerThread()
 {
-    while (1)
+    LoginDatabase.WarnAboutSyncQueries(true);
+    CharacterDatabase.WarnAboutSyncQueries(true);
+    WorldDatabase.WarnAboutSyncQueries(true);
+
+    while (true)
     {
-        UpdateRequest* request = nullptr;
+        MapUpdateRequest* request = nullptr;
 
         _queue.WaitAndPop(request);
+
         if (_cancelationToken)
             return;
 

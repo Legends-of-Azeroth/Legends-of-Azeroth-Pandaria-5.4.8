@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -106,11 +106,11 @@ enum Other
 
 enum AreaIds
 {
-    AREA_1          = 5764, // Логово Бет'тилак
-    AREA_2          = 5821, // Порочный путь
-    AREA_3          = 5766, // Каменный Венец
-    AREA_4          = 5791, // Гряда Древнего Пламени
-    AREA_5          = 5765, // Огненный портал
+    AREA_1          = 5764, // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ'пїЅпїЅпїЅпїЅпїЅ
+    AREA_2          = 5821, // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+    AREA_3          = 5766, // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+    AREA_4          = 5791, // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    AREA_5          = 5765, // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 };
 
 const uint32 CriteriaWorldStates[5]
@@ -122,7 +122,7 @@ const uint32 CriteriaWorldStates[5]
     5983,
 };
 
-const Position dogPos[2] = 
+const Position dogPos[2] =
 {
     {-153.604f, 198.994f, 46.174f, 3.68f}, // Riplimb
     {-145.179f, 184.976f, 46.168f, 3.34f}  // Rageface
@@ -231,7 +231,7 @@ class boss_shannox : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (Creature* pRiplimb = me->FindNearestCreature(NPC_RIPLIMB, 300.0f))
                     DoZoneInCombat(pRiplimb);
@@ -265,7 +265,7 @@ class boss_shannox : public CreatureScript
 
                 AddSmoulderingAura(me);
             }
-            
+
             void KilledUnit(Unit* /*victim*/) override
             {
                 Talk(SAY_KILL);
@@ -322,12 +322,12 @@ class boss_shannox : public CreatureScript
                 if (!IsHeroic() && !bFrenzy && me->HealthBelowPct(30))
                 {
                     bFrenzy = true;
-                    
-                    if (Creature* pRiplimb = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RIPLIMB)))
+
+                    if (Creature* pRiplimb = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RIPLIMB)))
                         if (pRiplimb->IsAlive())
                             pRiplimb->CastSpell(pRiplimb, SPELL_FRENZIED_DEVOTION, true);
 
-                    if (Creature* pRageface = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RAGEFACE)))
+                    if (Creature* pRageface = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGEFACE)))
                         if (pRageface->IsAlive())
                             pRageface->CastSpell(pRageface, SPELL_FRENZIED_DEVOTION, true);
                 }
@@ -342,22 +342,22 @@ class boss_shannox : public CreatureScript
                         case EVENT_CHECK_COMBAT:
                             if (me->IsInCombat())
                             {
-                                if (Creature* pRiplimb = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RIPLIMB)))
+                                if (Creature* pRiplimb = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RIPLIMB)))
                                     if (!pRiplimb->IsInCombat() && !pRiplimb->IsInEvadeMode())
                                         if (pRiplimb->IsAlive())
                                             DoZoneInCombat(pRiplimb);
 
-                                if (Creature* pRageface = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RAGEFACE)))
+                                if (Creature* pRageface = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGEFACE)))
                                     if (!pRageface->IsInCombat() && !pRageface->IsInEvadeMode())
                                         if (pRageface->IsAlive())
                                             DoZoneInCombat(pRageface);
                             }
                             events.ScheduleEvent(EVENT_CHECK_COMBAT, 5000);
                         case EVENT_SEPARATION_ANXIETY:
-                            if (Creature* pRiplimb = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RIPLIMB)))
+                            if (Creature* pRiplimb = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RIPLIMB)))
                                 if (pRiplimb->IsAlive() && !me->IsWithinDist(pRiplimb, 80.0f) && !me->HasAura(SPELL_SEPARATION_ANXIETY))
                                     DoCast(me, SPELL_SEPARATION_ANXIETY, true);
-                            if (Creature* pRageface = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RAGEFACE)))
+                            if (Creature* pRageface = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGEFACE)))
                                 if (pRageface->IsAlive() && !me->IsWithinDist(pRageface, 80.0f) && !me->HasAura(SPELL_SEPARATION_ANXIETY))
                                     DoCast(me, SPELL_SEPARATION_ANXIETY, true);
                             events.ScheduleEvent(EVENT_SEPARATION_ANXIETY, 2000);
@@ -395,7 +395,7 @@ class boss_shannox : public CreatureScript
                             Position pos;
                             for (uint8 i = 0; i < 60; ++i)
                             {
-                                me->GetNearPosition(pos, 15.0f + i * 0.75f, (M_PI * i) / 10);
+                                pos = me->GetNearPosition(15.0f + i * 0.75f, (M_PI * i) / 10);
                                 pos.m_positionZ = me->GetMap()->GetHeight(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), true, MAX_HEIGHT);
                                 me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_MAGMA_RUPTURE_MISSILE, true);
                             }
@@ -455,7 +455,7 @@ class npc_shannox_riplimb : public CreatureScript
                     DoCast(me, SPELL_FEEDING_FRENZY, true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (Creature* pShannox = me->FindNearestCreature(NPC_SHANNOX, 300.0f))
                     DoZoneInCombat(pShannox);
@@ -562,12 +562,12 @@ class npc_shannox_riplimb : public CreatureScript
                         case EVENT_CHECK_COMBAT:
                             if (me->IsInCombat())
                             {
-                                if (Creature* pRageface = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RAGEFACE)))
+                                if (Creature* pRageface = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGEFACE)))
                                     if (!pRageface->IsInCombat() && !pRageface->IsInEvadeMode())
                                         if (pRageface->IsAlive())
                                             DoZoneInCombat(pRageface);
 
-                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHANNOX)))
+                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHANNOX)))
                                     if (!pShannox->IsInCombat() && !pShannox->IsInEvadeMode())
                                         if (pShannox->IsAlive())
                                             DoZoneInCombat(pShannox);
@@ -581,7 +581,7 @@ class npc_shannox_riplimb : public CreatureScript
                             break;
                         case EVENT_FETCH_SPEAR:
                             if (instance)
-                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHANNOX)))
+                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHANNOX)))
                                 {
                                     bFetch = true;
                                     me->GetMotionMaster()->MovementExpired(false);
@@ -599,7 +599,7 @@ class npc_shannox_riplimb : public CreatureScript
                             me->SetHealth(me->GetMaxHealth());
                             me->GetMotionMaster()->MoveChase(me->GetVictim());
                             if (instance)
-                                if (Unit* pShannox = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_SHANNOX)))
+                                if (Unit* pShannox = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_SHANNOX)))
                                     pShannox->GetAI()->DoAction(ACTION_RESURRECT);
                             break;
                     }
@@ -652,7 +652,7 @@ class npc_shannox_rageface : public CreatureScript
                     DoCast(me, SPELL_FEEDING_FRENZY, true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (Creature* pShannox = me->FindNearestCreature(NPC_SHANNOX, 300.0f))
                     DoZoneInCombat(pShannox);
@@ -678,7 +678,7 @@ class npc_shannox_rageface : public CreatureScript
                         me->InterruptSpell(CURRENT_CHANNELED_SPELL, false);
                         DoResetThreat();
                         DoCast(attacker, SPELL_RAGE, true);
-                        me->AddThreat(attacker, 10000000.0f);
+                        me->GetThreatManager().AddThreat(attacker, 10000000.0f);
                         AttackStart(attacker);
                         events.ScheduleEvent(EVENT_FACE_RAGE, 27000);
                         me->RemoveAurasDueToSpell(SPELL_FACE_RAGE_DUMMY);
@@ -712,12 +712,12 @@ class npc_shannox_rageface : public CreatureScript
                         case EVENT_CHECK_COMBAT:
                             if (me->IsInCombat())
                             {
-                                if (Creature* pRiplimb = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RIPLIMB)))
+                                if (Creature* pRiplimb = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RIPLIMB)))
                                     if (!pRiplimb->IsInCombat() && !pRiplimb->IsInEvadeMode())
                                         if (pRiplimb->IsAlive())
                                             DoZoneInCombat(pRiplimb);
 
-                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHANNOX)))
+                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHANNOX)))
                                     if (!pShannox->IsInCombat() && !pShannox->IsInEvadeMode())
                                         if (pShannox->IsAlive())
                                             DoZoneInCombat(pShannox);
@@ -731,7 +731,7 @@ class npc_shannox_rageface : public CreatureScript
                             break;
                         case EVENT_FACE_RAGE:
                             if (instance)
-                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHANNOX)))
+                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHANNOX)))
                                     pShannox->AI()->Talk(SAY_DOG);
                             DoCastVictim(SPELL_FACE_RAGE);
                             break;
@@ -739,11 +739,11 @@ class npc_shannox_rageface : public CreatureScript
                             if (instance && !(me->GetVictim() && me->GetVictim()->HasAura(SPELL_RAGE)) && !me->HasAura(SPELL_FACE_RAGE_DUMMY))
                             {
                                 DoResetThreat();
-                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHANNOX)))
+                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHANNOX)))
                                 {
                                     if (Unit* target = pShannox->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                                     {
-                                        me->AddThreat(target, 10000000.0f);
+                                        me->GetThreatManager().AddThreat(target, 10000000.0f);
                                         AttackStart(target);
                                     }
                                 }
@@ -751,8 +751,8 @@ class npc_shannox_rageface : public CreatureScript
                                 {
                                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                                     {
-                                        
-                                        me->AddThreat(target, 10000000.0f);
+
+                                        me->GetThreatManager().AddThreat(target, 10000000.0f);
                                         AttackStart(target);
                                     }
                                 }
@@ -815,18 +815,18 @@ class npc_shannox_spear_of_shannox : public CreatureScript
                     DoCast(me, SPELL_MAGMA_FLARE, true);
                     DoCast(me, SPELL_SPEAR_VISUAL, true);
 
-                    if (Creature* pShannox = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHANNOX)))
+                    if (Creature* pShannox = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHANNOX)))
                     {
                         // There will be a spiral, 3 "circles", 20 points per circle
                         Position pos;
                         for (uint8 i = 0; i < 60; ++i)
                         {
-                            me->GetNearPosition(pos, 15.0f + i * 0.75f, (M_PI * i) / 10);
+                            pos = me->GetNearPosition(15.0f + i * 0.75f, (M_PI * i) / 10);
                             pos.m_positionZ = me->GetMap()->GetHeight(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), true, MAX_HEIGHT);
                             pShannox->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_MAGMA_RUPTURE_MISSILE, true);
                         }
                     }
-                    
+
                     if (Creature* pRiplimb = me->FindNearestCreature(NPC_RIPLIMB, 300.0f))
                     {
                         pRiplimb->AI()->DoAction(ACTION_HURL_SPEAR);
@@ -981,12 +981,12 @@ class npc_shannox_crystal_prison : public CreatureScript
         {
             npc_shannox_crystal_prisonAI(Creature* creature) : ScriptedAI(creature)
             {
-                trappedUnit = 0;
+                trappedUnit = ObjectGuid::Empty;
                 bDog = false;
                 SetCombatMovement(false);
             }
 
-            uint64 trappedUnit;
+            ObjectGuid trappedUnit;
             uint32 existenceCheckTimer;
             bool bDog;
             uint32 dogTimer;
@@ -996,7 +996,7 @@ class npc_shannox_crystal_prison : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void SetGUID(uint64 guid, int32 type) override
+            void SetGUID(ObjectGuid guid, int32 type) override
             {
                 trappedUnit = guid;
                 existenceCheckTimer = 1000;
@@ -1015,7 +1015,7 @@ class npc_shannox_crystal_prison : public CreatureScript
                 bDog = false;
                 if (Unit* unit = ObjectAccessor::GetUnit(*me, trappedUnit))
                 {
-                    trappedUnit = 0;
+                    trappedUnit = ObjectGuid::Empty;
                     unit->RemoveAurasDueToSpell(SPELL_CRYSTAL_PRISON_TRAP);
                 }
                 me->DespawnOrUnsummon(800);
@@ -1045,7 +1045,7 @@ class npc_shannox_crystal_prison : public CreatureScript
                     else
                         dogTimer -= diff;
                 }
-            }            
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -1105,10 +1105,9 @@ class spell_shannox_crystal_prison_trap : public SpellScriptLoader
                 if (!GetCaster() || !GetTarget())
                     return;
 
-                Position pos;
-                GetTarget()->GetPosition(&pos);
+                Position pos = GetTarget()->GetPosition();
                 if (Creature* pCrystalPrison = GetCaster()->SummonCreature(NPC_CRYSTAL_PRISON, pos))
-                    pCrystalPrison->AI()->SetGUID(GetTarget()->GetGUID(), (GetTarget()->GetTypeId() == TYPEID_PLAYER)? DATA_TRAPPED_PLAYER: DATA_TRAPPED_DOG);   
+                    pCrystalPrison->AI()->SetGUID(GetTarget()->GetGUID(), (GetTarget()->GetTypeId() == TYPEID_PLAYER)? DATA_TRAPPED_PLAYER: DATA_TRAPPED_DOG);
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1119,7 +1118,7 @@ class spell_shannox_crystal_prison_trap : public SpellScriptLoader
                 if (GetTarget()->GetEntry() == NPC_RIPLIMB || GetTarget()->GetEntry() == NPC_RAGEFACE)
                     GetTarget()->CastSpell(GetTarget(), SPELL_WARRY, true);
             }
-            
+
             void Register() override
             {
                 OnEffectApply += AuraEffectApplyFn(spell_shannox_crystal_prison_trap_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);

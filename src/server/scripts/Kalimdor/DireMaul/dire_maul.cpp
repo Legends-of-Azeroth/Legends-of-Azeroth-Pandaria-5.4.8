@@ -34,7 +34,7 @@ class npc_old_ironbark : public CreatureScript
                 creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
                 uint32 delay = 0;
-                uint64 guid = creature->GetGUID();
+                ObjectGuid guid = creature->GetGUID();
 
                 Movement::MoveSplineInit init(creature);
                 for (auto itr : ironbarkPath)
@@ -43,11 +43,11 @@ class npc_old_ironbark : public CreatureScript
                 init.SetSmooth();
                 init.SetUncompressed();
                 init.Launch();
-                creature->m_Events.Schedule(delay += creature->GetSplineDuration(), 1, [this,guid]()
+                creature->m_Events.Schedule(delay += creature->GetSplineDuration(), 1, [this,creature,guid]()
                 {
-                    if (Unit* ironbark = ObjectAccessor::FindUnit(guid))
+                    if (Unit* ironbark = ObjectAccessor::GetUnit(*creature, guid))
                         if (InstanceScript* instance = ironbark->GetInstanceScript())
-                            if (GameObject* door = ObjectAccessor::GetGameObject(*ironbark, instance->GetData64(GO_CONSERVATORY_DOOR)))
+                            if (GameObject* door = ObjectAccessor::GetGameObject(*ironbark, instance->GetGuidData(GO_CONSERVATORY_DOOR)))
                                 door->UseDoorOrButton();
                 });
             }

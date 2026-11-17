@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -15,6 +15,7 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "DBCStores.h"
 #include "TransportMgr.h"
 #include "Transport.h"
 #include "InstanceScript.h"
@@ -71,7 +72,7 @@ void TransportMgr::LoadTransportTemplates()
         GameObjectTemplate const* goInfo = sObjectMgr->GetGameObjectTemplate(entry);
         if (goInfo->moTransport.taxiPathId >= sTaxiPathNodesByPath.size())
         {
-            TC_LOG_ERROR("sql.sql", "Transport %u (name: %s) has an invalid path specified in `gameobject_template`.`data0` (%u) field, skipped.", entry, goInfo->name.c_str(), goInfo->moTransport.taxiPathId);
+            TC_LOG_ERROR("sql.sql", "Transport {} (name: {}) has an invalid path specified in `gameobject_template`.`data0` ({}) field, skipped.", entry, goInfo->name.c_str(), goInfo->moTransport.taxiPathId);
             continue;
         }
 
@@ -87,8 +88,20 @@ void TransportMgr::LoadTransportTemplates()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u transport templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} transport templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
+
+void TransportMgr::LoadTransportAnimationAndRotation()
+{
+    for (uint32 i = 0; i < sTransportAnimationStore.GetNumRows(); ++i)
+        if (TransportAnimationEntry const* anim = sTransportAnimationStore.LookupEntry(i))
+            AddPathNodeToTransport(anim->TransportID, anim->TimeIndex, anim);
+
+    for (uint32 i = 0; i < sTransportRotationStore.GetNumRows(); ++i)
+        if (TransportRotationEntry const* rot = sTransportRotationStore.LookupEntry(i))
+            AddPathRotationToTransport(rot->GameObjectsID, rot->TimeIndex, rot);
+}
+
 
 class SplineRawInitializer
 {
@@ -452,7 +465,7 @@ Transport* TransportMgr::CreateLocalTransport(uint32 guid, Map* map)
     GameObjectData const* data = sObjectMgr->GetGOData(guid);
     if (!data)
     {
-        TC_LOG_ERROR("entities.transport", "Local transport with guid %u will not be loaded, `gameobject` data is missing", guid);
+        TC_LOG_ERROR("entities.transport", "Local transport with guid {} will not be loaded, `gameobject` data is missing", guid);
         return nullptr;
     }
 
@@ -495,14 +508,14 @@ Transport* TransportMgr::CreateTransport(uint32 entry, uint32 guid /*= 0*/, Map*
                 entry = instance->GetGameObjectEntry(0, entry);
 
         if (!entry)
-            return NULL;
+            return nullptr;
     }
 
     TransportTemplate const* tInfo = GetTransportTemplate(entry);
     if (!tInfo)
     {
-        TC_LOG_ERROR("sql.sql", "Transport %u will not be loaded, `transport_template` missing", entry);
-        return NULL;
+        TC_LOG_ERROR("sql.sql", "Transport {} will not be loaded, `transport_template` missing", entry);
+        return nullptr;
     }
 
     // create transport...
@@ -517,25 +530,25 @@ Transport* TransportMgr::CreateTransport(uint32 entry, uint32 guid /*= 0*/, Map*
     float o = tInfo->keyFrames.begin()->InitialOrientation;
 
     // initialize the gameobject base
-    uint32 guidLow = guid ? guid : sObjectMgr->GenerateLowGuid(HIGHGUID_MO_TRANSPORT);
+    ObjectGuid::LowType guidLow = guid ? guid : sObjectMgr->GetGenerator<HighGuid::Mo_Transport>().Generate();
     if (!trans->Create(guidLow, entry, mapId, x, y, z, o, 255))
     {
         delete trans;
-        return NULL;
+        return nullptr;
     }
 
     if (MapEntry const* mapEntry = sMapStore.LookupEntry(mapId))
     {
         if (mapEntry->Instanceable() != tInfo->inInstance)
         {
-            TC_LOG_ERROR("entities.transport", "Transport %u (name: %s) attempted creation in instance map (id: %u) but it is not an instanced transport!", entry, trans->GetName().c_str(), mapId);
+            TC_LOG_ERROR("entities.transport", "Transport {} (name: {}) attempted creation in instance map (id: {}) but it is not an instanced transport!", entry, trans->GetName().c_str(), mapId);
             delete trans;
-            return NULL;
+            return nullptr;
         }
     }
 
     // use preset map for instances (need to know which instance)
-    trans->SetMap(map ? map : sMapMgr->CreateMap(mapId, NULL));
+    trans->SetMap(map ? map : sMapMgr->CreateMap(mapId, nullptr));
     if (map && map->IsDungeon())
         trans->m_zoneScript = map->ToInstanceMap()->GetInstanceScript();
 
@@ -576,7 +589,7 @@ void TransportMgr::SpawnContinentTransports()
         } while (result->NextRow());
     }
 
-    TC_LOG_INFO("server.loading", ">> Spawned %u continent transports in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Spawned {} continent transports in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void TransportMgr::SpawnLocalTransports(Map* map)
@@ -606,7 +619,7 @@ void TransportMgr::CreateInstanceTransports(Map* map)
 TransportAnimationEntry const* TransportAnimation::GetAnimNode(uint32 time) const
 {
     if (Path.empty())
-        return NULL;
+        return nullptr;
 
     for (TransportPathContainer::const_reverse_iterator itr2 = Path.rbegin(); itr2 != Path.rend(); ++itr2)
         if (time >= itr2->first)

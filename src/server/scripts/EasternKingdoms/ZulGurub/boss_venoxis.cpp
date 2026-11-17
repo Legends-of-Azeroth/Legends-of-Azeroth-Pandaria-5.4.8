@@ -143,7 +143,7 @@ class boss_venoxis : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 phase = 0;
@@ -165,7 +165,7 @@ class boss_venoxis : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void MovementInform (uint32 type, uint32 id)
+            void MovementInform(uint32 type, uint32 id) override
             {
                 if (id == POINT_DOWN && phase == 2)
                     events.ScheduleEvent(EVENT_MOVE_UP, 400);

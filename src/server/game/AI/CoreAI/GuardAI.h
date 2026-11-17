@@ -22,15 +22,16 @@
 
 class Creature;
 
-class GuardAI : public ScriptedAI
+class TC_GAME_API GuardAI : public ScriptedAI
 {
     public:
         explicit GuardAI(Creature* creature);
 
-        static int Permissible(Creature const* creature);
-        bool CanSeeAlways(WorldObject const* obj);
+        static int32 Permissible(Creature const* creature);
+        void UpdateAI(uint32 diff) override;
+        bool CanSeeAlways(WorldObject const* obj) override;
 
-        void EnterEvadeMode();
-        void JustDied(Unit* killer);
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override;
+        void JustDied(Unit* killer) override;
 };
 #endif

@@ -103,9 +103,9 @@ class boss_ragnaros : public CreatureScript
                 me->HandleEmoteStateCommand(0);
             }
 
-            void EnterCombat(Unit* victim) override
+            void JustEngagedWith(Unit* victim) override
             {
-                BossAI::EnterCombat(victim);
+                BossAI::JustEngagedWith(victim);
                 events.ScheduleEvent(EVENT_ERUPTION, 15000);
                 events.ScheduleEvent(EVENT_WRATH_OF_RAGNAROS, 30000);
                 events.ScheduleEvent(EVENT_HAND_OF_RAGNAROS, 25000);
@@ -154,7 +154,7 @@ class boss_ragnaros : public CreatureScript
                         case EVENT_INTRO_4:
                             Talk(SAY_ARRIVAL5_RAG);
                             if (instance)
-                                if (Creature* executus = Unit::GetCreature(*me, instance->GetData64(BOSS_MAJORDOMO_EXECUTUS)))
+                                if (Creature* executus = Unit::GetCreature(*me, instance->GetGuidData(BOSS_MAJORDOMO_EXECUTUS)))
                                     me->Kill(executus);
                             break;
                         case EVENT_INTRO_5:
@@ -267,7 +267,7 @@ class boss_ragnaros : public CreatureScript
                                         // summon 8 elementals
                                         for (uint8 i = 0; i < 8; ++i)
                                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                                if (Creature* summoned = me->SummonCreature(12143, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 900000))
+                                                if (Creature* summoned = me->SummonCreature(12143, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 900000ms))
                                                     summoned->AI()->AttackStart(target);
 
                                         _hasSubmergedOnce = true;
@@ -282,7 +282,7 @@ class boss_ragnaros : public CreatureScript
 
                                         for (uint8 i = 0; i < 8; ++i)
                                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                                if (Creature* summoned = me->SummonCreature(12143, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 900000))
+                                                if (Creature* summoned = me->SummonCreature(12143, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 900000ms))
                                                     summoned->AI()->AttackStart(target);
 
                                         _isBanished = true;

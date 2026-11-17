@@ -70,7 +70,7 @@ public:
             Class_Timer = 1000;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         { }
 
         void SetMyClass(uint8 myclass)
@@ -168,7 +168,7 @@ public:
         }
 
         uint32 soulmodel;
-        uint64 soulholder;
+        ObjectGuid soulholder;
         uint8 soulclass;
 
         uint32 Fear_timer;
@@ -181,7 +181,7 @@ public:
         void Reset() override
         {
             soulmodel = 0;
-            soulholder = 0;
+            soulholder = ObjectGuid::Empty;
             soulclass = 0;
 
             Fear_timer = 15000 + rand()% 5000;
@@ -203,7 +203,7 @@ public:
             ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
         }
@@ -238,7 +238,7 @@ public:
         {
             Talk(SAY_DEATH);
             //When Exarch Maladar is defeated D'ore appear.
-            me->SummonCreature(19412, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 600000);
+            me->SummonCreature(19412, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 600000ms);
         }
 
         void UpdateAI(uint32 diff) override
@@ -274,7 +274,7 @@ public:
                         soulclass = target->GetClass();
 
                         DoCast(target, SPELL_STOLEN_SOUL);
-                        me->SummonCreature(ENTRY_STOLEN_SOUL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+                        me->SummonCreature(ENTRY_STOLEN_SOUL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000ms);
 
                         StolenSoul_Timer = 20000 + rand()% 10000;
                     } else StolenSoul_Timer = 1000;
@@ -322,7 +322,7 @@ public:
             Mortal_Strike_timer = 10000;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
         }
 

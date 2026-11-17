@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -28,8 +28,15 @@
 
 void UnitAI::AttackStart(Unit* victim)
 {
-    if (victim && me->Attack(victim, true))
+    if (victim && me->Attack(victim, true)){
+        // Clear distracted state on attacking
+        if (me->HasUnitState(UNIT_STATE_DISTRACTED))
+        {
+            me->ClearUnitState(UNIT_STATE_DISTRACTED);
+            me->GetMotionMaster()->Clear();
+        }        
         me->GetMotionMaster()->MoveChase(victim);
+    }
 }
 
 void UnitAI::AttackStartCaster(Unit* victim, float dist)
@@ -44,14 +51,17 @@ void UnitAI::DoMeleeAttackIfReady(bool ignoreLos)
         return;
 
     Unit* victim = me->GetVictim();
+
+    if (!me->IsWithinMeleeRange(victim))
+        return;
+
     //Make sure our attack is ready and we aren't currently casting before checking distance
-    if (me->isAttackReady() && me->IsWithinMeleeRange(victim))
+    if (me->isAttackReady())
     {
         me->AttackerStateUpdate(victim, ignoreLos);
         me->resetAttackTimer();
     }
-
-    if (me->HasOffhandWeapon() && me->isAttackReady(OFF_ATTACK) && me->IsWithinMeleeRange(victim))
+    if (me->HasOffhandWeapon() && me->isAttackReady(OFF_ATTACK))
     {
         me->AttackerStateUpdate(victim, ignoreLos, OFF_ATTACK);
         me->resetAttackTimer(OFF_ATTACK);
@@ -96,10 +106,10 @@ void UnitAI::DoAddAuraToAllHostilePlayers(uint32 spellid)
 {
     if (me->IsInCombat())
     {
-        ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
-        for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+        auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+        for (ThreatReference const* ref : threatlist)
         {
-            if (Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+            if (Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID()))
                 if (unit->GetTypeId() == TYPEID_PLAYER)
                     me->AddAura(spellid, unit);
         }
@@ -110,10 +120,10 @@ void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
 {
     if (me->IsInCombat())
     {
-        ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
-        for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+        auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+        for (ThreatReference const* ref : threatlist)
         {
-            if (Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+            if (Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID()))
                 if (unit->GetTypeId() == TYPEID_PLAYER)
                     me->CastSpell(unit, spellid, triggered);
         }
@@ -122,7 +132,7 @@ void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
 
 void UnitAI::DoCast(uint32 spellId)
 {
-    Unit* target = NULL;
+    Unit* target = nullptr;
 
     switch (AISpellInfo[spellId].target)
     {

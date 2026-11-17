@@ -83,9 +83,9 @@ class boss_murmur : public CreatureScript
                 me->ResetPlayerDamageReq();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -155,12 +155,12 @@ class boss_murmur : public CreatureScript
 
                 if (!me->IsWithinMeleeRange(me->GetVictim()))
                 {
-                    ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
-                    for (ThreatContainer::StorageType::const_iterator i = threatlist.begin(); i != threatlist.end(); ++i)
-                        if (Unit* target = ObjectAccessor::GetUnit(*me, (*i)->getUnitGuid()))
+                    auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+                    for (ThreatReference const* ref : threatlist)
+                        if (Unit* target = ObjectAccessor::GetUnit(*me, ref->GetVictim()->GetGUID()))
                             if (me->IsWithinMeleeRange(target))
                             {
-                                me->TauntApply(target);
+                                me->GetThreatManager().TauntUpdate();
                                 break;
                             }
                 }

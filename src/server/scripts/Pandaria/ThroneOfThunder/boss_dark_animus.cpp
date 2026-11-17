@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -138,7 +138,7 @@ class boss_dark_animus : public CreatureScript
             }
 
             uint32 gainPower;
-            uint64 animaRingGUID;
+            ObjectGuid animaRingGUID;
             bool activated;
             bool ringOfAnima;
             bool touchOfAnima;
@@ -161,7 +161,7 @@ class boss_dark_animus : public CreatureScript
                 interruptingJolt = false;
                 FullPower = false;
                 atEvade = false;
-                animaRingGUID = 0;
+                animaRingGUID = ObjectGuid::Empty;
                 me->SetPowerType(POWER_ENERGY);
                 me->SetMaxPower(POWER_ENERGY, 100);
                 me->SetPower(POWER_ENERGY, 0);
@@ -172,21 +172,21 @@ class boss_dark_animus : public CreatureScript
                 events.Reset();
             }
 
-            void SetGUID(uint64 guid, int32 type) override
+            void SetGUID(ObjectGuid guid, int32 type) override
             {
                 animaRingGUID = guid;
             }
 
-            uint64 GetGUID(int32 /*type*/) const override
+            ObjectGuid GetGUID(int32 /*type*/) const override
             {
                 return animaRingGUID;
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
-                if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance ? instance->GetData64(GO_ANIMUS_ENTRANCE) : 0))
+                if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance ? instance->GetGuidData(GO_ANIMUS_ENTRANCE) : ObjectGuid::Empty))
                     go->SetGoState(GO_STATE_READY);
 
                 if (IsHeroic())
@@ -198,7 +198,7 @@ class boss_dark_animus : public CreatureScript
 
             void DoAction(int32 actionId) override
             {
-                if (Creature* orb = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_ANIMA_ORB) : 0))
+                if (Creature* orb = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_ANIMA_ORB) : ObjectGuid::Empty))
                     if (!orb->AI()->GetData(TYPE_DARK_ANIMUS)) // prevent energize if not launched
                         return;
 
@@ -257,7 +257,7 @@ class boss_dark_animus : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (atEvade)
                     return;
@@ -277,10 +277,10 @@ class boss_dark_animus : public CreatureScript
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ANIMA_FONT);
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ANIMA_RING_EFF);
 
-                    if (Creature* animaOrb = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_ANIMA_ORB)))
+                    if (Creature* animaOrb = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_ANIMA_ORB)))
                         animaOrb->AI()->EnterEvadeMode();
 
-                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_ANIMUS_ENTRANCE)))
+                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_ANIMUS_ENTRANCE)))
                         go->SetGoState(GO_STATE_ACTIVE);
                 }
 
@@ -302,10 +302,10 @@ class boss_dark_animus : public CreatureScript
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ANIMA_FONT);
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ANIMA_RING_EFF);
 
-                    if (Creature* animaOrb = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_ANIMA_ORB)))
+                    if (Creature* animaOrb = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_ANIMA_ORB)))
                         animaOrb->AI()->JustDied(me);
 
-                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_ANIMUS_ENTRANCE)))
+                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_ANIMUS_ENTRANCE)))
                         go->SetGoState(GO_STATE_ACTIVE);
                 }
             }
@@ -391,9 +391,9 @@ class npc_anima_orb : public CreatureScript
             void InitializeAI() override
             {
                 me->setActive(true);
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+                me->SetDisplayFromModel(1);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
                 me->SetReactState(REACT_PASSIVE);
                 instance = me->GetInstanceScript();
                 Reset();
@@ -412,7 +412,7 @@ class npc_anima_orb : public CreatureScript
                 if (instance && instance->GetBossState(DATA_DARK_ANIMUS) == DONE)
                     return;
 
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+                me->SetDisplayFromModel(1);
                 DoCast(me, SPELL_ANIMA_ORB_VISUAL, true);
                 me->SetFaction(14);
                 me->SetMaxHealth(1);
@@ -450,21 +450,22 @@ class npc_anima_orb : public CreatureScript
                 me->DisappearAndDie();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (atEvade)
                     return;
 
                 atEvade = true;
 
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
 
                 summons.DespawnAll();
 
                 scheduler.CancelAll();
 
-                if (Creature* animus = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_DARK_ANIMUS) : 0))
+                if (Creature* animus = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_DARK_ANIMUS) : ObjectGuid::Empty))
                     animus->AI()->EnterEvadeMode();
 
                 std::list<Creature*> golemsList;
@@ -506,7 +507,7 @@ class npc_anima_orb : public CreatureScript
                     if (instance && !instance->GetData(LFR_DATA))
                         DoCast(me, SPELL_ACCELERATION_LINK, true);
 
-                    if (Creature* animus = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_DARK_ANIMUS) : 0))
+                    if (Creature* animus = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_DARK_ANIMUS) : ObjectGuid::Empty))
                         DoZoneInCombat(animus, 200.0f);
 
                     // Init combat at pull (break evade).
@@ -578,7 +579,7 @@ struct golemsBaseAI : public ScriptedAI
         Reset();
     }
 
-    void Reset()
+    void Reset() override
     {
         events.Reset();
         scheduler.CancelAll();
@@ -640,7 +641,7 @@ struct golemsBaseAI : public ScriptedAI
             return;
         }
 
-        if (Creature* orb = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_ANIMA_ORB) : 0))
+        if (Creature* orb = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_ANIMA_ORB) : ObjectGuid::Empty))
             if (!orb->AI()->GetData(TYPE_DARK_ANIMUS)) // prevent energize if not launched
                 return;
 
@@ -699,20 +700,21 @@ struct golemsBaseAI : public ScriptedAI
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (atEvade)
             return;
 
         atEvade = true;
 
-        if (Creature* animaOrb = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_ANIMA_ORB)))
+        if (Creature* animaOrb = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_ANIMA_ORB)))
             animaOrb->AI()->EnterEvadeMode();
 
         if (!me->IsAlive())
             me->Respawn();
 
-        me->DeleteThreatList();
+        me->GetThreatManager().RemoveMeFromThreatLists();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
 
         uint32 corpseDelay = me->GetCorpseDelay();
@@ -745,7 +747,7 @@ class npc_animus_golem : public CreatureScript
         {
             npc_animus_golemAI(Creature* creature) : golemsBaseAI(creature) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (instance && instance->GetBossState(DATA_DARK_ANIMUS) != IN_PROGRESS)
                     instance->SetBossState(DATA_DARK_ANIMUS, IN_PROGRESS);
@@ -821,9 +823,9 @@ struct npc_crimson_wake : public ScriptedAI
 
     TaskScheduler scheduler;
     InstanceScript* instance;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
 
-    void SetGUID(uint64 guid, int32 /*type*/) override
+    void SetGUID(ObjectGuid guid, int32 /*type*/) override
     {
         targetGUID = guid;
     }
@@ -832,7 +834,7 @@ struct npc_crimson_wake : public ScriptedAI
     {
         instance = me->GetInstanceScript();
 
-        if (Creature* orb = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_ANIMA_ORB) : 0))
+        if (Creature* orb = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_ANIMA_ORB) : ObjectGuid::Empty))
             orb->AI()->JustSummoned(me);
 
         me->SetSpeed(MOVE_RUN, 0.1f, true);
@@ -930,7 +932,7 @@ class spell_transfusion_missile : public SpellScript
         {
             if (Creature* target = GetHitCreature())
             {
-                if (Creature* orb = ObjectAccessor::GetCreature(*target, target->GetInstanceScript() ? target->GetInstanceScript()->GetData64(NPC_ANIMA_ORB) : 0))
+                if (Creature* orb = ObjectAccessor::GetCreature(*target, target->GetInstanceScript() ? target->GetInstanceScript()->GetGuidData(NPC_ANIMA_ORB) : ObjectGuid::Empty))
                     if (!orb->AI()->GetData(TYPE_DARK_ANIMUS)) // prevent energize if missle hit at evade
                         return;
 
@@ -965,7 +967,7 @@ class spell_transfusion_orb : public SpellScript
                 target->CastCustomSpell(target, SPELL_TRANSFUSION_ENERGIZE_4, &bp, NULL, NULL, true);
             }
 
-            if (Creature* orb = ObjectAccessor::GetCreature(*target, target->GetInstanceScript() ? target->GetInstanceScript()->GetData64(NPC_ANIMA_ORB) : 0))
+            if (Creature* orb = ObjectAccessor::GetCreature(*target, target->GetInstanceScript() ? target->GetInstanceScript()->GetGuidData(NPC_ANIMA_ORB) : ObjectGuid::Empty))
                 if (orb->AI()->GetData(TYPE_DARK_ANIMUS)) // prevent energize if missle hit at evade
                     target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
@@ -998,7 +1000,7 @@ class spell_transfusion_intro_energize : public SpellScript
     {
         if (Creature* target = GetHitCreature())
         {
-            if (Creature* orb = ObjectAccessor::GetCreature(*target, target->GetInstanceScript() ? target->GetInstanceScript()->GetData64(NPC_ANIMA_ORB) : 0))
+            if (Creature* orb = ObjectAccessor::GetCreature(*target, target->GetInstanceScript() ? target->GetInstanceScript()->GetGuidData(NPC_ANIMA_ORB) : ObjectGuid::Empty))
             {
                 if (orb->AI()->GetData(TYPE_DARK_ANIMUS)) // prevent energize if missle hit at evade
                     target->AI()->DoAction(GetSpellValue()->EffectBasePoints[effIndex]);
@@ -1563,7 +1565,7 @@ class spell_threat_proc_eff : public SpellScript
     {
         if (Unit* caster = GetCaster())
             if (Unit* target = GetHitUnit())
-                target->AddThreat(caster, 1000000.0f);
+                target->GetThreatManager().AddThreat(caster, 1000000.0f);
     }
 
     void Register() override
@@ -1661,7 +1663,7 @@ class cond_anima_transfusion : public ConditionScript
     public:
         cond_anima_transfusion() : ConditionScript("cond_anima_transfusion") { }
     
-        bool OnConditionCheck(Condition* cond, ConditionSourceInfo& source) override
+        bool OnConditionCheck(const Condition* cond, ConditionSourceInfo& source) override
         {
             if (source.mConditionTargets[0] && source.mConditionTargets[1])
                 if (Creature* caster = source.mConditionTargets[1]->ToCreature())

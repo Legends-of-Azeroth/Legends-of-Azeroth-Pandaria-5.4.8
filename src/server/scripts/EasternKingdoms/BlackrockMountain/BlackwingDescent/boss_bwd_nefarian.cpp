@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 #include "blackwing_descent.h"
 #include "MoveSplineInit.h"
 #include "VMapFactory.h"
+#include "VMapManager2.h"
 
 enum ScriptTexts
 {
@@ -266,7 +267,7 @@ void SetOnElevator(Unit* unit, bool useTransport = true)
 {
     if (InstanceScript* instance = unit->GetInstanceScript())
     {
-        if (GameObject* elevator = instance->instance->GetGameObject(instance->GetData64(DATA_NEFARIAN_FLOOR)))
+        if (GameObject* elevator = instance->instance->GetGameObject(instance->GetGuidData(DATA_NEFARIAN_FLOOR)))
         {
             unit->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
             if (useTransport)
@@ -285,7 +286,7 @@ void SetOnElevator(Unit* unit, bool useTransport = true)
             else if (unit->m_movementInfo.transport.guid)
             {
                 // Silently update position, client will continue to show the unit on top of the elevator
-                unit->m_movementInfo.transport.guid = 0;
+                unit->m_movementInfo.transport.guid = ObjectGuid::Empty;
                 unit->m_movementInfo.transport.seat = -1;
                 unit->m_movementInfo.transport.pos.Relocate(0, 0, 0, 0);
                 unit->UpdatePosition(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ() + 13.90172f, elevator->GetOrientation());
@@ -349,13 +350,13 @@ class boss_bd_nefarian : public CreatureScript
                 if (SummonList.empty())
                     return;
 
-                for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
+                for (std::list<ObjectGuid>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                     if (Creature* summon = ObjectAccessor::GetCreature(*me, *itr))
                         summon->DespawnOrUnsummon();
 
                 SummonList.clear();
             }
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 Reset();
@@ -378,15 +379,15 @@ class boss_bd_nefarian : public CreatureScript
                     nefarius->AI()->DoAction(ACTION_RESET);
 
                 // Raise the elevator
-                if (GameObject* elevator = instance->instance->GetGameObject(instance->GetData64(DATA_NEFARIAN_FLOOR)))
+                if (GameObject* elevator = instance->instance->GetGameObject(instance->GetGuidData(DATA_NEFARIAN_FLOOR)))
                     elevator->SetGoState(GO_STATE_READY);
 
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -527,7 +528,7 @@ class boss_bd_nefarian : public CreatureScript
                             events.SetPhase(PHASE_FLIGHT);
                             events.ScheduleEvent(EVENT_LAND, 15000, PHASE_FLIGHT);
                             finalPhase = true;
-                            if (GameObject* elevator = instance->instance->GetGameObject(instance->GetData64(DATA_NEFARIAN_FLOOR)))
+                            if (GameObject* elevator = instance->instance->GetGameObject(instance->GetGuidData(DATA_NEFARIAN_FLOOR)))
                                 elevator->SetGoState(GO_STATE_READY);
 
                             std::list<Creature*> summons;
@@ -640,7 +641,7 @@ class boss_bd_nefarian : public CreatureScript
                                 onyxia->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                                 // Remove feign death
                                 onyxia->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
-                                onyxia->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+                                onyxia->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
                                 onyxia->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                                 onyxia->ClearUnitState(UNIT_STATE_DIED);
                             }
@@ -696,7 +697,7 @@ class boss_bd_nefarian : public CreatureScript
                                 if (Creature* creature = *itr)
                                     creature->AI()->DoAction(ACTION_KILL_ANIMATED_WARRIOR);
                             // Lower the elevator
-                            if (GameObject* elevator = instance->instance->GetGameObject(instance->GetData64(DATA_NEFARIAN_FLOOR)))
+                            if (GameObject* elevator = instance->instance->GetGameObject(instance->GetGuidData(DATA_NEFARIAN_FLOOR)))
                                 elevator->SetGoState(GO_STATE_ACTIVE);
                             break;
                         }
@@ -746,7 +747,7 @@ class boss_bd_nefarian : public CreatureScript
                                 events.SetPhase(PHASE_FLIGHT);
                                 events.ScheduleEvent(EVENT_LAND, 20000, PHASE_FLIGHT);
                                 finalPhase = true;
-                                if (GameObject* elevator = instance->instance->GetGameObject(instance->GetData64(DATA_NEFARIAN_FLOOR)))
+                                if (GameObject* elevator = instance->instance->GetGameObject(instance->GetGuidData(DATA_NEFARIAN_FLOOR)))
                                     elevator->SetGoState(GO_STATE_READY);
 
                                 std::list<Creature*> summons;
@@ -780,7 +781,7 @@ class boss_bd_nefarian : public CreatureScript
             bool said, secondPhase, finalPhase;
 
             uint8 healthPct;
-            std::list<uint64> SummonList;
+            std::list<ObjectGuid> SummonList;
 
             bool waypointFlightActive;
             uint32 nextFlightWaypointIndex;
@@ -842,7 +843,7 @@ class boss_bd_onyxia : public CreatureScript
                 overloaded = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (Creature* nefarian = me->FindNearestCreature(NPC_NEFARIAN, 250))
                     nefarian->AI()->DoAction(ACTION_ONYXIA_AGGROED);
@@ -856,7 +857,7 @@ class boss_bd_onyxia : public CreatureScript
                 events.ScheduleEvent(EVENT_TAIL_LASH, urand(4000, 6000));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->DespawnOrUnsummon(1000);
             }
@@ -949,7 +950,7 @@ class npc_nefarian_intro : public CreatureScript
 
             void Reset() override
             {
-                if (GameObject* elevator = instance->instance->GetGameObject(instance->GetData64(DATA_NEFARIAN_FLOOR)))
+                if (GameObject* elevator = instance->instance->GetGameObject(instance->GetGuidData(DATA_NEFARIAN_FLOOR)))
                     elevator->SetGoState(GO_STATE_ACTIVE);
 
                 events.Reset();
@@ -1018,7 +1019,7 @@ class npc_nefarian_intro : public CreatureScript
                         case EVENT_NEFARIUS_INTRO_1:
                         {
                             Talk(SAY_INTRO_1);
-                            if (GameObject* elevator = instance->instance->GetGameObject(instance->GetData64(DATA_NEFARIAN_FLOOR)))
+                            if (GameObject* elevator = instance->instance->GetGameObject(instance->GetGuidData(DATA_NEFARIAN_FLOOR)))
                                 elevator->SetGoState(GO_STATE_ACTIVE);
                             if (Creature* onyxia = me->SummonCreature(NPC_ONYXIA, -107.213f, -224.62f, -7.413594f, 3.122f))
                             {
@@ -1026,7 +1027,7 @@ class npc_nefarian_intro : public CreatureScript
                                 SetOnElevator(onyxia);
                                 // Feign death
                                 onyxia->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
-                                onyxia->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+                                onyxia->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
                                 onyxia->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                                 onyxia->AddUnitState(UNIT_STATE_DIED);
                                 // Put stalkers onto the elevator
@@ -1053,7 +1054,7 @@ class npc_nefarian_intro : public CreatureScript
                             break;
                         }
                         case EVENT_NEFARIUS_INTRO_2:
-                            if (GameObject* elevator = instance->instance->GetGameObject(instance->GetData64(DATA_NEFARIAN_FLOOR)))
+                            if (GameObject* elevator = instance->instance->GetGameObject(instance->GetGuidData(DATA_NEFARIAN_FLOOR)))
                                 elevator->SetGoState(GO_STATE_READY);
                             Talk(SAY_INTRO_2);
                             events.ScheduleEvent(EVENT_NEFARIUS_INTRO_3, 10000);
@@ -1129,7 +1130,7 @@ class npc_animated_bone_warrior : public CreatureScript
                 creature->SetMaxPower(POWER_ENERGY, 100);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.Reset();
                 events.ScheduleEvent(EVENT_HURL_BONE, urand(4000, 9000));
@@ -1148,7 +1149,7 @@ class npc_animated_bone_warrior : public CreatureScript
                     me->RemoveAurasDueToSpell(SPELL_DIE_VISUAL);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
                     me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                     DoCast(me, spell->Effects[spell->Id == SPELL_SHADOWBLAZE ? EFFECT_1 : EFFECT_2].BasePoints, true);
                     events.ScheduleEvent(EVENT_HURL_BONE, urand(4000, 9000));
@@ -1167,7 +1168,7 @@ class npc_animated_bone_warrior : public CreatureScript
                     DoCast(me, SPELL_DIE_VISUAL, true);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
-                    me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+                    me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
                     me->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                     me->SetPower(POWER_ENERGY, 0);
                     SetOnElevator(me);
@@ -1247,7 +1248,7 @@ class npc_chromatic_prototype : public CreatureScript
                 isCasting = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 isCasting = false;
                 me->SetReactState(REACT_DEFENSIVE);
@@ -1417,8 +1418,7 @@ class npc_dominion_stalker : public CreatureScript
                 DoCast(me, SPELL_DOMINION_PORTAL_BEAM);
                 summoner->SetWalk(true);
                 summoner->GetMotionMaster()->Clear();
-                Position pos;
-                me->GetPosition(&pos);
+                Position pos = me->GetPosition();
                 summoner->GetMotionMaster()->MovePoint(1, pos, false);
             }
 
@@ -1550,7 +1550,7 @@ class spell_onyxia_lightning_discharge : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_onyxia_lightning_discharge_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_onyxia_lightning_discharge_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_TARGET_ANY);
             }
 
             class AngleCheck

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -223,7 +223,7 @@ class npc_boneweaver : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage) override { }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_BONE_SHARDS, 3000);
                 events.ScheduleEvent(EVENT_SUMMON_WOVEN_BONEGUARD, urand(8000, 9000));
@@ -293,7 +293,7 @@ class npc_scholomance_acolyte : public CreatureScript
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (me->HasAura(SPELL_VISUAL_STRANGULATE_EMOTE))
                     me->RemoveAura(SPELL_VISUAL_STRANGULATE_EMOTE);
@@ -350,7 +350,7 @@ class npc_scholomance_neophyte : public CreatureScript
 
             EventMap events;
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (me->HasAura(SPELL_VISUAL_STRANGULATE_EMOTE))
                     me->RemoveAura(SPELL_VISUAL_STRANGULATE_EMOTE);
@@ -422,7 +422,7 @@ class npc_scholomance_risen_guard : public CreatureScript
                 SetEquipmentSlots(false, RisenGuardSword, 0, EQUIP_NO_CHANGE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_IMPALE, EVENT_IMPALE_INTERVAL);
                 events.ScheduleEvent(EVENT_UNHOLY_WEAPON, EVENT_UNHOLY_WEAPON_INTERVAL);
@@ -498,7 +498,7 @@ class npc_shatter_soul_fragment : public CreatureScript
                 me->DespawnOrUnsummon(8000);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (Unit* target = me->GetVictim())
                     me->CastSpell(target, SPELL_SPIRIT_BARRAGE);
@@ -570,11 +570,11 @@ class npc_scholomance_candlestick_mage : public CreatureScript
             npc_scholomance_candlestick_mageAI(Creature* creature) : ScriptedAI(creature) { }
 
             EventMap events, nonCombatEvents;
-            uint64 CandleGUID;
+            ObjectGuid CandleGUID;
 
             void InitializeAI() override
             {
-                CandleGUID = 0;
+                CandleGUID.Clear();
                 nonCombatEvents.ScheduleEvent(EVENT_INIT, 2 * IN_MILLISECONDS);
                 Reset();
             }
@@ -584,7 +584,7 @@ class npc_scholomance_candlestick_mage : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_FLICKERING_FLAME, EVENT_FLICKERING_FLAME_INTERVAL);
                 events.ScheduleEvent(EVENT_SKIN_LIKE_WAX, EVENT_SKIN_LIKE_WAX_INTERVAL);
@@ -679,7 +679,7 @@ class npc_scholomance_krastinoc_carvers : public CreatureScript
                 me->CastSpell(me, SPELL_BOLIDING_BLOODTHIRST);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(TALK_KRAST_AGGRO);
             }
@@ -726,7 +726,7 @@ class npc_scholomance_flesh_horror : public CreatureScript
             npc_scholomance_flesh_horrorAI(Creature* creature) : ScriptedAI(creature) { }
 
             EventMap events;
-            std::list<uint64> meat;
+            std::list<ObjectGuid> meat;
             uint32 VehPos;
 
             void Reset() override
@@ -759,11 +759,9 @@ class npc_scholomance_flesh_horror : public CreatureScript
                 return true;
             }
 
-            void EnterCombat(Unit* /*who*/) override 
+            void JustEngagedWith(Unit* /*who*/) override 
             {
-                Position pos;
-
-                me->GetRandomNearPosition(pos, 8.0f);
+                Position pos = me->GetRandomNearPosition(8.0f);
 
                 for (uint8 i = 0; i < 4; i++)
                 {
@@ -831,7 +829,7 @@ class npc_scholomance_bored_student : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SHADOW_NOVA, firebreathinterval);
                 events.ScheduleEvent(EVENT_FIRE_BREATH, shadowbreathinterval);
@@ -885,7 +883,7 @@ public:
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_BRUTISH_FORCE, brutishforceinterval);
                 events.ScheduleEvent(EVENT_TOXIC_POTION, toxicinterval);
@@ -999,7 +997,7 @@ class npc_gandling_at_rattlegore : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage) override { }
 
-            void EnterCombat(Unit* who) override { }
+            void JustEngagedWith(Unit* who) override { }
 
             void MovementInform(uint32 type, uint32 pointId) override
             {
@@ -1011,7 +1009,7 @@ class npc_gandling_at_rattlegore : public CreatureScript
                     case 0:
                         Talk(TALK_7);
                         me->CastSpell(me, SPELL_TELEPORT_VISUAL, false);
-                        me->SetAnimationTier(UnitAnimationTier::Fly);
+                        me->SetAnimTier(AnimTier::Fly);
                         me->OverrideInhabitType(INHABIT_AIR);
                         me->UpdateMovementFlags();
                         me->CastSpell(me, SPELL_SOUL_RIP_VISUAL, false);
@@ -1069,7 +1067,7 @@ class npc_gandling_at_rattlegore : public CreatureScript
                             nonCombatEvents.ScheduleEvent(EVENT_TALK_6, 6000);
                             break;
                         case EVENT_TALK_6:
-                            me->SetAnimationTier(UnitAnimationTier::Ground);
+                            me->SetAnimTier(AnimTier::Ground);
                             me->OverrideInhabitType(INHABIT_GROUND);
                             me->UpdateMovementFlags();
                             me->RemoveAurasDueToSpell(SPELL_SOUL_RIP_VISUAL);
@@ -1080,10 +1078,10 @@ class npc_gandling_at_rattlegore : public CreatureScript
                             break;
                         case EVENT_TALK_9:
                             Talk(TALK_12);
-                            if (Unit* TalkingSkull = ObjectAccessor::GetUnit(*me, _instance->GetData64(NPC_TALKING_SKULL)))
+                            if (Unit* TalkingSkull = ObjectAccessor::GetUnit(*me, _instance->GetGuidData(NPC_TALKING_SKULL)))
                                 TalkingSkull->ToCreature()->AI()->Talk(TALK_GANDLING_LEAVE);
 
-                            me->SetAnimationTier(UnitAnimationTier::Ground);
+                            me->SetAnimTier(AnimTier::Ground);
                             me->OverrideInhabitType(INHABIT_GROUND);
                             me->UpdateMovementFlags();
                             me->RemoveAurasDueToSpell(SPELL_SOUL_RIP_VISUAL);

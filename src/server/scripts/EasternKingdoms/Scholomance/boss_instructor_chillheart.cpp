@@ -149,12 +149,12 @@ class boss_instructor_chillheart : public CreatureScript
                 if (instance)
                     if (GameObject* Idoor = GetClosestGameObjectWithEntry(me, GO_CHILLHEART_INTRO_DOOR, 150.0f))
                     {
-                        instance->HandleGameObject(0, reset, Idoor);
+                        instance->HandleGameObject(ObjectGuid::Empty, reset, Idoor);
                         Idoor->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
                     }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)
@@ -166,9 +166,9 @@ class boss_instructor_chillheart : public CreatureScript
                 HandleDoors(true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(TALK_AGGRO);
                 events.ScheduleEvent(EVENT_ICE_WRATH, urand(6500, 8000));
                 events.ScheduleEvent(EVENT_FRIGID_GRASP, urand(10000, 15000));
@@ -362,7 +362,7 @@ class npc_instructor_chillhearts_phylactery : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override 
             {
@@ -430,7 +430,7 @@ class npc_ice_wall_stalker : public CreatureScript
                 }
             }
 
-            void CreateTriggerWall(uint64 Main)
+            void CreateTriggerWall(ObjectGuid Main)
             {
                 uint32 mod = 1;
 
@@ -447,7 +447,7 @@ class npc_ice_wall_stalker : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override { }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override
             {
@@ -561,7 +561,7 @@ class npc_magical_tomes : public CreatureScript
                 damage = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void MovementInform(uint32 type, uint32 pointId) override
             {

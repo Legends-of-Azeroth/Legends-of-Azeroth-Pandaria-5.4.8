@@ -33,23 +33,23 @@ class instance_little_patience : public InstanceMapScript
             EventMap events;
             uint32 m_auiEncounter[2];
             uint32 chapterOne, chapterTwo;
-            uint64 varianGUID;
-            uint64 varianIntroGUID;
-            uint64 tyrandeGUID;
-            uint64 tyrandeIntroGUID;
-            uint64 scargashGUID;
-            uint64 chiJiIntroGUID;
-            uint64 chiJiGUID;
-            uint64 adlerGUID;
-            uint64 roseyGUID;
-            uint64 feraGUID;
-            uint64 duffGUID;
-            uint64 brownstoneGUID;
+            ObjectGuid varianGUID;
+            ObjectGuid varianIntroGUID;
+            ObjectGuid tyrandeGUID;
+            ObjectGuid tyrandeIntroGUID;
+            ObjectGuid scargashGUID;
+            ObjectGuid chiJiIntroGUID;
+            ObjectGuid chiJiGUID;
+            ObjectGuid adlerGUID;
+            ObjectGuid roseyGUID;
+            ObjectGuid feraGUID;
+            ObjectGuid duffGUID;
+            ObjectGuid brownstoneGUID;
             uint32 constructionsCompleted;
             uint32 factionData;
-            std::vector<uint64> complitionWorkCreatureGUIDs;
-            std::vector<uint64> constructionGUIDs;
-            std::vector<uint64> korkronAssaultGUIDs;
+            std::vector<ObjectGuid> complitionWorkCreatureGUIDs;
+            std::vector<ObjectGuid> constructionGUIDs;
+            std::vector<ObjectGuid> korkronAssaultGUIDs;
             bool hasSecondStage;
             bool hasInit;
 
@@ -61,18 +61,18 @@ class instance_little_patience : public InstanceMapScript
                 chapterOne       = 0;
                 chapterTwo       = 0;
 
-                varianGUID       = 0;
-                varianIntroGUID  = 0;
-                tyrandeGUID      = 0;
-                tyrandeIntroGUID = 0;
-                scargashGUID     = 0;
-                chiJiIntroGUID   = 0;
-                chiJiGUID        = 0;
-                adlerGUID        = 0;
-                roseyGUID        = 0;
-                feraGUID         = 0;
-                duffGUID         = 0;
-                brownstoneGUID   = 0;
+                varianGUID = ObjectGuid::Empty;
+                varianIntroGUID = ObjectGuid::Empty;
+                tyrandeGUID = ObjectGuid::Empty;
+                tyrandeIntroGUID = ObjectGuid::Empty;
+                scargashGUID = ObjectGuid::Empty;
+                chiJiIntroGUID = ObjectGuid::Empty;
+                chiJiGUID = ObjectGuid::Empty;
+                adlerGUID = ObjectGuid::Empty;
+                roseyGUID = ObjectGuid::Empty;
+                feraGUID = ObjectGuid::Empty;
+                duffGUID = ObjectGuid::Empty;
+                brownstoneGUID = ObjectGuid::Empty;
                 factionData      = 0;
                 hasSecondStage   = false;
                 hasInit          = false;
@@ -204,37 +204,37 @@ class instance_little_patience : public InstanceMapScript
 
                         DoRemoveAurasDueToSpellOnPlayers(SPELL_PERIODIC_CONSTRUCTION_CHECK);
 
-                        if (Creature* varian = instance->GetCreature(GetData64(NPC_KING_VARIAN_WRYNN)))
+                        if (Creature* varian = instance->GetCreature(GetGuidData(NPC_KING_VARIAN_WRYNN)))
                             varian->AI()->DoAction(ACTION_FORCE_ASSAULT_TEMPLE);
 
                         // Set him Visible
-                        if (Creature* scargash = instance->GetCreature(GetData64(NPC_COMMANDER_SCARGASH)))
+                        if (Creature* scargash = instance->GetCreature(GetGuidData(NPC_COMMANDER_SCARGASH)))
                             scargash->SetVisible(true);
                         break;
                     case DATA_SCARGASH_DEFEAT:
                         chapterTwo = data;
 
                         // Remove old creatures & set new
-                        if (Creature* varian = instance->GetCreature(GetData64(NPC_KING_VARIAN_WRYNN)))
+                        if (Creature* varian = instance->GetCreature(GetGuidData(NPC_KING_VARIAN_WRYNN)))
                             varian->DespawnOrUnsummon();
 
-                        if (Creature* tyrande = instance->GetCreature(GetData64(NPC_TYRANDE_WHISPERWIND)))
+                        if (Creature* tyrande = instance->GetCreature(GetGuidData(NPC_TYRANDE_WHISPERWIND)))
                             tyrande->DespawnOrUnsummon();
 
-                        if (Creature* chiji = instance->GetCreature(GetData64(NPC_CHI_JI)))
+                        if (Creature* chiji = instance->GetCreature(GetGuidData(NPC_CHI_JI)))
                             chiji->DespawnOrUnsummon();
 
                         // Send past event progress
-                        if (Creature* varian = instance->GetCreature(GetData64(NPC_KING_VARIAN_WRYNN + 1)))
+                        if (Creature* varian = instance->GetCreature(GetGuidData(NPC_KING_VARIAN_WRYNN + 1)))
                             varian->AI()->DoAction(ACTION_SCARGASH_SLAIN);
 
-                        if (Creature* tyrande = instance->GetCreature(GetData64(NPC_TYRANDE_WHISPERWIND + 1)))
+                        if (Creature* tyrande = instance->GetCreature(GetGuidData(NPC_TYRANDE_WHISPERWIND + 1)))
                         {
                             tyrande->SetVisible(true);
                             tyrande->GetMotionMaster()->MovePoint(0, tyrandeOuterPos);
                         }
 
-                        if (Creature* chiJi = instance->GetCreature(GetData64(NPC_CHI_JI + 1)))
+                        if (Creature* chiJi = instance->GetCreature(GetGuidData(NPC_CHI_JI + 1)))
                         {
                             chiJi->SetVisible(true);
                             
@@ -264,7 +264,7 @@ class instance_little_patience : public InstanceMapScript
                         break;
                     case DATA_MASSIVE_ATTACK:
                         // @ todo: Create massive attack to traps
-                        if (Creature* scargash = instance->GetCreature(GetData64(NPC_COMMANDER_SCARGASH)))
+                        if (Creature* scargash = instance->GetCreature(GetGuidData(NPC_COMMANDER_SCARGASH)))
                             scargash->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PACIFIED);
 
                         for (auto&& itr : korkronAssaultGUIDs)
@@ -292,7 +292,7 @@ class instance_little_patience : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -322,7 +322,7 @@ class instance_little_patience : public InstanceMapScript
                         return brownstoneGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -341,7 +341,7 @@ class instance_little_patience : public InstanceMapScript
                 {
                     if (eventId == 1)
                     {
-                        if (Creature* varian = instance->GetCreature(GetData64(NPC_KING_VARIAN_WRYNN)))
+                        if (Creature* varian = instance->GetCreature(GetGuidData(NPC_KING_VARIAN_WRYNN)))
                             varian->AI()->DoAction(ACTION_START_INTRO);
                     }
                     break;

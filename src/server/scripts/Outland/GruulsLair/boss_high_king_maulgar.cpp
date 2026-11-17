@@ -116,13 +116,13 @@ class boss_high_king_maulgar : public CreatureScript
                 instance->SetBossState(DATA_MAULGAR, DONE);
             }
     
-            void DoAction(int32 actionId)
+            void DoAction(int32 actionId) override
             {
                 if (actionId == ACTION_ADD_DEATH)
                     Talk(SAY_OGRE_DEATH);
             }
     
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
                 instance->SetBossState(DATA_MAULGAR, IN_PROGRESS);
@@ -233,7 +233,7 @@ class boss_olm_the_summoner : public CreatureScript
     
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
     
@@ -241,7 +241,7 @@ class boss_olm_the_summoner : public CreatureScript
                 }
             }
     
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
                 instance->SetBossState(DATA_MAULGAR, IN_PROGRESS);
@@ -249,7 +249,7 @@ class boss_olm_the_summoner : public CreatureScript
     
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* maulgar = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MAULGAR)))
+                if (Creature* maulgar = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAULGAR)))
                     maulgar->AI()->DoAction(ACTION_ADD_DEATH);
     
                 instance->SetBossState(DATA_MAULGAR, DONE);
@@ -324,7 +324,7 @@ class boss_kiggler_the_crazed : public CreatureScript
                 instance->SetBossState(DATA_MAULGAR, NOT_STARTED);
             }
     
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
                 instance->SetBossState(DATA_MAULGAR, IN_PROGRESS);
@@ -332,7 +332,7 @@ class boss_kiggler_the_crazed : public CreatureScript
     
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* maulgar = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MAULGAR)))
+                if (Creature* maulgar = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAULGAR)))
                     maulgar->AI()->DoAction(ACTION_ADD_DEATH);
     
                 instance->SetBossState(DATA_MAULGAR, DONE);
@@ -410,7 +410,7 @@ class boss_blindeye_the_seer : public CreatureScript
                 instance->SetBossState(DATA_MAULGAR, NOT_STARTED);
             }
     
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
                 instance->SetBossState(DATA_MAULGAR, IN_PROGRESS);
@@ -418,7 +418,7 @@ class boss_blindeye_the_seer : public CreatureScript
     
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* maulgar = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MAULGAR)))
+                if (Creature* maulgar = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAULGAR)))
                     maulgar->AI()->DoAction(ACTION_ADD_DEATH);
     
                 instance->SetBossState(DATA_MAULGAR, DONE);
@@ -487,7 +487,7 @@ class boss_krosh_firehand : public CreatureScript
                 instance->SetBossState(DATA_MAULGAR, NOT_STARTED);
             }
     
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
                 instance->SetBossState(DATA_MAULGAR, IN_PROGRESS);
@@ -495,7 +495,7 @@ class boss_krosh_firehand : public CreatureScript
     
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* maulgar = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MAULGAR)))
+                if (Creature* maulgar = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAULGAR)))
                     maulgar->AI()->DoAction(ACTION_ADD_DEATH);
     
                 instance->SetBossState(DATA_MAULGAR, DONE);
@@ -525,11 +525,11 @@ class boss_krosh_firehand : public CreatureScript
                 if (BlastWave_Timer <= diff)
                 {
                     Unit* target = NULL;
-                    std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+                    auto t_list = me->GetThreatManager().GetUnsortedThreatList();
                     std::vector<Unit*> target_list;
-                    for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                    for (ThreatReference const* ref : t_list)
                     {
-                        target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                        target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                                                                     //15 yard radius minimum
                         if (target && target->IsWithinDist(me, 15, false))
                             target_list.push_back(target);

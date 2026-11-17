@@ -37,7 +37,7 @@ public:
     typedef std::vector<Group*>      GroupDbContainer;
     typedef std::multimap<uint64, Group*> PlayerGroups;
 
-    Group* GetGroupByGUID(uint32 guid) const;
+    Group* GetGroupByGUID(ObjectGuid::LowType guid) const;
 
     uint32 GenerateNewGroupDbStoreId();
     void   RegisterGroupDbStoreId(uint32 storageId, Group* group);
@@ -47,7 +47,7 @@ public:
     void   SetGroupDbStoreSize(uint32 newSize) { GroupDbStore.resize(newSize); }
 
     void   LoadGroups();
-    uint32 GenerateGroupId();
+    ObjectGuid::LowType GenerateGroupId();
     void   AddGroup(Group* group);
     void   RemoveGroup(Group* group);
 

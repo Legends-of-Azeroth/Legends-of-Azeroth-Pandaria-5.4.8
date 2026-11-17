@@ -180,9 +180,9 @@ public:
             Enraged = false;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
 
             events.ScheduleEvent(EVENT_SHIMMER, 0);
             events.ScheduleEvent(EVENT_BREATH_1, 30000);

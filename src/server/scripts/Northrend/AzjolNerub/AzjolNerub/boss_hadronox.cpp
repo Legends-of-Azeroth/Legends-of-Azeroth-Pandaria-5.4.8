@@ -132,7 +132,7 @@ class boss_hadronox : public CreatureScript
                 me->GetMap()->SetWorldState(WORLD_STATE_HADRONOX_DENIED, 1);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
                     instance->SetData(DATA_HADRONOX_EVENT, IN_PROGRESS);
@@ -143,7 +143,7 @@ class boss_hadronox : public CreatureScript
                 events.ScheduleEvent(EVENT_WEB_GRAB, urand(15000, 19000));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
                 //if (InstanceScript* instance = me->GetInstanceScript())
@@ -283,7 +283,7 @@ class npc_anubar_crusher : public CreatureScript
                 frenzied = false;
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 me->GetMotionMaster()->MoveChase(who);
 
@@ -297,7 +297,7 @@ class npc_anubar_crusher : public CreatureScript
                     instance->SetData(DATA_HADRONOX_EVENT, SPECIAL);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
                 if (InstanceScript* instance = me->GetInstanceScript())
@@ -346,7 +346,7 @@ class npc_anubar_crusher : public CreatureScript
                     ScriptedAI::MoveInLineOfSight(who);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (!frenzied && me->HealthBelowPctDamaged(30, damage))
                 {
@@ -417,7 +417,7 @@ class npc_anubar_champion : public CreatureScript
                 pummelReady = true;
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 me->GetMotionMaster()->MoveChase(who);
                 events.ScheduleEvent(EVENT_REND, DUNGEON_MODE(urand(6000, 9000), urand(4000, 7000)));
@@ -556,7 +556,7 @@ class npc_anubar_crypt_fiend : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_INFECTED_WOUNDS, urand(4000, 7000));
                 events.ScheduleEvent(EVENT_CRUSHING_WEBS, urand(9000, 12000));
@@ -697,12 +697,12 @@ class spell_web_doors : public SpellScriptLoader
                 {
                     if (GetSpellInfo()->Id == SPELL_WEB_FRONT_DOORS)
                     {
-                        if (Unit* target = instance->instance->GetCreature(instance->GetData64(DATA_HADRONOX_FRONT_DOOR_1)))
+                        if (Unit* target = instance->instance->GetCreature(instance->GetGuidData(DATA_HADRONOX_FRONT_DOOR_1)))
                             targets.push_back(target);
-                        if (Unit* target = instance->instance->GetCreature(instance->GetData64(DATA_HADRONOX_FRONT_DOOR_2)))
+                        if (Unit* target = instance->instance->GetCreature(instance->GetGuidData(DATA_HADRONOX_FRONT_DOOR_2)))
                             targets.push_back(target);
                     }
-                    else if (Unit* target = instance->instance->GetCreature(instance->GetData64(DATA_HADRONOX_SIDE_DOOR)))
+                    else if (Unit* target = instance->instance->GetCreature(instance->GetGuidData(DATA_HADRONOX_SIDE_DOOR)))
                         targets.push_back(target);
                 }
             }

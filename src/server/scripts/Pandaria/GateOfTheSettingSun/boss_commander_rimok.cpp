@@ -57,7 +57,7 @@ class boss_commander_rimok : public CreatureScript
         {
             boss_commander_rimokAI(Creature* creature) : BossAI(creature, DATA_RIMOK) { }
 
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             uint8 getType;
 
             void Reset() override
@@ -74,9 +74,9 @@ class boss_commander_rimok : public CreatureScript
                 getType = 4;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 me->SetReactState(REACT_AGGRESSIVE);
                 Talk(SAY_AGGRO);
 
@@ -93,7 +93,7 @@ class boss_commander_rimok : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)

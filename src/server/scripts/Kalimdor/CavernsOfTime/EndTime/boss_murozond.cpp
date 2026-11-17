@@ -197,7 +197,7 @@ class boss_murozond : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_INFINITE_BREATH, urand(10000, 20000));
@@ -242,10 +242,10 @@ class boss_murozond : public CreatureScript
                 }
                 instance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, SPELL_KILL_MUROZOND, me); 
                 
-                if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_HOURGLASS)))
+                if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_HOURGLASS)))
                     go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
 
-                instance->DoKilledMonsterKredit(QUEST_MUROZOND, 54432, 0);
+                instance->DoKilledMonsterKredit(QUEST_MUROZOND, 54432, ObjectGuid::Empty);
             }
 
             void JustReachedHome() override
@@ -297,7 +297,7 @@ class boss_murozond : public CreatureScript
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                             break;
                         case EVENT_NOZDORMU_INTRO:
-                            if (Creature* pNozdormu = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_NOZDORMU)))
+                            if (Creature* pNozdormu = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NOZDORMU)))
                                 pNozdormu->AI()->Talk(SAY_NOZDORMU_INTRO);
                             break;
                         case EVENT_DISTORTION_BOMB:
@@ -333,7 +333,7 @@ class boss_murozond : public CreatureScript
                         case EVENT_DESPAWN:
                             me->InterruptNonMeleeSpells(true);
                             me->RemoveAllDynObjects();
-                            if (Creature* pNozdormu = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_NOZDORMU)))
+                            if (Creature* pNozdormu = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NOZDORMU)))
                                 pNozdormu->AI()->DoAction(ACTION_NOZDORMU);
                             instance->SetBossState(DATA_MUROZOND, DONE);
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SANDS_OF_THE_HOURGLASS);
@@ -556,7 +556,7 @@ class go_murozond_hourglass_of_time : public GameObjectScript
             if (!instance || instance->GetBossState(DATA_MUROZOND) != IN_PROGRESS)
                 return false;
 
-            if (Creature* pMurozond = ObjectAccessor::GetCreature(*go, instance->GetData64(DATA_MUROZOND)))
+            if (Creature* pMurozond = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_MUROZOND)))
             {
                 if (pMurozond->AI()->GetData(TYPE_HOURGLASS) == 0)
                     return true;

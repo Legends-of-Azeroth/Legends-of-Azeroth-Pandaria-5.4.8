@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -311,7 +311,7 @@ class npc_dragon_soul_ancient_water_lord : public CreatureScript
                 events.ScheduleEvent(EVENT_EMOTE_CHANNEL_VIS, 1000);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->HandleEmoteStateCommand(0);
                 events.ScheduleEvent(EVENT_FLOOD, urand(8000, 12000));
@@ -392,7 +392,7 @@ class npc_dragon_soul_earthen_destroyer : public CreatureScript
                 events.ScheduleEvent(EVENT_EMOTE_CHANNEL_VIS, 1000);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->HandleEmoteStateCommand(0);
                 events.ScheduleEvent(EVENT_BOULDER_SMASH, urand(3000, 5000));
@@ -475,7 +475,7 @@ class npc_dragon_soul_earthen_soldier : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(3000, 5000));
                 events.ScheduleEvent(EVENT_TWILIGHT_CORRUPTION, urand(6000, 7000));
@@ -557,7 +557,7 @@ class npc_dragon_soul_twilight_siege_captain : public CreatureScript
                     DoCast(SPELL_TWILIGHT_PORTAL_BEAM);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->InterruptNonMeleeSpells(true);
                 events.ScheduleEvent(EVENT_TWILIGHT_VOLLEY, urand(3000, 5000));
@@ -635,7 +635,7 @@ class npc_dragon_soul_twilight_portal : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_CHECK_PLAYERS, 5000);
             }
@@ -693,7 +693,7 @@ class npc_dragon_soul_crimson_globule : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SEARING_BLOOD, urand(7000, 14000));
             }
@@ -753,7 +753,7 @@ class npc_dragon_soul_acidic_globule : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_DIGESTIVE_ACID, urand(7000, 14000));
             }
@@ -813,7 +813,7 @@ class npc_dragon_soul_dark_globule : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_PSYCHIC_SLICE, urand(7000, 14000));
             }
@@ -873,7 +873,7 @@ class npc_dragon_soul_shadowed_globule : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_DEEP_CORRUPTION, urand(12000, 24000));
             }
@@ -934,7 +934,7 @@ class npc_dragon_soul_cobalt_globule : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_MANA_VOID, 3000);
             }
@@ -995,7 +995,7 @@ class npc_dragon_soul_flail_of_gorath : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SLUDGE_SPEW, urand(2000, 4000));
                 events.ScheduleEvent(EVENT_TENTACLE_TOSS, 10000);
@@ -1065,7 +1065,7 @@ class npc_dragon_soul_claw_of_gorath : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_OOZE_SPIT, 5000);
                 events.ScheduleEvent(EVENT_TENTACLE_TOSS, 10000);
@@ -1169,7 +1169,7 @@ class npc_dragon_soul_eye_of_gorath : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SHADOW_GAZE, urand(3000, 5000));
             }
@@ -1555,7 +1555,7 @@ class npc_dragon_soul_thrall : public CreatureScript
                             break;
                         case EVENT_SPAWN_DRAGONS:
                             instance->SetData(DATA_ULTRAXION_TRASH, IN_PROGRESS);
-                            if (Creature* Deathwing = instance->instance->GetCreature(instance->GetData64(DATA_DRAGON_SOUL_EVENT)))
+                            if (Creature* Deathwing = instance->instance->GetCreature(instance->GetGuidData(DATA_DRAGON_SOUL_EVENT)))
                                 Deathwing->AI()->DoAction(ACTION_DEATHWING_INTRO);
                             break;
                         case EVENT_DRAGONS_INTRO_1:
@@ -1625,17 +1625,17 @@ class npc_dragon_soul_thrall : public CreatureScript
                             break;
                         case EVENT_SPAWN_SHIP:
                             instance->DoRemoveAurasDueToSpellOnPlayers(106368); // Twilight Shift
-                            if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_HORDE_SHIP)))
+                            if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_HORDE_SHIP)))
                             {
                                 pShip->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
                                 pShip->UpdateObjectVisibility();
                             }
-                            if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_ALLIANCE_SHIP_FIRST)))
+                            if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_ALLIANCE_SHIP_FIRST)))
                             {
                                 pShip->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
                                 pShip->UpdateObjectVisibility();
                             }
-                            if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_ALLIANCE_SHIP)))
+                            if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_ALLIANCE_SHIP)))
                             {
                                 pShip->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
                                 pShip->UpdateObjectVisibility();
@@ -1644,9 +1644,9 @@ class npc_dragon_soul_thrall : public CreatureScript
                             break;
                         case EVENT_SPAWN_NPC:
                             instance->DoRemoveAurasDueToSpellOnPlayers(106368); // Twilight Shift
-                            me->SummonCreature(NPC_SKY_CAPTAIN_SWAYZE, customPos[1], TEMPSUMMON_MANUAL_DESPAWN, 0);
-                            me->SummonCreature(NPC_KAANU_REEVS, customPos[2], TEMPSUMMON_MANUAL_DESPAWN, 0);
-                            if (Creature* pSwayze = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SWAYZE)))
+                            me->SummonCreature(NPC_SKY_CAPTAIN_SWAYZE, customPos[1], TEMPSUMMON_MANUAL_DESPAWN, 0ms);
+                            me->SummonCreature(NPC_KAANU_REEVS, customPos[2], TEMPSUMMON_MANUAL_DESPAWN, 0ms);
+                            if (Creature* pSwayze = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SWAYZE)))
                                 pSwayze->AI()->Talk(9);
                             events.ScheduleEvent(EVENT_TALK_ULTRAXION_WIN_1, 10000);
                             break;
@@ -1891,18 +1891,18 @@ class npc_dragon_soul_twilight_assaulter : public CreatureScript
                 me->CastSpell(me, SPELL_TEMPERAMENT);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (me->GetReactState() == REACT_PASSIVE)
                 {
                     me->CombatStop(true);
-                    me->getHostileRefManager().deleteReferences();
+                    me->GetThreatManager().RemoveMeFromThreatLists();
                     if (wasChanneling)
                         DoCastAOE(SPELL_TWLIGHT_FLAMES_CHANNEL);
                     return;
                 }
 
-                ScriptedAI::EnterCombat(who);
+                ScriptedAI::JustEngagedWith(who);
                 me->InterruptNonMeleeSpells(true);
 
                 if (wasChanneling)
@@ -1954,27 +1954,24 @@ class npc_dragon_soul_twilight_assaulter : public CreatureScript
                 {
                     events.CancelEvent(EVENT_ASSAULTER_VISUAL);
 
-                    const Position* posPtr;
+                    std::optional<Position> assaultPos;
                     float angle = customPos[5].GetAngle(me);
                     if (angle <= M_PI/4 || angle > M_PI*2 - M_PI/4)
-                        posPtr = accessor->GetRandomTwilightAssaulterAssaultPosition(horizontal = false, false, lane, stalkerGUID); // North
+                        assaultPos = accessor->GetRandomTwilightAssaulterAssaultPosition(horizontal = false, false, lane, stalkerGUID); // North
                     else if (angle <= M_PI/2 + M_PI/4)
-                        posPtr = accessor->GetRandomTwilightAssaulterAssaultPosition(horizontal = true, false, lane, stalkerGUID); // West
+                        assaultPos = accessor->GetRandomTwilightAssaulterAssaultPosition(horizontal = true, false, lane, stalkerGUID); // West
                     else if (angle <= M_PI + M_PI/4)
-                        posPtr = accessor->GetRandomTwilightAssaulterAssaultPosition(horizontal = false, true, lane, stalkerGUID); // South
+                        assaultPos = accessor->GetRandomTwilightAssaulterAssaultPosition(horizontal = false, true, lane, stalkerGUID); // South
                     else
-                        posPtr = accessor->GetRandomTwilightAssaulterAssaultPosition(horizontal = true, true, lane, stalkerGUID); // East
+                        assaultPos = accessor->GetRandomTwilightAssaulterAssaultPosition(horizontal = true, true, lane, stalkerGUID); // East
 
-                    if (!posPtr)
+                    if (assaultPos == std::nullopt)
                         return;
-
-                    assaultPos = Position(*posPtr);
-                    delete posPtr;
 
                     wasActivated = true;
                     wasAssaulting = true;
                     me->GetMotionMaster()->MoveIdle();
-                    me->GetMotionMaster()->MovePoint(POINT_ASSAULTER, assaultPos);
+                    me->GetMotionMaster()->MovePoint(POINT_ASSAULTER, assaultPos.value());
                 }
                 else if (action == ACTION_STOP_ASSAULT)
                 {
@@ -1993,13 +1990,13 @@ class npc_dragon_soul_twilight_assaulter : public CreatureScript
                     if (me->IsInCombat())
                     {
                         me->CombatStop(true);
-                        me->getHostileRefManager().deleteReferences();
+                        me->GetThreatManager().RemoveMeFromThreatLists();
                         EnterEvadeMode();
                     }
                 }
             }
 
-            uint64 GetGUID(int32 /*type*/) const override
+            ObjectGuid GetGUID(int32 /*type*/) const override
             {
                 return stalkerGUID;
             }
@@ -2043,7 +2040,7 @@ class npc_dragon_soul_twilight_assaulter : public CreatureScript
             bool horizontal;
             uint8 lane;
             Position assaultPos;
-            uint64 stalkerGUID;
+            ObjectGuid stalkerGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -2306,7 +2303,7 @@ class spell_dragon_soul_cobalt_globule_mana_void : public SpellScriptLoader
                             return true;
                         if (unit->ToPlayer()->GetPowerType() == POWER_MANA)
                             return false;
-                        return GetPowerIndexByClass(POWER_MANA, unit->ToPlayer()->GetClass()) == MAX_POWERS;
+                        return sDBCManager.GetPowerIndexByClass(POWER_MANA, unit->ToPlayer()->GetClass()) == MAX_POWERS;
                     }
             };
         };

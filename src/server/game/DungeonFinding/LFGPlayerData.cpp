@@ -30,7 +30,7 @@ void LfgPlayerData::SetTeam(uint8 team)
     m_team = team;
 }
 
-void LfgPlayerData::SetGroup(uint32 queueId, uint64 group)
+void LfgPlayerData::SetGroup(uint32 queueId, ObjectGuid group)
 {
     auto& queueData = GetQueueData(queueId);
     queueData.LfgGroup = group;
@@ -61,7 +61,7 @@ uint8 LfgPlayerData::GetTeam() const
     return m_team;
 }
 
-uint64 LfgPlayerData::GetGroup(uint32 queueId) const
+ObjectGuid LfgPlayerData::GetGroup(uint32 queueId) const
 {
     return GetQueueData(queueId).LfgGroup;
 }
@@ -151,13 +151,13 @@ void LfgPlayerData::MarkLastBootTime()
     m_lastBootAttemptTime = getMSTime();
 }
 
-void LfgPlayerData::AddQueue(uint32 queueId, uint64 originalGroup)
+void LfgPlayerData::AddQueue(uint32 queueId, ObjectGuid originalGroup)
 {
     auto itr = m_queues.find(queueId);
     ASSERT(itr == m_queues.end());
     auto& queueData = m_queues[queueId];
     queueData.ClientQueueId = queueId;
-    queueData.OriginalGroup = originalGroup;
+    queueData.OriginalGroup = std::move(originalGroup);
 }
 
 void LfgPlayerData::ReformQueue(uint32 oldQueueId, uint32 newQueueId)

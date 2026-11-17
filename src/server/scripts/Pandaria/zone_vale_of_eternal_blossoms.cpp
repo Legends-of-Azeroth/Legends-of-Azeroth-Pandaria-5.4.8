@@ -140,7 +140,7 @@ struct npc_alani : public ScriptedAI
         me->SetCombatDistance(225.0f);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->SetHomePosition(*me);
         events.ScheduleEvent(EVENT_THUNDER_BREATH, urand(9.5 * IN_MILLISECONDS, 12.5 * IN_MILLISECONDS));
@@ -192,7 +192,7 @@ struct npc_shao_tien_dominator : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_OVERPOWER_STRENGTH, urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_DOMINATING_STRIKE, urand(4.5 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
@@ -233,16 +233,16 @@ struct npc_gochao_the_iron_fist : public ScriptedAI
 
     EventMap events;
     uint32 delay;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
 
     void Reset() override
     {
         events.Reset();
         delay      = 0;
-        targetGUID = 0;
+        targetGUID = ObjectGuid::Empty;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_IRONFIST, urand(5 * IN_MILLISECONDS, 8 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_WARCRY, 10 * IN_MILLISECONDS);
@@ -309,7 +309,7 @@ struct npc_bloodtip : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         DoCast(me, SPELL_CALL_SWARMERS);
         events.ScheduleEvent(EVENT_VENOM_SPIT, urand(3.5 * IN_MILLISECONDS, 9 * IN_MILLISECONDS));
@@ -352,17 +352,17 @@ struct npc_mogu_jade_guardian : public ScriptedAI
     EventMap events;
     uint32 prevSpellId;
     uint32 delay;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
 
     void Reset() override
     {
         events.Reset();
         prevSpellId = 0;
         delay       = 0;
-        targetGUID  = 0;
+        targetGUID = ObjectGuid::Empty;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_CRUSHING_BLOW, 6 * IN_MILLISECONDS);
     }
@@ -435,7 +435,7 @@ struct npc_wulon : public ScriptedAI
         me->SetStandState(UNIT_STAND_STATE_SIT);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_SWITCH_GRANIT, 1 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_IMPACT, urand(4.5 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
@@ -524,7 +524,7 @@ struct npc_milau : public ScriptedAI
         pctHealth = 66;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->OverrideInhabitType(INHABIT_GROUND);
         me->UpdateMovementFlags();
@@ -542,7 +542,7 @@ struct npc_milau : public ScriptedAI
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         me->CombatStop();
         me->GetMotionMaster()->MoveTargetedHome();
@@ -593,7 +593,7 @@ struct npc_ancient_mogu_spirit : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_IMPALE, urand(3 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_ELECTROCUTE, 6 * IN_MILLISECONDS);
@@ -660,7 +660,7 @@ struct npc_aetha_tornado : public ScriptedAI
         init.Launch();
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 };
 
 // Thundermaw 58456
@@ -675,7 +675,7 @@ struct npc_thundermaw : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_THUNDER, urand(4 * IN_MILLISECONDS, 18 * IN_MILLISECONDS));
     }
@@ -719,7 +719,7 @@ struct npc_shao_tien_fist : public ScriptedAI
         prevSpellId = 0;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_ELEMENTAL_CALL, urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_DEVASTATING_LEAP, 8 * IN_MILLISECONDS);
@@ -802,7 +802,7 @@ struct npc_shao_tien_antiquator : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_ANCIENT_MAGIC, 1 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_ICY_DESTRUCTION, 8 * IN_MILLISECONDS);
@@ -848,7 +848,7 @@ struct npc_kang_the_soul_thief : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(4.5 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_VOID_CLOUD, 8.5 * IN_MILLISECONDS);
@@ -899,7 +899,7 @@ struct npc_shao_tien_soul_caller : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_SHADOW_STRIKES, urand(3 * IN_MILLISECONDS, 5 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_REND_SOUL, urand(5.5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
@@ -946,7 +946,7 @@ struct npc_dagou : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         DoCast(me, SPELL_SUMMON_KAMU);
 
@@ -959,7 +959,7 @@ struct npc_dagou : public customCreatureAI
         summons.Summon(summon);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         summons.DespawnAll();
     }
@@ -996,7 +996,7 @@ struct npc_mercurial_guardian : public customCreatureAI
     npc_mercurial_guardian(Creature* creature) : customCreatureAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
     bool hasTriggered;
     uint8 counter;
 
@@ -1005,7 +1005,7 @@ struct npc_mercurial_guardian : public customCreatureAI
         events.Reset();
         me->SetFaction(35);
         me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-        targetGUID = 0;
+        targetGUID = ObjectGuid::Empty;
         hasTriggered = false;
         counter = 0;
     }
@@ -1043,12 +1043,12 @@ struct npc_mercurial_guardian : public customCreatureAI
         }
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_CLAW_SWIPE, 3.5 * IN_MILLISECONDS);
     }
 
-    void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/)
+    void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) override
     {
         if (++counter >= 6)
             me->RemoveAurasDueToSpell(SPELL_HARDEN_SKIN);
@@ -1123,7 +1123,7 @@ struct npc_aetha : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_TORNADO, 10 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_WINDSONG, 3 * IN_MILLISECONDS);
@@ -1187,7 +1187,7 @@ struct npc_quid : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_HYDRO_LANCE,   15 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_WATER_BLOSSOM, 60 * IN_MILLISECONDS);
@@ -1400,7 +1400,7 @@ struct npc_yorik_sharpeye : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*victim*/) override
+    void JustEngagedWith(Unit* /*victim*/) override
     {
         Talk(SAY_YORIK_AGGRO);
 
@@ -1447,14 +1447,14 @@ struct npc_general_temuja : public ScriptedAI
     npc_general_temuja(Creature* creature) : ScriptedAI(creature) { }
 
     EventMap events;
-    std::vector<uint64> minions;
+    std::vector<ObjectGuid> minions;
 
     void Reset() override
     {
         events.Reset();
 
         for (auto&& guid : minions)
-            if (Creature* minion = sObjectAccessor->GetCreature(*me, guid))
+            if (Creature* minion = ObjectAccessor::GetCreature(*me, guid))
                 minion->DespawnOrUnsummon();
         minions.clear();
 
@@ -1470,10 +1470,10 @@ struct npc_general_temuja : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         for (auto&& guid : minions)
-            if (Creature* minion = sObjectAccessor->GetCreature(*me, guid))
+            if (Creature* minion = ObjectAccessor::GetCreature(*me, guid))
                 minion->AI()->AttackStart(who);
     }
 
@@ -1482,7 +1482,7 @@ struct npc_general_temuja : public ScriptedAI
         DoCast(126262);
 
         for (auto&& guid : minions)
-            if (Creature* minion = sObjectAccessor->GetCreature(*me, guid))
+            if (Creature* minion = ObjectAccessor::GetCreature(*me, guid))
                 minion->DespawnOrUnsummon();
         minions.clear();
     }

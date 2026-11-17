@@ -17,6 +17,7 @@
 
 #include "ScriptPCH.h"
 #include "ahnkahet.h"
+#include "Random.h"
 
 enum Spells
 {
@@ -194,7 +195,7 @@ class boss_volazj : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 DoCastAOE(SPELL_CLEAR_ALL_INSANITY, true);
                 me->RemoveAllAuras();
@@ -204,7 +205,7 @@ class boss_volazj : public CreatureScript
                 Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_AGGRO);
                 DoCastAOE(SPELL_VOLAZJ_WHISPER_AGGRO, true);
@@ -395,7 +396,7 @@ class npc_twisted_visage : public CreatureScript
             void IsSummonedBy(Unit* summoner) override
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
-                    if (Creature* volazj = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HERALD_VOLAZJ)))
+                    if (Creature* volazj = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_HERALD_VOLAZJ)))
                         volazj->AI()->JustSummoned(me);
 
                 DoCast(summoner, SPELL_SUMMON_TWISTED_VISAGE_SPAWN, true);
@@ -415,7 +416,7 @@ class npc_twisted_visage : public CreatureScript
             void Unsummoned() override
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
-                    if (Creature* volazj = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HERALD_VOLAZJ)))
+                    if (Creature* volazj = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_HERALD_VOLAZJ)))
                         volazj->AI()->SummonedCreatureDespawn(me);
             }
 
@@ -424,7 +425,7 @@ class npc_twisted_visage : public CreatureScript
                 spellTimer = urand(2000, 7000);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->DespawnOrUnsummon();
             }
@@ -435,7 +436,7 @@ class npc_twisted_visage : public CreatureScript
                 me->DespawnOrUnsummon(1000);
             }
 
-            void EnterCombat(Unit* who) override { }
+            void JustEngagedWith(Unit* who) override { }
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {

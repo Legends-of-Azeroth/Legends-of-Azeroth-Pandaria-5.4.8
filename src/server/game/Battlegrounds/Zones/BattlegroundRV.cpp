@@ -107,7 +107,7 @@ void BattlegroundRV::OnInvite(Player* player, GroupQueueInfo const* ginfo)
     PlayerScores[player->GetGUID()] = sc;
 }
 
-void BattlegroundRV::RemovePlayer(Player* player, uint64 guid, uint32 team)
+void BattlegroundRV::RemovePlayer(Player* player, ObjectGuid guid, uint32 team)
 {
     Battleground::RemovePlayer(player, guid, team);
     if (GetStatus() == STATUS_WAIT_LEAVE)
@@ -138,7 +138,7 @@ void BattlegroundRV::HandleKillPlayer(Player* player, Player* killer)
     CheckArenaWinConditions();
 }
 
-void BattlegroundRV::HandleAreaTrigger(Player* player, uint32 trigger)
+void BattlegroundRV::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -152,7 +152,7 @@ void BattlegroundRV::HandleAreaTrigger(Player* player, uint32 trigger)
         case 5474:
             break;
         default:
-            Battleground::HandleAreaTrigger(player, trigger);
+            Battleground::HandleAreaTrigger(player, trigger, entered);
             break;
     }
 }

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -125,7 +125,7 @@ class boss_wase_mari : public CreatureScript
             bool fightWon, canDead;
             uint8 phase, foutainCount;
             uint32 hydrolancePhase;
-            uint64 foutainTrigger[4];
+            ObjectGuid foutainTrigger[4];
 
             EventMap cosmeticEvents;
 
@@ -155,13 +155,13 @@ class boss_wase_mari : public CreatureScript
                     instance->SetData(DATA_WISE_MARI, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_DRY);
                 me->PrepareChanneledCast(me->GetOrientation());
                 phase = 1;
                 hydrolancePhase = HYDROLANCE_BOTTOM;
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(TALK_AGGRO);
                 Talk(TALK_BOSS_EMOTE_AGGRO);
                 me->SetInCombatWithZone();
@@ -227,7 +227,7 @@ class boss_wase_mari : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)
@@ -458,7 +458,7 @@ class npc_corrupt_living_water : public CreatureScript
 
             InstanceScript* instance;
             bool canDead;
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             float x, y;
 
             void InitializeAI() override
@@ -475,7 +475,7 @@ class npc_corrupt_living_water : public CreatureScript
             {
                 if (me->GetEntry() == NPC_CORRUPT_WATER_WISE)
                 {
-                    if (Creature* wise = Unit::GetCreature(*me, instance->GetData64(DATA_WISE_MARI)))
+                    if (Creature* wise = Unit::GetCreature(*me, instance->GetGuidData(DATA_WISE_MARI)))
                        if (wise->IsAIEnabled)
                            wise->AI()->DoAction(ACTION_LIVING_WATER_DEAD);
                 }
@@ -593,11 +593,11 @@ class spell_wise_hydrolance_pulse : public SpellScriptLoader
                 switch (tickCnt)
                 {
                     case 0:
-                        owner->GetNearPoint2D(x, y, 0.0f, owner->GetOrientation());
+                        owner->GetNearPoint2D(nullptr, x, y, 0.0f, owner->GetOrientation());
                         owner->CastSpell(x, y, z, SPELL_HYDROLANCE_PULSE, false);
                         break;
                     default:
-                        owner->GetNearPoint2D(x, y, tickCnt * 2, owner->GetOrientation());
+                        owner->GetNearPoint2D(nullptr, x, y, tickCnt * 2, owner->GetOrientation());
                         owner->CastSpell(x, y, z, SPELL_HYDROLANCE_PULSE, false);
                         break;
                 }
@@ -703,8 +703,7 @@ class CorruptedWatersTargetSelector
             {
                 if (Player* plr = object->ToPlayer())
                 {
-                    Position pos;
-                    plr->GetPosition(&pos);
+                    Position pos = plr->GetPosition();
 
                     if ((plr->GetDistance(roomCenter) < 20.00f && roomCenter.HasInArc(M_PI, &pos)) || (!roomCenter.HasInArc(M_PI, &pos) && plr->GetDistance(roomCenter) < 14.00f))
                     {

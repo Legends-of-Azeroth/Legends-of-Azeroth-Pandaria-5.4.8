@@ -116,7 +116,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who)
+        void JustEngagedWith(Unit* who) override
         {
             Talk(AGGRO_YELL_AQUE, who);
         }
@@ -185,114 +185,102 @@ enum CustodianOfTime
     WHISPER_CUSTODIAN_14    = 13
 };
 
-class npc_custodian_of_time : public CreatureScript
+struct npc_custodian_of_time : public EscortAI
 {
-public:
-    npc_custodian_of_time() : CreatureScript("npc_custodian_of_time") { }
+    npc_custodian_of_time(Creature* creature) : EscortAI(creature) { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
     {
-        return new npc_custodian_of_timeAI(creature);
+        if (Player* player = GetPlayerForEscort())
+        {
+            switch (waypointId)
+            {
+                case 0:
+                    Talk(WHISPER_CUSTODIAN_1, player);
+                    break;
+                case 1:
+                    Talk(WHISPER_CUSTODIAN_2, player);
+                    break;
+                case 2:
+                    Talk(WHISPER_CUSTODIAN_3, player);
+                    break;
+                case 3:
+                    Talk(WHISPER_CUSTODIAN_4, player);
+                    break;
+                case 5:
+                    Talk(WHISPER_CUSTODIAN_5, player);
+                    break;
+                case 6:
+                    Talk(WHISPER_CUSTODIAN_6, player);
+                    break;
+                case 7:
+                    Talk(WHISPER_CUSTODIAN_7, player);
+                    break;
+                case 8:
+                    Talk(WHISPER_CUSTODIAN_8, player);
+                    break;
+                case 9:
+                    Talk(WHISPER_CUSTODIAN_9, player);
+                    break;
+                case 10:
+                    Talk(WHISPER_CUSTODIAN_4, player);
+                    break;
+                case 13:
+                    Talk(WHISPER_CUSTODIAN_10, player);
+                    break;
+                case 14:
+                    Talk(WHISPER_CUSTODIAN_4, player);
+                    break;
+                case 16:
+                    Talk(WHISPER_CUSTODIAN_11, player);
+                    break;
+                case 17:
+                    Talk(WHISPER_CUSTODIAN_12, player);
+                    break;
+                case 18:
+                    Talk(WHISPER_CUSTODIAN_4, player);
+                    break;
+                case 22:
+                    Talk(WHISPER_CUSTODIAN_13, player);
+                    break;
+                case 23:
+                    Talk(WHISPER_CUSTODIAN_4, player);
+                    break;
+                case 24:
+                    Talk(WHISPER_CUSTODIAN_14, player);
+                    DoCast(player, 34883);
+                    // below here is temporary workaround, to be removed when spell works properly
+                    player->AreaExploredOrEventHappens(10277);
+                    break;
+            }
+        }
     }
 
-    struct npc_custodian_of_timeAI : public npc_escortAI
+    void MoveInLineOfSight(Unit* who) override
     {
-        npc_custodian_of_timeAI(Creature* creature) : npc_escortAI(creature) { }
+        if (HasEscortState(STATE_ESCORT_ESCORTING))
+            return;
 
-        void WaypointReached(uint32 waypointId)
+        if (Player* player = who->ToPlayer())
         {
-            if (Player* player = GetPlayerForEscort())
+            if (who->HasAura(34877) && player->GetQuestStatus(10277) == QUEST_STATUS_INCOMPLETE)
             {
-                switch (waypointId)
+                float Radius = 10.0f;
+                if (me->IsWithinDistInMap(who, Radius))
                 {
-                    case 0:
-                        Talk(WHISPER_CUSTODIAN_1, player);
-                        break;
-                    case 1:
-                        Talk(WHISPER_CUSTODIAN_2, player);
-                        break;
-                    case 2:
-                        Talk(WHISPER_CUSTODIAN_3, player);
-                        break;
-                    case 3:
-                        Talk(WHISPER_CUSTODIAN_4, player);
-                        break;
-                    case 5:
-                        Talk(WHISPER_CUSTODIAN_5, player);
-                        break;
-                    case 6:
-                        Talk(WHISPER_CUSTODIAN_6, player);
-                        break;
-                    case 7:
-                        Talk(WHISPER_CUSTODIAN_7, player);
-                        break;
-                    case 8:
-                        Talk(WHISPER_CUSTODIAN_8, player);
-                        break;
-                    case 9:
-                        Talk(WHISPER_CUSTODIAN_9, player);
-                        break;
-                    case 10:
-                        Talk(WHISPER_CUSTODIAN_4, player);
-                        break;
-                    case 13:
-                        Talk(WHISPER_CUSTODIAN_10, player);
-                        break;
-                    case 14:
-                        Talk(WHISPER_CUSTODIAN_4, player);
-                        break;
-                    case 16:
-                        Talk(WHISPER_CUSTODIAN_11, player);
-                        break;
-                    case 17:
-                        Talk(WHISPER_CUSTODIAN_12, player);
-                        break;
-                    case 18:
-                        Talk(WHISPER_CUSTODIAN_4, player);
-                        break;
-                    case 22:
-                        Talk(WHISPER_CUSTODIAN_13, player);
-                        break;
-                    case 23:
-                        Talk(WHISPER_CUSTODIAN_4, player);
-                        break;
-                    case 24:
-                        Talk(WHISPER_CUSTODIAN_14, player);
-                        DoCast(player, 34883);
-                        // below here is temporary workaround, to be removed when spell works properly
-                        player->AreaExploredOrEventHappens(10277);
-                        break;
+                    Start(false, who->GetGUID());
                 }
             }
         }
+    }
 
-        void MoveInLineOfSight(Unit* who)
-        {
-            if (HasEscortState(STATE_ESCORT_ESCORTING))
-                return;
+    void JustEngagedWith(Unit* /*who*/) override { }
+    void Reset() override { }
 
-            if (Player* player = who->ToPlayer())
-            {
-                if (who->HasAura(34877) && player->GetQuestStatus(10277) == QUEST_STATUS_INCOMPLETE)
-                {
-                    float Radius = 10.0f;
-                    if (me->IsWithinDistInMap(who, Radius))
-                    {
-                        Start(false, false, who->GetGUID());
-                    }
-                }
-            }
-        }
-
-        void EnterCombat(Unit* /*who*/) override { }
-        void Reset() override { }
-
-        void UpdateAI(uint32 diff) override
-        {
-            npc_escortAI::UpdateAI(diff);
-        }
-    };
-
+    void UpdateAI(uint32 diff) override
+    {
+        EscortAI::UpdateAI(diff);
+    }
 };
 
 /*######
@@ -304,7 +292,7 @@ class npc_steward_of_time : public CreatureScript
 public:
     npc_steward_of_time() : CreatureScript("npc_steward_of_time") { }
 
-    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) OVERRIDE
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
     {
         if (quest->GetQuestId() == 10279)                      //Quest: To The Master's Lair
             player->CastSpell(player, 34891, true);               //(Flight through Caverns)
@@ -312,7 +300,7 @@ public:
         return false;
     }
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
@@ -321,7 +309,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -362,18 +350,18 @@ class npc_OOX17 : public CreatureScript
 public:
     npc_OOX17() : CreatureScript("npc_OOX17") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
         if (quest->GetQuestId() == Q_OOX17)
         {
             creature->SetFaction(113);
             creature->SetFullHealth();
-            creature->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
+            creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             creature->AI()->Talk(SAY_OOX_START);
 
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_OOX17::npc_OOX17AI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
+            if (EscortAI* pEscortAI = CAST_AI(npc_OOX17::npc_OOX17AI, creature->AI()))
+                pEscortAI->Start(true, player->GetGUID());
         }
         return true;
     }
@@ -383,26 +371,26 @@ public:
         return new npc_OOX17AI(creature);
     }
 
-    struct npc_OOX17AI : public npc_escortAI
+    struct npc_OOX17AI : public EscortAI
     {
-        npc_OOX17AI(Creature* creature) : npc_escortAI(creature) { }
+        npc_OOX17AI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             if (Player* player = GetPlayerForEscort())
             {
                 switch (waypointId)
                 {
                     case 23:
-                        me->SummonCreature(SPAWN_FIRST, -8350.96f, -4445.79f, 10.10f, 6.20f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                        me->SummonCreature(SPAWN_FIRST, -8355.96f, -4447.79f, 10.10f, 6.27f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                        me->SummonCreature(SPAWN_FIRST, -8353.96f, -4442.79f, 10.10f, 6.08f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                        me->SummonCreature(SPAWN_FIRST, -8350.96f, -4445.79f, 10.10f, 6.20f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
+                        me->SummonCreature(SPAWN_FIRST, -8355.96f, -4447.79f, 10.10f, 6.27f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
+                        me->SummonCreature(SPAWN_FIRST, -8353.96f, -4442.79f, 10.10f, 6.08f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
                         Talk(SAY_OOX_AMBUSH);
                         break;
                     case 56:
-                        me->SummonCreature(SPAWN_SECOND_1, -7510.07f, -4795.50f, 9.35f, 6.06f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                        me->SummonCreature(SPAWN_SECOND_2, -7515.07f, -4797.50f, 9.35f, 6.22f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                        me->SummonCreature(SPAWN_SECOND_2, -7518.07f, -4792.50f, 9.35f, 6.22f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                        me->SummonCreature(SPAWN_SECOND_1, -7510.07f, -4795.50f, 9.35f, 6.06f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
+                        me->SummonCreature(SPAWN_SECOND_2, -7515.07f, -4797.50f, 9.35f, 6.22f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
+                        me->SummonCreature(SPAWN_SECOND_2, -7518.07f, -4792.50f, 9.35f, 6.22f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
                         Talk(SAY_OOX_AMBUSH);
                         if (Creature* scoff = me->FindNearestCreature(SPAWN_SECOND_2, 30))
                             scoff->AI()->Talk(SAY_OOX17_AMBUSH_REPLY);
@@ -417,7 +405,7 @@ public:
 
         void Reset()override { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_OOX_AGGRO);
         }
@@ -457,7 +445,7 @@ class npc_tooga : public CreatureScript
 public:
     npc_tooga() : CreatureScript("npc_tooga") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
     {
         if (quest->GetQuestId() == QUEST_TOOGA)
         {
@@ -481,7 +469,7 @@ public:
         uint32 PostEventTimer;
         uint32 PhasePostEvent;
 
-        uint64 TortaGUID;
+        ObjectGuid TortaGUID;
 
         void Reset() override
         {
@@ -489,10 +477,10 @@ public:
             PostEventTimer = 1000;
             PhasePostEvent = 0;
 
-            TortaGUID = 0;
+            TortaGUID = ObjectGuid::Empty;
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             FollowerAI::MoveInLineOfSight(who);
 
@@ -510,7 +498,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 MotionType, uint32 PointId)
+        void MovementInform(uint32 MotionType, uint32 PointId) override
         {
             FollowerAI::MovementInform(MotionType, PointId);
 
@@ -521,7 +509,7 @@ public:
                 SetFollowComplete();
         }
 
-        void UpdateFollowerAI(uint32 Diff)
+        void UpdateFollowerAI(uint32 Diff) override
         {
             if (!UpdateVictim())
             {
@@ -596,13 +584,13 @@ class npc_steamwheedle_balloon : public CreatureScript
 public:
    npc_steamwheedle_balloon() : CreatureScript("npc_steamwheedle_balloon") { }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (player->GetQuestStatus(QUEST_ENTRY_ROCKET_RESCUE_H) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_ENTRY_ROCKET_RESCUE_A))
         {
             if (!player->GetVehicleBase() && !creature->HasAura(SPELL_TEMP_INVISIBILITY))
             {
-                player->SummonCreature(NPC_STEAMWHEEDLE_BALLOON, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 600000, const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(67)));
+                player->SummonCreature(NPC_STEAMWHEEDLE_BALLOON, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 600000ms);
                 creature->AddAura(SPELL_TEMP_INVISIBILITY, creature);
                 return true;
             }
@@ -616,20 +604,20 @@ class npc_steamwheedle_balloon_escort : public CreatureScript
 public:
     npc_steamwheedle_balloon_escort() : CreatureScript("npc_steamwheedle_balloon_escort") { }
 
-    struct npc_steamwheedle_balloon_escortAI : public npc_escortAI
+    struct npc_steamwheedle_balloon_escortAI : public EscortAI
     {
-        npc_steamwheedle_balloon_escortAI(Creature* creature) : npc_escortAI(creature)
+        npc_steamwheedle_balloon_escortAI(Creature* creature) : EscortAI(creature)
         {
-            playerQuester = NULL;
+            playerQuester = nullptr;
         }
 
         EventMap events;
 
-        void OnCharmed(bool apply) { }
+        void OnCharmed(bool apply) override { }
 
-        void WaypointReached(uint32 point) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            switch (point)
+            switch (waypointId)
             {
                 case 3:
                 {
@@ -650,7 +638,7 @@ public:
             }
         }
 
-        void IsSummonedBy(Unit* owner)
+        void IsSummonedBy(Unit* owner) override
         {
             playerQuester = owner;
             me->SetReactState(REACT_PASSIVE);
@@ -663,7 +651,7 @@ public:
             {
                 case ACTION_START_WP:
                 {
-                    Start(false, true, 0, NULL, false, true, true);
+                    SetRun(true); Start(false, ObjectGuid::Empty, NULL, false, true);
                     SetDespawnAtEnd(false);
                     break;
                 }
@@ -675,7 +663,7 @@ public:
         void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             while (uint32 eventId = events.ExecuteEvent())
             {
@@ -709,9 +697,9 @@ struct npc_balloon_throwing_station : public ScriptedAI
 
     EventMap events;
 
-    void OnCharmed(bool apply) { }
+    void OnCharmed(bool apply) override { }
 
-    void IsSummonedBy(Unit* owner)
+    void IsSummonedBy(Unit* owner) override
     {
         events.ScheduleEvent(EVENT_RIDE_INVOKER, 1s + 500ms);
         me->SetReactState(REACT_PASSIVE);
@@ -781,7 +769,7 @@ class spell_emergency_rocket_pack : public SpellScript
         }
     }
 
-    void Register()
+    void Register() override
     {
         AfterCast += SpellCastFn(spell_emergency_rocket_pack::HandleReturnToGadgetzan);
     }
@@ -789,7 +777,7 @@ class spell_emergency_rocket_pack : public SpellScript
 
 void AddSC_tanaris()
 {
-    new npc_custodian_of_time();
+    RegisterCreatureAI(npc_custodian_of_time);
     new npc_steward_of_time();
     new npc_OOX17();
     new npc_steamwheedle_balloon();

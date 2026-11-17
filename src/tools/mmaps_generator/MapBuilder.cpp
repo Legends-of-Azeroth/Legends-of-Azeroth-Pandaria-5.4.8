@@ -1,35 +1,29 @@
 /*
- * Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2016 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 3 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "PathCommon.h"
 #include "MapBuilder.h"
-
+#include "MapDefines.h"
 #include "MapTree.h"
 #include "ModelInstance.h"
-
 #include "DetourNavMeshBuilder.h"
 #include "DetourNavMesh.h"
 #include "DetourCommon.h"
-
 #include "DisableMgr.h"
-#include <ace/OS_NS_unistd.h>
-
 #include "SharedDefines.h"
 
 bool DisableMgr::IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags) { return false; }
@@ -39,25 +33,61 @@ bool DisableMgr::IsDisabledFor(DisableType type, uint32 entry, Unit const* unit,
 
 namespace MMAP
 {
-    MapBuilder::MapBuilder(float maxWalkableAngle, bool skipLiquid,
+    TileBuilder::TileBuilder(MapBuilder* mapBuilder, bool skipLiquid, bool bigBaseUnit, bool debugOutput) :
+        m_bigBaseUnit(bigBaseUnit),
+        m_debugOutput(debugOutput),
+        m_mapBuilder(mapBuilder),
+        m_terrainBuilder(nullptr),
+        m_workerThread(&TileBuilder::WorkerThread, this),
+        m_rcContext(nullptr)
+    {
+        m_terrainBuilder = new TerrainBuilder(skipLiquid);
+        m_rcContext = new rcContext(false);
+    }
+
+    TileBuilder::~TileBuilder()
+    {
+        WaitCompletion();
+
+        delete m_terrainBuilder;
+        delete m_rcContext;
+    }
+
+    void TileBuilder::WaitCompletion()
+    {
+        if (m_workerThread.joinable())
+            m_workerThread.join();
+    }
+
+    MapBuilder::MapBuilder(Optional<float> maxWalkableAngle, Optional<float> maxWalkableAngleNotSteep, bool skipLiquid,
         bool skipContinents, bool skipJunkMaps, bool skipBattlegrounds, bool skipArenas, bool skipDungeons, bool skipTransports,
-        bool debugOutput, bool bigBaseUnit, const char* offMeshFilePath) :
-        m_terrainBuilder     (NULL),
+        bool debugOutput, bool bigBaseUnit, int mapid, const char* offMeshFilePath, unsigned int threads) :
+        m_terrainBuilder     (nullptr),
         m_debugOutput        (debugOutput),
         m_offMeshFilePath    (offMeshFilePath),
+        m_threads            (threads),
         m_skipContinents     (skipContinents),
         m_skipJunkMaps       (skipJunkMaps),
         m_skipBattlegrounds  (skipBattlegrounds),
         m_skipArenas         (skipArenas),
         m_skipDungeons       (skipDungeons),
         m_skipTransports     (skipTransports),
+        m_skipLiquid         (skipLiquid),
         m_maxWalkableAngle   (maxWalkableAngle),
+        m_maxWalkableAngleNotSteep (maxWalkableAngleNotSteep),
         m_bigBaseUnit        (bigBaseUnit),
-        m_rcContext          (NULL)
+        m_mapid              (mapid),
+        m_totalTiles         (0u),
+        m_totalTilesProcessed(0u),        
+        m_rcContext          (nullptr),
+        _cancelationToken    (false)
     {
         m_terrainBuilder = new TerrainBuilder(skipLiquid);
 
         m_rcContext = new rcContext(false);
+
+        // At least 1 thread is needed
+        m_threads = std::max(1u, m_threads);
 
         discoverTiles();
     }
@@ -65,6 +95,10 @@ namespace MMAP
     /**************************************************************************/
     MapBuilder::~MapBuilder()
     {
+        _cancelationToken = true;
+
+        _queue.Cancel();
+
         for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
         {
             (*it).m_tiles->clear();
@@ -105,15 +139,15 @@ namespace MMAP
                 count++;
             }
         }
-        for (auto&& map : transportMaps)
-        {
-            mapID = map.first;
-            if (std::find(m_tiles.begin(), m_tiles.end(), mapID) == m_tiles.end())
-            {
-                m_tiles.emplace_back(MapTiles(mapID, new std::set<uint32>));
-                count++;
-            }
-        }
+        // for (auto&& map : transportMaps)
+        // {
+        //     mapID = map.first;
+        //     if (std::find(m_tiles.begin(), m_tiles.end(), mapID) == m_tiles.end())
+        //     {
+        //         m_tiles.emplace_back(MapTiles(mapID, new std::set<uint32>));
+        //         count++;
+        //     }
+        // }
         printf("found %u.\n", count);
 
         count = 0;
@@ -149,14 +183,36 @@ namespace MMAP
                     count++;
             }
 
-            // For transport maps we're only interested in cells covering coordinates -1 to 1, which happen to be 31 and 32 when offset
-            if (isTransportMap(mapID))
-                for (uint32 x = 31; x <= 32; ++x)
-                    for (uint32 y = 31; y <= 32; ++y)
-                        if (tiles->insert(StaticMapTree::packTileID(x, y)).second)
-                            count++;
+            // make sure we process maps which don't have tiles
+            if (tiles->empty())
+            {
+                // convert coord bounds to grid bounds
+                uint32 minX, minY, maxX, maxY;
+                getGridBounds(mapID, minX, minY, maxX, maxY);
+
+                // add all tiles within bounds to tile list.
+                for (uint32 i = minX; i <= maxX; ++i)
+                    for (uint32 j = minY; j <= maxY; ++j)
+                        if (tiles->insert(StaticMapTree::packTileID(i, j)).second)
+                            count++;                
+            }
+
+            // // For transport maps we're only interested in cells covering coordinates -1 to 1, which happen to be 31 and 32 when offset
+            // if (isTransportMap(mapID))
+            //     for (uint32 x = 31; x <= 32; ++x)
+            //         for (uint32 y = 31; y <= 32; ++y)
+            //             if (tiles->insert(StaticMapTree::packTileID(x, y)).second)
+            //                 count++;
         }
         printf("found %u.\n\n", count);
+
+        // Calculate tiles to process in total
+        for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
+        {
+            if (!shouldSkipMap(it->m_mapId))
+                m_totalTiles += it->m_tiles->size();
+        }
+
     }
 
     /**************************************************************************/
@@ -172,49 +228,79 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void MapBuilder::buildAllMaps(int threads)
+
+    void TileBuilder::WorkerThread()
     {
-        std::vector<BuilderThread*> _threads;
-
-        BuilderThreadPool* pool = threads > 0 ? new BuilderThreadPool() : NULL;
-
-        m_tiles.sort([](MapTiles a, MapTiles b)
+        while (1)
         {
-            return a.m_tiles->size() > b.m_tiles->size();
-        });
+            TileInfo tileInfo;
 
-        for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
-        {
-            uint32 mapID = it->m_mapId;
-            if (!shouldSkipMap(mapID))
+            m_mapBuilder->_queue.WaitAndPop(tileInfo);
+
+            if (m_mapBuilder->_cancelationToken)
+                return;
+
+            dtNavMesh* navMesh = dtAllocNavMesh();
+            if (!navMesh->init(&tileInfo.m_navMeshParams))
             {
-                if (threads > 0)
-                    pool->Enqueue(new MapBuildRequest(mapID));
-                else
-                    buildMap(mapID);
+                printf("[Map %03i] Failed creating navmesh for tile %i,%i !\n", tileInfo.m_mapId, tileInfo.m_tileX, tileInfo.m_tileY);
+                dtFreeNavMesh(navMesh);
+                return;
+            }
+
+            buildTile(tileInfo.m_mapId, tileInfo.m_tileX, tileInfo.m_tileY, navMesh);
+
+            dtFreeNavMesh(navMesh);
+        }
+    }
+
+    void MapBuilder::buildMaps(Optional<uint32> mapID)
+    {
+        printf("Using %u threads to generate mmaps\n", m_threads);
+
+        for (unsigned int i = 0; i < m_threads; ++i)
+        {
+            m_tileBuilders.push_back(new TileBuilder(this, m_skipLiquid, m_bigBaseUnit, m_debugOutput));
+        }
+
+        if (mapID)
+        {
+            buildMap(*mapID);
+        }
+        else
+        {
+            // Build all maps if no map id has been specified
+            for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
+            {
+                if (!shouldSkipMap(it->m_mapId))
+                    buildMap(it->m_mapId);
             }
         }
 
-        for (int i = 0; i < threads; ++i)
-            _threads.push_back(new BuilderThread(this, pool->Queue()));
-
-        // Free memory
-        for (std::vector<BuilderThread*>::iterator _th = _threads.begin(); _th != _threads.end(); ++_th)
+        while (!_queue.Empty())
         {
-            (*_th)->wait();
-            delete *_th;
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
 
-        delete pool;
+        _cancelationToken = true;
+
+        _queue.Cancel();
+
+        for (auto& builder : m_tileBuilders)
+            delete builder;
+
+        m_tileBuilders.clear();
     }
 
     /**************************************************************************/
     void MapBuilder::getGridBounds(uint32 mapID, uint32 &minX, uint32 &minY, uint32 &maxX, uint32 &maxY)
     {
-        maxX = INT_MAX;
-        maxY = INT_MAX;
-        minX = INT_MIN;
-        minY = INT_MIN;
+        // min and max are initialized to invalid values so the caller iterating the [min, max] range
+        // will never enter the loop unless valid min/max values are found
+        maxX = 0;
+        maxY = 0;
+        minX = std::numeric_limits<uint32>::max();
+        minY = std::numeric_limits<uint32>::max();
 
         float bmin[3] = { 0, 0, 0 };
         float bmax[3] = { 0, 0, 0 };
@@ -275,7 +361,7 @@ namespace MMAP
             return;
         }
 
-        dtNavMesh* navMesh = NULL;
+        dtNavMesh* navMesh = nullptr;
         buildNavMesh(mapId, navMesh);
         if (!navMesh)
         {
@@ -332,14 +418,17 @@ namespace MMAP
         getTileBounds(tileX, tileY, data.solidVerts.getCArray(), data.solidVerts.size() / 3, bmin, bmax);
 
         // build navmesh tile
-        buildMoveMapTile(mapId, tileX, tileY, data, bmin, bmax, navMesh);
+        // build navmesh tile
+        TileBuilder tileBuilder = TileBuilder(this, m_skipLiquid, m_bigBaseUnit, m_debugOutput);
+        tileBuilder.buildMoveMapTile(mapId, tileX, tileY, data, bmin, bmax, navMesh);        
+        //buildMoveMapTile(mapId, tileX, tileY, data, bmin, bmax, navMesh);
         fclose(file);
     }
 
     /**************************************************************************/
     void MapBuilder::buildSingleTile(uint32 mapID, uint32 tileX, uint32 tileY)
     {
-        dtNavMesh* navMesh = NULL;
+        dtNavMesh* navMesh = nullptr;
         buildNavMesh(mapID, navMesh);
         if (!navMesh)
         {
@@ -347,36 +436,25 @@ namespace MMAP
             return;
         }
 
-        buildTile(mapID, tileX, tileY, navMesh);
+        TileBuilder tileBuilder = TileBuilder(this, m_skipLiquid, m_bigBaseUnit, m_debugOutput);
+        tileBuilder.buildTile(mapID, tileX, tileY, navMesh);
+        //buildTile(mapID, tileX, tileY, navMesh);
         dtFreeNavMesh(navMesh);
+
+        _cancelationToken = true;
+
+        _queue.Cancel();        
     }
 
     /**************************************************************************/
     void MapBuilder::buildMap(uint32 mapID)
     {
-#ifndef __APPLE__
-        printf("[Thread %u] Building map %04u:\n", uint32(ACE_Thread::self()), mapID);
-#endif
-
         std::set<uint32>* tiles = getTileList(mapID);
-
-        // make sure we process maps which don't have tiles
-        if (!tiles->size())
-        {
-            // convert coord bounds to grid bounds
-            uint32 minX, minY, maxX, maxY;
-            getGridBounds(mapID, minX, minY, maxX, maxY);
-
-            // add all tiles within bounds to tile list.
-            for (uint32 i = minX; i <= maxX; ++i)
-                for (uint32 j = minY; j <= maxY; ++j)
-                    tiles->insert(StaticMapTree::packTileID(i, j));
-        }
 
         if (!tiles->empty())
         {
             // build navMesh
-            dtNavMesh* navMesh = NULL;
+            dtNavMesh* navMesh = nullptr;
             buildNavMesh(mapID, navMesh);
             if (!navMesh)
             {
@@ -393,10 +471,12 @@ namespace MMAP
                 // unpack tile coords
                 StaticMapTree::unpackTileID((*it), tileX, tileY);
 
-                if (shouldSkipTile(mapID, tileX, tileY))
-                    continue;
-
-                buildTile(mapID, tileX, tileY, navMesh);
+                TileInfo tileInfo;
+                tileInfo.m_mapId = mapID;
+                tileInfo.m_tileX = tileX;
+                tileInfo.m_tileY = tileY;
+                memcpy(&tileInfo.m_navMeshParams, navMesh->getParams(), sizeof(dtNavMeshParams));
+                _queue.Push(tileInfo);
             }
 
             dtFreeNavMesh(navMesh);
@@ -406,9 +486,15 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void MapBuilder::buildTile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh)
+    void TileBuilder::buildTile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh)
     {
-        printf("[Map %04i] Building tile [%02u,%02u]\n", mapID, tileX, tileY);
+        if(shouldSkipTile(mapID, tileX, tileY))
+        {
+            ++m_mapBuilder->m_totalTilesProcessed;
+            return;
+        }
+
+        printf("%u%% [Map %04i] Building tile [%02u,%02u]\n", m_mapBuilder->currentPercentageDone(), mapID, tileX, tileY);
 
         MeshData meshData;
 
@@ -420,7 +506,10 @@ namespace MMAP
 
         // if there is no data, give up now
         if (!meshData.solidVerts.size() && !meshData.liquidVerts.size())
+        {
+            ++m_mapBuilder->m_totalTilesProcessed;
             return;
+        }
 
         // remove unused vertices
         TerrainBuilder::cleanVertices(meshData.solidVerts, meshData.solidTris);
@@ -432,16 +521,21 @@ namespace MMAP
         allVerts.append(meshData.solidVerts);
 
         if (!allVerts.size())
+        {
+            ++m_mapBuilder->m_totalTilesProcessed;
             return;
+        }
 
         // get bounds of current tile
         float bmin[3], bmax[3];
-        getTileBounds(tileX, tileY, allVerts.getCArray(), allVerts.size() / 3, bmin, bmax);
+        m_mapBuilder->getTileBounds(tileX, tileY, allVerts.getCArray(), allVerts.size() / 3, bmin, bmax);
 
-        m_terrainBuilder->loadOffMeshConnections(mapID, tileX, tileY, meshData, m_offMeshFilePath);
+        m_terrainBuilder->loadOffMeshConnections(mapID, tileX, tileY, meshData, m_mapBuilder->m_offMeshFilePath);
 
         // build navmesh tile
         buildMoveMapTile(mapID, tileX, tileY, meshData, bmin, bmax, navMesh);
+
+        ++m_mapBuilder->m_totalTilesProcessed;
     }
 
     /**************************************************************************/
@@ -480,7 +574,7 @@ namespace MMAP
 
         // use Max because '32 - tileX' is negative for values over 32
         float bmin[3], bmax[3];
-        getTileBounds(tileXMax, tileYMax, NULL, 0, bmin, bmax);
+        getTileBounds(tileXMax, tileYMax, nullptr, 0, bmin, bmax);
 
         /***       now create the navmesh       ***/
 
@@ -520,7 +614,7 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void MapBuilder::buildMoveMapTile(uint32 mapID, uint32 tileX, uint32 tileY,
+    void TileBuilder::buildMoveMapTile(uint32 mapID, uint32 tileX, uint32 tileY,
         MeshData &meshData, float bmin[3], float bmax[3],
         dtNavMesh* navMesh)
     {
@@ -542,39 +636,10 @@ namespace MMAP
         int lTriCount = meshData.liquidTris.size() / 3;
         uint8* lTriFlags = meshData.liquidType.getCArray();
 
-        // these are WORLD UNIT based metrics
-        // this are basic unit dimentions
-        // value have to divide GRID_SIZE(533.3333f) ( aka: 0.5333, 0.2666, 0.3333, 0.1333, etc )
-        const static float BASE_UNIT_DIM = m_bigBaseUnit ? 0.5333333f : 0.2666666f;
-
-        // All are in UNIT metrics!
-        const static int VERTEX_PER_MAP = int(GRID_SIZE/BASE_UNIT_DIM + 0.5f);
-        const static int VERTEX_PER_TILE = m_bigBaseUnit ? 40 : 80; // must divide VERTEX_PER_MAP
-        const static int TILES_PER_MAP = VERTEX_PER_MAP/VERTEX_PER_TILE;
-
-        rcConfig config;
-        memset(&config, 0, sizeof(rcConfig));
-
-        rcVcopy(config.bmin, bmin);
-        rcVcopy(config.bmax, bmax);
-
-        config.maxVertsPerPoly = DT_VERTS_PER_POLYGON;
-        config.cs = BASE_UNIT_DIM;
-        config.ch = BASE_UNIT_DIM;
-        config.walkableSlopeAngle = m_maxWalkableAngle;
-        config.tileSize = VERTEX_PER_TILE;
-        config.walkableRadius = m_bigBaseUnit ? 1 : 2;
-        config.borderSize = config.walkableRadius + 3;
-        config.maxEdgeLen = VERTEX_PER_TILE + 1;        // anything bigger than tileSize
-        config.walkableHeight = m_bigBaseUnit ? 3 : 6;
-        // a value >= 3|6 allows npcs to walk over some fences
-        // a value >= 4|8 allows npcs to walk over all fences
-        config.walkableClimb = m_bigBaseUnit ? 2 : 4;
-        config.minRegionArea = rcSqr(60);
-        config.mergeRegionArea = rcSqr(50);
-        config.maxSimplificationError = 1.8f;           // eliminates most jagged edges (tiny polygons)
-        config.detailSampleDist = config.cs * 64;
-        config.detailSampleMaxError = config.ch * 2;
+        const TileConfig tileConfig = TileConfig(m_bigBaseUnit);
+        int TILES_PER_MAP = tileConfig.TILES_PER_MAP;
+        float BASE_UNIT_DIM = tileConfig.BASE_UNIT_DIM;
+        rcConfig config = m_mapBuilder->GetMapSpecificConfig(mapID, bmin, bmax, tileConfig);
 
         // this sets the dimensions of the heightfield - should maybe happen before border padding
         rcCalcGridSize(config.bmin, config.bmax, config.cs, &config.width, &config.height);
@@ -599,10 +664,15 @@ namespace MMAP
                 Tile& tile = tiles[x + y * TILES_PER_MAP];
 
                 // Calculate the per tile bounding box.
-                tileCfg.bmin[0] = config.bmin[0] + float(x*config.tileSize - config.borderSize)*config.cs;
-                tileCfg.bmin[2] = config.bmin[2] + float(y*config.tileSize - config.borderSize)*config.cs;
-                tileCfg.bmax[0] = config.bmin[0] + float((x+1)*config.tileSize + config.borderSize)*config.cs;
-                tileCfg.bmax[2] = config.bmin[2] + float((y+1)*config.tileSize + config.borderSize)*config.cs;
+                tileCfg.bmin[0] = config.bmin[0] + x * float(config.tileSize * config.cs);
+                tileCfg.bmin[2] = config.bmin[2] + y * float(config.tileSize * config.cs);
+                tileCfg.bmax[0] = config.bmin[0] + (x + 1) * float(config.tileSize * config.cs);
+                tileCfg.bmax[2] = config.bmin[2] + (y + 1) * float(config.tileSize * config.cs);
+
+                tileCfg.bmin[0] -= tileCfg.borderSize * tileCfg.cs;
+                tileCfg.bmin[2] -= tileCfg.borderSize * tileCfg.cs;
+                tileCfg.bmax[0] += tileCfg.borderSize * tileCfg.cs;
+                tileCfg.bmax[2] += tileCfg.borderSize * tileCfg.cs;
 
                 // build heightfield
                 tile.solid = rcAllocHeightfield();
@@ -613,9 +683,17 @@ namespace MMAP
                 }
 
                 // mark all walkable tiles, both liquids and solids
+
+                /* we want to have triangles with slope less than walkableSlopeAngleNotSteep (<= 55) to have NAV_AREA_GROUND
+                 * and with slope between walkableSlopeAngleNotSteep and walkableSlopeAngle (55 < .. <= 70) to have NAV_AREA_GROUND_STEEP.
+                 * we achieve this using recast API: memset everything to NAV_AREA_GROUND_STEEP, call rcClearUnwalkableTriangles with 70 so
+                 * any area above that will get RC_NULL_AREA (unwalkable), then call rcMarkWalkableTriangles with 55 to set NAV_AREA_GROUND
+                 * on anything below 55 . Players and idle Creatures can use NAV_AREA_GROUND, while Creatures in combat can use NAV_AREA_GROUND_STEEP.
+                 */
                 unsigned char* triFlags = new unsigned char[tTriCount];
-                memset(triFlags, NAV_GROUND, tTriCount*sizeof(unsigned char));
+                memset(triFlags, NAV_AREA_GROUND_STEEP, tTriCount*sizeof(unsigned char));
                 rcClearUnwalkableTriangles(m_rcContext, tileCfg.walkableSlopeAngle, tVerts, tVertCount, tTris, tTriCount, triFlags);
+                rcMarkWalkableTriangles(m_rcContext, tileCfg.walkableSlopeAngleNotSteep, tVerts, tVertCount, tTris, tTriCount, triFlags, NAV_AREA_GROUND);
                 rcRasterizeTriangles(m_rcContext, tVerts, tVertCount, tTris, triFlags, tTriCount, *tile.solid, config.walkableClimb);
                 delete[] triFlags;
 
@@ -623,6 +701,7 @@ namespace MMAP
                 rcFilterLedgeSpans(m_rcContext, tileCfg.walkableHeight, tileCfg.walkableClimb, *tile.solid);
                 rcFilterWalkableLowHeightSpans(m_rcContext, tileCfg.walkableHeight, *tile.solid);
 
+                // add liquid triangles
                 rcRasterizeTriangles(m_rcContext, lVerts, lVertCount, lTris, lTriFlags, lTriCount, *tile.solid, config.walkableClimb);
 
                 // compact heightfield spans
@@ -637,6 +716,12 @@ namespace MMAP
                 if (!rcErodeWalkableArea(m_rcContext, config.walkableRadius, *tile.chf))
                 {
                     printf("%s Failed eroding area!                    \n", tileString);
+                    continue;
+                }
+
+                if (!rcMedianFilterWalkableArea(m_rcContext, *tile.chf))
+                {
+                    printf("%s Failed filtering area!                  \n", tileString);
                     continue;
                 }
 
@@ -678,11 +763,11 @@ namespace MMAP
                 // we may want to keep them in the future for debug
                 // but right now, we don't have the code to merge them
                 rcFreeHeightField(tile.solid);
-                tile.solid = NULL;
+                tile.solid = nullptr;
                 rcFreeCompactHeightfield(tile.chf);
-                tile.chf = NULL;
+                tile.chf = nullptr;
                 rcFreeContourSet(tile.cset);
-                tile.cset = NULL;
+                tile.cset = nullptr;
 
                 pmmerge[nmerge] = tile.pmesh;
                 dmmerge[nmerge] = tile.dmesh;
@@ -720,8 +805,15 @@ namespace MMAP
         // set polygons as walkable
         // TODO: special flags for DYNAMIC polygons, ie surfaces that can be turned on and off
         for (int i = 0; i < iv.polyMesh->npolys; ++i)
-            if (iv.polyMesh->areas[i] & RC_WALKABLE_AREA)
-                iv.polyMesh->flags[i] = iv.polyMesh->areas[i];
+        {
+            if (uint8 area = iv.polyMesh->areas[i] & NAV_AREA_ALL_MASK)
+            {
+                if (area >= NAV_AREA_MIN_VALUE)
+                    iv.polyMesh->flags[i] = 1 << (NAV_AREA_MAX_VALUE - area);
+                else
+                    iv.polyMesh->flags[i] = NAV_GROUND; // TODO: these will be dynamic in future
+            }
+        }
 
         // setup mesh parameters
         dtNavMeshCreateParams params;
@@ -759,7 +851,7 @@ namespace MMAP
         params.buildBvTree = true;
 
         // will hold final navmesh
-        unsigned char* navData = NULL;
+        unsigned char* navData = nullptr;
         int navDataSize = 0;
 
         do
@@ -785,11 +877,9 @@ namespace MMAP
                 //printf("%sNo vertices to build tile!              \n", tileString);
                 continue;
             }
-            if (!params.polyCount || !params.polys ||
-                TILES_PER_MAP*TILES_PER_MAP == params.polyCount)
+            if (!params.polyCount || !params.polys) 
             {
                 // we have flat tiles with no actual geometry - don't build those, its useless
-                // keep in mind that we do output those into debug info
                 // drop tiles with only exact count - some tiles may have geometry while having less tiles
                 printf("%s No polygons to build on tile!              \n", tileString);
                 continue;
@@ -827,7 +917,7 @@ namespace MMAP
                 char message[1024];
                 sprintf(message, "[Map %04i] Failed to open %s for writing!\n", mapID, fileName);
                 perror(message);
-                navMesh->removeTile(tileRef, NULL, NULL);
+                navMesh->removeTile(tileRef, nullptr, nullptr);
                 continue;
             }
 
@@ -844,7 +934,7 @@ namespace MMAP
             fclose(file);
 
             // now that tile is written to disk, we can unload it
-            navMesh->removeTile(tileRef, NULL, NULL);
+            navMesh->removeTile(tileRef, nullptr, nullptr);
         }
         while (0);
 
@@ -883,24 +973,18 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    bool MapBuilder::shouldSkipMap(uint32 mapID)
+    bool MapBuilder::shouldSkipMap(uint32 mapID) const
     {
-        if (m_skipContinents || m_skipJunkMaps || m_skipBattlegrounds || m_skipArenas || m_skipDungeons || m_skipTransports)
-        {
+        if (m_mapid >= 0)
+            return static_cast<uint32>(m_mapid) != mapID;        
+
+        if (m_skipContinents)
+            if (isContinentMap(mapID))
+                return true;
+
+        if (m_skipJunkMaps)
             switch (mapID)
             {
-                case 0:
-                case 1:
-                case 530:
-                case 571:
-                case 870:
-                case 1116:
-                    // Open world but not continents:
-                case 369: // Deeprun Tram
-                case 449: // Alliance PVP Barracks
-                case 450: // Horde PVP Barracks
-                case 609: // Ebon Hold
-                    return m_skipContinents;
                 case 13:    // test.wdt
                 case 25:    // ScottTest.wdt
                 case 29:    // Test.wdt
@@ -912,8 +996,17 @@ namespace MMAP
                 case 605:   // development_nonweighted.wdt
                 case 606:   // QA_DVD.wdt
                 case 651:   // ElevatorSpawnTest.wdt
-                case 1060:  // LevelDesignLand-DevOnly.wdt
-                    return m_skipJunkMaps;
+                case 1060:  // LevelDesignLand-DevOnly.wdt                    
+                    return true;
+                default:
+                    if (isTransportMap(mapID))
+                        return true;
+                    break;
+            }
+
+        if (m_skipBattlegrounds)
+            switch (mapID)
+            {
                 case 30:    // AV
                 case 37:    // ?
                 case 489:   // WSG
@@ -927,30 +1020,106 @@ namespace MMAP
                 case 968:   // Rated Eye of the Storm
                 case 998:   // Temple of Kotmogu
                 case 1010:  // CTF3
-                case 1105:  // Deepwind Gorge
-                    return m_skipBattlegrounds;
+                case 1105:  // Deepwind Gorge                    
+                    return true;
+                default:
+                    break;
+            }
+
+        if (m_skipArenas)
+            switch (mapID)
+            {
                 case 559:   // Nagrand Arena
                 case 562:   // Blade's Edge Arena
                 case 572:   // Ruins of Lordaeron
                 case 617:   // Dalaran Sewers
-                case 618:   // The Ring of Valor
-                    return m_skipArenas;
+                case 618:   // The Ring of Valor                  
+                    return true;
                 default:
-                    return isTransportMap(mapID) ? m_skipTransports : m_skipDungeons;
+                    break;
             }
-        }
 
         return false;
     }
-
     /**************************************************************************/
-    bool MapBuilder::isTransportMap(uint32 mapID)
+    bool MapBuilder::isTransportMap(uint32 mapID) const
     {
-        return transportMaps.find(mapID) != transportMaps.end();
+        switch (mapID)
+        {
+            // transport maps
+            case 582:
+            case 584:
+            case 586:
+            case 587:
+            case 588:
+            case 589:
+            case 590:
+            case 591:
+            case 592:
+            case 593:
+            case 594:
+            case 596:
+            case 610:
+            case 612:
+            case 613:
+            case 614:
+            case 620:
+            case 621:
+            case 622:
+            case 623:
+            case 641:
+            case 642:
+            case 647:
+            case 672:
+            case 673:
+            case 712:
+            case 713:
+            case 718:
+            case 738:
+            case 739:
+            case 740:
+            case 741:
+            case 742:
+            case 743:
+            case 747:
+            case 748:
+            case 749:
+            case 750:
+            case 762:
+            case 763:
+            case 765:
+            case 766:
+            case 767:                
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    bool MapBuilder::isContinentMap(uint32 mapID) const
+    {
+        switch (mapID)
+        {
+            case 0:
+            case 1:
+            case 530:
+            case 571:
+                return true;
+            default:
+                return false;
+        }
     }
 
     /**************************************************************************/
-    bool MapBuilder::shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY)
+    // bool MapBuilder::isTransportMap(uint32 mapID) const
+    // {
+    //     return transportMaps.find(mapID) != transportMaps.end();
+    // }
+
+
+
+    /**************************************************************************/
+    bool TileBuilder::shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY) const
     {
         char fileName[255];
         sprintf(fileName, "mmaps/%04u_%02i_%02i.mmtile", mapID, tileY, tileX);
@@ -971,6 +1140,68 @@ namespace MMAP
             return false;
 
         return true;
+    }
+
+    rcConfig MapBuilder::GetMapSpecificConfig(uint32 mapID, float bmin[3], float bmax[3], const TileConfig &tileConfig) const
+    {
+        rcConfig config;
+        memset(&config, 0, sizeof(rcConfig));
+
+        rcVcopy(config.bmin, bmin);
+        rcVcopy(config.bmax, bmax);
+
+        config.maxVertsPerPoly = DT_VERTS_PER_POLYGON;
+        config.cs = tileConfig.BASE_UNIT_DIM;
+        config.ch = tileConfig.BASE_UNIT_DIM;
+        // Keeping these 2 slope angles the same reduces a lot the number of polys.
+        // 55 should be the minimum, maybe 70 is ok (keep in mind blink uses mmaps), 85 is too much for players
+        config.walkableSlopeAngle = m_maxWalkableAngle ? *m_maxWalkableAngle : 55;
+        config.walkableSlopeAngleNotSteep = m_maxWalkableAngleNotSteep ? *m_maxWalkableAngleNotSteep : 55;
+        config.tileSize = tileConfig.VERTEX_PER_TILE;
+        config.walkableRadius = m_bigBaseUnit ? 1 : 2;
+        config.borderSize = config.walkableRadius + 3;
+        config.maxEdgeLen = tileConfig.VERTEX_PER_TILE + 1;        // anything bigger than tileSize
+        config.walkableHeight = m_bigBaseUnit ? 3 : 6;
+        // a value >= 3|6 allows npcs to walk over some fences
+        // a value >= 4|8 allows npcs to walk over all fences
+        config.walkableClimb = m_bigBaseUnit ? 3 : 6;
+        config.minRegionArea = rcSqr(60);
+        config.mergeRegionArea = rcSqr(50);
+        config.maxSimplificationError = 1.8f;           // eliminates most jagged edges (tiny polygons)
+        config.detailSampleDist = config.cs * 16;
+        config.detailSampleMaxError = config.ch * 1;
+
+        switch (mapID)
+        {
+            // Blade's Edge Arena
+            case 562:
+                // This allows to walk on the ropes to the pillars
+                config.walkableRadius = 0;
+                break;
+            // Blackfathom Deeps
+            case 48:
+                // Reduce the chance to have underground levels
+                config.ch *= 2;
+                break;
+            default:
+                break;
+        }
+
+        return config;
+    }
+
+    /**************************************************************************/
+    uint32 MapBuilder::percentageDone(uint32 totalTiles, uint32 totalTilesBuilt) const
+    {
+        if (totalTiles)
+            return totalTilesBuilt * 100 / totalTiles;
+
+        return 0;
+    }
+
+    uint32 MapBuilder::currentPercentageDone() const
+    {
+        return percentageDone(m_totalTiles, m_totalTilesProcessed);
     }
 
 }

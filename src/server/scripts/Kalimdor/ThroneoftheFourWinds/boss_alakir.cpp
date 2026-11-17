@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -392,9 +392,9 @@ class boss_alakir : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 
                 Talk(SAY_AGGRO);
                 
@@ -408,14 +408,14 @@ class boss_alakir : public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 Reset();
 
                 RemoveSummons();
                 if (Creature* trigger = me->FindNearestCreature(NPC_LIGHTNING_STRIKE_TRIGGER, 100))
-                    trigger->AI()->SetGUID(0);
+                    trigger->AI()->SetGUID(ObjectGuid::Empty);
 
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
@@ -431,7 +431,7 @@ class boss_alakir : public CreatureScript
                 Talk(SAY_DEFEAT);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-                instance->DoRespawnGameObject(instance->GetData64(RAID_MODE(DATA_HEART_OF_WIND_10N, DATA_HEART_OF_WIND_25N, DATA_HEART_OF_WIND_10H, DATA_HEART_OF_WIND_25H)), DAY);
+                instance->DoRespawnGameObject(instance->GetGuidData(RAID_MODE(DATA_HEART_OF_WIND_10N, DATA_HEART_OF_WIND_25N, DATA_HEART_OF_WIND_10H, DATA_HEART_OF_WIND_25H)), DAY);
             }
 
             void DamageTaken(Unit* attacker, uint32& damage) override
@@ -711,15 +711,13 @@ class boss_alakir : public CreatureScript
 
                 if (!players.isEmpty())
                 {
-                    WorldPacket data(SMSG_WEATHER, 4 + 4 + 1);
-                    data << uint32(weatherId);
-                    data << float(weatherGrade);
-                    data << uint8(0);
+                    WorldPackets::Misc::Weather weather(WeatherState(weatherId), weatherGrade);
+                    weather.Write();
 
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         if (Player* player = itr->GetSource())
                             if (player->GetZoneId() == zoneId)
-                                player->SendDirectMessage(&data);
+                                player->SendDirectMessage(weather.GetRawPacket());
                 }
             }
 
@@ -729,15 +727,16 @@ class boss_alakir : public CreatureScript
 
                 if (!players.isEmpty())
                 {
-                    WorldPacket data(SMSG_OVERRIDE_LIGHT, 4 + 4 + 4);
-                    data << uint32(lightId);
-                    data << uint32(GetDefaultMapLight(instance->instance->GetId()));
-                    data << uint32(fadeInTime);
+                    WorldPackets::Misc::OverrideLight overrideLight;
+                    overrideLight.AreaLightID = lightId;
+                    overrideLight.OverrideLightID = sDBCManager.GetDefaultMapLight(instance->instance->GetId());
+                    overrideLight.TransitionMilliseconds = static_cast<uint32>(fadeInTime);
+                    overrideLight.Write();
 
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         if (Player* player = itr->GetSource())
                             if (player->GetZoneId() == zoneId)
-                                player->SendDirectMessage(&data);
+                                player->SendDirectMessage(overrideLight.GetRawPacket());
                 }
             }
         };
@@ -763,11 +762,11 @@ class npc_lightning_strike_trigger : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_ALL, true);
-                lightningStrikeTarget = 0;
+                lightningStrikeTarget = ObjectGuid::Empty;
                 lightningStrikeCount = 0;
             }
 
-            void SetGUID(uint64 guid, int32 /*type*/) override
+            void SetGUID(ObjectGuid guid, int32 /*type*/) override
             {
                 if (guid == 0)
                 {
@@ -825,7 +824,7 @@ class npc_lightning_strike_trigger : public CreatureScript
                                 events.ScheduleEvent(EVENT_LIGHTNING_STRIKE, 1000);
                             else
                             {
-                                lightningStrikeTarget = 0;
+                                lightningStrikeTarget = ObjectGuid::Empty;
                                 lightningStrikeCount = 0;
                                 events.CancelEvent(EVENT_LIGHTNING_STRIKE);
                             }
@@ -839,7 +838,7 @@ class npc_lightning_strike_trigger : public CreatureScript
 
         private:
             EventMap events;
-            uint64 lightningStrikeTarget;
+            ObjectGuid lightningStrikeTarget;
             uint32 lightningStrikeCount;
         };
 
@@ -867,7 +866,7 @@ class npc_stormling : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                me->CastSpell(me, SPELL_FEEDBACK, true, NULL, NULL, me->GetInstanceScript()->GetData64(DATA_ALAKIR));
+                me->CastSpell(me, SPELL_FEEDBACK, true, NULL, NULL, me->GetInstanceScript()->GetGuidData(DATA_ALAKIR));
             }
         };
 

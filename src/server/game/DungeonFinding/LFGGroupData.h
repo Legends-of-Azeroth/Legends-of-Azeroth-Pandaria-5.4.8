@@ -44,10 +44,10 @@ class LfgGroupData : public LfgDataOwner<GroupQueueData>
 {
     public:
         // General
-        void AddPlayer(uint64 guid);
-        uint8 RemovePlayer(uint64 guid);
+        void AddPlayer(ObjectGuid guid);
+        uint8 RemovePlayer(ObjectGuid guid);
         void RemoveAllPlayers();
-        void SetLeader(uint64 guid);
+        void SetLeader(ObjectGuid guid);
 
         // Dungeon
         void SetDungeon(uint32 dungeon);
@@ -59,7 +59,7 @@ class LfgGroupData : public LfgDataOwner<GroupQueueData>
         // General
         LfgGuidSet const& GetPlayers() const;
         uint8 GetPlayerCount() const;
-        uint64 GetLeader() const;
+        ObjectGuid GetLeader() const;
 
         // Dungeon
         uint32 GetDungeon(bool asId = true) const;
@@ -75,7 +75,7 @@ class LfgGroupData : public LfgDataOwner<GroupQueueData>
 
     private:
         // General
-        uint64 m_leader = 0;                               ///< Leader GUID
+        ObjectGuid m_leader;                               ///< Leader GUID
         LfgGuidSet m_players;                              ///< Players in group
         // Dungeon
         uint32 m_dungeon = 0;                              ///< Dungeon entry

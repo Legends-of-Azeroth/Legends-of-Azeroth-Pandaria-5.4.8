@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -29,7 +29,7 @@ char const AnimKitfmt[] = "nxx";
 char const AreaTableEntryfmt[] = "niiiixxxxxxxisiiiiiffixxxxxxxx";
 char const AreaGroupEntryfmt[] = "niiiiiii";
 char const AreaPOIEntryfmt[] = "niiiiiiiiiiiffixixxixxx";
-char const AreaTriggerEntryfmt[] = "nifffxxxfffffxxx";
+char const AreaTriggerEntryfmt[] = "nifffiiifffffiii";
 char const ArmorLocationfmt[] = "nfffff";
 char const AuctionHouseEntryfmt[] = "niiix";
 char const BankBagSlotPricesEntryfmt[] = "ni";
@@ -37,14 +37,16 @@ char const BannedAddOnsfmt[] = "nxxxxxxxxxx";
 char const BarberShopStyleEntryfmt[] = "nixxxiii";
 char const BattlemasterListEntryfmt[] = "niiiiiiiiiiiiiiiiixsiiiixxxxxx";
 char const CharStartOutfitEntryfmt[] = "dbbbXiiiiiiiiiiiiiiiiiiiiiiiixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxii";
+char const CharSectionsEntryfmt[] = "diiixxxiii";
 char const CharTitlesEntryfmt[] = "nisxix";
 char const ChatChannelsEntryfmt[] = "nixss";
 char const ChrClassesEntryfmt[] = "nixsxxxixiiiixxxxx";
 char const ChrRacesEntryfmt[] = "nxixiixixxxxixsxxxxxxxxxxxxxxxxxxxxx";
 char const ChrClassesXPowerTypesfmt[] = "nii";
-char const CinematicSequencesEntryfmt[] = "nxxxxxxxxx";
-char const CreatureDisplayInfofmt[] = "nixxfxxxxxxxxxxxxxxx";
-char const CreatureModelDatafmt[] = "nxsxxxxxxxxxxxxffxxxxxxxxxxxxxxxxx";
+char const CinematicCameraEntryfmt[] = "nsiffff";
+char const CinematicSequencesEntryfmt[] = "nxiiiiiiii";
+char const CreatureDisplayInfofmt[] = "nixifxxxxxxxxxxxxxxx";
+char const CreatureModelDatafmt[] = "nisxfxxxxxxxxxxffxxxxxxxxxxxxxxxxx";
 char const CreatureFamilyfmt[] = "nfifiiiiixsx";
 char const CreatureImmunitiesfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 char const CreatureSpellDatafmt[] = "niiiixxxx";
@@ -59,6 +61,7 @@ char const DurabilityCostsfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 char const DurabilityQualityfmt[] = "nf";
 char const EmotesEntryfmt[] = "nxxiiixx";
 char const EmotesTextEntryfmt[] = "nxixxxxxxxxxxxxxxxx";
+char const EmotesTextSoundEntryfmt[] = "niiii";
 char const FactionEntryfmt[] = "niiiiiiiiiiiiiiiiiiffixsxixx";
 char const FactionTemplateEntryfmt[] = "niiiiiiiiiiiii";
 char const GameObjectDisplayInfofmt[] = "nsxxxxxxxxxxffffffxxx";
@@ -109,6 +112,7 @@ char const LightEntryfmt[] = "nifffxxxxxxxxxx";
 char const LiquidTypefmt[] = "nxxixixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 char const LockEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiixxxxxxxx";
 char const PhaseEntryfmt[] = "nsi";
+char const PhaseGroupfmt[] = "nii";
 char const MailTemplateEntryfmt[] = "nss";
 char const MapEntryfmt[] = "nxixxsixxixiffxiiii";
 char const MapDifficultyEntryfmt[] = "diisiix";
@@ -117,6 +121,8 @@ char const MovieEntryfmt[] = "nxxxx";
 char const MountCapabilityfmt[] = "niiiiiii";
 char const MountTypefmt[] = "niiiiiiiiiiiiiiiiiiiiiiii";
 char const NameGenfmt[] = "dsii";
+char const NamesProfanityEntryfmt[] = "dsi";
+char const NamesReservedEntryfmt[] = "ds"; // dsi in 4.3.4
 char const NumTalentsAtLevelfmt[] = "df";
 char const PlayerConditionEntryfmt[] = "nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxiiiiiiiiiixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 char const OverrideSpellDatafmt[] = "niiiiiiiiiixx";

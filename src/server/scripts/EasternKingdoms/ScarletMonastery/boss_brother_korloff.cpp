@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -77,7 +77,7 @@ class boss_brother_korloff : public CreatureScript
             boss_brother_korloffAI(Creature* creature) : BossAI(creature, BOSS_BROTHER_KORLOFF) { }
 
             uint32 phase;
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             uint32 burningDummyCounter;
             float heal;
 
@@ -101,7 +101,7 @@ class boss_brother_korloff : public CreatureScript
                 }
                 phase = PHASE_ONE;
                 heal = 100.0f;
-                targetGUID = 0;
+                targetGUID = ObjectGuid::Empty;
                 burningDummyCounter = 0;
                 me->GetMap()->SetWorldState(WORLDSTATE_BURNING_MAN, 0);
             }
@@ -119,7 +119,7 @@ class boss_brother_korloff : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)
@@ -154,9 +154,9 @@ class boss_brother_korloff : public CreatureScript
                     me->GetMap()->SetWorldState(WORLDSTATE_BURNING_MAN, 1);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(TALK_AGGRO);
                 if (instance)
                 {
@@ -233,7 +233,7 @@ class boss_brother_korloff : public CreatureScript
                                 if (Unit* victim = me->GetVictim())
                                 {
                                     Position pos = { me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation() };
-                                    me->GetFirstCollisionPosition(pos, frand(6.0f, 8.0f), 0.0f);
+                                    pos = me->GetFirstCollisionPosition(frand(6.0f, 8.0f), 0.0f);
 
                                     me->CastSpell(victim, SPELL_FLYING_KICK, true);
                                     me->PrepareChanneledCast(me->GetAngle(victim));
@@ -281,7 +281,7 @@ struct npc_trigger_scorched_flame : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override { }
+    void JustEngagedWith(Unit* /*who*/) override { }
 
     void JustDied(Unit* /*killer*/) override { }
 

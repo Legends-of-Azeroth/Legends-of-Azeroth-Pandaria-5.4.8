@@ -52,21 +52,21 @@ class instance_azjol_nerub : public InstanceMapScript
         {
             instance_azjol_nerub_InstanceScript(Map* map) : InstanceScript(map) { }
 
-            uint64 uiKrikthir;
-            uint64 uiHadronox;
-            uint64 uiAnubarak;
-            uint64 uiWatcherGashra;
-            uint64 uiWatcherSilthik;
-            uint64 uiWatcherNarjil;
-            uint64 uiAnubarakDoor[3];
+            ObjectGuid uiKrikthir;
+            ObjectGuid uiHadronox;
+            ObjectGuid uiAnubarak;
+            ObjectGuid uiWatcherGashra;
+            ObjectGuid uiWatcherSilthik;
+            ObjectGuid uiWatcherNarjil;
+            ObjectGuid uiAnubarakDoor[3];
 
-            uint64 uiKrikthirDoor;
-            uint64 questGiverGUID;
-            uint64 questEnderGUID;
+            ObjectGuid uiKrikthirDoor;
+            ObjectGuid questGiverGUID;
+            ObjectGuid questEnderGUID;
 
-            std::list<uint64> hadronoxTrash;
-            std::list<uint64> questCreatures;
-            uint64 hadronoxDoors[3];
+            std::list<ObjectGuid> hadronoxTrash;
+            std::list<ObjectGuid> questCreatures;
+            ObjectGuid hadronoxDoors[3];
             bool hadronoxAchievementFailed;
             bool crushersSpawned;
             uint32 trashLeft;
@@ -81,15 +81,15 @@ class instance_azjol_nerub : public InstanceMapScript
                 memset(&uiAnubarakDoor, 0, sizeof(uiAnubarakDoor));
                 memset(&hadronoxDoors, 0, sizeof(hadronoxDoors));
 
-                uiKrikthir = 0;
-                uiHadronox = 0;
-                uiAnubarak = 0;
-                questGiverGUID = 0;
-                questEnderGUID = 0;
-                uiWatcherGashra = 0;
-                uiWatcherSilthik = 0;
-                uiWatcherNarjil = 0;
-                uiKrikthirDoor = 0;
+                uiKrikthir = ObjectGuid::Empty;
+                uiHadronox = ObjectGuid::Empty;
+                uiAnubarak = ObjectGuid::Empty;
+                questGiverGUID = ObjectGuid::Empty;
+                questEnderGUID = ObjectGuid::Empty;
+                uiWatcherGashra = ObjectGuid::Empty;
+                uiWatcherSilthik = ObjectGuid::Empty;
+                uiWatcherNarjil = ObjectGuid::Empty;
+                uiKrikthirDoor = ObjectGuid::Empty;
 
                 hadronoxAchievementFailed = false;
                 crushersSpawned = false;
@@ -162,12 +162,12 @@ class instance_azjol_nerub : public InstanceMapScript
                 }
             }
 
-            void OnCreatureRemove(Creature* creature)
+            void OnCreatureRemove(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
                     case NPC_HADRONOX:
-                        uiHadronox = 0;
+                        uiHadronox = ObjectGuid::Empty;
                         break;
                     case NPC_ANUBAR_CHAMPION:
                     case NPC_ANUBAR_CRYPT_FIEND:
@@ -186,7 +186,7 @@ class instance_azjol_nerub : public InstanceMapScript
                     case GO_KRIKTHIR_DOOR:
                         uiKrikthirDoor = go->GetGUID();
                         if (auiEncounter[0] == DONE)
-                            HandleGameObject(0,true,go);
+                            HandleGameObject(ObjectGuid::Empty,true,go);
                         break;
                     case GO_ANUBARAK_DOOR_1:
                         uiAnubarakDoor[0] = go->GetGUID();
@@ -201,7 +201,7 @@ class instance_azjol_nerub : public InstanceMapScript
             }
 
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -218,7 +218,7 @@ class instance_azjol_nerub : public InstanceMapScript
                     case NPC_RECLAIMER_AZAK + 1:            return questEnderGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void SetData(uint32 type, uint32 data) override
@@ -290,13 +290,13 @@ class instance_azjol_nerub : public InstanceMapScript
                                 if (Creature* creature = instance->GetCreature(questCreatureGUID))
                                     creature->SetVisible(true);
 
-                            if (Creature* qStarter = instance->GetCreature(GetData64(NPC_RECLAIMER_AZAK)))
+                            if (Creature* qStarter = instance->GetCreature(GetGuidData(NPC_RECLAIMER_AZAK)))
                             {
                                 qStarter->SetVisible(false);
                                 qStarter->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                             }
 
-                            if (Creature* qEnder = instance->GetCreature(GetData64(NPC_RECLAIMER_AZAK + 1)))
+                            if (Creature* qEnder = instance->GetCreature(GetGuidData(NPC_RECLAIMER_AZAK + 1)))
                             {
                                 qEnder->SetVisible(true);
                                 qEnder->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);

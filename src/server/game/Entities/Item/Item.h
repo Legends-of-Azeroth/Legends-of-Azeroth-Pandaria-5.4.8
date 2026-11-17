@@ -225,17 +225,17 @@ bool ItemCanGoIntoBag(ItemTemplate const* proto, ItemTemplate const* pBagProto);
 class Item : public Object
 {
     public:
-        static Item* CreateItem(uint32 itemEntry, uint32 count, Player const* player = NULL);
+        static Item* CreateItem(uint32 item, uint32 count, Player const* player = nullptr, bool temp = false);
         Item* CloneItem(uint32 count, Player const* player = NULL) const;
 
         Item();
 
-        virtual bool Create(uint32 guidlow, uint32 itemid, Player const* owner);
+        virtual bool Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner);
 
         ItemTemplate const* GetTemplate() const;
 
-        uint64 GetOwnerGUID()    const { return GetUInt64Value(ITEM_FIELD_OWNER); }
-        void SetOwnerGUID(uint64 guid) { SetUInt64Value(ITEM_FIELD_OWNER, guid); }
+        ObjectGuid GetOwnerGUID() const { return GetGuidValue(ITEM_FIELD_OWNER); }
+        void SetOwnerGUID(ObjectGuid guid) { SetGuidValue(ITEM_FIELD_OWNER, std::move(guid)); }
         Player* GetOwner()const;
 
         void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_SOULBOUND, val); }
@@ -244,7 +244,7 @@ class Item : public Object
         bool IsBindedNotWith(Player const* player) const;
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(CharacterDatabaseTransaction trans);
-        virtual bool LoadFromDB(uint32 guid, uint64 ownerGuid, Field* fields, uint32 entry, Player* owner = nullptr);
+        virtual bool LoadFromDB(uint32 guid, ObjectGuid ownerGuid, Field* fields, uint32 entry, Player* owner = nullptr);
         static void DeleteFromDB(CharacterDatabaseTransaction trans, uint32 itemGuid);
         virtual void DeleteFromDB(CharacterDatabaseTransaction trans);
         static void DeleteFromInventoryDB(CharacterDatabaseTransaction trans, uint32 itemGuid);
@@ -306,7 +306,7 @@ class Item : public Object
         void SetItemRandomProperties(int32 randomPropId);
         void UpdateItemSuffixFactor();
         static int32 GenerateItemRandomPropertyId(uint32 item_id);
-        void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges, uint64 caster = 0);
+        void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges, ObjectGuid caster = ObjectGuid::Empty);
         void SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player* owner);
         void SetEnchantmentCharges(EnchantmentSlot slot, uint32 charges);
         void ClearEnchantment(EnchantmentSlot slot);
@@ -405,6 +405,7 @@ class Item : public Object
     protected:
         void AddToUpdate() override;
         void RemoveFromUpdate() override;
+        Map* m_updateMap = nullptr;
 
     private:
         std::string m_text;

@@ -19,17 +19,52 @@
 #define _TCSOAP_H
 
 #include "Define.h"
+#include <mutex>
+#include <future>
+#include <string>
 
-class SoapService
+void process_message(struct soap* soap_message);
+void TCSoapThread(const std::string& host, uint16 port);
+
+class SOAPCommand
 {
-    class ServiceImpl;
-public:
-    SoapService();
-    ~SoapService();
+    public:
+        SOAPCommand():
+            m_success(false)
+        {
+        }
 
-    void Run(std::string const& host, uint32 port);
-private:
-    ServiceImpl* _impl = nullptr;
+        ~SOAPCommand()
+        {
+        }
+
+        void appendToPrintBuffer(std::string_view msg)
+        {
+            m_printBuffer += msg;
+        }
+
+        void setCommandSuccess(bool val)
+        {
+            m_success = val;
+            finishedPromise.set_value();
+        }
+
+        bool hasCommandSucceeded() const
+        {
+            return m_success;
+        }
+
+        static void print(void* callbackArg, const char * msg)
+        {
+            
+            ((SOAPCommand*)callbackArg)->appendToPrintBuffer(std::string_view(msg));
+        }
+
+        static void commandFinished(void* callbackArg, bool success);
+
+        bool m_success;
+        std::string m_printBuffer;
+        std::promise<void> finishedPromise;
 };
 
 #endif

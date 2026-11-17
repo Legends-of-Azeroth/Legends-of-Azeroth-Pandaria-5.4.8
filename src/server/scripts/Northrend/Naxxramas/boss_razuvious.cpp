@@ -92,9 +92,9 @@ public:
             me->CastSpell(me, SPELL_HOPELESS, true); /// @todo this may affect other creatures
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             DoPlaySoundToSet(me, SOUND_AGGRO);
             events.ScheduleEvent(EVENT_STRIKE, 30000);
             events.ScheduleEvent(EVENT_SHOUT, 25000);

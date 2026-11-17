@@ -522,8 +522,8 @@ public:
             if (Quest const* quest = sObjectMgr->GetQuestTemplate(QUEST_BARK_FOR_THE_BARLEYBREWS))
             {
                 bool done = true;
-                for (auto&& itr : quest->m_questObjectives)
-                    if (!player->IsQuestObjectiveComplete(quest, *itr))
+                for (auto const& objective : quest->Objectives)
+                    if (!player->IsQuestObjectiveComplete(quest, objective))
                         done = false;
 
                 if (done)

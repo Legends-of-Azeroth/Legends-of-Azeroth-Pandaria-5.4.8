@@ -115,7 +115,7 @@ struct ClientWardenModule
 
 struct WardenRequestContext
 {
-    uint64 ResponseReceiverGUID = 0;
+    ObjectGuid ResponseReceiverGUID = ObjectGuid::Empty;
     std::vector<uint16> MemCheckIDs;
     std::vector<uint16> OtherCheckIDs;
     uint32 CheckCount = 0;
@@ -148,7 +148,7 @@ class Warden
         virtual void InitializeModule() { }
         virtual void RequestHash() = 0;
         virtual void HandleHashResult(ByteBuffer &buff) = 0;
-        virtual void RequestData(WardenRequestContext* context = NULL) = 0;
+        virtual void RequestData(WardenRequestContext* context = nullptr) = 0;
         virtual void HandleData(ByteBuffer &buff) = 0;
 
         virtual bool GetEndSceneAddress(int32&) { return false; }
@@ -169,7 +169,7 @@ class Warden
         {
             WardenFailedCheckGroupRecord& record = _failedCheckGroups[group];
             ++record.Count;
-            record.LastFailTime = time(NULL);
+            record.LastFailTime = time(nullptr);
             if (!comment.empty())
                 record.Comments.insert(comment);
         }
@@ -179,17 +179,17 @@ class Warden
         static uint32 BuildChecksum(const uint8 *data, uint32 length);
 
         // If no check is passed, the default action from config is executed
-        std::string Penalty(WardenCheck* check = NULL);
+        std::string Penalty(WardenCheck* check = nullptr);
 
     private:
-        void SendPacket(Opcodes opcode, void const *data, size_t dataSize);
+        void SendPacket(OpcodeServer opcode, void const *data, size_t dataSize);
     private:
         WorldSession* _session;
         uint8 _inputKey[16];
         uint8 _outputKey[16];
         uint8 _seed[16];
-        ARC4 _inputCrypto;
-        ARC4 _outputCrypto;
+        Trinity::Crypto::ARC4 _inputCrypto;
+        Trinity::Crypto::ARC4 _outputCrypto;
         uint32 _checkTimer;                          // Timer for sending check requests
         uint32 _clientResponseTimer;                 // Timer for client response delay
         bool _dataSent;
@@ -198,7 +198,7 @@ class Warden
         bool _initialized;
         bool _enabled = true;
 
-        uint64 _responseReceiverGUID = 0;
+        ObjectGuid _responseReceiverGUID = ObjectGuid::Empty;
         uint32 _customChecks = 0;
         std::map<std::string, WardenFailedCheckGroupRecord> _failedCheckGroups;
 };

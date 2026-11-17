@@ -69,7 +69,7 @@ class AreaTrigger_at_bassin_curse : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
         {
-            switch (trigger->id)
+            switch (trigger->ID)
             {
                 case AREA_CRANE:     AddOrRemoveSpell(player, SPELL_CRANE);     break;
                 case AREA_SKUNK:     AddOrRemoveSpell(player, SPELL_SKUNK);     break;
@@ -184,7 +184,7 @@ class npc_shu_water_spirit : public CreatureScript
 
             EventMap _events;
             uint8 actualPlace;
-            uint64 waterSpoutGUID;
+            ObjectGuid waterSpoutGUID;
 
             enum eShuSpells
             {
@@ -207,7 +207,7 @@ class npc_shu_water_spirit : public CreatureScript
             {
                 _events.Reset();
                 actualPlace = 0;
-                waterSpoutGUID = 0;
+                waterSpoutGUID = ObjectGuid::Empty;
 
                 _events.ScheduleEvent(EVENT_CHANGE_PLACE, 5000);
             }
@@ -261,7 +261,7 @@ class npc_shu_water_spirit : public CreatureScript
                     {
                         float x = 0.0f, y = 0.0f;
                         GetPositionWithDistInOrientation(me, 5.0f, me->GetOrientation() + frand(-M_PI, M_PI), x, y);
-                        waterSpoutGUID = 0;
+                        waterSpoutGUID = ObjectGuid::Empty;
 
                         if (Creature* waterSpout = me->SummonCreature(60488, x, y, 92.189629f))
                             waterSpoutGUID = waterSpout->GetGUID();
@@ -296,7 +296,7 @@ class npc_shu_water_spirit : public CreatureScript
                         if (Creature* waterSpout = getWaterSpout())
                             waterSpout->DespawnOrUnsummon();
 
-                        waterSpoutGUID = 0;
+                        waterSpoutGUID = ObjectGuid::Empty;
 
                         _events.ScheduleEvent(EVENT_CHANGE_PLACE, 2000);
                         break;
@@ -345,7 +345,7 @@ class spell_shu_benediction : public AuraScript
                     return;
 
         // From here we know that the player does not have Huo yet
-        if (TempSummon* tempShu = target->SummonCreature(npcEntry, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0))
+        if (TempSummon* tempShu = target->SummonCreature(npcEntry, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0ms))
         {
             tempShu->SetExplicitSeerGuid(target->GetGUID());
             tempShu->SetOwnerGUID(target->GetGUID());
@@ -400,18 +400,18 @@ class spell_grab_carriage: public SpellScriptLoader
 
                 if (caster->GetAreaId() == 5826) // Bassins chantants
                 {
-                    carriage = caster->SummonCreature(57208, 979.06f, 2863.87f, 87.88f, 4.7822f, TEMPSUMMON_MANUAL_DESPAWN, 0);
-                    yak      = caster->SummonCreature(57207, 979.37f, 2860.29f, 88.22f, 4.4759f, TEMPSUMMON_MANUAL_DESPAWN, 0);
+                    carriage = caster->SummonCreature(57208, 979.06f, 2863.87f, 87.88f, 4.7822f, TEMPSUMMON_MANUAL_DESPAWN, 0ms);
+                    yak      = caster->SummonCreature(57207, 979.37f, 2860.29f, 88.22f, 4.4759f, TEMPSUMMON_MANUAL_DESPAWN, 0ms);
                 }
                 else if (caster->GetAreaId() == 5881) // Ferme Dai-Lo
                 {
-                    carriage = caster->SummonCreature(57208, 588.70f, 3165.63f, 88.86f, 4.4156f, TEMPSUMMON_MANUAL_DESPAWN, 0);
-                    yak      = caster->SummonCreature(59499, 587.61f, 3161.91f, 89.31f, 4.3633f, TEMPSUMMON_MANUAL_DESPAWN, 0);
+                    carriage = caster->SummonCreature(57208, 588.70f, 3165.63f, 88.86f, 4.4156f, TEMPSUMMON_MANUAL_DESPAWN, 0ms);
+                    yak      = caster->SummonCreature(59499, 587.61f, 3161.91f, 89.31f, 4.3633f, TEMPSUMMON_MANUAL_DESPAWN, 0ms);
                 }
                 else if (caster->GetAreaId() == 5833) // Epave du Chercheciel
                 {
-                    carriage = caster->SummonCreature(57208, 264.37f, 3867.60f, 73.56f, 0.9948f, TEMPSUMMON_MANUAL_DESPAWN, 0);
-                    yak      = caster->SummonCreature(57743, 268.38f, 3872.36f, 74.50f, 0.8245f, TEMPSUMMON_MANUAL_DESPAWN, 0);
+                    carriage = caster->SummonCreature(57208, 264.37f, 3867.60f, 73.56f, 0.9948f, TEMPSUMMON_MANUAL_DESPAWN, 0ms);
+                    yak      = caster->SummonCreature(57743, 268.38f, 3872.36f, 74.50f, 0.8245f, TEMPSUMMON_MANUAL_DESPAWN, 0ms);
                 }
 
                 if (!carriage || !yak)
@@ -442,9 +442,9 @@ class npc_nourished_yak : public CreatureScript
     public:
         npc_nourished_yak() : CreatureScript("npc_nourished_yak") { }
 
-        struct npc_nourished_yakAI : public npc_escortAI
+        struct npc_nourished_yakAI : public EscortAI
         {
-            npc_nourished_yakAI(Creature* creature) : npc_escortAI(creature)
+            npc_nourished_yakAI(Creature* creature) : EscortAI(creature)
             { }
 
             uint32 IntroTimer;
@@ -472,7 +472,7 @@ class npc_nourished_yak : public CreatureScript
                     IntroTimer = 0;
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
                 if (waypointId == waypointToEject)
                 {
@@ -491,173 +491,20 @@ class npc_nourished_yak : public CreatureScript
                 {
                     if (IntroTimer <= diff)
                     {
-                        Start(false, true);
+                        SetRun(true); Start(false);
                         IntroTimer = 0;
                     }
                     else
                         IntroTimer -= diff;
                 }
 
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
             }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_nourished_yakAI(creature);
-        }
-};
-
-class npc_water_spirit_dailo : public CreatureScript
-{
-    public:
-        npc_water_spirit_dailo() : CreatureScript("npc_water_spirit_dailo") { }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-
-            if (player->GetQuestStatus(29774) == QUEST_STATUS_INCOMPLETE)
-                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Can you please help us to wake up Wugou ?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            if (action == GOSSIP_ACTION_INFO_DEF+1)
-            {
-                player->CLOSE_GOSSIP_MENU();
-                player->KilledMonsterCredit(55548);
-                player->RemoveAurasDueToSpell(59073); // Remove Phase 2, first water spirit disapear
-
-                if (Creature* shu = player->SummonCreature(55558, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0))
-                {
-                    shu->SetExplicitSeerGuid(player->GetGUID());
-
-                    if (shu->AI())
-                    {
-                        shu->AI()->DoAction(0);
-                        shu->AI()->SetGUID(player->GetGUID());
-                    }
-                }
-            }
-            return true;
-        }
-
-        struct npc_water_spirit_dailoAI : public ScriptedAI
-        {
-            npc_water_spirit_dailoAI(Creature* creature) : ScriptedAI(creature) { }
-
-            uint64 playerGuid;
-            uint16 eventTimer;
-            uint8  eventProgress;
-
-            void Reset() override
-            {
-                eventTimer      = 0;
-                eventProgress   = 0;
-                playerGuid      = 0;
-            }
-
-            void DoAction(int32 /*actionId*/) override
-            {
-                eventTimer = 2500;
-            }
-
-            void SetGUID(uint64 guid, int32 /*type*/) override
-            {
-                playerGuid = guid;
-            }
-
-            void MovementInform(uint32 type, uint32 pointId) override
-            {
-                if (type != POINT_MOTION_TYPE)
-                    return;
-
-                switch (pointId)
-                {
-                    case 1:
-                        eventTimer = 250;
-                        ++eventProgress;
-                        break;
-                    case 2:
-                        eventTimer = 250;
-                        ++eventProgress;
-                        break;
-                    case 3:
-                        if (Creature* wugou = GetClosestCreatureWithEntry(me, 60916, 20.0f))
-                            me->SetFacingToObject(wugou);
-                        me->HandleEmoteStateCommand(EMOTE_STATE_READY_UNARMED);
-                        eventTimer = 2000;
-                        ++eventProgress;
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (eventTimer)
-                {
-                    if (eventTimer <= diff)
-                    {
-                        switch (eventProgress)
-                        {
-                            case 0:
-                                me->GetMotionMaster()->MovePoint(1, 650.30f, 3127.16f, 89.62f);
-                                eventTimer = 0;
-                                break;
-                            case 1:
-                                me->GetMotionMaster()->MovePoint(2, 625.25f, 3127.88f, 87.95f);
-                                eventTimer = 0;
-                                break;
-                            case 2:
-                                me->GetMotionMaster()->MovePoint(3, 624.44f, 3142.94f, 87.75f);
-                                eventTimer = 0;
-                                break;
-                            case 3:
-                                DoCast(me, 118027, false);
-                                eventTimer = 5500;
-                                ++eventProgress;
-                                break;
-                            case 4:
-                                eventTimer = 0;
-                                me->HandleEmoteStateCommand(EMOTE_ONESHOT_NONE);
-                                if (Player* owner = ObjectAccessor::FindPlayer(playerGuid))
-                                {
-                                    owner->KilledMonsterCredit(55547);
-                                    owner->RemoveAurasDueToSpell(59074); // Remove phase 4, asleep wugou disappear
-
-                                    if (Creature* wugou = GetClosestCreatureWithEntry(me, 60916, 20.0f))
-                                        if (Creature* newWugou = owner->SummonCreature(60916, wugou->GetPositionX(), wugou->GetPositionY(), wugou->GetPositionZ(), wugou->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0))
-                                        {
-                                            newWugou->SetExplicitSeerGuid(owner->GetGUID());
-                                            newWugou->RemoveAllAuras();
-                                            newWugou->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-                                        }
-
-                                    me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, -PET_FOLLOW_ANGLE);
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    else
-                        eventTimer -= diff;
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_water_spirit_dailoAI(creature);
         }
 };
 
@@ -670,5 +517,4 @@ void AddSC_wandering_island_east()
     new aura_script<spell_shu_benediction>("spell_shu_benediction");
     new spell_grab_carriage();
     new npc_nourished_yak();
-    new npc_water_spirit_dailo();
 }

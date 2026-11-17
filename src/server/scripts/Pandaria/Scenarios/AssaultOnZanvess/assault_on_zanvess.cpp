@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -128,17 +128,17 @@ class npc_zanvess_korkron_gunship : public CreatureScript
             EVENT_LAUNCH_GUNSHIP,
         };
 
-        struct npc_zanvess_korkron_gunshipAI : public CreatureAI
+        struct npc_zanvess_korkron_gunshipAI : public ScriptedAI
         {
-            npc_zanvess_korkron_gunshipAI(Creature* creature) : CreatureAI(creature) 
+            npc_zanvess_korkron_gunshipAI(Creature* creature) : ScriptedAI(creature) 
             { 
                 instance = me->GetInstanceScript();
-                nalleyGUID = 0;
+                nalleyGUID = ObjectGuid::Empty;
             }
 
             TaskScheduler scheduler;
-            uint64 targetGUID;
-            uint64 nalleyGUID;
+            ObjectGuid targetGUID;
+            ObjectGuid nalleyGUID;
             EventMap events;
             Position pos;
             std::vector<Position> loopPath;
@@ -399,7 +399,7 @@ class npc_zanvess_nalley : public CreatureScript
         {
             npc_zanvess_nalleyAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             EventMap nonCombatEvents;
 
             void IsSummonedBy(Unit* summoner) override
@@ -486,7 +486,7 @@ class npc_zanvess_sonic_control_tower : public CreatureScript
         {
             npc_zanvess_sonic_control_towerAI(Creature* creature) : zanvess_klaxxi_typeAI(creature) { }
 
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             InstanceScript* instance;
 
             void Reset() override
@@ -535,7 +535,7 @@ class npc_zanvess_scenario_controller : public CreatureScript
         {
             npc_zanvess_scenario_controllerAI(Creature* creature) : zanvess_klaxxi_typeAI(creature) { }
 
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
 
             void Reset() override
             {
@@ -568,7 +568,7 @@ struct npc_zanvess_scorpid_relocator : public zanvess_klaxxi_typeAI
 
     Position spawnPos;
     TaskScheduler scheduler;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
 
     void Reset() override
     {
@@ -588,8 +588,7 @@ struct npc_zanvess_scorpid_relocator : public zanvess_klaxxi_typeAI
         scheduler
             .Schedule(Seconds(3), [this](TaskContext context)
         {
-            Position pos;
-            me->GetRandomPoint(spawnPos, 10.0f, pos);
+            Position pos = me->GetRandomPoint(spawnPos, 10.0f);
             me->GetMotionMaster()->MovePoint(0, pos);
 
             context.Repeat(Milliseconds(me->GetSplineDuration()));
@@ -635,7 +634,7 @@ class npc_zanvess_zanthik_brutalizer : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_STOMP, 5 * IN_MILLISECONDS);
             }
@@ -698,7 +697,7 @@ class npc_zanvess_zanthik_ambermancer : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_SONIC_SHIELD);
                 events.ScheduleEvent(EVENT_SONIC_SHIELD, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
@@ -738,7 +737,7 @@ class npc_zanvess_zanthik_ambermancer : public CreatureScript
             }
 
         private:
-            uint64 FriendlyTargetGUID()
+            ObjectGuid FriendlyTargetGUID()
             {
                 std::list<Creature*> friendList;
                 GetCreatureListWithEntryInGrid(friendList, me, NPC_ZANTHIK_AMBERMANCER, 30.0f);
@@ -748,7 +747,7 @@ class npc_zanvess_zanthik_ambermancer : public CreatureScript
                     if (Creature* AmberTarget = Trinity::Containers::SelectRandomContainerElement(friendList))
                         return AmberTarget->GetGUID();
 
-                return 0;
+                return ObjectGuid::Empty;
             }
         };
 
@@ -785,7 +784,7 @@ class npc_zanvess_7th_legion_infiltrator : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_RUSH);
                 events.ScheduleEvent(EVENT_RUSH, 10 * IN_MILLISECONDS);
@@ -849,7 +848,7 @@ class npc_zanvess_7th_legion_priest : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_HEAL, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_SHADOW_WORD, 8 * IN_MILLISECONDS);
@@ -891,9 +890,9 @@ class npc_zanvess_7th_legion_priest : public CreatureScript
             }
 
             private:
-                uint64 LowestHpTargetGUID()
+                ObjectGuid LowestHpTargetGUID()
                 {
-                    uint64 targetGUID = 0;
+                    ObjectGuid targetGUID = ObjectGuid::Empty;
                     float pctHealth = 100.0f;
                     std::list<Creature*> friendList;
 
@@ -947,15 +946,15 @@ class npc_zanvess_team_leader_scooter : public CreatureScript
             npc_zanvess_team_leader_scooterAI(Creature* creature) : zanvess_assault_typeAI(creature) { }
 
             EventMap events;
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
 
             void Reset() override
             {
                 events.Reset();
-                targetGUID = 0;
+                targetGUID = ObjectGuid::Empty;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_FIXATE, urand(8 * IN_MILLISECONDS, 29 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_WHIRLWIND, 14 * IN_MILLISECONDS);
@@ -1080,7 +1079,7 @@ class npc_zanvess_commander_telvrak : public CreatureScript
                 weaponData = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_SWAP_WEAPON);
                 events.ScheduleEvent(EVENT_SWAP_WEAPON, 15 * IN_MILLISECONDS);
@@ -1199,7 +1198,7 @@ struct npc_zanvess_zarthik_guardian : public ScriptedAI
         DoCast(me, SPELL_PROTECTIVE_SHELL);
     }
 
-    void EnterEvadeMode() override 
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override 
     {
         ScriptedAI::EnterEvadeMode();
     }
@@ -1218,11 +1217,11 @@ struct npc_zanvess_strafing_ran_trigger : public ScriptedAI
 {
     npc_zanvess_strafing_ran_trigger(Creature* creature) : ScriptedAI(creature) 
     { 
-        summonerGUID = 0;
+        summonerGUID = ObjectGuid::Empty;
     }
 
     TaskScheduler scheduler;
-    uint64 summonerGUID;
+    ObjectGuid summonerGUID;
 
     void IsSummonedBy(Unit* summoner) override
     {
@@ -1337,7 +1336,7 @@ class AreaTrigger_at_zanvess_heart : public AreaTriggerScript
                     instance->SetData(DATA_HEART_OF_ZANVESS, instance->GetData(DATA_HEART_OF_ZANVESS) + 1);
                     instance->SendScenarioProgressUpdate(CriteriaProgressData(CRITERIA_REACH_HEART_OF_ZANVESS, 1, instance->GetScenarioGUID(), time(NULL), 0, 0));
 
-                    if (Creature* Telvrak = ObjectAccessor::GetCreature(*player, instance->GetData64(NPC_COMMANDER_TELVRAK)))
+                    if (Creature* Telvrak = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_COMMANDER_TELVRAK)))
                         Telvrak->AI()->Talk(TALK_INTRO);
                 }
             }

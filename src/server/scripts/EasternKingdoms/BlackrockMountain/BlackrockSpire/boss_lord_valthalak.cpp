@@ -55,9 +55,9 @@ public:
             frenzy15 = false;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             events.ScheduleEvent(EVENT_SUMMON_SPECTRAL_ASSASSIN, urand(6000,8000));
             events.ScheduleEvent(EVENT_SHADOW_WRATH, urand(9000,18000));
         }

@@ -124,7 +124,7 @@ class example_creature : public CreatureScript
 
             // *** HANDLED FUNCTION ***
             // Enter Combat called once per combat
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 //Say some stuff
                 Talk(SAY_AGGRO, who);
@@ -140,7 +140,7 @@ class example_creature : public CreatureScript
 
             // *** HANDLED FUNCTION ***
             // Called when going out of combat. Reset is called just after.
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 Talk(SAY_EVADE);
             }

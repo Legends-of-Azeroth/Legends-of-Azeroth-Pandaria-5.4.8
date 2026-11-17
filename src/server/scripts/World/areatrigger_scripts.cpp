@@ -163,7 +163,7 @@ class AreaTrigger_at_scent_larkorwi : public AreaTriggerScript
             if (!player->isDead() && player->GetQuestStatus(QUEST_SCENT_OF_LARKORWI) == QUEST_STATUS_INCOMPLETE)
             {
                 if (!player->FindNearestCreature(NPC_LARKORWI_MATE, 15))
-                    player->SummonCreature(NPC_LARKORWI_MATE, player->GetPositionX()+5, player->GetPositionY(), player->GetPositionZ(), 3.3f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000);
+                    player->SummonCreature(NPC_LARKORWI_MATE, player->GetPositionX()+5, player->GetPositionY(), player->GetPositionZ(), 3.3f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000ms);
             }
 
             return false;
@@ -199,7 +199,7 @@ class AreaTrigger_at_last_rites : public AreaTriggerScript
 
             WorldLocation pPosition;
 
-            switch (trigger->id)
+            switch (trigger->ID)
             {
                 case 5332:
                 case 5338:
@@ -253,7 +253,7 @@ class AreaTrigger_at_sholazar_waygate : public AreaTriggerScript
             if (!player->isDead() && (player->GetQuestStatus(QUEST_MEETING_A_GREAT_ONE) != QUEST_STATUS_NONE ||
                 (player->GetQuestStatus(QUEST_THE_MAKERS_OVERLOOK) == QUEST_STATUS_REWARDED && player->GetQuestStatus(QUEST_THE_MAKERS_PERCH) == QUEST_STATUS_REWARDED)))
             {
-                switch (trigger->id)
+                switch (trigger->ID)
                 {
                     case AT_SHOLAZAR:
                         player->CastSpell(player, SPELL_SHOLAZAR_TO_UNGORO_TELEPORT, false);
@@ -294,7 +294,7 @@ class AreaTrigger_at_nats_landing : public AreaTriggerScript
             {
                 if (!player->FindNearestCreature(NPC_LURKING_SHARK, 20.0f))
                 {
-                    if (Creature* shark = player->SummonCreature(NPC_LURKING_SHARK, -4246.243f, -3922.356f, -7.488f, 5.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000))
+                    if (Creature* shark = player->SummonCreature(NPC_LURKING_SHARK, -4246.243f, -3922.356f, -7.488f, 5.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000ms))
                         shark->AI()->AttackStart(player);
 
                     return false;
@@ -332,7 +332,7 @@ class AreaTrigger_at_brewfest : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
         {
-            uint32 triggerId = trigger->id;
+            uint32 triggerId = trigger->ID;
             // Second trigger happened too early after first, skip for now
             if (sWorld->GetGameTime() - _triggerTimes[triggerId] < AREATRIGGER_TALK_COOLDOWN)
                 return false;
@@ -390,8 +390,8 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
             if (!player->IsAlive())
                 return false;
 
-            uint32 triggerId = trigger->id;
-            if (sWorld->GetGameTime() - _triggerTimes[trigger->id] < SUMMON_COOLDOWN)
+            uint32 triggerId = trigger->ID;
+            if (sWorld->GetGameTime() - _triggerTimes[trigger->ID] < SUMMON_COOLDOWN)
                 return false;
 
             switch (triggerId)
@@ -418,9 +418,9 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
                     break;
             }
 
-            player->SummonCreature(NPC_SPOTLIGHT, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5000);
+            player->SummonCreature(NPC_SPOTLIGHT, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5000ms);
             player->AddAura(SPELL_A52_NEURALYZER, player);
-            _triggerTimes[trigger->id] = sWorld->GetGameTime();
+            _triggerTimes[trigger->ID] = sWorld->GetGameTime();
             return false;
         }
 
@@ -451,8 +451,8 @@ class AreaTrigger_at_frostgrips_hollow : public AreaTriggerScript
 public:
     AreaTrigger_at_frostgrips_hollow() : AreaTriggerScript("at_frostgrips_hollow")
     {
-        stormforgedMonitorGUID = 0;
-        stormforgedEradictorGUID = 0;
+        stormforgedMonitorGUID = ObjectGuid::Empty;
+        stormforgedEradictorGUID = ObjectGuid::Empty;
     }
 
     bool OnTrigger(Player* player, AreaTriggerEntry const* /* trigger */) override
@@ -468,7 +468,7 @@ public:
         if (stormforgedEradictor)
             return false;
 
-        stormforgedMonitor = player->SummonCreature(NPC_STORMFORGED_MONITOR, stormforgedMonitorPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+        stormforgedMonitor = player->SummonCreature(NPC_STORMFORGED_MONITOR, stormforgedMonitorPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms);
         if (stormforgedMonitor)
         {
             stormforgedMonitorGUID = stormforgedMonitor->GetGUID();
@@ -478,7 +478,7 @@ public:
             stormforgedMonitor->GetMotionMaster()->MovePath(NPC_STORMFORGED_MONITOR * 100, false);
         }
 
-        stormforgedEradictor = player->SummonCreature(NPC_STORMFORGED_ERADICTOR, stormforgedEradictorPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+        stormforgedEradictor = player->SummonCreature(NPC_STORMFORGED_ERADICTOR, stormforgedEradictorPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms);
         if (stormforgedEradictor)
         {
             stormforgedEradictorGUID = stormforgedEradictor->GetGUID();
@@ -489,8 +489,8 @@ public:
     }
 
 private:
-    uint64 stormforgedMonitorGUID;
-    uint64 stormforgedEradictorGUID;
+    ObjectGuid stormforgedMonitorGUID;
+    ObjectGuid stormforgedEradictorGUID;
 };
 
 enum QuesLiveBait

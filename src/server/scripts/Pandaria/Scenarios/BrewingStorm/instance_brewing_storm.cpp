@@ -34,9 +34,9 @@ class instance_brewing_storm : public InstanceMapScript
             uint64 gongGUID, templeDoorGUID;
             uint32 m_auiEncounter[CHAPTERS];
             uint32 m_chapterOne, m_chapterTwo, m_chapterThree;
-            uint64 blancheGUID;
-            uint64 borakhulaGUID;
-            std::vector<uint64> villagerGUIDs;
+            ObjectGuid blancheGUID;
+            ObjectGuid borakhulaGUID;
+            std::vector<ObjectGuid> villagerGUIDs;
 
             void Initialize() override
             {
@@ -46,8 +46,8 @@ class instance_brewing_storm : public InstanceMapScript
                 m_chapterOne   = 0;
                 m_chapterTwo   = 0;
                 m_chapterThree = 0;
-                blancheGUID    = 0;
-                borakhulaGUID  = 0;
+                blancheGUID = ObjectGuid::Empty;
+                borakhulaGUID = ObjectGuid::Empty;
 
                 villagerGUIDs.clear();
             }
@@ -62,7 +62,7 @@ class instance_brewing_storm : public InstanceMapScript
             {
                 if (unit && unit->GetEntry() == NPC_THUNDERPAW_GUARDIAN)
                 {
-                    if (Creature* blanche = instance->GetCreature(GetData64(NPC_BREWMASTER_BLANCHE)))
+                    if (Creature* blanche = instance->GetCreature(GetGuidData(NPC_BREWMASTER_BLANCHE)))
                         blanche->AI()->SetData(TYPE_PARTY_OF_SIX, 0);
                 }
             }
@@ -109,7 +109,7 @@ class instance_brewing_storm : public InstanceMapScript
                             if (Player* player = itr.GetSource())
                                 sScenarioMgr->SendScenarioState(player, 1005, DATA_SAVE_THUNDERPAW_REFUGE, 0);
 
-                        if (Creature* borokhula = instance->GetCreature(GetData64(NPC_BOROKHULA_THE_DESTROYER)))
+                        if (Creature* borokhula = instance->GetCreature(GetGuidData(NPC_BOROKHULA_THE_DESTROYER)))
                             borokhula->AI()->DoAction(ACTION_BOROKHULA_INIT);
 
                         for (auto&& itr : villagerGUIDs)
@@ -150,7 +150,7 @@ class instance_brewing_storm : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -160,7 +160,7 @@ class instance_brewing_storm : public InstanceMapScript
                     return borakhulaGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool IsWipe(float range, Unit* source) override

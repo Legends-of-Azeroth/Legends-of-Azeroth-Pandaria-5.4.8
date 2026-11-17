@@ -58,9 +58,9 @@ class boss_commander_sarannis : public CreatureScript
                 _phase = true;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_ARCANE_RESONANCE, 42700);
                 events.ScheduleEvent(EVENT_ARCANE_DEVASTATION, 15200);

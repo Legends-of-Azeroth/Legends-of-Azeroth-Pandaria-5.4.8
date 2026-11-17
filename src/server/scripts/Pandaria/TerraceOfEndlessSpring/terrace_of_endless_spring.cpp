@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -146,7 +146,7 @@ class npc_apparition_of_fear : public CreatureScript
                     instance->SetData(INTRO_DONE, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->RemoveAurasDueToSpell(SPELL_CHANNELING_CORRUPTION);
 
@@ -209,10 +209,10 @@ class npc_apparition_of_fear : public CreatureScript
 
                             if (instance)
                             {
-                                Creature* asani = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_ASANI));
-                                Creature* regail = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_REGAIL));
-                                Creature* kaolan = instance->instance->GetCreature(instance->GetData64(NPC_PROTECTOR_KAOLAN));
-                                std::vector<uint64> targets;
+                                Creature* asani = instance->instance->GetCreature(instance->GetGuidData(NPC_ANCIENT_ASANI));
+                                Creature* regail = instance->instance->GetCreature(instance->GetGuidData(NPC_ANCIENT_REGAIL));
+                                Creature* kaolan = instance->instance->GetCreature(instance->GetGuidData(NPC_PROTECTOR_KAOLAN));
+                                std::vector<ObjectGuid> targets;
 
                                 if (asani)
                                     targets.push_back(asani->GetGUID());
@@ -226,7 +226,7 @@ class npc_apparition_of_fear : public CreatureScript
                                 std::random_device rd;
                                 std::mt19937 g(rd());
                                 std::shuffle(targets.begin(), targets.end(), g);
-                                if (Unit* target = sObjectAccessor->FindUnit((*targets.begin())))
+                                if (Unit* target = ObjectAccessor::GetUnit(*me, (*targets.begin())))
                                     me->CastSpell(target, SPELL_CORRUPTION_BOLT, true);
                             }
                         }
@@ -304,7 +304,7 @@ class npc_apparition_of_terror : public CreatureScript
                     instance->SetData(INTRO_DONE, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->RemoveAurasDueToSpell(SPELL_CHANNELING_CORRUPTION);
 
@@ -366,10 +366,10 @@ class npc_apparition_of_terror : public CreatureScript
 
                             if (instance)
                             {
-                                Creature* asani = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_ASANI));
-                                Creature* regail = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_REGAIL));
-                                Creature* kaolan = instance->instance->GetCreature(instance->GetData64(NPC_PROTECTOR_KAOLAN));
-                                std::vector<uint64> targets;
+                                Creature* asani = instance->instance->GetCreature(instance->GetGuidData(NPC_ANCIENT_ASANI));
+                                Creature* regail = instance->instance->GetCreature(instance->GetGuidData(NPC_ANCIENT_REGAIL));
+                                Creature* kaolan = instance->instance->GetCreature(instance->GetGuidData(NPC_PROTECTOR_KAOLAN));
+                                std::vector<ObjectGuid> targets;
 
                                 if (asani)
                                     targets.push_back(asani->GetGUID());
@@ -383,7 +383,7 @@ class npc_apparition_of_terror : public CreatureScript
                                 std::random_device rd;
                                 std::mt19937 g(rd());
                                 std::shuffle(targets.begin(), targets.end(), g);
-                                if (Unit* target = sObjectAccessor->FindUnit((*targets.begin())))
+                                if (Unit* target = ObjectAccessor::GetUnit(*me, (*targets.begin())))
                                     me->CastSpell(target, SPELL_CORRUPTION_BOLT, true);
                             }
                         }
@@ -532,7 +532,7 @@ class spell_night_terrors_missile : public SpellScriptLoader
 
                 if (Unit* caster = GetCaster())
                     caster->SummonCreature(NPC_NIGHT_TERRORS, GetExplTargetDest()->GetPositionX(), GetExplTargetDest()->GetPositionY(),
-                    GetExplTargetDest()->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 15000);
+                    GetExplTargetDest()->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 15000ms);
             }
 
             void Register() override
@@ -561,8 +561,7 @@ class spell_night_terrors_periodic : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    Position pos;
-                    caster->GetPosition(&pos);
+                    Position pos = caster->GetPosition();
 
                     caster->SummonCreature(NPC_NIGHT_TERROR_SUMMON, pos);
                 }

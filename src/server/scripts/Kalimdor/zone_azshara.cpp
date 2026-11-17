@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -34,22 +34,22 @@ enum groundTroopsTypes
 };
 
 // AWOL Grunt 42646
-struct npc_azshara_awol_grunt : public CreatureAI
+struct npc_azshara_awol_grunt : public ScriptedAI
 {
-    npc_azshara_awol_grunt(Creature* creature) : CreatureAI(creature) { }
+    npc_azshara_awol_grunt(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
     bool hasDefeat;
 
     void Reset() override
     {
-        targetGUID = 0;
+        targetGUID = ObjectGuid::Empty;
         hasDefeat = false;
         me->SetFaction(125);
     }
 
-    void SetGUID(uint64 guid, int32 /*type*/) override
+    void SetGUID(ObjectGuid guid, int32 /*type*/) override
     {
         targetGUID = guid;
     }
@@ -124,8 +124,7 @@ struct npc_azshara_awol_grunt : public CreatureAI
     private:
         void MoveAway()
         {
-            Position pos;
-            me->GetNearPosition(pos, 15.0f, frand(0.0f, 2 * M_PI));
+            Position pos = me->GetNearPosition(15.0f, frand(0.0f, 2 * M_PI));
             me->GetMotionMaster()->MovePoint(0, pos);
             me->DespawnOrUnsummon(me->GetSplineDuration());
         }
@@ -182,7 +181,7 @@ enum ancientEnemy
         SPELL_FIRES_BEAM            = 73294,
 };
 
-#define VOLJIN_GOSSIP       "我准备好了."
+static const uint32 GOSSIP_MENU_VOLJIN_READY = 11020;   // gossip_menu_option: "I am ready, Vol'jin."
 static const uint32 npcId[3] = { NPC_ZUNI, NPC_VANIRA, NPC_VOLJIN };
 
 class npc_voljin_ancient_enemy : public CreatureScript
@@ -211,19 +210,19 @@ class npc_voljin_ancient_enemy : public CreatureScript
     {
         npc_voljin_ancient_enemyAI(Creature* c) : ScriptedAI(c) {}
 
-        void Reset()
+        void Reset() override
         {
             EventInProgress = false;
             events.Reset();
             me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
-        void AttackStart(Unit * who)
+        void AttackStart(Unit * who) override
         {
             ScriptedAI::AttackStartNoMove(who);
         }
 
-        void DoAction(int32 /*action*/)
+        void DoAction(int32 /*action*/) override
         {
             if(EventInProgress)
                 return;
@@ -242,13 +241,13 @@ class npc_voljin_ancient_enemy : public CreatureScript
             events.ScheduleEvent(EVENT_INTRO, 10000);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void JustEngagedWith(Unit * /*who*/) override
         {
             events.ScheduleEvent(EVENT_SHOOT, 2000);
             events.ScheduleEvent(EVENT_SHADOW_SHOCK, 5000);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if(!EventInProgress)
                 return;
@@ -285,17 +284,17 @@ class npc_voljin_ancient_enemy : public CreatureScript
 
 public:
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if(player->GetQuestStatus(QUEST_ANCIENT_ENEMY) == QUEST_STATUS_INCOMPLETE)
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, VOLJIN_GOSSIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_VOLJIN_READY, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
             player->SEND_GOSSIP_MENU(GOSSIP_VOLJIN, creature->GetGUID());            
         }
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         player->CLOSE_GOSSIP_MENU();
@@ -308,7 +307,7 @@ public:
 
     npc_voljin_ancient_enemy() : CreatureScript("npc_voljin_ancient_enemy") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_voljin_ancient_enemyAI (creature);
     }
@@ -336,18 +335,18 @@ class npc_zarjira : public CreatureScript
     {
         npc_zarjiraAI(Creature* c) : ScriptedAI(c) {}
 
-        void Reset()
+        void Reset() override
         {
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void AttackStart(Unit * who)
+        void AttackStart(Unit * who) override
         {
             ScriptedAI::AttackStartNoMove(who);
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) override
         {
             if(action == 1)
                 events.ScheduleEvent(EVENT_INTRO, 12000);
@@ -368,17 +367,17 @@ class npc_zarjira : public CreatureScript
             std::list<Player*> playerList;
             GetPlayerListInGrid(playerList, me, 50.0f);
             for (auto&& player : playerList)
-                player->KilledMonsterCredit(NPC_ZARJIRA, 0);
+                player->KilledMonsterCredit(NPC_ZARJIRA, ObjectGuid::Empty);
         }
 
-        void EnterCombat(Unit *)
+        void JustEngagedWith(Unit *) override
         {
             events.ScheduleEvent(EVENT_FROSTBOLT, 3000);
             events.ScheduleEvent(EVENT_MANIFESTATION, 10000);
             events.ScheduleEvent(EVENT_FIRES, 60000);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
             if(uint32 eventId = events.ExecuteEvent())
@@ -455,7 +454,7 @@ class npc_zarjira : public CreatureScript
 public:
     npc_zarjira() : CreatureScript("npc_zarjira") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_zarjiraAI (creature);
     }
@@ -472,12 +471,12 @@ class npc_fire_of_the_seas : public CreatureScript
     {
         npc_fire_of_the_seasAI(Creature* c) : ScriptedAI(c) {}
 
-        void Reset()
+        void Reset() override
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void SpellHit(Unit * /*caster*/, const SpellInfo * spell)
+        void SpellHit(Unit * /*caster*/, const SpellInfo * spell) override
         {
             if(spell->Id == SPELL_STAMP_OUT_FIRES)
             {
@@ -495,7 +494,7 @@ class npc_fire_of_the_seas : public CreatureScript
 public:
     npc_fire_of_the_seas() : CreatureScript("npc_fire_of_the_seas") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_fire_of_the_seasAI (creature);
     }

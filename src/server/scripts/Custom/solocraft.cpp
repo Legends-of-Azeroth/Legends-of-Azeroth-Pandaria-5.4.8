@@ -135,7 +135,7 @@ class SolocraftConfig
                 {585, sConfigMgr->GetIntDefault("Solocraft.MagistersTerrace.Level", 68) },
                 /// WRATH OF THE LICH KING
                 {533, sConfigMgr->GetIntDefault("Solocraft.Naxxramas.Level", 78) },
-                {574, sConfigMgr->GetIntDefault("Solocraft.UtgardeKeep", 78) },
+                {574, sConfigMgr->GetIntDefault("Solocraft.UtgardeKeep.Level", 78) },
                 {575, sConfigMgr->GetIntDefault("Solocraft.UtgardePinnacle.Level", 78) },
                 {578, sConfigMgr->GetIntDefault("Solocraft.Oculus.Level", 78) },
                 {595, sConfigMgr->GetIntDefault("Solocraft.TheCullingOfStratholme.Level", 78) },
@@ -273,39 +273,39 @@ class SolocraftConfig
                 {668, sConfigMgr->GetFloatDefault("Solocraft.HallsOfReflection", 5.0) },
                 {724, sConfigMgr->GetFloatDefault("Solocraft.TheRubySanctum", 10.0) },
                 /// CATACLYSM
-                {33, sConfigMgr->GetIntDefault("Solocraft.ShadowfangKeep", 5.0) }, // ShadowfangKeep
-                {36, sConfigMgr->GetIntDefault("Solocraft.DeadMines", 5.0) }, // DeadMines
-                {645, sConfigMgr->GetIntDefault("Solocraft.BlackrockCaverns", 5.0) }, // BlackrockCaverns
-                {643, sConfigMgr->GetIntDefault("Solocraft.ThroneOfTheTides", 5.0) }, // Трон Приливов
-                {657, sConfigMgr->GetIntDefault("Solocraft.TheVortexPinnacle", 5.0) }, // Вершина Смерча
-                {725, sConfigMgr->GetIntDefault("Solocraft.TheStonecore", 5.0) }, // Каменные Недра
-                {755, sConfigMgr->GetIntDefault("Solocraft.LostCityOfTheTol'vir", 5.0) }, // Затерянный город Тол'вир
-                {644, sConfigMgr->GetIntDefault("Solocraft.HallsOfOrigination", 5.0) }, // Чертоги Созидания
-                {670, sConfigMgr->GetIntDefault("Solocraft.GrimBatol", 5.0) }, // Грим Батол
-                {669, sConfigMgr->GetIntDefault("Solocraft.BlackwingDescent", 10.0) }, // Твердыня Крыла Тьмы
-                {671, sConfigMgr->GetIntDefault("Solocraft.TheBastionOfTwilight", 10.0) }, // Сумеречный бастион
-                {754, sConfigMgr->GetIntDefault("Solocraft.ThroneOfTheFourWinds", 10.0) }, // Трон Четырех Ветров
-                {757, sConfigMgr->GetIntDefault("Solocraft.BaradinHold", 10.0) }, // Крепость Барадин
-                {720, sConfigMgr->GetIntDefault("Solocraft.Firelands", 10.0) }, // Огненные Просторы
-                {967, sConfigMgr->GetIntDefault("Solocraft.DragonSoul", 10.0) }, // Душа Дракона
-                {859, sConfigMgr->GetIntDefault("Solocraft.Zul'gurub", 5.0) }, // Зул'Гуруб
-                {568, sConfigMgr->GetIntDefault("Solocraft.ZulAman", 5.0) }, // Зул'Аман
-                {576, sConfigMgr->GetIntDefault("Solocraft.Nexus", 5.0) }, // Нексус
+                {33, sConfigMgr->GetFloatDefault("Solocraft.ShadowfangKeep", 5.0) }, // ShadowfangKeep
+                {36, sConfigMgr->GetFloatDefault("Solocraft.DeadMines", 5.0) }, // DeadMines
+                {645, sConfigMgr->GetFloatDefault("Solocraft.BlackrockCaverns", 5.0) }, // BlackrockCaverns
+                {643, sConfigMgr->GetFloatDefault("Solocraft.ThroneOfTheTides", 5.0) }, // Трон Приливов
+                {657, sConfigMgr->GetFloatDefault("Solocraft.TheVortexPinnacle", 5.0) }, // Вершина Смерча
+                {725, sConfigMgr->GetFloatDefault("Solocraft.TheStonecore", 5.0) }, // Каменные Недра
+                {755, sConfigMgr->GetFloatDefault("Solocraft.LostCityOfTheTol'vir", 5.0) }, // Затерянный город Тол'вир
+                {644, sConfigMgr->GetFloatDefault("Solocraft.HallsOfOrigination", 5.0) }, // Чертоги Созидания
+                {670, sConfigMgr->GetFloatDefault("Solocraft.GrimBatol", 5.0) }, // Грим Батол
+                {669, sConfigMgr->GetFloatDefault("Solocraft.BlackwingDescent", 10.0) }, // Твердыня Крыла Тьмы
+                {671, sConfigMgr->GetFloatDefault("Solocraft.TheBastionOfTwilight", 10.0) }, // Сумеречный бастион
+                {754, sConfigMgr->GetFloatDefault("Solocraft.ThroneOfTheFourWinds", 10.0) }, // Трон Четырех Ветров
+                {757, sConfigMgr->GetFloatDefault("Solocraft.BaradinHold", 10.0) }, // Крепость Барадин
+                {720, sConfigMgr->GetFloatDefault("Solocraft.Firelands", 10.0) }, // Огненные Просторы
+                {967, sConfigMgr->GetFloatDefault("Solocraft.DragonSoul", 10.0) }, // Душа Дракона
+                {859, sConfigMgr->GetFloatDefault("Solocraft.Zul'gurub", 5.0) }, // Зул'Гуруб
+                {568, sConfigMgr->GetFloatDefault("Solocraft.ZulAman", 5.0) }, // Зул'Аман
+                {576, sConfigMgr->GetFloatDefault("Solocraft.Nexus", 5.0) }, // Нексус
                 /// MISTS OF PANDARIA
-                {959, sConfigMgr->GetIntDefault("Solocraft.ShadoPanMonastery", 5.0) }, // Монастырь Шадо-Пан
-                {1007, sConfigMgr->GetIntDefault("Solocraft.Scholomance", 5.0) }, // Некроситет
-                {1004, sConfigMgr->GetIntDefault("Solocraft.ScarletMonastery", 5.0) }, // Монастырь Алого ордена
-                {994, sConfigMgr->GetIntDefault("Solocraft.Mogu'shanPalace", 5.0) }, // Дворец Могу'шан
-                {1008, sConfigMgr->GetIntDefault("Solocraft.Mogu'shanVaults", 10.0) }, // Подземелья Могу'шан
-                {1136, sConfigMgr->GetIntDefault("Solocraft.SiegeOfOrgrimmar", 10.0) }, // Осада Оргриммара
-                {1098, sConfigMgr->GetIntDefault("Solocraft.ThroneOfThunder", 10.0) }, // Престол Гроз
-                {1009, sConfigMgr->GetIntDefault("Solocraft.HeartOfFear", 10.0) }, // Сердце Страха
-                {996, sConfigMgr->GetIntDefault("Solocraft.TerraceOfEndlessSpring", 10.0) }, // Терраса Вечной Весны
-                {1001, sConfigMgr->GetIntDefault("Solocraft.ScarletHalls", 5.0) }, // Залы Алого ордена
-                {962, sConfigMgr->GetIntDefault("Solocraft.GateOfTheSettingSun", 5.0) }, // Врата Заходящего Солнца
-                {1011, sConfigMgr->GetIntDefault("Solocraft.SiegeOfNiuzaoTemple", 5.0) }, // Осада храма Нюцзао
-                {960, sConfigMgr->GetIntDefault("Solocraft.TempleOfTheJadeSerpent", 5.0) }, // Храм Нефритовой Змеи
-                {961, sConfigMgr->GetIntDefault("Solocraft.StormstoutBrewery", 5.0) }, // Хмелеварня Буйных Портеров
+                {959, sConfigMgr->GetFloatDefault("Solocraft.ShadoPanMonastery", 5.0) }, // Монастырь Шадо-Пан
+                {1007, sConfigMgr->GetFloatDefault("Solocraft.Scholomance", 5.0) }, // Некроситет
+                {1004, sConfigMgr->GetFloatDefault("Solocraft.ScarletMonastery", 5.0) }, // Монастырь Алого ордена
+                {994, sConfigMgr->GetFloatDefault("Solocraft.Mogu'shanPalace", 5.0) }, // Дворец Могу'шан
+                {1008, sConfigMgr->GetFloatDefault("Solocraft.Mogu'shanVaults", 10.0) }, // Подземелья Могу'шан
+                {1136, sConfigMgr->GetFloatDefault("Solocraft.SiegeOfOrgrimmar", 10.0) }, // Осада Оргриммара
+                {1098, sConfigMgr->GetFloatDefault("Solocraft.ThroneOfThunder", 10.0) }, // Престол Гроз
+                {1009, sConfigMgr->GetFloatDefault("Solocraft.HeartOfFear", 10.0) }, // Сердце Страха
+                {996, sConfigMgr->GetFloatDefault("Solocraft.TerraceOfEndlessSpring", 10.0) }, // Терраса Вечной Весны
+                {1001, sConfigMgr->GetFloatDefault("Solocraft.ScarletHalls", 5.0) }, // Залы Алого ордена
+                {962, sConfigMgr->GetFloatDefault("Solocraft.GateOfTheSettingSun", 5.0) }, // Врата Заходящего Солнца
+                {1011, sConfigMgr->GetFloatDefault("Solocraft.SiegeOfNiuzaoTemple", 5.0) }, // Осада храма Нюцзао
+                {960, sConfigMgr->GetFloatDefault("Solocraft.TempleOfTheJadeSerpent", 5.0) }, // Храм Нефритовой Змеи
+                {961, sConfigMgr->GetFloatDefault("Solocraft.StormstoutBrewery", 5.0) }, // Хмелеварня Буйных Портеров
             };
             // diff_Multiplier_Heroics
             diff_Multiplier_Heroics =
@@ -353,40 +353,40 @@ class SolocraftConfig
                 /// CATACLYSM
                 {33, sConfigMgr->GetFloatDefault("Solocraft.ShadowfangKeepH", 5.0) }, 
                 {36, sConfigMgr->GetFloatDefault("Solocraft.DeadMinesH", 5.0) }, 
-                {645, sConfigMgr->GetIntDefault("Solocraft.BlackrockCavernsH", 5.0) }, 
-                {643, sConfigMgr->GetIntDefault("Solocraft.ThroneOfTheTidesH", 5.0) }, 
-                {657, sConfigMgr->GetIntDefault("Solocraft.TheVortexPinnacleH", 5.0) }, 
-                {725, sConfigMgr->GetIntDefault("Solocraft.TheStonecoreH", 5.0) }, 
-                {755, sConfigMgr->GetIntDefault("Solocraft.LostCityOfTheTol'virH", 5.0) }, 
-                {644, sConfigMgr->GetIntDefault("Solocraft.HallsOfOriginationH", 5.0) }, 
-                {670, sConfigMgr->GetIntDefault("Solocraft.GrimBatolH", 5.0) }, 
-                {669, sConfigMgr->GetIntDefault("Solocraft.BlackwingDescentH", 25.0) }, 
-                {671, sConfigMgr->GetIntDefault("Solocraft.TheBastionOfTwilightH", 25.0) }, 
-                {754, sConfigMgr->GetIntDefault("Solocraft.ThroneOfTheFourWindsH", 25.0) }, 
-                {757, sConfigMgr->GetIntDefault("Solocraft.BaradinHoldH", 25.0) }, 
-                {720, sConfigMgr->GetIntDefault("Solocraft.FirelandsH", 25.0) }, 
-                {967, sConfigMgr->GetIntDefault("Solocraft.DragonSoulH", 25.0) }, 
-                {938, sConfigMgr->GetIntDefault("Solocraft.EndTimeH", 5.0) }, 
-                {939, sConfigMgr->GetIntDefault("Solocraft.WellOfEternityH", 5.0) }, 
-                {940, sConfigMgr->GetIntDefault("Solocraft.HourOfTwilightH", 5.0) }, 
-                {859, sConfigMgr->GetIntDefault("Solocraft.Zul'gurubH", 5.0) }, 
-                {568, sConfigMgr->GetIntDefault("Solocraft.ZulAmanH", 5.0) }, 
-                {576, sConfigMgr->GetIntDefault("Solocraft.NexusH", 5.0) }, 
+                {645, sConfigMgr->GetFloatDefault("Solocraft.BlackrockCavernsH", 5.0) }, 
+                {643, sConfigMgr->GetFloatDefault("Solocraft.ThroneOfTheTidesH", 5.0) }, 
+                {657, sConfigMgr->GetFloatDefault("Solocraft.TheVortexPinnacleH", 5.0) }, 
+                {725, sConfigMgr->GetFloatDefault("Solocraft.TheStonecoreH", 5.0) }, 
+                {755, sConfigMgr->GetFloatDefault("Solocraft.LostCityOfTheTol'virH", 5.0) }, 
+                {644, sConfigMgr->GetFloatDefault("Solocraft.HallsOfOriginationH", 5.0) }, 
+                {670, sConfigMgr->GetFloatDefault("Solocraft.GrimBatolH", 5.0) }, 
+                {669, sConfigMgr->GetFloatDefault("Solocraft.BlackwingDescentH", 25.0) }, 
+                {671, sConfigMgr->GetFloatDefault("Solocraft.TheBastionOfTwilightH", 25.0) }, 
+                {754, sConfigMgr->GetFloatDefault("Solocraft.ThroneOfTheFourWindsH", 25.0) }, 
+                {757, sConfigMgr->GetFloatDefault("Solocraft.BaradinHoldH", 25.0) }, 
+                {720, sConfigMgr->GetFloatDefault("Solocraft.FirelandsH", 25.0) }, 
+                {967, sConfigMgr->GetFloatDefault("Solocraft.DragonSoulH", 25.0) }, 
+                {938, sConfigMgr->GetFloatDefault("Solocraft.EndTimeH", 5.0) }, 
+                {939, sConfigMgr->GetFloatDefault("Solocraft.WellOfEternityH", 5.0) }, 
+                {940, sConfigMgr->GetFloatDefault("Solocraft.HourOfTwilightH", 5.0) }, 
+                {859, sConfigMgr->GetFloatDefault("Solocraft.Zul'gurubH", 5.0) }, 
+                {568, sConfigMgr->GetFloatDefault("Solocraft.ZulAmanH", 5.0) }, 
+                {576, sConfigMgr->GetFloatDefault("Solocraft.NexusH", 5.0) }, 
                 /// MISTS OF PANDARIA
-                {959, sConfigMgr->GetIntDefault("Solocraft.ShadoPanMonasteryH", 5.0) }, 
-                {1007, sConfigMgr->GetIntDefault("Solocraft.ScholomanceH", 5.0) }, 
-                {1004, sConfigMgr->GetIntDefault("Solocraft.ScarletMonasteryH", 5.0) }, 
-                {994, sConfigMgr->GetIntDefault("Solocraft.Mogu'shanPalaceH", 5.0) }, 
-                {1008, sConfigMgr->GetIntDefault("Solocraft.Mogu'shanVaultsH", 25.0) }, 
-                {1136, sConfigMgr->GetIntDefault("Solocraft.SiegeOfOrgrimmarH", 25.0) }, 
-                {1098, sConfigMgr->GetIntDefault("Solocraft.ThroneOfThunderH", 25.0) }, 
-                {1009, sConfigMgr->GetIntDefault("Solocraft.HeartOfFearH", 25.0) }, 
-                {996, sConfigMgr->GetIntDefault("Solocraft.TerraceOfEndlessSpringH", 25.0) }, 
-                {1001, sConfigMgr->GetIntDefault("Solocraft.ScarletHallsH", 5.0) }, 
-                {962, sConfigMgr->GetIntDefault("Solocraft.GateOfTheSettingSunH", 5.0) }, 
-                {1011, sConfigMgr->GetIntDefault("Solocraft.SiegeOfNiuzaoTempleH", 5.0) }, 
-                {960, sConfigMgr->GetIntDefault("Solocraft.TempleOfTheJadeSerpentH", 5.0) }, 
-                {961, sConfigMgr->GetIntDefault("Solocraft.StormstoutBreweryH", 5.0) }, 
+                {959, sConfigMgr->GetFloatDefault("Solocraft.ShadoPanMonasteryH", 5.0) }, 
+                {1007, sConfigMgr->GetFloatDefault("Solocraft.ScholomanceH", 5.0) }, 
+                {1004, sConfigMgr->GetFloatDefault("Solocraft.ScarletMonasteryH", 5.0) }, 
+                {994, sConfigMgr->GetFloatDefault("Solocraft.Mogu'shanPalaceH", 5.0) }, 
+                {1008, sConfigMgr->GetFloatDefault("Solocraft.Mogu'shanVaultsH", 25.0) }, 
+                {1136, sConfigMgr->GetFloatDefault("Solocraft.SiegeOfOrgrimmarH", 25.0) }, 
+                {1098, sConfigMgr->GetFloatDefault("Solocraft.ThroneOfThunderH", 25.0) }, 
+                {1009, sConfigMgr->GetFloatDefault("Solocraft.HeartOfFearH", 25.0) }, 
+                {996, sConfigMgr->GetFloatDefault("Solocraft.TerraceOfEndlessSpringH", 25.0) }, 
+                {1001, sConfigMgr->GetFloatDefault("Solocraft.ScarletHallsH", 5.0) }, 
+                {962, sConfigMgr->GetFloatDefault("Solocraft.GateOfTheSettingSunH", 5.0) }, 
+                {1011, sConfigMgr->GetFloatDefault("Solocraft.SiegeOfNiuzaoTempleH", 5.0) }, 
+                {960, sConfigMgr->GetFloatDefault("Solocraft.TempleOfTheJadeSerpentH", 5.0) }, 
+                {961, sConfigMgr->GetFloatDefault("Solocraft.StormstoutBreweryH", 5.0) }, 
             };
 
             D649H10 = sConfigMgr->GetFloatDefault("Solocraft.ArgentTournamentRaidH10", 10.0);  // Trial of the Crusader 10 Heroic
@@ -441,10 +441,10 @@ class solocraft_system_announce : public PlayerScript
 
         void OnLogout(Player* player) override
         {
-            QueryResult result = CharacterDatabase.PQuery("SELECT `GUID` FROM `custom_solocraft_character_stats` WHERE GUID = %u", player->GetGUID());
+            QueryResult result = CharacterDatabase.PQuery("SELECT `GUID` FROM `custom_solocraft_character_stats` WHERE GUID = {}", player->GetGUID().GetCounter());
             if (result)
             {
-                CharacterDatabase.PExecute("DELETE FROM custom_solocraft_character_stats WHERE GUID = %u", player->GetGUID());
+                CharacterDatabase.PExecute("DELETE FROM custom_solocraft_character_stats WHERE GUID = {}", player->GetGUID().GetCounter());
             }
         }
 
@@ -477,6 +477,7 @@ public:
             int dunLevel = CalculateDungeonLevel(map, player);
             int numInGroup = GetNumInGroup(player);
             uint32 classBalance = GetClassBalance(player);
+            TC_LOG_DEBUG("solocraft", "solocraft player guid = {}, difficulty={}, dunLevel={}, numInGroup={}, classBalance={}", player->GetGUID().GetCounter(), difficulty, dunLevel, numInGroup, classBalance);
             ApplyBuffs(player, map, difficulty, dunLevel, numInGroup, classBalance);
         }
     }
@@ -487,7 +488,7 @@ protected:
     SolocraftConfig solocraftConfig;   
     bool noXPGainFlag = false; // if noXPGainFlag before solocraft setting
 
-    int CalculateDifficulty(Map* map, Player* /*player*/)
+    float CalculateDifficulty(Map* map, Player* /*player*/)
     {
         if (map)
         {
@@ -577,7 +578,7 @@ protected:
 
     void ApplyBuffs(Player* player, Map* map, float difficulty, int dunLevel, int numInGroup, int classBalance)
     {
-        if (difficulty != 0)
+        if (difficulty > 0)
         {
 
             int SpellPowerBonus = 0;
@@ -602,7 +603,7 @@ protected:
                     }
                 }
 
-                QueryResult result = CharacterDatabase.PQuery("SELECT `GUID`, `Difficulty`, `GroupSize`, `SpellPower`, `Stats` FROM `custom_solocraft_character_stats` WHERE GUID = %u", player->GetGUID());
+                QueryResult result = CharacterDatabase.PQuery("SELECT `guid`, `Difficulty`, `GroupSize`, `SpellPower`, `Stats` FROM `custom_solocraft_character_stats` WHERE `guid` = {}", player->GetGUID().GetCounter());
 
                 for (int32 i = STAT_STRENGTH; i < MAX_STATS; ++i)
                 {
@@ -656,7 +657,7 @@ protected:
                     // |cffFF0000[SoloCraft]|r |cffFF8000 %s entered %s - |cffFF0000BE ADVISED - You have been debuffed by offset: %0.2f with a Class Balance Weight: %i. |cffFF8000A group member already inside has the dungeon's full buff offset. No Spellpower buff will be applied to spell casters. ALL group members must exit the dungeon and re-enter to receive a balanced offset.
                 }
 
-                CharacterDatabase.PExecute("REPLACE INTO `custom_solocraft_character_stats` (`GUID`, `Difficulty`, `GroupSize`, `SpellPower`, `Stats`) VALUES (%u, %f, %u, %i, %f)", player->GetGUID(), difficulty, numInGroup, SpellPowerBonus, solocraftConfig.SoloCraftStatsMult);
+                CharacterDatabase.PExecute("REPLACE INTO `custom_solocraft_character_stats` (`guid`, `Difficulty`, `GroupSize`, `SpellPower`, `Stats`) VALUES ({}, {}, {}, {}, {})", player->GetGUID().GetCounter(), difficulty, numInGroup, SpellPowerBonus, solocraftConfig.SoloCraftStatsMult);
             }
             else
             {
@@ -683,7 +684,7 @@ protected:
             {
                 if (itr->guid != player->GetGUID())
                 {
-                    QueryResult result = CharacterDatabase.PQuery("SELECT `GUID`, `Difficulty`, `GroupSize` FROM `custom_solocraft_character_stats` WHERE GUID = %u", itr->guid);
+                    QueryResult result = CharacterDatabase.PQuery("SELECT `guid`, `Difficulty`, `GroupSize` FROM `custom_solocraft_character_stats` WHERE `guid` = {}", itr->guid);
 
                     if (result)
                     {
@@ -701,7 +702,7 @@ protected:
 
     void ClearBuffs(Player* player, Map* map)
     {
-        QueryResult result = CharacterDatabase.PQuery("SELECT `GUID`, `Difficulty`, `GroupSize`, `SpellPower`, `Stats` FROM `custom_solocraft_character_stats` WHERE GUID = %u", player->GetGUID());
+        QueryResult result = CharacterDatabase.PQuery("SELECT `guid`, `Difficulty`, `GroupSize`, `SpellPower`, `Stats` FROM `custom_solocraft_character_stats` WHERE `guid` = {}", player->GetGUID().GetCounter());
 
         if (result)
         {
@@ -726,7 +727,7 @@ protected:
                 player->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
             }
 
-            CharacterDatabase.PExecute("DELETE FROM `custom_solocraft_character_stats` WHERE GUID = %u", player->GetGUID());
+            CharacterDatabase.PExecute("DELETE FROM `custom_solocraft_character_stats` WHERE `guid` = {}", player->GetGUID().GetCounter());
         }
     }
 };

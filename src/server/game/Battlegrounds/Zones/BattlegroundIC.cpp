@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -81,7 +81,7 @@ void BattlegroundIC::HandlePlayerResurrect(Player* player)
         player->CastSpell(player, SPELL_OIL_REFINERY, true);
 }
 
-void BattlegroundIC::DoAction(uint32 action, uint64 var)
+void BattlegroundIC::DoAction(uint32 action, ObjectGuid var)
 {
     if (action != ACTION_TELEPORT_PLAYER_TO_TRANSPORT)
         return;
@@ -99,14 +99,15 @@ void BattlegroundIC::DoAction(uint32 action, uint64 var)
     player->m_movementInfo.transport.pos.m_positionX = info.GetPositionX();
     player->m_movementInfo.transport.pos.m_positionY = info.GetPositionY();
     player->m_movementInfo.transport.pos.m_positionZ = info.GetPositionZ();
-    player->m_movementInfo.transport.pos.m_orientation = info.GetOrientation();
+    player->m_movementInfo.transport.pos.SetOrientation(info.GetOrientation());
 
     if (Transport* transport = player->GetTransport())
     {
         WorldLocation dest;
         dest.m_mapId = GetMapId();
         dest.Relocate(player->m_movementInfo.transport.pos.GetPosition());
-        transport->CalculatePassengerPosition(dest.m_positionX, dest.m_positionY, dest.m_positionZ, &dest.m_orientation);
+        float m_orientation = dest.GetOrientation();
+        transport->CalculatePassengerPosition(dest.m_positionX, dest.m_positionY, dest.m_positionZ, &m_orientation);
         player->TeleportTo(dest, TELE_TO_NOT_LEAVE_TRANSPORT);
     }
 }
@@ -199,8 +200,8 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
                     {
                         if (siege->IsAlive())
                         {
-                            if (siege->HasFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_UNK_14|UNIT_FLAG_IMMUNE_TO_PC))
-                                // following sniffs the vehicle always has UNIT_FLAG_UNK_14
+                            if (siege->HasFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_CANNOT_SWIM|UNIT_FLAG_IMMUNE_TO_PC))
+                                // following sniffs the vehicle always has UNIT_FLAG_CANNOT_SWIM
                                 siege->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_IMMUNE_TO_PC);
                         }
                         else
@@ -336,7 +337,7 @@ void BattlegroundIC::AddPlayer(Player* player)
         player->CastSpell(player,SPELL_OIL_REFINERY,true);
 }
 
-void BattlegroundIC::RemovePlayer(Player* player, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundIC::RemovePlayer(Player* player, ObjectGuid /*guid*/, uint32 /*team*/)
 {
     if (player)
     {
@@ -345,7 +346,7 @@ void BattlegroundIC::RemovePlayer(Player* player, uint64 /*guid*/, uint32 /*team
     }
 }
 
-void BattlegroundIC::HandleAreaTrigger(Player* player, uint32 trigger)
+void BattlegroundIC::HandleAreaTrigger(Player* player, uint32 trigger, bool /*entered*/)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)
@@ -366,7 +367,7 @@ void BattlegroundIC::HandleAreaTrigger(Player* player, uint32 trigger)
 
 void BattlegroundIC::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
 {
-    std::map<uint64, BattlegroundScore*>::iterator itr = PlayerScores.find(player->GetGUID());
+    std::map<ObjectGuid, BattlegroundScore*>::iterator itr = PlayerScores.find(player->GetGUID());
 
     if (itr == PlayerScores.end())                         // player not found...
         return;
@@ -411,7 +412,7 @@ bool BattlegroundIC::SetupBattleground()
     {
         if (!AddObject(BG_IC_ObjSpawnlocs[i].type, BG_IC_ObjSpawnlocs[i].entry, BG_IC_ObjSpawnlocs[i].x, BG_IC_ObjSpawnlocs[i].y, BG_IC_ObjSpawnlocs[i].z, BG_IC_ObjSpawnlocs[i].o, 0, 0, 0, 0, RESPAWN_IMMEDIATELY))
         {
-            TC_LOG_ERROR("bg.battleground", "Isle of Conquest: There was an error spawning gameobject %u",BG_IC_ObjSpawnlocs[i].entry);
+            TC_LOG_ERROR("bg.battleground", "Isle of Conquest: There was an error spawning gameobject {}",BG_IC_ObjSpawnlocs[i].entry);
             return false;
         }
     }
@@ -420,7 +421,7 @@ bool BattlegroundIC::SetupBattleground()
     {
         if (!AddObject(BG_IC_Teleporters[i].type, BG_IC_Teleporters[i].entry, BG_IC_Teleporters[i].x, BG_IC_Teleporters[i].y, BG_IC_Teleporters[i].z, BG_IC_Teleporters[i].o, 0, 0, 0, 0, RESPAWN_IMMEDIATELY))
         {
-            TC_LOG_ERROR("bg.battleground", "Isle of Conquest | Starting Event Open Doors: There was an error spawning gameobject %u", BG_IC_Teleporters[i].entry);
+            TC_LOG_ERROR("bg.battleground", "Isle of Conquest | Starting Event Open Doors: There was an error spawning gameobject {}", BG_IC_Teleporters[i].entry);
             return false;
         }
     }
@@ -429,7 +430,7 @@ bool BattlegroundIC::SetupBattleground()
     {
         if (!AddObject(BG_IC_TeleporterEffects[i].type, BG_IC_TeleporterEffects[i].entry, BG_IC_TeleporterEffects[i].x, BG_IC_TeleporterEffects[i].y, BG_IC_TeleporterEffects[i].z, BG_IC_TeleporterEffects[i].o, 0, 0, 0, 0, RESPAWN_IMMEDIATELY))
         {
-            TC_LOG_ERROR("bg.battleground", "Isle of Conquest | Starting Event Open Doors: There was an error spawning gameobject %u", BG_IC_Teleporters[i].entry);
+            TC_LOG_ERROR("bg.battleground", "Isle of Conquest | Starting Event Open Doors: There was an error spawning gameobject {}", BG_IC_Teleporters[i].entry);
             return false;
         }
     }
@@ -438,7 +439,7 @@ bool BattlegroundIC::SetupBattleground()
     {
         if (!AddCreature(BG_IC_NpcSpawnlocs[i].entry, BG_IC_NpcSpawnlocs[i].type, BG_IC_NpcSpawnlocs[i].team, BG_IC_NpcSpawnlocs[i].x, BG_IC_NpcSpawnlocs[i].y, BG_IC_NpcSpawnlocs[i].z, BG_IC_NpcSpawnlocs[i].o, RESPAWN_IMMEDIATELY))
         {
-            TC_LOG_ERROR("bg.battleground", "Isle of Conquest: There was an error spawning creature %u",BG_IC_NpcSpawnlocs[i].entry);
+            TC_LOG_ERROR("bg.battleground", "Isle of Conquest: There was an error spawning creature {}",BG_IC_NpcSpawnlocs[i].entry);
             return false;
         }
     }
@@ -468,7 +469,7 @@ bool BattlegroundIC::SetupBattleground()
             trigger->CastSpell(trigger, is25ydTrigger ? SPELL_HONORABLE_DEFENDER_25Y : SPELL_HONORABLE_DEFENDER_60Y, false);
         else
         {
-            TC_LOG_ERROR("bg.battleground", "Isle of Conquest: Failed to spawn initial honorable defender trigger! point: %u, team: %u,", nodePoint->nodeType, nodePoint->faction);
+            TC_LOG_ERROR("bg.battleground", "Isle of Conquest: Failed to spawn initial honorable defender trigger! point: {}, team: {},", nodePoint->nodeType, nodePoint->faction);
             return false;
         }
     }
@@ -560,11 +561,11 @@ void BattlegroundIC::EndBattleground(uint32 winner)
 void BattlegroundIC::RealocatePlayers(ICNodePointType nodeType)
 {
     // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
-    std::vector<uint64> ghost_list = m_ReviveQueue[BgCreatures[BG_IC_NPC_SPIRIT_GUIDE_1+nodeType-2]];
+    std::vector<ObjectGuid> ghost_list = m_ReviveQueue[BgCreatures[BG_IC_NPC_SPIRIT_GUIDE_1+nodeType-2]];
     if (!ghost_list.empty())
     {
         WorldSafeLocsEntry const* closestGrave = NULL;
-        for (std::vector<uint64>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
+        for (std::vector<ObjectGuid>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
         {
             Player* player = ObjectAccessor::FindPlayer(*itr);
             if (!player)
@@ -778,7 +779,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
             BG_IC_SpiritGuidePos[nodePoint->nodeType][0], BG_IC_SpiritGuidePos[nodePoint->nodeType][1],
             BG_IC_SpiritGuidePos[nodePoint->nodeType][2], BG_IC_SpiritGuidePos[nodePoint->nodeType][3],
             (nodePoint->faction == TEAM_ALLIANCE ? ALLIANCE : HORDE)))
-            TC_LOG_ERROR("bg.battleground", "Isle of Conquest: Failed to spawn spirit guide! point: %u, team: %u,", nodePoint->nodeType, nodePoint->faction);
+            TC_LOG_ERROR("bg.battleground", "Isle of Conquest: Failed to spawn spirit guide! point: {}, team: {},", nodePoint->nodeType, nodePoint->faction);
     }
 
     // Spawn Honorable Defender Trigger
@@ -792,7 +793,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
             BG_IC_HonorableDefenderPos[nodePoint->nodeType]))
             trigger->CastSpell(trigger, is25ydTrigger ? SPELL_HONORABLE_DEFENDER_25Y : SPELL_HONORABLE_DEFENDER_60Y, false);
         else
-            TC_LOG_ERROR("bg.battleground", "Isle of Conquest: Failed to spawn honorable defender trigger! point: %u, team: %u,", nodePoint->nodeType, nodePoint->faction);
+            TC_LOG_ERROR("bg.battleground", "Isle of Conquest: Failed to spawn honorable defender trigger! point: {}, team: {},", nodePoint->nodeType, nodePoint->faction);
     }
 
     switch (nodePoint->gameobject_type)
@@ -815,20 +816,20 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
             {
                 uint8 type = BG_IC_GO_HANGAR_TELEPORTER_1 + u;
                 if (!AddObject(type, (nodePoint->faction == TEAM_ALLIANCE ? GO_ALLIANCE_GUNSHIP_PORTAL : GO_HORDE_GUNSHIP_PORTAL), BG_IC_HangarTeleporters[u], 0, 0, 0, 0, RESPAWN_IMMEDIATELY))
-                    TC_LOG_ERROR("bg.battleground", "Isle of Conquest: There was an error spawning a gunship portal. Type: %u", BG_IC_GO_HANGAR_TELEPORTER_1 + u);
+                    TC_LOG_ERROR("bg.battleground", "Isle of Conquest: There was an error spawning a gunship portal. Type: {}", BG_IC_GO_HANGAR_TELEPORTER_1 + u);
             }
 
             for (uint8 u = 0; u < MAX_HANGAR_TELEPORTER_EFFECTS_SPAWNS; ++u)
             {
                 uint8 type = BG_IC_GO_HANGAR_TELEPORTER_EFFECT_1 + u;
                 if (!AddObject(type, (nodePoint->faction == TEAM_ALLIANCE ? GO_ALLIANCE_GUNSHIP_PORTAL_EFFECTS : GO_HORDE_GUNSHIP_PORTAL_EFFECTS), BG_IC_HangarTeleporterEffects[u], 0, 0, 0, 0, RESPAWN_IMMEDIATELY, GO_STATE_ACTIVE))
-                    TC_LOG_ERROR("bg.battleground", "Isle of Conquest: There was an error spawning a gunship portal effects. Type: %u", BG_IC_GO_HANGAR_TELEPORTER_1 + u);
+                    TC_LOG_ERROR("bg.battleground", "Isle of Conquest: There was an error spawning a gunship portal effects. Type: {}", BG_IC_GO_HANGAR_TELEPORTER_1 + u);
             }
 
             for (uint8 u = 0; u < MAX_TRIGGER_SPAWNS_PER_FACTION; ++u)
             {
                 if (!AddCreature(NPC_WORLD_TRIGGER_NOT_FLOATING, BG_IC_NPC_WORLD_TRIGGER_NOT_FLOATING, nodePoint->faction, BG_IC_HangarTrigger[nodePoint->faction], RESPAWN_IMMEDIATELY, nodePoint->faction == TEAM_ALLIANCE ? gunshipAlliance : gunshipHorde))
-                    TC_LOG_ERROR("bg.battleground", "Isle of Conquest: There was an error spawning a world trigger. Type: %u", BG_IC_NPC_WORLD_TRIGGER_NOT_FLOATING);
+                    TC_LOG_ERROR("bg.battleground", "Isle of Conquest: There was an error spawning a world trigger. Type: {}", BG_IC_NPC_WORLD_TRIGGER_NOT_FLOATING);
             }
 
             for (uint8 u = 0; u < MAX_CAPTAIN_SPAWNS_PER_FACTION; ++u)
@@ -841,7 +842,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
 
                 if (type == BG_IC_NPC_GUNSHIP_CAPTAIN_2)
                     if (!AddCreature(nodePoint->faction == TEAM_ALLIANCE ? NPC_ALLIANCE_GUNSHIP_CAPTAIN : NPC_HORDE_GUNSHIP_CAPTAIN, type, nodePoint->faction, BG_IC_HangarCaptains[nodePoint->faction == TEAM_ALLIANCE ? 3 : 1], RESPAWN_IMMEDIATELY, nodePoint->faction == TEAM_ALLIANCE ? gunshipAlliance : gunshipHorde))
-                        TC_LOG_ERROR("bg.battleground", "Isle of Conquest: There was an error spawning a world trigger. Type: %u", BG_IC_NPC_GUNSHIP_CAPTAIN_2);
+                        TC_LOG_ERROR("bg.battleground", "Isle of Conquest: There was an error spawning a world trigger. Type: {}", BG_IC_NPC_GUNSHIP_CAPTAIN_2);
             }
 
             (nodePoint->faction == TEAM_ALLIANCE ? gunshipAlliance : gunshipHorde)->EnableMovement(true);
@@ -981,7 +982,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
 
                     if (Creature* siegeEngine = GetBGCreature(siegeType))
                     {
-                        siegeEngine->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_UNK_14|UNIT_FLAG_IMMUNE_TO_PC);
+                        siegeEngine->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_CANNOT_SWIM|UNIT_FLAG_IMMUNE_TO_PC);
                         siegeEngine->SetFaction(BG_IC_Factions[(nodePoint->faction == TEAM_ALLIANCE ? 0 : 1)]);
                         if (siegeEngine->GetVehicleKit())
                         {

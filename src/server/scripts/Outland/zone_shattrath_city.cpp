@@ -43,77 +43,84 @@ EndContentData */
 ## npc_raliq_the_drunk
 ######*/
 
-#define GOSSIP_RALIQ            "You owe Sim'salabim money. Hand them over or die!"
-
-enum Raliq
+enum RaliqTheDrunk
 {
-    SPELL_UPPERCUT          = 10966,
-    QUEST_CRACK_SKULLS      = 10009,
-    FACTION_HOSTILE_RD      = 45
+    SAY_RALIQ_ATTACK         = 0,
+    OPTION_ID_COLLECT_A_DEBT = 0,
+    MENU_ID_COLLECT_A_DEBT   = 7729,
+    NPC_TEXT_WUT_YOU_WANT    = 9440,
+    CRACKIN_SOME_SKULLS      = 10009,
+    SPELL_UPPERCUT           = 10966,
+    FACTION_OGRE             = 45
 };
 
-class npc_raliq_the_drunk : public CreatureScript
+struct npc_raliq_the_drunk : public ScriptedAI
 {
-public:
-    npc_raliq_the_drunk() : CreatureScript("npc_raliq_the_drunk") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    npc_raliq_the_drunk(Creature* creature) : ScriptedAI(creature)
     {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        Uppercut_Timer = 5000;
+    }
+
+    uint32 Uppercut_Timer;
+
+    void Reset() override
+    {
+        Initialize();
+        me->RestoreFaction();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        if (Uppercut_Timer <= diff)
         {
-            player->CLOSE_GOSSIP_MENU();
-            creature->SetFaction(FACTION_HOSTILE_RD);
-            creature->AI()->AttackStart(player);
+            DoCastVictim(SPELL_UPPERCUT);
+            Uppercut_Timer = 15000;
+        } else Uppercut_Timer -= diff;
+
+        DoMeleeAttackIfReady();
+        // missing health below 20% event, raliq_the_drunk can not killed
+    }
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+    {
+        uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+        ClearGossipMenuFor(player);
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+        {
+            CloseGossipMenuFor(player);
+            me->SetFaction(FACTION_OGRE);
+            Talk(SAY_RALIQ_ATTACK, player);
+            AttackStart(player);
         }
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player) override
     {
-        if (player->GetQuestStatus(QUEST_CRACK_SKULLS) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_RALIQ, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(9440, creature->GetGUID());
+        if (player->GetQuestStatus(CRACKIN_SOME_SKULLS) == QUEST_STATUS_INCOMPLETE)
+        {
+            AddGossipItemFor(player, MENU_ID_COLLECT_A_DEBT, OPTION_ID_COLLECT_A_DEBT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            SendGossipMenuFor(player, NPC_TEXT_WUT_YOU_WANT, me->GetGUID());
+        }
+        else
+        {
+            ClearGossipMenuFor(player);
+            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+        }
         return true;
     }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_raliq_the_drunkAI(creature);
-    }
-
-    struct npc_raliq_the_drunkAI : public ScriptedAI
-    {
-        npc_raliq_the_drunkAI(Creature* creature) : ScriptedAI(creature)
-        {
-            m_uiNormFaction = creature->GetFaction();
-        }
-
-        uint32 m_uiNormFaction;
-        uint32 Uppercut_Timer;
-
-        void Reset() override
-        {
-            Uppercut_Timer = 5000;
-            me->RestoreFaction();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (Uppercut_Timer <= diff)
-            {
-                DoCastVictim(SPELL_UPPERCUT);
-                Uppercut_Timer = 15000;
-            } else Uppercut_Timer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-    };
 };
+
+
+
 
 /*######
 # npc_salsalabim
@@ -320,117 +327,107 @@ enum KServant
     WHISP21    = 21
 };
 
-class npc_kservant : public CreatureScript
+
+struct npc_kservant : public EscortAI
 {
 public:
-    npc_kservant() : CreatureScript("npc_kservant") { }
+    npc_kservant(Creature* creature) : EscortAI(creature) { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
     {
-        return new npc_kservantAI(creature);
+        Player* player = GetPlayerForEscort();
+        if (!player)
+            return;
+
+        switch (waypointId)
+        {
+            case 0:
+                Talk(SAY1, player);
+                break;
+            case 4:
+                Talk(WHISP1, player);
+                break;
+            case 6:
+                Talk(WHISP2, player);
+                break;
+            case 7:
+                Talk(WHISP3, player);
+                break;
+            case 8:
+                Talk(WHISP4, player);
+                break;
+            case 17:
+                Talk(WHISP5, player);
+                break;
+            case 18:
+                Talk(WHISP6, player);
+                break;
+            case 19:
+                Talk(WHISP7, player);
+                break;
+            case 33:
+                Talk(WHISP8, player);
+                break;
+            case 34:
+                Talk(WHISP9, player);
+                break;
+            case 35:
+                Talk(WHISP10, player);
+                break;
+            case 36:
+                Talk(WHISP11, player);
+                break;
+            case 43:
+                Talk(WHISP12, player);
+                break;
+            case 44:
+                Talk(WHISP13, player);
+                break;
+            case 49:
+                Talk(WHISP14, player);
+                break;
+            case 50:
+                Talk(WHISP15, player);
+                break;
+            case 51:
+                Talk(WHISP16, player);
+                break;
+            case 52:
+                Talk(WHISP17, player);
+                break;
+            case 53:
+                Talk(WHISP18, player);
+                break;
+            case 54:
+                Talk(WHISP19, player);
+                break;
+            case 55:
+                Talk(WHISP20, player);
+                break;
+            case 56:
+                Talk(WHISP21, player);
+                player->GroupEventHappens(10211, me);
+                break;
+        }
     }
 
-    struct npc_kservantAI : public npc_escortAI
+    void MoveInLineOfSight(Unit* who) override
     {
-    public:
-        npc_kservantAI(Creature* creature) : npc_escortAI(creature) { }
+        if (HasEscortState(STATE_ESCORT_ESCORTING))
+            return;
 
-        void WaypointReached(uint32 waypointId) override
+        Player* player = who->ToPlayer();
+        if (player && player->GetQuestStatus(10211) == QUEST_STATUS_INCOMPLETE)
         {
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
-
-            switch (waypointId)
+            float Radius = 10.0f;
+            if (me->IsWithinDistInMap(who, Radius))
             {
-                case 0:
-                    Talk(SAY1, player);
-                    break;
-                case 4:
-                    Talk(WHISP1, player);
-                    break;
-                case 6:
-                    Talk(WHISP2, player);
-                    break;
-                case 7:
-                    Talk(WHISP3, player);
-                    break;
-                case 8:
-                    Talk(WHISP4, player);
-                    break;
-                case 17:
-                    Talk(WHISP5, player);
-                    break;
-                case 18:
-                    Talk(WHISP6, player);
-                    break;
-                case 19:
-                    Talk(WHISP7, player);
-                    break;
-                case 33:
-                    Talk(WHISP8, player);
-                    break;
-                case 34:
-                    Talk(WHISP9, player);
-                    break;
-                case 35:
-                    Talk(WHISP10, player);
-                    break;
-                case 36:
-                    Talk(WHISP11, player);
-                    break;
-                case 43:
-                    Talk(WHISP12, player);
-                    break;
-                case 44:
-                    Talk(WHISP13, player);
-                    break;
-                case 49:
-                    Talk(WHISP14, player);
-                    break;
-                case 50:
-                    Talk(WHISP15, player);
-                    break;
-                case 51:
-                    Talk(WHISP16, player);
-                    break;
-                case 52:
-                    Talk(WHISP17, player);
-                    break;
-                case 53:
-                    Talk(WHISP18, player);
-                    break;
-                case 54:
-                    Talk(WHISP19, player);
-                    break;
-                case 55:
-                    Talk(WHISP20, player);
-                    break;
-                case 56:
-                    Talk(WHISP21, player);
-                    player->GroupEventHappens(10211, me);
-                    break;
+                Start(false, who->GetGUID());
             }
         }
+    }
 
-        void MoveInLineOfSight(Unit* who) override
-        {
-            if (HasEscortState(STATE_ESCORT_ESCORTING))
-                return;
-
-            Player* player = who->ToPlayer();
-            if (player && player->GetQuestStatus(10211) == QUEST_STATUS_INCOMPLETE)
-            {
-                float Radius = 10.0f;
-                if (me->IsWithinDistInMap(who, Radius))
-                {
-                    Start(false, false, who->GetGUID());
-                }
-            }
-        }
-
-        void Reset() override { }
-    };
+    void Reset() override { }
 };
 
 /*######
@@ -542,11 +539,11 @@ struct npc_khadgar : public ScriptedAI
 
 void AddSC_shattrath_city()
 {
-    new npc_raliq_the_drunk();
+    RegisterCreatureAI(npc_raliq_the_drunk);
     new npc_salsalabim();
     //new npc_shattrathflaskvendors();
     RegisterCreatureAI(npc_zephyr);
-    new npc_kservant();
+    RegisterCreatureAI(npc_kservant);
     RegisterCreatureAI(npc_ishanah);
     RegisterCreatureAI(npc_khadgar);
 }

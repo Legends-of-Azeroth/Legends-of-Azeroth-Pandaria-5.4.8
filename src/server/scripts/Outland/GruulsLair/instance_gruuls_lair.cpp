@@ -47,7 +47,7 @@ class instance_gruuls_lair : public InstanceMapScript
                 LoadDoorData(doorData);
                 LoadMinionData(minionData);
 
-                MaulgarGUID = 0;
+                MaulgarGUID = ObjectGuid::Empty;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -97,7 +97,7 @@ class instance_gruuls_lair : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -106,7 +106,7 @@ class instance_gruuls_lair : public InstanceMapScript
                     default:
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData() override
@@ -153,7 +153,7 @@ class instance_gruuls_lair : public InstanceMapScript
             }
 
         protected:
-            uint64 MaulgarGUID;
+            ObjectGuid MaulgarGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

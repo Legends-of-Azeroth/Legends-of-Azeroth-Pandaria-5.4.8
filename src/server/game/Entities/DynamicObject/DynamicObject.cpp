@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -54,7 +54,7 @@ void DynamicObject::AddToWorld()
     ///- Register the dynamicObject for guid lookup and for caster
     if (!IsInWorld())
     {
-        sObjectAccessor->AddObject(this);
+        GetMap()->GetObjectsStore().Insert<DynamicObject>(GetGUID(), this);
         WorldObject::AddToWorld();
 
         if (GetType() != DYNAMIC_OBJECT_RAID_MARKER)
@@ -81,7 +81,7 @@ void DynamicObject::RemoveFromWorld()
             UnbindFromCaster();
 
         WorldObject::RemoveFromWorld();
-        sObjectAccessor->RemoveObject(this);
+        GetMap()->GetObjectsStore().Remove<DynamicObject>(GetGUID());
     }
 }
 
@@ -93,11 +93,11 @@ bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, SpellInfo 
     Relocate(pos);
     if (!IsPositionValid())
     {
-        TC_LOG_ERROR("misc", "DynamicObject (spell %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", spell->Id, GetPositionX(), GetPositionY());
+        TC_LOG_ERROR("misc", "DynamicObject (spell {}) not created. Suggested coordinates isn't valid (X: {} Y: {})", spell->Id, GetPositionX(), GetPositionY());
         return false;
     }
 
-    WorldObject::_Create(guidlow, HIGHGUID_DYNAMICOBJECT, caster->GetPhaseMask());
+    WorldObject::_Create(guidlow, HighGuid::DynamicObject, caster->GetPhaseMask(), caster->GetPhases());
 
     SetEntry(spell->Id);
     SetObjectScale(1);
@@ -111,20 +111,20 @@ bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, SpellInfo 
     else
         SetUInt64Value(DYNAMICOBJECT_FIELD_CASTER, caster->GetGUID());
 
-    // The lower word of DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID must be 0x0001. This value means that the visual radius will be overriden
+    // The lower word of DYNAMICOBJECT_BYTES must be 0x0001. This value means that the visual radius will be overriden
     // by client for most of the "ground patch" visual effect spells and a few "skyfall" ones like Hurricane.
     // If any other value is used, the client will _always_ use the radius provided in DYNAMICOBJECT_RADIUS, but
     // precompensation is necessary (eg radius *= 2) for many spells. Anyway, blizz sends 0x0001 for all the spells
     // I saw sniffed...
 
-    // Blizz set visual spell Id in 3 first byte of DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID after 5.X
+    // Blizz set visual spell Id in 3 first byte of DYNAMICOBJECT_BYTES after 5.X
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell->Id);
     if (spellInfo)
     {
         uint32 visual = spellInfo->SpellVisual[0] ? spellInfo->SpellVisual[0] : spellInfo->SpellVisual[1];
         if ((spellInfo->Id == 5740 || spellInfo->Id == 104232) && caster->HasAura(101508)) // The Codex of Xerrath
             visual = 25761;
-        SetUInt32Value(DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID, 0x10000000 | visual);
+        SetUInt32Value(DYNAMICOBJECT_BYTES, 0x10000000 | visual);
     }
 
     SetUInt32Value(DYNAMICOBJECT_FIELD_SPELL_ID, spell->Id);
@@ -302,7 +302,7 @@ void DynamicObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player
         {
             builder.SetDestBit(index);
 
-            if (index == DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID)
+            if (index == DYNAMICOBJECT_BYTES)
                 *data << ((m_uint32Values[index] & 0xFFFF0000) | GetVisualForTarget(target));
             else
                 *data << m_uint32Values[index];
@@ -325,7 +325,7 @@ uint32 DynamicObject::GetVisualForTarget(Player const* target) const
         }
         else if (GetCaster()->IsHostileTo(target))
             return hostileViusal;
-        return m_uint32Values[DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID];
+        return m_uint32Values[DYNAMICOBJECT_BYTES];
     };
 
     switch (GetSpellId())
@@ -340,5 +340,5 @@ uint32 DynamicObject::GetVisualForTarget(Player const* target) const
             break;
     }
 
-    return m_uint32Values[DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID];
+    return m_uint32Values[DYNAMICOBJECT_BYTES];
 }

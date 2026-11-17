@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -15,10 +15,11 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "ruins_of_ahnqiraj.h"
+#include "MiscPackets.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "ruins_of_ahnqiraj.h"
-#include "Player.h"
 #include "SpellInfo.h"
 #include "WorldPacket.h"
 #include "Opcodes.h"
@@ -91,8 +92,8 @@ class boss_ossirian : public CreatureScript
                 SaidIntro = false;
             }
 
-            uint64 TriggerGUID;
-            uint64 CrystalGUID;
+            ObjectGuid TriggerGUID;
+            ObjectGuid CrystalGUID;
             uint8 CrystalIterator;
             bool SaidIntro;
 
@@ -100,8 +101,8 @@ class boss_ossirian : public CreatureScript
             {
                 _Reset();
                 CrystalIterator = 0;
-                TriggerGUID = 0;
-                CrystalGUID = 0;
+                TriggerGUID = ObjectGuid::Empty;
+                CrystalGUID = ObjectGuid::Empty;
             }
 
             void SpellHit(Unit* caster, SpellInfo const* spell) override
@@ -125,9 +126,9 @@ class boss_ossirian : public CreatureScript
                             Trigger->CastSpell(Trigger, SpellWeakness[urand(0, 4)], false);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.Reset();
                 events.ScheduleEvent(EVENT_SILENCE, 30000);
                 events.ScheduleEvent(EVENT_CYCLONE, 20000);
@@ -142,14 +143,12 @@ class boss_ossirian : public CreatureScript
                     if (!map->IsDungeon())
                         return;
 
-                    WorldPacket data(SMSG_WEATHER, (4+4+4));
-                    data << uint32(WEATHER_STATE_HEAVY_SANDSTORM) << float(1) << uint8(0);
-                    map->SendToPlayers(&data);
+                    WorldPackets::Misc::Weather weather(WEATHER_STATE_HEAVY_SANDSTORM, 1.0f);
+                    map->SendToPlayers(weather.Write());
 
                     for (uint8 i = 0; i < NUM_TORNADOS; ++i)
                     {
-                        Position Point;
-                        me->GetRandomPoint(RoomCenter, RoomRadius, Point);
+                        Position Point = me->GetRandomPoint(RoomCenter, RoomRadius);
                         if (Creature* Tornado = me->GetMap()->SummonCreature(NPC_SAND_VORTEX, Point))
                             Tornado->CastSpell(Tornado, SPELL_SAND_STORM, true);
                     }
@@ -163,7 +162,7 @@ class boss_ossirian : public CreatureScript
                 Talk(SAY_SLAY);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 Cleanup();
                 summons.DespawnAll();

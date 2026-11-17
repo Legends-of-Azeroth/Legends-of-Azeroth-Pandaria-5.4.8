@@ -10,20 +10,20 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 # Set build-directive (used in core to tell which buildtype we used)
-add_definitions(-D_BUILD_DIRECTIVE="'${CMAKE_BUILD_TYPE}'")
+add_compile_options(-D_BUILD_DIRECTIVE="$<CONFIG>")
 
 if(PLATFORM EQUAL 32)
-  add_definitions(-axSSE2)
+  add_compile_options(-axSSE2)
 else()
-  add_definitions(-xSSE2)
+  add_compile_options(-xSSE2)
 endif()
 
 if( WITH_WARNINGS )
-  add_definitions(-w1)
+  add_compile_options(-w1)
   message(STATUS "ICC: All warnings enabled")
 endif()
 
 if( WITH_COREDEBUG )
-  add_definitions(-g)
+  add_compile_options(-g)
   message(STATUS "ICC: Debug-flag set (-g)")
 endif()

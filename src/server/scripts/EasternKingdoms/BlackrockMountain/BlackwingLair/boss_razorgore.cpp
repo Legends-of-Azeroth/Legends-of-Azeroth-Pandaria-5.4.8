@@ -141,7 +141,7 @@ public:
                         DoCastVictim(SPELL_CONFLAGRATION);
                         if (me->GetVictim() && me->GetVictim()->HasAura(SPELL_CONFLAGRATION))
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
-                                me->TauntApply(target);
+                                me->GetThreatManager().TauntUpdate();
                         events.ScheduleEvent(EVENT_CONFLAGRATION, 30000);
                         break;
                 }
@@ -168,7 +168,7 @@ public:
     {
         if (InstanceScript* instance = go->GetInstanceScript())
             if (instance->GetData(DATA_EGG_EVENT) != DONE)
-                if (Creature* razor = Unit::GetCreature(*go, instance->GetData64(DATA_RAZORGORE_THE_UNTAMED)))
+                if (Creature* razor = Unit::GetCreature(*go, instance->GetGuidData(DATA_RAZORGORE_THE_UNTAMED)))
                 {
                     razor->Attack(player, true);
                     player->CastSpell(razor, SPELL_MINDCONTROL);

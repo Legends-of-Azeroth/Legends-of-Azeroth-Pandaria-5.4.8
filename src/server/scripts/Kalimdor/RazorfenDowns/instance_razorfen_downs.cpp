@@ -39,7 +39,7 @@ public:
         {
         }
 
-        uint64 uiGongGUID;
+        ObjectGuid uiGongGUID;
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -49,7 +49,7 @@ public:
 
         void Initialize() override
         {
-            uiGongGUID = 0;
+            uiGongGUID = ObjectGuid::Empty;
 
             uiGongWaves = 0;
 
@@ -198,14 +198,14 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 uiType) const override
+        ObjectGuid GetGuidData(uint32 uiType) const override
         {
             switch (uiType)
             {
                 case DATA_GONG: return uiGongGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
     };
 

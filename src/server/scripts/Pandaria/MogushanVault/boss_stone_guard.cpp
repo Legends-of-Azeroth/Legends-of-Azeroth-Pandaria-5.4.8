@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -251,7 +251,7 @@ class boss_stone_guard_controller : public CreatureScript
                     {
                         for (uint32 entry : guardiansEntry)
                         {
-                            if (Creature* guardian = me->GetMap()->GetCreature(instance->GetData64(entry)))
+                            if (Creature* guardian = me->GetMap()->GetCreature(instance->GetGuidData(entry)))
                             {
                                 if (guardian->IsAlive())
                                 {
@@ -286,7 +286,7 @@ class boss_stone_guard_controller : public CreatureScript
                         RewardPlayers();
 
                         for (uint32 entry: guardiansEntry)
-                            if (Creature* guardian = me->GetMap()->GetCreature(instance->GetData64(entry)))
+                            if (Creature* guardian = me->GetMap()->GetCreature(instance->GetGuidData(entry)))
                                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, guardian);
 
                         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOTALY_PETRIFIED);
@@ -318,7 +318,7 @@ class boss_stone_guard_controller : public CreatureScript
                     {
                         for (uint32 entry : guardiansEntry)
                         {
-                            if (Creature* guardian = me->GetMap()->GetCreature(instance->GetData64(entry)))
+                            if (Creature* guardian = me->GetMap()->GetCreature(instance->GetGuidData(entry)))
                             {
                                 if (powDownCount)
                                 {
@@ -328,8 +328,7 @@ class boss_stone_guard_controller : public CreatureScript
                                         me->RemoveAllDynObjects();
 
                                         // Removing buff
-                                        if (instance)
-                                            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TILES_AURA_EFFECT);
+                                        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TILES_AURA_EFFECT);
 
                                         HandleResetTiles();
 
@@ -354,7 +353,7 @@ class boss_stone_guard_controller : public CreatureScript
                     case ACTION_EVADE:
                     {
                         for (uint32 entry : guardiansEntry)
-                            if (Creature* guardian = me->GetMap()->GetCreature(instance->GetData64(entry)))
+                            if (Creature* guardian = me->GetMap()->GetCreature(instance->GetGuidData(entry)))
                                 if (guardian->AI())
                                     guardian->AI()->EnterEvadeMode();
 
@@ -410,7 +409,7 @@ class boss_stone_guard_controller : public CreatureScript
             {
                 for (uint32 entry : guardiansEntry)
                 {
-                    if (Creature* guardian = ObjectAccessor::GetCreature(*me, instance->GetData64(entry)))
+                    if (Creature* guardian = ObjectAccessor::GetCreature(*me, instance->GetGuidData(entry)))
                         if (guardian->IsInCombat())
                             continue;
 
@@ -423,7 +422,7 @@ class boss_stone_guard_controller : public CreatureScript
             bool AnyGuardHasPetrification()
             {
                 for (uint32 entry : guardiansEntry)
-                    if (Creature* guardian = ObjectAccessor::GetCreature(*me, instance->GetData64(entry)))
+                    if (Creature* guardian = ObjectAccessor::GetCreature(*me, instance->GetGuidData(entry)))
                         for (auto&& pId : petrificationList)
                             if (guardian->HasAura(pId))
                                 return true;
@@ -468,7 +467,7 @@ class boss_stone_guard_controller : public CreatureScript
                             // Select new guardian from updated container
                             prevPetrifiedGuardian = Trinity::Containers::SelectRandomContainerElement(StoneGuardsStorage);
 
-                            if (Creature* sGuardian = ObjectAccessor::GetCreature(*me, instance->GetData64(prevPetrifiedGuardian)))
+                            if (Creature* sGuardian = ObjectAccessor::GetCreature(*me, instance->GetGuidData(prevPetrifiedGuardian)))
                                 if (sGuardian->IsAlive() && sGuardian->IsInCombat())
                                     sGuardian->AI()->DoAction(ACTION_PETRIFICATION);
  
@@ -494,7 +493,7 @@ class boss_stone_guard_controller : public CreatureScript
                     {
                         ActivateTilesTriggers();
                         for (uint8 i = 0; i < 4; ++i)
-                            if (uint64 stoneGuardGuid = instance->GetData64(guardiansEntry[i]))
+                            if (ObjectGuid stoneGuardGuid = instance->GetGuidData(guardiansEntry[i]))
                                 if (Creature* stoneGuard = instance->instance->GetCreature(stoneGuardGuid))
                                     if (stoneGuard->IsAlive())
                                     {
@@ -587,7 +586,7 @@ class boss_generic_guardian : public CreatureScript
         {
             boss_generic_guardianAI(Creature* creature) : BossAI(creature, DATA_STONE_GUARD), summons(creature) 
             {
-                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
             }
 
             EventMap events;
@@ -607,7 +606,7 @@ class boss_generic_guardian : public CreatureScript
             Creature* GetController()
             {
                 if (instance)
-                    return me->GetMap()->GetCreature(instance->GetData64(NPC_STONE_GUARD_CONTROLLER));
+                    return me->GetMap()->GetCreature(instance->GetGuidData(NPC_STONE_GUARD_CONTROLLER));
                 else
                     return NULL;
             }
@@ -628,13 +627,13 @@ class boss_generic_guardian : public CreatureScript
                 me->SetReactState(REACT_DEFENSIVE);
                 me->SetPowerType(POWER_ENERGY);
                 me->SetPower(POWER_ENERGY, 0);
-                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
 
                 me->CastSpell(me, SPELL_SOLID_STONE, true);
                 me->CastSpell(me, SPELL_ANIM_SIT,    true);
                 me->CastSpell(me, SPELL_ZERO_ENERGY, true);
 
-                if (Creature* stoneGuardController = me->GetMap()->GetCreature(GetData(NPC_STONE_GUARD_CONTROLLER)))
+                if (Creature* stoneGuardController = me->GetMap()->GetCreature(instance->GetGuidData(NPC_STONE_GUARD_CONTROLLER)))
                     stoneGuardController->AI()->Reset();
 
                 instance->DoRemoveBloodLustDebuffSpellOnPlayers();
@@ -687,7 +686,7 @@ class boss_generic_guardian : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (instance)
                     instance->SetBossState(DATA_STONE_GUARD, IN_PROGRESS);
@@ -708,7 +707,7 @@ class boss_generic_guardian : public CreatureScript
                 });
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->RemoveAurasDueToSpell(SPELL_AMETHYST_PETRIFICATION);
                 me->RemoveAurasDueToSpell(SPELL_JADE_PETRIFICATION);
@@ -719,7 +718,7 @@ class boss_generic_guardian : public CreatureScript
                 {
                     if (instance)
                     {
-                        if (Creature* gardian = me->GetMap()->GetCreature(instance->GetData64(entry)))
+                        if (Creature* gardian = me->GetMap()->GetCreature(instance->GetGuidData(entry)))
                         {
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, gardian);
                             gardian->RemoveAurasDueToSpell(SPELL_AMETHYST_PETRIFICATION);
@@ -776,7 +775,7 @@ class boss_generic_guardian : public CreatureScript
 
                         for (uint32 entry : guardiansEntry)
                         {
-                            if (Creature* gardian = controller->GetMap()->GetCreature(instance->GetData64(entry)))
+                            if (Creature* gardian = controller->GetMap()->GetCreature(instance->GetGuidData(entry)))
                             {
                                 if (gardian != me)
                                 {
@@ -794,7 +793,7 @@ class boss_generic_guardian : public CreatureScript
                     }
 
                     for (uint32 entry: guardiansEntry)
-                        if (Creature* gardian = controller->GetMap()->GetCreature(instance->GetData64(entry)))
+                        if (Creature* gardian = controller->GetMap()->GetCreature(instance->GetGuidData(entry)))
                             if (gardian->GetGUID() != me->GetGUID() && damage < gardian->GetHealth())
                                 gardian->ModifyHealth(-int32(damage));
 
@@ -869,7 +868,7 @@ class boss_generic_guardian : public CreatureScript
                     if (me->GetEntry() == entry)
                         continue;
 
-                    if (Creature* guardian = me->GetMap()->GetCreature(instance->GetData64(entry)))
+                    if (Creature* guardian = me->GetMap()->GetCreature(instance->GetGuidData(entry)))
                         if (!guardian->IsInCombat() && guardian->IsAlive())
                             return false;
                 }
@@ -922,7 +921,6 @@ class boss_generic_guardian : public CreatureScript
                         {
                             if (me->GetPower(POWER_ENERGY) >= me->GetMaxPower(POWER_ENERGY))
                             {
-                                //me->MonsterTextEmote(sSpellMgr->GetSpellInfo(spellOverloadId)->SpellName, 0, true);
                                 me->CastSpell(me, spellOverloadId, false);
                                 me->RemoveAurasDueToSpell(spellPetrificationId);
                                 if (instance)
@@ -1199,15 +1197,15 @@ class spell_jasper_chains : public SpellScriptLoader
         {
             PrepareAuraScript(spell_jasper_chains_AuraScript);
 
-            uint64 playerLinkedGuid;
+            ObjectGuid playerLinkedGuid;
 
             bool Load() override
             {
-                playerLinkedGuid = 0;
+                playerLinkedGuid = ObjectGuid::Empty;
                 return true;
             }
 
-            void SetGuid(uint32 /*type*/, uint64 guid) override
+            void SetGuid(uint32 /*type*/, ObjectGuid guid) override
             {
                 playerLinkedGuid = guid;
             }
@@ -1217,9 +1215,16 @@ class spell_jasper_chains : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 Unit* target = GetTarget();
                 const SpellInfo* spell = GetSpellInfo();
-                Player* linkedPlayer = sObjectAccessor->GetPlayer(*target, playerLinkedGuid);
 
-                if (!caster || !target || !spell || !linkedPlayer || !linkedPlayer->IsAlive() || !linkedPlayer->HasAura(spell->Id))
+                if (!caster || !target || !spell)
+                {
+                    Remove();
+                    return;
+                }
+
+                Player* linkedPlayer = ObjectAccessor::GetPlayer(*target, playerLinkedGuid);
+
+                if (!linkedPlayer || !linkedPlayer->IsAlive() || !linkedPlayer->HasAura(spell->Id))
                 {
                     Remove();
                     return;
@@ -1328,7 +1333,7 @@ class spell_energized_tiles : public SpellScriptLoader
 
                         if (InstanceScript* instance = caster->GetInstanceScript())
                         {
-                            if (Creature* controller = ObjectAccessor::GetCreature(*caster, instance->GetData64(NPC_STONE_GUARD_CONTROLLER)))
+                            if (Creature* controller = ObjectAccessor::GetCreature(*caster, instance->GetGuidData(NPC_STONE_GUARD_CONTROLLER)))
                                 controller->CastSpell(caster, SPELL_TILES_DISPLAYED, false);
 
                             instance->DoCastSpellOnPlayers(SPELL_TILES_AURA_EFFECT, true);
@@ -1363,7 +1368,7 @@ class spell_petrification_overload : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     if (InstanceScript* instance = caster->GetInstanceScript())
-                        if (Creature* controller = ObjectAccessor::GetCreature(*caster, instance->GetData64(NPC_STONE_GUARD_CONTROLLER)))
+                        if (Creature* controller = ObjectAccessor::GetCreature(*caster, instance->GetGuidData(NPC_STONE_GUARD_CONTROLLER)))
                             controller->AI()->DoAction(ACTION_PETRIFICATION);
             }
 

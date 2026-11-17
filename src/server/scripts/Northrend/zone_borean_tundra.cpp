@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -67,13 +67,13 @@ public:
 
         uint32 phaseTimer;
         uint8  phase;
-        uint64 casterGuid;
+        ObjectGuid casterGuid;
 
         void Reset() override
         {
             phaseTimer = 500;
             phase = 0;
-            casterGuid = 0;
+            casterGuid = ObjectGuid::Empty;
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell) override
@@ -89,7 +89,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -357,7 +357,7 @@ public:
         npc_nerubar_victimAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
 
@@ -373,7 +373,7 @@ public:
                 if (uiRand < 25)
                 {
                     player->CastSpell(me, 45532, true);
-                    player->KilledMonsterCredit(WARSONG_PEON, 0);
+                    player->KilledMonsterCredit(WARSONG_PEON, ObjectGuid::Empty);
                 }
                 else if (uiRand < 75)
                     player->CastSpell(me, nerubarVictims[urand(0, 2)], true);
@@ -544,7 +544,7 @@ public:
     {
         npc_nesingwary_trapperAI(Creature* creature) : ScriptedAI(creature) { creature->SetVisible(false); }
 
-        uint64 go_caribouGUID;
+        ObjectGuid go_caribouGUID;
         uint8  phase;
         uint32 phaseTimer;
 
@@ -553,10 +553,10 @@ public:
             me->SetVisible(false);
             phaseTimer = 2500;
             phase = 1;
-            go_caribouGUID = 0;
+            go_caribouGUID = ObjectGuid::Empty;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
 
@@ -569,7 +569,7 @@ public:
                 if (summon->IsSummon())
                     if (Unit* temp = summon->GetSummoner())
                         if (Player* player = temp->ToPlayer())
-                            player->KilledMonsterCredit(me->GetEntry(), 0);
+                            player->KilledMonsterCredit(me->GetEntry(), ObjectGuid::Empty);
 
             if (GameObject* go_caribou = me->GetMap()->GetGameObject(go_caribouGUID))
                 go_caribou->SetGoState(GO_STATE_READY);
@@ -669,9 +669,9 @@ class npc_lurgglbr : public CreatureScript
 public:
     npc_lurgglbr() : CreatureScript("npc_lurgglbr") { }
 
-    struct npc_lurgglbrAI : public npc_escortAI
+    struct npc_lurgglbrAI : public EscortAI
     {
-        npc_lurgglbrAI(Creature* creature) : npc_escortAI(creature){ }
+        npc_lurgglbrAI(Creature* creature) : EscortAI(creature){ }
 
         uint32 IntroTimer;
         uint32 IntroPhase;
@@ -685,7 +685,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             switch (waypointId)
             {
@@ -756,7 +756,7 @@ public:
                     }
                 } else IntroTimer -= diff;
             }
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (!UpdateVictim())
                 return;
@@ -779,8 +779,8 @@ public:
                 go->UseDoorOrButton(20);
             }
 
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_lurgglbr::npc_lurgglbrAI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
+            if (EscortAI* pEscortAI = CAST_AI(npc_lurgglbr::npc_lurgglbrAI, creature->AI()))
+                pEscortAI->Start(true, player->GetGUID());
 
             switch (player->GetTeam())
             {
@@ -825,10 +825,10 @@ public:
     {
         npc_nexus_drake_hatchlingAI(Creature* creature) : FollowerAI(creature)
         {
-            HarpoonerGUID = 0;
+            HarpoonerGUID = ObjectGuid::Empty;
         }
 
-        uint64 HarpoonerGUID;
+        ObjectGuid HarpoonerGUID;
         bool WithRedDragonBlood;
 
         void Reset() override
@@ -836,7 +836,7 @@ public:
            WithRedDragonBlood = false;
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (me->IsValidAttackTarget(who))
                 AttackStart(who);
@@ -866,10 +866,10 @@ public:
                 {
                     if (Player* pHarpooner = ObjectAccessor::GetPlayer(*me, HarpoonerGUID))
                     {
-                        pHarpooner->KilledMonsterCredit(26175, 0);
+                        pHarpooner->KilledMonsterCredit(26175, ObjectGuid::Empty);
                         pHarpooner->RemoveAura(SPELL_DRAKE_HATCHLING_SUBDUED);
                         SetFollowComplete();
-                        HarpoonerGUID = 0;
+                        HarpoonerGUID = ObjectGuid::Empty;
                         me->DisappearAndDie();
                     }
                 }
@@ -895,7 +895,7 @@ public:
 
             if ((me->GetFaction() == 35) && (!me->HasAura(SPELL_SUBDUED)))
             {
-                HarpoonerGUID = 0;
+                HarpoonerGUID = ObjectGuid::Empty;
                 me->DisappearAndDie();
             }
 
@@ -963,14 +963,14 @@ class npc_thassarian : public CreatureScript
 public:
     npc_thassarian() : CreatureScript("npc_thassarian") { }
 
-    struct npc_thassarianAI : public npc_escortAI
+    struct npc_thassarianAI : public EscortAI
     {
-        npc_thassarianAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_thassarianAI(Creature* creature) : EscortAI(creature) { }
 
-        uint64 arthasGUID;
-        uint64 talbotGUID;
-        uint64 leryssaGUID;
-        uint64 arlosGUID;
+        ObjectGuid arthasGUID;
+        ObjectGuid talbotGUID;
+        ObjectGuid leryssaGUID;
+        ObjectGuid arlosGUID;
 
         bool arthasInPosition;
         bool arlosInPosition;
@@ -985,10 +985,10 @@ public:
             me->RestoreFaction();
             me->RemoveStandFlags(UNIT_STAND_STATE_SIT);
 
-            arthasGUID = 0;
-            talbotGUID = 0;
-            leryssaGUID = 0;
-            arlosGUID = 0;
+            arthasGUID = ObjectGuid::Empty;
+            talbotGUID = ObjectGuid::Empty;
+            leryssaGUID = ObjectGuid::Empty;
+            arlosGUID = ObjectGuid::Empty;
 
             arthasInPosition = false;
             arlosInPosition = false;
@@ -999,7 +999,7 @@ public:
             phaseTimer = 0;
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -1009,7 +1009,7 @@ public:
             {
                 case 3:
                     SetEscortPaused(true);
-                    if (Creature* arthas = me->SummonCreature(NPC_IMAGE_LICH_KING, 3730.313f, 3518.689f, 473.324f, 1.562f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
+                    if (Creature* arthas = me->SummonCreature(NPC_IMAGE_LICH_KING, 3730.313f, 3518.689f, 473.324f, 1.562f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000ms))
                     {
                         arthasGUID = arthas->GetGUID();
                         arthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -1017,7 +1017,7 @@ public:
                         arthas->SetWalk(true);
                         arthas->GetMotionMaster()->MovePoint(0, 3737.374756f, 3564.841309f, 477.433014f);
                     }
-                    if (Creature* talbot = me->SummonCreature(NPC_COUNSELOR_TALBOT, 3747.23f, 3614.936f, 473.321f, 4.462012f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
+                    if (Creature* talbot = me->SummonCreature(NPC_COUNSELOR_TALBOT, 3747.23f, 3614.936f, 473.321f, 4.462012f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000ms))
                     {
                         talbotGUID = talbot->GetGUID();
                         talbot->SetWalk(true);
@@ -1034,7 +1034,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (arthasInPosition && talbotInPosition)
             {
@@ -1098,13 +1098,13 @@ public:
                         break;
 
                     case 6:
-                        if (Creature* arlos = me->SummonCreature(NPC_GENERAL_ARLOS, 3745.527100f, 3615.655029f, 473.321533f, 4.447805f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
+                        if (Creature* arlos = me->SummonCreature(NPC_GENERAL_ARLOS, 3745.527100f, 3615.655029f, 473.321533f, 4.447805f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000ms))
                         {
                             arlosGUID = arlos->GetGUID();
                             arlos->SetWalk(true);
                             arlos->GetMotionMaster()->MovePoint(0, 3735.570068f, 3572.419922f, 477.441010f);
                         }
-                        if (Creature* leryssa = me->SummonCreature(NPC_LERYSSA, 3749.654541f, 3614.959717f, 473.323486f, 4.524959f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
+                        if (Creature* leryssa = me->SummonCreature(NPC_LERYSSA, 3749.654541f, 3614.959717f, 473.323486f, 4.524959f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000ms))
                         {
                             leryssaGUID = leryssa->GetGUID();
                             leryssa->SetWalk(false);
@@ -1245,8 +1245,8 @@ public:
         switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
-                CAST_AI(npc_escortAI, (creature->AI()))->SetMaxPlayerDistance(200.0f);
+                CAST_AI(EscortAI, (creature->AI()))->Start(true, player->GetGUID());
+                CAST_AI(EscortAI, (creature->AI()))->SetMaxPlayerDistance(200.0f);
                 break;
         }
         return true;
@@ -1347,8 +1347,8 @@ public:
             creature->RestoreFaction();
         }
 
-        uint64 leryssaGUID;
-        uint64 arlosGUID;
+        ObjectGuid leryssaGUID;
+        ObjectGuid arlosGUID;
 
         bool bCheck;
 
@@ -1358,8 +1358,8 @@ public:
 
         void Reset() override
         {
-            leryssaGUID         = 0;
-            arlosGUID           = 0;
+            leryssaGUID = ObjectGuid::Empty;
+            arlosGUID = ObjectGuid::Empty;
             bCheck              = false;
             shadowBoltTimer   = urand(5000, 12000);
             deflectionTimer   = urand(20000, 25000);
@@ -1603,7 +1603,7 @@ public:
             bEnslaved = false;
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (me->IsValidAttackTarget(who))
                 AttackStart(who);
@@ -1620,7 +1620,7 @@ public:
                 DoCast(me, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF, true);
 
                 if (Player* player = pCaster->ToPlayer())
-                    player->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER, 0);
+                    player->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER, ObjectGuid::Empty);
 
                 bEnslaved = true;
             }
@@ -1708,7 +1708,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
         }
 
@@ -1723,7 +1723,7 @@ public:
             }
         }
 
-        void GotStinged(uint64 casterGUID)
+        void GotStinged(ObjectGuid casterGUID)
         {
             if (Player* caster = ObjectAccessor::GetPlayer(*me, casterGUID))
             {
@@ -1750,7 +1750,7 @@ public:
                         break;
                     case 7:
                         Talk(SAY_IMPRISIONED_BERYL_7);
-                        caster->KilledMonsterCredit(NPC_IMPRISONED_BERYL_SORCERER, 0);
+                        caster->KilledMonsterCredit(NPC_IMPRISONED_BERYL_SORCERER, ObjectGuid::Empty);
                         break;
                 }
             }
@@ -1798,14 +1798,14 @@ public:
             }
             creature->SetStandState(UNIT_STAND_STATE_STAND);
             creature->AI()->Talk(SAY_1);
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+            CAST_AI(EscortAI, (creature->AI()))->Start(true, player->GetGUID());
         }
         return true;
     }
 
-    struct npc_mootoo_the_youngerAI : public npc_escortAI
+    struct npc_mootoo_the_youngerAI : public EscortAI
     {
-        npc_mootoo_the_youngerAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_mootoo_the_youngerAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override
         {
@@ -1818,7 +1818,7 @@ public:
                 player->FailQuest(QUEST_ESCAPING_THE_MIST);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -1879,14 +1879,14 @@ public:
         {
             creature->SetStandState(UNIT_STAND_STATE_STAND);
             creature->AI()->Talk(SAY_BONKER_2, player);
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, player->GetGUID());
+            CAST_AI(EscortAI, (creature->AI()))->SetRun(true); CAST_AI(EscortAI, (creature->AI()))->Start(true, player->GetGUID());
         }
         return true;
     }
 
-    struct npc_bonker_togglevoltAI : public npc_escortAI
+    struct npc_bonker_togglevoltAI : public EscortAI
     {
-        npc_bonker_togglevoltAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_bonker_togglevoltAI(Creature* creature) : EscortAI(creature) { }
         uint32 Bonker_agro;
 
         void Reset() override
@@ -1915,7 +1915,7 @@ public:
             else Bonker_agro=0;
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -2012,8 +2012,7 @@ public:
             {
                 if (uiTimer <= diff)
                 {
-                    Position pos;
-                    me->GetRandomNearPosition(pos, 10.0f);
+                    Position pos = me->GetRandomNearPosition(10.0f);
                     me->GetMotionMaster()->MovePoint(0, pos);
                     bStarted = false;
                 }
@@ -2087,7 +2086,16 @@ public:
             {
                 Quest const* qInfo = sObjectMgr->GetQuestTemplate(QUEST_YOU_RE_NOT_SO_BIG_NOW);
                 if (qInfo)
-                    player->KilledMonsterCredit(qInfo->GetQuestObjectiveXIndex(0)->ObjectId, 0);
+                {
+                    for (const auto& objective : qInfo->Objectives)
+                    {
+                        if (objective.StorageIndex == 0)
+                        {
+                            player->KilledMonsterCredit(objective.ObjectID, ObjectGuid::Empty);
+                            break;
+                        }
+                    }
+                }
             }
         }
     };
@@ -2241,7 +2249,7 @@ public:
             m_uiTimer = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void AttackStart(Unit* /*who*/) override { }
 

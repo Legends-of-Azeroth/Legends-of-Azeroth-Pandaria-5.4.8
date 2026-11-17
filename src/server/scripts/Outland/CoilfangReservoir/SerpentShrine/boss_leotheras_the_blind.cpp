@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -82,13 +82,13 @@ public:
     {
         npc_inner_demonAI(Creature* creature) : ScriptedAI(creature)
         {
-            victimGUID = 0;
+            victimGUID = ObjectGuid::Empty;
         }
 
         uint32 ShadowBolt_Timer;
 
         uint32 Link_Timer;
-        uint64 victimGUID;
+        ObjectGuid victimGUID;
 
         void Reset() override
         {
@@ -96,17 +96,17 @@ public:
             Link_Timer = 1000;
         }
 
-        void SetGUID(uint64 guid, int32 id/* = 0 */) override
+        void SetGUID(ObjectGuid guid, int32 id/* = 0 */) override
         {
             if (id == INNER_DEMON_VICTIM)
                 victimGUID = guid;
         }
 
-        uint64 GetGUID(int32 id/* = 0 */) const override
+        ObjectGuid GetGUID(int32 id/* = 0 */) const override
         {
             if (id == INNER_DEMON_VICTIM)
                 return victimGUID;
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -125,7 +125,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             if (!victimGUID)
                 return;
@@ -143,7 +143,7 @@ public:
                 Unit* owner = Unit::GetUnit(*me, victimGUID);
                 if (owner && owner->IsAlive())
                 {
-                    me->AddThreat(owner, 999999);
+                    me->GetThreatManager().AddThreat(owner, 999999);
                     AttackStart(owner);
                 } else if (owner && owner->isDead())
                 {
@@ -189,10 +189,10 @@ public:
         {
             creature->GetPosition(x, y, z);
             instance = creature->GetInstanceScript();
-            Demon = 0;
+            Demon = ObjectGuid::Empty;
 
             for (uint8 i = 0; i < 3; ++i)//clear guids
-                SpellBinderGUID[i] = 0;
+                SpellBinderGUID[i] = ObjectGuid::Empty;
         }
 
         InstanceScript* instance;
@@ -212,10 +212,10 @@ public:
         bool EnrageUsed;
         float x, y, z;
 
-        uint64 InnderDemon[5];
+        ObjectGuid InnderDemon[5];
         uint32 InnerDemon_Count;
-        uint64 Demon;
-        uint64 SpellBinderGUID[3];
+        ObjectGuid Demon;
+        ObjectGuid SpellBinderGUID[3];
 
         void Reset() override
         {
@@ -228,6 +228,7 @@ public:
             Berserk_Timer = 600000;
             InnerDemons_Timer = 30000;
             me->SetCanDualWield(true);
+            me->SetIsCombatDisallowed(true);
             DealDamage = true;
             DemonForm = false;
             IsFinalForm = false;
@@ -258,7 +259,7 @@ public:
                 if (i == 0) {nx += 10; ny -= 5; o=2.5f;}
                 if (i == 1) {nx -= 8; ny -= 7; o=0.9f;}
                 if (i == 2) {nx -= 3; ny += 9; o=5.0f;}
-                Creature* binder = me->SummonCreature(NPC_SPELLBINDER, nx, ny, z, o, TEMPSUMMON_DEAD_DESPAWN, 0);
+                Creature* binder = me->SummonCreature(NPC_SPELLBINDER, nx, ny, z, o, TEMPSUMMON_DEAD_DESPAWN, 0ms);
                 if (binder)
                     SpellBinderGUID[i] = binder->GetGUID();
             }
@@ -318,12 +319,15 @@ public:
                 // and reseting equipment
                 me->LoadEquipment();
 
-                if (instance && instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
+                // Leotheras is now allowed to enter combat
+                me->SetIsCombatDisallowed(false);
+
+                if (instance && instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
                 {
                     Unit* victim = NULL;
-                    victim = Unit::GetUnit(*me, instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
+                    victim = Unit::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER));
                     if (victim)
-                        me->getThreatManager().addThreat(victim, 1);
+                        me->GetThreatManager().AddThreat(victim, 1);
                     StartEvent();
                 }
             }
@@ -356,7 +360,7 @@ public:
                         {
                             creature->DespawnOrUnsummon();
                         }
-                        InnderDemon[i] = 0;
+                        InnderDemon[i] = ObjectGuid::Empty;
                 }
             }
 
@@ -405,7 +409,7 @@ public:
                 instance->SetData(DATA_LEOTHERASTHEBLINDEVENT, DONE);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             if (me->HasAura(AURA_BANISH))
             return;
@@ -516,11 +520,11 @@ public:
                 //Summon Inner Demon
                 if (InnerDemons_Timer <= diff)
                 {
-                    ThreatContainer::StorageType const & ThreatList = me->getThreatManager().getThreatList();
+                    auto ThreatList = me->GetThreatManager().GetUnsortedThreatList();
                     std::vector<Unit*> TargetList;
-                    for (ThreatContainer::StorageType::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
+                    for (ThreatReference const* ref : ThreatList)
                     {
-                        Unit* tempTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                        Unit* tempTarget = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                         if (tempTarget && tempTarget->GetTypeId() == TYPEID_PLAYER && tempTarget->GetGUID() != me->GetVictim()->GetGUID() && TargetList.size()<5)
                             TargetList.push_back(tempTarget);
                     }
@@ -529,7 +533,7 @@ public:
                     {
                         if ((*itr) && (*itr)->IsAlive())
                         {
-                            Creature* demon = me->SummonCreature(INNER_DEMON_ID, (*itr)->GetPositionX()+10, (*itr)->GetPositionY()+10, (*itr)->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                            Creature* demon = me->SummonCreature(INNER_DEMON_ID, (*itr)->GetPositionX()+10, (*itr)->GetPositionY()+10, (*itr)->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000ms);
                             if (demon)
                             {
                                 demon->AI()->AttackStart((*itr));
@@ -576,7 +580,7 @@ public:
                 CastConsumingMadness();
                 DespawnDemon();
                 Creature* Copy = NULL;
-                Copy = DoSpawnCreature(DEMON_FORM, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 6000);
+                Copy = DoSpawnCreature(DEMON_FORM, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 6000ms);
                 if (Copy)
                  {
                      Demon = Copy->GetGUID();
@@ -638,7 +642,7 @@ public:
             DoCast(me, 8149, true);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             StartEvent();
         }
@@ -684,13 +688,13 @@ public:
         npc_greyheart_spellbinderAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            leotherasGUID = 0;
+            leotherasGUID = ObjectGuid::Empty;
             AddedBanish = false;
         }
 
         InstanceScript* instance;
 
-        uint64 leotherasGUID;
+        ObjectGuid leotherasGUID;
 
         uint32 Mindblast_Timer;
         uint32 Earthshock_Timer;
@@ -711,14 +715,14 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             me->InterruptNonMeleeSpells(false);
             if (instance)
                 instance->SetData64(DATA_LEOTHERAS_EVENT_STARTER, who->GetGUID());
         }
 
-        void JustRespawned() override
+        void JustAppeared() override
         {
             AddedBanish = false;
             Reset();
@@ -742,12 +746,12 @@ public:
             if (instance)
             {
                 if (!leotherasGUID)
-                    leotherasGUID = instance->GetData64(DATA_LEOTHERAS);
+                    leotherasGUID = instance->GetGuidData(DATA_LEOTHERAS);
 
-                if (!me->IsInCombat() && instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
+                if (!me->IsInCombat() && instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
                 {
                     Unit* victim = NULL;
-                    victim = Unit::GetUnit(*me, instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
+                    victim = Unit::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER));
                     if (victim)
                         AttackStart(victim);
                 }
@@ -759,7 +763,7 @@ public:
                 return;
             }
 
-            if (instance && !instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
+            if (instance && !instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
             {
                 EnterEvadeMode();
                 return;

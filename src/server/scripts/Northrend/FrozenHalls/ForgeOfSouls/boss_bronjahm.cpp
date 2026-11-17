@@ -98,10 +98,10 @@ class boss_bronjahm : public CreatureScript
                DoCast(me, SPELL_SOULSTORM_CHANNEL, true);
            }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                me->PlayMusic(MUSIC_EVENT_BRONJAHM);
+                me->PlayDirectMusic(MUSIC_EVENT_BRONJAHM);
                 me->RemoveAurasDueToSpell(SPELL_SOULSTORM_CHANNEL);
 
                 instance->SetBossState(DATA_BRONJAHM, IN_PROGRESS);
@@ -226,7 +226,7 @@ class npc_corrupted_soul_fragment : public CreatureScript
                     instance->SetData(DATA_SOUL_POWER, 0);
             }
 
-            void MovementInform(uint32 type, uint32 pointId)
+            void MovementInform(uint32 type, uint32 pointId) override
             {
                 if (type != FOLLOW_MOTION_TYPE)
                     return;
@@ -235,8 +235,8 @@ class npc_corrupted_soul_fragment : public CreatureScript
                 {
                     if (TempSummon* summ = me->ToTempSummon())
                     {
-                        uint64 BronjahmGUID = instance->GetData64(DATA_BRONJAHM);
-                        if (GUID_LOPART(BronjahmGUID) != pointId)
+                        ObjectGuid BronjahmGUID = instance->GetGuidData(DATA_BRONJAHM);
+                        if (BronjahmGUID.GetCounter() != pointId)
                             return;
 
                         if (Creature* bronjahm = ObjectAccessor::GetCreature(*me, BronjahmGUID))

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -19,9 +19,12 @@
 #define TRINITY_CONTAINERS_H
 
 #include "Define.h"
+#include "MapUtils.h"
 #include <list>
 #include <random>
+#include <unordered_map>
 #include "Util.h"
+#include "Random.h"
 
 //! Because circular includes are bad
 extern uint32 urand(uint32 min, uint32 max);
@@ -67,6 +70,22 @@ namespace Trinity
             return *it;
         }
 
+        template<class Iterator1, class Iterator2>
+        bool Intersects(Iterator1 first1, Iterator1 last1, Iterator2 first2, Iterator2 last2)
+        {
+            while (first1 != last1 && first2 != last2)
+            {
+                if (*first1 < *first2)
+                    ++first1;
+                else if (*first2 < *first1)
+                    ++first2;
+                else
+                    return true;
+            }
+
+            return false;
+        }
+
         /*
          * Select a random element from a container where each element has a different chance to be selected.
          *
@@ -81,7 +100,7 @@ namespace Trinity
             std::discrete_distribution<uint32>::param_type ddParam(weights.begin(), weights.end());
             std::discrete_distribution<uint32> dd(ddParam);
             typename C::const_iterator it = container.begin();
-            std::advance(it, dd(SFMTEngine::Instance()));
+            std::advance(it, dd(RandomEngine::Instance()));
             return it;
         }
 
@@ -111,6 +130,7 @@ namespace Trinity
 
             return SelectRandomWeightedContainerElement(container, weights);
         }
+
     }
     //! namespace Containers
 }

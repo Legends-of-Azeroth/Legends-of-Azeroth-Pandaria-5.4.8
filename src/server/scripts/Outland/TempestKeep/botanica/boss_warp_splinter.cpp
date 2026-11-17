@@ -74,10 +74,10 @@ class npc_warp_splinter_treant : public CreatureScript
         {
             npc_warp_splinter_treantAI(Creature* creature) : ScriptedAI(creature)
             {
-                WarpGuid = 0;
+                WarpGuid = ObjectGuid::Empty;
             }
 
-            uint64 WarpGuid;
+            ObjectGuid WarpGuid;
             uint32 check_Timer;
 
             void Reset() override
@@ -85,7 +85,7 @@ class npc_warp_splinter_treant : public CreatureScript
                 check_Timer = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
 
@@ -159,7 +159,7 @@ class boss_warp_splinter : public CreatureScript
                 me->SetSpeed(MOVE_RUN, 0.7f, true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }
@@ -184,7 +184,7 @@ class boss_warp_splinter : public CreatureScript
                     float Y = Treant_Spawn_Pos_Y + TREANT_SPAWN_DIST * std::sin(angle);
                     float O = - me->GetAngle(X, Y);
 
-                    if (Creature* pTreant = me->SummonCreature(CREATURE_TREANT, treant_pos[i][0], treant_pos[i][1], treant_pos[i][2], O, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
+                    if (Creature* pTreant = me->SummonCreature(CREATURE_TREANT, treant_pos[i][0], treant_pos[i][1], treant_pos[i][2], O, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000ms))
                         CAST_AI(npc_warp_splinter_treant::npc_warp_splinter_treantAI, pTreant->AI())->WarpGuid = me->GetGUID();
                 }
                 Talk(SAY_SUMMON);

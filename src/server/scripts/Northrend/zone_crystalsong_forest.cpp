@@ -56,11 +56,11 @@ public:
             SetCombatMovement(false);
         }
 
-        uint64 uiTargetGUID;
+        ObjectGuid uiTargetGUID;
 
         void Reset() override
         {
-            uiTargetGUID = 0;
+            uiTargetGUID = ObjectGuid::Empty;
         }
 
         void UpdateAI(uint32 /*uiDiff*/) override

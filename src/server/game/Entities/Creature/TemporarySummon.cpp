@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -27,20 +27,20 @@
 
 TempSummon::TempSummon(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject) :
 Creature(isWorldObject), m_Properties(properties), m_type(TEMPSUMMON_MANUAL_DESPAWN),
-m_timer(0), m_lifetime(0), m_visibleBySummonerOnly(false)
+m_timer(0), m_lifetime(0), m_canFollowOwner(true)
 {
-    m_summonerGUID = owner ? owner->GetGUID() : 0;
+    m_summonerGUID = owner ? owner->GetGUID() : ObjectGuid::Empty;
     m_unitTypeMask |= UNIT_MASK_SUMMON;
 }
 
 Unit* TempSummon::GetSummoner() const
 {
-    return m_summonerGUID ? ObjectAccessor::GetUnit(*this, m_summonerGUID) : NULL;
+    return m_summonerGUID ? ObjectAccessor::GetUnit(*this, m_summonerGUID) : nullptr;
 }
 
 Creature* TempSummon::GetSummonerCreatureBase() const
 {
-    return m_summonerGUID ? ObjectAccessor::GetCreature(*this, m_summonerGUID) : NULL;
+    return m_summonerGUID ? ObjectAccessor::GetCreature(*this, m_summonerGUID) : nullptr;
 }
 
 void TempSummon::Update(uint32 diff)
@@ -59,6 +59,7 @@ void TempSummon::Update(uint32 diff)
     switch (m_type)
     {
         case TEMPSUMMON_MANUAL_DESPAWN:
+        case TEMPSUMMON_DEAD_DESPAWN:    
             break;
         case TEMPSUMMON_TIMED_DESPAWN:
         {
@@ -115,15 +116,6 @@ void TempSummon::Update(uint32 diff)
 
             break;
         }
-        case TEMPSUMMON_DEAD_DESPAWN:
-        {
-            if (m_deathState == DEAD)
-            {
-                UnSummon();
-                return;
-            }
-            break;
-        }
         case TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN:
         {
             // if m_deathState is DEAD, CORPSE was skipped
@@ -172,14 +164,14 @@ void TempSummon::Update(uint32 diff)
         }
         default:
             UnSummon();
-            TC_LOG_ERROR("entities.unit", "Temporary summoned creature (entry: %u) have unknown type %u of ", GetEntry(), m_type);
+            TC_LOG_ERROR("entities.unit", "Temporary summoned creature (entry: {}) have unknown type {} of ", GetEntry(), m_type);
             break;
     }
 }
 
-bool TempSummon::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, CreatureData const* data)
+bool TempSummon::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, CreatureData const* data, bool dynamic)
 {
-    if (!Creature::Create(guidlow, map, phaseMask, entry, vehId, team, x, y, z, ang, data))
+    if (!Creature::Create(guidlow, map, phaseMask, entry, vehId, team, x, y, z, ang, data, dynamic))
         return false;
 
 
@@ -305,8 +297,6 @@ void TempSummon::InitStats(uint32 duration)
 
 void TempSummon::InitSummon()
 {
-    LoadCreaturesAddon();
-
     Unit* owner = GetSummoner();
     if (owner)
     {
@@ -315,8 +305,6 @@ void TempSummon::InitSummon()
         if (IsAIEnabled)
             AI()->IsSummonedBy(owner);
     }
-    if (GetMap()->IsRaid() && ((InstanceMap*)GetMap())->GetInstanceScript())
-        ((InstanceMap*)GetMap())->GetInstanceScript()->UpdateDynamicHealth(GetGUID());
 }
 
 void TempSummon::SetTempSummonType(TempSummonType type)
@@ -337,7 +325,7 @@ void TempSummon::UnSummon(uint32 msTime)
     //ASSERT(!IsPet());
     if (IsPet() && !ToPet()->IsTemporary())
     {
-        ((Pet*)this)->Remove(PET_REMOVE_DISMISS, PET_REMOVE_FLAG_RESET_CURRENT);
+        ToPet()->Remove(PET_REMOVE_DISMISS, PET_REMOVE_FLAG_RESET_CURRENT);
         ASSERT(!IsInWorld());
         return;
     }
@@ -345,6 +333,7 @@ void TempSummon::UnSummon(uint32 msTime)
     Unit* owner = GetSummoner();
     if (owner && owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
         owner->ToCreature()->AI()->SummonedCreatureDespawn(this);
+
     if (IsAIEnabled)
         AI()->Unsummoned();
 
@@ -353,6 +342,7 @@ void TempSummon::UnSummon(uint32 msTime)
 
 bool ForcedUnsummonDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 {
+
     m_owner.UnSummon();
     return true;
 }
@@ -370,9 +360,9 @@ void TempSummon::RemoveFromWorld()
             if (Unit* owner = GetSummoner())
             {
                 if (owner->m_SummonSlot[slot] == GetGUID())
-                    owner->m_SummonSlot[slot] = 0;
+                    owner->m_SummonSlot[slot].Clear();
                 else if (owner->m_SummonSlot[SUMMON_SLOT_TOTEM_EXTRA] == GetGUID())
-                    owner->m_SummonSlot[SUMMON_SLOT_TOTEM_EXTRA] = 0;
+                    owner->m_SummonSlot[SUMMON_SLOT_TOTEM_EXTRA].Clear();
             }
         }
     }
@@ -382,11 +372,11 @@ void TempSummon::RemoveFromWorld()
         owner->RemoveSummon(this);
         if (Player* player = owner->ToPlayer())
             if (player->GetBattlePetMgr().GetCurrentSummon() == this)
-                player->GetBattlePetMgr().SetCurrentSummon(0);
+                player->GetBattlePetMgr().SetCurrentSummon(ObjectGuid::Empty);
     }
 
     //if (GetOwnerGUID())
-    //    TC_LOG_ERROR("entities.unit", "Unit %u has owner guid when removed from world", GetEntry());
+    //    TC_LOG_ERROR("entities.unit", "Unit {} has owner guid when removed from world", GetEntry());
 
     Creature::RemoveFromWorld();
 }
@@ -404,7 +394,7 @@ uint32 TempSummon::GetBaseAttackTimer() const
         case 27893: // Dancing Rune Weapon
         case 62982: // Mindbender
         case 63508: // Xuen
-            return ToCreature()->GetCreatureTemplate()->baseattacktime;
+            return ToCreature()->GetCreatureTemplate()->BaseAttackTime;
     }
     return BASE_ATTACK_TIME;
 }
@@ -416,7 +406,7 @@ Minion::Minion(SummonPropertiesEntry const* properties, Unit* owner, bool isWorl
     m_unitTypeMask |= UNIT_MASK_MINION;
     m_followAngle = PET_FOLLOW_ANGLE;
     // Uncomment this if crashes
-    //InitCharmInfo();
+    // InitCharmInfo();
 }
 
 void Minion::InitStats(uint32 duration)
@@ -425,7 +415,7 @@ void Minion::InitStats(uint32 duration)
 
     SetReactState(REACT_PASSIVE);
 
-    SetUInt64Value(UNIT_FIELD_DEMON_CREATOR, GetOwner()->GetGUID());
+    //SetUInt64Value(UNIT_FIELD_DEMON_CREATOR, GetOwner()->GetGUID());
     SetCreatorGUID(GetOwner()->GetGUID());
     SetFaction(GetOwner()->GetFaction());
 
@@ -445,7 +435,7 @@ bool Minion::IsGuardianPet() const
 {
     if (IsPet())
         return !ToPet()->IsTemporary();
-    
+
     return m_Properties && m_Properties->Category == SUMMON_CATEGORY_PET;
 }
 
@@ -493,9 +483,6 @@ Puppet::Puppet(SummonPropertiesEntry const* properties, Unit* owner)
 {
     ASSERT(m_owner->GetTypeId() == TYPEID_PLAYER);
     m_unitTypeMask |= UNIT_MASK_PUPPET;
-    // Uncomment if crashes
-    //delete m_charmInfo;
-    //m_charmInfo = nullptr;
 }
 
 void Puppet::InitStats(uint32 duration)
@@ -531,6 +518,6 @@ void Puppet::RemoveFromWorld()
     if (!IsInWorld())
         return;
 
-    RemoveCharmedBy(NULL);
+    RemoveCharmedBy(nullptr);
     Minion::RemoveFromWorld();
 }

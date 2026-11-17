@@ -124,7 +124,7 @@ public:
         InstanceScript* instance;
 
         std::vector<uint32> LackeyEntryList;
-        uint64 m_auiLackeyGUID[MAX_ACTIVE_LACKEY];
+        ObjectGuid m_auiLackeyGUID[MAX_ACTIVE_LACKEY];
 
         uint8 PlayersKilled;
 
@@ -156,7 +156,7 @@ public:
                  instance->SetData(DATA_DELRISSA_EVENT, FAIL);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             Talk(SAY_AGGRO);
 
@@ -167,7 +167,7 @@ public:
                     if (!pAdd->GetVictim())
                     {
                         who->SetInCombatWith(pAdd);
-                        pAdd->AddThreat(who, 0.0f);
+                        pAdd->GetThreatManager().AddThreat(who, 0.0f);
                     }
                 }
             }
@@ -201,7 +201,7 @@ public:
                 //summon all the remaining in vector
                 for (std::vector<uint32>::const_iterator itr = LackeyEntryList.begin(); itr != LackeyEntryList.end(); ++itr)
                 {
-                    if (Creature* pAdd = me->SummonCreature((*itr), LackeyLocations[j][0], LackeyLocations[j][1], fZLocation, fOrientation, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                    if (Creature* pAdd = me->SummonCreature((*itr), LackeyLocations[j][0], LackeyLocations[j][1], fZLocation, fOrientation, TEMPSUMMON_CORPSE_DESPAWN, 0ms))
                         m_auiLackeyGUID[j] = pAdd->GetGUID();
 
                     ++j;
@@ -216,7 +216,7 @@ public:
                     //object already removed, not exist
                     if (!pAdd)
                     {
-                        pAdd = me->SummonCreature((*itr), LackeyLocations[j][0], LackeyLocations[j][1], fZLocation, fOrientation, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        pAdd = me->SummonCreature((*itr), LackeyLocations[j][0], LackeyLocations[j][1], fZLocation, fOrientation, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
                         if (pAdd)
                             m_auiLackeyGUID[j] = pAdd->GetGUID();
                     }
@@ -364,7 +364,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
 
     InstanceScript* instance;
 
-    uint64 m_auiLackeyGUIDs[MAX_ACTIVE_LACKEY];
+    ObjectGuid m_auiLackeyGUIDs[MAX_ACTIVE_LACKEY];
     uint32 ResetThreatTimer;
 
     bool UsedPotion;
@@ -380,14 +380,14 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         ResetThreatTimer = urand(5000, 20000);
 
         // in case she is not alive and Reset was for some reason called, respawn her (most likely party wipe after killing her)
-        if (Creature* pDelrissa = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_DELRISSA) : 0))
+        if (Creature* pDelrissa = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_DELRISSA) : ObjectGuid::Empty))
         {
             if (!pDelrissa->IsAlive())
                 pDelrissa->Respawn();
         }
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         if (!who)
             return;
@@ -401,17 +401,17 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
                     if (!pAdd->GetVictim() && pAdd != me)
                     {
                         who->SetInCombatWith(pAdd);
-                        pAdd->AddThreat(who, 0.0f);
+                        pAdd->GetThreatManager().AddThreat(who, 0.0f);
                     }
                 }
             }
 
-            if (Creature* pDelrissa = Unit::GetCreature(*me, instance->GetData64(DATA_DELRISSA)))
+            if (Creature* pDelrissa = Unit::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA)))
             {
                 if (pDelrissa->IsAlive() && !pDelrissa->GetVictim())
                 {
                     who->SetInCombatWith(pDelrissa);
-                    pDelrissa->AddThreat(who, 0.0f);
+                    pDelrissa->GetThreatManager().AddThreat(who, 0.0f);
                 }
             }
         }
@@ -422,7 +422,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         if (!instance)
             return;
 
-        Creature* pDelrissa = Unit::GetCreature(*me, instance->GetData64(DATA_DELRISSA));
+        Creature* pDelrissa = Unit::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA));
         uint32 uiLackeyDeathCount = instance->GetData(DATA_DELRISSA_DEATH_COUNT);
 
         if (!pDelrissa)
@@ -454,7 +454,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         if (!instance)
             return;
 
-        if (Creature* Delrissa = Unit::GetCreature(*me, instance->GetData64(DATA_DELRISSA)))
+        if (Creature* Delrissa = Unit::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA)))
             Delrissa->AI()->KilledUnit(victim);
     }
 
@@ -463,7 +463,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         if (!instance)
             return;
 
-        if (Creature* Delrissa = (Unit::GetCreature(*me, instance->GetData64(DATA_DELRISSA))))
+        if (Creature* Delrissa = (Unit::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA))))
         {
             for (uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
                 m_auiLackeyGUIDs[i] = CAST_AI(boss_priestess_delrissa::boss_priestess_delrissaAI, Delrissa->AI())->m_auiLackeyGUID[i];
@@ -547,7 +547,7 @@ public:
                 DoResetThreat();
 
                 if (unit)
-                    me->AddThreat(unit, 1000.0f);
+                    me->GetThreatManager().AddThreat(unit, 1000.0f);
 
                 InVanish = true;
                 Vanish_Timer = 30000;
@@ -632,7 +632,7 @@ public:
             boss_priestess_lackey_commonAI::Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoCast(me, SPELL_SUMMON_IMP);
         }
@@ -845,10 +845,10 @@ public:
             if (Blink_Timer <= diff)
             {
                 bool InMeleeRange = false;
-                ThreatContainer::StorageType const &t_list = me->getThreatManager().getThreatList();
-                for (ThreatContainer::StorageType::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                auto t_list = me->GetThreatManager().GetUnsortedThreatList();
+                for (ThreatReference const* ref : t_list)
                 {
-                    if (Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (Unit* target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID()))
                     {
                         //if in melee range
                         if (target->IsWithinDistInMap(me, 5))
@@ -916,7 +916,7 @@ public:
             boss_priestess_lackey_commonAI::Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoCast(me, SPELL_BATTLE_SHOUT);
         }
@@ -931,10 +931,10 @@ public:
             if (Intercept_Stun_Timer <= diff)
             {
                 bool InMeleeRange = false;
-                ThreatContainer::StorageType const &t_list = me->getThreatManager().getThreatList();
-                for (ThreatContainer::StorageType::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                auto t_list = me->GetThreatManager().GetUnsortedThreatList();
+                for (ThreatReference const* ref : t_list)
                 {
-                    if (Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (Unit* target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID()))
                     {
                         //if in melee range
                         if (target->IsWithinDistInMap(me, ATTACK_DISTANCE))
@@ -1017,10 +1017,10 @@ public:
         //Hunter
         boss_garaxxasAI(Creature* creature) : boss_priestess_lackey_commonAI(creature)
         {
-            m_uiPetGUID = 0;
+            m_uiPetGUID = ObjectGuid::Empty;
         }
 
-        uint64 m_uiPetGUID;
+        ObjectGuid m_uiPetGUID;
 
         uint32 Aimed_Shot_Timer;
         uint32 Shoot_Timer;
@@ -1040,7 +1040,7 @@ public:
 
             Unit* pPet = Unit::GetUnit(*me, m_uiPetGUID);
             if (!pPet)
-                me->SummonCreature(NPC_SLIVER, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                me->SummonCreature(NPC_SLIVER, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
 
             boss_priestess_lackey_commonAI::Reset();
         }

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -226,7 +226,7 @@ struct boss_conclave_of_wind : public BossAI
         evading = false;
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (me->FindNearestPlayer(500))
             return;
@@ -252,9 +252,9 @@ struct boss_conclave_of_wind : public BossAI
                 rohash->AI()->EnterEvadeMode();
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
-        _EnterCombat();
+        _JustEngagedWith();
         summons.DespawnAll(); // Just in case
 
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -411,7 +411,7 @@ struct boss_conclave_of_wind : public BossAI
             persistentEvents.Reset();
             _JustDied();
             RemoveSummons();
-            if (Creature* AlAkir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ALAKIR)))
+            if (Creature* AlAkir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ALAKIR)))
             {
                 AlAkir->AI()->Talk(SAY_CONCLAVE_DEFEAT);
                 AlAkir->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
@@ -632,7 +632,7 @@ class boss_anshal : public CreatureScript
         {
             boss_anshalAI(Creature* creature) : boss_conclave_of_wind(creature) { }
 
-            void SetupEvents()
+            void SetupEvents() override
             {
                 events.ScheduleEvent(EVENT_SOOTHING_BREEZE,     16000);
                 events.ScheduleEvent(EVENT_NURTURE,             30000);
@@ -644,7 +644,7 @@ class boss_anshal : public CreatureScript
                 summons.Summon(summon);
             }
 
-            void HandleEvent(uint32 eventId)
+            void HandleEvent(uint32 eventId) override
             {
                 switch (eventId)
                 {
@@ -669,7 +669,7 @@ class boss_anshal : public CreatureScript
                 }
             }
 
-            void UltimateStarted()
+            void UltimateStarted() override
             {
                 events.RescheduleEvent(SPELL_SOOTHING_BREEZE, 15000 + 16000);
                 events.RescheduleEvent(EVENT_NURTURE, 15000 + 35000);
@@ -691,7 +691,7 @@ class boss_nezir : public CreatureScript
         {
             boss_nezirAI(Creature* creature) : boss_conclave_of_wind(creature) { }
 
-            void SetupEvents()
+            void SetupEvents() override
             {
                 events.ScheduleEvent(EVENT_ICE_PATCH,           urand(10000,12000));
                 events.ScheduleEvent(EVENT_PERMAFROST,          10000);
@@ -717,7 +717,7 @@ class boss_nezir : public CreatureScript
                 summon->AI()->DoZoneInCombat();
             }
 
-            void HandleEvent(uint32 eventId)
+            void HandleEvent(uint32 eventId) override
             {
                 switch (eventId)
                 {
@@ -769,7 +769,7 @@ class boss_rohash : public CreatureScript
         {
             boss_rohashAI(Creature* creature) : boss_conclave_of_wind(creature) { }
 
-            void SetupEvents()
+            void SetupEvents() override
             {
                 if (Creature* trigger = me->FindNearestCreature(NPC_WIND_BLAST_TARGET, 100))
                 {
@@ -793,10 +793,9 @@ class boss_rohash : public CreatureScript
                 boss_conclave_of_wind::SpellHitTarget(target, spell);
                 if (spell->Id == SPELL_HURRICANE_DUMMY_ENEMY)
                 {
-                    Position pos;
-                    me->GetPosition(&pos);
+                    Position pos = me->GetPosition();
                     pos.m_positionZ = 250;
-                    if (Creature* hurricane = me->SummonCreature(NPC_HURRICANE, pos, TEMPSUMMON_TIMED_DESPAWN, 20000))
+                    if (Creature* hurricane = me->SummonCreature(NPC_HURRICANE, pos, TEMPSUMMON_TIMED_DESPAWN, 20000ms))
                     {
                         target->CastSpell(target, SPELL_HURRICANE_FLIGHT_AURA, true);
                         // Hack to make a player "fly". Without it the camera drops to the ground when boarding a flying vehicle
@@ -814,7 +813,7 @@ class boss_rohash : public CreatureScript
                 }
             }
 
-            void HandleEvent(uint32 eventId)
+            void HandleEvent(uint32 eventId) override
             {
                 switch (eventId)
                 {
@@ -846,24 +845,24 @@ class boss_rohash : public CreatureScript
                 }
             }
 
-            void HandlePersistantEvent(uint32 eventId)
+            void HandlePersistantEvent(uint32 eventId) override
             {
                 if (eventId == EVENT_HURRICANE)
                 {
-                    uint64 affectedGuid = Trinity::Containers::SelectRandomContainerElement(affectedByHurricaneGuids);
+                    ObjectGuid affectedGuid = Trinity::Containers::SelectRandomContainerElement(affectedByHurricaneGuids);
                     affectedByHurricaneGuids.remove(affectedGuid);
                     if (Player* affected = ObjectAccessor::GetPlayer(*me, affectedGuid))
                         affected->CastSpell(affected, SPELL_HURRICANE_VEHICLE, true);
                 }
             }
 
-            void UltimateStarted()
+            void UltimateStarted() override
             {
                 if (IsHeroic())
                     events.RescheduleEvent(EVENT_STORM_SHIELD, 15000 + 35000);
             }
 
-            void UpdateHook()
+            void UpdateHook() override
             {
                 if (Spell* spell = me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
                 {
@@ -880,7 +879,7 @@ class boss_rohash : public CreatureScript
 
         private:
             uint32 windBlastCount;
-            std::list<uint64> affectedByHurricaneGuids;
+            std::list<ObjectGuid> affectedByHurricaneGuids;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -942,14 +941,14 @@ class npc_ravenous_creeper : public CreatureScript
     public:
         npc_ravenous_creeper() : CreatureScript("npc_ravenous_creeper") { }
 
-        struct npc_ravenous_creeperAI : public CreatureAI
+        struct npc_ravenous_creeperAI : public ScriptedAI
         {
-            npc_ravenous_creeperAI(Creature* creature) : CreatureAI(creature) { }
+            npc_ravenous_creeperAI(Creature* creature) : ScriptedAI(creature) { }
 
             void IsSummonedBy(Unit* /*summoner*/) override
             {
                 evading = false;
-                me->GetPosition(&homePos);
+                homePos = me->GetPosition();
                 events.Reset();
                 events.ScheduleEvent(EVENT_TARGET_CHECK, 1000);
                 DoCast(SPELL_BIRTH_1_SEC);
@@ -982,13 +981,13 @@ class npc_ravenous_creeper : public CreatureScript
                                 me->GetExactDist2d(&conclaveHomePositions[0]) > 90.0f)
                             {
                                 if (me->GetVictim())
-                                    me->getThreatManager().modifyThreatPercent(me->GetVictim(), -100);
+                                    me->GetThreatManager().ModifyThreatByPercent(me->GetVictim(), -100);
                                 me->GetMotionMaster()->Clear();
                                 Player* target = me->FindNearestPlayer(90);
                                 if (target && target->GetExactDist2d(&conclaveHomePositions[0]) <= 90.0f)
                                 {
                                     evading = false;
-                                    me->getThreatManager().setCurrentVictim(NULL);
+                                    me->GetThreatManager().ClearFixate();
                                     AttackStart(target);
                                     me->GetMotionMaster()->MoveChase(target);
                                 }

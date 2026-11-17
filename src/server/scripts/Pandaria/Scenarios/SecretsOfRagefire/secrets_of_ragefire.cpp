@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -110,7 +110,7 @@ struct npc_ragefire_grit : public ScriptedAI
                 scheduler
                     .Schedule(Milliseconds(delay += 3200), [this](TaskContext context)
                 {
-                    if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_NEWT) : 0))
+                    if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NEWT) : ObjectGuid::Empty))
                         newt->AI()->Talk(TALK_INTRO);
                 });
 
@@ -120,7 +120,7 @@ struct npc_ragefire_grit : public ScriptedAI
                     Talk(TALK_SPECIAL_1);
 
                     // Send Newt move forward
-                    if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_NEWT) : 0))
+                    if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NEWT) : ObjectGuid::Empty))
                     {
                         Movement::MoveSplineInit init(newt);
 
@@ -134,7 +134,7 @@ struct npc_ragefire_grit : public ScriptedAI
                 scheduler
                     .Schedule(Milliseconds(delay += 3900), [this](TaskContext context)
                 {
-                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TICKER) : 0))
+                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                         ticker->AI()->Talk(TALK_INTRO);
                 });
 
@@ -142,7 +142,7 @@ struct npc_ragefire_grit : public ScriptedAI
                     .Schedule(Milliseconds(delay += 1000), [this](TaskContext context)
                 {
                     // Ticker, Patch, Volt should move to Newt
-                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TICKER) : 0))
+                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                     {
                         Movement::MoveSplineInit init(ticker);
 
@@ -152,7 +152,7 @@ struct npc_ragefire_grit : public ScriptedAI
                         init.Launch();
                     }
 
-                    if (Creature* volt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_VOLT) : 0))
+                    if (Creature* volt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_VOLT) : ObjectGuid::Empty))
                     {
                         Movement::MoveSplineInit init(volt);
 
@@ -162,7 +162,7 @@ struct npc_ragefire_grit : public ScriptedAI
                         init.Launch();
                     }
 
-                    if (Creature* patch = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_PATCH) : 0))
+                    if (Creature* patch = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_PATCH) : ObjectGuid::Empty))
                     {
                         Movement::MoveSplineInit init(patch);
 
@@ -176,7 +176,7 @@ struct npc_ragefire_grit : public ScriptedAI
                 scheduler
                     .Schedule(Milliseconds(delay += 2500), [this](TaskContext context)
                 {
-                    if (Player* owner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                    if (Player* owner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                         Talk(TALK_SPECIAL_2, owner);
                 });
 
@@ -215,7 +215,7 @@ struct npc_ragefire_grit : public ScriptedAI
                     scheduler
                         .Schedule(Milliseconds(delay += 2700), [this](TaskContext context)
                     {
-                        if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_NEWT) : 0))
+                        if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NEWT) : ObjectGuid::Empty))
                         {
                             newt->AI()->Talk(TALK_SPECIAL_1);
 
@@ -232,11 +232,11 @@ struct npc_ragefire_grit : public ScriptedAI
                             scheduler
                                 .Schedule(Milliseconds(newt->GetSplineDuration()), [this](TaskContext context)
                             {
-                                if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_NEWT) : 0))
+                                if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NEWT) : ObjectGuid::Empty))
                                     newt->AI()->Talk(TALK_SPECIAL_2);
 
                                 // Activate Bomb!
-                                if (Creature* detonator = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_DETONATOR) : 0))
+                                if (Creature* detonator = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_DETONATOR) : ObjectGuid::Empty))
                                 {
                                     detonator->SetVisible(true);
                                     detonator->SetFaction(35);
@@ -249,7 +249,7 @@ struct npc_ragefire_grit : public ScriptedAI
                 break;
             case ACTION_INNER_RAGEFIRE:
             {
-                if (GameObject* entranceDoor = ObjectAccessor::GetGameObject(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(GO_IRON_GATE) : 0))
+                if (GameObject* entranceDoor = ObjectAccessor::GetGameObject(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(GO_IRON_GATE) : ObjectGuid::Empty))
                     entranceDoor->SetGoState(GO_STATE_ACTIVE);
 
                 // Update Condition
@@ -274,7 +274,7 @@ struct npc_ragefire_grit : public ScriptedAI
                     .Schedule(Milliseconds(delay += 1000), [this](TaskContext context)
                 {
                     // Move in Cavern!
-                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TICKER) : 0))
+                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                     {
                         ticker->StopMoving();
                         Movement::MoveSplineInit init(ticker);
@@ -285,7 +285,7 @@ struct npc_ragefire_grit : public ScriptedAI
                         init.Launch();
                     }
 
-                    if (Creature* volt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_VOLT) : 0))
+                    if (Creature* volt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_VOLT) : ObjectGuid::Empty))
                     {
                         volt->StopMoving();
                         Movement::MoveSplineInit init(volt);
@@ -296,7 +296,7 @@ struct npc_ragefire_grit : public ScriptedAI
                         init.Launch();
                     }
 
-                    if (Creature* patch = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_PATCH) : 0))
+                    if (Creature* patch = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_PATCH) : ObjectGuid::Empty))
                     {
                         patch->StopMoving();
                         Movement::MoveSplineInit init(patch);
@@ -307,7 +307,7 @@ struct npc_ragefire_grit : public ScriptedAI
                         init.Launch();
                     }
 
-                    if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_NEWT) : 0))
+                    if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NEWT) : ObjectGuid::Empty))
                     {
                         newt->StopMoving();
                         Movement::MoveSplineInit init(newt);
@@ -336,7 +336,7 @@ struct npc_ragefire_grit : public ScriptedAI
                     scheduler
                         .Schedule(Milliseconds(delay += 2000), [this](TaskContext context)
                     {
-                        if (Creature* xorenth = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_DARK_SHAMAN_XORENTH) : 0))
+                        if (Creature* xorenth = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_DARK_SHAMAN_XORENTH) : ObjectGuid::Empty))
                             xorenth->AI()->Talk(TALK_INTRO);
                     });
 
@@ -344,7 +344,7 @@ struct npc_ragefire_grit : public ScriptedAI
                         .Schedule(Milliseconds(delay += 1600), [this](TaskContext context)
                     {
                         // Attack intruders!
-                        if (Creature* xorenth = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_DARK_SHAMAN_XORENTH) : 0))
+                        if (Creature* xorenth = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_DARK_SHAMAN_XORENTH) : ObjectGuid::Empty))
                         {
                             std::list<Creature*> korkronsList;
                             GetCreatureListWithEntryInGrid(korkronsList, me, NPC_KORKRON_DARK_SHAMAN, 80.0f);
@@ -355,7 +355,7 @@ struct npc_ragefire_grit : public ScriptedAI
                                 itr->SetInCombatWithZone();
                         }
 
-                        if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TICKER) : 0))
+                        if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                             ticker->AI()->Talk(TALK_SPECIAL_1);
                     });
 
@@ -371,7 +371,7 @@ struct npc_ragefire_grit : public ScriptedAI
                 // Goblind move Forward
                 for (auto&& itr : goblinsList)
                 {
-                    if (Creature* gobSquad = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(itr) : 0))
+                    if (Creature* gobSquad = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(itr) : ObjectGuid::Empty))
                     {
                         GetPositionWithDistInOrientation(gobSquad, 45.0f, gobSquad->GetAngle(me), x, y);
                         float z = gobSquad->GetPositionZ();
@@ -384,7 +384,7 @@ struct npc_ragefire_grit : public ScriptedAI
                             scheduler
                                 .Schedule(Milliseconds(delay), [this](TaskContext context)
                             {
-                                if (Creature* volt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_VOLT) : 0))
+                                if (Creature* volt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_VOLT) : ObjectGuid::Empty))
                                     volt->AI()->Talk(TALK_INTRO);
                             });
 
@@ -405,11 +405,11 @@ struct npc_ragefire_grit : public ScriptedAI
                 break;
             case ACTION_SEALED_GATES:
             {
-                if (Player* owner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                if (Player* owner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                     Talk(TALK_SPECIAL_14, owner);
 
                 // Send Move to Sealed Gates
-                if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TICKER) : 0))
+                if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                 {
                     ticker->StopMoving();
                     Movement::MoveSplineInit init(ticker);
@@ -419,7 +419,7 @@ struct npc_ragefire_grit : public ScriptedAI
                     init.Launch();
                 }
 
-                if (Creature* volt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_VOLT) : 0))
+                if (Creature* volt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_VOLT) : ObjectGuid::Empty))
                 {
                     volt->StopMoving();
                     Movement::MoveSplineInit init(volt);
@@ -430,7 +430,7 @@ struct npc_ragefire_grit : public ScriptedAI
                     init.Launch();
                 }
 
-                if (Creature* patch = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_PATCH) : 0))
+                if (Creature* patch = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_PATCH) : ObjectGuid::Empty))
                 {
                     patch->StopMoving();
                     Movement::MoveSplineInit init(patch);
@@ -441,7 +441,7 @@ struct npc_ragefire_grit : public ScriptedAI
                     init.Launch();
                 }
 
-                if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_NEWT) : 0))
+                if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NEWT) : ObjectGuid::Empty))
                 {
                     newt->StopMoving();
                     Movement::MoveSplineInit init(newt);
@@ -482,7 +482,7 @@ struct npc_ragefire_grit : public ScriptedAI
                 scheduler
                     .Schedule(Milliseconds(delay += 2700), [this](TaskContext context)
                 {
-                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TICKER) : 0))
+                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                         ticker->AI()->Talk(TALK_SPECIAL_2);
                 });
 
@@ -490,11 +490,11 @@ struct npc_ragefire_grit : public ScriptedAI
                     .Schedule(Milliseconds(delay += 2700), [this](TaskContext context)
                 {
                     // Take Mantid Bomb in hands
-                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TICKER) : 0))
+                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                     {
                         ticker->AI()->Talk(TALK_SPECIAL_3);
 
-                        if (Creature* bombTarget = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_MANTID_BOMB_TARGET) : 0))
+                        if (Creature* bombTarget = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MANTID_BOMB_TARGET) : ObjectGuid::Empty))
                             bombTarget->SummonCreature(NPC_MANTID_BOMB, *bombTarget, TEMPSUMMON_MANUAL_DESPAWN);
                     }
                 });
@@ -504,14 +504,14 @@ struct npc_ragefire_grit : public ScriptedAI
                 {
                     Talk(TALK_SPECIAL_16);
 
-                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TICKER) : 0))
+                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                         ticker->GetMotionMaster()->MovePoint(0, tickerSealedGateReachPoint);
                 });
 
                 scheduler
                     .Schedule(Milliseconds(delay += 6100), [this](TaskContext context)
                 {
-                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TICKER) : 0))
+                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                     {
                         ticker->AI()->Talk(TALK_SPECIAL_4);
                         ticker->SetFacingTo(Position::NormalizeOrientation(me->GetOrientation() + M_PI));
@@ -521,7 +521,7 @@ struct npc_ragefire_grit : public ScriptedAI
                 scheduler
                     .Schedule(Milliseconds(delay += 4900), [this](TaskContext context)
                 {
-                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TICKER) : 0))
+                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                         ticker->AI()->Talk(TALK_SPECIAL_5);
 
                     // Allow to pickup objects
@@ -531,17 +531,17 @@ struct npc_ragefire_grit : public ScriptedAI
                 break;
             case ACTION_EXPLOSIVE_GATES:
             {
-                if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TICKER) : 0))
+                if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                     ticker->AI()->Talk(TALK_SPECIAL_11);
 
                 delay = 2350;
                 scheduler
                     .Schedule(Milliseconds(delay), [this](TaskContext context)
                 {
-                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TICKER) : 0))
+                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                         ticker->AI()->Talk(TALK_SPECIAL_12);
 
-                    if (Creature* mantidBomb = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_MANTID_BOMB) : 0))
+                    if (Creature* mantidBomb = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MANTID_BOMB) : ObjectGuid::Empty))
                     {
                         // Visual Upgrade
                         mantidBomb->CastSpell(mantidBomb, SPELL_ATTACH_EGG_YOLK, true);
@@ -557,17 +557,17 @@ struct npc_ragefire_grit : public ScriptedAI
                 scheduler
                     .Schedule(Milliseconds(delay += 2900), [this](TaskContext context)
                 {
-                    if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_NEWT) : 0))
+                    if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NEWT) : ObjectGuid::Empty))
                         newt->AI()->Talk(TALK_SPECIAL_4);
 
-                    if (Creature* volt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_VOLT) : 0))
+                    if (Creature* volt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_VOLT) : ObjectGuid::Empty))
                         volt->AI()->Talk(TALK_SPECIAL_1);
                 });
 
                 scheduler
                     .Schedule(Milliseconds(delay += 3700), [this](TaskContext context)
                 {
-                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TICKER) : 0))
+                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                         ticker->AI()->Talk(TALK_SPECIAL_13);
                 });
 
@@ -580,14 +580,14 @@ struct npc_ragefire_grit : public ScriptedAI
                 scheduler
                     .Schedule(Milliseconds(delay += 6100), [this](TaskContext context)
                 {
-                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TICKER) : 0))
+                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                         ticker->AI()->Talk(TALK_SPECIAL_14);
                 });
 
                 scheduler
                     .Schedule(Milliseconds(delay += 3600), [this](TaskContext context)
                 {
-                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TICKER) : 0))
+                    if (Creature* ticker = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
                         ticker->AI()->Talk(TALK_SPECIAL_15);
                 });
 
@@ -595,17 +595,17 @@ struct npc_ragefire_grit : public ScriptedAI
                     .Schedule(Milliseconds(delay += 2700), [this](TaskContext context)
                 {
                     // Explosion!
-                    if (Creature* mantidBomb = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_MANTID_BOMB) : 0))
+                    if (Creature* mantidBomb = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_MANTID_BOMB) : ObjectGuid::Empty))
                     {
                         mantidBomb->CastSpell(mantidBomb, SPELL_HUGE_EXPLOSION, false);
                         mantidBomb->DespawnOrUnsummon(1000);
                     }
 
-                    if (Creature* portalController = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_EMERGENCY_TELEPORTER) : 0))
+                    if (Creature* portalController = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_EMERGENCY_TELEPORTER) : ObjectGuid::Empty))
                     {
                         for (auto&& itr : goblinsList)
                         {
-                            if (Creature* gobSquad = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(itr) : 0))
+                            if (Creature* gobSquad = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(itr) : ObjectGuid::Empty))
                             {
                                 GetPositionWithDistInOrientation(gobSquad, 35.0f, gobSquad->GetAngle(portalController), x, y);
                                 float z = gobSquad->GetPositionZ();
@@ -619,35 +619,35 @@ struct npc_ragefire_grit : public ScriptedAI
                 scheduler
                     .Schedule(Milliseconds(delay += 3900), [this](TaskContext context)
                 {
-                    if (Creature* volt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_VOLT) : 0))
+                    if (Creature* volt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_VOLT) : ObjectGuid::Empty))
                         volt->AI()->Talk(TALK_SPECIAL_2);
                 });
 
                 scheduler
                     .Schedule(Milliseconds(delay += 1000), [this](TaskContext context)
                 {
-                    if (Creature* patch = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_PATCH) : 0))
+                    if (Creature* patch = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_PATCH) : ObjectGuid::Empty))
                         patch->AI()->Talk(TALK_SPECIAL_1);
                 });
 
                 scheduler
                     .Schedule(Milliseconds(delay += 1500), [this](TaskContext context)
                 {
-                    if (Creature* volt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_VOLT) : 0))
+                    if (Creature* volt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_VOLT) : ObjectGuid::Empty))
                         volt->AI()->Talk(TALK_SPECIAL_3);
                 });
 
                 scheduler
                     .Schedule(Milliseconds(delay += 2100), [this](TaskContext context)
                 {
-                    if (Creature* patch = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_PATCH) : 0))
+                    if (Creature* patch = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_PATCH) : ObjectGuid::Empty))
                         patch->AI()->Talk(TALK_SPECIAL_2);
                 });
 
                 scheduler
                     .Schedule(Milliseconds(delay += 1500), [this](TaskContext context)
                 {
-                    if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_NEWT) : 0))
+                    if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NEWT) : ObjectGuid::Empty))
                         newt->AI()->Talk(TALK_SPECIAL_5);
                 });
 
@@ -666,20 +666,20 @@ struct npc_ragefire_grit : public ScriptedAI
                 scheduler
                     .Schedule(Milliseconds(delay += 1000), [this](TaskContext context)
                 {
-                    if (Creature* patch = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_PATCH) : 0))
+                    if (Creature* patch = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_PATCH) : ObjectGuid::Empty))
                         patch->AI()->Talk(TALK_SPECIAL_3);
                 });
 
                 scheduler
                     .Schedule(Milliseconds(delay += 2500), [this](TaskContext context)
                 {
-                    if (Creature* elaglo = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_OVERSEER_ELAGLO) : 0))
+                    if (Creature* elaglo = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_OVERSEER_ELAGLO) : ObjectGuid::Empty))
                         elaglo->AI()->DoAction(ACTION_START_INTRO);
                 });
                 break;
             }
             case ACTION_GOB_SQUAD_DEFENDED:
-                if (Creature* patch = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_PATCH) : 0))
+                if (Creature* patch = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_PATCH) : ObjectGuid::Empty))
                     patch->AI()->Talk(TALK_SPECIAL_4);
 
                 scheduler
@@ -745,7 +745,7 @@ struct npc_ragefire_detonator : public ScriptedAI
             scheduler
                 .Schedule(Milliseconds(moveDuration), [this](TaskContext context)
             {
-                if (Creature* grit = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_GRIT) : 0))
+                if (Creature* grit = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_GRIT) : ObjectGuid::Empty))
                     grit->AI()->DoAction(ACTION_INNER_RAGEFIRE);
             });
         }
@@ -777,7 +777,7 @@ struct npc_ragefire_dark_shaman_xorenth : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_TWISTED_ELEMENTS, 1 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_GLACIAL_FREEZE_TOTEM, 8 * IN_MILLISECONDS);
@@ -828,7 +828,7 @@ struct npc_ragefire_dark_shaman_xorenth : public customCreatureAI
                 // Goblind move Forward
                 for (auto&& itr : goblinsList)
                 {
-                    if (Creature* gobSquad = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(itr) : 0))
+                    if (Creature* gobSquad = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(itr) : ObjectGuid::Empty))
                     {
                         gobSquad->SetFacingToObject(me);
                         GetPositionWithDistInOrientation(gobSquad, 25.0f, gobSquad->GetAngle(me), x, y);
@@ -842,7 +842,7 @@ struct npc_ragefire_dark_shaman_xorenth : public customCreatureAI
             scheduler
                 .Schedule(Milliseconds(delay += 5000), [this](TaskContext context)
             {
-                if (Creature* grit = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_GRIT) : 0))
+                if (Creature* grit = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_GRIT) : ObjectGuid::Empty))
                     grit->AI()->Talk(TALK_SPECIAL_10);
             });
 
@@ -857,7 +857,7 @@ struct npc_ragefire_dark_shaman_xorenth : public customCreatureAI
             scheduler
                 .Schedule(Milliseconds(delay += 4800), [this](TaskContext context)
             {
-                if (Creature* grit = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_GRIT) : 0))
+                if (Creature* grit = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_GRIT) : ObjectGuid::Empty))
                     grit->AI()->Talk(TALK_SPECIAL_11);
             });
         }
@@ -927,7 +927,7 @@ struct npc_ragefire_korkron_dark_shaman : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_LAVA_BURST, 1 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_POISON_BOLT_TOTEM, urand(8 * IN_MILLISECONDS, 12.5 * IN_MILLISECONDS));
@@ -953,7 +953,7 @@ struct npc_ragefire_korkron_dark_shaman : public customCreatureAI
         if (me->GetInstanceScript() && me->GetInstanceScript()->GetData(DATA_INFILTRATION) == DONE)
             return;
 
-        if (Creature* xorenth = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_DARK_SHAMAN_XORENTH) : 0))
+        if (Creature* xorenth = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_DARK_SHAMAN_XORENTH) : ObjectGuid::Empty))
             xorenth->AI()->DoAction(ACTION_START_INTRO);
     }
 
@@ -988,7 +988,7 @@ struct npc_ragefire_korkron_emberguard : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_EMBERSTRIKES, urand(6.5 * IN_MILLISECONDS, 12.5 * IN_MILLISECONDS));
     }
@@ -1013,7 +1013,7 @@ struct npc_ragefire_korkron_emberguard : public customCreatureAI
         if (me->GetInstanceScript() && me->GetInstanceScript()->GetData(DATA_INFILTRATION) == DONE)
             return;
 
-        if (Creature* xorenth = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_DARK_SHAMAN_XORENTH) : 0))
+        if (Creature* xorenth = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_DARK_SHAMAN_XORENTH) : ObjectGuid::Empty))
             xorenth->AI()->DoAction(ACTION_START_INTRO);
     }
 
@@ -1046,7 +1046,7 @@ struct npc_ragefire_investigated_item : public ScriptedAI
 
     void Reset() override
     {
-        me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+        me->SetDisplayFromModel(1);
 
         if (me->GetEntry() == NPC_PANDARIA_ARTIFACTS)
             me->SetObjectScale(2.0f);
@@ -1076,13 +1076,13 @@ struct npc_ragefire_investigated_item : public ScriptedAI
         {
             case NPC_PANDARIA_ARTIFACTS:
             {
-                if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_NEWT) : 0))
+                if (Creature* newt = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_NEWT) : ObjectGuid::Empty))
                     newt->AI()->Talk(TALK_SPECIAL_3);
                 break;
             }
             case NPC_PROTO_DRAKE_EGGS:
             {
-                if (Creature* patch = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_PATCH) : 0))
+                if (Creature* patch = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_PATCH) : ObjectGuid::Empty))
                     patch->AI()->Talk(TALK_INTRO);
                 break;
             }
@@ -1102,7 +1102,7 @@ struct npc_ragefire_korkron_shadowblade : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_SHADOWSTEP, urand(6.5 * IN_MILLISECONDS, 12.5 * IN_MILLISECONDS));
     }
@@ -1112,7 +1112,7 @@ struct npc_ragefire_korkron_shadowblade : public customCreatureAI
         if (me->GetInstanceScript() && me->GetInstanceScript()->GetData(DATA_INFILTRATION) == DONE)
             return;
 
-        if (Creature* xorenth = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_DARK_SHAMAN_XORENTH) : 0))
+        if (Creature* xorenth = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_DARK_SHAMAN_XORENTH) : ObjectGuid::Empty))
             xorenth->AI()->DoAction(ACTION_START_INTRO);
     }
 
@@ -1197,7 +1197,7 @@ struct npc_ragefire_overseer_elaglo : public customCreatureAI
     }
 
     TaskScheduler scheduler;
-    std::vector<uint64> summonerGUIDs;
+    std::vector<ObjectGuid> summonerGUIDs;
     uint32 waveId;
     float x, y;
 
@@ -1208,7 +1208,7 @@ struct npc_ragefire_overseer_elaglo : public customCreatureAI
         waveId = 0;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_DEMOLISH_ARMOR, urand(8 * IN_MILLISECONDS, 12.5 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_SHATTERING_STOMP, 6.5 * IN_MILLISECONDS);
@@ -1231,7 +1231,7 @@ struct npc_ragefire_overseer_elaglo : public customCreatureAI
             scheduler
                 .Schedule(Milliseconds(3600), [this](TaskContext context)
             {
-                if (Creature* grit = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_GRIT) : 0))
+                if (Creature* grit = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_GRIT) : ObjectGuid::Empty))
                     grit->AI()->Talk(TALK_SPECIAL_20);
 
                 Talk(TALK_SPECIAL_4);
@@ -1354,7 +1354,7 @@ struct npc_ragefire_korkron_dire_solder : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_DIRE_RAGE, 6 * IN_MILLISECONDS);
     }
@@ -1426,7 +1426,7 @@ struct npc_ragefire_flame_hound : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_FLAME_BREATH, urand(4.5 * IN_MILLISECONDS, 8 * IN_MILLISECONDS));
     }
@@ -1474,7 +1474,7 @@ struct npc_ragefire_shattered_earth : public ScriptedAI
 
     void Reset() override
     {
-        me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+        me->SetDisplayFromModel(1);
         DoCast(me, SPELL_SHATTERED_EARTH);
     }
 
@@ -1550,7 +1550,7 @@ class AreaTrigger_at_ragefire_sealed_gate : public AreaTriggerScript
             if (player->GetInstanceScript() && player->GetInstanceScript()->GetData(DATA_RECONNAISSANCE) != DONE)
                 return false;
 
-            if (Creature* grit = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetData64(NPC_GRIT) : 0))
+            if (Creature* grit = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_GRIT) : ObjectGuid::Empty))
                 grit->AI()->DoAction(ACTION_REACH_SEALED_GATES);
 
             return true;
@@ -1570,7 +1570,7 @@ class AreaTrigger_at_ragefire_sealed_gate_items : public AreaTriggerScript
             if (!tempCondition)
                 return false;
 
-            if (Creature* ticker = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetData64(NPC_TICKER) : 0))
+            if (Creature* ticker = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_TICKER) : ObjectGuid::Empty))
             {
                 ticker->GetInstanceScript()->SetData(tempCondition, ticker->GetInstanceScript()->GetData(tempCondition) + 1);
                 ticker->GetInstanceScript()->SendScenarioProgressUpdate(CriteriaProgressData(tempCondition, ticker->GetInstanceScript()->GetData(tempCondition), ticker->GetInstanceScript()->GetScenarioGUID(), time(NULL), 0, 0));

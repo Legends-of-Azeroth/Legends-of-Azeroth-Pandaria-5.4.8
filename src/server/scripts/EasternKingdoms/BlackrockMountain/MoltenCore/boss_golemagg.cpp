@@ -68,9 +68,9 @@ class boss_golemagg : public CreatureScript
                 DoCast(me, SPELL_MAGMASPLASH, true);
             }
 
-            void EnterCombat(Unit* victim) override
+            void JustEngagedWith(Unit* victim) override
             {
-                BossAI::EnterCombat(victim);
+                BossAI::JustEngagedWith(victim);
                 events.ScheduleEvent(EVENT_PYROBLAST, 7000);
             }
 
@@ -143,7 +143,7 @@ class npc_core_rager : public CreatureScript
                 if (HealthAbovePct(50) || !instance)
                     return;
 
-                if (Creature* pGolemagg = instance->instance->GetCreature(instance->GetData64(BOSS_GOLEMAGG_THE_INCINERATOR)))
+                if (Creature* pGolemagg = instance->instance->GetCreature(instance->GetGuidData(BOSS_GOLEMAGG_THE_INCINERATOR)))
                 {
                     if (pGolemagg->IsAlive())
                     {

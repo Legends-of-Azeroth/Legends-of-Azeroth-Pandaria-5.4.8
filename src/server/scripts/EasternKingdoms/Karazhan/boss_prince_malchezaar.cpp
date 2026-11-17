@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -103,15 +103,15 @@ class netherspite_infernal : public CreatureScript
 
         struct netherspite_infernalAI : public ScriptedAI
         {
-            netherspite_infernalAI(Creature* creature) : ScriptedAI(creature), HellfireTimer(0), CleanupTimer(0), malchezaarGUID(0), point(nullptr) { }
+            netherspite_infernalAI(Creature* creature) : ScriptedAI(creature), HellfireTimer(0), CleanupTimer(0), malchezaarGUID(), point(nullptr) { }
 
             uint32 HellfireTimer;
             uint32 CleanupTimer;
-            uint64 malchezaarGUID;
+            ObjectGuid malchezaarGUID;
             InfernalPoint* point;
 
             void Reset() override { }
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
             void MoveInLineOfSight(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override
@@ -194,11 +194,11 @@ class boss_malchezaar : public CreatureScript
             uint32 AxesTargetSwitchTimer;
             uint32 InfernalCleanupTimer;
 
-            std::vector<uint64> infernals;
+            std::vector<ObjectGuid> infernals;
             std::vector<InfernalPoint*> positions;
 
-            uint64 axes[2];
-            uint64 enfeeble_targets[5];
+            ObjectGuid axes[2];
+            ObjectGuid enfeeble_targets[5];
             uint32 enfeeble_health[5];
 
             uint32 phase;
@@ -212,7 +212,7 @@ class boss_malchezaar : public CreatureScript
 
                 for (uint8 i = 0; i < 5; ++i)
                 {
-                    enfeeble_targets[i] = 0;
+                    enfeeble_targets[i] = ObjectGuid::Empty;
                     enfeeble_health[i] = 0;
                 }
 
@@ -232,7 +232,7 @@ class boss_malchezaar : public CreatureScript
                 phase = 1;
 
                 if (instance)
-                    instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), true);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_NETHER_DOOR), true);
             }
 
             void KilledUnit(Unit* /*victim*/) override
@@ -253,15 +253,15 @@ class boss_malchezaar : public CreatureScript
                     positions.push_back(&InfernalPoints[i]);
 
                 if (instance)
-                    instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), true);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_NETHER_DOOR), true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 
                 if (instance)
-                    instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), false); // Open the door leading further in
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_NETHER_DOOR), false); // Open the door leading further in
             }
 
             void InfernalCleanup()
@@ -288,7 +288,7 @@ class boss_malchezaar : public CreatureScript
                     Unit* axe = ObjectAccessor::GetUnit(*me, axes[i]);
                     if (axe && axe->IsAlive())
                         axe->Kill(axe);
-                    axes[i] = 0;
+                    axes[i] = ObjectGuid::Empty;
                 }
             }
 
@@ -298,8 +298,9 @@ class boss_malchezaar : public CreatureScript
 
                 // damage
                 const CreatureTemplate* cinfo = me->GetCreatureTemplate();
-                me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
-                me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
+                float basedmg = sObjectMgr->GetCreatureBaseStats(me->GetLevel(), cinfo->unit_class)->GenerateBaseDamage(cinfo);
+                me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, basedmg);
+                me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, basedmg * 1.5f);
                 me->UpdateDamagePhysical(BASE_ATTACK);
             }
 
@@ -309,19 +310,25 @@ class boss_malchezaar : public CreatureScript
                 if (!info)
                     return;
 
-                std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
+                auto t_list = me->GetThreatManager().GetUnsortedThreatList();
                 std::vector<Unit *> targets;
 
-                if (!t_list.size())
+                if (!me->GetThreatManager().GetThreatListSize())
                     return;
 
                 // begin + 1, so we don't target the one with the highest threat
-                std::list<HostileReference *>::const_iterator itr = t_list.begin();
-                std::advance(itr, 1);
-                for (; itr != t_list.end(); ++itr) //store the threat list in a different container
-                    if (Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
+                bool skipFirst = true;
+                for (ThreatReference const* ref : t_list) //store the threat list in a different container
+                {
+                    if (skipFirst)
+                    {
+                        skipFirst = false;
+                        continue;
+                    }
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, ref->GetVictim()->GetGUID()))
                         if (target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
                             targets.push_back(target);
+                }
 
                 // cut down to size if we have more than 5 targets
                 while (targets.size() > 5)
@@ -345,7 +352,7 @@ class boss_malchezaar : public CreatureScript
                     Unit* target = ObjectAccessor::GetUnit(*me, enfeeble_targets[i]);
                     if (target && target->IsAlive())
                         target->SetHealth(enfeeble_health[i]);
-                    enfeeble_targets[i] = 0;
+                    enfeeble_targets[i] = ObjectGuid::Empty;
                     enfeeble_health[i] = 0;
                 }
             }
@@ -355,14 +362,14 @@ class boss_malchezaar : public CreatureScript
                 InfernalPoint* point = nullptr;
                 Position pos;
                 if ((me->GetMapId() != 532) || positions.empty())
-                    me->GetRandomNearPosition(pos, 60);
+                    pos = me->GetRandomNearPosition(60);
                 else
                 {
                     point = Trinity::Containers::SelectRandomContainerElement(positions);
                     pos.Relocate(point->x, point->y, INFERNAL_Z, frand(0.0f, float(M_PI * 2)));
                 }
 
-                if (Creature* Infernal = me->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000))
+                if (Creature* Infernal = me->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000ms))
                 {
                     Infernal->SetDisplayId(INFERNAL_MODEL_INVISIBLE);
                     Infernal->SetFaction(me->GetFaction());
@@ -391,7 +398,7 @@ class boss_malchezaar : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_STUNNED))      // While shifting to phase 2 malchezaar stuns himself
                     return;
 
-                if (me->GetUInt64Value(UNIT_FIELD_TARGET) != me->GetVictim()->GetGUID())
+                if (me->GetGuidValue(UNIT_FIELD_TARGET) != me->GetVictim()->GetGUID())
                     me->SetTarget(me->GetVictim()->GetGUID());
 
                 if (phase == 1)
@@ -416,15 +423,16 @@ class boss_malchezaar : public CreatureScript
 
                         // damage
                         const CreatureTemplate* cinfo = me->GetCreatureTemplate();
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2 * cinfo->mindmg);
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2 * cinfo->maxdmg);
+                        float basedmg = sObjectMgr->GetCreatureBaseStats(me->GetLevel(), cinfo->unit_class)->GenerateBaseDamage(cinfo);
+                        me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2 * basedmg);
+                        me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2 * basedmg * 1.5f);
                         me->UpdateDamagePhysical(BASE_ATTACK);
 
-                        me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, cinfo->mindmg);
-                        me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, cinfo->maxdmg);
+                        me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, basedmg);
+                        me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, basedmg * 1.5f);
                         // Sigh, updating only works on main attack, do it manually....
-                        me->SetFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, cinfo->mindmg);
-                        me->SetFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, cinfo->maxdmg);
+                        me->SetFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, basedmg);
+                        me->SetFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, basedmg * 1.5f);
 
                         me->SetAttackTime(OFF_ATTACK, (me->GetAttackTime(BASE_ATTACK) * 150) / 100);
                     }
@@ -447,7 +455,7 @@ class boss_malchezaar : public CreatureScript
                         Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                         for (uint8 i = 0; i < 2; ++i)
                         {
-                            if (Creature* axe = me->SummonCreature(MALCHEZARS_AXE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000))
+                            if (Creature* axe = me->SummonCreature(MALCHEZARS_AXE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000ms))
                             {
                                 axe->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 axe->SetFaction(me->GetFaction());
@@ -455,9 +463,9 @@ class boss_malchezaar : public CreatureScript
                                 if (target)
                                 {
                                     axe->AI()->AttackStart(target);
-                                    //axe->getThreatManager().tauntApply(target); // Taunt Apply and fade out does not work properly
+                                    //axe->GetThreatManager().tauntApply(target); // Taunt Apply and fade out does not work properly
                                     // So we'll use a hack to add a lot of threat to our target
-                                    axe->AddThreat(target, 10000000.0f);
+                                    axe->GetThreatManager().AddThreat(target, 10000000.0f);
                                 }
                             }
                         }
@@ -497,9 +505,9 @@ class boss_malchezaar : public CreatureScript
                                     if (axe->GetVictim())
                                         DoModifyThreatPercent(axe->GetVictim(), -100);
                                     if (target)
-                                        axe->AddThreat(target, 1000000.0f);
-                                    //axe->getThreatManager().tauntFadeOut(axe->GetVictim());
-                                    //axe->getThreatManager().tauntApply(target);
+                                        axe->GetThreatManager().AddThreat(target, 1000000.0f);
+                                    //axe->GetThreatManager().tauntFadeOut(axe->GetVictim());
+                                    //axe->GetThreatManager().tauntApply(target);
                                 }
                             }
                         }
@@ -578,7 +586,7 @@ class boss_malchezaar : public CreatureScript
                 if (infernals.empty())
                     return;
 
-                for (std::vector<uint64>::iterator itr = infernals.begin(); itr != infernals.end(); ++itr)
+                for (std::vector<ObjectGuid>::iterator itr = infernals.begin(); itr != infernals.end(); ++itr)
                 {
                     if (*itr == infernal->GetGUID())
                     {

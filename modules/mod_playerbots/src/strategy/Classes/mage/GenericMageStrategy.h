@@ -1,0 +1,27 @@
+/*
+ * Copyright (C) 2016+ AzerothCore <www.azerothcore.org>, released under GNU GPL v2 license, you may redistribute it
+ * and/or modify it under version 2 of the License, or (at your option), any later version.
+ */
+
+#ifndef _PLAYERBOT_GENERICMAGESTRATEGY_H
+#define _PLAYERBOT_GENERICMAGESTRATEGY_H
+
+#include "CombatStrategy.h"
+#include "RangedCombatStrategy.h"
+
+class PlayerbotAI;
+
+class GenericMageStrategy : public RangedCombatStrategy
+{
+public:
+    GenericMageStrategy(PlayerbotAI* botAI);
+
+    std::string const getName() override { return "mage"; }
+    void InitTriggers(std::vector<TriggerNode*>& triggers) override;
+    uint32 GetType() const override
+    {
+        return RangedCombatStrategy::GetType() | STRATEGY_TYPE_RANGED | STRATEGY_TYPE_DPS;
+    }
+};
+
+#endif

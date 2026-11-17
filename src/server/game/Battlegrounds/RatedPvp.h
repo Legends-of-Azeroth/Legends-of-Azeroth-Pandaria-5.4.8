@@ -24,7 +24,7 @@ enum ArenaType : uint32;
 
 struct RatedPvpInfo
 {
-    uint64 Guid = 0;
+    ObjectGuid Guid = ObjectGuid::Empty;
     uint32 Slot = 0;
     uint32 Rank = 0;
     uint32 Rating = 0;
@@ -53,7 +53,7 @@ class RatedPvpMgr
     RatedPvpMgr() { }
     ~RatedPvpMgr() { }
 
-    typedef std::unordered_map<uint64, std::shared_ptr<RatedPvpInfo>> RatedPvpInfoMap;
+    typedef std::unordered_map<ObjectGuid, std::shared_ptr<RatedPvpInfo>> RatedPvpInfoMap;
 
 public:
     static RatedPvpMgr* Instance()
@@ -64,9 +64,9 @@ public:
 
     void LoadFromDB();
 
-    RatedPvpInfo* GetOrCreateInfo(RatedPvpSlot slot, uint64 guid);
+    RatedPvpInfo* GetOrCreateInfo(RatedPvpSlot slot, ObjectGuid guid);
 
-    RatedPvpInfo* GetInfo(RatedPvpSlot slot, uint64 guid) const
+    RatedPvpInfo* GetInfo(RatedPvpSlot slot, ObjectGuid guid) const
     {
         ASSERT(slot < PVP_SLOT_MAX);
         auto it = m_store[slot].find(guid);

@@ -222,7 +222,7 @@ class npc_end_time_infinite_warden : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_VOID_SHIELD, urand(10000, 20000));
                 events.ScheduleEvent(EVENT_VOID_STRIKE, urand(5000, 10000));
@@ -284,7 +284,7 @@ class npc_end_time_infinite_suppressor : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_ARCANE_WAVE, 1000);
                 events.ScheduleEvent(EVENT_TEMPORAL_VORTEX, 5000);
@@ -369,7 +369,7 @@ class npc_end_time_time_twisted_rifleman : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_MULTY_SHOT, urand(5 * IN_MILLISECONDS, 8 * IN_MILLISECONDS));
             }
@@ -452,7 +452,7 @@ class npc_end_time_time_twisted_priest : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_POWER_WORD_SHIELD);
                 events.ScheduleEvent(EVENT_SHIELD, urand(13 * IN_MILLISECONDS, 18 * IN_MILLISECONDS));
@@ -532,7 +532,7 @@ class npc_end_time_time_twisted_footman : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_THUNDERCLAP, urand(3 * IN_MILLISECONDS, 6 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_SHIELD_BASH, urand(8 * IN_MILLISECONDS, 17.5 * IN_MILLISECONDS));
@@ -611,7 +611,7 @@ class npc_end_time_time_twisted_sorceress : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_BLINK, urand(8 * IN_MILLISECONDS, 39 * IN_MILLISECONDS));
             }

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -51,7 +51,7 @@ struct npc_young_primal_devilsaur : public customCreatureAI
         me->SetCombatDistance(5.0f);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->SetCombatDistance(220.0f);
         events.ScheduleEvent(EVENT_SKYCALL, urand(3.5 * IN_MILLISECONDS, 6 * IN_MILLISECONDS));
@@ -88,7 +88,7 @@ struct npc_pterrorwing_skyscreamer : public customCreatureAI
         me->SetCombatDistance(5.0f);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->SetCombatDistance(220.0f);
         events.ScheduleEvent(EVENT_CRUSH, 2.5 * IN_MILLISECONDS);
@@ -129,7 +129,7 @@ struct npc_zandalari_dinomancer_2 : public customCreatureAI
         me->SetCombatDistance(5.0f);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->SetCombatDistance(220.0f);
         events.ScheduleEvent(EVENT_DINO_MENDING, 8.5 * IN_MILLISECONDS);
@@ -175,7 +175,7 @@ struct npc_primal_direhorn_hatchling : public customCreatureAI
         me->SetCombatDistance(5.0f);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->SetCombatDistance(220.0f);
         events.ScheduleEvent(EVENT_TRIPPLE_PUNCTURE, 3 * IN_MILLISECONDS);
@@ -214,7 +214,7 @@ struct npc_primal_direhorn : public customCreatureAI
         me->SetCombatDistance(5.0f);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->SetCombatDistance(220.0f);
         events.ScheduleEvent(EVENT_TRIPPLE_PUNCTURE, 3 * IN_MILLISECONDS);

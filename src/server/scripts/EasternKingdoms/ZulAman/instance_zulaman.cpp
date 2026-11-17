@@ -41,9 +41,9 @@ class instance_zulaman : public InstanceMapScript
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doordata);
 
-                HexLordGateGUID = 0;
-                MainGateGUID    = 0;
-                StrangeGongGUID = 0;
+                HexLordGateGUID = ObjectGuid::Empty;
+                MainGateGUID = ObjectGuid::Empty;
+                StrangeGongGUID = ObjectGuid::Empty;
 
                 QuestTimer = 0;
                 QuestMinute = 21;
@@ -53,9 +53,9 @@ class instance_zulaman : public InstanceMapScript
 
                 for (uint8 i = 0; i < 4; ++i)
                 {
-                    _hostages[i].realGUID = 0;
-                    _hostages[i].corpseGUID = 0;
-                    _hostages[i].lootGUID = 0;
+                    _hostages[i].realGUID = ObjectGuid::Empty;
+                    _hostages[i].corpseGUID = ObjectGuid::Empty;
+                    _hostages[i].lootGUID = ObjectGuid::Empty;
                     _hostages[i].state = 0;
                 }
                 archaeologyQuestAura = 0;
@@ -161,7 +161,7 @@ class instance_zulaman : public InstanceMapScript
                 }
             }
 
-            bool SetBossState(uint32 id, EncounterState state)
+            bool SetBossState(uint32 id, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(id, state))
                     return false;
@@ -345,11 +345,11 @@ class instance_zulaman : public InstanceMapScript
             }
 
         private:
-            uint64 HexLordGateGUID;
-            uint64 MainGateGUID;
-            uint64 StrangeGongGUID;
-            uint64 AmanishiTempestGUID;
-            uint64 uiKashaBagGUID;
+            ObjectGuid HexLordGateGUID;
+            ObjectGuid MainGateGUID;
+            ObjectGuid StrangeGongGUID;
+            ObjectGuid AmanishiTempestGUID;
+            ObjectGuid uiKashaBagGUID;
 
             uint32 uiMainGate;
             uint32 uiVendor1;
@@ -370,9 +370,9 @@ class instance_zulaman : public InstanceMapScript
 
             struct Hostage
             {
-                uint64 realGUID;
-                uint64 corpseGUID;
-                uint64 lootGUID;
+                ObjectGuid realGUID;
+                ObjectGuid corpseGUID;
+                ObjectGuid lootGUID;
                 uint8 state; // 0 - neutral, 1 - saved, 2 - killed
             };
 

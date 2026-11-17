@@ -99,7 +99,7 @@ class npc_av_marshal_or_warmaster : public CreatureScript
                 _hasAura = false;
             }
 
-            void JustRespawned() override
+            void JustAppeared() override
             {
                 Reset();
             }

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -148,13 +148,13 @@ class boss_queen_azshara : public CreatureScript
                 memset(addsGUIDs, 0, sizeof(addsGUIDs));
 
                 for (uint8 i = 0; i < 6; ++i)
-                    if (Creature* pAdd = me->SummonCreature(addsEntry[i], addsPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+                    if (Creature* pAdd = me->SummonCreature(addsEntry[i], addsPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000ms))
                         addsGUIDs[i] = pAdd->GetGUID();
 
                 addsCount = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 
@@ -263,10 +263,10 @@ class boss_queen_azshara : public CreatureScript
                             break;
                         case EVENT_END:
                         {    
-                            instance->DoKilledMonsterKredit(QUEST_THE_VAINGLORIOUS, 54853, 0);
+                            instance->DoKilledMonsterKredit(QUEST_THE_VAINGLORIOUS, 54853, ObjectGuid::Empty);
 
                             instance->SetBossState(DATA_AZSHARA, DONE);
-                            instance->DoRespawnGameObject(instance->GetData64(DATA_ROYAL_CACHE), DAY);
+                            instance->DoRespawnGameObject(instance->GetGuidData(DATA_ROYAL_CACHE), DAY);
                             instance->DoModifyPlayerCurrencies(CURRENCY_TYPE_JUSTICE_POINTS, 7000);
                             me->DespawnOrUnsummon();
                             break;
@@ -280,7 +280,7 @@ class boss_queen_azshara : public CreatureScript
         private:
             EventMap events;
             uint8 phase;
-            uint64 addsGUIDs[6];
+            ObjectGuid addsGUIDs[6];
             uint8 addsCount;
         };
 
@@ -386,8 +386,8 @@ class npc_queen_azshara_enchanted_magus : public CreatureScript
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             {
-                                Creature* pStalker1 = me->SummonCreature(NPC_HAMMER_OF_DIVINITY_2, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 20000);
-                                Creature* pStalker2 = me->SummonCreature(NPC_HAMMER_OF_DIVINITY_1, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + 30.0f, target->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 20000);
+                                Creature* pStalker1 = me->SummonCreature(NPC_HAMMER_OF_DIVINITY_2, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 20000ms);
+                                Creature* pStalker2 = me->SummonCreature(NPC_HAMMER_OF_DIVINITY_1, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + 30.0f, target->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 20000ms);
                                 
                                 if (pStalker1 && pStalker2)
                                     pStalker2->GetMotionMaster()->MovePoint(0, pStalker1->GetPositionX(), pStalker1->GetPositionY(), pStalker1->GetPositionZ()); 
@@ -481,8 +481,7 @@ class spell_queen_azshara_coldflame : public SpellScriptLoader
                     return;
                 }
 
-                Position pos;
-                GetCaster()->GetNearPosition(pos, 3.0f * (count / 2), 0.0f);
+                Position pos = GetCaster()->GetNearPosition(3.0f * (count / 2), 0.0f);
                 GetCaster()->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_COLDFLAME_DMG, true);
             }
 

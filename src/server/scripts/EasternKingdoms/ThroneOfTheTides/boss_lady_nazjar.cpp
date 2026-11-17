@@ -174,14 +174,14 @@ class boss_lady_nazjar : public CreatureScript
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         {
                             float x, y;
-                            me->GetNearPoint2D(x, y, 30.0f, me->GetAngle(target->GetPositionX(), target->GetPositionY()));
+                            me->GetNearPoint2D(nullptr, x, y, 30.0f, me->GetAngle(target->GetPositionX(), target->GetPositionY()));
                             summon->GetMotionMaster()->MovePoint(POINT_WATERSPOUT, x, y, 808.0f);
                         }
                         break;
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 
@@ -194,7 +194,7 @@ class boss_lady_nazjar : public CreatureScript
                 instance->SetData(DATA_LADY_NAZJAR, IN_PROGRESS);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
 

@@ -60,7 +60,7 @@ class boss_timmy_the_cruel : public CreatureScript
                 hasEnrage          = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (!HasYelled)
                 {

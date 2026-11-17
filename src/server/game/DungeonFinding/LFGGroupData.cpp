@@ -21,12 +21,12 @@
 namespace lfg
 {
 
-void LfgGroupData::AddPlayer(uint64 guid)
+void LfgGroupData::AddPlayer(ObjectGuid guid)
 {
     m_players.insert(guid);
 }
 
-uint8 LfgGroupData::RemovePlayer(uint64 guid)
+uint8 LfgGroupData::RemovePlayer(ObjectGuid guid)
 {
     LfgGuidSet::iterator it = m_players.find(guid);
     if (it != m_players.end())
@@ -39,7 +39,7 @@ void LfgGroupData::RemoveAllPlayers()
     m_players.clear();
 }
 
-void LfgGroupData::SetLeader(uint64 guid)
+void LfgGroupData::SetLeader(ObjectGuid guid)
 {
     m_leader = guid;
 }
@@ -70,7 +70,7 @@ uint8 LfgGroupData::GetPlayerCount() const
     return m_players.size();
 }
 
-uint64 LfgGroupData::GetLeader() const
+ObjectGuid LfgGroupData::GetLeader() const
 {
     return m_leader;
 }

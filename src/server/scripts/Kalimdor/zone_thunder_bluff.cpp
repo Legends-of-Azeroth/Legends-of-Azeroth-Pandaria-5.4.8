@@ -65,7 +65,7 @@ struct npc_baine_bloodhoof : public ScriptedAI
         UppercutTimer = 10000;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(TALK_AGGRO);
     }

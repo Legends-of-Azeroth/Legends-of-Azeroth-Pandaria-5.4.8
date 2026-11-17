@@ -356,7 +356,7 @@ enum PetBattleTrapStatus
 struct PetBattleRequest
 {
     // Data to read from packet
-    uint64 OpponentGuid;
+    ObjectGuid OpponentGuid;
     uint32 LocationResult;                              // name dumped from client, use unknown
 
     G3D::Vector3 BattleOrigin;

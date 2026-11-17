@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -66,7 +66,7 @@ struct CriteriaProgress
 {
     uint64 Counter;
     time_t Date;                                            // latest update time.
-    uint64 CompletedGUID;                                   // GUID of the player that completed this criteria (guild achievements)
+    ObjectGuid CompletedGUID;                               // GUID of the player that completed this criteria (guild achievements)
     bool   Changed;
 };
 
@@ -270,7 +270,7 @@ struct CompletedAchievementData
 {
     time_t Date;
     uint32 CompletedBy;
-    std::set<uint64> Guids;
+    std::set<ObjectGuid> Guids;
     bool Changed;
 };
 
@@ -314,7 +314,7 @@ class AchievementMgr
         virtual void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer);
         void CheckAllAchievementCriteria(Player* referencePlayer);
         bool HasAchieved(uint32 achievementId) const;
-        virtual uint64 GetGUID() const = 0;
+        virtual ObjectGuid GetGUID() const { return ObjectGuid::Empty; };
 
         virtual uint32 GetAchievementPoints() const { return m_achievementPoints; }
 
@@ -369,7 +369,7 @@ class PlayerAchievementMgrBase : public AchievementMgr
             : AchievementMgr(type) { }
 
         Player* GetOwner() const { return m_owner; }
-        uint64 GetGUID() const override;
+        ObjectGuid GetGUID() const override;
         void SendPacket(WorldPacket* data) const override;
         void RemoveCriteriaProgress(CriteriaEntry const* entry);
         // TODO: DEPRECATED
@@ -393,7 +393,7 @@ class PlayerAchievementMgr final : public PlayerAchievementMgrBase
 
         uint32 GetAchievementPoints() const override;
         void Reset();
-        static void DeleteFromDB(uint32 lowguid);
+        static void DeleteFromDB(ObjectGuid::LowType lowguid);
         void LoadFromDB(PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult);
         void SaveToDB(CharacterDatabaseTransaction trans);
         void SendCriteriaUpdate(CriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const override;
@@ -431,7 +431,7 @@ class GuildAchievementMgr final : public AchievementMgr
         void RemoveCriteriaProgress(CriteriaEntry const* entry);
         void Reset();
         Guild* GetOwner() const { return m_owner; }
-        uint64 GetGUID() const override;
+        ObjectGuid GetGUID() const override;
 
         static void DeleteFromDB(uint32 lowguid);
         void LoadFromDB(PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult);

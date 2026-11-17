@@ -42,20 +42,20 @@ class instance_ahnkahet : public InstanceMapScript
         {
             instance_ahnkahet_InstanceScript(Map* map) : InstanceScript(map) { }
 
-            uint64 ElderNadoxGUID;
-            uint64 PrinceTaldaramGUID;
-            uint64 JedogaShadowseekerGUID;
-            uint64 HeraldVolazjGUID;
-            uint64 AmanitarGUID;
+            ObjectGuid ElderNadoxGUID;
+            ObjectGuid PrinceTaldaramGUID;
+            ObjectGuid JedogaShadowseekerGUID;
+            ObjectGuid HeraldVolazjGUID;
+            ObjectGuid AmanitarGUID;
 
-            uint64 PrinceTaldaramSphereGUIDs[2];
-            uint64 PrinceTaldaramPlatformGUID;
-            uint64 PrinceTaldaramGateGUID;
+            ObjectGuid PrinceTaldaramSphereGUIDs[2];
+            ObjectGuid PrinceTaldaramPlatformGUID;
+            ObjectGuid PrinceTaldaramGateGUID;
 
-            std::set<uint64> InitiandGUIDs;
-            std::list<uint64> questCreatures;
-            uint64 JedogaSacrifices;
-            uint64 JedogaTarget;
+            std::set<ObjectGuid> InitiandGUIDs;
+            std::list<ObjectGuid> questCreatures;
+            ObjectGuid JedogaSacrifices;
+            ObjectGuid JedogaTarget;
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
             uint32 spheres[2];
@@ -70,19 +70,19 @@ class instance_ahnkahet : public InstanceMapScript
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
                 InitiandGUIDs.clear();
 
-                ElderNadoxGUID =0;
-                PrinceTaldaramGUID =0;
-                JedogaShadowseekerGUID =0;
-                HeraldVolazjGUID =0;
-                AmanitarGUID =0;
+                ElderNadoxGUID = ObjectGuid::Empty;
+                PrinceTaldaramGUID = ObjectGuid::Empty;
+                JedogaShadowseekerGUID = ObjectGuid::Empty;
+                HeraldVolazjGUID = ObjectGuid::Empty;
+                AmanitarGUID = ObjectGuid::Empty;
 
                 spheres[0] = NOT_STARTED;
                 spheres[1] = NOT_STARTED;
 
                 InitiandCnt = 0;
                 switchtrigger = 0;
-                JedogaSacrifices = 0;
-                JedogaTarget = 0;
+                JedogaSacrifices = ObjectGuid::Empty;
+                JedogaTarget = ObjectGuid::Empty;
             }
 
             bool IsEncounterInProgress() const override
@@ -148,7 +148,7 @@ class instance_ahnkahet : public InstanceMapScript
                     case GO_PRINCE_TALDARAM_PLATFORM:
                         PrinceTaldaramPlatformGUID = go->GetGUID();
                         if (m_auiEncounter[1] == DONE)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case GO_PRINCE_TALDARAM_SPHERE_1:
                         PrinceTaldaramSphereGUIDs[0] = go->GetGUID();
@@ -173,12 +173,12 @@ class instance_ahnkahet : public InstanceMapScript
                     case GO_PRINCE_TALDARAM_GATE:
                         PrinceTaldaramGateGUID = go->GetGUID(); // Web gate past Prince Taldaram
                         if (m_auiEncounter[1] == DONE)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                 }
             }
 
-            void SetData64(uint32 type, uint64 guid) override
+            void SetGuidData(uint32 type, ObjectGuid guid) override
             {
                 switch (type)
                 {
@@ -187,7 +187,7 @@ class instance_ahnkahet : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -201,7 +201,7 @@ class instance_ahnkahet : public InstanceMapScript
                     case DATA_PRINCE_TALDARAM_PLATFORM:   return PrinceTaldaramPlatformGUID;
                     case DATA_ADD_JEDOGA_INITIAND:
                     {
-                        std::vector<uint64> vInitiands;
+                        std::vector<ObjectGuid> vInitiands;
                         vInitiands.clear();
                         for (auto&& guid : InitiandGUIDs)
                         {
@@ -210,14 +210,14 @@ class instance_ahnkahet : public InstanceMapScript
                                 vInitiands.push_back(guid);
                         }
                         if (vInitiands.empty())
-                            return 0;
+                            return ObjectGuid::Empty;
                         uint8 j = urand(0, vInitiands.size() - 1);
                         return vInitiands[j];
                     }
                     case DATA_ADD_JEDOGA_OPFER: return JedogaSacrifices;
                     case DATA_PL_JEDOGA_TARGET: return JedogaTarget;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void SetData(uint32 type, uint32 data) override

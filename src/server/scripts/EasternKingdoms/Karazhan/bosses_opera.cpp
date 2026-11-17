@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -99,7 +99,7 @@ void SummonCroneIfReady(InstanceScript* instance, Creature* creature)
 
     if (instance->GetData(DATA_OPERA_OZ_DEATHCOUNT) == 4)
     {
-        if (Creature* crone = creature->SummonCreature(CREATURE_CRONE, -10891.96f, -1755.95f, creature->GetPositionZ(), 4.64f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR * 2 * IN_MILLISECONDS))
+        if (Creature* crone = creature->SummonCreature(CREATURE_CRONE, -10891.96f, -1755.95f, creature->GetPositionZ(), 4.64f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, Milliseconds(HOUR * 2 * IN_MILLISECONDS)))
         {
             if (Unit* victim = crone->SelectNearestTarget(100.0f))
                 crone->AI()->AttackStart(victim);
@@ -175,7 +175,7 @@ class boss_dorothee : public CreatureScript
                 TitoDied = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->setActive(true);
                 Talk(SAY_DOROTHEE_AGGRO);
@@ -268,16 +268,16 @@ class npc_tito : public CreatureScript
         {
             npc_titoAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 DorotheeGUID;
+            ObjectGuid DorotheeGUID;
             uint32 YipTimer;
 
             void Reset() override
             {
-                DorotheeGUID = 0;
+                DorotheeGUID = ObjectGuid::Empty;
                 YipTimer = 10000;
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void JustDied(Unit* /*killer*/) override
             {
@@ -315,7 +315,7 @@ class npc_tito : public CreatureScript
 
 void boss_dorothee::boss_dorotheeAI::SummonTito()
 {
-    if (Creature* tito = me->SummonCreature(CREATURE_TITO, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
+    if (Creature* tito = me->SummonCreature(CREATURE_TITO, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000ms))
     {
         Talk(SAY_DOROTHEE_SUMMON);
         CAST_AI(npc_tito::npc_titoAI, tito->AI())->DorotheeGUID = me->GetGUID();
@@ -366,7 +366,7 @@ class boss_strawman : public CreatureScript
                 ScriptedAI::MoveInLineOfSight(who);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->setActive(true);
                 Talk(SAY_STRAWMAN_AGGRO);
@@ -473,7 +473,7 @@ class boss_tinhead : public CreatureScript
                 RustCount   = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->setActive(true);
                 Talk(SAY_TINHEAD_AGGRO);
@@ -601,7 +601,7 @@ class boss_roar : public CreatureScript
                 ScriptedAI::AttackStart(who);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->setActive(true);
                 Talk(SAY_ROAR_AGGRO);
@@ -702,7 +702,7 @@ class boss_crone : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->setActive(true);
                 Talk(SAY_CRONE_AGGRO);
@@ -718,10 +718,10 @@ class boss_crone : public CreatureScript
                 if (instance)
                 {
                     instance->SetData(TYPE_OPERA, DONE);
-                    instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-                    instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORLEFT), true);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORRIGHT), true);
 
-                    if (GameObject* sideEntrance = sObjectAccessor->GetGameObject(*me, instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+                    if (GameObject* sideEntrance = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_GO_SIDE_ENTRANCE_DOOR)))
                         sideEntrance->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
                 }
             }
@@ -736,7 +736,7 @@ class boss_crone : public CreatureScript
 
                 if (CycloneTimer <= diff)
                 {
-                    if (Creature* cyclone = DoSpawnCreature(CREATURE_CYCLONE, float(urand(0, 9)), float(urand(0, 9)), 0, 0, TEMPSUMMON_TIMED_DESPAWN, 15000))
+                    if (Creature* cyclone = DoSpawnCreature(CREATURE_CYCLONE, float(urand(0, 9)), float(urand(0, 9)), 0, 0, TEMPSUMMON_TIMED_DESPAWN, 15000ms))
                         cyclone->CastSpell(cyclone, SPELL_CYCLONE_VISUAL, true);
                     CycloneTimer = 30000;
                 } else CycloneTimer -= diff;
@@ -773,7 +773,7 @@ class npc_cyclone : public CreatureScript
                 MoveTimer = 1000;
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
 
@@ -784,8 +784,7 @@ class npc_cyclone : public CreatureScript
 
                 if (MoveTimer <= diff)
                 {
-                    Position pos;
-                    me->GetRandomNearPosition(pos, 10);
+                    Position pos = me->GetRandomNearPosition(10);
                     me->GetMotionMaster()->MovePoint(0, pos);
                     MoveTimer = urand(5000,8000);
                 } else MoveTimer -= diff;
@@ -828,7 +827,7 @@ class npc_grandmother : public CreatureScript
             player->PlayerTalkClass->ClearMenus();
             if (action == GOSSIP_ACTION_INFO_DEF)
             {
-                if (Creature* bigBadWolf = creature->SummonCreature(CREATURE_BIG_BAD_WOLF, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
+                if (Creature* bigBadWolf = creature->SummonCreature(CREATURE_BIG_BAD_WOLF, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, Milliseconds(HOUR*2*IN_MILLISECONDS)))
                     bigBadWolf->AI()->AttackStart(player);
 
                 creature->DespawnOrUnsummon();
@@ -864,7 +863,7 @@ class boss_bigbadwolf : public CreatureScript
             uint32 FearTimer;
             uint32 SwipeTimer;
 
-            uint64 HoodGUID;
+            ObjectGuid HoodGUID;
             float TempThreat;
 
             bool IsChasing;
@@ -875,13 +874,13 @@ class boss_bigbadwolf : public CreatureScript
                 FearTimer  = 25000 + rand() % 10000;
                 SwipeTimer = 5000;
 
-                HoodGUID   = 0;
+                HoodGUID = ObjectGuid::Empty;
                 TempThreat = 0;
 
                 IsChasing  = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->setActive(true);
                 Talk(SAY_WOLF_AGGRO);
@@ -902,10 +901,10 @@ class boss_bigbadwolf : public CreatureScript
                 if (instance)
                 {
                     instance->SetData(TYPE_OPERA, DONE);
-                    instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-                    instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORLEFT), true);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORRIGHT), true);
 
-                    if (GameObject* sideEntrance = sObjectAccessor->GetGameObject(*me, instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+                    if (GameObject* sideEntrance = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_GO_SIDE_ENTRANCE_DOOR)))
                         sideEntrance->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
                 }
             }
@@ -929,7 +928,7 @@ class boss_bigbadwolf : public CreatureScript
                             if (TempThreat)
                                 DoModifyThreatPercent(target, -100);
                             HoodGUID = target->GetGUID();
-                            me->AddThreat(target, 1000000.0f);
+                            me->GetThreatManager().AddThreat(target, 1000000.0f);
                             ChaseTimer = 20000;
                             IsChasing = true;
                         }
@@ -940,10 +939,10 @@ class boss_bigbadwolf : public CreatureScript
 
                         if (Unit* target = Unit::GetUnit(*me, HoodGUID))
                         {
-                            HoodGUID = 0;
+                            HoodGUID = ObjectGuid::Empty;
                             if (DoGetThreat(target))
                                 DoModifyThreatPercent(target, -100);
-                            me->AddThreat(target, TempThreat);
+                            me->GetThreatManager().AddThreat(target, TempThreat);
                             TempThreat = 0;
                         }
 
@@ -1065,7 +1064,7 @@ class boss_julianne : public CreatureScript
 
             uint32 AggroYellTimer;
 
-            uint64 RomuloGUID;
+            ObjectGuid RomuloGUID;
 
             uint32 Phase;
 
@@ -1084,7 +1083,7 @@ class boss_julianne : public CreatureScript
 
             void Reset() override
             {
-                RomuloGUID = 0;
+                RomuloGUID = ObjectGuid::Empty;
                 Phase = PHASE_JULIANNE;
 
                 BlindingPassionTimer = 30000;
@@ -1105,7 +1104,7 @@ class boss_julianne : public CreatureScript
                 RomuloDead = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->setActive(true);
             }
@@ -1153,9 +1152,9 @@ class boss_julianne : public CreatureScript
                 if (instance)
                 {
                     instance->SetData(TYPE_OPERA, DONE);
-                    instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-                    instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
-                    if (GameObject* sideEntrance = sObjectAccessor->GetGameObject(*me, instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORLEFT), true);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORRIGHT), true);
+                    if (GameObject* sideEntrance = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_GO_SIDE_ENTRANCE_DOOR)))
                         sideEntrance->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
                 }
             }
@@ -1189,7 +1188,7 @@ class boss_romulo : public CreatureScript
 
             InstanceScript* instance;
 
-            uint64 JulianneGUID;
+            ObjectGuid JulianneGUID;
             uint32 Phase;
 
             uint32 AggroYellTimer;
@@ -1204,7 +1203,7 @@ class boss_romulo : public CreatureScript
 
             void Reset() override
             {
-                JulianneGUID = 0;
+                JulianneGUID = ObjectGuid::Empty;
                 Phase = PHASE_ROMULO;
 
                 BackwardLungeTimer = 15000;
@@ -1276,7 +1275,7 @@ class boss_romulo : public CreatureScript
                 TC_LOG_ERROR("scripts", "TSCR: boss_romuloAI: DamageTaken reach end of code, that should not happen.");
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->setActive(true);
                 Talk(SAY_ROMULO_AGGRO);
@@ -1285,7 +1284,7 @@ class boss_romulo : public CreatureScript
                     Creature* julianne = (Unit::GetCreature(*me, JulianneGUID));
                     if (julianne && julianne->GetVictim())
                     {
-                        me->AddThreat(julianne->GetVictim(), 1.0f);
+                        me->GetThreatManager().AddThreat(julianne->GetVictim(), 1.0f);
                         AttackStart(julianne->GetVictim());
                     }
                 }
@@ -1307,10 +1306,10 @@ class boss_romulo : public CreatureScript
                 if (instance)
                 {
                     instance->SetData(TYPE_OPERA, DONE);
-                    instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-                    instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORLEFT), true);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORRIGHT), true);
 
-                    if (GameObject* sideEntrance = sObjectAccessor->GetGameObject(*me, instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+                    if (GameObject* sideEntrance = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_GO_SIDE_ENTRANCE_DOOR)))
                         sideEntrance->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
                 }
             }
@@ -1409,7 +1408,7 @@ void boss_julianne::boss_julianneAI::UpdateAI(const uint32 diff)
     {
         if (SummonRomuloTimer <= diff)
         {
-            if (Creature* pRomulo = me->SummonCreature(CREATURE_ROMULO, ROMULO_X, ROMULO_Y, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
+            if (Creature* pRomulo = me->SummonCreature(CREATURE_ROMULO, ROMULO_X, ROMULO_Y, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, Milliseconds(HOUR*2*IN_MILLISECONDS)))
             {
                 RomuloGUID = pRomulo->GetGUID();
                 CAST_AI(boss_romulo::boss_romuloAI, pRomulo->AI())->JulianneGUID = me->GetGUID();

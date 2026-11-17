@@ -51,6 +51,11 @@ class InstanceSave
            or when the instance is reset */
         ~InstanceSave();
 
+        InstanceSave(InstanceSave const& right) = delete;
+        InstanceSave(InstanceSave&& right) = delete;
+        InstanceSave& operator=(InstanceSave const& right) = delete;
+        InstanceSave& operator=(InstanceSave&& right) = delete;
+
         uint8 GetPlayerCount() const { return m_playerList.size(); }
         uint8 GetGroupCount() const { return m_groupList.size(); }
 
@@ -76,15 +81,17 @@ class InstanceSave
 
         /* online players bound to the instance (perm/solo)
            does not include the members of the group unless they have permanent saves */
-        void AddPlayer(Player* player) { 
-            std::lock_guard<std::mutex> guard(_lock); 
-            m_playerList.push_back(player); 
+        void AddPlayer(Player* player) {
+            std::lock_guard<std::mutex> lock(_playerListLock);
+            m_playerList.push_back(player);
         }
+
         bool RemovePlayer(Player* player)
         {
-            std::lock_guard<std::mutex> guard(_lock);
+            _playerListLock.lock();
             m_playerList.remove(player);
             bool isStillValid = UnloadIfEmpty();
+            _playerListLock.unlock();
 
             //delete here if needed, after releasing the lock
             if (m_toDelete)
@@ -92,6 +99,7 @@ class InstanceSave
 
             return isStillValid;
         }
+
         /* all groups bound to the instance */
         void AddGroup(Group* group) { m_groupList.push_back(group); }
         bool RemoveGroup(Group* group)
@@ -135,7 +143,7 @@ class InstanceSave
         bool m_canReset;
         bool m_toDelete;
 
-        std::mutex _lock;
+        std::mutex _playerListLock;
 };
 
 typedef std::unordered_map<uint32 /*PAIR32(map, difficulty)*/, time_t /*resetTime*/> ResetTimeByMapDifficultyMap;
@@ -196,6 +204,7 @@ class InstanceSaveManager
         InstanceSave* AddInstanceSave(uint32 mapId, uint32 instanceId, Difficulty difficulty, time_t resetTime,
             bool canReset, bool load = false);
         void RemoveInstanceSave(uint32 InstanceId);
+        void UnloadInstanceSave(uint32 InstanceId);
         static void DeleteInstanceFromDB(uint32 instanceid);
 
         InstanceSave* GetInstanceSave(uint32 InstanceId);

@@ -64,7 +64,9 @@ PetAI::PetAI(Creature* c) : CreatureAI(c), i_tracker(TIME_INTERVAL_LOOK)
             break;
     }
 
-    if (!me->IsPet())
+    // Only guardians of a player assist; a guardian summoned by a creature keeps the aggressive state from
+    // Guardian::InitStats and takes on its owner's attacker (TrinityCore's PetAI does not override it).
+    if (!me->IsPet() && me->GetOwner() && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
         me->SetReactState(REACT_ASSIST);
 
     // this is for warlock greenfire questline.
@@ -100,11 +102,11 @@ void PetAI::_stopAttack()
 {
     if (!me->IsAlive())
     {
-        TC_LOG_DEBUG("misc", "Creature stoped attacking cuz his dead [guid=%u]", me->GetGUIDLow());
+        TC_LOG_DEBUG("misc", "Creature stoped attacking cuz his dead [guid={}]", me->GetGUID().GetCounter());
         me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveIdle();
         me->CombatStop();
-        me->getHostileRefManager().deleteReferences();
+        me->GetThreatManager().RemoveMeFromThreatLists();
 
         return;
     }
@@ -202,7 +204,7 @@ void PetAI::UpdateAI(uint32 diff)
 
         if (_needToStop())
         {
-            TC_LOG_DEBUG("misc", "Pet AI stopped attacking [guid=%u]", me->GetGUIDLow());
+            TC_LOG_DEBUG("misc", "Pet AI stopped attacking [guid={}]", me->GetGUID().GetCounter());
             _stopAttack();
             return;
         }
@@ -283,7 +285,7 @@ void PetAI::UpdateAI(uint32 diff)
                         continue;
                 }
 
-                Spell* spell = new Spell(me, spellInfo, TRIGGERED_NONE, 0);
+                Spell* spell = new Spell(me, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty);
                 bool spellUsed = false;
 
                 // Some spells can target enemy or friendly (DK Ghoul's Leap)
@@ -307,7 +309,7 @@ void PetAI::UpdateAI(uint32 diff)
                 // No enemy, check friendly
                 if (!spellUsed)
                 {
-                    for (std::set<uint64>::const_iterator tar = m_AllySet.begin(); tar != m_AllySet.end(); ++tar)
+                    for (std::set<ObjectGuid>::const_iterator tar = m_AllySet.begin(); tar != m_AllySet.end(); ++tar)
                     {
                         Unit* ally = ObjectAccessor::GetUnit(*me, *tar);
 
@@ -330,7 +332,7 @@ void PetAI::UpdateAI(uint32 diff)
             }
             else if (me->GetVictim() && CanAttack(me->GetVictim()) && spellInfo->CanBeUsedInCombat())
             {
-                Spell* spell = new Spell(me, spellInfo, TRIGGERED_NONE, 0);
+                Spell* spell = new Spell(me, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty);
                 if (spell->CanAutoCast(me->GetVictim()))
                     targetSpellStore.push_back(std::make_pair(me->GetVictim(), spell));
                 else
@@ -579,7 +581,7 @@ void PetAI::HandleReturnMovement()
             ClearCharmInfoFlags();
             me->GetCharmInfo()->SetIsReturning(true);
             me->GetMotionMaster()->Clear();
-            me->GetMotionMaster()->MovePoint(me->GetGUIDLow(), x, y, z);
+            me->GetMotionMaster()->MovePoint(me->GetGUID().GetCounter(), x, y, z);
         }
     }
     else // COMMAND_FOLLOW
@@ -647,7 +649,7 @@ void PetAI::MovementInform(uint32 moveType, uint32 data)
         {
             // Pet is returning to where stay was clicked. data should be
             // pet's GUIDLow since we set that as the waypoint ID
-            if (data == me->GetGUIDLow() && me->GetCharmInfo()->IsReturning())
+            if (data == me->GetGUID().GetCounter() && me->GetCharmInfo()->IsReturning())
             {
                 ClearCharmInfoFlags();
                 me->GetCharmInfo()->SetIsAtStay(true);
@@ -660,7 +662,7 @@ void PetAI::MovementInform(uint32 moveType, uint32 data)
         {
             // If data is owner's GUIDLow then we've reached follow point,
             // otherwise we're probably chasing a creature
-            if (me->GetCharmerOrOwner() && me->GetCharmInfo() && data == me->GetCharmerOrOwner()->GetGUIDLow() && me->GetCharmInfo()->IsReturning())
+            if (me->GetCharmerOrOwner() && me->GetCharmInfo() && data == me->GetCharmerOrOwner()->GetGUID().GetCounter() && me->GetCharmInfo()->IsReturning())
             {
                 ClearCharmInfoFlags();
                 me->GetCharmInfo()->SetIsFollowing(true);
@@ -1012,7 +1014,7 @@ void PetAI::RestoreLastActionIfNeed()
                 charmInfo->SetIsReturning(false);
                 AttackStart(target);
             }
-            m_lastAction.AttackingGuid = 0;
+            m_lastAction.AttackingGuid.Clear();
             break;
         default:
             break;

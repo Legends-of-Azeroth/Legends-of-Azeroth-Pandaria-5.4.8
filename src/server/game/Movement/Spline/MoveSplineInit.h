@@ -23,7 +23,7 @@
 
 class Unit;
 
-enum class UnitAnimationTier : uint8;
+enum class AnimTier : uint8;
 
 namespace Movement
 {
@@ -65,7 +65,7 @@ namespace Movement
         /* Plays animation after movement done
          * can't be combined with parabolic movement
          */
-        void SetAnimation(UnitAnimationTier anim);
+        void SetAnimation(AnimTier anim);
 
         /* Adds final facing animation
          * sets unit's facing to specified point/angle after all path done
@@ -180,7 +180,7 @@ namespace Movement
         args.flags.EnableParabolic();
     }
 
-    inline void MoveSplineInit::SetAnimation(UnitAnimationTier anim)
+    inline void MoveSplineInit::SetAnimation(AnimTier anim)
     {
         args.time_perc = 0.f;
         args.flags.EnableAnimation((uint8)anim);

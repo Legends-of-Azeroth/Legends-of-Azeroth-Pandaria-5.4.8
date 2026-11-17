@@ -21,17 +21,24 @@ if( NOT MSVC )
   add_definitions("-O3")
 endif()
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}/src/common
-  ${CMAKE_SOURCE_DIR}/dep/StormLib/src
-)
-
 add_executable(vmap4extractor ${sources})
 
+target_include_directories(vmap4extractor
+  PUBLIC
+    common
+    g3dlite
+    ${CMAKE_SOURCE_DIR}/src/common/
+    ${CMAKE_SOURCE_DIR}/src/common/Debugging
+    ${CMAKE_SOURCE_DIR}/dep/StormLib/src
+    ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
+)
+
 target_link_libraries(vmap4extractor
-  ${BZIP2_LIBRARIES}
-  ${ZLIB_LIBRARIES}
+  common
+  bzip2
+  zlib
   storm
+  ${CMAKE_DL_LIBS}
 )
 
 add_dependencies(vmap4extractor storm)

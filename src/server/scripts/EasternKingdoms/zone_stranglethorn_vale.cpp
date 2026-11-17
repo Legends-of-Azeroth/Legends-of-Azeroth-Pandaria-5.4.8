@@ -78,7 +78,8 @@ public:
                 {
                     me->HandleEmoteStateCommand(EMOTE_STATE_STUN);
                     me->CombatStop();                   //stop combat
-                    me->DeleteThreatList();             //unsure of this
+                    me->GetThreatManager().RemoveMeFromThreatLists();
+                    me->GetThreatManager().ClearAllThreat();             //unsure of this
                     me->SetFaction(83);                 //horde generic
 
                     bReset = true;
@@ -87,7 +88,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -110,7 +111,8 @@ public:
                         if (player->GetTeam() == HORDE)
                         {
                             me->CombatStop();
-                            me->DeleteThreatList();
+                            me->GetThreatManager().RemoveMeFromThreatLists();
+                            me->GetThreatManager().ClearAllThreat();
                         }
                     }
                 }
@@ -135,7 +137,7 @@ struct npc_stranglethorn_emerine : public ScriptedAI
     npc_stranglethorn_emerine(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 summonerGUID;
+    ObjectGuid summonerGUID;
 
     void IsSummonedBy(Unit* summoner) override
     {
@@ -184,7 +186,7 @@ class npc_stranglethorn_priestess_hurala : public CreatureScript
     public:
         npc_stranglethorn_priestess_hurala() : CreatureScript("npc_stranglethorn_priestess_hurala") { }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature) override
         {
             if (creature->IsQuestGiver())
                 player->PrepareQuestMenu(creature->GetGUID());

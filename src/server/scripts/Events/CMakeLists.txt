@@ -16,7 +16,6 @@ set(scripts_STAT_SRCS
   Events/midsummer_fire_festival.cpp
   Events/pilgrims_bounty.cpp
   Events/winter_veil.cpp
-  Events/event_afd_royale.cpp
 )
 
 message("  -> Prepared: Events")

@@ -4,51 +4,19 @@
 * Please see the included DOCS/LICENSE.TXT for more information
 */
 
-#ifndef CORPSEMETHODS_H
-#define CORPSEMETHODS_H
+#ifndef LUA_CORPSEMETHODS_H
+#define LUA_CORPSEMETHODS_H
+
+struct lua_State;
+class Corpse;
 
 namespace LuaCorpse
 {
-    // GetOwnerGUID()
-    int GetOwnerGUID(lua_State* L, Corpse* corpse)
-    {
-        sEluna->Push(L, corpse->GetOwnerGUID());
-        return 1;
-    }
-
-    // GetGhostTime()
-    int GetGhostTime(lua_State* L, Corpse* corpse)
-    {
-        sEluna->Push(L, corpse->GetGhostTime());
-        return 1;
-    }
-
-    // GetType()
-    int GetType(lua_State* L, Corpse* corpse)
-    {
-        sEluna->Push(L, corpse->GetType());
-        return 1;
-    }
-
-    // ResetGhostTime()
-    int ResetGhostTime(lua_State* L, Corpse* corpse)
-    {
-        corpse->ResetGhostTime();
-        return 0;
-    }
-
-    // SaveToDB()
-    int SaveToDB(lua_State* L, Corpse* corpse)
-    {
-        corpse->SaveToDB();
-        return 0;
-    }
-
-    // DeleteBonesFromWorld()
-    int DeleteBonesFromWorld(lua_State* L, Corpse* corpse)
-    {
-        corpse->DeleteBonesFromWorld();
-        return 0;
-    }
+    int GetOwnerGUID(lua_State* L, Corpse* corpse);
+    int GetGhostTime(lua_State* L, Corpse* corpse);
+    int GetType(lua_State* L, Corpse* corpse);
+    int ResetGhostTime(lua_State* L, Corpse* corpse);
+    int SaveToDB(lua_State* L, Corpse* corpse);
+    int DeleteBonesFromWorld(lua_State* L, Corpse* corpse);
 };
 #endif

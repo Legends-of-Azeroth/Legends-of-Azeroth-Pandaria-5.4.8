@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -364,7 +364,7 @@ class boss_horridon : public CreatureScript
             EventMap m_mBerserkEvents;
             std::map <uint32, uint32> tribeDoorData;
             uint32 majorCount, uPhase, direhornPhase;
-            uint64 targetGUID, chargeGUID;
+            ObjectGuid targetGUID, chargeGUID;
             bool bJalakCalled;
             bool hasInCharge;
 
@@ -402,8 +402,8 @@ class boss_horridon : public CreatureScript
                 summons.DespawnAll();
                 bJalakCalled = false;
                 hasInCharge  = false;
-                targetGUID   = 0;
-                chargeGUID   = 0;
+                targetGUID = ObjectGuid::Empty;
+                chargeGUID = ObjectGuid::Empty;
                 majorCount   = 1;
                 direhornPhase = 2;
                 uPhase = TRASH_PHASE_NONE;
@@ -435,7 +435,7 @@ class boss_horridon : public CreatureScript
                 });
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();
@@ -456,7 +456,7 @@ class boss_horridon : public CreatureScript
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEADLY_PLAGUE);
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_HEX_OF_CONFUSION);
 
-                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_HORRIDON_ENTRANCE)))
+                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_HORRIDON_ENTRANCE)))
                         go->SetGoState(GO_STATE_ACTIVE);
                 }
 
@@ -473,9 +473,9 @@ class boss_horridon : public CreatureScript
                 summon->setActive(true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 m_mBerserkEvents.ScheduleEvent(EVENT_BERSERK, 12 * MINUTE * IN_MILLISECONDS);
                 InitCombatEvents();
                 
@@ -483,7 +483,7 @@ class boss_horridon : public CreatureScript
                 {
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
-                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_HORRIDON_ENTRANCE)))
+                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_HORRIDON_ENTRANCE)))
                         go->SetGoState(GO_STATE_READY);
                 }
 
@@ -513,11 +513,11 @@ class boss_horridon : public CreatureScript
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEADLY_PLAGUE);
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_HEX_OF_CONFUSION);
 
-                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_HORRIDON_ENTRANCE)))
+                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_HORRIDON_ENTRANCE)))
                         go->SetGoState(GO_STATE_ACTIVE);
                 }
 
-                if (Creature* jalak = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_WAR_GOD_JALAK) : 0))
+                if (Creature* jalak = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_WAR_GOD_JALAK) : ObjectGuid::Empty))
                     jalak->DespawnOrUnsummon();
             }
 
@@ -528,7 +528,7 @@ class boss_horridon : public CreatureScript
                     case MOTION_HORRIDON_DOOR_CHARGE:
                         DoCast(me, SPELL_HEADACHE, true);
 
-                        if (GameObject* curTribalDoor = ObjectAccessor::GetGameObject(*me, instance ? instance->GetData64(GetDoorIdByPhase(eTrashPhases(uPhase))) : 0))
+                        if (GameObject* curTribalDoor = ObjectAccessor::GetGameObject(*me, instance ? instance->GetGuidData(GetDoorIdByPhase(eTrashPhases(uPhase))) : ObjectGuid::Empty))
                             curTribalDoor->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
 
                         uPhase++;
@@ -540,7 +540,7 @@ class boss_horridon : public CreatureScript
                         {
                             bJalakCalled = true;
 
-                            if (Creature* jalak = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_WAR_GOD_JALAK) : 0))
+                            if (Creature* jalak = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_WAR_GOD_JALAK) : ObjectGuid::Empty))
                                 jalak->AI()->DoAction(ACTION_ENTER_PHASE_TWO);
                         }
                         break;
@@ -630,7 +630,7 @@ class boss_horridon : public CreatureScript
                             .SetValidator([this] { return instance && instance->GetBossState(DATA_HORRIDON) == IN_PROGRESS; })
                             .Schedule(Seconds(5), [this](TaskContext context)
                         {
-                            if (GameObject* curTribalDoor = ObjectAccessor::GetGameObject(*me, instance ? instance->GetData64(GetDoorIdByPhase(eTrashPhases(uPhase))) : 0))
+                            if (GameObject* curTribalDoor = ObjectAccessor::GetGameObject(*me, instance ? instance->GetGuidData(GetDoorIdByPhase(eTrashPhases(uPhase))) : ObjectGuid::Empty))
                             {
                                 me->GetMotionMaster()->MovementExpired();
                                 me->GetMotionMaster()->MoveCharge(invTribalDoorType.find(curTribalDoor->GetEntry())->second.GetPositionX(), invTribalDoorType.find(curTribalDoor->GetEntry())->second.GetPositionY(), invTribalDoorType.find(curTribalDoor->GetEntry())->second.GetPositionZ(), 42.0f, MOTION_HORRIDON_DOOR_CHARGE);
@@ -649,7 +649,7 @@ class boss_horridon : public CreatureScript
                 {
                     bJalakCalled = true;
 
-                    if (Creature* jalak = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_WAR_GOD_JALAK) : 0))
+                    if (Creature* jalak = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_WAR_GOD_JALAK) : ObjectGuid::Empty))
                         jalak->AI()->DoAction(ACTION_ENTER_PHASE_TWO);
                 }
             }
@@ -783,7 +783,7 @@ class boss_horridon : public CreatureScript
                 void HandleSummonMinorTribes()
                 {
                     // We should open the gates each time when summon minors
-                    if (GameObject* curTribalDoor = ObjectAccessor::GetGameObject(*me, instance ? instance->GetData64(GetDoorIdByPhase(eTrashPhases(uPhase))) : 0))
+                    if (GameObject* curTribalDoor = ObjectAccessor::GetGameObject(*me, instance ? instance->GetGuidData(GetDoorIdByPhase(eTrashPhases(uPhase))) : ObjectGuid::Empty))
                         curTribalDoor->UseDoorOrButton();
 
                     std::list<Creature*> minorsList;
@@ -920,7 +920,7 @@ class boss_horridon : public CreatureScript
 
                     // Also reset Tribals Door if it was destroyed
                     for (uint32 i = GO_TRIBAL_DOOR_GURUBASHI; i < GO_TRIBAL_DOOR_AMANI + 1; i++)
-                        if (GameObject* curTribalDoor = ObjectAccessor::GetGameObject(*me, instance ? instance->GetData64(i) : 0))
+                        if (GameObject* curTribalDoor = ObjectAccessor::GetGameObject(*me, instance ? instance->GetGuidData(i) : ObjectGuid::Empty))
                             curTribalDoor->SetGoState(GO_STATE_READY);
                 }
 
@@ -976,11 +976,11 @@ struct horridon_tribeAI : public ScriptedAI
 
     void JustSummoned(Creature* summon) override
     {
-        if (Creature* horridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_HORRIDON) : 0))
+        if (Creature* horridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_HORRIDON) : ObjectGuid::Empty))
             horridon->AI()->JustSummoned(summon);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (!me->GetDBTableGUIDLow())
             return;
@@ -1066,13 +1066,13 @@ class npc_war_god_jalak : public CreatureScript
                             if (GameObject *pDoor = me->FindNearestGameObject(GO_HORRIDON_PRISON_DOOR, 50000.0f))
                                 pDoor->SetGoState(GO_STATE_ACTIVE);
 
-                            if (Creature* horridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_HORRIDON): 0))
+                            if (Creature* horridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_HORRIDON): ObjectGuid::Empty))
                                 horridon->HandleEmoteStateCommand(EMOTE_STATE_ATTACK_UNARMED);
                         });
 
                         me->m_Events.Schedule(delay += 4000, 24, [this]()
                         {
-                            if (Creature* horridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_HORRIDON) : 0))
+                            if (Creature* horridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_HORRIDON) : ObjectGuid::Empty))
                             {
                                 horridon->HandleEmoteStateCommand(EMOTE_STATE_POINT);
                                 horridon->AI()->DoAction(ACTION_INTRO);
@@ -1101,13 +1101,13 @@ class npc_war_god_jalak : public CreatureScript
                     if (!playerList.empty() && playerList.front())
                     {
                         Player *pFirst = playerList.front();
-                        me->AddThreat(pFirst, 100000.0f);
+                        me->GetThreatManager().AddThreat(pFirst, 100000.0f);
                         ScriptedAI::AttackStart(pFirst);
                     }
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_BESTIAL_CRY, 10 * IN_MILLISECONDS);
             }
@@ -1142,11 +1142,11 @@ class npc_war_god_jalak : public CreatureScript
 
             void JustDied(Unit* killer) override
             {
-                if (ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_HORRIDON):0) && ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_HORRIDON):0)->isDead())
+                if (ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_HORRIDON):ObjectGuid::Empty) && ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_HORRIDON):ObjectGuid::Empty)->isDead())
                     instance->SetBossState(DATA_HORRIDON, DONE);
                 else 
                 {
-                    if (Creature* pHorridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_HORRIDON):0))
+                    if (Creature* pHorridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_HORRIDON):ObjectGuid::Empty))
                         pHorridon->AddAura(SPELL_RAMPAGE, pHorridon);
                 }
 
@@ -1326,7 +1326,7 @@ struct npc_horridon_trashs : public horridon_tribeAI
             }
 
             // Select target and move towards it
-            if (Creature* pHorridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_HORRIDON) : 0))
+            if (Creature* pHorridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_HORRIDON) : ObjectGuid::Empty))
             {
                 if (CreatureAI* pHorridonAI = pHorridon->AI())
                 {
@@ -1445,13 +1445,13 @@ struct npc_horridon_trashs : public horridon_tribeAI
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankSpecTargetSelector()))
                     {
                         DoResetThreat();
-                        me->AddThreat(target, 100000.0f);
+                        me->GetThreatManager().AddThreat(target, 100000.0f);
                         ScriptedAI::AttackStart(target);
                     }
                     else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
                     {
                         DoResetThreat();
-                        me->AddThreat(target, 100000.0f);
+                        me->GetThreatManager().AddThreat(target, 100000.0f);
                         ScriptedAI::AttackStart(target);
                     }
                 
@@ -1608,7 +1608,7 @@ class npc_zandalari_dinomancer : public CreatureScript
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
                     me->SetInCombatWithZone();
 
-                    if (Creature* pHorridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_HORRIDON) : 0))
+                    if (Creature* pHorridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_HORRIDON) : ObjectGuid::Empty))
                         events.ScheduleEvent(EVENT_DINO_MENDING, 8 * IN_MILLISECONDS);
                 }
             }
@@ -1644,7 +1644,7 @@ class npc_zandalari_dinomancer : public CreatureScript
                     DoCast(me, SPELL_DINO_FORM);
                     //Talk();
 
-                    if (Creature* horridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_HORRIDON) : 0))
+                    if (Creature* horridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_HORRIDON) : ObjectGuid::Empty))
                         DoCast(me, GetControlOrbSpellByPhase(eTrashPhases(horridon->AI()->GetData(TYPE_TRIBE_PHASE))));
                 }
             }
@@ -1690,7 +1690,7 @@ struct npc_direhorn_spirit : public ScriptedAI
 
     InstanceScript* instance;
     TaskScheduler scheduler;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
 
     void IsSummonedBy(Unit* summoner) override
     {
@@ -1698,7 +1698,7 @@ struct npc_direhorn_spirit : public ScriptedAI
         targetGUID = summoner->GetGUID();
         me->SetSpeed(MOVE_RUN, 0.24f); // no sniff data
 
-        if (Creature* horridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_HORRIDON) : 0))
+        if (Creature* horridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_HORRIDON) : ObjectGuid::Empty))
         {
             horridon->AI()->JustSummoned(me);
 
@@ -1752,7 +1752,7 @@ struct npc_living_poison : public ScriptedAI
 
     void IsSummonedBy(Unit* summoner) override
     {
-        me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+        me->SetDisplayFromModel(1);
         me->SetReactState(REACT_PASSIVE);
         me->AddAura(SPELL_LIVING_POISON_PERIODIC, me);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
@@ -1803,7 +1803,7 @@ class npc_venomous_effusion : public CreatureScript
                 instance = me->GetInstanceScript();
                 events.ScheduleEvent(EVENT_VOLLEY, 3000 + rand() % 2000);
 
-                if (Creature* horridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_HORRIDON) : 0))
+                if (Creature* horridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_HORRIDON) : ObjectGuid::Empty))
                         horridon->AI()->JustSummoned(me);
 
                 DoZoneInCombat(me, 100.f);
@@ -1849,15 +1849,15 @@ class npc_amani_shi_warbear : public CreatureScript
         {
             npc_amani_shi_warbearAI(Creature* creature) : ScriptedAI(creature) 
             {
-                m_shamanGuid = 0;
+                m_shamanGuid = ObjectGuid::Empty;
                 instance = me->GetInstanceScript();
             }
 
-            uint64 m_shamanGuid;
+            ObjectGuid m_shamanGuid;
             EventMap events;
             InstanceScript* instance;
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (Creature* passenger = ObjectAccessor::GetCreature(*me, m_shamanGuid))
                     passenger->DespawnOrUnsummon();
@@ -1884,7 +1884,7 @@ class npc_amani_shi_warbear : public CreatureScript
 
             void JustSummoned(Creature* summon) override
             {
-                if (Creature* horridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_HORRIDON) : 0))
+                if (Creature* horridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_HORRIDON) : ObjectGuid::Empty))
                     horridon->AI()->JustSummoned(summon);
             }
 
@@ -1895,7 +1895,7 @@ class npc_amani_shi_warbear : public CreatureScript
                 if (Creature* pShaman = ObjectAccessor::GetCreature(*me, m_shamanGuid))
                 {
                     pShaman->DespawnOrUnsummon();
-                    m_shamanGuid = 0;
+                    m_shamanGuid = ObjectGuid::Empty;
                 }
 
                 // Vehicle Issue
@@ -1928,7 +1928,7 @@ class npc_amani_shi_warbear : public CreatureScript
                         if (pKit->GetPassenger(0) && pKit->GetPassenger(0)->ToCreature())
                             pKit->GetPassenger(0)->ToCreature()->AI()->DoAction(ACTION_AMANI_SHAMAN);
 
-                    if (Creature* pHorridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_HORRIDON):0))
+                    if (Creature* pHorridon = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_HORRIDON):ObjectGuid::Empty))
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankSpecTargetSelector()))
                         {
@@ -2000,12 +2000,15 @@ class go_horridon_orb_of_control : public GameObjectScript
         {
             go_horridon_orb_of_control_AI(GameObject *go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                if (uint32 spellId = GetControlSpellByOrb(go->GetEntry()))
+                if (!isUse)
+                    return true;
+
+                if (uint32 spellId = GetControlSpellByOrb(me->GetEntry()))
                 {
                     player->CastSpell(player, spellId, true);
-                    go->RemoveFromWorld();
+                    me->RemoveFromWorld();
                 }
                 return true;
             }
@@ -2090,7 +2093,7 @@ class spell_control_horridon : public SpellScriptLoader
             void HandleApply(AuraEffect const* pAuraEffect, AuraEffectHandleModes eMode)
             {
                 if (WorldObject *pOwner = GetOwner())
-                    if (Creature* horridon = ObjectAccessor::GetCreature(*pOwner, pOwner->GetInstanceScript() ? pOwner->GetInstanceScript()->GetData64(DATA_HORRIDON) : 0))
+                    if (Creature* horridon = ObjectAccessor::GetCreature(*pOwner, pOwner->GetInstanceScript() ? pOwner->GetInstanceScript()->GetGuidData(DATA_HORRIDON) : ObjectGuid::Empty))
                         horridon->AI()->DoAction(ACTION_PREPARE_TRANSITION);
             }
 
@@ -2291,7 +2294,7 @@ class AreaTrigger_at_forward_jalak : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                if (Creature* jalak = ObjectAccessor::GetCreature(*player, instance->GetData64(NPC_WAR_GOD_JALAK)))
+                if (Creature* jalak = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_WAR_GOD_JALAK)))
                     jalak->AI()->DoAction(ACTION_START_INTRO);
     
             return false;

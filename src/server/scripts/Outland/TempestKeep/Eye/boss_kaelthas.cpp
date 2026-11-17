@@ -162,7 +162,7 @@ struct advisorbase_ai : public ScriptedAI
     bool FakeDeath;
     bool m_bDoubled_Health;
     uint32 DelayRes_Timer;
-    uint64 DelayRes_Target;
+    ObjectGuid DelayRes_Target;
 
     void Reset() override
     {
@@ -174,7 +174,7 @@ struct advisorbase_ai : public ScriptedAI
 
         FakeDeath = false;
         DelayRes_Timer = 0;
-        DelayRes_Target = 0;
+        DelayRes_Target = ObjectGuid::Empty;
 
         me->SetStandState(UNIT_STAND_STATE_STAND);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -182,7 +182,7 @@ struct advisorbase_ai : public ScriptedAI
 
         //reset encounter
         if (instance && (instance->GetData(DATA_KAELTHASEVENT) == 1 || instance->GetData(DATA_KAELTHASEVENT) == 3))
-            if (Creature* Kaelthas = Unit::GetCreature(*me, instance->GetData64(DATA_KAELTHAS)))
+            if (Creature* Kaelthas = Unit::GetCreature(*me, instance->GetGuidData(DATA_KAELTHAS)))
                 Kaelthas->AI()->EnterEvadeMode();
     }
 
@@ -244,7 +244,7 @@ struct advisorbase_ai : public ScriptedAI
             me->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->ClearAllReactives();
-            me->SetTarget(0);
+            me->SetTarget(ObjectGuid::Empty);
             me->GetMotionMaster()->Clear();
             me->GetMotionMaster()->MoveIdle();
             me->SetStandState(UNIT_STAND_STATE_DEAD);
@@ -269,7 +269,7 @@ struct advisorbase_ai : public ScriptedAI
                 AttackStart(Target);
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveChase(Target);
-                me->AddThreat(Target, 0.0f);
+                me->GetThreatManager().AddThreat(Target, 0.0f);
             } else DelayRes_Timer -= diff;
         }
     }
@@ -315,7 +315,7 @@ class boss_kaelthas : public CreatureScript
 
             SummonList summons;
 
-            uint64 m_auiAdvisorGuid[MAX_ADVISORS];
+            ObjectGuid m_auiAdvisorGuid[MAX_ADVISORS];
 
             void Reset() override
             {
@@ -366,10 +366,10 @@ class boss_kaelthas : public CreatureScript
                 if (!instance)
                     return;
 
-                m_auiAdvisorGuid[0] = instance->GetData64(DATA_THALADREDTHEDARKENER);
-                m_auiAdvisorGuid[1] = instance->GetData64(DATA_LORDSANGUINAR);
-                m_auiAdvisorGuid[2] = instance->GetData64(DATA_GRANDASTROMANCERCAPERNIAN);
-                m_auiAdvisorGuid[3] = instance->GetData64(DATA_MASTERENGINEERTELONICUS);
+                m_auiAdvisorGuid[0] = instance->GetGuidData(DATA_THALADREDTHEDARKENER);
+                m_auiAdvisorGuid[1] = instance->GetGuidData(DATA_LORDSANGUINAR);
+                m_auiAdvisorGuid[2] = instance->GetGuidData(DATA_GRANDASTROMANCERCAPERNIAN);
+                m_auiAdvisorGuid[3] = instance->GetGuidData(DATA_MASTERENGINEERTELONICUS);
 
                 if (!m_auiAdvisorGuid[0] || !m_auiAdvisorGuid[1] || !m_auiAdvisorGuid[2] || !m_auiAdvisorGuid[3])
                 {
@@ -424,13 +424,13 @@ class boss_kaelthas : public CreatureScript
                                 StartEvent();
 
                             who->SetInCombatWith(me);
-                            me->AddThreat(who, 0.0f);
+                            me->GetThreatManager().AddThreat(who, 0.0f);
                         }
                     }
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (instance && !instance->GetData(DATA_KAELTHASEVENT) && !Phase)
                     StartEvent();
@@ -535,7 +535,7 @@ class boss_kaelthas : public CreatureScript
                             case 2:
                                 Advisor = (Unit::GetCreature(*me, m_auiAdvisorGuid[0]));
 
-                                if (Advisor && (Advisor->getStandState() == UNIT_STAND_STATE_DEAD))
+                                if (Advisor && (Advisor->GetStandState() == UNIT_STAND_STATE_DEAD))
                                 {
                                     Talk(SAY_INTRO_SANGUINAR);
 
@@ -569,7 +569,7 @@ class boss_kaelthas : public CreatureScript
                             case 4:
                                 Advisor = (Unit::GetCreature(*me, m_auiAdvisorGuid[1]));
 
-                                if (Advisor && (Advisor->getStandState() == UNIT_STAND_STATE_DEAD))
+                                if (Advisor && (Advisor->GetStandState() == UNIT_STAND_STATE_DEAD))
                                 {
                                     Talk(SAY_INTRO_CAPERNIAN);
 
@@ -603,7 +603,7 @@ class boss_kaelthas : public CreatureScript
                             case 6:
                                 Advisor = (Unit::GetCreature(*me, m_auiAdvisorGuid[2]));
 
-                                if (Advisor && (Advisor->getStandState() == UNIT_STAND_STATE_DEAD))
+                                if (Advisor && (Advisor->GetStandState() == UNIT_STAND_STATE_DEAD))
                                 {
                                     Talk(SAY_INTRO_TELONICUS);
 
@@ -638,7 +638,7 @@ class boss_kaelthas : public CreatureScript
                             case 8:
                                 Advisor = (Unit::GetCreature(*me, m_auiAdvisorGuid[3]));
 
-                                if (Advisor && (Advisor->getStandState() == UNIT_STAND_STATE_DEAD))
+                                if (Advisor && (Advisor->GetStandState() == UNIT_STAND_STATE_DEAD))
                                 {
                                     Phase = 2;
                                     if (instance)
@@ -710,7 +710,7 @@ class boss_kaelthas : public CreatureScript
                                 Advisor = Unit::GetCreature(*me, m_auiAdvisorGuid[i]);
 
                                 if (!Advisor)
-                                    TC_LOG_ERROR("scripts", "SD2: Kael'Thas Advisor %u does not exist. Possibly despawned? Incorrectly Killed?", i);
+                                    TC_LOG_ERROR("scripts", "SD2: Kael'Thas Advisor {} does not exist. Possibly despawned? Incorrectly Killed?", i);
                                 else
                                     CAST_AI(advisorbase_ai, Advisor->AI())->Revive(target);
                             }
@@ -802,7 +802,7 @@ class boss_kaelthas : public CreatureScript
 
                             if (MindControl_Timer <= diff)
                             {
-                                if (me->getThreatManager().getThreatList().size() >= 2)
+                                if (me->GetThreatManager().GetThreatListSize() >= 2)
                                     for (uint32 i = 0; i < 3; ++i)
                                 {
                                     TC_LOG_DEBUG("scripts", "Kael'Thas mind control not supported.");
@@ -900,8 +900,7 @@ class boss_kaelthas : public CreatureScript
                             //GravityLapse_Timer
                             if (GravityLapse_Timer <= diff)
                             {
-                                ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
-                                ThreatContainer::StorageType::const_iterator i = threatlist.begin();
+                                auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
 
                                 switch (GravityLapse_Phase)
                                 {
@@ -913,9 +912,9 @@ class boss_kaelthas : public CreatureScript
                                         me->MonsterMoveWithSpeed(afGravityPos[0], afGravityPos[1], afGravityPos[2], 0);
 
                                         // 1) Kael'thas will portal the whole raid right into his body
-                                        for (i = threatlist.begin(); i != threatlist.end(); ++i)
+                                        for (ThreatReference const* ref : threatlist)
                                         {
-                                            Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
+                                            Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                                             if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                                             {
                                                 //Use work around packet to prevent player from being dropped from combat
@@ -934,9 +933,9 @@ class boss_kaelthas : public CreatureScript
                                         Talk(SAY_GRAVITYLAPSE);
 
                                         // 2) At that point he will put a Gravity Lapse debuff on everyone
-                                        for (i = threatlist.begin(); i != threatlist.end(); ++i)
+                                        for (ThreatReference const* ref : threatlist)
                                         {
-                                            if (Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid()))
+                                            if (Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID()))
                                             {
                                                 DoCast(unit, SPELL_KNOCKBACK, true);
                                                 //Gravity lapse - needs an exception in Spell system to work
@@ -960,9 +959,9 @@ class boss_kaelthas : public CreatureScript
 
                                     case 3:
                                         //Remove flight
-                                        for (i = threatlist.begin(); i != threatlist.end(); ++i)
+                                        for (ThreatReference const* ref : threatlist)
                                         {
-                                            if (Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid()))
+                                            if (Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID()))
                                             {
                                                 // Using packet workaround
                                                 WorldPacket data(SMSG_MOVE_UNSET_CAN_FLY, 8 + 4);
@@ -1044,7 +1043,7 @@ class boss_thaladred_the_darkener : public CreatureScript
                 advisorbase_ai::Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
@@ -1053,7 +1052,7 @@ class boss_thaladred_the_darkener : public CreatureScript
                     return;
 
                 Talk(SAY_THALADRED_AGGRO);
-                me->AddThreat(who, 5000000.0f);
+                me->GetThreatManager().AddThreat(who, 5000000.0f);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -1080,7 +1079,7 @@ class boss_thaladred_the_darkener : public CreatureScript
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         DoResetThreat();
-                        me->AddThreat(target, 5000000.0f);
+                        me->GetThreatManager().AddThreat(target, 5000000.0f);
                         Talk(EMOTE_THALADRED_GAZE, target);
                         Gaze_Timer = 8500;
                     }
@@ -1137,7 +1136,7 @@ class boss_lord_sanguinar : public CreatureScript
                 advisorbase_ai::Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
@@ -1226,7 +1225,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
 
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
 
@@ -1234,7 +1233,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
@@ -1297,10 +1296,10 @@ class boss_grand_astromancer_capernian : public CreatureScript
                 {
                     bool InMeleeRange = false;
                     Unit* target = NULL;
-                    ThreatContainer::StorageType const &threatlist = me->getThreatManager().getThreatList();
-                    for (ThreatContainer::StorageType::const_iterator i = threatlist.begin(); i!= threatlist.end(); ++i)
+                    auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+                    for (ThreatReference const* ref : threatlist)
                     {
-                        Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
+                        Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                                                                     //if in melee range
                         if (unit && unit->IsWithinDistInMap(me, 5))
                         {
@@ -1358,7 +1357,7 @@ class boss_master_engineer_telonicus : public CreatureScript
                     Talk(SAY_TELONICUS_DEATH);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
@@ -1444,7 +1443,7 @@ class npc_kael_flamestrike : public CreatureScript
             void MoveInLineOfSight(Unit* /*who*/) override { }
 
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override
             {
@@ -1504,7 +1503,7 @@ class npc_phoenix_tk : public CreatureScript
             {
                 //is this spell in use anylonger?
                 //DoCast(me, SPELL_EMBER_BLAST, true);
-                me->SummonCreature(NPC_PHOENIX_EGG, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 16000);
+                me->SummonCreature(NPC_PHOENIX_EGG, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 16000ms);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1570,7 +1569,7 @@ class npc_phoenix_egg_tk : public CreatureScript
 
             void JustSummoned(Creature* summoned) override
             {
-                summoned->AddThreat(me->GetVictim(), 0.0f);
+                summoned->GetThreatManager().AddThreat(me->GetVictim(), 0.0f);
                 summoned->CastSpell(summoned, SPELL_REBIRTH, false);
             }
 
@@ -1581,7 +1580,7 @@ class npc_phoenix_egg_tk : public CreatureScript
 
                 if (Rebirth_Timer <= diff)
                 {
-                    me->SummonCreature(NPC_PHOENIX, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 5000);
+                    me->SummonCreature(NPC_PHOENIX, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 5000ms);
                     Rebirth_Timer = 0;
                 }
                 else

@@ -39,16 +39,16 @@ class instance_shadowfang_keep : public InstanceMapScript
             {
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                uiAshburyGUID     = 0;
-                uiSilverlaineGUID = 0;
-                uiSpringvaleGUID  = 0;
-                uiValdenGUID      = 0;
-                uiGodfreyGUID     = 0;
-                followerGUID      = 0;
+                uiAshburyGUID = ObjectGuid::Empty;
+                uiSilverlaineGUID = ObjectGuid::Empty;
+                uiSpringvaleGUID = ObjectGuid::Empty;
+                uiValdenGUID = ObjectGuid::Empty;
+                uiGodfreyGUID = ObjectGuid::Empty;
+                followerGUID = ObjectGuid::Empty;
 
-                uiFryeGUID        = 0;
-                uiHummelGUID      = 0;
-                uiBaxterGUID      = 0;
+                uiFryeGUID = ObjectGuid::Empty;
+                uiHummelGUID = ObjectGuid::Empty;
+                uiBaxterGUID = ObjectGuid::Empty;
                 spawnCrazedTimer  = 0;
                 teamInInstance    = 0;
 
@@ -159,7 +159,7 @@ class instance_shadowfang_keep : public InstanceMapScript
                         if (Creature* m_guard = instance->GetCreature(m_phasingGUID))
                             m_guard->SetVisible(false);
 
-                if (Creature* encounter = instance->GetCreature(GetData64(m_data)))
+                if (Creature* encounter = instance->GetCreature(GetGuidData(m_data)))
                 {
                     for (auto m_phase : m_sFangEntry)
                         GetCreatureListWithEntryInGrid(m_PhaseList, encounter, m_phase, 28.0f);
@@ -260,7 +260,7 @@ class instance_shadowfang_keep : public InstanceMapScript
                 return saveStream.str();
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -283,7 +283,7 @@ class instance_shadowfang_keep : public InstanceMapScript
                     case DATA_FOLLOWER:
                         return followerGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void Load(const char* in) override
@@ -319,20 +319,20 @@ class instance_shadowfang_keep : public InstanceMapScript
             }
         
         private:
-            uint64 uiAshburyGUID;
-            uint64 uiSilverlaineGUID;
-            uint64 uiSpringvaleGUID;
-            uint64 uiValdenGUID;
-            uint64 uiGodfreyGUID;
-            uint64 uiFryeGUID;
-            uint64 uiHummelGUID;
-            uint64 uiBaxterGUID;
-            uint64 followerGUID;
+            ObjectGuid uiAshburyGUID;
+            ObjectGuid uiSilverlaineGUID;
+            ObjectGuid uiSpringvaleGUID;
+            ObjectGuid uiValdenGUID;
+            ObjectGuid uiGodfreyGUID;
+            ObjectGuid uiFryeGUID;
+            ObjectGuid uiHummelGUID;
+            ObjectGuid uiBaxterGUID;
+            ObjectGuid followerGUID;
             uint32 spawnCrazedTimer;
             uint32 uiCrownEvent;
             uint32 teamInInstance;
 
-            std::vector<uint64> m_sFangPhasing, m_sFangIntro;
+            std::vector<ObjectGuid> m_sFangPhasing, m_sFangIntro;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

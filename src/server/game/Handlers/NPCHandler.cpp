@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -51,18 +51,16 @@ enum StableResultCode
     STABLE_ERR_STABLE       = 0x0C,                         // "Internal pet error"
 };
 
-void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket& recvData)
+void WorldSession::HandleTabardVendorActivateOpcode(WorldPackets::NPC::TabardVendorActivate& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_TABARD_VENDOR_ACTIVATE");
 
-    ObjectGuid guid;
-    recvData.ReadGuidMask(guid, 2, 1, 4, 6, 3, 5, 0, 7);
-    recvData.ReadGuidBytes(guid, 7, 6, 2, 5, 0, 1, 4, 3);
+    ObjectGuid guid = packet.Unit;
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TABARDDESIGNER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleTabardVendorActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
+        TC_LOG_DEBUG("network", "WORLD: HandleTabardVendorActivateOpcode - Unit (GUID: {}) not found or you can not interact with him.", guid.GetCounter());
         return;
     }
 
@@ -77,40 +75,36 @@ void WorldSession::SendTabardVendorActivate(ObjectGuid guid)
 {
     WorldPacket data(SMSG_TABARD_VENDOR_ACTIVATE, 8);
 
-    data.WriteGuidMask(guid, 1, 5, 0, 7, 4, 6, 3, 2);
-    data.WriteGuidBytes(guid, 5, 4, 2, 3, 6, 0, 1, 7);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[2]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[7]);
 
     SendPacket(&data);
 }
 
-void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
+void WorldSession::HandleBankerActivateOpcode(WorldPackets::Bank::BankerActivate& packet)
 {
-    ObjectGuid guid;
+    ObjectGuid guid = packet.Banker;
 
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BANKER_ACTIVATE");
-
-    guid[4] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[4]);
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BANKER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleBankerActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
+        TC_LOG_DEBUG("network", "WORLD: HandleBankerActivateOpcode - Unit (GUID: {}) not found or you can not interact with him.", guid.GetCounter());
         return;
     }
 
@@ -124,8 +118,22 @@ void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
 void WorldSession::SendShowBank(ObjectGuid guid)
 {
     WorldPacket data(SMSG_SHOW_BANK, 1 + 8);
-    data.WriteGuidMask(guid, 2, 4, 3, 6, 5, 1, 7 ,0);
-    data.WriteGuidBytes(guid, 7, 0, 5, 3, 6, 1, 4, 2);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[0]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[2]);
     SendPacket(&data);
 }
 
@@ -137,45 +145,27 @@ void WorldSession::SendShowMailBox(ObjectGuid guid)
 }
 
 
-void WorldSession::HandleTrainerListOpcode(WorldPacket& recvData)
+void WorldSession::HandleTrainerListOpcode(WorldPackets::NPC::TrainerList& packet)
 {
-    ObjectGuid guid;
-
-    guid[0] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[4]);
+    ObjectGuid guid = packet.Unit;
 
     SendTrainerList(guid);
 }
 
-void WorldSession::SendTrainerList(uint64 guid)
+void WorldSession::SendTrainerList(ObjectGuid guid)
 {
     std::string str = GetTrinityString(LANG_NPC_TAINER_HELLO);
     SendTrainerList(guid, str);
 }
 
-void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle, bool multiple, uint32 mTrainer)
+void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle, bool multiple, uint32 mTrainer)
 {
     TC_LOG_DEBUG("network", "WORLD: SendTrainerList");
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: SendTrainerList - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
+        TC_LOG_DEBUG("network", "WORLD: SendTrainerList - Unit (GUID: {}) not found or you can not interact with him.", guid.GetCounter());
         return;
     }
 
@@ -187,15 +177,15 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle, boo
 
     if (!ci)
     {
-        TC_LOG_DEBUG("network", "WORLD: SendTrainerList - (GUID: %u) NO CREATUREINFO!", GUID_LOPART(guid));
+        TC_LOG_DEBUG("network", "WORLD: SendTrainerList - (GUID: {}) NO CREATUREINFO!", guid.GetCounter());
         return;
     }
 
     TrainerSpellData const* trainer_spells = multiple ? sObjectMgr->GetNpcTrainerSpells(mTrainer) : unit->GetTrainerSpells();
     if (!trainer_spells)
     {
-        TC_LOG_DEBUG("network", "WORLD: SendTrainerList - Training spells not found for creature (GUID: %u Entry: %u)",
-            GUID_LOPART(guid), unit->GetEntry());
+        TC_LOG_DEBUG("network", "WORLD: SendTrainerList - Training spells not found for creature (GUID: {} Entry: {})",
+            guid.GetCounter(), unit->GetEntry());
         return;
     }
 
@@ -221,7 +211,6 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle, boo
 
     // reputation discount
     float fDiscountMod = _player->GetReputationPriceDiscount(unit);
-    bool can_learn_primary_prof = GetPlayer()->GetFreePrimaryProfessionPoints() > 0;
 
     uint32 count = 0;
     for (TrainerSpellMap::const_iterator itr = trainer_spells->spellList.begin(); itr != trainer_spells->spellList.end(); ++itr)
@@ -282,7 +271,7 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle, boo
     data.WriteByteSeq(oGuid[7]);
     data.WriteByteSeq(oGuid[1]);
     data.WriteByteSeq(oGuid[3]);
-    data << uint32(1);                      // different value for each trainer, also found in CMSG_TRAINER_BUY_SPELL
+    data << unit->GetEntry();                  // TrainerID
     data.WriteByteSeq(oGuid[5]);
     data.WriteByteSeq(oGuid[0]);
     data.WriteByteSeq(oGuid[2]);
@@ -292,38 +281,18 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle, boo
     SendPacket(&data);
 }
 
-void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
+void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpell& packet)
 {
-    ObjectGuid guid;
-    uint32 spellId;
-    uint32 trainerId;
+    ObjectGuid guid = packet.TrainerGUID;
+    uint32 spellId = packet.SpellID;
+    uint32 trainerId = packet.TrainerID;
 
-    recvData >> spellId >> trainerId;
-
-    guid[1] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[2]);
-
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_TRAINER_BUY_SPELL NpcGUID=%u, learn spell id is: %u", uint32(GUID_LOPART(guid)), spellId);
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_TRAINER_BUY_SPELL NpcGUID={}, learn spell id is: {}", guid.GetCounter(), spellId);
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleTrainerBuySpellOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
+        TC_LOG_DEBUG("network", "WORLD: HandleTrainerBuySpellOpcode - Unit (GUID: {}) not found or you can not interact with him.", guid.GetCounter());
         return;
     }
 
@@ -403,18 +372,16 @@ void WorldSession::SendTrainerBuyFailed(ObjectGuid guid, uint32 spellId, uint32 
     SendPacket(&data);
 }
 
-void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
+void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::GossipHello& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_GOSSIP_HELLO");
 
-    ObjectGuid guid;
-    recvData.ReadGuidMask(guid, 2, 4, 0, 3, 6, 7, 5, 1);
-    recvData.ReadGuidBytes(guid, 4, 7, 1, 0, 5, 3, 6, 2);
+    ObjectGuid guid = packet.Unit;
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_GOSSIP); // UNIT_NPC_FLAG_NONE
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleGossipHelloOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
+        TC_LOG_DEBUG("network", "WORLD: HandleGossipHelloOpcode - Unit (GUID: {}) not found or you can not interact with him.", guid.GetCounter());
         return;
     }
 
@@ -472,13 +439,13 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
     {
         TC_LOG_DEBUG("network", "reading string");
         recvData >> code;
-        TC_LOG_DEBUG("network", "string read: %s", code.c_str());
+        TC_LOG_DEBUG("network", "string read: {}", code.c_str());
     }
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
+        TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - Unit (GUID: {}) not found or you can't interact with him.", guid.GetCounter());
         return;
     }
 
@@ -498,34 +465,16 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
     }
 }*/
 
-void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket& recvData)
+void WorldSession::HandleSpiritHealerActivateOpcode(WorldPackets::NPC::SpiritHealerActivate& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_SPIRIT_HEALER_ACTIVATE");
 
-    ObjectGuid UnitGUID;
-
-    UnitGUID[2] = recvData.ReadBit();
-    UnitGUID[7] = recvData.ReadBit();
-    UnitGUID[6] = recvData.ReadBit();
-    UnitGUID[0] = recvData.ReadBit();
-    UnitGUID[5] = recvData.ReadBit();
-    UnitGUID[4] = recvData.ReadBit();
-    UnitGUID[1] = recvData.ReadBit();
-    UnitGUID[3] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(UnitGUID[1]);
-    recvData.ReadByteSeq(UnitGUID[5]);
-    recvData.ReadByteSeq(UnitGUID[6]);
-    recvData.ReadByteSeq(UnitGUID[3]);
-    recvData.ReadByteSeq(UnitGUID[2]);
-    recvData.ReadByteSeq(UnitGUID[0]);
-    recvData.ReadByteSeq(UnitGUID[7]);
-    recvData.ReadByteSeq(UnitGUID[4]);
+    ObjectGuid UnitGUID = packet.Unit;
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(UnitGUID, UNIT_NPC_FLAG_SPIRITHEALER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleSpiritHealerActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(UnitGUID)));
+        TC_LOG_DEBUG("network", "WORLD: HandleSpiritHealerActivateOpcode - Unit (GUID: {}) not found or you can not interact with him.", UnitGUID.GetCounter());
         return;
     }
 
@@ -547,10 +496,9 @@ void WorldSession::SendSpiritResurrect()
 
     // get corpse nearest graveyard
     WorldSafeLocsEntry const* corpseGrave = NULL;
-    Corpse* corpse = _player->GetCorpse();
-    if (corpse)
-        corpseGrave = sObjectMgr->GetClosestGraveYard(WorldLocation(corpse->GetMapId(), corpse->GetPositionX(), corpse->GetPositionY(), corpse->GetPositionZ()),
-            _player->GetTeam(), _player);
+    WorldLocation corpseLocation = _player->GetCorpseLocation();
+    if (_player->HasCorpse())
+        corpseGrave = sObjectMgr->GetClosestGraveYard(corpseLocation, _player->GetTeam(), _player);
 
     // now can spawn bones
     _player->SpawnCorpseBones();
@@ -571,27 +519,9 @@ void WorldSession::SendSpiritResurrect()
         _player->UpdateObjectVisibility();
 }
 
-void WorldSession::HandleBinderActivateOpcode(WorldPacket& recvData)
+void WorldSession::HandleBinderActivateOpcode(WorldPackets::NPC::BinderActivate& packet)
 {
-    ObjectGuid npcGuid;
-
-    npcGuid[0] = recvData.ReadBit();
-    npcGuid[5] = recvData.ReadBit();
-    npcGuid[4] = recvData.ReadBit();
-    npcGuid[7] = recvData.ReadBit();
-    npcGuid[6] = recvData.ReadBit();
-    npcGuid[2] = recvData.ReadBit();
-    npcGuid[1] = recvData.ReadBit();
-    npcGuid[3] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(npcGuid[0]);
-    recvData.ReadByteSeq(npcGuid[4]);
-    recvData.ReadByteSeq(npcGuid[2]);
-    recvData.ReadByteSeq(npcGuid[3]);
-    recvData.ReadByteSeq(npcGuid[7]);
-    recvData.ReadByteSeq(npcGuid[1]);
-    recvData.ReadByteSeq(npcGuid[5]);
-    recvData.ReadByteSeq(npcGuid[6]);
+    ObjectGuid npcGuid = packet.Unit;
 
     if (!GetPlayer()->IsInWorld() || !GetPlayer()->IsAlive())
         return;
@@ -599,7 +529,7 @@ void WorldSession::HandleBinderActivateOpcode(WorldPacket& recvData)
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_INNKEEPER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleBinderActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(npcGuid)));
+        TC_LOG_DEBUG("network", "WORLD: HandleBinderActivateOpcode - Unit (GUID: {}) not found or you can not interact with him.", npcGuid.GetCounter());
         return;
     }
 
@@ -624,14 +554,11 @@ void WorldSession::SendBindPoint(Creature* npc)
     _player->PlayerTalkClass->SendCloseGossip();
 }
 
-void WorldSession::HandleListPets(WorldPacket& recvData)
+void WorldSession::HandleListPets(WorldPackets::NPC::ListPets& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Recv MSG_LIST_STABLED_PETS");
-    ObjectGuid guid;
-    uint8 bitorder[8] = { 0, 5, 1, 3, 6, 7, 2, 4 };
-    recvData.ReadBitInOrder(guid, bitorder);
-    uint8 byteorder[8] = { 0, 5, 7, 1, 2, 3, 4, 6 };
-    recvData.ReadBytesSeq(guid, byteorder);
+
+    ObjectGuid guid = packet.Unit;
 
     if (!CheckStableMaster(guid))
         return;
@@ -642,12 +569,18 @@ void WorldSession::HandleListPets(WorldPacket& recvData)
     SendPetList(guid, PET_SLOT_ACTIVE_FIRST, PET_SLOT_STABLE_LAST);
 }
 
-void WorldSession::SendPetList(uint64 guid, uint8 first, uint8 last)
+void WorldSession::SendPetList(ObjectGuid guid, uint8 first, uint8 last)
 {
     WorldPacket data(SMSG_PET_STABLE_LIST, 200);           // guess size
     ByteBuffer buff;
-    ObjectGuid npcGuid = guid;
-    data.WriteGuidMask(npcGuid, 3, 0, 4, 7, 2, 1, 6, 5);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[5]);
     size_t pos = data.bitwpos();
     data.WriteBits(0, 19);
 
@@ -666,8 +599,19 @@ void WorldSession::SendPetList(uint64 guid, uint8 first, uint8 last)
         uint8 petStableState = itr.first <= PET_SLOT_ACTIVE_LAST ? 1 : 2;
 
         uint32 modelId = 0;
+
         if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(petData.Entry))
-            modelId = cInfo->Modelid1 ? cInfo->Modelid1 : cInfo->Modelid2;
+        {
+            if (CreatureModel const* model1 = cInfo->GetModelByIdx(0))
+                modelId = model1->CreatureDisplayID;
+            else
+            {
+                CreatureModel const* model2 = cInfo->GetModelByIdx(1);
+                if (model2)
+                    modelId = model2->CreatureDisplayID;
+                // if model2 is also nullptr, leave modelId as 0; client can handle missing display ID.
+            }
+        }
 
         buff << uint32(petData.Entry);
         buff << uint32(_player->GetLevel());    // All pets have equal level
@@ -681,8 +625,14 @@ void WorldSession::SendPetList(uint64 guid, uint8 first, uint8 last)
     data.FlushBits();
     data.PutBits(pos, count, 19);
     data.append(buff);
-    uint8 bytesorder[8] = { 3, 5, 7, 2, 0, 4, 1, 6 };
-    data.WriteBytesSeq(npcGuid, bytesorder);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[6]);
     SendPacket(&data);
 }
 
@@ -693,17 +643,13 @@ void WorldSession::SendStableResult(uint8 res)
     SendPacket(&data);
 }
 
-void WorldSession::HandleSetPetSlot(WorldPacket& recvData)
+void WorldSession::HandleSetPetSlot(WorldPackets::NPC::SetPetSlot& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Recv CMSG_SET_PET_SLOT");
 
-    uint32 oldPetId;
-    int8 newSlot;
-    recvData >> oldPetId;
-    recvData >> newSlot;
-    ObjectGuid npcGUID;
-    recvData.ReadGuidMask(npcGUID, 5, 7, 3, 2, 6, 1, 0, 4);
-    recvData.ReadGuidBytes(npcGUID, 0, 3, 2, 6, 5, 7, 4, 1);
+    uint32 oldPetId = packet.OldPetId;
+    int8 newSlot = packet.NewSlot;
+    ObjectGuid npcGUID = packet.Unit;
 
     if (!CheckStableMaster(npcGUID) || newSlot < 0 || newSlot > PET_SLOT_STABLE_LAST)
     {
@@ -744,7 +690,7 @@ void WorldSession::HandleSetPetSlot(WorldPacket& recvData)
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
     stmt->setUInt8(0, newSlot);
-    stmt->setUInt32(1, GetPlayer()->GetGUIDLow());
+    stmt->setUInt32(1, GetPlayer()->GetGUID().GetCounter());
     stmt->setUInt32(2, oldPetId);
     trans->Append(stmt);
 
@@ -753,7 +699,7 @@ void WorldSession::HandleSetPetSlot(WorldPacket& recvData)
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
         stmt->setUInt8(0, oldSlot);
-        stmt->setUInt32(1, GetPlayer()->GetGUIDLow());
+        stmt->setUInt32(1, GetPlayer()->GetGUID().GetCounter());
         stmt->setUInt32(2, newPetId);
         trans->Append(stmt);
     }
@@ -817,7 +763,7 @@ void WorldSession::HandleUnstablePet(WorldPacket& recvData)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_ENTRY);
 
-    stmt->setUInt32(0, _player->GetGUIDLow());
+    stmt->setUInt32(0, _player->GetGUID().GetCounter());
     stmt->setUInt32(1, petnumber);
     stmt->setUInt8(2, PET_SAVE_FIRST_STABLE_SLOT);
     stmt->setUInt8(3, PET_SAVE_LAST_STABLE_SLOT);
@@ -924,7 +870,7 @@ void WorldSession::HandleStableSwapPet(WorldPacket& recvData)
 
     recvData >> npcGUID >> petId;
 
-    if (!CheckStableMaster(npcGUID))
+    if (!CheckStableMaster(ObjectGuid(npcGUID)))
     {
         SendStableResult(STABLE_ERR_STABLE);
         return;
@@ -946,7 +892,7 @@ void WorldSession::HandleStableSwapPet(WorldPacket& recvData)
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOT_BY_ID);
 
-    stmt->setUInt32(0, _player->GetGUIDLow());
+    stmt->setUInt32(0, _player->GetGUID().GetCounter());
     stmt->setUInt32(1, petId);
 
     // _stableSwapCallback.SetParam(petId);
@@ -1014,52 +960,17 @@ void WorldSession::HandleStableSwapPetCallback(PreparedQueryResult result, uint3
         SendStableResult(STABLE_SUCCESS_UNSTABLE);*/
 }
 
-void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_REPAIR_ITEM");
 
-    ObjectGuid npcGuid, itemGuid;
-    bool guildBank;                                         // new in 2.3.2, bool that means from guild bank money
-
-    itemGuid[2] = recvData.ReadBit();
-    itemGuid[5] = recvData.ReadBit();
-    npcGuid[3] = recvData.ReadBit();
-    guildBank = recvData.ReadBit();
-    npcGuid[7] = recvData.ReadBit();
-    itemGuid[4] = recvData.ReadBit();
-    npcGuid[2] = recvData.ReadBit();
-    itemGuid[0] = recvData.ReadBit();
-    itemGuid[3] = recvData.ReadBit();
-    npcGuid[6] = recvData.ReadBit();
-    npcGuid[1] = recvData.ReadBit();
-    npcGuid[4] = recvData.ReadBit();
-    itemGuid[6] = recvData.ReadBit();
-    npcGuid[5] = recvData.ReadBit();
-    npcGuid[0] = recvData.ReadBit();
-    itemGuid[7] = recvData.ReadBit();
-    itemGuid[1] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(itemGuid[2]);
-    recvData.ReadByteSeq(npcGuid[1]);
-    recvData.ReadByteSeq(itemGuid[1]);
-    recvData.ReadByteSeq(npcGuid[4]);
-    recvData.ReadByteSeq(npcGuid[7]);
-    recvData.ReadByteSeq(npcGuid[3]);
-    recvData.ReadByteSeq(npcGuid[2]);
-    recvData.ReadByteSeq(itemGuid[7]);
-    recvData.ReadByteSeq(npcGuid[5]);
-    recvData.ReadByteSeq(npcGuid[0]);
-    recvData.ReadByteSeq(itemGuid[5]);
-    recvData.ReadByteSeq(itemGuid[3]);
-    recvData.ReadByteSeq(itemGuid[4]);
-    recvData.ReadByteSeq(itemGuid[6]);
-    recvData.ReadByteSeq(npcGuid[6]);
-    recvData.ReadByteSeq(itemGuid[0]);
+    ObjectGuid npcGuid = packet.NpcGuid, itemGuid = packet.ItemGuid;
+    bool guildBank = packet.GuildBank;
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_REPAIR);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleRepairItemOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(npcGuid)));
+        TC_LOG_DEBUG("network", "WORLD: HandleRepairItemOpcode - Unit (GUID: {}) not found or you can not interact with him.", npcGuid.GetCounter());
         return;
     }
 
@@ -1072,7 +983,7 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
 
     if (itemGuid)
     {
-        TC_LOG_DEBUG("network", "ITEM: Repair item, itemGUID = %u, npcGUID = %u", GUID_LOPART(itemGuid), GUID_LOPART(npcGuid));
+        TC_LOG_DEBUG("network", "ITEM: Repair item, itemGUID = {}, npcGUID = {}", itemGuid.GetCounter(), npcGuid.GetCounter());
 
         Item* item = _player->GetItemByGuid(itemGuid);
         if (item)
@@ -1080,7 +991,7 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
     }
     else
     {
-        TC_LOG_DEBUG("network", "ITEM: Repair all items, npcGUID = %u", GUID_LOPART(npcGuid));
+        TC_LOG_DEBUG("network", "ITEM: Repair all items, npcGUID = {}", npcGuid.GetCounter());
         _player->DurabilityRepairAll(true, discountMod, guildBank);
     }
 }

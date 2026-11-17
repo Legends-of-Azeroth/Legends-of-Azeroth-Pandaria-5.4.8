@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -26,6 +26,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "spell_common.h"
+#include "Random.h"
 
 enum RogueSpells
 {
@@ -201,7 +202,7 @@ class spell_rog_growl : public SpellScript
 
     void HandleCast()
     {
-        uint64 guid = GetCaster()->GetTarget();
+        ObjectGuid guid = GetCaster()->GetTarget();
         if (Unit* target = ObjectAccessor::GetUnit(*GetCaster(), guid))
             if (GetCaster()->IsValidAttackTarget(target))
                 GetCaster()->CastSpell(target, SPELL_ROUGE_GROWL, true);
@@ -216,50 +217,56 @@ class spell_rog_growl : public SpellScript
 // Combat Readiness - 74001
 class spell_rog_combat_readiness : public SpellScriptLoader
 {
-    public:
-        spell_rog_combat_readiness() : SpellScriptLoader("spell_rog_combat_readiness") { }
+public:
+    spell_rog_combat_readiness() : SpellScriptLoader("spell_rog_combat_readiness") { }
 
-        class spell_rog_combat_readiness_AuraScript : public AuraScript
+    class spell_rog_combat_readiness_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_rog_combat_readiness_AuraScript);
+
+        bool Load()
         {
-            PrepareAuraScript(spell_rog_combat_readiness_AuraScript);
-
-            uint32 update;
-            bool hit;
-
-            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (GetCaster())
-                {
-                    update = 10000;
-                    hit = false;
-                }
-            }
-
-            void OnUpdate(uint32 diff)
-            {
-                update -= diff;
-
-                if (GetCaster())
-                    if (GetCaster()->HasAura(ROGUE_SPELL_COMBAT_INSIGHT))
-                        hit = true;
-
-                if (update <= 0)
-                    if (Player* _player = GetCaster()->ToPlayer())
-                        if (!hit)
-                            _player->RemoveAura(ROGUE_SPELL_COMBAT_READINESS);
-            }
-
-            void Register() override
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_rog_combat_readiness_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
-                OnAuraUpdate += AuraUpdateFn(spell_rog_combat_readiness_AuraScript::OnUpdate);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_rog_combat_readiness_AuraScript();
+            tickCount = 0;
+            return true;
         }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            return !(eventInfo.GetHitMask() & PROC_EX_ABSORB);
+        }
+
+        void CalcPeriodic(AuraEffect const* /*effect*/, bool& isPeriodic, int32& amplitude)
+        {
+            isPeriodic = true;
+            amplitude = 1000;
+        }
+
+        void OnPeriodicTick(AuraEffect const* /*aurEff*/)
+        {
+            if (++tickCount >= 10)
+                Remove(AURA_REMOVE_BY_EXPIRE);
+        }
+
+        void ResetTimerCheck(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            tickCount = 0;
+        }
+
+        void Register()
+        {
+            DoCheckProc += AuraCheckProcFn(spell_rog_combat_readiness_AuraScript::CheckProc);
+            DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_rog_combat_readiness_AuraScript::CalcPeriodic, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_combat_readiness_AuraScript::OnPeriodicTick, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            OnEffectProc += AuraEffectProcFn(spell_rog_combat_readiness_AuraScript::ResetTimerCheck, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+
+        uint8 tickCount;
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_rog_combat_readiness_AuraScript();
+    }
 };
 
 // 408 - Kidney Shot, 1833 - Cheap Shot
@@ -654,8 +661,8 @@ class spell_rog_deadly_poison : public SpellScriptLoader
                             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(enchant->SpellID[s]);
                             if (!spellInfo)
                             {
-                                TC_LOG_ERROR("spells", "Player::CastItemCombatSpell Enchant %i, player (Name: %s, GUID: %u) cast unknown spell %i",
-                                             enchant->ID, player->GetName().c_str(), player->GetGUIDLow(), enchant->SpellID[s]);
+                                TC_LOG_ERROR("spells", "Player::CastItemCombatSpell Enchant {}, player (Name: {}, GUID: {}) cast unknown spell {}",
+                                             enchant->ID, player->GetName().c_str(), player->GetGUID().GetCounter(), enchant->SpellID[s]);
                                 continue;
                             }
 
@@ -794,8 +801,8 @@ class spell_rog_killing_spree : public AuraScript
 {
     PrepareAuraScript(spell_rog_killing_spree);
 
-    std::set<uint64> m_targets;
-    uint64 m_mainTarget = 0;
+    std::set<ObjectGuid> m_targets;
+    ObjectGuid m_mainTarget = ObjectGuid::Empty;
     bool m_glyphed = false;
     WorldLocation m_start;
     uint32 m_phase = 0;
@@ -860,7 +867,7 @@ class spell_rog_killing_spree : public AuraScript
         {
             while (!m_targets.empty())
             {
-                uint64 guid = Trinity::Containers::SelectRandomContainerElement(m_targets);
+                ObjectGuid guid = Trinity::Containers::SelectRandomContainerElement(m_targets);
                 target = ObjectAccessor::GetUnit(*m_caster, guid);
                 if (target && target->IsAlive() && !notValidTarget(target))
                     break;
@@ -968,9 +975,10 @@ class spell_rog_killing_spree_teleport : public SpellScript
         // Immerseus
         if (target->GetEntry() != 71543)
         {
-            target->GetPosition(&pos);
+            pos = target->GetPosition();
             target->MovePositionToFirstCollision(pos, GetSpellInfo()->Effects[EFFECT_0].CalcRadius(GetCaster()), M_PI, 1.5f);
-            GetCaster()->UpdateAllowedPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ, 1.5f);
+            float newz = 1.5f;
+            GetCaster()->UpdateAllowedPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ, &newz);
         }
         // If final point end up being too high (standing against a wall) or too low (standing against a hole) - just set destination to target's position
         if (abs(pos.GetPositionZ() - target->GetPositionZ()) > 2.5f)
@@ -1442,7 +1450,7 @@ class spell_rog_honor_among_thieves : public AuraScript
 {
     PrepareAuraScript(spell_rog_honor_among_thieves);
 
-    bool Load()
+    bool Load() override
     {
         return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
     }
@@ -1469,9 +1477,7 @@ class spell_rog_honor_among_thieves : public AuraScript
             if (!rogue->IsInCombat())
                 return;
 
-            Unit* target = nullptr;
-            if (uint64 guid = rogue->ToPlayer()->GetComboTarget())
-                target = ObjectAccessor::GetUnit(*rogue, guid);
+            Unit* target = rogue->ToPlayer()->GetComboTarget();
             if (!target)
                 target = rogue->GetVictim();
             if (!target)
@@ -1564,8 +1570,8 @@ class spell_rog_fan_of_knives : public SpellScript
 
         if (Player* rogue = GetCaster()->ToPlayer())
         {
-            if (Unit* comboTarget = ObjectAccessor::GetUnit(*rogue, rogue->GetComboTarget()))
-                target = comboTarget;
+            if (rogue->GetComboTarget())
+                target = rogue->GetComboTarget();
             else if (Unit* comboTarget = ObjectAccessor::GetUnit(*rogue, rogue->GetTarget()))
             {
                 if (rogue->IsValidAttackTarget(comboTarget))
@@ -1676,7 +1682,7 @@ protected:
         if (rogue->HasAura(SPELL_ROG_SHADOW_FOCUS_TALENT))
             rogue->CastSpell(rogue, SPELL_ROG_SHADOW_FOCUS, true);
 
-        rogue->ForceValuesUpdateAtIndex(UNIT_FIELD_SHAPESHIFT_FORM);    // Needs for vanish + subterfuge
+        rogue->ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2);    // Needs for vanish + subterfuge
     }
 
     void HandleRemove(AuraEffect const*, AuraEffectHandleModes)
@@ -1692,7 +1698,7 @@ protected:
             nightstalker->SetDuration(100); // Set duration instead of remove as stealth removal is done before spell-cast damage calculation
 
         rogue->RemoveAura(SPELL_ROG_SHADOW_FOCUS);
-        rogue->ForceValuesUpdateAtIndex(UNIT_FIELD_SHAPESHIFT_FORM);    // Needs for vanish + subterfuge
+        rogue->ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2);    // Needs for vanish + subterfuge
 
         if (!rogue->HasStealthAura())
             rogue->RemoveOwnedAura(SPELL_ROGUE_SHROUD_OF_CONCEALMENT);
@@ -2106,7 +2112,7 @@ class spell_rog_redirect : public SpellScript
             return SPELL_FAILED_DONT_REPORT;
         if (!rogue->GetComboPoints())
             return SPELL_FAILED_NO_COMBO_POINTS;
-        if (rogue->GetComboTarget() == GetSpell()->m_targets.GetUnitTargetGUID())
+        if (!rogue->GetComboTarget() || (rogue->GetComboTarget() && rogue->GetComboTarget()->GetGUID() == GetSpell()->m_targets.GetUnitTargetGUID()))
             return SPELL_FAILED_BAD_TARGETS;
 
         return SPELL_CAST_OK;
@@ -2758,6 +2764,16 @@ class spell_rog_shadowstep : public SpellScript
     }
 };
 
+// 31665 - Master of Subtlety
+class spell_rog_master_of_subtlety : public AuraScript
+{
+    PrepareAuraScript(spell_rog_master_of_subtlety);
+
+    void Register() override
+    {
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_glyph_of_expose_armor();
@@ -2837,4 +2853,5 @@ void AddSC_rogue_spell_scripts()
     new spell_script<spell_rog_distract>("spell_rog_distract");
     new spell_script<spell_rog_duration_check>("spell_rog_duration_check");
     new spell_script<spell_rog_shadowstep>("spell_rog_shadowstep");
+    new aura_script<spell_rog_master_of_subtlety>("spell_rog_master_of_subtlety");
 }

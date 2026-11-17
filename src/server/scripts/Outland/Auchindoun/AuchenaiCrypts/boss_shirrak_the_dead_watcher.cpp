@@ -68,7 +68,7 @@ public:
         uint32 Carnivorousbite_Timer;
         uint32 FocusFire_Timer;
 
-        uint64 FocusedTargetGUID;
+        ObjectGuid FocusedTargetGUID;
 
         void Reset() override
         {
@@ -76,10 +76,10 @@ public:
             Attractmagic_Timer = 28000;
             Carnivorousbite_Timer = 10000;
             FocusFire_Timer = 17000;
-            FocusedTargetGUID = 0;
+            FocusedTargetGUID = ObjectGuid::Empty;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         { }
 
         void JustSummoned(Creature* summoned) override
@@ -147,7 +147,7 @@ public:
                 if (target && target->GetTypeId() == TYPEID_PLAYER && target->IsAlive())
                 {
                     FocusedTargetGUID = target->GetGUID();
-                    me->SummonCreature(NPC_FOCUS_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5500);
+                    me->SummonCreature(NPC_FOCUS_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5500ms);
                     Talk(EMOTE_FOCUSED, target);
                 }
                 FocusFire_Timer = 15000+(rand()%5000);
@@ -184,7 +184,7 @@ public:
             fiery1 = fiery2 = true;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         { }
 
         void UpdateAI(uint32 diff) override

@@ -69,15 +69,15 @@ class npc_water_elemental : public CreatureScript
     {
         npc_water_elementalAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 balindaGUID;
+        ObjectGuid balindaGUID;
 
         void Reset() override
         {
             _events.Reset();
-            balindaGUID = 0;
+            balindaGUID = ObjectGuid::Empty;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(YELL_AGGRO);
             _events.ScheduleEvent(EVENT_CAST_SPELL_WATERBOLT, 3s);
@@ -146,7 +146,7 @@ struct boss_balinda : public ScriptedAI
         Initialize();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(YELL_AGGRO);
         _events.ScheduleEvent(EVENT_CAST_SPELL_ARCANE_EXPLOSION, randtime(5s, 15s));
@@ -158,7 +158,7 @@ struct boss_balinda : public ScriptedAI
         _events.ScheduleEvent(EVENT_BALINDA_RESET, 5s);
     }
 
-    void JustRespawned() override
+    void JustAppeared() override
     {
         Reset();
     }
@@ -208,7 +208,7 @@ struct boss_balinda : public ScriptedAI
                     break;
                 case EVENT_SUMMON_WATER_ELEMENTAL:
                     if (summons.empty())
-                        me->SummonCreature(NPC_WATER_ELEMENTAL, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45 * IN_MILLISECONDS);
+                        me->SummonCreature(NPC_WATER_ELEMENTAL, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, Milliseconds(45 * IN_MILLISECONDS));
 
                     _events.ScheduleEvent(EVENT_SUMMON_WATER_ELEMENTAL, 50s);
                     break;

@@ -90,7 +90,7 @@ class npc_dragonflayer_forge_master : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (fm_Type == 0)
                     fm_Type = GetForgeMasterType();

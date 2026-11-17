@@ -40,25 +40,25 @@ class instance_throne_of_the_tides : public InstanceMapScript
             {
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doordata);
-                uiLadyNazjarGUID = 0;
-                uiCommanderUlthokGUID = 0;
-                uiErunakStonespeakerGUID = 0;
-                uiMindbenderGhurshaGUID = 0;
-                uiOzumatGUID = 0;
-                uiNeptulonGUID = 0;
-                uiLadyNazjarEventGUID = 0;
+                uiLadyNazjarGUID = ObjectGuid::Empty;
+                uiCommanderUlthokGUID = ObjectGuid::Empty;
+                uiErunakStonespeakerGUID = ObjectGuid::Empty;
+                uiMindbenderGhurshaGUID = ObjectGuid::Empty;
+                uiOzumatGUID = ObjectGuid::Empty;
+                uiNeptulonGUID = ObjectGuid::Empty;
+                uiLadyNazjarEventGUID = ObjectGuid::Empty;
 
-                uiCoralesGUID = 0,
-                uiLadyNazjarDoorGUID = 0;
-                uiCommanderUlthokDoorGUID = 0;
-                uiMindebenderGhurshaDoorGUID = 0;
-                uiOzumatDoorGUID = 0;
-                uiControlSystemGUID = 0;
-                uiTentacleRightGUID = 0;
-                uiTentacleLeftGUID = 0;
-                uiInvisibleDoor1GUID = 0;
-                uiInvisibleDoor2GUID = 0;
-                uiNeptulonCache = 0;
+                uiCoralesGUID = ObjectGuid::Empty;
+                uiLadyNazjarDoorGUID = ObjectGuid::Empty;
+                uiCommanderUlthokDoorGUID = ObjectGuid::Empty;
+                uiMindebenderGhurshaDoorGUID = ObjectGuid::Empty;
+                uiOzumatDoorGUID = ObjectGuid::Empty;
+                uiControlSystemGUID = ObjectGuid::Empty;
+                uiTentacleRightGUID = ObjectGuid::Empty;
+                uiTentacleLeftGUID = ObjectGuid::Empty;
+                uiInvisibleDoor1GUID = ObjectGuid::Empty;
+                uiInvisibleDoor2GUID = ObjectGuid::Empty;
+                uiNeptulonCache = ObjectGuid::Empty;
 
                 archaeologyQuestAura = 0;
 
@@ -224,7 +224,7 @@ class instance_throne_of_the_tides : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -245,7 +245,7 @@ class instance_throne_of_the_tides : public InstanceMapScript
                     case DATA_CORALES:
                         return uiCoralesGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -335,24 +335,24 @@ class instance_throne_of_the_tides : public InstanceMapScript
             }
 
             private:
-                uint64 uiLadyNazjarGUID;
-                uint64 uiCommanderUlthokGUID;
-                uint64 uiErunakStonespeakerGUID;
-                uint64 uiMindbenderGhurshaGUID;
-                uint64 uiOzumatGUID;
-                uint64 uiNeptulonGUID;
-                uint64 uiLadyNazjarEventGUID;
-                uint64 uiCoralesGUID;
-                uint64 uiLadyNazjarDoorGUID;
-                uint64 uiCommanderUlthokDoorGUID;
-                uint64 uiMindebenderGhurshaDoorGUID;
-                uint64 uiOzumatDoorGUID;
-                uint64 uiControlSystemGUID;
-                uint64 uiTentacleRightGUID;
-                uint64 uiTentacleLeftGUID;
-                uint64 uiInvisibleDoor1GUID;
-                uint64 uiInvisibleDoor2GUID;
-                uint64 uiNeptulonCache;
+                ObjectGuid uiLadyNazjarGUID;
+                ObjectGuid uiCommanderUlthokGUID;
+                ObjectGuid uiErunakStonespeakerGUID;
+                ObjectGuid uiMindbenderGhurshaGUID;
+                ObjectGuid uiOzumatGUID;
+                ObjectGuid uiNeptulonGUID;
+                ObjectGuid uiLadyNazjarEventGUID;
+                ObjectGuid uiCoralesGUID;
+                ObjectGuid uiLadyNazjarDoorGUID;
+                ObjectGuid uiCommanderUlthokDoorGUID;
+                ObjectGuid uiMindebenderGhurshaDoorGUID;
+                ObjectGuid uiOzumatDoorGUID;
+                ObjectGuid uiControlSystemGUID;
+                ObjectGuid uiTentacleRightGUID;
+                ObjectGuid uiTentacleLeftGUID;
+                ObjectGuid uiInvisibleDoor1GUID;
+                ObjectGuid uiInvisibleDoor2GUID;
+                ObjectGuid uiNeptulonCache;
                 uint32 uiTeamInInstance;
                 uint32 archaeologyQuestAura;
                 uint32 m_uiEvents[3];

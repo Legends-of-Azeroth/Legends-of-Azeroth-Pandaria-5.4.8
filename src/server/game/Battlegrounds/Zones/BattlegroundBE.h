@@ -50,17 +50,17 @@ class BattlegroundBE : public Battleground
         /* inherited from BattlegroundClass */
         void AddPlayer(Player* player) override;
         void OnInvite(Player* player, GroupQueueInfo const* ginfo) override;
-        void StartingEventCloseDoors();
-        void StartingEventOpenDoors();
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
 
-        void RemovePlayer(Player* player, uint64 guid, uint32 team);
-        void HandleAreaTrigger(Player* Source, uint32 Trigger);
-        bool SetupBattleground();
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
+        void HandleAreaTrigger(Player* Source, uint32 Trigger, bool Entered) override;
+        bool SetupBattleground() override;
         void Reset() override;
-        void FillInitialWorldStates(WorldStateBuilder& builder);
-        void HandleKillPlayer(Player* player, Player* killer);
+        void FillInitialWorldStates(WorldStateBuilder& builder) override;
+        void HandleKillPlayer(Player* player, Player* killer) override;
 
         /* Scorekeeping */
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true) override;
 };
 #endif

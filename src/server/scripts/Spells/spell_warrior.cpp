@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -29,7 +29,7 @@
 #include "GridNotifiers.h"
 #include "MoveSpline.h"
 #include "Player.h"
-
+#include "Random.h"
 
 enum WarriorSpells
 {
@@ -727,8 +727,7 @@ class spell_warr_revenge_shield_slam : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_revenge_shield_slam_SpellScript::HandleCast, EFFECT_1, SPELL_EFFECT_ENERGIZE);
-                OnEffectHitTarget += SpellEffectFn(spell_warr_revenge_shield_slam_SpellScript::HandleCast, EFFECT_2, SPELL_EFFECT_ENERGIZE);
+                OnEffectHitTarget += SpellEffectFn(spell_warr_revenge_shield_slam_SpellScript::HandleCast, EFFECT_ALL, SPELL_EFFECT_ENERGIZE);
             }
         };
 
@@ -1687,7 +1686,7 @@ class spell_warr_spell_reflection : public AuraScript
         // http://eu.battle.net/wow/en/game/patch-notes/5-3-0
         // Spell Reflection is no longer consumed by spells from player pets and guardians.
         Unit* actor = eventInfo.GetActor();
-        return actor && (!actor->GetOwnerGUID() || !IS_PLAYER_GUID(actor->GetOwnerGUID()));
+        return actor && (!actor->GetOwnerGUID() || !actor->GetOwnerGUID().IsPlayer());
     }
 
     void Register() override

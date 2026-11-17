@@ -57,13 +57,13 @@ class instance_steam_vault : public InstanceMapScript
             {
                 SetBossNumber(EncounterCount);
 
-                ThespiaGUID          = 0;
-                MekgineerGUID        = 0;
-                KalithreshGUID       = 0;
+                ThespiaGUID = ObjectGuid::Empty;
+                MekgineerGUID = ObjectGuid::Empty;
+                KalithreshGUID = ObjectGuid::Empty;
 
-                MainChambersDoorGUID = 0;
-                MekDoor              = 0;
-                HydroDoor            = 0;
+                MainChambersDoorGUID = ObjectGuid::Empty;
+                MekDoor              = ObjectGuid::Empty;
+                HydroDoor            = ObjectGuid::Empty;
                 DistillerState       = 0;
             }
 
@@ -101,7 +101,7 @@ class instance_steam_vault : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -116,7 +116,7 @@ class instance_steam_vault : public InstanceMapScript
                     case GO_ACCESS_PANEL_MEK:
                         return MekDoor;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void SetData(uint32 type, uint32 data) override
@@ -208,13 +208,13 @@ class instance_steam_vault : public InstanceMapScript
             }
 
             protected:
-                uint64 ThespiaGUID;
-                uint64 MekgineerGUID;
-                uint64 KalithreshGUID;
+                ObjectGuid ThespiaGUID;
+                ObjectGuid MekgineerGUID;
+                ObjectGuid KalithreshGUID;
 
-                uint64 MainChambersDoorGUID;
-                uint64 MekDoor;
-                uint64 HydroDoor;
+                ObjectGuid MainChambersDoorGUID;
+                ObjectGuid MekDoor;
+                ObjectGuid HydroDoor;
                 uint8 DistillerState;
         };
 

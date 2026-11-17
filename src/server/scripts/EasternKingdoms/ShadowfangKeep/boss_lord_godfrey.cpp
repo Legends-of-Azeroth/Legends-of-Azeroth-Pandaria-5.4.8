@@ -74,7 +74,7 @@ class boss_lord_godfrey : public CreatureScript
         {
             boss_lord_godfreyAI(Creature* creature) : BossAI(creature, DATA_GODFREY) { }
 
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
 
             void InitializeAI() override
             {
@@ -99,14 +99,14 @@ class boss_lord_godfrey : public CreatureScript
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
-                targetGUID = 0;
+                targetGUID = ObjectGuid::Empty;
                 instance->DoResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, ACHIEVEMENT_CRITERIA_CONDITION_NO_SPELL_HIT, SPELL_CLEAR_ACHIEVEMENT);
                 instance->DoResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, ACHIEVEMENT_CRITERIA_CONDITION_NO_SPELL_HIT, SPELL_CLEAR_ACHIEVEMENT);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);

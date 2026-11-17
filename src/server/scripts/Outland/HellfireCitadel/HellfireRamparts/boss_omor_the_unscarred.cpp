@@ -73,15 +73,15 @@ class boss_omor_the_unscarred : public CreatureScript
                 Shadowbolt_Timer = 2000;
                 Summon_Timer = 10000;
                 SummonedCount = 0;
-                PlayerGUID = 0;
+                PlayerGUID = ObjectGuid::Empty;
                 CanPullBack = false;
 
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
             }
 
@@ -140,7 +140,7 @@ class boss_omor_the_unscarred : public CreatureScript
                                 DoCast(temp, SPELL_SHADOW_WHIP);
                             }
                         }
-                        PlayerGUID = 0;
+                        PlayerGUID = ObjectGuid::Empty;
                         ShadowWhip_Timer = 2000;
                         CanPullBack = false;
                     }
@@ -217,7 +217,7 @@ class boss_omor_the_unscarred : public CreatureScript
                 uint32 Shadowbolt_Timer;
                 uint32 Summon_Timer;
                 uint32 SummonedCount;
-                uint64 PlayerGUID;
+                ObjectGuid PlayerGUID;
                 bool CanPullBack;
         };
 

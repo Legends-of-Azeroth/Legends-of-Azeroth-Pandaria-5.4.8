@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -36,6 +36,18 @@ enum PetRemoveFlag
     PET_REMOVE_FLAG_NONE            = 0x00,
     PET_REMOVE_FLAG_RETURN_REAGENT  = 0x01,
     PET_REMOVE_FLAG_RESET_CURRENT   = 0x02,
+};
+
+#define MAX_PET_STABLES         4
+
+// stored in character_pet.slot
+enum PetSaveMode : int8
+{
+    PET_SAVE_AS_DELETED        = -1,                        // not saved in fact
+    PET_SAVE_AS_CURRENT        =  0,                        // in current slot (with player)
+    PET_SAVE_FIRST_STABLE_SLOT =  1,
+    PET_SAVE_LAST_STABLE_SLOT  =  MAX_PET_STABLES,          // last in DB stable slot index (including), all higher have same meaning as PET_SAVE_NOT_IN_SLOT
+    PET_SAVE_NOT_IN_SLOT       =  100                       // for avoid conflict with stable size grow will use 100
 };
 
 enum PetSpellState
@@ -96,6 +108,9 @@ enum PetTameError
 
 #define PET_FOLLOW_DIST  1.0f
 #define PET_FOLLOW_ANGLE (M_PI/2)
+#define DEFAULT_FOLLOW_DISTANCE 2.5f
+#define DEFAULT_FOLLOW_DISTANCE_PET 3.0f
+#define DEFAULT_FOLLOW_ANGLE M_PI
 
 // Currently used only for the hunter's pet list
 // But it will be cool if I ever move all pets to the one loading to memory and avoid all asynchronous shit with DB

@@ -16,6 +16,7 @@
 */
 
 #include "ScriptMgr.h"
+#include "MapManager.h"
 #include "OutdoorPvPTF.h"
 #include "OutdoorPvPMgr.h"
 #include "OutdoorPvP.h"
@@ -339,9 +340,12 @@ void OPvPCapturePointTF::ChangeState()
         break;
     }
 
-    GameObject* flag = HashMapHolder<GameObject>::Find(m_capturePointGUID);
-    if (flag)
-        flag->SetGoArtKit(artkit);
+    if (Map* map = sMapMgr->FindBaseMap(m_capturePoint->m_mapId))
+    {
+        GameObject *flag = map->GetGameObject(m_capturePointGUID);
+        if (flag)
+            flag->SetGoArtKit(artkit);
+    }
 
     UpdateTowerState();
 }

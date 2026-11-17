@@ -79,7 +79,7 @@ class boss_infinite_corruptor : public CreatureScript
                 uiBlightTimer = urand(5000, 8000);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }

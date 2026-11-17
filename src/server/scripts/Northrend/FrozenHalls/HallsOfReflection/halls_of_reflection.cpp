@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -21,6 +21,7 @@
 #include "GameObjectAI.h"
 #include "Transport.h"
 #include "../AI/SmartScripts/SmartAI.h"
+#include "Random.h"
 
 enum Yells
 {
@@ -207,8 +208,8 @@ class npc_jaina_and_sylvanas_hor_part1 : public CreatureScript
             {
                 events.Reset();
 
-                utherGUID = 0;
-                lichKingGUID = 0;
+                utherGUID = ObjectGuid::Empty;
+                lichKingGUID = ObjectGuid::Empty;
             }
 
             void MovementInform(uint32 type, uint32 point) override
@@ -313,7 +314,7 @@ class npc_jaina_and_sylvanas_hor_part1 : public CreatureScript
                     case EVENT_INTRO_A2_3:
                         if (Creature* bunny = me->FindNearestCreature(NPC_FROSTMOURNE_ALTAR_BUNNY, 100.0f))
                             bunny->CastSpell(bunny, SPELL_FROSTMOURNE_SOUNDS, true);
-                        instance->HandleGameObject(instance->GetData64(DATA_FROSTMOURNE), true);
+                        instance->HandleGameObject(instance->GetGuidData(DATA_FROSTMOURNE), true);
                         events.ScheduleEvent(EVENT_INTRO_A2_4, 9600);
                         break;
                     case EVENT_INTRO_A2_4:
@@ -410,7 +411,7 @@ class npc_jaina_and_sylvanas_hor_part1 : public CreatureScript
                         events.ScheduleEvent(EVENT_INTRO_H2_3, 4400);
                         break;
                     case EVENT_INTRO_H2_3:
-                        instance->HandleGameObject(instance->GetData64(DATA_FROSTMOURNE), true);
+                        instance->HandleGameObject(instance->GetGuidData(DATA_FROSTMOURNE), true);
                         if (Creature* bunny = me->FindNearestCreature(NPC_FROSTMOURNE_ALTAR_BUNNY, 100.0f))
                             bunny->CastSpell(bunny, SPELL_FROSTMOURNE_SOUNDS, true);
                         events.ScheduleEvent(EVENT_INTRO_H2_4, 9700);
@@ -491,7 +492,7 @@ class npc_jaina_and_sylvanas_hor_part1 : public CreatureScript
                             lichKing->SetReactState(REACT_PASSIVE);
                             lichKingGUID = lichKing->GetGUID();
 
-                            if (GameObject* gate = instance->instance->GetGameObject(instance->GetData64(DATA_FROSTWORN_DOOR)))
+                            if (GameObject* gate = instance->instance->GetGameObject(instance->GetGuidData(DATA_FROSTWORN_DOOR)))
                                 gate->SetGoState(GO_STATE_ACTIVE);
 
                             me->SetFacingToObject(lichKing);
@@ -520,7 +521,7 @@ class npc_jaina_and_sylvanas_hor_part1 : public CreatureScript
                         break;
 
                     case EVENT_INTRO_LK_1_3:
-                        if (GameObject* gate = instance->instance->GetGameObject(instance->GetData64(DATA_FROSTWORN_DOOR)))
+                        if (GameObject* gate = instance->instance->GetGameObject(instance->GetGuidData(DATA_FROSTWORN_DOOR)))
                             gate->SetGoState(GO_STATE_READY);
 
                         events.ScheduleEvent(EVENT_INTRO_LK_2, 5000);
@@ -538,7 +539,7 @@ class npc_jaina_and_sylvanas_hor_part1 : public CreatureScript
                          {
                              uther->CastSpell(uther, SPELL_UTHER_DESPAWN);
                              uther->DespawnOrUnsummon(5000);
-                             utherGUID = 0;
+                             utherGUID = ObjectGuid::Empty;
                          }
                          events.ScheduleEvent(EVENT_INTRO_LK_4, 6800);
                          break;
@@ -596,12 +597,12 @@ class npc_jaina_and_sylvanas_hor_part1 : public CreatureScript
                         {
                             me->m_Events.Schedule(12500, [this]()
                             {
-                                if (GameObject* gate = instance->instance->GetGameObject(instance->GetData64(DATA_FROSTWORN_DOOR)))
+                                if (GameObject* gate = instance->instance->GetGameObject(instance->GetGuidData(DATA_FROSTWORN_DOOR)))
                                     gate->SetGoState(GO_STATE_ACTIVE);
                             });
                             me->m_Events.Schedule(29000, [this]()
                             {
-                                if (GameObject* gate = instance->instance->GetGameObject(instance->GetData64(DATA_FROSTWORN_DOOR)))
+                                if (GameObject* gate = instance->instance->GetGameObject(instance->GetGuidData(DATA_FROSTWORN_DOOR)))
                                     gate->SetGoState(GO_STATE_READY);
                             });
                             lichKing->SetWalk(true);
@@ -624,14 +625,14 @@ class npc_jaina_and_sylvanas_hor_part1 : public CreatureScript
 
                     case EVENT_INTRO_LK_5:
                         // summon Falric and Marwyn. then go back to the door
-                        if (Creature* falric = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FALRIC)))
+                        if (Creature* falric = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FALRIC)))
                         {
                             falric->SetVisible(true);
                             falric->CastSpell(falric, SPELL_BOSS_SPAWN_AURA, true);
                             falric->SetWalk(true);
                             falric->m_Events.Schedule(700, [falric]() { falric->GetMotionMaster()->MovePoint(0, 5283.95f, 2030.53f, 709.3191f); });
                         }
-                        if (Creature* marwyn = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MARWYN)))
+                        if (Creature* marwyn = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MARWYN)))
                         {
                             marwyn->SetVisible(true);
                             marwyn->CastSpell(marwyn, SPELL_BOSS_SPAWN_AURA, true);
@@ -645,13 +646,13 @@ class npc_jaina_and_sylvanas_hor_part1 : public CreatureScript
                         break;
 
                     case EVENT_INTRO_LK_6:
-                        if (Creature* falric = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FALRIC)))
+                        if (Creature* falric = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FALRIC)))
                         {
                             falric->SetWalk(false);
                             falric->AI()->DoAction(ACTION_SAY_INTRO_1);
                             falric->m_Events.Schedule(8500, [falric]() { falric->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION); });
                         }
-                        if (Creature* marwyn = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MARWYN)))
+                        if (Creature* marwyn = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MARWYN)))
                         {
                             marwyn->SetWalk(false);
                             marwyn->AI()->DoAction(ACTION_SAY_INTRO_1);
@@ -661,16 +662,16 @@ class npc_jaina_and_sylvanas_hor_part1 : public CreatureScript
                         break;
 
                     case EVENT_INTRO_LK_6_1:
-                        if (Creature* falric = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FALRIC)))
+                        if (Creature* falric = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FALRIC)))
                             falric->HandleEmoteStateCommand(EMOTE_STATE_READY1H);
-                        if (Creature* marwyn = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MARWYN)))
+                        if (Creature* marwyn = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MARWYN)))
                             marwyn->HandleEmoteStateCommand(EMOTE_STATE_READY1H);
 
                         events.ScheduleEvent(EVENT_INTRO_LK_7, 1500);
                         break;
 
                     case EVENT_INTRO_LK_7:
-                        if (Creature* falric = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FALRIC)))
+                        if (Creature* falric = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FALRIC)))
                             falric->AI()->DoAction(ACTION_SAY_INTRO_2);
 
                         if (instance)
@@ -722,12 +723,12 @@ class npc_jaina_and_sylvanas_hor_part1 : public CreatureScript
                             lichKing->SetReactState(REACT_PASSIVE);
                             lichKingGUID = lichKing->GetGUID();
 
-                            if (GameObject* gate = instance->instance->GetGameObject(instance->GetData64(DATA_FROSTWORN_DOOR)))
+                            if (GameObject* gate = instance->instance->GetGameObject(instance->GetGuidData(DATA_FROSTWORN_DOOR)))
                                 gate->SetGoState(GO_STATE_ACTIVE);
 
                             me->m_Events.Schedule(3200, [this]()
                             {
-                                if (GameObject* gate = instance->instance->GetGameObject(instance->GetData64(DATA_FROSTWORN_DOOR)))
+                                if (GameObject* gate = instance->instance->GetGameObject(instance->GetGuidData(DATA_FROSTWORN_DOOR)))
                                     gate->SetGoState(GO_STATE_READY);
                             });
                         }
@@ -744,9 +745,9 @@ class npc_jaina_and_sylvanas_hor_part1 : public CreatureScript
         private:
             InstanceScript* instance;
             EventMap events;
-            uint64 utherGUID;
-            uint64 lichKingGUID;
-            uint64 playerGUID;
+            ObjectGuid utherGUID;
+            ObjectGuid lichKingGUID;
+            ObjectGuid playerGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -847,12 +848,12 @@ struct npc_hor_trash_ai : ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         //Talk(SAY_TRASH_AGGRO, who->GetGUID()); // Unused on retail
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
 
@@ -892,9 +893,9 @@ class npc_ghostly_priest : public CreatureScript
         {
             npc_ghostly_priestAI(Creature* creature) : npc_hor_trash_ai(creature) { }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                npc_hor_trash_ai::EnterCombat(who);
+                npc_hor_trash_ai::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(3000, 8000));
                 events.ScheduleEvent(EVENT_CIRCLE_OF_DESTRUCTION, urand(8000, 10000));
                 events.ScheduleEvent(EVENT_COWER_IN_FEAR, 10000);
@@ -976,9 +977,9 @@ class npc_phantom_mage : public CreatureScript
         {
             npc_phantom_mageAI(Creature* creature) : npc_hor_trash_ai(creature) { }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                npc_hor_trash_ai::EnterCombat(who);
+                npc_hor_trash_ai::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_FIREBALL_FROSTBOLT, 0);
                 events.ScheduleEvent(EVENT_FLAMESTRIKE_HALLUCINATION, urand(4000, 9000));
                 events.ScheduleEvent(EVENT_CHAINS_OF_ICE, 12000);
@@ -1069,9 +1070,9 @@ class npc_shadowy_mercenary : public CreatureScript
         {
             npc_shadowy_mercenaryAI(Creature* creature) : npc_hor_trash_ai(creature) { }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                npc_hor_trash_ai::EnterCombat(who);
+                npc_hor_trash_ai::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_SHADOW_STEP, 30000);
                 events.ScheduleEvent(EVENT_DEADLY_POISON, 5000);
                 events.ScheduleEvent(EVENT_ENVENOMED_DAGGER_THROW, 10000);
@@ -1140,9 +1141,9 @@ class npc_spectral_footman : public CreatureScript
         {
             npc_spectral_footmanAI(Creature* creature) : npc_hor_trash_ai(creature) { }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                npc_hor_trash_ai::EnterCombat(who);
+                npc_hor_trash_ai::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_SPECTRAL_STRIKE, urand(4000, 8000));
                 events.ScheduleEvent(EVENT_SHIELD_BASH, 10000);
                 events.ScheduleEvent(EVENT_TORTURED_ENRAGE, urand(8000, 16000));
@@ -1196,9 +1197,9 @@ class npc_tortured_rifleman : public CreatureScript
         {
             npc_tortured_riflemanAI(Creature* creature) : npc_hor_trash_ai(creature) { }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                npc_hor_trash_ai::EnterCombat(who);
+                npc_hor_trash_ai::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_SHOOT, 0);
                 events.ScheduleEvent(EVENT_CURSED_ARROW, urand(11000, 15000));
                 events.ScheduleEvent(EVENT_FROST_TRAP, urand(12000, 22000));
@@ -1339,7 +1340,7 @@ class npc_frostworn_general : public CreatureScript
                 AttackStart(who);
             }
 
-            void EnterCombat(Unit* /*victim*/)
+            void JustEngagedWith(Unit* /*victim*/) override
             {
                 if (!instance)
                     return;
@@ -1394,7 +1395,7 @@ class npc_frostworn_general : public CreatureScript
                 {
                     if (unit)
                     {
-                        if (Creature* pReflection = me->SummonCreature(NPC_REFLECTION, unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000))
+                        if (Creature* pReflection = me->SummonCreature(NPC_REFLECTION, unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000ms))
                         {
                             pReflection->SetName(unit->GetName());
                             unit->CastSpell(pReflection, SPELL_CLONE_NAME, true);
@@ -1473,9 +1474,9 @@ class npc_jaina_and_sylvanas_hor_part2 : public CreatureScript
     public:
         npc_jaina_and_sylvanas_hor_part2() : CreatureScript("npc_jaina_and_sylvanas_hor_part2") { }
 
-        struct npc_jaina_and_sylvanas_hor_part2AI : public npc_escortAI
+        struct npc_jaina_and_sylvanas_hor_part2AI : public EscortAI
         {
-            npc_jaina_and_sylvanas_hor_part2AI(Creature* creature) : npc_escortAI(creature)
+            npc_jaina_and_sylvanas_hor_part2AI(Creature* creature) : EscortAI(creature)
             {
                 instance = creature->GetInstanceScript();
             }
@@ -1529,7 +1530,7 @@ class npc_jaina_and_sylvanas_hor_part2 : public CreatureScript
                 if (instance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS || Fight != true)
                     return;
 
-                npc_escortAI::AttackStart(who);
+                EscortAI::AttackStart(who);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -1549,9 +1550,9 @@ class npc_jaina_and_sylvanas_hor_part2 : public CreatureScript
                     return false;
 
                 player->CLOSE_GOSSIP_MENU();
-                Start(false, true);
+                SetRun(true); Start(false);
                 me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER | UNIT_NPC_FLAG_GOSSIP);
-                me->SetTarget(0);
+                me->SetTarget(ObjectGuid::Empty);
                 me->setActive(true);
 
                 if (instance)
@@ -1562,7 +1563,7 @@ class npc_jaina_and_sylvanas_hor_part2 : public CreatureScript
                 return true;
             }
 
-            void WaypointReached(uint32 waypointId)
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
                 switch (waypointId)
                 {
@@ -1625,9 +1626,9 @@ class npc_jaina_and_sylvanas_hor_part2 : public CreatureScript
                 }
             }
 
-            void MoveInLineOfSight(Unit* /*who*/) { }
+            void MoveInLineOfSight(Unit* /*who*/) override { }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (!instance)
                     return;
@@ -1651,13 +1652,13 @@ class npc_jaina_and_sylvanas_hor_part2 : public CreatureScript
                 {
                     case 0:
                         me->SetWalk(false);
-                        if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LICHKING)))
+                        if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LICHKING)))
                             me->SetTarget(lichKing->GetGUID());
                         JumpNextStep(100);
                         break;
                     case 1:
                         DoCastAOE(me->GetEntry() == NPC_SYLVANAS_OUTRO ? SPELL_CREDIT_FINDING_SYLVANAS : SPELL_CREDIT_FINDING_JAINA, true);
-                        if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LICHKING)))
+                        if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LICHKING)))
                         {
                             if (me->GetEntry() == NPC_JAINA_OUTRO)
                                 lichKing->AI()->Talk(SAY_LICH_KING_AGGRO_A);
@@ -1672,7 +1673,7 @@ class npc_jaina_and_sylvanas_hor_part2 : public CreatureScript
                         if (me->GetEntry() == NPC_SYLVANAS_OUTRO)
                         {
                             Fight = false;
-                            if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LICHKING)))
+                            if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LICHKING)))
                                 me->GetMotionMaster()->MovePoint(0, (me->GetPositionX() - 5) + rand() % 10, (me->GetPositionY() - 5) + rand() % 10, me->GetPositionZ());
                             JumpNextStep(3000);
                         }
@@ -1687,7 +1688,7 @@ class npc_jaina_and_sylvanas_hor_part2 : public CreatureScript
                     case 4:
                         if (me->GetEntry() == NPC_SYLVANAS_OUTRO)
                         {
-                            if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LICHKING)))
+                            if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LICHKING)))
                                 me->CastSpell(lichKing, SPELL_SYLVANA_STEP, false);
                             JumpNextStep(3000);
                         }
@@ -1698,7 +1699,7 @@ class npc_jaina_and_sylvanas_hor_part2 : public CreatureScript
                         if (me->GetEntry() == NPC_SYLVANAS_OUTRO)
                         {
                             Fight = false;
-                            if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LICHKING)))
+                            if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LICHKING)))
                                 me->GetMotionMaster()->MovePoint(0, (me->GetPositionX() - 5) + rand() % 10, (me->GetPositionY() - 5) + rand() % 10, me->GetPositionZ());
                             JumpNextStep(3000);
                         }
@@ -1708,7 +1709,7 @@ class npc_jaina_and_sylvanas_hor_part2 : public CreatureScript
                     case 6:
                         Fight = true;
 
-                        if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LICHKING)))
+                        if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LICHKING)))
                         {
                             if (me->GetEntry() == NPC_SYLVANAS_OUTRO)
                                 DoCast(SPELL_SYLVANA_JUMP);
@@ -1761,12 +1762,12 @@ class npc_jaina_and_sylvanas_hor_part2 : public CreatureScript
                         {
                             me->RemoveAllAuras();
 
-                            if (Transport* gunship = ObjectAccessor::GetTransport(*me, instance->GetData64(DATA_GUNSHIP)))
+                            if (Transport* gunship = ObjectAccessor::GetTransport(*me, instance->GetGuidData(DATA_GUNSHIP)))
                                 gunship->EnableMovement(true);
 
                             instance->SetData(DATA_LICHKING_EVENT, DONE);
 
-                            if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LICHKING)))
+                            if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LICHKING)))
                                 lichKing->DespawnOrUnsummon();
                         });
                         break;
@@ -1831,7 +1832,7 @@ class npc_jaina_and_sylvanas_hor_part2 : public CreatureScript
                         wall->SetGoState(GO_STATE_ACTIVE);
                     if (++Count == 5)
                     {
-                        if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LICHKING)))
+                        if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LICHKING)))
                         {
                             lichKing->RemoveAurasDueToSpell(SPELL_REMORSELESS_WINTER);
                             lichKing->RemoveAurasDueToSpell(SPELL_PAIN_AND_SUFFERING);
@@ -1893,7 +1894,7 @@ class at_hor_waves_restarter : public AreaTriggerScript
             {
                 instance->SetData(DATA_WAVE_COUNT, SPECIAL);
 
-                if (Creature* falric = player->GetCreature(*player, instance->GetData64(DATA_FALRIC)))
+                if (Creature* falric = player->GetCreature(*player, instance->GetGuidData(DATA_FALRIC)))
                 {
                     if (instance->GetData(DATA_FALRIC_EVENT) != DONE)
                     {
@@ -1901,7 +1902,7 @@ class at_hor_waves_restarter : public AreaTriggerScript
                         falric->SetVisible(true);
                     }
                 }
-                if (Creature* marwyn = player->GetCreature(*player, instance->GetData64(DATA_MARWYN)))
+                if (Creature* marwyn = player->GetCreature(*player, instance->GetGuidData(DATA_MARWYN)))
                 {
                     marwyn->AI()->DoAction(ACTION_SAY_GAUNTLET_RESUME_AFTER_WIPE);
 
@@ -1932,7 +1933,7 @@ class npc_queldelar : public CreatureScript
 
                 if (me->IsWithinDistInMap(who, 20) && who->HasAura(SPELL_QUELDELAR_AURA))
                 {
-                    me->SummonCreature(NPC_QUELDELAR, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                    me->SummonCreature(NPC_QUELDELAR, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms);
                     me->DisappearAndDie();
                 }
             }
@@ -1965,7 +1966,7 @@ struct npc_queldelar_weapon : public customCreatureAI
 
         isIntro = true;
 
-        me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+        me->SetDisplayFromModel(1);
         Talk(SAY_QUELDELAR_INTRO);
         z = me->GetPositionZ();
         me->OverrideInhabitType(INHABIT_AIR);
@@ -2008,7 +2009,7 @@ struct npc_queldelar_weapon : public customCreatureAI
         });
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_MORTAL_STRIKE, 3 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_BLADESTORM, 8.5 * IN_MILLISECONDS);
@@ -2053,7 +2054,7 @@ class go_ice_wall : public GameObjectScript
             void UpdateAI(uint32 /*diff*/) override
             {
                 if (delay && !--delay)
-                    go->SetGoState(GO_STATE_READY);
+                    me->SetGoState(GO_STATE_READY);
             }
 
         private:

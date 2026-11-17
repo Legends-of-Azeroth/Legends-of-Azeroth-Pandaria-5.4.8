@@ -116,7 +116,7 @@ class boss_baleroc : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_SHARE_THE_PAIN, 1);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(DATA_BALEROC, who->ToPlayer()))
                 {
@@ -292,7 +292,7 @@ class npc_baleroc_shard_of_torment : public CreatureScript
                         
                         if (Creature* pBaleroc = me->FindNearestCreature(NPC_BALEROC, 200.0f))
                             if (boss_baleroc::boss_balerocAI* BalerocAI = CAST_AI(boss_baleroc::boss_balerocAI, pBaleroc->GetAI()))
-                                BalerocAI->AddTormentedPlayer(newVictim->GetGUIDLow());
+                                BalerocAI->AddTormentedPlayer(newVictim->GetGUID().GetCounter());
                         
                         DoCast(newVictim, SPELL_TORMENT);
                     }
@@ -581,7 +581,7 @@ class spell_baleroc_final_countdown : public SpellScriptLoader
                     }
 
                 private:
-                    uint64 _guid;
+                    ObjectGuid _guid;
             };
         };
 

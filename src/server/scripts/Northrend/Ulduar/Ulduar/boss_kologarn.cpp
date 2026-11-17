@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -144,7 +144,7 @@ class boss_kologarn : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(BOSS_KOLOGARN, who->ToPlayer()))
                 {
@@ -163,7 +163,7 @@ class boss_kologarn : public CreatureScript
                 events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, 21000);
                 events.ScheduleEvent(EVENT_ENRAGE, 600000);
 
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void Reset() override
@@ -370,7 +370,7 @@ class boss_kologarn : public CreatureScript
                                 if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, [this](Unit* t) { return me->IsWithinMeleeRange(t) && !t->GetVehicle(); }))
                                 {
                                     if (me->GetVictim())
-                                        me->getThreatManager().modifyThreatPercent(me->GetVictim(), -100);
+                                        me->GetThreatManager().ModifyThreatByPercent(me->GetVictim(), -100);
                                     AttackStart(target);
                                 }
                                 else
@@ -530,7 +530,7 @@ class npc_focused_eyebeam : public CreatureScript
             void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_FOCUSED_EYEBEAM_DAMAGE_10 || spell->Id == SPELL_FOCUSED_EYEBEAM_DAMAGE_25)
-                    if (Creature* kologarn = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_KOLOGARN)))
+                    if (Creature* kologarn = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_KOLOGARN)))
                         kologarn->AI()->SetData(DATA_IF_LOOKS_COULD_KILL, false);
             }
 
@@ -561,7 +561,7 @@ class spell_ulduar_rubble_summon : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                uint64 originalCaster = caster->GetInstanceScript() ? caster->GetInstanceScript()->GetData64(BOSS_KOLOGARN) : 0;
+                ObjectGuid originalCaster = caster->GetInstanceScript() ? caster->GetInstanceScript()->GetGuidData(BOSS_KOLOGARN) : ObjectGuid::Empty;
                 uint32 spellId = GetEffectValue();
                 for (uint8 i = 0; i < 5; ++i)
                     caster->CastSpell(caster, spellId, true, nullptr, nullptr, originalCaster);
@@ -592,7 +592,10 @@ class spell_ulduar_summon_rubble : public SpellScriptLoader
             {
                 // Weird DBC data, setting position manually
                 if (Unit* caster = GetCaster())
-                    caster->GetRandomNearPosition(dest._position, 10.0f);
+                {
+                    Position pos = caster->GetRandomNearPosition(10.0f);
+                    dest._position = WorldLocation(caster->GetMapId(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+                }
             }
 
             void Register() override
@@ -637,7 +640,7 @@ class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
         {
             PrepareSpellScript(spell_ulduar_stone_grip_cast_target_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 if (GetCaster()->GetTypeId() != TYPEID_UNIT)
                     return false;
@@ -745,7 +748,7 @@ class spell_ulduar_squeezed_lifeless : public SpellScriptLoader
                 pos.m_positionX = 1756.25f + irand(-3, 3);
                 pos.m_positionY = -8.3f + irand(-3, 3);
                 pos.m_positionZ = 448.8f;
-                pos.m_orientation = M_PI;
+                pos.SetOrientation(M_PI);
                 GetHitPlayer()->Relocate(pos);
                 GetHitPlayer()->ExitVehicle();
                 GetHitPlayer()->Relocate(pos);
@@ -800,7 +803,7 @@ class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
                                 pos.m_positionX = 1756.25f + irand(-3, 3);
                                 pos.m_positionY = -8.3f + irand(-3, 3);
                                 pos.m_positionZ = 448.8f;
-                                pos.m_orientation = M_PI;
+                                pos.SetOrientation(M_PI);
                                 pass->Relocate(pos);
                                 pass->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
                             }
@@ -866,7 +869,7 @@ class spell_ulduar_stone_grip : public SpellScriptLoader
                     pos.m_positionX = 1756.25f + irand(-3, 3);
                     pos.m_positionY = -8.3f + irand(-3, 3);
                     pos.m_positionZ = 448.8f;
-                    pos.m_orientation = M_PI;
+                    pos.SetOrientation(M_PI);
                     caster->Relocate(pos);
                     caster->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
                 }

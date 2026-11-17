@@ -85,7 +85,7 @@ class boss_sjonnir : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_ABUSE_THE_OOZEE, 0);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(DATA_SJONNIR, who->ToPlayer()))
                 {
@@ -93,7 +93,7 @@ class boss_sjonnir : public CreatureScript
                     return;
                 }
 
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(3000, 8000));
@@ -164,13 +164,13 @@ class boss_sjonnir : public CreatureScript
                         {
                             uint8 summonPipe = urand(0, 1);
                             if (HealthAbovePct(75))
-                                me->SummonCreature(NPC_FORGED_IRON_DWARF, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                                me->SummonCreature(NPC_FORGED_IRON_DWARF, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000ms);
                             else if (HealthAbovePct(50))
-                                me->SummonCreature(NPC_FORGED_IRON_TROGG, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                                me->SummonCreature(NPC_FORGED_IRON_TROGG, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000ms);
                             else if (HealthAbovePct(25))
-                                me->SummonCreature(NPC_MALFORMED_OOZE, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                                me->SummonCreature(NPC_MALFORMED_OOZE, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000ms);
                             else
-                                me->SummonCreature(NPC_EARTHEN_DWARF, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                                me->SummonCreature(NPC_EARTHEN_DWARF, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000ms);
 
                             events.ScheduleEvent(EVENT_SUMMON, 20000);
                             break;
@@ -217,7 +217,7 @@ class npc_malformed_ooze : public CreatureScript
                 {
                     if (Creature* temp = me->FindNearestCreature(NPC_MALFORMED_OOZE, 3.0f, true))
                     {
-                        DoSpawnCreature(NPC_IRON_SLUDGE, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
+                        DoSpawnCreature(NPC_IRON_SLUDGE, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000ms);
                         temp->DisappearAndDie();
                         me->DisappearAndDie();
                     }
@@ -258,7 +258,7 @@ class npc_iron_sludge : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* sjonnir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SJONNIR)))
+                if (Creature* sjonnir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SJONNIR)))
                     sjonnir->AI()->DoAction(ACTION_OOZE_DEAD);
             }
         };

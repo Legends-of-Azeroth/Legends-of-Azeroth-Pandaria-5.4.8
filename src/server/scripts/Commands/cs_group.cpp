@@ -34,18 +34,18 @@ public:
     {
         static std::vector<ChatCommand> groupCommandTable =
         {
-            { "leader",     SEC_ADMINISTRATOR,  false,  &HandleGroupLeaderCommand,  },
-            { "disband",    SEC_ADMINISTRATOR,  false,  &HandleGroupDisbandCommand, },
-            { "remove",     SEC_ADMINISTRATOR,  false,  &HandleGroupRemoveCommand,  },
-            { "join",       SEC_ADMINISTRATOR,  false,  &HandleGroupJoinCommand,    },
-            { "list",       SEC_ADMINISTRATOR,  false,  &HandleGroupListCommand,    },
-            { "summon",     SEC_ADMINISTRATOR,  false,  &HandleGroupSummonCommand,  },
-            { "",           SEC_ADMINISTRATOR,  false,  &HandleGroupCommand,        },
+            { "leader",     &HandleGroupLeaderCommand,  rbac::RBAC_PERM_COMMAND_GROUP_LEADER,  Trinity::ChatCommands::Console::No },
+            { "disband",    &HandleGroupDisbandCommand, rbac::RBAC_PERM_COMMAND_GROUP_DISBAND, Trinity::ChatCommands::Console::No },
+            { "remove",     &HandleGroupRemoveCommand,  rbac::RBAC_PERM_COMMAND_GROUP_REMOVE,  Trinity::ChatCommands::Console::No },
+            { "join",       &HandleGroupJoinCommand,    rbac::RBAC_PERM_COMMAND_GROUP_JOIN,    Trinity::ChatCommands::Console::No },
+            { "list",       &HandleGroupListCommand,    rbac::RBAC_PERM_COMMAND_GROUP_LIST,    Trinity::ChatCommands::Console::No },
+            { "summon",     &HandleGroupSummonCommand,  rbac::RBAC_PERM_COMMAND_GROUP_SUMMON,  Trinity::ChatCommands::Console::No },
+            { "",           &HandleGroupCommand,        rbac::RBAC_PERM_COMMAND_GROUP,         Trinity::ChatCommands::Console::No },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "group",      SEC_ADMINISTRATOR,  false,  groupCommandTable           },
+            { "group",      groupCommandTable,           rbac::RBAC_PERM_COMMAND_GROUP,         Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }
@@ -58,7 +58,7 @@ public:
             return false;
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         Group* group = target->GetGroup();
@@ -96,7 +96,7 @@ public:
                 continue;
 
             // check online security
-            if (handler->HasLowerSecurity(player, 0))
+            if (handler->HasLowerSecurity(player, ObjectGuid::Empty))
                 return false;
 
             std::string plNameLink = handler->GetNameLink(player);
@@ -148,7 +148,7 @@ public:
     {
         Player* player = NULL;
         Group* group = NULL;
-        uint64 guid = 0;
+        ObjectGuid guid = ObjectGuid::Empty;
         char* nameStr = strtok((char*)args, " ");
 
         if (!handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid))
@@ -174,7 +174,7 @@ public:
     {
         Player* player = NULL;
         Group* group = NULL;
-        uint64 guid = 0;
+        ObjectGuid guid = ObjectGuid::Empty;
         char* nameStr = strtok((char*)args, " ");
 
         if (!handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid))
@@ -195,7 +195,7 @@ public:
     {
         Player* player = NULL;
         Group* group = NULL;
-        uint64 guid = 0;
+        ObjectGuid guid = ObjectGuid::Empty;
         char* nameStr = strtok((char*)args, " ");
 
         if (!handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid))
@@ -221,8 +221,8 @@ public:
         Player* playerTarget = NULL;
         Group* groupSource = NULL;
         Group* groupTarget = NULL;
-        uint64 guidSource = 0;
-        uint64 guidTarget = 0;
+        ObjectGuid guidSource = ObjectGuid::Empty;
+        ObjectGuid guidTarget = ObjectGuid::Empty;
         char* nameplgrStr = strtok((char*)args, " ");
         char* nameplStr = strtok(NULL, " ");
 
@@ -264,13 +264,13 @@ public:
         // Get ALL the variables!
         Player* playerTarget;
         uint32 phase = 0;
-        uint64 guidTarget;
+        ObjectGuid guidTarget;
         std::string nameTarget;
         std::string zoneName;
         const char* onlineState = "";
 
         // Parse the guid to uint32...
-        uint32 parseGUID = MAKE_NEW_GUID(atol((char*)args), 0, HIGHGUID_PLAYER);
+        ObjectGuid parseGUID(HighGuid::Player, uint32(atol((char*)args)));
 
         // ... and try to extract a player out of it.
         if (sObjectMgr->GetPlayerNameByGUID(parseGUID, nameTarget))
@@ -354,7 +354,7 @@ public:
                 AreaTableEntry const* area = sAreaTableStore.LookupEntry(p->GetAreaId());
                 if (area)
                 {
-                    AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->zone);
+                    AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID);
                     if (zone)
                         zoneName = zone->area_name[locale];
                 }
@@ -369,7 +369,7 @@ public:
 
             // Now we can print those informations for every single member of each group!
             handler->PSendSysMessage(LANG_GROUP_PLAYER_NAME_GUID, slot.name.c_str(), onlineState,
-                zoneName.c_str(), phase, GUID_LOPART(slot.guid), flags.c_str(),
+                zoneName.c_str(), phase, slot.guid.GetCounter(), flags.c_str(),
                 lfg::GetRolesString(slot.roles).c_str());
         }
 
@@ -382,13 +382,13 @@ public:
         Player* player = NULL;
         Group* group = NULL;
         char* nameStr = strtok((char*)args, " ");
-        uint64 guid = atoi(args);
+        ObjectGuid guid(HighGuid::Group, uint32(atoi(args)));
         if (guid)
         {
-            if (!(group = sGroupMgr->GetGroupByGUID((uint32)guid)))
-                if (!(group = sGroupMgr->GetGroupByDbStoreId((uint32)guid)))
+            if (!(group = sGroupMgr->GetGroupByGUID(guid.GetCounter())))
+                if (!(group = sGroupMgr->GetGroupByDbStoreId(guid.GetCounter())))
                 {
-                    handler->PSendSysMessage("No group found with guid " UI64FMTD "", guid);
+                    handler->PSendSysMessage("No group found with guid " UI64FMTD "", guid.GetRawValue());
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
@@ -404,7 +404,7 @@ public:
             return false;
         }
 
-        handler->PSendSysMessage("Group guid: " UI64FMTD ", low guid: %u, db id: %u", group->GetGUID(), group->GetLowGUID(), group->GetDbStoreId());
+        handler->PSendSysMessage("Group guid: " UI64FMTD ", low guid: %u, db id: %u", group->GetGUID().GetRawValue(), group->GetLowGUID(), group->GetDbStoreId());
         handler->PSendSysMessage("Type: %s%s%s%s", group->isLFGGroup() ? "LFG " : "", group->isRaidGroup() ? "Raid " : "", group->isBGGroup() ? "BG " : "", group->isBFGroup() ? "BF " : "");
         if (lfg::LfgState state = sLFGMgr->GetActiveState(group->GetGUID()))
         {
@@ -414,7 +414,7 @@ public:
         handler->PSendSysMessage("Members (%u):", group->GetMembersCount());
         Group::MemberSlotList const& members = group->GetMemberSlots();
         for (Group::MemberSlotList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
-            handler->PSendSysMessage("  %u: %s [" UI64FMTD "]", itr->group + 1, handler->playerLink(itr->name).c_str(), itr->guid);
+            handler->PSendSysMessage("  %u: %s [" UI64FMTD "]", itr->group + 1, handler->playerLink(itr->name).c_str(), itr->guid.GetRawValue());
 
         return true;
     }

@@ -72,7 +72,7 @@ class boss_eck : public CreatureScript
                     instance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (instance)
                     instance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, IN_PROGRESS);
@@ -164,7 +164,7 @@ class npc_ruins_dweller : public CreatureScript
                     {
                         instance->SetData64(DATA_RUIN_DWELLER_DIED, me->GetGUID());  
                         if (instance->GetData(DATA_ALIVE_RUIN_DWELLERS) == 0)
-                            me->SummonCreature(NPC_ECK, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                            me->SummonCreature(NPC_ECK, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000ms);
                     }            
                 }
             }

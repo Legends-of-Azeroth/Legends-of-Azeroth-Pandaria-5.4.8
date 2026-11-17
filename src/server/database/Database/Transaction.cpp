@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -17,9 +17,11 @@
 
 #include "Log.h"
 #include "Transaction.h"
+#include "Errors.h"
 #include "MySQLConnection.h"
 #include "PreparedStatement.h"
 #include "Timer.h"
+#include <errmsg.h>
 #include <mysqld_error.h>
 #include <sstream>
 #include <thread>
@@ -28,22 +30,42 @@ std::mutex TransactionTask::_deadlockLock;
 
 #define DEADLOCK_MAX_RETRY_TIME_MS 60000
 
+namespace
+{
+    // Errors a retry can get past: the deadlock itself and the transient ones (a lock wait that timed out, a refused,
+    // failed, lost or timed out connection, a host that could not be reached). Anything else (a duplicate key for
+    // instance) fails the same way every time.
+    bool IsRetryableError(int error)
+    {
+        switch (error)
+        {
+            case ER_LOCK_DEADLOCK:
+            case ER_LOCK_WAIT_TIMEOUT:
+            case ER_CON_COUNT_ERROR:
+            case CR_SERVER_GONE_ERROR:
+            case CR_SERVER_LOST:
+            case CR_SERVER_LOST_EXTENDED:
+            case CR_CONNECTION_ERROR:
+            case CR_CONN_HOST_ERROR:
+                return true;
+            default:
+                return false;
+        }
+    }
+}
+
 //- Append a raw ad-hoc query to the transaction
 void TransactionBase::Append(char const* sql)
 {
-    SQLElementData data;
-    data.type = SQL_ELEMENT_RAW;
-    data.element.query = strdup(sql);
-    m_queries.push_back(data);
+    ASSERT(sql);
+    m_queries.emplace_back(std::in_place_type<std::string>, sql);
 }
 
 //- Append a prepared statement to the transaction
 void TransactionBase::AppendPreparedStatement(PreparedStatementBase* stmt)
 {
-    SQLElementData data;
-    data.type = SQL_ELEMENT_PREPARED;
-    data.element.stmt = stmt;
-    m_queries.push_back(data);
+    ASSERT(stmt);
+    m_queries.emplace_back(std::in_place_type<std::unique_ptr<PreparedStatementBase>>, stmt);
 }
 
 void TransactionBase::Cleanup()
@@ -52,26 +74,13 @@ void TransactionBase::Cleanup()
     if (_cleanedUp)
         return;
 
-    for (SQLElementData const& data : m_queries)
-    {
-        switch (data.type)
-        {
-            case SQL_ELEMENT_PREPARED:
-                delete data.element.stmt;
-            break;
-            case SQL_ELEMENT_RAW:
-                free((void*)(data.element.query));
-            break;
-        }
-    }
-
     m_queries.clear();
     _cleanedUp = true;
 }
 
-bool TransactionTask::Execute()
+bool TransactionTask::Execute(MySQLConnection* conn, std::shared_ptr<TransactionBase> trans)
 {
-    int errorCode = TryExecute();
+    int errorCode = TryExecute(conn, trans);
     if (!errorCode)
         return true;
 
@@ -90,71 +99,33 @@ bool TransactionTask::Execute()
 
         for (uint32 loopDuration = 0, startMSTime = getMSTime(); loopDuration <= DEADLOCK_MAX_RETRY_TIME_MS; loopDuration = GetMSTimeDiffToNow(startMSTime))
         {
-            if (!TryExecute())
+            int retryError = TryExecute(conn, trans);
+            if (!retryError)
                 return true;
 
-            TC_LOG_WARN("sql.sql", "Deadlocked SQL Transaction, retrying. Loop timer: %u ms, Thread Id: %s", loopDuration, threadId.c_str());
-        }
-
-        TC_LOG_ERROR("sql.sql", "Fatal deadlocked SQL Transaction, it will not be retried anymore. Thread Id: %s", threadId.c_str());
-    }
-
-    // Clean up now.
-    CleanupOnFailure();
-
-    return false;
-}
-
-int TransactionTask::TryExecute()
-{
-    return m_conn->ExecuteTransaction(m_trans);
-}
-
-void TransactionTask::CleanupOnFailure()
-{
-    m_trans->Cleanup();
-}
-
-bool TransactionWithResultTask::Execute()
-{
-    int errorCode = TryExecute();
-    if (!errorCode)
-    {
-        m_result.set_value(true);
-        return true;
-    }
-
-    if (errorCode == ER_LOCK_DEADLOCK)
-    {
-        std::string threadId = []()
-        {
-            // wrapped in lambda to fix false positive analysis warning C26115
-            std::ostringstream threadIdStream;
-            threadIdStream << std::this_thread::get_id();
-            return threadIdStream.str();
-        }();
-
-        // Make sure only 1 async thread retries a transaction so they don't keep dead-locking each other
-        std::lock_guard<std::mutex> lock(_deadlockLock);
-        for (uint32 loopDuration = 0, startMSTime = getMSTime(); loopDuration <= DEADLOCK_MAX_RETRY_TIME_MS; loopDuration = GetMSTimeDiffToNow(startMSTime))
-        {
-            if (!TryExecute())
+            // an error that repeating cannot fix (a duplicate key for instance): give up
+            if (!IsRetryableError(retryError))
             {
-                m_result.set_value(true);
-                return true;
+                TC_LOG_ERROR("sql.sql", "Deadlocked SQL Transaction failed with error {} on retry, giving up. Thread Id: {}", retryError, threadId.c_str());
+                trans->Cleanup();
+                return false;
             }
 
-            TC_LOG_WARN("sql.sql", "Deadlocked SQL Transaction, retrying. Loop timer: %u ms, Thread Id: %s", loopDuration, threadId.c_str());
+            TC_LOG_WARN("sql.sql", "Deadlocked SQL Transaction, retrying. Loop timer: {} ms, Thread Id: {}", loopDuration, threadId.c_str());
         }
 
-        TC_LOG_ERROR("sql.sql", "Fatal deadlocked SQL Transaction, it will not be retried anymore. Thread Id: %s", threadId.c_str());
+        TC_LOG_ERROR("sql.sql", "Fatal deadlocked SQL Transaction, it will not be retried anymore. Thread Id: {}", threadId.c_str());
     }
 
     // Clean up now.
-    CleanupOnFailure();
-    m_result.set_value(false);
+    trans->Cleanup();
 
     return false;
+}
+
+int TransactionTask::TryExecute(MySQLConnection* conn, std::shared_ptr<TransactionBase> trans)
+{
+    return conn->ExecuteTransaction(trans);
 }
 
 bool TransactionCallback::InvokeIfReady()

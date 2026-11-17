@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -60,13 +60,13 @@ class npc_ironwork_cannon : public CreatureScript
         {
             npc_ironwork_cannonAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+                me->SetDisplayFromModel(1);
                 me->SetPowerType(POWER_ENERGY);
                 me->SetMaxPower(POWER_ENERGY, 100);
                 me->SetPower(POWER_ENERGY, 100);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (who->GetTypeId() != TYPEID_PLAYER && !who->IsVehicle())
                    _EnterEvadeMode();
@@ -194,11 +194,11 @@ class npc_ulduar_warmage : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
 
             void Reset() override
             {
-                targetGUID = 0;
+                targetGUID = ObjectGuid::Empty;
             }
 
             void UpdateAI(uint32 /*diff*/) override
@@ -402,7 +402,7 @@ class npc_brann_bronzebeard : public CreatureScript
                 steppingBrann++;
             }
 
-            void SetGUID(uint64 guid, int32 type) override
+            void SetGUID(ObjectGuid guid, int32 type) override
             {
                 switch (type)
                 {
@@ -469,7 +469,7 @@ class npc_brann_bronzebeard : public CreatureScript
         private:
             uint32 stepTimer;
             uint32 steppingBrann;
-            uint64 playerGUID = 0;
+            ObjectGuid playerGUID = ObjectGuid::Empty;
             bool loaded;
             InstanceScript* instance;
         };
@@ -603,7 +603,7 @@ class npc_ulduar_lorekeeper : public CreatureScript
                 instance = me->GetInstanceScript();
                 introStep = 0;
                 event = false;
-                playerGUID = 0;
+                playerGUID = ObjectGuid::Empty;
             }
 
             void DoAction(int32 action) override
@@ -639,7 +639,7 @@ class npc_ulduar_lorekeeper : public CreatureScript
                 {
                     instance->SetData(DATA_LEVI_HARD_MODE, true);
 
-                    if (Creature* leviathan = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_LEVIATHAN)))
+                    if (Creature* leviathan = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_LEVIATHAN)))
                         leviathan->AI()->DoAction(ACTION_START_HARD_MODE);
 
                     hardStep = 1;
@@ -764,7 +764,7 @@ class npc_ulduar_lorekeeper : public CreatureScript
                 }
             }
 
-            void HardMode(uint64 guid)
+            void HardMode(ObjectGuid guid)
             {
                 if (!hardStep)
                     return;
@@ -809,7 +809,7 @@ class npc_ulduar_lorekeeper : public CreatureScript
                         {
                             if (Creature* Keeper = me->FindNearestCreature(NPC_LOREKEEPER, 200.0f, true))
                             {
-                                dellorah->SetTarget(0);
+                                dellorah->SetTarget(ObjectGuid::Empty);
                                 dellorah->AI()->DoAction(ACTION_DELLORAH_LEAVE);
                             }
                         }
@@ -852,7 +852,7 @@ class npc_ulduar_lorekeeper : public CreatureScript
             uint32 introStep;
             uint32 hardTimer;
             uint32 hardStep;
-            uint64 playerGUID;
+            ObjectGuid playerGUID;
             bool event;
             InstanceScript* instance;
         };
@@ -963,7 +963,7 @@ class npc_ulduar_steelforged_defender : public CreatureScript
         {
             npc_ulduar_steelforged_defenderAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SUNDER_ARMOR, urand(4 * IN_MILLISECONDS, 4.5 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_HAMSTRING, urand(5 * IN_MILLISECONDS, 7 * IN_MILLISECONDS));
@@ -1062,7 +1062,7 @@ class npc_ulduar_runeforged_sentry : public CreatureScript
         {
             npc_ulduar_runeforged_sentryAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_FLAMING_RUNE, 8 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_LAVA_BURST, urand(3 * IN_MILLISECONDS, 3.5 * IN_MILLISECONDS));
@@ -1150,7 +1150,7 @@ class npc_ulduar_mechagnome_battletank : public CreatureScript
         {
             npc_ulduar_mechagnome_battletankAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCastVictim(SPELL_JUMP);
                 events.ScheduleEvent(EVENT_FLAME_CANNON_TANK, urand(4 * IN_MILLISECONDS, 4.5 * IN_MILLISECONDS));
@@ -1258,7 +1258,7 @@ class npc_storm_tempered_keeper : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!companionGUID)
                     FindCompanion();
@@ -1332,7 +1332,7 @@ class npc_storm_tempered_keeper : public CreatureScript
 
         private:
             EventMap events;
-            uint64 companionGUID = 0;
+            ObjectGuid companionGUID = ObjectGuid::Empty;
 
             bool IsPrimary() const { return me->GetEntry() == NPC_STORM_TEMPERED_KEEPER_1; }
             bool IsSecondary() const { return me->GetEntry() == NPC_STORM_TEMPERED_KEEPER_2; }
@@ -1412,7 +1412,7 @@ class npc_charged_sphere : public CreatureScript
                 targetPosition.Relocate(0.0f, 0.0f, 0.0f);
             }
 
-            void SetGUID(uint64 guid, int32 type) override
+            void SetGUID(ObjectGuid guid, int32 type) override
             {
                 targetGUID = guid;
                 events.ScheduleEvent(EVENT_UPDATE_MOVEMENT, 1);
@@ -1456,7 +1456,7 @@ class npc_charged_sphere : public CreatureScript
 
         private:
             EventMap events;
-            uint64 targetGUID = 0;
+            ObjectGuid targetGUID = ObjectGuid::Empty;
             Position targetPosition;
         };
 
@@ -1531,7 +1531,7 @@ class npc_arachnopod_destroyer : public CreatureScript
                 events.ScheduleEvent(EVENT_CHARGED_LEAP, urand(22000, 27000));
             }
 
-            void JustRespawned() override
+            void JustAppeared() override
             {
                 damaged = false;
                 me->setRegeneratingHealth(true);
@@ -1553,7 +1553,7 @@ class npc_arachnopod_destroyer : public CreatureScript
                     CreatureAI::AttackStart(victim);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!damaged)
                     DoCast(who, SPELL_MACHINE_GUN);
@@ -1650,7 +1650,7 @@ class npc_clockwork_mechanic : public CreatureScript
                 events.ScheduleEvent(EVENT_ICE_TURRET, 1000);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (me->GetVehicle())
                     ScriptedAI::EnterEvadeMode();
@@ -1658,7 +1658,7 @@ class npc_clockwork_mechanic : public CreatureScript
                     me->DespawnOrUnsummon();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (Creature* vehicle = me->GetVehicleCreatureBase())
                     vehicle->AI()->AttackStart(who);
@@ -1780,7 +1780,7 @@ class at_ulduar_event_areatrigger : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                instance->SetData(DATA_AREATRIGGER_EVENT, trigger->id);
+                instance->SetData(DATA_AREATRIGGER_EVENT, trigger->ID);
 
             return true;
         }

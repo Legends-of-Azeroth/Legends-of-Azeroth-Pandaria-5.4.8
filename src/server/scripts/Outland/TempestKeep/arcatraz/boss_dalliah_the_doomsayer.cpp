@@ -60,15 +60,15 @@ class boss_dalliah_the_doomsayer : public CreatureScript
 
             Creature* Soccothrates()
             {
-                if (Creature* sSoccothrates = ObjectAccessor::GetCreature(*me, instance->GetData64(TYPE_SOCCOTHRATES)))
+                if (Creature* sSoccothrates = ObjectAccessor::GetCreature(*me, instance->GetGuidData(TYPE_SOCCOTHRATES)))
                     return sSoccothrates;
 
                 return 0;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(TALK_SD_AGGRO);
 
                 if (Creature* soccothrates = Soccothrates())
@@ -93,7 +93,7 @@ class boss_dalliah_the_doomsayer : public CreatureScript
                     events.ScheduleEvent(EVENT_HEAL, 2 * IN_MILLISECONDS);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
 

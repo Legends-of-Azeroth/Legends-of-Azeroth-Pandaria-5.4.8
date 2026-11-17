@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -26,6 +26,7 @@
 #include "SharedDefines.h"
 #include "Timer.h"
 
+class Map;
 class Player;
 
 #define WEATHER_SEASONS 4
@@ -42,7 +43,7 @@ struct WeatherData
     uint32 ScriptId;
 };
 
-enum WeatherState
+enum WeatherState : uint32
 {
     WEATHER_STATE_FINE              = 0,
     WEATHER_STATE_FOG               = 1, // Used in some instance encounters.
@@ -62,11 +63,11 @@ enum WeatherState
 };
 
 /// Weather for one zone
-class Weather
+class TC_GAME_API Weather
 {
     public:
 
-        Weather(uint32 zone, WeatherData const* weatherChances);
+        Weather(Map* map, uint32 zoneId, WeatherData const* weatherChances);
         ~Weather() { };
 
         bool Update(uint32 diff);
@@ -74,6 +75,7 @@ class Weather
         bool UpdateWeather();
 
         void SendWeatherUpdateToPlayer(Player* player);
+        static void SendFineWeatherUpdateToPlayer(Player* player);
         void SetWeather(WeatherType type, float grade);
 
         /// For which zone is this weather?
@@ -83,6 +85,7 @@ class Weather
     private:
 
         WeatherState GetWeatherState() const;
+        Map* m_map;
         uint32 m_zone;
         WeatherType m_type;
         float m_grade;

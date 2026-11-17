@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -24,11 +24,12 @@ class IdleMovementGenerator : public MovementGenerator
 {
     public:
 
-        void Initialize(Unit*);
-        void Finalize(Unit*) {  }
-        void Reset(Unit*);
-        bool Update(Unit*, uint32) { return true; }
-        MovementGeneratorType GetMovementGeneratorType() { return IDLE_MOTION_TYPE; }
+        bool Initialize(Unit* owner) override { Reset(owner); return true; }
+        bool Reset(Unit* owner) override;
+        bool Update(Unit*, uint32) override { return true; }
+        void Deactivate(Unit*) override { }
+        void Finalize(Unit*, bool, bool) override { }
+        MovementGeneratorType GetMovementGeneratorType() const override { return IDLE_MOTION_TYPE; }
 };
 
 extern IdleMovementGenerator si_idleMovement;
@@ -38,11 +39,12 @@ class RotateMovementGenerator : public MovementGenerator
     public:
         explicit RotateMovementGenerator(uint32 time, RotateDirection direction) : m_duration(time), m_maxDuration(time), m_direction(direction) { }
 
-        void Initialize(Unit*);
-        void Finalize(Unit*);
-        void Reset(Unit* owner) { Initialize(owner); }
-        bool Update(Unit*, uint32);
-        MovementGeneratorType GetMovementGeneratorType() { return ROTATE_MOTION_TYPE; }
+        bool Initialize(Unit*) override;
+        bool Reset(Unit* owner) override { Initialize(owner); return true; }
+        bool Update(Unit*, uint32) override;
+        void Deactivate(Unit*) override { }
+        void Finalize(Unit*, bool, bool) override;
+        MovementGeneratorType GetMovementGeneratorType() const override { return ROTATE_MOTION_TYPE; }
 
     private:
         uint32 m_duration, m_maxDuration;
@@ -52,13 +54,18 @@ class RotateMovementGenerator : public MovementGenerator
 class DistractMovementGenerator : public MovementGenerator
 {
     public:
-        explicit DistractMovementGenerator(uint32 timer) : m_timer(timer) { }
+        explicit DistractMovementGenerator(uint32 timer, float orientation) : m_timer(timer), m_orientation(orientation), m_originalOrientation(0.0f) { }
 
-        void Initialize(Unit*);
-        void Finalize(Unit*);
-        void Reset(Unit* owner) { Initialize(owner); }
-        bool Update(Unit*, uint32);
-        MovementGeneratorType GetMovementGeneratorType() { return DISTRACT_MOTION_TYPE; }
+        bool Initialize(Unit*) override;
+        bool Reset(Unit* owner) override { Initialize(owner); return true; }
+        bool Update(Unit*, uint32) override;
+        void Deactivate(Unit*) override { }
+        void Finalize(Unit*, bool, bool) override;
+        MovementGeneratorType GetMovementGeneratorType() const override { return DISTRACT_MOTION_TYPE; }
+
+    protected:
+        float m_orientation;
+        float m_originalOrientation;
 
     private:
         uint32 m_timer;
@@ -67,11 +74,11 @@ class DistractMovementGenerator : public MovementGenerator
 class AssistanceDistractMovementGenerator : public DistractMovementGenerator
 {
     public:
-        AssistanceDistractMovementGenerator(uint32 timer) :
-            DistractMovementGenerator(timer) { }
+        explicit AssistanceDistractMovementGenerator(uint32 timer, float orientation) :
+            DistractMovementGenerator(timer, orientation) { }
 
-        MovementGeneratorType GetMovementGeneratorType() { return ASSISTANCE_DISTRACT_MOTION_TYPE; }
-        void Finalize(Unit*);
+        MovementGeneratorType GetMovementGeneratorType() const override { return ASSISTANCE_DISTRACT_MOTION_TYPE; }
+        void Finalize(Unit*, bool, bool) override;
 };
 
 #endif

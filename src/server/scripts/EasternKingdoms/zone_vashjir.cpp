@@ -33,10 +33,10 @@ struct npc_drowning_soldier_and_warrior : public ScriptedAI
 {
     npc_drowning_soldier_and_warrior(Creature* creature) : ScriptedAI(creature)
     {
-        JustRespawned();
+        JustAppeared();
     }
 
-    void JustRespawned() override
+    void JustAppeared() override
     {
         me->setRegeneratingHealth(false);
         me->SetHealth(6190);

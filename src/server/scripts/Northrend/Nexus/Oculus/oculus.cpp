@@ -216,7 +216,7 @@ class npc_image_belgaristrasz : public CreatureScript
             {
                 DoCast(me, SPELL_SIMPLE_TELEPORT, true);
 
-                uint64 summonerGUID = summoner->GetGUID();
+                ObjectGuid summonerGUID = summoner->GetGUID();
                 if (summoner->GetEntry() == NPC_VAROS)
                 {
                     uint32 delay = 0;
@@ -780,7 +780,7 @@ class cond_loot_cache_of_the_ley_guardian : public ConditionScript
     public:
         cond_loot_cache_of_the_ley_guardian() : ConditionScript("cond_loot_cache_of_the_ley_guardian") { }
 
-        bool OnConditionCheck(Condition* /*condition*/, ConditionSourceInfo& sourceInfo) override
+        bool OnConditionCheck(const Condition* /*condition*/, ConditionSourceInfo& sourceInfo) override
         {
             if (!sourceInfo.mConditionTargets[0])
                 return false;

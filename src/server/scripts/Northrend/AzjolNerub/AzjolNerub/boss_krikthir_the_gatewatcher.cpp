@@ -118,7 +118,7 @@ class boss_krik_thir : public CreatureScript
                     instance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_AGGRO);
                 Summon();
@@ -135,22 +135,22 @@ class boss_krik_thir : public CreatureScript
 
             void Summon()
             {
-                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[0], TEMPSUMMON_TIMED_DESPAWN, 25 * IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[0], TEMPSUMMON_TIMED_DESPAWN, 25 * IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[1], TEMPSUMMON_TIMED_DESPAWN, 25 * IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[1], TEMPSUMMON_TIMED_DESPAWN, 25 * IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[2], TEMPSUMMON_TIMED_DESPAWN, 25 * IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[2], TEMPSUMMON_TIMED_DESPAWN, 25 * IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[3], TEMPSUMMON_TIMED_DESPAWN, 25 * IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[3], TEMPSUMMON_TIMED_DESPAWN, 25 * IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_INFECTIOR, SpawnPoint[4], TEMPSUMMON_TIMED_DESPAWN, 25 * IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[4], TEMPSUMMON_TIMED_DESPAWN, 25 * IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_INFECTIOR, SpawnPoint[5], TEMPSUMMON_TIMED_DESPAWN, 25 * IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[5], TEMPSUMMON_TIMED_DESPAWN, 25 * IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_INFECTIOR, SpawnPoint[6], TEMPSUMMON_TIMED_DESPAWN, 25 * IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[6], TEMPSUMMON_TIMED_DESPAWN, 25 * IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[7], TEMPSUMMON_TIMED_DESPAWN, 25 * IN_MILLISECONDS);
-                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[7], TEMPSUMMON_TIMED_DESPAWN, 25 * IN_MILLISECONDS);
+                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[0], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(25 * IN_MILLISECONDS));
+                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[0], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(25 * IN_MILLISECONDS));
+                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[1], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(25 * IN_MILLISECONDS));
+                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[1], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(25 * IN_MILLISECONDS));
+                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[2], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(25 * IN_MILLISECONDS));
+                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[2], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(25 * IN_MILLISECONDS));
+                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[3], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(25 * IN_MILLISECONDS));
+                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[3], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(25 * IN_MILLISECONDS));
+                me->SummonCreature(NPC_SKITTERING_INFECTIOR, SpawnPoint[4], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(25 * IN_MILLISECONDS));
+                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[4], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(25 * IN_MILLISECONDS));
+                me->SummonCreature(NPC_SKITTERING_INFECTIOR, SpawnPoint[5], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(25 * IN_MILLISECONDS));
+                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[5], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(25 * IN_MILLISECONDS));
+                me->SummonCreature(NPC_SKITTERING_INFECTIOR, SpawnPoint[6], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(25 * IN_MILLISECONDS));
+                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[6], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(25 * IN_MILLISECONDS));
+                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[7], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(25 * IN_MILLISECONDS));
+                me->SummonCreature(NPC_SKITTERING_SWARMER,   SpawnPoint[7], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(25 * IN_MILLISECONDS));
             }
 
             void UpdateAI(uint32 diff) override
@@ -265,7 +265,7 @@ class npc_anub_ar_skirmisher : public CreatureScript
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
                         DoResetThreat();
-                        me->AddThreat(target, 1.0f);
+                        me->GetThreatManager().AddThreat(target, 1.0f);
                         DoCast(target, SPELL_CHARGE, true);
                     }
                     uiChargeTimer = 15 * IN_MILLISECONDS;
@@ -397,7 +397,7 @@ class npc_watcher_gashra : public CreatureScript
                 uiInfectedBiteTimer = 4 * IN_MILLISECONDS;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_ENRAGE, true);
             }

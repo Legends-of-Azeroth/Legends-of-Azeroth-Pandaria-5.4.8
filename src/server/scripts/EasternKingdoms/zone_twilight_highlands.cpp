@@ -148,7 +148,7 @@ enum CrucibleYells
 class dunwald_victim_credit_store
 {
 public:
-    uint64 player_guid;
+    ObjectGuid player_guid;
     int32 repeat_timer;
 };
 
@@ -183,7 +183,7 @@ struct npc_dunwald_victim : public ScriptedAI
         plrs_credited.remove_if([](dunwald_victim_credit_store const &i) { return i.repeat_timer <= 0; });
     }
 
-    uint64 player_guid;
+    ObjectGuid player_guid;
     int32 repeat_timer;
 
     private:
@@ -228,7 +228,7 @@ class npc_quest_mullan_gryphon : public CreatureScript
             {
                 me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-                me->SetAnimationTier(UnitAnimationTier::Ground);
+                me->SetAnimTier(AnimTier::Ground);
                 me->OverrideInhabitType(INHABIT_GROUND);
                 me->UpdateMovementFlags();
             }
@@ -241,7 +241,7 @@ class npc_quest_mullan_gryphon : public CreatureScript
                     DoCast(me, SPELL_MULLAN_GRYPHON_CREDIT, true);
 
                     // Fly Away
-                    me->SetAnimationTier(UnitAnimationTier::Fly);
+                    me->SetAnimTier(AnimTier::Fly);
                     me->OverrideInhabitType(INHABIT_AIR);
                     me->UpdateMovementFlags();
 
@@ -324,14 +324,14 @@ class npc_gurgthock_twilands : public CreatureScript
 
             TaskScheduler scheduler;
             SummonList summons;
-            uint64 championGUID;
+            ObjectGuid championGUID;
             bool hasTrialBegun;
             uint32 delay;
 
             void Reset() override
             {
                 hasTrialBegun = false;
-                championGUID  = 0;
+                championGUID = ObjectGuid::Empty;
                 delay         = 0;
                 scheduler.CancelAll();
 
@@ -342,12 +342,12 @@ class npc_gurgthock_twilands : public CreatureScript
                     itr->RemoveAurasDueToSpell(SPELL_LAVA_POOL);
             }
 
-            void SetGUID(uint64 guid, int32 /*type*/) override 
+            void SetGUID(ObjectGuid guid, int32 /*type*/) override
             {
                 championGUID = guid;
             }
 
-            uint64 GetGUID(int32 /*type*/) const override
+            ObjectGuid GetGUID(int32 /*type*/) const override
             {
                 return championGUID;
             }
@@ -586,7 +586,7 @@ struct npc_twilight_hurp_derp : public customCreatureAI
         scheduler.CancelAll();
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler.CancelAll();
 
@@ -615,7 +615,7 @@ struct npc_twilight_hurp_derp : public customCreatureAI
         });
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (Creature* gurgthock = me->FindNearestCreature(NPC_GURGTHOCK, 150.0f, true))
             gurgthock->AI()->Reset();
@@ -715,7 +715,7 @@ struct npc_twilight_faction_champions : public customCreatureAI
         scheduler.CancelAll();
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler.CancelAll();
 
@@ -780,7 +780,7 @@ struct npc_twilight_faction_champions : public customCreatureAI
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (Creature* gurgthock = me->FindNearestCreature(NPC_GURGTHOCK, 150.0f, true))
             gurgthock->AI()->Reset();
@@ -882,7 +882,7 @@ struct npc_twilight_calders_creation : public customCreatureAI
         summon->CastSpell(summon, SPELL_POISON_CLOUD_TRIGGERING, true);
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler.CancelAll();
 
@@ -917,7 +917,7 @@ struct npc_twilight_calders_creation : public customCreatureAI
         });
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (Creature* gurgthock = me->FindNearestCreature(NPC_GURGTHOCK, 150.0f, true))
             gurgthock->AI()->Reset();
@@ -1055,7 +1055,7 @@ struct npc_twilight_lord_tulvan : public customCreatureAI
         secondEnrage = false;
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler.CancelAll();
 
@@ -1068,7 +1068,7 @@ struct npc_twilight_lord_tulvan : public customCreatureAI
 
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (Creature* gurgthock = me->FindNearestCreature(NPC_GURGTHOCK, 150.0f, true))
             gurgthock->AI()->Reset();
@@ -1192,7 +1192,7 @@ struct npc_twilight_emberscar_devourer : public customCreatureAI
         hasEnrage = false;
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler.CancelAll();
 
@@ -1217,7 +1217,7 @@ struct npc_twilight_emberscar_devourer : public customCreatureAI
 
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (Creature* gurgthock = me->FindNearestCreature(NPC_GURGTHOCK, 150.0f, true))
             gurgthock->AI()->Reset();
@@ -1234,8 +1234,8 @@ struct npc_twilight_emberscar_devourer : public customCreatureAI
             hasEnrage = true;
             Talk(TALK_TWILIGHT_TERROR_SKY);
 
-            for (auto&& itr : me->getThreatManager().getThreatList())
-                if (Player* target = ObjectAccessor::GetPlayer(*me, itr->getUnitGuid()))
+            for (auto&& ref : me->GetThreatManager().GetUnsortedThreatList())
+                if (Player* target = ObjectAccessor::GetPlayer(*me, ref->GetVictim()->GetGUID()))
                     target->CastSpell(target, SPELL_VOLCANIC_SKYBOX, true);
         }
     }

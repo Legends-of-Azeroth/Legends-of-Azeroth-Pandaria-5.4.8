@@ -68,10 +68,10 @@ class instance_stormstout_brewery : public InstanceMapScript
 
             EventMap events;
             std::unordered_map<uint32, uint32> yanzhuAuraMap;
-            std::vector<uint64> hozenGuidsVector;
-            std::vector<uint64> bouncerGuidsVector;
+            std::vector<ObjectGuid> hozenGuidsVector;
+            std::vector<ObjectGuid> bouncerGuidsVector;
             std::list<Player*> payersInList;
-            uint64 okOokGUID, hoptallusGUID, yanzhuGUID, ookOokDoorGUID, uncleGaoGUID, chenYanzhuGUID;
+            ObjectGuid okOokGUID, hoptallusGUID, yanzhuGUID, ookOokDoorGUID, uncleGaoGUID, chenYanzhuGUID;
             uint32 hozenSlain;
 
             void Initialize() override
@@ -83,11 +83,11 @@ class instance_stormstout_brewery : public InstanceMapScript
 
                 payersInList.clear();
                 hozenSlain     = 0;
-                okOokGUID      = 0;
-                hoptallusGUID  = 0;
-                yanzhuGUID     = 0;
-                uncleGaoGUID   = 0;
-                chenYanzhuGUID = 0;
+                okOokGUID = ObjectGuid::Empty;
+                hoptallusGUID = ObjectGuid::Empty;
+                yanzhuGUID = ObjectGuid::Empty;
+                uncleGaoGUID = ObjectGuid::Empty;
+                chenYanzhuGUID = ObjectGuid::Empty;
 
                 events.ScheduleEvent(1, 10000);
                 events.ScheduleEvent(2, 10000);
@@ -191,7 +191,7 @@ class instance_stormstout_brewery : public InstanceMapScript
                         creature->RemoveAurasDueToSpell(128571);
 
                         uint32 delay = 0;
-                        uint64 creatureGUID = creature->GetGUID();
+                        ObjectGuid creatureGUID = creature->GetGUID();
                         creature->m_Events.Schedule(delay += 1500, 1, [this, creatureGUID]()
                         {
                             if (Creature* trigger = instance->GetCreature(creatureGUID))
@@ -261,7 +261,7 @@ class instance_stormstout_brewery : public InstanceMapScript
             void OnGameObjectRemove(GameObject* go) override
             {
                 if (go->GetEntry() == GO_OOK_DOOR)
-                    ookOokDoorGUID = 0;
+                    ookOokDoorGUID = ObjectGuid::Empty;
             }
 
             void Update(uint32 diff) override
@@ -280,7 +280,7 @@ class instance_stormstout_brewery : public InstanceMapScript
                             {
                                 events.CancelEvent(1);
 
-                                if (Creature* ookOok = instance->GetCreature(GetData64(DATA_OOK_OOK)))
+                                if (Creature* ookOok = instance->GetCreature(GetGuidData(DATA_OOK_OOK)))
                                 {
                                     SetBossState(DATA_OOK_OOK, SPECIAL);
                                     ookOok->AI()->DoAction(0);
@@ -333,7 +333,7 @@ class instance_stormstout_brewery : public InstanceMapScript
 
                             events.ScheduleEvent(3, urand(12 * IN_MILLISECONDS, 14 * IN_MILLISECONDS));
 
-                            if (Creature* hoppy = instance->GetCreature(GetData64(DATA_HOPTALLUS)))
+                            if (Creature* hoppy = instance->GetCreature(GetGuidData(DATA_HOPTALLUS)))
                                 hoppy->AI()->DoAction(0);
                             break;
                         }
@@ -367,7 +367,7 @@ class instance_stormstout_brewery : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -385,7 +385,7 @@ class instance_stormstout_brewery : public InstanceMapScript
                         return chenYanzhuGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -397,14 +397,14 @@ class instance_stormstout_brewery : public InstanceMapScript
                 {
                     if (state == DONE)
                     {
-                        if (GameObject* go = instance->GetGameObject(GetData64(GO_OOK_DOOR)))
+                        if (GameObject* go = instance->GetGameObject(GetGuidData(GO_OOK_DOOR)))
                             go->AddObjectToRemoveList();
                     }
                     else
                     {
-                        if (!instance->GetGameObject(GetData64(GO_OOK_DOOR)))
+                        if (!instance->GetGameObject(GetGuidData(GO_OOK_DOOR)))
                         {
-                            if (Creature* ookOok = instance->GetCreature(GetData64(DATA_OOK_OOK)))
+                            if (Creature* ookOok = instance->GetCreature(GetGuidData(DATA_OOK_OOK)))
                                 if (GameObject* go = ookOok->SummonGameObject(GO_OOK_DOOR, ookOokDoorPos.GetPositionX(), ookOokDoorPos.GetPositionY(), ookOokDoorPos.GetPositionZ(), ookOokDoorPos.GetOrientation(), { }, 14400))
                                 {
                                     go->SetGoState(GO_STATE_ACTIVE);

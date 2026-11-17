@@ -37,13 +37,13 @@ class instance_dagger_in_the_dark : public InstanceMapScript
             uint32 tabletsCount;
             uint32 factionData;
             uint32 waterJetsSlainCount;
-            uint64 voljinGUID;
-            uint64 rakgorGUID;
-            uint64 grizzleGUID;
-            uint64 noshiGUID;
-            uint64 lizardLordGUID;
-            uint64 saurokSlayerBoatGUID;
-            uint64 bloodrazorCaveGUID;
+            ObjectGuid voljinGUID;
+            ObjectGuid rakgorGUID;
+            ObjectGuid grizzleGUID;
+            ObjectGuid noshiGUID;
+            ObjectGuid lizardLordGUID;
+            ObjectGuid saurokSlayerBoatGUID;
+            ObjectGuid bloodrazorCaveGUID;
             bool hasInit;
 
             void Initialize() override
@@ -59,14 +59,14 @@ class instance_dagger_in_the_dark : public InstanceMapScript
                 chapterSix     = 0;
                 chapterSeven   = 0;
                 chapterEight   = 0;
-                voljinGUID     = 0;
-                rakgorGUID     = 0;
-                grizzleGUID    = 0;
-                noshiGUID      = 0;
-                lizardLordGUID = 0;
+                voljinGUID = ObjectGuid::Empty;
+                rakgorGUID = ObjectGuid::Empty;
+                grizzleGUID = ObjectGuid::Empty;
+                noshiGUID = ObjectGuid::Empty;
+                lizardLordGUID = ObjectGuid::Empty;
                 driflerGuardsCount   = 0;
-                saurokSlayerBoatGUID = 0;
-                bloodrazorCaveGUID   = 0;
+                saurokSlayerBoatGUID = ObjectGuid::Empty;
+                bloodrazorCaveGUID = ObjectGuid::Empty;
                 waterJetsSlainCount  = 0;
                 tabletsCount   = 0;
                 factionData    = 0;
@@ -100,10 +100,10 @@ class instance_dagger_in_the_dark : public InstanceMapScript
                         {
                             SendScenarioProgressUpdate(CriteriaProgressData(CRITERIA_DEFEAT_SAUROK_PATROL, 1, GetScenarioGUID(), time(NULL), 0, 0));
 
-                            if (Creature* lizardLord = instance->GetCreature(GetData64(NPC_DARKHATCHED_LIZARD_LORD)))
+                            if (Creature* lizardLord = instance->GetCreature(GetGuidData(NPC_DARKHATCHED_LIZARD_LORD)))
                                 lizardLord->AI()->DoAction(ACTION_START_INTRO);
 
-                            if (Creature* voljin = instance->GetCreature(GetData64(NPC_VOLJIN)))
+                            if (Creature* voljin = instance->GetCreature(GetGuidData(NPC_VOLJIN)))
                                 voljin->AI()->DoAction(ACTION_MEET_LIZARD_LORD);
                         }
                         break;
@@ -180,7 +180,7 @@ class instance_dagger_in_the_dark : public InstanceMapScript
                             if (Player* player = itr.GetSource())
                                 sScenarioMgr->SendScenarioState(player, 1095, DATA_INTO_THE_CAVE, 0);
 
-                        if (Creature* voljin = instance->GetCreature(GetData64(NPC_VOLJIN)))
+                        if (Creature* voljin = instance->GetCreature(GetGuidData(NPC_VOLJIN)))
                             voljin->AI()->DoAction(ACTION_LIZARD_DIED);
                         break;
                     case DATA_INTO_THE_CAVE:
@@ -190,7 +190,7 @@ class instance_dagger_in_the_dark : public InstanceMapScript
                             if (Player* player = itr.GetSource())
                                 sScenarioMgr->SendScenarioState(player, 1095, DATA_THE_SOURCE, 0);
 
-                        if (Creature* voljin = instance->GetCreature(GetData64(NPC_VOLJIN)))
+                        if (Creature* voljin = instance->GetCreature(GetGuidData(NPC_VOLJIN)))
                             voljin->AI()->DoAction(ACTION_VOLJIN_LEAVE_BOAT);
                         break;
                     case DATA_THE_SOURCE:
@@ -200,19 +200,19 @@ class instance_dagger_in_the_dark : public InstanceMapScript
                             if (Player* player = itr.GetSource())
                                 sScenarioMgr->SendScenarioState(player, 1095, DATA_THE_BROODMASTER, 0);
 
-                        if (Creature* voljin = instance->GetCreature(GetData64(NPC_VOLJIN)))
+                        if (Creature* voljin = instance->GetCreature(GetGuidData(NPC_VOLJIN)))
                             voljin->AI()->DoAction(ACTION_REACH_BROODMASTER);
 
-                        if (Creature* broodmaster = instance->GetCreature(GetData64(NPC_BROODMASTER_NOSHI)))
+                        if (Creature* broodmaster = instance->GetCreature(GetGuidData(NPC_BROODMASTER_NOSHI)))
                             broodmaster->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_PC);
                         break;
                     case DATA_THE_BROODMASTER:
                         chapterSix = data;
 
-                        if (Creature* voljin = instance->GetCreature(GetData64(NPC_VOLJIN)))
+                        if (Creature* voljin = instance->GetCreature(GetGuidData(NPC_VOLJIN)))
                             voljin->AI()->DoAction(ACTION_DEFEAT_BROODMASTER);
 
-                        if (Creature* bloodrazor = instance->GetCreature(GetData64(NPC_RAKGOR_BLOODRAZOR + 1)))
+                        if (Creature* bloodrazor = instance->GetCreature(GetGuidData(NPC_RAKGOR_BLOODRAZOR + 1)))
                             bloodrazor->AI()->DoAction(ACTION_DEFEAT_BROODMASTER);
 
                         // Only credit this until talking event done
@@ -225,14 +225,14 @@ class instance_dagger_in_the_dark : public InstanceMapScript
                             if (Player* player = itr.GetSource())
                                 sScenarioMgr->SendScenarioState(player, 1095, DATA_DEFEAT_RAKGOR, 0);
 
-                        if (Creature* voljin = instance->GetCreature(GetData64(NPC_VOLJIN)))
+                        if (Creature* voljin = instance->GetCreature(GetGuidData(NPC_VOLJIN)))
                             voljin->AI()->DoAction(ACTION_INVESTIGATE_DONE);
                         break;
                     case DATA_DEFEAT_RAKGOR:
                         chapterEight = data;
                         SendScenarioProgressUpdate(CriteriaProgressData(CRITERIA_DEFEAT_BLOODRAZOR, 1, GetScenarioGUID(), time(NULL), 0, 0));
 
-                        if (Creature* voljin = instance->GetCreature(GetData64(NPC_VOLJIN)))
+                        if (Creature* voljin = instance->GetCreature(GetGuidData(NPC_VOLJIN)))
                             voljin->AI()->DoAction(ACTION_BLOODRAZOR_SLAIN);
 
                         // Credit scenario there
@@ -279,7 +279,7 @@ class instance_dagger_in_the_dark : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -299,7 +299,7 @@ class instance_dagger_in_the_dark : public InstanceMapScript
                         return bloodrazorCaveGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override

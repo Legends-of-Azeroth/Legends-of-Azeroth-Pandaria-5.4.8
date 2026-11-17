@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -99,27 +99,27 @@ class npc_anstart : public CreatureScript
                     Phase = INTRO;
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-                    if (Trall = me->SummonCreature(NPC_TRALL, 685.569f, 615.103f, 435.396f, 6.23544f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                    if (Trall = me->SummonCreature(NPC_TRALL, 685.569f, 615.103f, 435.396f, 6.23544f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000ms))
                     {
                         Trall->SetReactState(REACT_PASSIVE);
                         Trall->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     }
-                    if (Garrosh = me->SummonCreature(NPC_GARROSH, 685.7f, 621.134f, 435.396f, 6.259f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                    if (Garrosh = me->SummonCreature(NPC_GARROSH, 685.7f, 621.134f, 435.396f, 6.259f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000ms))
                     {
                         Garrosh->SetReactState(REACT_PASSIVE);
                         Garrosh->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     }
-                    if (King = me->SummonCreature(NPC_KING, 807.724f, 617.9f, 435.396f, 3.18416f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                    if (King = me->SummonCreature(NPC_KING, 807.724f, 617.9f, 435.396f, 3.18416f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000ms))
                     {
                         King->SetReactState(REACT_PASSIVE);
                         King->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     }
-                    if (Lady = me->SummonCreature(NPC_LADY, 807.401f, 613.667f, 435.397f, 3.0585f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                    if (Lady = me->SummonCreature(NPC_LADY, 807.401f, 613.667f, 435.397f, 3.0585f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000ms))
                     {
                         Lady->SetReactState(REACT_PASSIVE);
                         Lady->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     }
-                    if (Highlord = me->SummonCreature(NPC_HIGHLORD, 746.482f, 556.857f, 435.396f, 1.5898f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                    if (Highlord = me->SummonCreature(NPC_HIGHLORD, 746.482f, 556.857f, 435.396f, 1.5898f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000ms))
                     {
                         Highlord->SetReactState(REACT_PASSIVE);
                         Highlord->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -147,47 +147,47 @@ class npc_anstart : public CreatureScript
                             introTimer = 4000;
                             break;
                         case 1:
-                            me->MonsterSay("The Sunreavers are proud to present their representatives in this trial by combat.", LANG_UNIVERSAL, 0); // AN_1
+                            me->Say("The Sunreavers are proud to present their representatives in this trial by combat.", LANG_UNIVERSAL, 0); // AN_1
                             ++introPhase;
                             introTimer = 10000;
                             break;
                         case 2:
-                            me->MonsterSay("Welcome, champions. Today, before the eyes of your leeders and peers, you will prove youselves worthy combatants.", LANG_UNIVERSAL, 0); // AN_2
+                            me->Say("Welcome, champions. Today, before the eyes of your leeders and peers, you will prove youselves worthy combatants.", LANG_UNIVERSAL, 0); // AN_2
                             ++introPhase;
                             introTimer = 13000;
                             break;
                         case 3:
-                            Trall->MonsterYell("Fight well, Horde! Lok'tar Ogar!", LANG_UNIVERSAL, 0); // AN_3
+                            Trall->Yell("Fight well, Horde! Lok'tar Ogar!", LANG_UNIVERSAL, 0); // AN_3
                             ++introPhase;
                             introTimer = 8000;
                             break;
                         case 4:
-                            Garrosh->MonsterYell("Finally, a fight worth watching.", LANG_UNIVERSAL, 0); // AN_4
+                            Garrosh->Yell("Finally, a fight worth watching.", LANG_UNIVERSAL, 0); // AN_4
                             ++introPhase;
                             introTimer = 6000;
                             break;
                         case 5:
-                            King->MonsterYell("I did not come here to watch animals tear at each other senselessly, Tirion.", LANG_UNIVERSAL, 0); // AN_5
+                            King->Yell("I did not come here to watch animals tear at each other senselessly, Tirion.", LANG_UNIVERSAL, 0); // AN_5
                             ++introPhase;
                             introTimer = 8000;
                             break;
                         case 6:
-                            Highlord->MonsterYell("You will first be facing three of the Grand Champions of the Tournament! These fierce contenders have beaten out all others to reach the pinnacle of skill in the joust.", LANG_UNIVERSAL, 0); // AN_6
+                            Highlord->Yell("You will first be facing three of the Grand Champions of the Tournament! These fierce contenders have beaten out all others to reach the pinnacle of skill in the joust.", LANG_UNIVERSAL, 0); // AN_6
                             ++introPhase;
                             introTimer = 8000;
                             break;
                         case 7:
-                            Highlord->MonsterYell("Will tought! You next challenge comes from the Crusade's own ranks. You will be tested against their consederable prowess.", LANG_UNIVERSAL, 0); // AN_7
+                            Highlord->Yell("Will tought! You next challenge comes from the Crusade's own ranks. You will be tested against their consederable prowess.", LANG_UNIVERSAL, 0); // AN_7
                             ++introPhase;
                             introTimer = 3000;
                             break;
                         case 8:
-                            me->MonsterSay("You may begin!", LANG_UNIVERSAL, 0); // AN_8
+                            me->Say("You may begin!", LANG_UNIVERSAL, 0); // AN_8
                             ++introPhase;
                             introTimer = 4000;
                             break;
                         case 9:
-                            if (Creature* announcertoc5 = me->SummonCreature(NPC_ANNOUNCER, 746.778f, 621.514f, 411.09f, 4.75104f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000))
+                            if (Creature* announcertoc5 = me->SummonCreature(NPC_ANNOUNCER, 746.778f, 621.514f, 411.09f, 4.75104f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000ms))
                             {
                                 me->DisappearAndDie();
                                 announcertoc5->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -214,7 +214,7 @@ class npc_anstart : public CreatureScript
 
 class npc_announcer_toc5 : public CreatureScript
 {
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         InstanceScript* instance = creature->GetInstanceScript();
 
@@ -306,11 +306,11 @@ class npc_announcer_toc5 : public CreatureScript
 
             uint32 phase;
             uint32 timer;
-            uint64 uiBlackKnightGUID;
+            ObjectGuid uiBlackKnightGUID;
 
-            std::list<uint64> Champion1List;
-            std::list<uint64> Champion2List;
-            std::list<uint64> Champion3List;
+            std::list<ObjectGuid> Champion1List;
+            std::list<ObjectGuid> Champion2List;
+            std::list<ObjectGuid> Champion3List;
 
             void NextStep(uint32 timerStep, bool nextStep = true, uint8 phaseStep = 0)
             {
@@ -329,26 +329,26 @@ class npc_announcer_toc5 : public CreatureScript
                 switch (type)
                 {
                     case DATA_START:
-                        if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                        if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                             instance->HandleGameObject(go->GetGUID(), true);
-                        if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_PORTCULLIS)))
+                        if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_PORTCULLIS)))
                             instance->HandleGameObject(go->GetGUID(), false);
                         instance->SetData(DATA_MOVEMENT_DONE, 0);
 
-                        me->MonsterSay("Coming out of the gate Grand Champions other faction.", LANG_UNIVERSAL, 0); // SAY_START
+                        me->Say("Coming out of the gate Grand Champions other faction.", LANG_UNIVERSAL, 0); // SAY_START
                         DoSummonGrandChampion(firstBoss);
                         NextStep(10000, false, 1);
                         break;
                     case DATA_IN_POSITION: // movement done.
                         me->GetMotionMaster()->MovePoint(1, 735.81f, 661.92f, 412.39f);
-                        if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                        if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                             instance->HandleGameObject(go->GetGUID(), false);
                         NextStep(10000, false, 3);
                         break;
                     case DATA_LESSER_CHAMPIONS_DEFEATED:
                     {
                         ++lesserChampions;
-                        std::list<uint64> tempList;
+                        std::list<ObjectGuid> tempList;
                         if (lesserChampions == 3 || lesserChampions == 6)
                         {
                             switch (lesserChampions)
@@ -375,7 +375,7 @@ class npc_announcer_toc5 : public CreatureScript
                         if (defeatedGrandChampions == 3)
                         {
                             for (uint8 i = 0; i < 3; ++i)
-                                if (Creature* GrandChampion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GRAND_CHAMPION_1 + i)))
+                                if (Creature* GrandChampion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_1 + i)))
                                 {
                                     switch (i)
                                     {
@@ -403,7 +403,7 @@ class npc_announcer_toc5 : public CreatureScript
             void StartGrandChampionsAttack()
             {
                 for (uint8 i = 0; i < 3; ++i)
-                    if (Creature* GrandChampion = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_GRAND_CHAMPION_1 + i) : 0))
+                    if (Creature* GrandChampion = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_GRAND_CHAMPION_1 + i) : ObjectGuid::Empty))
                         AggroAllPlayers(GrandChampion);
             }
 
@@ -459,7 +459,7 @@ class npc_announcer_toc5 : public CreatureScript
 
                     for (uint8 i = 0; i < 3; ++i)
                     {
-                        if (Creature* add = me->SummonCreature(NPC_TO_SUMMON_2, SpawnPosition, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000))
+                        if (Creature* add = me->SummonCreature(NPC_TO_SUMMON_2, SpawnPosition, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms))
                         {
                             switch (summonTimes)
                             {
@@ -493,18 +493,18 @@ class npc_announcer_toc5 : public CreatureScript
 
             void DoStartArgentChampionEncounter()
             {
-                me->MonsterSay("Coming out of the gate Crusader's Coliseum Champion.", LANG_UNIVERSAL, 0); // SAY_START3
+                me->Say("Coming out of the gate Crusader's Coliseum Champion.", LANG_UNIVERSAL, 0); // SAY_START3
                 me->GetMotionMaster()->MovePoint(1, 735.81f, 661.92f, 412.39f);
 
                 if (me->SummonCreature(argentChampion, SpawnPosition))
                 {
                     for (uint8 i = 0; i < 3; ++i)
                     {
-                        if (Creature* trash = me->SummonCreature(NPC_ARGENT_LIGHWIELDER, SpawnPosition, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7000))
+                        if (Creature* trash = me->SummonCreature(NPC_ARGENT_LIGHWIELDER, SpawnPosition, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7000ms))
                             trash->AI()->SetData(i, 0);
-                        if (Creature* trash = me->SummonCreature(NPC_ARGENT_MONK, SpawnPosition, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7000))
+                        if (Creature* trash = me->SummonCreature(NPC_ARGENT_MONK, SpawnPosition, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7000ms))
                             trash->AI()->SetData(i, 0);
-                        if (Creature* trash = me->SummonCreature(NPC_PRIESTESS, SpawnPosition, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7000))
+                        if (Creature* trash = me->SummonCreature(NPC_PRIESTESS, SpawnPosition, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7000ms))
                             trash->AI()->SetData(i, 0);
                     }
                 }
@@ -533,7 +533,7 @@ class npc_announcer_toc5 : public CreatureScript
 
                 me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_PORTCULLIS)))
+                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_PORTCULLIS)))
                     instance->HandleGameObject(go->GetGUID(), false);
 
                 if (instance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
@@ -551,17 +551,17 @@ class npc_announcer_toc5 : public CreatureScript
                         instance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE))
                     {
                         //me->SummonCreature(VEHICLE_BLACK_KNIGHT, 769.834f, 651.915f, 447.035f, 0);
-                        if (Unit* pBlackKnight = me->SummonCreature(VEHICLE_BLACK_KNIGHT,801.369507f, 640.574280f, 469.314362f, 3.97124f,TEMPSUMMON_DEAD_DESPAWN,180000))
+                        if (Unit* pBlackKnight = me->SummonCreature(VEHICLE_BLACK_KNIGHT,801.369507f, 640.574280f, 469.314362f, 3.97124f,TEMPSUMMON_DEAD_DESPAWN,180000ms))
                         {
                             uiBlackKnightGUID = pBlackKnight->GetGUID();
                             pBlackKnight->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             pBlackKnight->SetTarget(me->GetGUID());
                             me->SetTarget(uiBlackKnightGUID);
                         }
-                        if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                        if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                             instance->HandleGameObject(go->GetGUID(), false);
 
-                        me->MonsterYell("What''s that, up near the rafters?", LANG_UNIVERSAL, 0); // SAY_START5
+                        me->Yell("What''s that, up near the rafters?", LANG_UNIVERSAL, 0); // SAY_START5
                     }
                 }
             }
@@ -590,7 +590,7 @@ class npc_announcer_toc5 : public CreatureScript
                                 temp->SetInCombatWith(creature);
                                 player->SetInCombatWith(temp);
                                 creature->SetInCombatWith(temp);
-                                temp->AddThreat(creature, 0.0f);
+                                temp->GetThreatManager().AddThreat(creature, 0.0f);
                             }
                         }
                         else if (player->IsAlive())
@@ -600,7 +600,7 @@ class npc_announcer_toc5 : public CreatureScript
                             temp->SetReactState(REACT_AGGRESSIVE);
                             temp->SetInCombatWith(player);
                             player->SetInCombatWith(temp);
-                            temp->AddThreat(player, 0.0f);
+                            temp->GetThreatManager().AddThreat(player, 0.0f);
                         }
                     }
                 }

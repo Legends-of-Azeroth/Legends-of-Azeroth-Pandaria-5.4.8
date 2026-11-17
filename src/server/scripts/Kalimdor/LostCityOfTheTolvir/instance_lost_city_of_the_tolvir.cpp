@@ -38,14 +38,14 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
 
                 memset(&uiTunnelGUID, 0, sizeof(uiTunnelGUID));
                 uiTunnelFlag = 0;
-                uiHusamGUID = 0;
-                uiLockmawGUID = 0;
-                uiAughGUID = 0;
-                uiBarimGUID = 0;
-                uiBlazeGUID = 0;
-                uiSiamatGUID = 0;
-                uiHarbingerGUID = 0;
-                uiSiamatPlatformGUID = 0;
+                uiHusamGUID = ObjectGuid::Empty;
+                uiLockmawGUID = ObjectGuid::Empty;
+                uiAughGUID = ObjectGuid::Empty;
+                uiBarimGUID = ObjectGuid::Empty;
+                uiBlazeGUID = ObjectGuid::Empty;
+                uiSiamatGUID = ObjectGuid::Empty;
+                uiHarbingerGUID = ObjectGuid::Empty;
+                uiSiamatPlatformGUID = ObjectGuid::Empty;
                 uiUpdateTimer = 7000;
                 BosesIsDone = false;
                 archaeologyQuestAura = 0;
@@ -144,7 +144,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -163,10 +163,10 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                     case DATA_SIAMAT:
                         return uiSiamatGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
-            void SetData64(uint32 type, uint64 data)
+            void SetGuidData(uint32 type, ObjectGuid data) override
             {
                 switch (type)
                 {
@@ -248,15 +248,15 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
             }
 
             private:
-            uint64 uiTunnelGUID[6];
-            uint64 uiHusamGUID;
-            uint64 uiLockmawGUID;
-            uint64 uiAughGUID;
-            uint64 uiBarimGUID;
-            uint64 uiBlazeGUID;
-            uint64 uiHarbingerGUID;
-            uint64 uiSiamatGUID;
-            uint64 uiSiamatPlatformGUID;
+            ObjectGuid uiTunnelGUID[6];
+            ObjectGuid uiHusamGUID;
+            ObjectGuid uiLockmawGUID;
+            ObjectGuid uiAughGUID;
+            ObjectGuid uiBarimGUID;
+            ObjectGuid uiBlazeGUID;
+            ObjectGuid uiHarbingerGUID;
+            ObjectGuid uiSiamatGUID;
+            ObjectGuid uiSiamatPlatformGUID;
             uint32 uiUpdateTimer;
             uint32 archaeologyQuestAura;
             uint8 uiTunnelFlag;

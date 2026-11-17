@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -191,9 +191,9 @@ class boss_general_nazgrim : public CreatureScript
             EventMap berserkEvents;
             uint8 phaseId;
             uint32 forcesId;
-            uint64 ravagerTargetGUID; // ravager has launch to target at begun.
-            uint64 shockwaveTargetGUID;
-            uint64 targetGUID;
+            ObjectGuid ravagerTargetGUID; // ravager has launch to target at begun.
+            ObjectGuid shockwaveTargetGUID;
+            ObjectGuid targetGUID;
             bool hasIntroDone;
             bool hasAdditionalForces;
 
@@ -204,10 +204,10 @@ class boss_general_nazgrim : public CreatureScript
                 events.Reset();
                 berserkEvents.Reset();
                 phaseId = NONE_STANCE;
-                ravagerTargetGUID   = 0;
-                shockwaveTargetGUID = 0;
+                ravagerTargetGUID = ObjectGuid::Empty;
+                shockwaveTargetGUID = ObjectGuid::Empty;
                 forcesId            = 1;
-                targetGUID          = 0;
+                targetGUID = ObjectGuid::Empty;
 
                 me->SetPowerType(POWER_MANA);
                 me->SetMaxPower(POWER_MANA, 100);
@@ -227,7 +227,7 @@ class boss_general_nazgrim : public CreatureScript
                 });
             }
 
-            uint64 GetGUID(int32 type) const override
+            ObjectGuid GetGUID(int32 type) const override
             {
                 switch (type)
                 {
@@ -237,7 +237,7 @@ class boss_general_nazgrim : public CreatureScript
                         return shockwaveTargetGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void JustReachedHome() override
@@ -248,9 +248,9 @@ class boss_general_nazgrim : public CreatureScript
                     instance->SetBossState(DATA_GENERAL_NAZGRIM, FAIL);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                 {
@@ -302,7 +302,7 @@ class boss_general_nazgrim : public CreatureScript
                 summon->SetInCombatWithZone();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();
@@ -319,7 +319,7 @@ class boss_general_nazgrim : public CreatureScript
                     me->GetMap()->SetWorldState(WORLDSTATE_GAMON_WILL_SAVE_US, 0);
                     me->GetMap()->SetWorldState(WORLDSTATE_GAMON_WILL_SAVE_US_2, 0);
 
-                    if (Creature* gamon = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_GAMON)))
+                    if (Creature* gamon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_GAMON)))
                         gamon->DespawnOrUnsummon();
                 }
 
@@ -412,7 +412,7 @@ class boss_general_nazgrim : public CreatureScript
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SUNDERING_BLOW);
                     instance->DoRemoveBloodLustDebuffSpellOnPlayers();
 
-                    if (Creature* gamon = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_GAMON)))
+                    if (Creature* gamon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_GAMON)))
                         gamon->AI()->DoAction(ACTION_GAMON_OUTRO);
                 }
 
@@ -634,7 +634,7 @@ struct npc_orgrimmar_faithful : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->CallForHelp(15.0f);
     }
@@ -676,7 +676,7 @@ struct npc_nazgrim_korkron_ironblade : public ScriptedAI
         });
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         scheduler.CancelAll();
         uint32 timer = me->GetDBTableGUIDLow() ? 1 * IN_MILLISECONDS : urand(5 * IN_MILLISECONDS, 10 * IN_MILLISECONDS);
@@ -771,7 +771,7 @@ struct npc_nazgrim_korkron_arcweaver : public ScriptedAI
             me->SetLootRecipient(NULL);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_ARCANE_SHOCK, 2 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_MAGISTRIKE, 8.5 * IN_MILLISECONDS);
@@ -834,21 +834,21 @@ struct npc_nazgrim_korkron_assassin : public ScriptedAI
     npc_nazgrim_korkron_assassin(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 markGUID;
+    ObjectGuid markGUID;
 
     void Reset() override
     {
-        markGUID = 0;
+        markGUID = ObjectGuid::Empty;
         DoCast(me, me->GetDBTableGUIDLow() ? SPELL_STEALTH : SPELL_ASSASSINS_MARK, true);
         me->ClearUnitState(UNIT_STATE_CASTING);
     }
 
-    void SetGUID(uint64 guid, int32 /*type*/) override
+    void SetGUID(ObjectGuid guid, int32 /*type*/) override
     {
         markGUID = guid;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         DoCast(me, me->GetDBTableGUIDLow() ? SPELL_ASSASSINS_MARK : SPELL_STEALTH, true);
         me->ClearUnitState(UNIT_STATE_CASTING);
@@ -909,7 +909,7 @@ struct npc_nazgrim_korkron_warshaman : public ScriptedAI
             DoCast(me, SPELL_FIRE_CHANNELING);
     }
 
-    uint64 GetLowestFriendGUID()
+    ObjectGuid GetLowestFriendGUID()
     {
         std::list<Creature*> tmpTargets;
 
@@ -922,14 +922,14 @@ struct npc_nazgrim_korkron_warshaman : public ScriptedAI
         tmpTargets.remove_if([=](Creature* target) { return target && !target->IsAlive(); });
 
         if (tmpTargets.empty())
-            return 0;
+            return ObjectGuid::Empty;
 
         tmpTargets.sort(Trinity::HealthPctOrderPred());
 
         if (Creature* lowestTarget = tmpTargets.front())
             return lowestTarget->GetGUID();
 
-        return 0;
+        return ObjectGuid::Empty;
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -943,7 +943,7 @@ struct npc_nazgrim_korkron_warshaman : public ScriptedAI
         events.RescheduleEvent(EVENT_CHAIN_HEAL, 6 * IN_MILLISECONDS);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->InterruptNonMeleeSpells(false, SPELL_FIRE_CHANNELING);
         events.ScheduleEvent(EVENT_CHAIN_HEAL, 5.5 * IN_MILLISECONDS);
@@ -994,19 +994,19 @@ struct npc_nazgrim_korkron_sniper : public ScriptedAI
 
     TaskScheduler scheduler;
     EventMap events;
-    uint64 markGUID;
+    ObjectGuid markGUID;
 
     void Reset() override
     {
-        markGUID = 0;
+        markGUID = ObjectGuid::Empty;
     }
 
-    void SetGUID(uint64 guid, int32 /*type*/) override
+    void SetGUID(ObjectGuid guid, int32 /*type*/) override
     {
         markGUID = guid;
     }
 
-    uint64 GetGUID(int32 type) const override
+    ObjectGuid GetGUID(int32 type) const override
     {
         return markGUID;
     }
@@ -1020,7 +1020,7 @@ struct npc_nazgrim_korkron_sniper : public ScriptedAI
             DoStartNoMovement(target);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         DoCast(me, SPELL_HUNTERS_MARK, true);
         me->ClearUnitState(UNIT_STATE_CASTING);
@@ -1117,7 +1117,7 @@ struct npc_nazgrim_korkron_healing_tide_totem : public ScriptedAI
     {
         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
 
-        if (Creature* nazgrim = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_GENERAL_NAZGRIM) : 0))
+        if (Creature* nazgrim = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_GENERAL_NAZGRIM) : ObjectGuid::Empty))
             nazgrim->AI()->JustSummoned(me);
 
         me->SetReactState(REACT_PASSIVE);
@@ -1144,7 +1144,7 @@ struct npc_nazgrim_heroic_shockwave : public ScriptedAI
         scheduler
             .Schedule(Milliseconds(500), [this](TaskContext context)
         {
-            if (Creature* nazgrim = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_GENERAL_NAZGRIM) : 0))
+            if (Creature* nazgrim = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_GENERAL_NAZGRIM) : ObjectGuid::Empty))
             {
                 nazgrim->AI()->JustSummoned(me);
 
@@ -1181,7 +1181,7 @@ struct npc_nazgrim_ravager : public ScriptedAI
                 hasLaunch = true;
 
                 // If found launcher target
-                if (Creature* nazgrim = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_GENERAL_NAZGRIM) : 0))
+                if (Creature* nazgrim = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_GENERAL_NAZGRIM) : ObjectGuid::Empty))
                 {
                     if (Unit* target = ObjectAccessor::GetUnit(*me, nazgrim->AI()->GetGUID(GUID_TYPE_RAVAGER)))
                     {
@@ -1201,8 +1201,7 @@ struct npc_nazgrim_ravager : public ScriptedAI
 
     void GenerateMovement()
     {
-        Position pos;
-        me->GetRandomPoint(nazgrimCenterPos, 40.0f, pos);
+        Position pos = me->GetRandomPoint(nazgrimCenterPos, 40.0f);
         me->GetMotionMaster()->MovePoint(0, pos);
     }
 
@@ -1711,7 +1710,7 @@ class AreaTrigger_at_soo_leftside_nazgrim : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
-            if (Creature* nazgrim = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetData64(DATA_GENERAL_NAZGRIM) : 0))
+            if (Creature* nazgrim = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(DATA_GENERAL_NAZGRIM) : ObjectGuid::Empty))
                 nazgrim->AI()->DoAction(ACTION_START_INTRO);
 
             return true;

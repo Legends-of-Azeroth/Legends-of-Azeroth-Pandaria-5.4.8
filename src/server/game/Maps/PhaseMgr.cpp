@@ -111,7 +111,7 @@ void PhaseMgr::Recalculate()
 
 inline bool PhaseMgr::CheckDefinition(PhaseDefinition const* phaseDefinition)
 {
-    ConditionList const* conditions = sConditionMgr->GetConditionsForPhaseDefinition(phaseDefinition->zoneId, phaseDefinition->entry);
+    ConditionContainer const* conditions = sConditionMgr->GetConditionsForPhaseDefinition(phaseDefinition->zoneId, phaseDefinition->entry);
     if (!conditions)
         return true;
 
@@ -126,11 +126,11 @@ bool PhaseMgr::NeedsPhaseUpdateWithData(PhaseUpdateData const& updateData) const
     {
         for (PhaseDefinitionContainer::const_iterator phase = itr->second.begin(); phase != itr->second.end(); ++phase)
         {
-            ConditionList const* conditionList = sConditionMgr->GetConditionsForPhaseDefinition(phase->zoneId, phase->entry);
+            ConditionContainer const* conditionList = sConditionMgr->GetConditionsForPhaseDefinition(phase->zoneId, phase->entry);
             if (!conditionList)
                 continue;
 
-            for (ConditionList::const_iterator condition = conditionList->begin(); condition != conditionList->end(); ++condition)
+            for (ConditionContainer::const_iterator condition = conditionList->begin(); condition != conditionList->end(); ++condition)
                 if (updateData.IsConditionRelated(*condition))
                     return true;
         }
@@ -266,6 +266,7 @@ void PhaseData::SendPhaseshiftToPlayer()
     std::set<uint32> phaseIds;
     std::set<uint32> terrainswaps;
     std::set<uint32> worldMapAreas;
+    uint32 flags = 0;
 
     for (PhaseInfoContainer::const_iterator itr = spellPhaseInfo.begin(); itr != spellPhaseInfo.end(); ++itr)
     {
@@ -290,9 +291,14 @@ void PhaseData::SendPhaseshiftToPlayer()
 
         if ((*itr)->worldMapArea)
             worldMapAreas.insert((*itr)->worldMapArea);
+
+        if ((*itr)->flags)
+            flags = (*itr)->flags;
     }
 
-    player->GetSession()->SendSetPhaseShift(phaseIds, terrainswaps, worldMapAreas);
+    //player->GetSession()->SendSetPhaseShift(phaseIds, terrainswaps, worldMapAreas, flags);
+    // Remove this when phase_definition has been deleted.
+    player->PlayerSendSetPhaseShift(phaseIds);
 }
 
 void PhaseData::GetActivePhases(std::set<uint32>& phases) const

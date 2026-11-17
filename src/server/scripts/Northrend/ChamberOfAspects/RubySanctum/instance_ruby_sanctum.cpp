@@ -38,26 +38,26 @@ class instance_ruby_sanctum : public InstanceMapScript
             {
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                BaltharusTheWarbornGUID  = 0;
-                GeneralZarithrianGUID    = 0;
-                SavianaRagefireGUID      = 0;
-                HalionGUID               = 0;
-                TwilightHalionGUID       = 0;
-                OrbCarrierGUID           = 0;
-                OrbRotationFocusGUID     = 0;
-                HalionControllerGUID     = 0;
-                CrystalChannelTargetGUID = 0;
-                XerestraszaGUID          = 0;
+                BaltharusTheWarbornGUID = ObjectGuid::Empty;
+                GeneralZarithrianGUID = ObjectGuid::Empty;
+                SavianaRagefireGUID = ObjectGuid::Empty;
+                HalionGUID = ObjectGuid::Empty;
+                TwilightHalionGUID = ObjectGuid::Empty;
+                OrbCarrierGUID = ObjectGuid::Empty;
+                OrbRotationFocusGUID = ObjectGuid::Empty;
+                HalionControllerGUID = ObjectGuid::Empty;
+                CrystalChannelTargetGUID = ObjectGuid::Empty;
+                XerestraszaGUID = ObjectGuid::Empty;
                 BaltharusSharedHealth    = 0;
-                FlameWallsGUID           = 0;
-                FlameRingGUID            = 0;
+                FlameWallsGUID = ObjectGuid::Empty;
+                FlameRingGUID = ObjectGuid::Empty;
 
                 memset(ZarithrianSpawnStalkerGUID, 0, 2 * sizeof(uint64));
                 memset(BurningTreeGUID, 0, 4 * sizeof(uint64));
                 instance->SetWorldState(instance->Is25ManRaid() ? WORLDSTATE_TWILIGHT_DESTROYER_25 : WORLDSTATE_TWILIGHT_DESTROYER_10, 1);
             }
 
-            void OnPlayerEnter(Player* /*player*/)
+            void OnPlayerEnter(Player* /*player*/) override
             {
                 if (!GetData64(DATA_HALION_CONTROLLER) && GetBossState(DATA_HALION) != DONE && GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
                 {
@@ -169,7 +169,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -209,7 +209,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -334,21 +334,21 @@ class instance_ruby_sanctum : public InstanceMapScript
             }
 
         protected:
-            uint64 BaltharusTheWarbornGUID;
-            uint64 GeneralZarithrianGUID;
-            uint64 SavianaRagefireGUID;
-            uint64 HalionGUID;
-            uint64 TwilightHalionGUID;
-            uint64 HalionControllerGUID;
-            uint64 OrbCarrierGUID;
-            uint64 OrbRotationFocusGUID;
-            uint64 CrystalChannelTargetGUID;
-            uint64 XerestraszaGUID;
-            uint64 FlameWallsGUID;
-            uint64 ZarithrianSpawnStalkerGUID[2];
-            uint64 BurningTreeGUID[4];
-            uint64 FlameRingGUID;
-            uint64 TwilightFlameRingGUID;
+            ObjectGuid BaltharusTheWarbornGUID;
+            ObjectGuid GeneralZarithrianGUID;
+            ObjectGuid SavianaRagefireGUID;
+            ObjectGuid HalionGUID;
+            ObjectGuid TwilightHalionGUID;
+            ObjectGuid HalionControllerGUID;
+            ObjectGuid OrbCarrierGUID;
+            ObjectGuid OrbRotationFocusGUID;
+            ObjectGuid CrystalChannelTargetGUID;
+            ObjectGuid XerestraszaGUID;
+            ObjectGuid FlameWallsGUID;
+            ObjectGuid ZarithrianSpawnStalkerGUID[2];
+            ObjectGuid BurningTreeGUID[4];
+            ObjectGuid FlameRingGUID;
+            ObjectGuid TwilightFlameRingGUID;
 
             uint32 BaltharusSharedHealth;
         };

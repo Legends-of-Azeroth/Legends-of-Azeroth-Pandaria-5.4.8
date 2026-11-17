@@ -159,7 +159,7 @@ class boss_striker_gadok : public CreatureScript
                 strafingEventProgress = 0;
                 move                  = 0;
                 curPct                = 70;
-                targetGUID            = 0;
+                targetGUID = ObjectGuid::Empty;
                 x = 0.0f; y = 0.0f;
                 me->GetMotionMaster()->Clear();
                 events.Reset();
@@ -169,7 +169,7 @@ class boss_striker_gadok : public CreatureScript
                 me->SetSpeed(MOVE_FLIGHT, 3.5f);
                 me->SendMovementFlagUpdate();
                 me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
-                me->SetAnimationTier(UnitAnimationTier::Hover);
+                me->SetAnimTier(AnimTier::Hover);
                 me->SetDisableGravity(true);
                 me->SetReactState(REACT_AGGRESSIVE);
 
@@ -213,9 +213,9 @@ class boss_striker_gadok : public CreatureScript
                 return me->SummonCreature(creatureId, x, y, CenterPos.GetPositionZ());
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
                 if (instance)
@@ -230,7 +230,7 @@ class boss_striker_gadok : public CreatureScript
                 exploitEvents.ScheduleEvent(EVENT_CHECK_WIPE, 1 * IN_MILLISECONDS);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 summons.DespawnAll();
                 _DespawnAtEvade();
@@ -522,7 +522,7 @@ class boss_striker_gadok : public CreatureScript
             uint8 strafingEventCount, strafingEventProgress, move;
             uint32 strafingTimer;
             int32 curPct;
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             float x, y;
             EventMap events;
 
@@ -552,18 +552,18 @@ class boss_striker_gadok : public CreatureScript
 };
 
 // curent range to pos
-float GetCirclePlatformPath(uint64 casterGUID, Position pos)
+float GetCirclePlatformPath(Creature* me, ObjectGuid casterGUID, Position pos)
 {
-    if (Unit* m_caster = ObjectAccessor::FindUnit(casterGUID))
+    if (Unit* m_caster = ObjectAccessor::GetUnit(*me, casterGUID))
         return m_caster->GetExactDist2d(&pos);
 
     return 0.0f;
 }
 
 // Approximate this by tangential
-Position GetPlatformPathPoint(float m_ori, uint64 casterGUID, float m_dist = 40.0f)
+Position GetPlatformPathPoint(Creature* me, float m_ori, ObjectGuid casterGUID, float m_dist = 40.0f)
 {
-    Unit* caster = ObjectAccessor::FindUnit(casterGUID);
+    Unit* caster = ObjectAccessor::GetUnit(*me, casterGUID);
 
     if (!caster)
         return{ 0.0f, 0.0f, 0.0f, 0.0f };
@@ -784,7 +784,7 @@ class npc_flak_cannon : public CreatureScript
                 {
                     for (uint8 i = 0; i < 5; ++i)
                     {
-                        if (Creature* bombarder = instance->instance->GetCreature(instance->GetData64(DATA_RANDOM_BOMBARDER)))
+                        if (Creature* bombarder = instance->instance->GetCreature(instance->GetGuidData(DATA_RANDOM_BOMBARDER)))
                         {
                             me->CastSpell(bombarder, 116553, true);
                             bombarder->GetMotionMaster()->MoveFall();

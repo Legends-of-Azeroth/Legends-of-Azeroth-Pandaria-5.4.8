@@ -311,9 +311,9 @@ void BattlegroundTP::RespawnFlagAfterDrop(uint32 team)
     if (GameObject* obj = GetBgMap()->GetGameObject(GetDroppedFlagGUID(team)))
         obj->Delete();
     else
-        TC_LOG_ERROR("bg.battleground", "unknown droped flag bg, guid: %u", GUID_LOPART(GetDroppedFlagGUID(team)));
+        TC_LOG_ERROR("bg.battleground", "unknown droped flag bg, guid: {}", GetDroppedFlagGUID(team).GetCounter());
 
-    SetDroppedFlagGUID(0, GetTeamIndexByTeamId(team));
+    SetDroppedFlagGUID(ObjectGuid::Empty, GetTeamIndexByTeamId(team));
     _bothFlagsKept = false;
 }
 
@@ -329,7 +329,7 @@ void BattlegroundTP::EventPlayerCapturedFlag(Player* player)
     {
         if (!IsHordeFlagPickedup())
             return;
-        SetHordeFlagPicker(0);                              // must be before aura remove to prevent 2 events (drop+capture) at the same time
+        SetHordeFlagPicker(ObjectGuid::Empty);                              // must be before aura remove to prevent 2 events (drop+capture) at the same time
                                                             // horde flag in base (but not respawned yet)
         _flagState[TEAM_HORDE] = BG_TP_FLAG_STATE_WAIT_RESPAWN;
                                                             // Drop Horde Flag from Player
@@ -346,7 +346,7 @@ void BattlegroundTP::EventPlayerCapturedFlag(Player* player)
     {
         if (!IsAllianceFlagPickedup())
             return;
-        SetAllianceFlagPicker(0);                           // must be before aura remove to prevent 2 events (drop+capture) at the same time
+        SetAllianceFlagPicker(ObjectGuid::Empty);                           // must be before aura remove to prevent 2 events (drop+capture) at the same time
                                                             // alliance flag in base (but not respawned yet)
         _flagState[TEAM_ALLIANCE] = BG_TP_FLAG_STATE_WAIT_RESPAWN;
                                                             // Drop Alliance Flag from Player
@@ -429,7 +429,7 @@ void BattlegroundTP::EventPlayerDroppedFlag(Player *player)
                 return;
             if (GetFlagPickerGUID(TEAM_HORDE) == player->GetGUID())
             {
-                SetHordeFlagPicker(0);
+                SetHordeFlagPicker(ObjectGuid::Empty);
                 player->RemoveAurasDueToSpell(BG_TP_SPELL_HORDE_FLAG);
                 player->RemoveAurasDueToSpell(TP_SPELL_FOCUSED_ASSAULT);
                 player->RemoveAurasDueToSpell(TP_SPELL_BRUTAL_ASSAULT);
@@ -441,7 +441,7 @@ void BattlegroundTP::EventPlayerDroppedFlag(Player *player)
                 return;
             if (GetFlagPickerGUID(TEAM_ALLIANCE) == player->GetGUID())
             {
-                SetAllianceFlagPicker(0);
+                SetAllianceFlagPicker(ObjectGuid::Empty);
                 player->RemoveAurasDueToSpell(BG_TP_SPELL_ALLIANCE_FLAG);
                 player->RemoveAurasDueToSpell(TP_SPELL_FOCUSED_ASSAULT);
                 player->RemoveAurasDueToSpell(TP_SPELL_BRUTAL_ASSAULT);
@@ -458,7 +458,7 @@ void BattlegroundTP::EventPlayerDroppedFlag(Player *player)
             return;
         if (GetFlagPickerGUID(TEAM_HORDE) == player->GetGUID())
         {
-            SetHordeFlagPicker(0);
+            SetHordeFlagPicker(ObjectGuid::Empty);
             player->RemoveAurasDueToSpell(BG_TP_SPELL_HORDE_FLAG);
             player->RemoveAurasDueToSpell(TP_SPELL_FOCUSED_ASSAULT);
             player->RemoveAurasDueToSpell(TP_SPELL_BRUTAL_ASSAULT);
@@ -474,7 +474,7 @@ void BattlegroundTP::EventPlayerDroppedFlag(Player *player)
             return;
         if (GetFlagPickerGUID(TEAM_ALLIANCE) == player->GetGUID())
         {
-            SetAllianceFlagPicker(0);
+            SetAllianceFlagPicker(ObjectGuid::Empty);
             player->RemoveAurasDueToSpell(BG_TP_SPELL_ALLIANCE_FLAG);
             player->RemoveAurasDueToSpell(TP_SPELL_FOCUSED_ASSAULT);
             player->RemoveAurasDueToSpell(TP_SPELL_BRUTAL_ASSAULT);
@@ -632,7 +632,7 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* player, GameObject* target
     player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 
-void BattlegroundTP::RemovePlayer(Player* player, uint64 guid, uint32 team)
+void BattlegroundTP::RemovePlayer(Player* player, ObjectGuid guid, uint32 team)
 {
     Battleground::RemovePlayer(player, guid, team);
     // sometimes flag aura not removed :(
@@ -641,7 +641,7 @@ void BattlegroundTP::RemovePlayer(Player* player, uint64 guid, uint32 team)
         if (!player)
         {
             TC_LOG_ERROR("bg.battleground", "BattlegroundTP: Removing offline player who has the FLAG!!");
-            SetAllianceFlagPicker(0);
+            SetAllianceFlagPicker(ObjectGuid::Empty);
             RespawnFlag(ALLIANCE, false);
         }
         else
@@ -652,7 +652,7 @@ void BattlegroundTP::RemovePlayer(Player* player, uint64 guid, uint32 team)
         if (!player)
         {
             TC_LOG_ERROR("bg.battleground", "BattlegroundTP: Removing offline player who has the FLAG!!");
-            SetHordeFlagPicker(0);
+            SetHordeFlagPicker(ObjectGuid::Empty);
             RespawnFlag(HORDE, false);
         }
         else
@@ -676,7 +676,7 @@ void BattlegroundTP::UpdateTeamScore(Team team)
         UpdateWorldState(BG_TP_FLAG_CAPTURES_HORDE, GetTeamScore(GetTeamIndexByTeamId(team)));
 }
 
-void BattlegroundTP::HandleAreaTrigger(Player* player, uint32 trigger)
+void BattlegroundTP::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -708,7 +708,7 @@ void BattlegroundTP::HandleAreaTrigger(Player* player, uint32 trigger)
         case 5921:                                          // Horde Start left Water channel
             break;
         default:
-            Battleground::HandleAreaTrigger(player, trigger);
+            Battleground::HandleAreaTrigger(player, trigger, entered);
             break;
     }
 }
@@ -778,10 +778,10 @@ void BattlegroundTP::Reset()
     //call parent's class reset
     Battleground::Reset();
 
-    m_FlagKeepers[TEAM_ALLIANCE]     = 0;
-    m_FlagKeepers[TEAM_HORDE]        = 0;
-    m_DroppedFlagGUID[TEAM_ALLIANCE] = 0;
-    m_DroppedFlagGUID[TEAM_HORDE]    = 0;
+    m_FlagKeepers[TEAM_ALLIANCE].Clear();
+    m_FlagKeepers[TEAM_HORDE].Clear();
+    m_DroppedFlagGUID[TEAM_ALLIANCE].Clear();
+    m_DroppedFlagGUID[TEAM_HORDE].Clear();
     _flagState[TEAM_ALLIANCE]        = BG_TP_FLAG_STATE_ON_BASE;
     _flagState[TEAM_HORDE]           = BG_TP_FLAG_STATE_ON_BASE;
     m_TeamScores[TEAM_ALLIANCE]      = 0;

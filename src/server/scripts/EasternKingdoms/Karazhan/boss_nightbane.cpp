@@ -142,12 +142,12 @@ class boss_nightbane : public CreatureScript
             {
                 if (instance)
                 {
-                    instance->HandleGameObject(instance->GetData64(DATA_MASTERS_TERRACE_DOOR_1), open);
-                    instance->HandleGameObject(instance->GetData64(DATA_MASTERS_TERRACE_DOOR_2), open);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_MASTERS_TERRACE_DOOR_1), open);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_MASTERS_TERRACE_DOOR_2), open);
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (instance)
                     instance->SetData(TYPE_NIGHTBANE, IN_PROGRESS);
@@ -163,7 +163,7 @@ class boss_nightbane : public CreatureScript
                 HandleTerraceDoors(true);
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 type, uint32 id) override
             {
                 if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE || id == 0)
                     return;

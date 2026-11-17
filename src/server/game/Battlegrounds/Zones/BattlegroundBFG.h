@@ -209,7 +209,7 @@ public:
 
     /* inherited from BattlegroundClass */
     void AddPlayer(Player* player) override;
-    void RemovePlayer(Player* player, uint64 guid, uint32 team);
+    void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
     void StartingEventCloseDoors() override;
     void StartingEventOpenDoors() override;
     void Reset() override;
@@ -218,13 +218,13 @@ public:
     bool SetupBattleground() override;
 
     /* Score-keeping */
-    void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
-    void FillInitialWorldStates(WorldStateBuilder& builder);
+    void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true) override;
+    void FillInitialWorldStates(WorldStateBuilder& builder) override;
 
-    void EventPlayerClickedOnFlag(Player* source, GameObject*);
+    void EventPlayerClickedOnFlag(Player* source, GameObject*) override;
 
     /* achievement requirements. */
-    bool IsAllNodesControlledByTeam(uint32 team) const;
+    bool IsAllNodesControlledByTeam(uint32 team) const override;
 
     uint32 GetRBGLoserReward(uint32 team) const override;
 

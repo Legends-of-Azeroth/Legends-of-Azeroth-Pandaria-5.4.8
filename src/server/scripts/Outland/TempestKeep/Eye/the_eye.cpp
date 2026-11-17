@@ -57,7 +57,7 @@ class npc_crystalcore_devastator : public CreatureScript
                 Knockaway_Timer = 25000;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
             }
 
@@ -79,7 +79,7 @@ class npc_crystalcore_devastator : public CreatureScript
                         target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
 
                     if (target)
-                        me->TauntApply(target);
+                        me->GetThreatManager().TauntUpdate();
 
                     Knockaway_Timer = 23000;
                 }

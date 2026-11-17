@@ -27,8 +27,6 @@
 struct VehicleEntry;
 class Unit;
 
-typedef std::set<uint64> GuidSet;
-
 class Vehicle : public TransportBase
 {
     protected:
@@ -44,6 +42,7 @@ class Vehicle : public TransportBase
         void Uninstall();
         void Reset(bool evading = false);
         void InstallAllAccessories(bool evading);
+        void AnnouncePassengers();   // (accessory-attach) tells the clients once more where the creature passengers sit
         void ApplyAllImmunities();
         void InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 type, uint32 summonTime);   //! May be called from scripts
 

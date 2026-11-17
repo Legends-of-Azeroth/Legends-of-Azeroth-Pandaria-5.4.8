@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -28,7 +28,7 @@ static void GetPlayerInfo(ChatHandler* handler, Player* player)
     if (!player)
         return;
 
-    uint64 guid = player->GetGUID();
+    ObjectGuid guid = player->GetGUID();
     if (auto queues = sLFGMgr->GetPlayerQueues(guid))
     {
         for (auto&& itr : *queues)
@@ -56,23 +56,22 @@ public:
     {
         static std::vector<ChatCommand> lfgCommandTable =
         {
-            { "player",     SEC_ADMINISTRATOR,  false,  &HandleLfgPlayerInfoCommand,    },
-            { "group",      SEC_ADMINISTRATOR,  false,  &HandleLfgGroupInfoCommand,     },
-            { "queue",      SEC_ADMINISTRATOR,  false,  &HandleLfgQueueInfoCommand,     },
-            { "clean",      SEC_ADMINISTRATOR,  false,  &HandleLfgCleanCommand,         },
-            { "options",    SEC_ADMINISTRATOR,  false,  &HandleLfgOptionsCommand,       },
-            { "profiling",  SEC_ADMINISTRATOR,  true,   &HandleLfgProfilingCommand      },
-            { "bug",        SEC_ADMINISTRATOR,  false,  &HandleLfgBugCommand            },
-            { "flex",       SEC_ADMINISTRATOR,  false,
-            {
-                { "reg",    SEC_ADMINISTRATOR,  false,  &HandleLfgFlexRegCommand,       },
-                { "scale",  SEC_ADMINISTRATOR,  false,  &HandleLfgFlexScaleCommand,     },
-            } },
+            { "player",     &HandleLfgPlayerInfoCommand,    rbac::RBAC_PERM_COMMAND_LFG_PLAYER,  Trinity::ChatCommands::Console::No },
+            { "group",      &HandleLfgGroupInfoCommand,     rbac::RBAC_PERM_COMMAND_LFG_GROUP,   Trinity::ChatCommands::Console::No },
+            { "queue",      &HandleLfgQueueInfoCommand,     rbac::RBAC_PERM_COMMAND_LFG_QUEUE,   Trinity::ChatCommands::Console::No },
+            { "clean",      &HandleLfgCleanCommand,         rbac::RBAC_PERM_COMMAND_LFG_CLEAN,   Trinity::ChatCommands::Console::No },
+            { "options",    &HandleLfgOptionsCommand,       rbac::RBAC_PERM_COMMAND_LFG_OPTIONS, Trinity::ChatCommands::Console::No },
+            { "profiling", &HandleLfgProfilingCommand, rbac::RBAC_PERM_COMMAND_LFG_PROFILING, Trinity::ChatCommands::Console::Yes },
+            { "bug", &HandleLfgBugCommand, rbac::RBAC_PERM_COMMAND_LFG_BUG, Trinity::ChatCommands::Console::No },
+            { "flex", {
+                { "reg", &HandleLfgFlexRegCommand, rbac::RBAC_PERM_COMMAND_LFG_FLEX_REG, Trinity::ChatCommands::Console::No },
+                { "scale", &HandleLfgFlexScaleCommand, rbac::RBAC_PERM_COMMAND_LFG_FLEX_SCALE, Trinity::ChatCommands::Console::No },
+            }, rbac::RBAC_PERM_COMMAND_LFG_FLEX, Trinity::ChatCommands::Console::No },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "lfg",        SEC_ADMINISTRATOR,  false,  lfgCommandTable                 },
+            { "lfg", lfgCommandTable, rbac::RBAC_PERM_COMMAND_LFG, Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }
@@ -108,7 +107,7 @@ public:
             return true;
         }
 
-        uint64 guid = grp->GetGUID();
+        ObjectGuid guid = grp->GetGUID();
         std::string const& state = lfg::GetStateString(sLFGMgr->GetActiveState(guid));
         handler->PSendSysMessage(LANG_LFG_GROUP_INFO, grp->isLFGGroup(),
             state.c_str(), sLFGMgr->GetDungeon(guid));
@@ -189,7 +188,7 @@ public:
         time_t now = time(nullptr);
 
         static std::map<uint32, time_t> cooldowns;
-        time_t& cooldown = cooldowns[player->GetGUIDLow()];
+        time_t& cooldown = cooldowns[player->GetGUID().GetCounter()];
         if (now <= cooldown)
         {
             handler->PSendSysMessage("Вы уже использовали эту команду за последнюю минуту");

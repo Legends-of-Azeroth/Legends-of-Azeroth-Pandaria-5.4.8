@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -163,7 +163,7 @@ class boss_tsulong : public CreatureScript
 
             EventMap m_oocEvents, berserkEvents;
             uint8 phase;
-            uint64 victimGUID;
+            ObjectGuid victimGUID;
             bool firstSpecialEnabled;
             bool secondSpecialEnabled;
             bool inFly;
@@ -217,7 +217,7 @@ class boss_tsulong : public CreatureScript
                 m_oocEvents.RescheduleEvent(1, 2000);
 
                 dayPhaseOri = 0.0f;
-                victimGUID  = 0;
+                victimGUID = ObjectGuid::Empty;
                 _Reset();
                 events.Reset();
                 berserkEvents.Reset();
@@ -285,12 +285,12 @@ class boss_tsulong : public CreatureScript
                 CreatureAI::MoveInLineOfSight(who);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (instance && instance->GetData(DATA_TSULONG) == DONE)
                     return;
 
-                _EnterCombat();
+                _JustEngagedWith();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
                 Talk(SAY_AGGRO);
@@ -407,7 +407,7 @@ class boss_tsulong : public CreatureScript
                         me->GetMotionMaster()->MoveIdle();
                         me->AttackStop();
                         me->StopMoving();
-                        me->SetTarget(0);
+                        me->SetTarget(ObjectGuid::Empty);
                         me->RemoveAurasDueToSpell(SPELL_SHA_ACTIVE);
                         me->RemoveAurasDueToSpell(SPELL_DREAD_SHADOWS);
                         me->RemoveAurasDueToSpell(SPELL_TERRORIZE_TSULONG);
@@ -573,7 +573,7 @@ class boss_tsulong : public CreatureScript
                 EnterEvadeMode();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
 
@@ -686,6 +686,7 @@ class boss_tsulong : public CreatureScript
 
                     while (uint32 eventId = events.ExecuteEvent())
                     {
+                        Position pos;
                         switch (eventId)
                         {
                             case EVENT_SWITCH_TO_NIGHT_PHASE:
@@ -698,8 +699,7 @@ class boss_tsulong : public CreatureScript
                                     pSunbeam->DisappearAndDie();
 
                                 Talk(EMOTE_SUNBEAM, me);
-                                Position pos;
-                                me->GetRandomNearPosition(pos, 30.0f);
+                                pos = me->GetRandomNearPosition(30.0f);
                                 me->SummonCreature(SUNBEAM_DUMMY_ENTRY, pos);
 
                                 // dark night should switch
@@ -768,7 +768,7 @@ class boss_tsulong : public CreatureScript
                 if (!instance)
                     return nullptr;
 
-                Creature* plant = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_ENCHANTED_PLANT));
+                Creature* plant = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_ENCHANTED_PLANT));
                 if (plant)
                 {
                     if (!plant->IsAlive() && !ignoreDeathState)
@@ -815,9 +815,9 @@ class npc_sunbeam : public CreatureScript
     public:
         npc_sunbeam() : CreatureScript("npc_sunbeam") { }
 
-        struct npc_sunbeamAI : public CreatureAI
+        struct npc_sunbeamAI : public ScriptedAI
         {
-            npc_sunbeamAI(Creature* creature) : CreatureAI(creature)
+            npc_sunbeamAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
                 creature->SetObjectScale(5.0f);
@@ -851,9 +851,9 @@ class npc_embodied_terror : public CreatureScript
     public:
         npc_embodied_terror() : CreatureScript("npc_embodied_terror") { }
 
-        struct npc_embodied_terrorAI : public CreatureAI
+        struct npc_embodied_terrorAI : public ScriptedAI
         {
-            npc_embodied_terrorAI(Creature* creature) : CreatureAI(creature) { }
+            npc_embodied_terrorAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {
@@ -958,9 +958,9 @@ class npc_fright_spawn : public CreatureScript
     public:
         npc_fright_spawn() : CreatureScript("npc_fright_spawn") { }
 
-        struct npc_fright_spawnAI : public CreatureAI
+        struct npc_fright_spawnAI : public ScriptedAI
         {
-            npc_fright_spawnAI(Creature* creature) : CreatureAI(creature) { }
+            npc_fright_spawnAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {
@@ -1010,7 +1010,7 @@ class npc_unstable_sha : public CreatureScript
         {
             npc_unstable_shaAI(Creature* creature) : ScriptedAI(creature)
             {
-                summonerGUID = 0;
+                summonerGUID = ObjectGuid::Empty;
                 riding = false;
                 cast = false;
             }
@@ -1070,7 +1070,7 @@ class npc_unstable_sha : public CreatureScript
 
             bool riding;
             bool cast;
-            uint64 summonerGUID;
+            ObjectGuid summonerGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -1376,7 +1376,7 @@ class npc_dark_of_night : public CreatureScript
         {
             npc_dark_of_nightAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 sunbeamGUID;
+            ObjectGuid sunbeamGUID;
             bool hasDied;
 
             void IsSummonedBy(Unit* summoner) override

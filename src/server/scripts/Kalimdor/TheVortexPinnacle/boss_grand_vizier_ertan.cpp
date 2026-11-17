@@ -74,7 +74,7 @@ class boss_grand_vizier_ertan : public CreatureScript
                 me->setActive(true);
             }
 
-            std::vector<uint64> _vortexes;
+            std::vector<ObjectGuid> _vortexes;
             uint32 m_cPos;
             float _distance, x, y;
 
@@ -90,7 +90,7 @@ class boss_grand_vizier_ertan : public CreatureScript
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 for (uint8 i = 0; i < 8; i++)
                     if (TempSummon* m_vortex = me->SummonCreature(NPC_ERTAN_VORTEX, ertanvortexPos_1[i]))
@@ -181,7 +181,7 @@ class boss_grand_vizier_ertan : public CreatureScript
                                 {
                                     if (me->GetDistance2d(player) > _distance)
                                     {
-                                        if (uint64 m_vGuid = Trinity::Containers::SelectRandomContainerElement(_vortexes))
+                                        if (ObjectGuid m_vGuid = Trinity::Containers::SelectRandomContainerElement(_vortexes))
                                             if (Creature* m_vortex = ObjectAccessor::GetCreature(*me, m_vGuid))
                                                 m_vortex->CastSpell(player, SPELL_STORM_EDGE, true);
 
@@ -233,7 +233,7 @@ struct npc_ertan_vortex : public ScriptedAI
                 prevX = me->GetPositionX();
                 prevY = me->GetPositionY();
 
-                if (Creature* ertan = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_ERTAN) : 0))
+                if (Creature* ertan = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_ERTAN) : ObjectGuid::Empty))
                 {
                     GetPositionWithDistInOrientation(me, dist - 5.0f, me->GetAngle(ertan), x, y);
                     me->GetMotionMaster()->MovePoint(0, x, y, me->GetPositionZ(), me->GetAngle(ertan));

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -15,30 +15,32 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "MapManager.h"
-#include "InstanceSaveMgr.h"
-#include "DatabaseEnv.h"
-#include "Log.h"
-#include "ObjectAccessor.h"
-#include "Transport.h"
-#include "GridDefines.h"
-#include "MapInstanced.h"
-#include "InstanceScript.h"
-#include "Config.h"
-#include "World.h"
 #include "CellImpl.h"
+#include "Config.h"
 #include "Corpse.h"
-#include "ObjectMgr.h"
-#include "Language.h"
-#include "WorldPacket.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "GridDefines.h"
 #include "Group.h"
-#include "Player.h"
-#include "WorldSession.h"
+#include "InstanceSaveMgr.h"
+#include "InstanceScript.h"
+#include "Language.h"
+#include "Log.h"
+#include "MapInstanced.h"
+#include "MapManager.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Opcodes.h"
+#include "Player.h"
+#include "Transport.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
 
 extern GridState* si_GridStates[];                          // debugging code, should be deleted some day
 
 MapManager::MapManager()
+    : _freeInstanceIds(std::make_unique<InstanceIds>()), _nextInstanceId(0)
 {
     i_gridCleanUpDelay = sWorld->getIntConfig(CONFIG_INTERVAL_GRIDCLEAN);
     i_timer.SetInterval(sWorld->getIntConfig(CONFIG_INTERVAL_MAPUPDATE));
@@ -108,7 +110,7 @@ Map* MapManager::CreateBaseMap(uint32 id)
 
     if (map == NULL)
     {
-        std::lock_guard<std::mutex> guard(Lock);
+        std::shared_lock<std::shared_mutex> lock(_mapsLock);
 
         MapEntry const* entry = sMapStore.LookupEntry(id);
         ASSERT(entry);
@@ -119,6 +121,7 @@ Map* MapManager::CreateBaseMap(uint32 id)
         {
             map = new Map(id, i_gridCleanUpDelay, 0, REGULAR_DIFFICULTY);
             map->LoadRespawnTimes();
+            map->LoadCorpseData();
         }
 
         i_maps[id] = map;
@@ -265,7 +268,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     Difficulty targetDifficulty = player->GetDifficulty(entry->IsRaid());
 
     //The player has a heroic mode and tries to enter into instance which has no a heroic mode
-    MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(entry->MapID, targetDifficulty);
+    MapDifficulty const* mapDiff = sDBCManager.GetDownscaledMapDifficultyData(entry->MapID, targetDifficulty);
     if (!mapDiff && mapid != 1112) // something wrong with this solo scenario
     {
         player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY_NOT_FOUND);
@@ -277,7 +280,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     if (player->IsGameMaster())
         return true;
 
-    char const* mapName = entry->name[sObjectMgr->GetDBCLocaleIndex()];
+    char const* mapName = entry->name;
 
     Group* group = player->GetGroup();
     if (entry->IsRaid() && entry->Expansion() >= EXPANSION_MISTS_OF_PANDARIA)
@@ -287,17 +290,17 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
         {
             /// @todo this is not a good place to send the message
             player->SendGameError(GameError::ERR_RAID_GROUP_ONLY);
-            TC_LOG_DEBUG("maps", "MAP: Player '%s' must be in a raid group to enter instance '%s'", player->GetName().c_str(), mapName);
+            TC_LOG_DEBUG("maps", "MAP: Player '{}' must be in a raid group to enter instance '{}'", player->GetName().c_str(), mapName);
             return false;
         }
     }
 
     if (!player->IsAlive())
     {
-        if (Corpse* corpse = player->GetCorpse())
+        if (player->HasCorpse())
         {
             // let enter in ghost mode in instance that connected to inner instance with corpse
-            uint32 corpseMap = corpse->GetMapId();
+            uint32 corpseMap = player->GetCorpseLocation().GetMapId();
             do
             {
                 if (corpseMap == mapid)
@@ -311,15 +314,15 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
             {
                 WorldPacket data(SMSG_CORPSE_NOT_IN_INSTANCE);
                 player->GetSession()->SendPacket(&data);
-                TC_LOG_DEBUG("maps", "MAP: Player '%s' does not have a corpse in instance '%s' and cannot enter.", player->GetName().c_str(), mapName);
+                TC_LOG_DEBUG("maps", "MAP: Player '{}' does not have a corpse in instance '{}' and cannot enter.", player->GetName().c_str(), mapName);
                 return false;
             }
-            TC_LOG_DEBUG("maps", "MAP: Player '%s' has corpse in instance '%s' and can enter.", player->GetName().c_str(), mapName);
+            TC_LOG_DEBUG("maps", "MAP: Player '{}' has corpse in instance '{}' and can enter.", player->GetName().c_str(), mapName);
             player->ResurrectPlayer(0.5f, false);
             player->SpawnCorpseBones();
         }
         else
-            TC_LOG_DEBUG("maps", "Map::CanPlayerEnter - player '%s' is dead but does not have a corpse!", player->GetName().c_str());
+            TC_LOG_DEBUG("maps", "Map::CanPlayerEnter - player '{}' is dead but does not have a corpse!", player->GetName().c_str());
     }
 
     //Get instance where player's group is bound & its map
@@ -442,7 +445,7 @@ void MapManager::UnloadAll()
 
 uint32 MapManager::GetNumInstances()
 {
-    std::lock_guard<std::mutex> guard(Lock);
+    std::shared_lock<std::shared_mutex> lock(_mapsLock);
 
     uint32 ret = 0;
     for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
@@ -459,7 +462,7 @@ uint32 MapManager::GetNumInstances()
 
 uint32 MapManager::GetNumPlayersInInstances()
 {
-    std::lock_guard<std::mutex> guard(Lock);
+    std::shared_lock<std::shared_mutex> lock(_mapsLock);
 
     uint32 ret = 0;
     for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
@@ -479,55 +482,48 @@ void MapManager::InitInstanceIds()
 {
     _nextInstanceId = 1;
 
-    QueryResult result = CharacterDatabase.Query("SELECT MAX(id) FROM instance");
-    if (result)
-    {
-        uint32 maxId = (*result)[0].GetUInt32();
+    if (QueryResult result = CharacterDatabase.Query("SELECT IFNULL(MAX(id), 0) FROM instance"))
+        _freeInstanceIds->resize((*result)[0].GetUInt64() + 2, true); // make space for one extra to be able to access [_nextInstanceId] index in case all slots are taken
+    else
+        _freeInstanceIds->resize(_nextInstanceId + 1, true);
 
-        // Resize to multiples of 32 (vector<bool> allocates memory the same way)
-        _instanceIds.resize((maxId / 32) * 32 + (maxId % 32 > 0 ? 32 : 0));
-    }
+    // never allow 0 id
+    _freeInstanceIds->set(0, false);
 }
 
 void MapManager::RegisterInstanceId(uint32 instanceId)
 {
     // Allocation and sizing was done in InitInstanceIds()
-    _instanceIds[instanceId] = true;
+    _freeInstanceIds->set(instanceId, false);
+
+    // Instances are pulled in ascending order from db and nextInstanceId is initialized with 1,
+    // so if the instance id is used, increment until we find the first unused one for a potential new instance
+    if (_nextInstanceId == instanceId)
+        ++_nextInstanceId;
 }
 
 uint32 MapManager::GenerateInstanceId()
 {
-    uint32 newInstanceId = _nextInstanceId;
-
-    // Find the lowest available id starting from the current NextInstanceId (which should be the lowest according to the logic in FreeInstanceId()
-    for (uint32 i = ++_nextInstanceId; i < 0xFFFFFFFF; ++i)
-    {
-        if ((i < _instanceIds.size() && !_instanceIds[i]) || i >= _instanceIds.size())
-        {
-            _nextInstanceId = i;
-            break;
-        }
-    }
-
-    if (newInstanceId == _nextInstanceId)
+    if (_nextInstanceId == 0xFFFFFFFF)
     {
         TC_LOG_ERROR("maps", "Instance ID overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
+        return _nextInstanceId;
     }
 
-    // Allocate space if necessary
-    if (newInstanceId >= uint32(_instanceIds.size()))
+    uint32 newInstanceId = _nextInstanceId;
+    ASSERT(newInstanceId < _freeInstanceIds->size());
+    _freeInstanceIds->set(newInstanceId, false);
+
+    // Find the lowest available id starting from the current NextInstanceId (which should be the lowest according to the logic in FreeInstanceId()
+    size_t nextFreedId = _freeInstanceIds->find_next(_nextInstanceId++);
+    if (nextFreedId == InstanceIds::npos)
     {
-        // Due to the odd memory allocation behavior of vector<bool> we match size to capacity before triggering a new allocation
-        if (_instanceIds.size() < _instanceIds.capacity())
-        {
-            _instanceIds.resize(_instanceIds.capacity());
-        }
-        else
-            _instanceIds.resize((newInstanceId / 32) * 32 + (newInstanceId % 32 > 0 ? 32 : 0));
+        _nextInstanceId = uint32(_freeInstanceIds->size());
+        _freeInstanceIds->push_back(true);
     }
-
-    _instanceIds[newInstanceId] = true;
+    else
+        _nextInstanceId = uint32(nextFreedId);
 
     return newInstanceId;
 }
@@ -535,8 +531,6 @@ uint32 MapManager::GenerateInstanceId()
 void MapManager::FreeInstanceId(uint32 instanceId)
 {
     // If freed instance id is lower than the next id available for new instances, use the freed one instead
-    //if (instanceId < _nextInstanceId)
-    //    SetNextInstanceId(instanceId);
-
-    _instanceIds[instanceId] = false;
+    _nextInstanceId = std::min(instanceId, _nextInstanceId);
+    _freeInstanceIds->set(instanceId, true);
 }

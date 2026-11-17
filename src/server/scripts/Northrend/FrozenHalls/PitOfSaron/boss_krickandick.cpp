@@ -163,10 +163,10 @@ class boss_ick : public CreatureScript
 
             Creature* GetKrick()
             {
-                return ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KRICK));
+                return ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KRICK));
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (Creature* krick = GetKrick())
                     krick->AI()->Talk(SAY_KRICK_AGGRO);
@@ -179,7 +179,7 @@ class boss_ick : public CreatureScript
                 instance->SetBossState(DATA_ICK, IN_PROGRESS);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->GetMotionMaster()->Clear();
                 ScriptedAI::EnterEvadeMode();
@@ -205,7 +205,7 @@ class boss_ick : public CreatureScript
             void _ResetThreat(Unit* target)
             {
                 DoModifyThreatPercent(target, -100);
-                me->AddThreat(target, _tempThreat);
+                me->GetThreatManager().AddThreat(target, _tempThreat);
             }
 
             void UpdateAI(uint32 diff) override
@@ -213,7 +213,7 @@ class boss_ick : public CreatureScript
                 if (!me->IsInCombat())
                     return;
 
-                if (!me->GetVictim() && me->getThreatManager().isThreatListEmpty())
+                if (!me->GetVictim() && me->GetThreatManager().IsThreatListEmpty())
                 {
                     EnterEvadeMode();
                     return;
@@ -313,8 +313,8 @@ class boss_krick : public CreatureScript
             {
                 _events.Reset();
                 _phase = PHASE_COMBAT;
-                _outroNpcGUID = 0;
-                _tyrannusGUID = 0;
+                _outroNpcGUID = ObjectGuid::Empty;
+                _tyrannusGUID = ObjectGuid::Empty;
 
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -322,7 +322,7 @@ class boss_krick : public CreatureScript
 
             Creature* GetIck()
             {
-                return ObjectAccessor::GetCreature(*me, _instanceScript->GetData64(DATA_ICK));
+                return ObjectAccessor::GetCreature(*me, _instanceScript->GetGuidData(DATA_ICK));
             }
 
             void KilledUnit(Unit* victim) override
@@ -347,7 +347,7 @@ class boss_krick : public CreatureScript
             {
                 if (action == ACTION_OUTRO)
                 {
-                    Creature* tyrannusPtr = ObjectAccessor::GetCreature(*me, _instanceScript->GetData64(DATA_TYRANNUS_EVENT));
+                    Creature* tyrannusPtr = ObjectAccessor::GetCreature(*me, _instanceScript->GetGuidData(DATA_TYRANNUS_EVENT));
                     if (tyrannusPtr)
                         tyrannusPtr->NearTeleportTo(outroPos[1].GetPositionX(), outroPos[1].GetPositionY(), outroPos[1].GetPositionZ(), outroPos[1].GetOrientation());
                     else
@@ -383,7 +383,7 @@ class boss_krick : public CreatureScript
                     {
                         case EVENT_OUTRO_1:
                         {
-                            if (Creature* temp = me->GetCreature(*me, _instanceScript->GetData64(DATA_JAINA_SYLVANAS_1)))
+                            if (Creature* temp = me->GetCreature(*me, _instanceScript->GetGuidData(DATA_JAINA_SYLVANAS_1)))
                                 temp->DespawnOrUnsummon();
 
                             Creature* jainaOrSylvanas = NULL;
@@ -431,7 +431,7 @@ class boss_krick : public CreatureScript
                             _events.ScheduleEvent(EVENT_OUTRO_6, 1000);
                             break;
                         case EVENT_OUTRO_6:
-                            if (Creature* tyrannus = me->GetCreature(*me, _instanceScript->GetData64(DATA_TYRANNUS_EVENT)))
+                            if (Creature* tyrannus = me->GetCreature(*me, _instanceScript->GetGuidData(DATA_TYRANNUS_EVENT)))
                             {
                                 tyrannus->SetSpeed(MOVE_RUN, 3.5f, true);
                                 tyrannus->GetMotionMaster()->MovePoint(1, outroPos[4]);
@@ -505,8 +505,8 @@ class boss_krick : public CreatureScript
             EventMap _events;
 
             KrickPhase _phase;
-            uint64 _outroNpcGUID;
-            uint64 _tyrannusGUID;
+            ObjectGuid _outroNpcGUID;
+            ObjectGuid _tyrannusGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -657,9 +657,9 @@ class spell_krick_pursuit : public SpellScriptLoader
                 if (Unit* target = GetHitUnit())
                 {
                     ickAI->Talk(SAY_ICK_CHASE_1, target);
-                    CAST_AI(boss_ick::boss_ickAI, ickAI)->SetTempThreat(caster->getThreatManager().getThreat(target));
-                    caster->AddThreat(target, float(GetEffectValue()));
-                    target->AddThreat(caster, float(GetEffectValue()));
+                    CAST_AI(boss_ick::boss_ickAI, ickAI)->SetTempThreat(caster->GetThreatManager().GetThreat(target));
+                    caster->GetThreatManager().AddThreat(target, float(GetEffectValue()));
+                    target->GetThreatManager().AddThreat(caster, float(GetEffectValue()));
                 }
             }
 

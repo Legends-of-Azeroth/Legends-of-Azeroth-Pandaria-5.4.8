@@ -42,7 +42,7 @@ class CombatAI : public CreatureAI
 
         void InitializeAI();
         void Reset();
-        void EnterCombat(Unit* who);
+        void JustEngagedWith(Unit* who);
         void JustDied(Unit* killer);
         void UpdateAI(uint32 diff);
         void SpellInterrupted(uint32 spellId, uint32 unTimeMs);
@@ -59,7 +59,7 @@ class CasterAI : public CombatAI
         void InitializeAI();
         void AttackStart(Unit* victim) { AttackStartCaster(victim, m_attackDist); }
         void UpdateAI(uint32 diff);
-        void EnterCombat(Unit* /*who*/);
+        void JustEngagedWith(Unit* /*who*/);
     private:
         float m_attackDist;
 };

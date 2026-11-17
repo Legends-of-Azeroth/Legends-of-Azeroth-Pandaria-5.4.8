@@ -256,7 +256,7 @@ class npc_spiteful_apparition : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (damage >= me->GetHealth() && !me->HasUnitState(UNIT_STATE_CASTING))
                 {
@@ -265,7 +265,7 @@ class npc_spiteful_apparition : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 DoCast(me, SPELL_SOUL_HORROR_VISUAL, true);
@@ -327,7 +327,7 @@ class npc_spectral_warden : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_VEIL_OF_SHADOWS, urand(3000, 5000));
                 events.ScheduleEvent(EVENT_WAIL_OF_SOULS, 10000);
@@ -387,7 +387,7 @@ class npc_soulguard_watchman : public CreatureScript
                 events.Reset();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (!rage && me->HealthBelowPctDamaged(25, damage))
                 {
@@ -396,7 +396,7 @@ class npc_soulguard_watchman : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SHROUD_OF_RUNES, urand(5000, 15000));
             }
@@ -474,7 +474,7 @@ class npc_soulguard_reaper : public CreatureScript
                 CommonJustReachedHome(me);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->InterruptNonMeleeSpells(false);
                 events.ScheduleEvent(EVENT_FROST_NOVA, urand(5000, 10000));
@@ -541,7 +541,7 @@ class npc_soulguard_bonecaster : public CreatureScript
                 CommonJustReachedHome(me);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->InterruptNonMeleeSpells(false);
                 events.ScheduleEvent(EVENT_BONE_VOLLEY, urand(100, 3000));
@@ -615,7 +615,7 @@ class npc_soulguard_animator : public CreatureScript
                 CommonJustReachedHome(me);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->InterruptNonMeleeSpells(false);
                 events.ScheduleEvent(EVENT_RAISE_DEAD, urand(25000, 35000));
@@ -695,7 +695,7 @@ class npc_soulguard_adept : public CreatureScript
                 CommonJustReachedHome(me);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->InterruptNonMeleeSpells(false);
                 events.ScheduleEvent(EVENT_RAISE_DEAD, urand(25000, 35000));
@@ -774,7 +774,7 @@ class npc_soul_horror : public CreatureScript
                 DoCast(me, SPELL_SOUL_CHANNELING_IMPACT);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->InterruptNonMeleeSpells(false);
                 events.ScheduleEvent(EVENT_SOUL_STRIKE, urand(100, 3000));

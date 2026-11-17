@@ -156,7 +156,7 @@ public:
             me->GetMap()->SetWorldState(WORLD_STATE_SHE_DEEP_BREATHS_MORE, 1);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
             me->SetInCombatWithZone();

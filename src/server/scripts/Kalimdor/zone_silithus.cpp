@@ -189,7 +189,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 6:
                 player->SEND_GOSSIP_MENU(7761, creature->GetGUID());
                                                                 //'kill' our trigger to update quest status
-                player->KilledMonsterCredit(TRIGGER_RUTGAR, 0);
+                player->KilledMonsterCredit(TRIGGER_RUTGAR, ObjectGuid::Empty);
                 break;
 
             case GOSSIP_ACTION_INFO_DEF + 9:
@@ -215,7 +215,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 14:
                 player->SEND_GOSSIP_MENU(7767, creature->GetGUID());
                                                                 //'kill' our trigger to update quest status
-                player->KilledMonsterCredit(TRIGGER_FRANKAL, 0);
+                player->KilledMonsterCredit(TRIGGER_FRANKAL, ObjectGuid::Empty);
                 break;
         }
         return true;
@@ -519,24 +519,24 @@ public:
         uint32 AnimationTimer;
         uint8 AnimationCount;
 
-        uint64 AnachronosQuestTriggerGUID;
-        uint64 MerithraGUID;
-        uint64 ArygosGUID;
-        uint64 CaelestraszGUID;
-        uint64 FandralGUID;
-        uint64 PlayerGUID;
+        ObjectGuid AnachronosQuestTriggerGUID;
+        ObjectGuid MerithraGUID;
+        ObjectGuid ArygosGUID;
+        ObjectGuid CaelestraszGUID;
+        ObjectGuid FandralGUID;
+        ObjectGuid PlayerGUID;
         bool eventEnd;
 
         void Reset() override
         {
             AnimationTimer = 1500;
             AnimationCount = 0;
-            AnachronosQuestTriggerGUID = 0;
-            MerithraGUID = 0;
-            ArygosGUID = 0;
-            CaelestraszGUID = 0;
-            FandralGUID = 0;
-            PlayerGUID = 0;
+            AnachronosQuestTriggerGUID = ObjectGuid::Empty;
+            MerithraGUID = ObjectGuid::Empty;
+            ArygosGUID = ObjectGuid::Empty;
+            CaelestraszGUID = ObjectGuid::Empty;
+            FandralGUID = ObjectGuid::Empty;
+            PlayerGUID = ObjectGuid::Empty;
             eventEnd = false;
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -569,7 +569,7 @@ public:
                         Fandral->AI()->Talk(FANDRAL_SAY_1, me);
                         break;
                     case 2:
-                        Fandral->SetTarget(0);
+                        Fandral->SetTarget(ObjectGuid::Empty);
                         Merithra->AI()->Talk(MERITHRA_EMOTE_1);
                         break;
                     case 3:
@@ -586,7 +586,7 @@ public:
                         Merithra->AI()->Talk(MERITHRA_SAY_2);
                         break;
                     case 7:
-                        Caelestrasz->SetTarget(0);
+                        Caelestrasz->SetTarget(ObjectGuid::Empty);
                         Merithra->GetMotionMaster()->MoveCharge(-8065, 1530, 2.61f, 10);
                         break;
                     case 8:
@@ -844,21 +844,21 @@ public:
     {
         npc_qiraj_war_spawnAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 MobGUID;
-        uint64 PlayerGUID;
+        ObjectGuid MobGUID;
+        ObjectGuid PlayerGUID;
         uint32 SpellTimer1, SpellTimer2, SpellTimer3, SpellTimer4;
         bool Timers;
         bool hasTarget;
 
         void Reset() override
         {
-            MobGUID = 0;
-            PlayerGUID = 0;
+            MobGUID = ObjectGuid::Empty;
+            PlayerGUID = ObjectGuid::Empty;
             Timers = false;
             hasTarget = false;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void JustDied(Unit* /*slayer*/) override;
 
         void UpdateAI(uint32 diff) override
@@ -957,7 +957,7 @@ public:
     {
         npc_anachronos_quest_triggerAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         uint32 WaveTimer;
         uint32 AnnounceTimer;
@@ -971,7 +971,7 @@ public:
 
         void Reset() override
         {
-            PlayerGUID = 0;
+            PlayerGUID = ObjectGuid::Empty;
 
             WaveTimer = 2000;
             AnnounceTimer = 1000;
@@ -994,7 +994,7 @@ public:
             {
                 uint32 desptimer = WavesInfo[WaveCount].DespTimer;
 
-                if (Creature* spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, SpawnLocation[i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, desptimer))
+                if (Creature* spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, SpawnLocation[i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, Milliseconds(desptimer)))
                 {
                     if (spawn->GetEntry() == 15423)
                         spawn->SetUInt32Value(UNIT_FIELD_DISPLAY_ID, 15427+rand()%4);
@@ -1115,16 +1115,16 @@ public:
         {
             if (Creature* trigger = go->FindNearestCreature(15454, 100, player))
             {
-                Unit* Merithra = trigger->SummonCreature(15378, -8034.535f, 1535.14f, 2.61f, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Unit* Caelestrasz = trigger->SummonCreature(15379, -8032.767f, 1533.148f, 2.61f, 1.5f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Unit* Arygos = trigger->SummonCreature(15380, -8034.52f, 1537.843f, 2.61f, 5.7f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                /* Unit* Fandral = */ trigger->SummonCreature(15382, -8028.462f, 1535.843f, 2.61f, 3.141592f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Creature* Anachronos = trigger->SummonCreature(15381, -8028.75f, 1538.795f, 2.61f, 4, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Unit* Merithra = trigger->SummonCreature(15378, -8034.535f, 1535.14f, 2.61f, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000ms);
+                Unit* Caelestrasz = trigger->SummonCreature(15379, -8032.767f, 1533.148f, 2.61f, 1.5f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000ms);
+                Unit* Arygos = trigger->SummonCreature(15380, -8034.52f, 1537.843f, 2.61f, 5.7f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000ms);
+                /* Unit* Fandral = */ trigger->SummonCreature(15382, -8028.462f, 1535.843f, 2.61f, 3.141592f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000ms);
+                Creature* Anachronos = trigger->SummonCreature(15381, -8028.75f, 1538.795f, 2.61f, 4, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000ms);
 
                 if (Merithra)
                 {
                     Merithra->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
-                    Merithra->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
+                    Merithra->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                     Merithra->SetUInt32Value(UNIT_FIELD_DISPLAY_ID, 15420);
                     Merithra->SetFaction(35);
                 }
@@ -1132,7 +1132,7 @@ public:
                 if (Caelestrasz)
                 {
                     Caelestrasz->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
-                    Caelestrasz->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
+                    Caelestrasz->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                     Caelestrasz->SetUInt32Value(UNIT_FIELD_DISPLAY_ID, 15419);
                     Caelestrasz->SetFaction(35);
                 }
@@ -1140,7 +1140,7 @@ public:
                 if (Arygos)
                 {
                     Arygos->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
-                    Arygos->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
+                    Arygos->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                     Arygos->SetUInt32Value(UNIT_FIELD_DISPLAY_ID, 15418);
                     Arygos->SetFaction(35);
                 }
@@ -1350,7 +1350,7 @@ class go_wind_stone : public GameObjectScript
         void SummonNPC(GameObject* go, Player* player, uint32 npc, uint32 spell)
         {
             go->CastSpell(player, spell);
-            TempSummon* summons = go->SummonCreature(npc, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), player->GetOrientation() - M_PI, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10 * 60 * 1000);
+            TempSummon* summons = go->SummonCreature(npc, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), player->GetOrientation() - M_PI, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, Milliseconds(10 * 60 * 1000));
             summons->CastSpell(summons, SPELL_SPAWN_IN, false);
             switch (summons->GetEntry())
             {

@@ -341,7 +341,7 @@ class npc_aqua_dancer : public CreatureScript
         {
             npc_aqua_dancerAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 hozenGuid;
+            ObjectGuid hozenGuid;
 
             void Reset() override { }
 
@@ -424,7 +424,7 @@ class npc_fiery_trickster : public CreatureScript
                 events.ScheduleEvent(EVENT_FIRE_SPARK, urand(4000, 9000));
             }
 
-            uint64 hozenGuid;
+            ObjectGuid hozenGuid;
             EventMap events;
 
             void Initialize()
@@ -552,7 +552,7 @@ class npc_hozen_party_animal : public CreatureScript
                 me->GetMotionMaster()->MovePoint(waypoint, aPartyWps[waypoint]);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 std::list<Creature*> temp;
                 GetCreatureListWithEntryInGrid(temp, me, me->GetEntry(), 15.f);
@@ -725,7 +725,7 @@ class npc_controlled_hozen : public CreatureScript
         {
             npc_controlled_hozenAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->CombatStop(true);
                 me->AttackStop();
@@ -733,7 +733,7 @@ class npc_controlled_hozen : public CreatureScript
                 me->GetMotionMaster()->MoveTargetedHome();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 std::list<Creature*> temp;
                 GetCreatureListWithEntryInGrid(temp, me, me->GetEntry(), 60.f);

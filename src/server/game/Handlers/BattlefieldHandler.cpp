@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -21,7 +21,6 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Object.h"
-
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "Opcodes.h"
@@ -31,14 +30,28 @@
 //Param1:(guid) the guid of Bf
 //Param2:(ZoneId) the zone where the battle is (4197 for wg)
 //Param3:(time) Time in second that the player have for accept
-void WorldSession::SendBfInvitePlayerToWar(uint64 guid, uint32 zoneId, uint32 pTime)
+void WorldSession::SendBfInvitePlayerToWar(ObjectGuid guid, uint32 zoneId, uint32 pTime)
 {
     ObjectGuid guidBytes = guid;
 
     WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTRY_INVITE, 16);
 
-    data.WriteGuidMask(guidBytes, 0, 2, 7, 6, 1, 4, 5, 3);
-    data.WriteGuidBytes(guidBytes, 4, 2, 0, 1, 7, 3, 6, 5);
+    data.WriteBit(guidBytes[0]);
+    data.WriteBit(guidBytes[2]);
+    data.WriteBit(guidBytes[7]);
+    data.WriteBit(guidBytes[6]);
+    data.WriteBit(guidBytes[1]);
+    data.WriteBit(guidBytes[4]);
+    data.WriteBit(guidBytes[5]);
+    data.WriteBit(guidBytes[3]);
+    data.WriteByteSeq(guidBytes[4]);
+    data.WriteByteSeq(guidBytes[2]);
+    data.WriteByteSeq(guidBytes[0]);
+    data.WriteByteSeq(guidBytes[1]);
+    data.WriteByteSeq(guidBytes[7]);
+    data.WriteByteSeq(guidBytes[3]);
+    data.WriteByteSeq(guidBytes[6]);
+    data.WriteByteSeq(guidBytes[5]);
 
     data << uint32(zoneId);             // Zone Id
     data << uint32(time(NULL) + pTime); // Invite lasts until
@@ -48,7 +61,7 @@ void WorldSession::SendBfInvitePlayerToWar(uint64 guid, uint32 zoneId, uint32 pT
 }
 
 //This send invitation to player to join the queue
-void WorldSession::SendBfInvitePlayerToQueue(uint64 guid)
+void WorldSession::SendBfInvitePlayerToQueue(ObjectGuid guid)
 {
     ObjectGuid guidBytes = guid;
 
@@ -91,7 +104,7 @@ void WorldSession::SendBfInvitePlayerToQueue(uint64 guid)
 //Param2:(ZoneId) the zone where the battle is (4197 for wg)
 //Param3:(CanQueue) if able to queue
 //Param4:(Full) on log in is full
-void WorldSession::SendBfQueueInviteResponse(uint64 guid, uint32 ZoneId, bool CanQueue, bool Full)
+void WorldSession::SendBfQueueInviteResponse(ObjectGuid guid, uint32 ZoneId, bool CanQueue, bool Full)
 {
     const bool hasSecondGuid = false;
     const bool warmup = true;
@@ -136,7 +149,7 @@ void WorldSession::SendBfQueueInviteResponse(uint64 guid, uint32 ZoneId, bool Ca
 }
 
 //This is call when player accept to join war
-void WorldSession::SendBfEntered(uint64 guid)
+void WorldSession::SendBfEntered(ObjectGuid guid)
 {
     uint8 isAFK = _player->isAFK() ? 1 : 0;
     ObjectGuid guidBytes = guid;
@@ -167,7 +180,7 @@ void WorldSession::SendBfEntered(uint64 guid)
     SendPacket(&data);
 }
 
-void WorldSession::SendBfLeaveMessage(uint64 guid, BFLeaveReason reason)
+void WorldSession::SendBfLeaveMessage(ObjectGuid guid, BFLeaveReason reason)
 {
     ObjectGuid guidBytes = guid;
 
@@ -196,31 +209,12 @@ void WorldSession::SendBfLeaveMessage(uint64 guid, BFLeaveReason reason)
 }
 
 // Send by client when he click on accept for queue
-void WorldSession::HandleBfQueueInviteResponse(WorldPacket& recvData)
+void WorldSession::HandleBfQueueInviteResponse(WorldPackets::Battleground::BattlefieldMgrQueueInviteResponse& packet)
 {
-    uint8 accepted;
-    ObjectGuid guid;
+    ObjectGuid guid = packet.Guid;
+    uint8 accepted = packet.Accepted;
 
-    guid[3] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    accepted = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[3]);
-
-    TC_LOG_DEBUG("misc", "HandleQueueInviteResponse: GUID:" UI64FMTD " Accepted:%u", (uint64)guid, accepted);
+    TC_LOG_DEBUG("misc", "HandleQueueInviteResponse: GUID:" "{}" " Accepted:{}", (uint64)guid, accepted);
 
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
     if (!bf)
@@ -231,31 +225,12 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket& recvData)
 }
 
 // Send by client on clicking in accept or refuse of invitation windows for join game
-void WorldSession::HandleBfEntryInviteResponse(WorldPacket& recvData)
+void WorldSession::HandleBfEntryInviteResponse(WorldPackets::Battleground::BattlefieldMgrEntryInviteResponse& packet)
 {
-    uint8 accepted;
-    ObjectGuid guid;
+    ObjectGuid guid = packet.Guid;
+    uint8 accepted = packet.Accepted;
 
-    guid[0] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    accepted = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[0]);
-
-    TC_LOG_DEBUG("misc", "HandleBattlefieldInviteResponse: GUID:" UI64FMTD " Accepted:%u", (uint64) guid, accepted);
+    TC_LOG_DEBUG("misc", "HandleBattlefieldInviteResponse: GUID:" "{}" " Accepted:{}", (uint64) guid, accepted);
 
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
     if (!bf)
@@ -268,29 +243,11 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket& recvData)
             bf->KickPlayerFromBattlefield(_player->GetGUID());
 }
 
-void WorldSession::HandleBfQueueRequest(WorldPacket& recvData)
+void WorldSession::HandleBfQueueRequest(WorldPackets::Battleground::BattlefieldMgrQueueRequest& packet)
 {
-    ObjectGuid guid;
+    ObjectGuid guid = packet.Guid;
 
-    guid[5] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[3]);
-
-    TC_LOG_DEBUG("misc", "HandleBfQueueRequest: GUID:" UI64FMTD " ", (uint64) guid);
+    TC_LOG_DEBUG("misc", "HandleBfQueueRequest: GUID:" "{}" " ", (uint64) guid);
 
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
     if (!bf)
@@ -306,7 +263,7 @@ void WorldSession::HandleBfQueueRequest(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleBfExitRequest(WorldPacket& recvData)
+void WorldSession::HandleBfExitRequest(WorldPackets::Battleground::BattlefieldMgrExitRequest& /*packet*/)
 {
     TC_LOG_DEBUG("misc", "HandleBfExitRequest");
 

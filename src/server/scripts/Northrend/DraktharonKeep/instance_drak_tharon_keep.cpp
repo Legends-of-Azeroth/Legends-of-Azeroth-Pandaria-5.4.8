@@ -61,29 +61,29 @@ public:
 
         uint8 uiDredAchievCounter;
 
-        uint64 uiTrollgore;
-        uint64 uiNovos;
-        uint64 uiDred;
-        uint64 uiTharonJa;
+        ObjectGuid uiTrollgore;
+        ObjectGuid uiNovos;
+        ObjectGuid uiDred;
+        ObjectGuid uiTharonJa;
 
-        uint64 uiNovosCrystal1;
-        uint64 uiNovosCrystal2;
-        uint64 uiNovosCrystal3;
-        uint64 uiNovosCrystal4;
+        ObjectGuid uiNovosCrystal1;
+        ObjectGuid uiNovosCrystal2;
+        ObjectGuid uiNovosCrystal3;
+        ObjectGuid uiNovosCrystal4;
 
-        uint64 novosSummonerGUID1;
-        uint64 novosSummonerGUID2;
-        uint64 novosSummonerGUID3;
-        uint64 novosSummonerGUID4;
+        ObjectGuid novosSummonerGUID1;
+        ObjectGuid novosSummonerGUID2;
+        ObjectGuid novosSummonerGUID3;
+        ObjectGuid novosSummonerGUID4;
 
         bool introReanimatorDone = false;
         bool introWarriorsDone = false;
-        uint64 introReanimatorGUID = 0;
-        uint64 introGuardianRightGUID = 0;
-        uint64 introGuardianLeftGUID = 0;
-        std::vector<uint64> introWarriorGUIDs;
+        ObjectGuid introReanimatorGUID = ObjectGuid::Empty;
+        ObjectGuid introGuardianRightGUID = ObjectGuid::Empty;
+        ObjectGuid introGuardianLeftGUID = ObjectGuid::Empty;
+        std::vector<ObjectGuid> introWarriorGUIDs;
 
-        uint64 kurzelCocoonGUID = 0;
+        ObjectGuid kurzelCocoonGUID = ObjectGuid::Empty;
 
         uint16 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -92,19 +92,19 @@ public:
         void Initialize() override
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-            uiTrollgore = 0;
-            uiNovos = 0;
-            uiDred = 0;
-            uiTharonJa = 0;
-            uiNovosCrystal1 = 0;
-            uiNovosCrystal2 = 0;
-            uiNovosCrystal3 = 0;
-            uiNovosCrystal4 = 0;
-            uiDredAchievCounter = 0;
-            novosSummonerGUID1 = 0;
-            novosSummonerGUID2 = 0;
-            novosSummonerGUID3 = 0;
-            novosSummonerGUID4 = 0;
+            uiTrollgore = ObjectGuid::Empty;
+            uiNovos = ObjectGuid::Empty;
+            uiDred = ObjectGuid::Empty;
+            uiTharonJa = ObjectGuid::Empty;
+            uiNovosCrystal1 = ObjectGuid::Empty;
+            uiNovosCrystal2 = ObjectGuid::Empty;
+            uiNovosCrystal3 = ObjectGuid::Empty;
+            uiNovosCrystal4 = ObjectGuid::Empty;
+            uiDredAchievCounter = ObjectGuid::Empty;
+            novosSummonerGUID1 = ObjectGuid::Empty;
+            novosSummonerGUID2 = ObjectGuid::Empty;
+            novosSummonerGUID3 = ObjectGuid::Empty;
+            novosSummonerGUID4 = ObjectGuid::Empty;
         }
 
         bool IsEncounterInProgress() const override
@@ -216,7 +216,7 @@ public:
                 novosSummonerGUID4 = creature->GetGUID();
         }
 
-        uint64 GetData64(uint32 type) const override
+        ObjectGuid GetGuidData(uint32 type) const override
         {
             switch (type)
             {
@@ -234,7 +234,7 @@ public:
             case DATA_NOVOS_SUMMONER_4:   return novosSummonerGUID4;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data) override
@@ -319,7 +319,7 @@ public:
             {
                 if (Player* player = ref.GetSource())
                 {
-                    uint64 playerGuid = player->GetGUID();
+                    ObjectGuid playerGuid = player->GetGUID();
                     if (!introReanimatorDone && player->GetPositionY() <= -525.0f)
                     {
                         introReanimatorDone = true;
@@ -388,7 +388,7 @@ public:
             return str_data;
         }
 
-        void OnUnitDeath(Unit* unit)
+        void OnUnitDeath(Unit* unit) override
         {
             if (unit->GetEntry() == NPC_CRYSTAL_HANDLER)
             {

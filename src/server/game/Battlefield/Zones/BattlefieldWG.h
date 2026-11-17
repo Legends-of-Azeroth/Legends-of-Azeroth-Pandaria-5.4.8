@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -384,7 +384,7 @@ class BattlefieldWG : public Battlefield
         GameObject* GetRelic() { return GetGameObject(m_titansRelicGUID); }
 
         /// Define relic object
-        void SetRelic(uint64 relicGUID) { m_titansRelicGUID = relicGUID; }
+        void SetRelic(ObjectGuid relicGUID) { m_titansRelicGUID = relicGUID; }
 
         /// Check if players can interact with the relic (Only if the last door has been broken)
         bool CanInteractWithRelic() { return m_isRelicInteractible; }
@@ -430,7 +430,7 @@ class BattlefieldWG : public Battlefield
         uint32 m_tenacityStack;
         uint32 m_saveTimer;
 
-        uint64 m_titansRelicGUID;
+        ObjectGuid m_titansRelicGUID;
 };
 
 uint32 const VehNumWorldState[]        = { 3680, 3490 };
@@ -1063,7 +1063,7 @@ struct BfWGGameObjectBuilding
     {
         m_WG = WG;
         m_Team = 0;
-        m_BuildGUID = 0;
+        m_BuildGUID = ObjectGuid::Empty;
         m_Type = 0;
         m_WorldState = 0;
         m_State = 0;
@@ -1077,7 +1077,7 @@ struct BfWGGameObjectBuilding
     BattlefieldWG* m_WG;
 
     // Linked gameobject
-    uint64 m_BuildGUID;
+    ObjectGuid m_BuildGUID;
 
     // eWGGameObjectBuildingType
     uint32 m_Type;
@@ -1309,8 +1309,7 @@ struct BfWGGameObjectBuilding
             // Spawn Turret bottom
             for (uint8 i = 0; i < TowerCannon[towerid].nbTowerCannonBottom; i++)
             {
-                Position turretPos;
-                TowerCannon[towerid].TowerCannonBottom[i].GetPosition(&turretPos);
+                Position turretPos = TowerCannon[towerid].TowerCannonBottom[i].GetPosition();
                 if (Creature* turret = m_WG->SpawnCreature(NPC_WINTERGRASP_TOWER_CANNON, turretPos, TEAM_ALLIANCE))
                 {
                     m_TowerCannonBottomList.insert(turret->GetGUID());
@@ -1335,8 +1334,7 @@ struct BfWGGameObjectBuilding
             // Spawn Turret top
             for (uint8 i = 0; i < TowerCannon[towerid].nbTurretTop; i++)
             {
-                Position towerCannonPos;
-                TowerCannon[towerid].TurretTop[i].GetPosition(&towerCannonPos);
+                Position towerCannonPos = TowerCannon[towerid].TurretTop[i].GetPosition();
                 if (Creature* turret = m_WG->SpawnCreature(NPC_WINTERGRASP_TOWER_CANNON, towerCannonPos, TeamId(0)))
                 {
                     m_TurretTopList.insert(turret->GetGUID());

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -85,17 +85,17 @@ class boss_general_pavalak : public CreatureScript
             void Reset() override
             {
                 phase = 0;
-                rushTargetGUID = 0;
+                rushTargetGUID = ObjectGuid::Empty;
                 me->SetReactState(REACT_AGGRESSIVE);
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_BLADE_RUSH, 10000, EVENT_GROUP_COMBAT);
                 events.ScheduleEvent(EVENT_TEMPEST, 15000, EVENT_GROUP_COMBAT);
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void DoAction(int32 actionId) override
@@ -230,7 +230,7 @@ class boss_general_pavalak : public CreatureScript
                             if (target)
                             {
                                 events.DelayEvents(15000);
-                                me->SummonCreature(NPC_BLADE_RUSH_STALKER, *target, TEMPSUMMON_TIMED_DESPAWN, 15000);
+                                me->SummonCreature(NPC_BLADE_RUSH_STALKER, *target, TEMPSUMMON_TIMED_DESPAWN, 15000ms);
                                 me->GetMotionMaster()->Clear();
                                 me->GetMotionMaster()->MoveIdle();
                                 me->StopMoving();
@@ -256,7 +256,7 @@ class boss_general_pavalak : public CreatureScript
                             events.RescheduleEvent(EVENT_BLADE_RUSH_END, 1000, EVENT_GROUP_COMBAT);
                             break;
                         case EVENT_BLADE_RUSH_END:
-                            rushTargetGUID = 0;
+                            rushTargetGUID = ObjectGuid::Empty;
                             me->SetReactState(REACT_AGGRESSIVE);
                             if (Unit*  victim = me->GetVictim())
                                 AttackStart(victim);
@@ -300,7 +300,7 @@ class boss_general_pavalak : public CreatureScript
         private:
             bool introDone;
             int8 phase;
-            uint64 rushTargetGUID;
+            ObjectGuid rushTargetGUID;
 
             struct BladeRushPredicate 
             {
@@ -466,8 +466,7 @@ class npc_pavalak_amber_sapper : public CreatureScript
             void IsSummonedBy(Unit* summoner) override
             {
                 DoCast(me, SPELL_CARRYING_EXPLOSIVES, true);
-                Position pos;
-                summoner->GetRandomNearPosition(pos, 40.0f);
+                Position pos = summoner->GetRandomNearPosition(40.0f);
                 pos.m_positionZ = 143.65f;
 
                 me->GetMotionMaster()->MovePoint(POINT_TARGET, pos);
@@ -595,7 +594,7 @@ class npc_pavalak_reinforcements_summoner : public CreatureScript
         {
             npc_pavalak_reinforcements_summonerAI(Creature* creature) : ScriptedAI(creature)
             {
-                summonerGUID = 0;
+                summonerGUID = ObjectGuid::Empty;
             }
 
             void IsSummonedBy(Unit* summoner) override
@@ -610,7 +609,7 @@ class npc_pavalak_reinforcements_summoner : public CreatureScript
             }
 
         private:
-            uint64 summonerGUID;
+            ObjectGuid summonerGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

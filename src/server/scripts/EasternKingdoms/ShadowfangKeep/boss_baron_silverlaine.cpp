@@ -88,9 +88,9 @@ class boss_baron_silverlaine : public CreatureScript
                 phase = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -210,7 +210,7 @@ class npc_silverlaine_worgen : public CreatureScript
             void IsSummonedBy(Unit* /*summoner*/) override
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
-                    if (Creature* _silverlaine = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SILVERLAINE)))
+                    if (Creature* _silverlaine = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SILVERLAINE)))
                         if (Unit* target = _silverlaine->AI()->SelectTarget(SELECT_TARGET_RANDOM))
                             AttackStart(target);
 
@@ -231,7 +231,7 @@ class npc_silverlaine_worgen : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SPECIAL_1, urand(5 * IN_MILLISECONDS, 8.5 * IN_MILLISECONDS));
 
@@ -328,7 +328,7 @@ class npc_silverlaine_worgen_spirit : public CreatureScript
                 }
 
                 if (instance && m_spell)
-                    if (Creature* m_silverlaine = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SILVERLAINE)))
+                    if (Creature* m_silverlaine = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SILVERLAINE)))
                         m_silverlaine->CastSpell(me, m_spell, false);
             }
         };

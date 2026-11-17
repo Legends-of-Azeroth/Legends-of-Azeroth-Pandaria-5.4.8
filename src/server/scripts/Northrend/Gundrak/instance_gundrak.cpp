@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -45,30 +45,30 @@ class instance_gundrak : public InstanceMapScript
 
             uint32 timer;
             uint32 phase;
-            uint64 toActivate;
+            ObjectGuid toActivate;
 
-            uint64 uiSladRan;
-            uint64 uiMoorabi;
-            uint64 uiDrakkariColossus;
-            uint64 uiGalDarah;
-            uint64 uiEckTheFerocious;
+            ObjectGuid uiSladRan;
+            ObjectGuid uiMoorabi;
+            ObjectGuid uiDrakkariColossus;
+            ObjectGuid uiGalDarah;
+            ObjectGuid uiEckTheFerocious;
 
-            uint64 uiSladRanAltar;
-            uint64 uiMoorabiAltar;
-            uint64 uiDrakkariColossusAltar;
-            uint64 uiSladRanStatue;
-            uint64 uiMoorabiStatue;
-            uint64 uiDrakkariColossusStatue;
-            uint64 uiGalDarahStatue;
-            uint64 uiEckTheFerociousDoor;
-            uint64 uiEckTheFerociousDoorBehind;
-            uint64 uiGalDarahDoor;
-            uint64 uiGalDarahDoor1;
-            uint64 uiGalDarahDoor2;
-            uint64 uiBridge;
-            uint64 uiCollision;
-            uint64 middleGalDarahRhinoGuid;
-            uint64 frontGalDarahRhinoGuid;
+            ObjectGuid uiSladRanAltar;
+            ObjectGuid uiMoorabiAltar;
+            ObjectGuid uiDrakkariColossusAltar;
+            ObjectGuid uiSladRanStatue;
+            ObjectGuid uiMoorabiStatue;
+            ObjectGuid uiDrakkariColossusStatue;
+            ObjectGuid uiGalDarahStatue;
+            ObjectGuid uiEckTheFerociousDoor;
+            ObjectGuid uiEckTheFerociousDoorBehind;
+            ObjectGuid uiGalDarahDoor;
+            ObjectGuid uiGalDarahDoor1;
+            ObjectGuid uiGalDarahDoor2;
+            ObjectGuid uiBridge;
+            ObjectGuid uiCollision;
+            ObjectGuid middleGalDarahRhinoGuid;
+            ObjectGuid frontGalDarahRhinoGuid;
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -80,7 +80,7 @@ class instance_gundrak : public InstanceMapScript
             GOState uiCollisionState;
 
             std::set<uint64> DwellerGUIDs;
-            std::vector<uint64> LivingMojoGUIDs;
+            std::vector<ObjectGuid> LivingMojoGUIDs;
 
             std::string str_data;
 
@@ -90,30 +90,30 @@ class instance_gundrak : public InstanceMapScript
 
                 timer = 0;
                 phase = 0;
-                toActivate = 0;
+                toActivate = ObjectGuid::Empty;
 
-                uiSladRan = 0;
-                uiMoorabi = 0;
-                uiDrakkariColossus = 0;
-                uiGalDarah = 0;
-                uiEckTheFerocious = 0;
+                uiSladRan = ObjectGuid::Empty;
+                uiMoorabi = ObjectGuid::Empty;
+                uiDrakkariColossus = ObjectGuid::Empty;
+                uiGalDarah = ObjectGuid::Empty;
+                uiEckTheFerocious = ObjectGuid::Empty;
 
-                uiSladRanAltar = 0;
-                uiMoorabiAltar = 0;
-                uiDrakkariColossusAltar = 0;
+                uiSladRanAltar = ObjectGuid::Empty;
+                uiMoorabiAltar = ObjectGuid::Empty;
+                uiDrakkariColossusAltar = ObjectGuid::Empty;
 
-                uiSladRanStatue = 0;
-                uiMoorabiStatue = 0;
-                uiDrakkariColossusStatue = 0;
-                uiGalDarahStatue = 0;
+                uiSladRanStatue = ObjectGuid::Empty;
+                uiMoorabiStatue = ObjectGuid::Empty;
+                uiDrakkariColossusStatue = ObjectGuid::Empty;
+                uiGalDarahStatue = ObjectGuid::Empty;
 
-                uiEckTheFerociousDoor = 0;
-                uiEckTheFerociousDoorBehind = 0;
-                uiGalDarahDoor1 = 0;
-                uiGalDarahDoor2 = 0;
+                uiEckTheFerociousDoor = ObjectGuid::Empty;
+                uiEckTheFerociousDoorBehind = ObjectGuid::Empty;
+                uiGalDarahDoor1 = ObjectGuid::Empty;
+                uiGalDarahDoor2 = ObjectGuid::Empty;
 
-                uiBridge = 0;
-                uiCollision = 0;
+                uiBridge = ObjectGuid::Empty;
+                uiCollision = ObjectGuid::Empty;
 
                 uiSladRanStatueState = GO_STATE_ACTIVE;
                 uiMoorabiStatueState = GO_STATE_ACTIVE;
@@ -248,26 +248,26 @@ class instance_gundrak : public InstanceMapScript
                     case GO_ECK_DOOR:
                         uiEckTheFerociousDoor = go->GetGUID();
                         if (bHeroicMode && m_auiEncounter[1] == DONE)
-                            HandleGameObject(0,true,go);
+                            HandleGameObject(ObjectGuid::Empty,true,go);
                         break;
                     case GO_ECK_DOOR_BEHIND:
                         uiEckTheFerociousDoorBehind = go->GetGUID();
                         if (bHeroicMode && m_auiEncounter[4] == DONE)
-                            HandleGameObject(0,true,go);
+                            HandleGameObject(ObjectGuid::Empty,true,go);
                     case GO_GALDARAH_DOOR:
                         uiGalDarahDoor = go->GetGUID();
                         if (m_auiEncounter[3] == IN_PROGRESS)
-                            HandleGameObject(0, false, go);
+                            HandleGameObject(ObjectGuid::Empty, false, go);
                         break;
                     case GO_GALDARAH_DOOR_1:
                         uiGalDarahDoor1 = go->GetGUID();
                         if (m_auiEncounter[3] == DONE)
-                            HandleGameObject(0,true,go);
+                            HandleGameObject(ObjectGuid::Empty,true,go);
                         break;
                     case GO_GALDARAH_DOOR_2:
                         uiGalDarahDoor2 = go->GetGUID();
                         if (m_auiEncounter[3] == DONE)
-                            HandleGameObject(0,true,go);
+                            HandleGameObject(ObjectGuid::Empty,true,go);
                         break;
                     case GO_BRIDGE:
                         uiBridge = go->GetGUID();
@@ -342,7 +342,7 @@ class instance_gundrak : public InstanceMapScript
                     SaveToDB();
             }
 
-            void SetData64(uint32 type, uint64 data) override
+            void SetGuidData(uint32 type, ObjectGuid data) override
             {
                 if (type == DATA_RUIN_DWELLER_DIED)
                     DwellerGUIDs.erase(data);
@@ -363,7 +363,7 @@ class instance_gundrak : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -376,7 +376,7 @@ class instance_gundrak : public InstanceMapScript
                     case DATA_DRAKKARI_COLOSSUS:          return uiDrakkariColossus;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData() override
@@ -436,7 +436,7 @@ class instance_gundrak : public InstanceMapScript
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
 
-             bool QueueActivation(uint64 guid, uint32 time)
+             bool QueueActivation(ObjectGuid guid, uint32 time)
              {
                  if (timer)
                      return false;
@@ -473,7 +473,7 @@ class instance_gundrak : public InstanceMapScript
                      timer = 0;
                      if (toActivate == uiBridge)
                      {
-                         toActivate = 0;
+                         toActivate = ObjectGuid::Empty;
                          GameObject* pBridge = instance->GetGameObject(uiBridge);
                          GameObject* pCollision = instance->GetGameObject(uiCollision);
                          GameObject* pSladRanStatue = instance->GetGameObject(uiSladRanStatue);
@@ -522,7 +522,7 @@ class instance_gundrak : public InstanceMapScript
                          if (GameObject* statueGO = instance->GetGameObject(toActivate))
                              statueGO->SetGoState(GO_STATE_READY);
 
-                         toActivate = 0;
+                         toActivate = ObjectGuid::Empty;
 
                          if (phase == 3)
                              QueueActivation(uiBridge, 3000);
@@ -532,7 +532,7 @@ class instance_gundrak : public InstanceMapScript
                  } else timer -= diff;
             }
 
-             GOState GetObjState(uint64 guid)
+             GOState GetObjState(ObjectGuid guid)
              {
                  if (GameObject* go = instance->GetGameObject(guid))
                      return go->GetGoState();
@@ -554,7 +554,7 @@ class go_gundrak_altar : public GameObjectScript
         bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
             InstanceScript* instance = go->GetInstanceScript();
-            uint64 uiStatue = 0;
+            ObjectGuid uiStatue = ObjectGuid::Empty;
 
             go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
             go->SetGoState(GO_STATE_ACTIVE);
@@ -563,9 +563,9 @@ class go_gundrak_altar : public GameObjectScript
             {
                 switch (go->GetEntry())
                 {
-                    case GO_ALTAR_OF_SLADRAN:           uiStatue = instance->GetData64(DATA_SLAD_RAN_STATUE);          break;
-                    case GO_ALTAR_OF_MOORABI:           uiStatue = instance->GetData64(DATA_MOORABI_STATUE);           break;
-                    case GO_ALTAR_OF_DRAKKARI_COLOSSUS: uiStatue = instance->GetData64(DATA_DRAKKARI_COLOSSUS_STATUE); break;
+                    case GO_ALTAR_OF_SLADRAN:           uiStatue = instance->GetGuidData(DATA_SLAD_RAN_STATUE);          break;
+                    case GO_ALTAR_OF_MOORABI:           uiStatue = instance->GetGuidData(DATA_MOORABI_STATUE);           break;
+                    case GO_ALTAR_OF_DRAKKARI_COLOSSUS: uiStatue = instance->GetGuidData(DATA_DRAKKARI_COLOSSUS_STATUE); break;
                 }
                 if (dynamic_cast<instance_gundrak::instance_gundrak_InstanceMapScript*>(instance)->QueueActivation(uiStatue, 3500))
                 {
@@ -587,12 +587,13 @@ class spell_drakkari_frenzy_leap : public SpellScriptLoader
         {
             PrepareSpellScript(spell_drakkari_frenzy_leap_SpellScript);
 
-            void TargetSelect(SpellDestination& pos)
+            void TargetSelect(SpellDestination& dest)
             {
                 if (Unit* caster = GetCaster())
                 {
-                    caster->GetPosition(&pos._position);
-                    pos._position.RelocateOffset(0, 5.0f);
+                    Position pos = caster->GetPosition();
+                    dest._position = WorldLocation(caster->GetMapId(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+                    dest._position.RelocateOffset(0, 5.0f);
                 }
             }
 

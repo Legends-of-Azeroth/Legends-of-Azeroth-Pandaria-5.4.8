@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -168,9 +168,9 @@ class boss_gormok : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
-                instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
                 ScriptedAI::EnterEvadeMode();
             }
 
@@ -182,7 +182,7 @@ class boss_gormok : public CreatureScript
                 switch (pointId)
                 {
                     case 0:
-                        instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                        instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetInCombatWithZone();
@@ -202,21 +202,21 @@ class boss_gormok : public CreatureScript
             {
                 if (instance)
                 {
-                    instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                    instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
                     instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
                 }
                 me->DespawnOrUnsummon();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 me->SetInCombatWithZone();
                 instance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_IN_PROGRESS);
 
                 for (uint8 i = 0; i < MAX_SNOBOLDS; i++)
                 {
-                    if (Creature* pSnobold = DoSpawnCreature(NPC_SNOBOLD_VASSAL, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                    if (Creature* pSnobold = DoSpawnCreature(NPC_SNOBOLD_VASSAL, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms))
                     {
                         pSnobold->EnterVehicle(me, i);
                         pSnobold->SetInCombatWithZone();
@@ -304,24 +304,24 @@ class npc_snobold_vassal : public CreatureScript
                 _events.ScheduleEvent(EVENT_BATTER, 5*IN_MILLISECONDS);
                 _events.ScheduleEvent(EVENT_HEAD_CRACK, 25*IN_MILLISECONDS);
 
-                _targetGUID = 0;
+                _targetGUID = ObjectGuid::Empty;
                 _targetDied = false;
 
                 if (_instance)
-                    _bossGUID = _instance->GetData64(NPC_GORMOK);
+                    _bossGUID = _instance->GetGuidData(NPC_GORMOK);
                 //Workaround for Snobold
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 _targetGUID = who->GetGUID();
-                me->TauntApply(who);
+                me->GetThreatManager().TauntUpdate();
                 DoCast(who, SPELL_SNOBOLLED);
 
                 if (_instance)
@@ -385,7 +385,7 @@ class npc_snobold_vassal : public CreatureScript
                     {
                         if (_instance)
                         {
-                            Unit* gormok = ObjectAccessor::GetCreature(*me, _instance->GetData64(NPC_GORMOK));
+                            Unit* gormok = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_GORMOK));
                             if (gormok && gormok->IsAlive())
                             {
                                 SetCombatMovement(false);
@@ -450,8 +450,8 @@ class npc_snobold_vassal : public CreatureScript
             private:
                 EventMap _events;
                 InstanceScript* _instance;
-                uint64 _bossGUID;
-                uint64 _targetGUID;
+                ObjectGuid _bossGUID;
+                ObjectGuid _targetGUID;
                 bool   _targetDied;
         };
 
@@ -478,7 +478,7 @@ class npc_firebomb : public CreatureScript
                 DoCast(me, SPELL_FIRE_BOMB_DOT, true);
                 SetCombatMovement(false);
                 me->SetReactState(REACT_PASSIVE);
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+                me->SetDisplayFromModel(1);
             }
 
             void UpdateAI(uint32 /*diff*/) override
@@ -519,7 +519,7 @@ struct boss_jormungarAI : public BossAI
     {
         if (instance)
         {
-            if (Creature* otherWorm = Unit::GetCreature(*me, instance->GetData64(OtherWormEntry)))
+            if (Creature* otherWorm = Unit::GetCreature(*me, instance->GetGuidData(OtherWormEntry)))
             {
                 if (!otherWorm->IsAlive())
                 {
@@ -550,9 +550,9 @@ struct boss_jormungarAI : public BossAI
                 instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE, 0);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        _EnterCombat();
+        _JustEngagedWith();
         me->SetInCombatWithZone();
         if (instance)
             instance->SetData(TYPE_NORTHREND_BEASTS, SNAKES_IN_PROGRESS);
@@ -755,7 +755,7 @@ class boss_dreadscale : public CreatureScript
                 switch (pointId)
                 {
                     case 0:
-                        instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                        instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetInCombatWithZone();
@@ -765,16 +765,16 @@ class boss_dreadscale : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
-                instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
                 boss_jormungarAI::EnterEvadeMode();
             }
 
             void JustReachedHome() override
             {
                 if (instance)
-                    instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                    instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
 
                 boss_jormungarAI::JustReachedHome();
             }
@@ -841,7 +841,7 @@ class spell_gormok_fire_bomb : public SpellScriptLoader
                 if (const WorldLocation* pos = GetExplTargetDest())
                 {
                     if (Unit* caster = GetCaster())
-                        caster->SummonCreature(NPC_FIRE_BOMB, pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30*IN_MILLISECONDS);
+                        caster->SummonCreature(NPC_FIRE_BOMB, pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(30*IN_MILLISECONDS));
                 }
             }
 
@@ -877,7 +877,7 @@ class boss_icehowl : public CreatureScript
                 _movementStarted = false;
                 _movementFinish = false;
                 _trampleCasted = false;
-                _trampleTargetGUID = 0;
+                _trampleTargetGUID = ObjectGuid::Empty;
                 _trampleTargetX = 0;
                 _trampleTargetY = 0;
                 _trampleTargetZ = 0;
@@ -918,7 +918,7 @@ class boss_icehowl : public CreatureScript
                         _movementFinish = true;
                         break;
                     case 2:
-                        instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                        instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetInCombatWithZone();
@@ -928,9 +928,9 @@ class boss_icehowl : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
-                instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
                 ScriptedAI::EnterEvadeMode();
             }
 
@@ -938,7 +938,7 @@ class boss_icehowl : public CreatureScript
             {
                 if (instance)
                 {
-                    instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                    instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
                     instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
                 }
                 me->DespawnOrUnsummon();
@@ -953,9 +953,9 @@ class boss_icehowl : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 if (instance)
                     instance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_IN_PROGRESS);
             }
@@ -1071,9 +1071,9 @@ class boss_icehowl : public CreatureScript
                     case 4:
                         me->StopMoving();
                         me->AttackStop();
-                        Talk(EMOTE_TRAMPLE_START, sObjectAccessor->GetUnit(*me, _trampleTargetGUID));
+                        Talk(EMOTE_TRAMPLE_START, ObjectAccessor::GetUnit(*me, _trampleTargetGUID));
                         me->GetMotionMaster()->MoveCharge(_trampleTargetX, _trampleTargetY, _trampleTargetZ, 42, 1);
-                        me->SetTarget(0);
+                        me->SetTarget(ObjectGuid::Empty);
                         _stage = 5;
                         break;
                     case 5:
@@ -1130,7 +1130,7 @@ class boss_icehowl : public CreatureScript
 
             private:
                 float  _trampleTargetX, _trampleTargetY, _trampleTargetZ;
-                uint64 _trampleTargetGUID;
+                ObjectGuid _trampleTargetGUID;
                 bool   _movementStarted;
                 bool   _movementFinish;
                 bool   _trampleCasted;

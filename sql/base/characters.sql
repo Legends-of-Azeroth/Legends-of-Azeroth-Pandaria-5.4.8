@@ -1,22 +1,4 @@
-/*
-SQLyog Ultimate v11.11 (64 bit)
-MySQL - 5.6.26-log : Database - characters
-*********************************************************************
-*/
-
-
-/*!40101 SET NAMES utf8 */;
-
-/*!40101 SET SQL_MODE=''*/;
-
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-CREATE DATABASE /*!32312 IF NOT EXISTS*/`characters` /*!40100 DEFAULT CHARACTER SET utf8 */;
-
-USE `characters`;
-
+-- 
 /*Table structure for table `account_achievement` */
 
 DROP TABLE IF EXISTS `account_achievement`;
@@ -27,11 +9,11 @@ CREATE TABLE `account_achievement` (
   `achievement` smallint(5) unsigned NOT NULL,
   `date` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`account`,`achievement`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `account_achievement` */
 
-insert  into `account_achievement`(`account`,`guid`,`achievement`,`date`) values (1,2,6,1636074805),(1,2,7,1636074805),(1,2,8,1636074805),(1,2,9,1636074805),(1,2,10,1636074805),(1,2,11,1636074805),(1,2,12,1636074805),(1,2,13,1636074805),(1,2,457,1636074805),(1,2,458,1636074805),(1,2,964,1636075822),(1,2,1017,1636076370),(1,2,4826,1636074805),(1,2,4999,1636074805),(1,2,5008,1636074805),(1,2,6193,1636074805),(1,2,6524,1636074805),(1,2,6751,1636074805);
+insert into `account_achievement`(`account`,`guid`,`achievement`,`date`) values (1,2,6,1636074805),(1,2,7,1636074805),(1,2,8,1636074805),(1,2,9,1636074805),(1,2,10,1636074805),(1,2,11,1636074805),(1,2,12,1636074805),(1,2,13,1636074805),(1,2,457,1636074805),(1,2,458,1636074805),(1,2,964,1636075822),(1,2,1017,1636076370),(1,2,4826,1636074805),(1,2,4999,1636074805),(1,2,5008,1636074805),(1,2,6193,1636074805),(1,2,6524,1636074805),(1,2,6751,1636074805);
 
 /*Table structure for table `account_achievement_progress` */
 
@@ -43,11 +25,11 @@ CREATE TABLE `account_achievement_progress` (
   `counter` bigint(20) unsigned NOT NULL,
   `date` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`account`,`criteria`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `account_achievement_progress` */
 
-insert  into `account_achievement_progress`(`account`,`criteria`,`counter`,`date`) values (1,4093,2661,1636075857),(1,5018,1,1636071648),(1,5221,90,1636074805),(1,19598,6,1636076372),(1,19661,1,1636067185),(1,20677,90,1636074805),(1,20678,1,1636067185),(1,21256,10,1636076370),(2,5218,1,1636072288),(2,20678,1,1636072288);
+insert into `account_achievement_progress`(`account`,`criteria`,`counter`,`date`) values (1,4093,2661,1636075857),(1,5018,1,1636071648),(1,5221,90,1636074805),(1,19598,6,1636076372),(1,19661,1,1636067185),(1,20677,90,1636074805),(1,20678,1,1636067185),(1,21256,10,1636076370),(2,5218,1,1636072288),(2,20678,1,1636072288);
 
 /*Table structure for table `account_battle_pet` */
 
@@ -69,7 +51,7 @@ CREATE TABLE `account_battle_pet` (
   `breed` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `flags` smallint(5) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `account_battle_pet` */
 
@@ -86,7 +68,7 @@ CREATE TABLE `account_battle_pet_slots` (
   `slot3` bigint(20) unsigned NOT NULL DEFAULT '0',
   `flags` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`accountId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `account_battle_pet_slots` */
 
@@ -102,7 +84,7 @@ CREATE TABLE `account_data` (
   `time` int(10) unsigned NOT NULL DEFAULT '0',
   `data` blob NOT NULL,
   PRIMARY KEY (`accountId`,`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `account_data` */
 
@@ -117,7 +99,7 @@ CREATE TABLE `account_instance_times` (
   `instanceId` int(10) unsigned NOT NULL DEFAULT '0',
   `releaseTime` bigint(20) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`accountId`,`instanceId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `account_instance_times` */
 
@@ -131,7 +113,7 @@ CREATE TABLE `account_spell` (
   `active` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `disabled` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`account`,`spell`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `account_spell` */
 
@@ -152,7 +134,7 @@ CREATE TABLE `account_tutorial` (
   `tut6` int(10) unsigned NOT NULL DEFAULT '0',
   `tut7` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`accountId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `account_tutorial` */
 
@@ -166,7 +148,7 @@ CREATE TABLE `addons` (
   `name` varchar(120) NOT NULL DEFAULT '',
   `crc` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Addons';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Addons';
 
 /*Data for the table `addons` */
 
@@ -184,17 +166,38 @@ CREATE TABLE `armory_character_stats` (
   `achievement_points` smallint(5) unsigned DEFAULT NULL,
   `save_date` int(11) DEFAULT NULL,
   PRIMARY KEY (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='World of Warcraft Armory table';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='World of Warcraft Armory table';
 
 /*Data for the table `armory_character_stats` */
 
-/*Table structure for table `auctionhouse` */
+--
+-- Table structure for table `auctionbidders`
+--
+
+DROP TABLE IF EXISTS `auctionbidders`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `auctionbidders` (
+  `id` int(10) unsigned NOT NULL DEFAULT '0',
+  `bidderguid` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`,`bidderguid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auctionbidders`
+--
+
+--
+-- Table structure for table `auctionhouse`
+--
 
 DROP TABLE IF EXISTS `auctionhouse`;
-
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `auctionhouse` (
   `id` int(10) unsigned NOT NULL DEFAULT '0',
-  `auctioneerguid` int(10) unsigned NOT NULL DEFAULT '0',
+  `houseid` tinyint(3) unsigned NOT NULL DEFAULT '7',
   `itemguid` int(10) unsigned NOT NULL DEFAULT '0',
   `itemowner` int(10) unsigned NOT NULL DEFAULT '0',
   `buyoutprice` int(10) unsigned NOT NULL DEFAULT '0',
@@ -205,9 +208,12 @@ CREATE TABLE `auctionhouse` (
   `deposit` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `item_guid` (`itemguid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-/*Data for the table `auctionhouse` */
+--
+-- Dumping data for table `auctionhouse`
+--
 
 /*Table structure for table `banned_addons` */
 
@@ -220,7 +226,7 @@ CREATE TABLE `banned_addons` (
   `Timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `idx_name_ver` (`Name`,`Version`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `banned_addons` */
 
@@ -238,7 +244,7 @@ CREATE TABLE `blackmarket_auctions` (
   `minIncrement` bigint(10) unsigned NOT NULL DEFAULT '0',
   `numBids` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`auctionId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `blackmarket_auctions` */
 
@@ -253,7 +259,7 @@ CREATE TABLE `bugreport` (
   `type` longtext NOT NULL,
   `content` longtext NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Debug System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Debug System';
 
 /*Data for the table `bugreport` */
 
@@ -272,7 +278,7 @@ CREATE TABLE `calendar_events` (
   `flags` int(10) unsigned NOT NULL DEFAULT '0',
   `time2` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `calendar_events` */
 
@@ -290,7 +296,7 @@ CREATE TABLE `calendar_invites` (
   `rank` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `text` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `calendar_invites` */
 
@@ -307,7 +313,7 @@ CREATE TABLE `channels` (
   `bannedList` text,
   `lastUsed` int(10) unsigned NOT NULL,
   PRIMARY KEY (`name`,`team`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Channel System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Channel System';
 
 /*Data for the table `channels` */
 
@@ -321,7 +327,7 @@ CREATE TABLE `character_account_data` (
   `time` int(10) unsigned NOT NULL DEFAULT '0',
   `data` blob NOT NULL,
   PRIMARY KEY (`guid`,`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_account_data` */
 
@@ -336,7 +342,7 @@ CREATE TABLE `character_achievement` (
   `achievement` smallint(5) unsigned NOT NULL,
   `date` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`achievement`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_achievement` */
 
@@ -352,7 +358,7 @@ CREATE TABLE `character_achievement_progress` (
   `counter` bigint(20) unsigned NOT NULL,
   `date` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`criteria`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_achievement_progress` */
 
@@ -369,7 +375,7 @@ CREATE TABLE `character_action` (
   `action` int(10) unsigned NOT NULL DEFAULT '0',
   `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`spec`,`button`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_action` */
 
@@ -384,7 +390,7 @@ CREATE TABLE `character_arena_stats` (
   `slot` tinyint(3) NOT NULL,
   `matchMakerRating` smallint(5) NOT NULL,
   PRIMARY KEY (`guid`,`slot`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_arena_stats` */
 
@@ -405,7 +411,7 @@ CREATE TABLE `character_aura` (
   `remaintime` int(11) NOT NULL DEFAULT '0',
   `remaincharges` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`caster_guid`,`item_guid`,`spell`,`effect_mask`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Player System';
 
 /*Data for the table `character_aura` */
 
@@ -422,7 +428,7 @@ CREATE TABLE `character_aura_effect` (
   `base_amount` int(10) NOT NULL DEFAULT '0',
   `amount` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`slot`,`effect`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_aura_effect` */
 
@@ -440,7 +446,7 @@ CREATE TABLE `character_banned` (
   `banreason` varchar(255) NOT NULL,
   `active` tinyint(3) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`guid`,`bandate`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Ban List';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Ban List';
 
 /*Data for the table `character_banned` */
 
@@ -462,7 +468,7 @@ CREATE TABLE `character_battleground_data` (
   `taxiPathPoint` smallint(5) unsigned NOT NULL,
   `mountSpell` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Player System';
 
 /*Data for the table `character_battleground_data` */
 
@@ -475,7 +481,7 @@ DROP TABLE IF EXISTS `character_battleground_random`;
 CREATE TABLE `character_battleground_random` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_battleground_random` */
 
@@ -488,7 +494,7 @@ CREATE TABLE `character_battleground_stats` (
   `total_count` int(10) unsigned NOT NULL DEFAULT '0',
   `total_wins` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_battleground_stats` */
 
@@ -499,7 +505,7 @@ DROP TABLE IF EXISTS `character_battleground_weekend`;
 CREATE TABLE `character_battleground_weekend` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_battleground_weekend` */
 
@@ -511,7 +517,7 @@ CREATE TABLE `character_bonus_roll` (
   `guid` int(10) unsigned NOT NULL,
   `bonus_chance` float DEFAULT NULL,
   PRIMARY KEY (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_bonus_roll` */
 
@@ -527,7 +533,7 @@ CREATE TABLE `character_completed_challenges` (
   `best_medal` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `best_medal_date` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`map`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_completed_challenges` */
 
@@ -552,7 +558,7 @@ CREATE TABLE `character_cuf_profiles` (
   `unk154` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Profile Unk Int16',
   PRIMARY KEY (`guid`,`id`),
   KEY `index` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_cuf_profiles` */
 
@@ -570,7 +576,7 @@ CREATE TABLE `character_currency` (
   `season_count` int(10) unsigned NOT NULL,
   `flags` int(5) unsigned NOT NULL,
   PRIMARY KEY (`guid`,`currency`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_currency` */
 
@@ -588,7 +594,7 @@ CREATE TABLE `character_declinedname` (
   `instrumental` varchar(15) NOT NULL DEFAULT '',
   `prepositional` varchar(15) NOT NULL DEFAULT '',
   PRIMARY KEY (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_declinedname` */
 
@@ -601,7 +607,7 @@ CREATE TABLE `character_deserter` (
   `deserter_mod` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `last_deserter_time` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_deserter` */
 
@@ -638,7 +644,7 @@ CREATE TABLE `character_equipmentsets` (
   PRIMARY KEY (`setguid`),
   UNIQUE KEY `idx_set` (`guid`,`setguid`,`setindex`),
   KEY `Idx_setindex` (`setindex`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_equipmentsets` */
 
@@ -653,7 +659,7 @@ CREATE TABLE `character_gifts` (
   `flags` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`item_guid`),
   KEY `idx_guid` (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_gifts` */
 
@@ -671,7 +677,7 @@ CREATE TABLE `character_glyphs` (
   `glyph5` smallint(5) unsigned DEFAULT '0',
   `glyph6` smallint(5) unsigned DEFAULT '0',
   PRIMARY KEY (`guid`,`spec`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_glyphs` */
 
@@ -689,7 +695,7 @@ CREATE TABLE `character_homebind` (
   `posY` float NOT NULL DEFAULT '0',
   `posZ` float NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Player System';
 
 /*Data for the table `character_homebind` */
 
@@ -705,7 +711,7 @@ CREATE TABLE `character_instance` (
   `permanent` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`instance`),
   KEY `instance` (`instance`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_instance` */
 
@@ -721,7 +727,7 @@ CREATE TABLE `character_inventory` (
   PRIMARY KEY (`item`),
   UNIQUE KEY `guid` (`guid`,`bag`,`slot`),
   KEY `idx_guid` (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Player System';
 
 /*Data for the table `character_inventory` */
 
@@ -736,7 +742,7 @@ CREATE TABLE `character_loot_lockout` (
   `entry` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Looted object entry',
   `difficulty` int(10) unsigned NOT NULL DEFAULT '7',
   `type` int(10) unsigned NOT NULL DEFAULT '0'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_loot_lockout` */
 
@@ -765,7 +771,7 @@ CREATE TABLE `character_pet` (
   PRIMARY KEY (`id`),
   KEY `owner` (`owner`),
   KEY `idx_slot` (`slot`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pet System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Pet System';
 
 /*Data for the table `character_pet` */
 
@@ -779,7 +785,7 @@ CREATE TABLE `character_pet_current` (
   `owner` int(10) unsigned NOT NULL,
   `pet_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`owner`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_pet_current` */
 
@@ -799,7 +805,7 @@ CREATE TABLE `character_pet_declinedname` (
   `prepositional` varchar(12) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `owner_key` (`owner`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_pet_declinedname` */
 
@@ -814,7 +820,7 @@ CREATE TABLE `character_queststatus` (
   `explored` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `timer` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`quest`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Player System';
 
 /*Data for the table `character_queststatus` */
 
@@ -830,7 +836,7 @@ CREATE TABLE `character_queststatus_daily` (
   `time` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`quest`),
   KEY `idx_guid` (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Player System';
 
 /*Data for the table `character_queststatus_daily` */
 
@@ -843,7 +849,7 @@ CREATE TABLE `character_queststatus_monthly` (
   `quest` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
   PRIMARY KEY (`guid`,`quest`),
   KEY `idx_guid` (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Player System';
 
 /*Data for the table `character_queststatus_monthly` */
 
@@ -856,11 +862,7 @@ CREATE TABLE `character_queststatus_objective` (
   `objectiveId` int(10) unsigned NOT NULL DEFAULT '0',
   `amount` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`objectiveId`,`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-/*Data for the table `character_queststatus_objective` */
-
-insert  into `character_queststatus_objective`(`guid`,`objectiveId`,`amount`) values (1,253214,1),(2,269054,0),(2,269103,0);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Table structure for table `character_queststatus_rewarded` */
 
@@ -871,7 +873,7 @@ CREATE TABLE `character_queststatus_rewarded` (
   `quest` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
   `active` tinyint(10) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`guid`,`quest`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Player System';
 
 /*Data for the table `character_queststatus_rewarded` */
 
@@ -887,7 +889,7 @@ CREATE TABLE `character_queststatus_seasonal` (
   `event` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Event Identifier',
   PRIMARY KEY (`guid`,`quest`),
   KEY `idx_guid` (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Player System';
 
 /*Data for the table `character_queststatus_seasonal` */
 
@@ -900,7 +902,7 @@ CREATE TABLE `character_queststatus_weekly` (
   `quest` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
   PRIMARY KEY (`guid`,`quest`),
   KEY `idx_guid` (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Player System';
 
 /*Data for the table `character_queststatus_weekly` */
 
@@ -914,7 +916,7 @@ CREATE TABLE `character_reputation` (
   `standing` float NOT NULL DEFAULT '0',
   `flags` smallint(5) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`faction`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Player System';
 
 /*Data for the table `character_reputation` */
 
@@ -930,7 +932,7 @@ CREATE TABLE `character_research_digsites` (
   `currentFindGUID` int(11) NOT NULL DEFAULT '0',
   `remainingFindCount` tinyint(3) NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`digsiteId`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_research_digsites` */
 
@@ -944,7 +946,7 @@ CREATE TABLE `character_research_history` (
   `researchCount` int(11) NOT NULL,
   `firstResearchTimestamp` int(11) NOT NULL,
   PRIMARY KEY (`guid`,`projectId`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_research_history` */
 
@@ -956,7 +958,7 @@ CREATE TABLE `character_research_projects` (
   `guid` int(11) NOT NULL COMMENT 'Global Unique Identifier',
   `projectId` int(11) NOT NULL,
   PRIMARY KEY (`guid`,`projectId`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_research_projects` */
 
@@ -976,7 +978,7 @@ CREATE TABLE `character_service` (
   `execution_date` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `guid` (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_service` */
 
@@ -990,7 +992,7 @@ CREATE TABLE `character_skills` (
   `value` smallint(5) unsigned NOT NULL,
   `max` smallint(5) unsigned NOT NULL,
   PRIMARY KEY (`guid`,`skill`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Player System';
 
 /*Data for the table `character_skills` */
 
@@ -1007,7 +1009,7 @@ CREATE TABLE `character_social` (
   `note` varchar(48) NOT NULL DEFAULT '' COMMENT 'Friend Note',
   PRIMARY KEY (`guid`,`friend`,`flags`),
   KEY `friend` (`friend`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Player System';
 
 /*Data for the table `character_social` */
 
@@ -1021,7 +1023,7 @@ CREATE TABLE `character_spell` (
   `active` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `disabled` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`spell`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Player System';
 
 /*Data for the table `character_spell` */
 
@@ -1037,7 +1039,7 @@ CREATE TABLE `character_spell_charges` (
   `reset_time` bigint(20) unsigned NOT NULL,
   `used_charges` int(11) unsigned NOT NULL,
   PRIMARY KEY (`guid`,`category`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_spell_charges` */
 
@@ -1052,11 +1054,7 @@ CREATE TABLE `character_spell_cooldown` (
   `time` bigint(20) unsigned NOT NULL DEFAULT '0',
   `category_end` bigint(20) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`spell`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-/*Data for the table `character_spell_cooldown` */
-
-insert  into `character_spell_cooldown`(`guid`,`spell`,`item`,`time`,`category_end`) values (2,125439,0,1636076897221,0);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Table structure for table `character_stats` */
 
@@ -1093,7 +1091,7 @@ CREATE TABLE `character_stats` (
   `spellPower` int(10) unsigned NOT NULL DEFAULT '0',
   `resilience` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_stats` */
 
@@ -1106,7 +1104,7 @@ CREATE TABLE `character_talent` (
   `spell` mediumint(8) unsigned NOT NULL,
   `spec` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`spell`,`spec`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_talent` */
 
@@ -1126,7 +1124,7 @@ CREATE TABLE `character_void_storage` (
   PRIMARY KEY (`itemId`),
   UNIQUE KEY `idx_player_slot` (`playerGuid`,`slot`),
   KEY `idx_player` (`playerGuid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `character_void_storage` */
 
@@ -1218,11 +1216,11 @@ CREATE TABLE `characters` (
   KEY `idx_account` (`account`),
   KEY `idx_online` (`online`),
   KEY `idx_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Player System';
 
 /*Data for the table `characters` */
 
-insert  into `characters`(`guid`,`account`,`name`,`slot`,`race`,`class`,`gender`,`level`,`xp`,`money`,`playerBytes`,`playerBytes2`,`playerFlags`,`position_x`,`position_y`,`position_z`,`map`,`instance_id`,`instance_mode_mask`,`orientation`,`taximask`,`online`,`cinematic`,`totaltime`,`leveltime`,`logout_time`,`is_logout_resting`,`rest_bonus`,`resettalents_cost`,`resettalents_time`,`talentTree`,`trans_x`,`trans_y`,`trans_z`,`trans_o`,`transguid`,`extra_flags`,`stable_slots`,`at_login`,`zone`,`death_expire_time`,`taxi_path`,`totalKills`,`todayKills`,`yesterdayKills`,`chosenTitle`,`watchedFaction`,`drunk`,`health`,`power1`,`power2`,`power3`,`power4`,`power5`,`latency`,`speccount`,`activespec`,`exploredZones`,`equipmentCache`,`knownTitles`,`actionBars`,`grantableLevels`,`deleteInfos_Account`,`deleteInfos_Name`,`deleteDate`,`lootspec`,`project_transfer`,`project_original_cloned`,`project_original_migrated`,`project_original_realm_id`,`project_original_guid`,`project_clone_created`,`project_clone_realm_id`,`project_clone_guid`,`project_migrant_created`,`project_migrant_realm_id`,`project_migrant_guid`,`last_login`,`taxi_path_point`) values (1,1,'Testeo',0,24,10,1,1,10,2,84546051,33554435,0,1448.53,3471.42,176.992,860,0,49,3.42536,'34 0 0 2 0 0 1 0 0 0 0 32 8 0 0 128 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 32 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 128 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 32 16 0 0 0 140 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ',0,1,128,128,1636074755,0,1.28374,0,0,'0 0 ',0,0,0,0,0,0,0,0,5736,0,'',0,0,0,0,4294967295,0,133,50,100,0,0,0,193,1,0,'0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1024 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ','0 0 0 0 0 0 0 0 72019 0 77509 0 72020 0 0 0 77526 0 0 0 0 0 0 0 0 0 0 0 0 0 73209 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ','0 0 0 0 0 0 0 0 ',0,0,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1636074632,0),(2,1,'Teste',0,9,4,0,90,0,227301,117440512,33554440,16777760,1734.59,-4473.41,35.1389,1,0,49,1.55518,'0 4 96 0 0 0 0 0 0 0 2 0 4 0 0 128 0 0 0 0 0 0 0 0 0 0 16 0 0 0 0 0 0 0 0 0 0 0 32 0 0 0 0 0 0 0 0 128 0 0 2 0 0 0 0 0 0 8 0 0 0 0 0 0 0 0 128 1 0 0 0 0 0 0 0 0 0 0 65 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ',0,1,1818,1774,1636076696,1,0,0,0,'0 0 ',0,0,0,0,0,0,0,0,1637,0,'',0,0,0,0,4294967295,0,153445,0,100,0,0,0,195,1,0,'0 0 2147483648 2147483656 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 134217728 0 8 0 0 0 0 0 0 0 0 1024 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2048 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 8388608 0 0 0 0 0 0 0 0 0 0 0 8208 0 0 32 0 0 0 0 0 0 0 0 0 0 0 0 262144 0 0 8391680 4194304 1536 1053952 0 48 1 0 0 0 2 0 0 0 0 0 536870912 0 320 0 0 0 0 0 0 536879104 0 16121856 4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ','0 0 0 0 0 0 0 0 49514 0 0 0 49515 0 49516 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 90322 0 50055 0 0 0 0 0 0 0 0 0 0 0 0 0 ','0 0 0 0 0 0 0 0 ',0,0,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1636075368,0),(3,1,'Ertre',0,22,8,0,1,0,0,33882368,33554439,0,-1451.53,1403.35,35.5561,654,0,49,0.333847,'34 0 0 2 0 0 1 0 0 0 0 32 8 0 0 128 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 32 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 128 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 32 16 0 0 0 140 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ',0,1,0,0,1636071648,0,0.00137778,0,0,'0 0 ',0,0,0,0,0,0,0,0,4755,0,'',0,0,0,0,4294967295,0,103,50,0,0,0,0,0,1,0,'0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ','0 0 0 0 0 0 0 0 49399 0 0 0 49400 0 49401 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 35 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ','0 0 0 0 0 0 0 0 ',0,0,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1636071648,0),(4,1,'Fea',0,5,10,0,1,0,0,67438336,33554438,0,1699.85,1706.56,135.928,0,0,49,4.88839,'0 4 96 0 0 0 0 0 0 0 2 0 4 0 0 128 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 32 0 0 0 0 0 0 0 0 128 0 0 2 0 0 0 0 0 0 8 0 0 0 0 0 0 0 0 128 1 0 0 0 0 0 0 0 0 0 0 65 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ',0,1,0,0,1636071976,0,0.00172222,0,0,'0 0 ',0,0,0,0,0,0,0,0,6454,0,'',0,0,0,0,4294967295,0,113,50,100,0,0,0,0,1,0,'0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ','0 0 0 0 0 0 0 0 72019 0 77509 0 72020 0 0 0 77526 0 0 0 0 0 0 0 0 0 0 0 0 0 73209 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ','0 0 0 0 0 0 0 0 ',0,0,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1636071976,0),(5,2,'Caza',0,24,3,1,1,0,0,33816578,33554432,0,1470.97,3466.06,181.64,860,0,49,2.78136,'34 0 0 2 0 0 1 0 0 0 0 32 8 0 0 128 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 32 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 128 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 32 16 0 0 0 140 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ',0,1,1,1,1636072289,0,0.00155,0,0,'0 0 ',0,0,0,0,0,4,0,0,5736,0,'',0,0,0,0,4294967295,0,123,100,0,0,0,0,0,1,0,'0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ','0 0 0 0 0 0 0 0 72019 0 77509 0 72020 0 0 0 77526 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ','0 0 0 0 0 0 0 0 ',0,0,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1636072288,0);
+insert into `characters`(`guid`,`account`,`name`,`slot`,`race`,`class`,`gender`,`level`,`xp`,`money`,`playerBytes`,`playerBytes2`,`playerFlags`,`position_x`,`position_y`,`position_z`,`map`,`instance_id`,`instance_mode_mask`,`orientation`,`taximask`,`online`,`cinematic`,`totaltime`,`leveltime`,`logout_time`,`is_logout_resting`,`rest_bonus`,`resettalents_cost`,`resettalents_time`,`talentTree`,`trans_x`,`trans_y`,`trans_z`,`trans_o`,`transguid`,`extra_flags`,`stable_slots`,`at_login`,`zone`,`death_expire_time`,`taxi_path`,`totalKills`,`todayKills`,`yesterdayKills`,`chosenTitle`,`watchedFaction`,`drunk`,`health`,`power1`,`power2`,`power3`,`power4`,`power5`,`latency`,`speccount`,`activespec`,`exploredZones`,`equipmentCache`,`knownTitles`,`actionBars`,`grantableLevels`,`deleteInfos_Account`,`deleteInfos_Name`,`deleteDate`,`lootspec`,`project_transfer`,`project_original_cloned`,`project_original_migrated`,`project_original_realm_id`,`project_original_guid`,`project_clone_created`,`project_clone_realm_id`,`project_clone_guid`,`project_migrant_created`,`project_migrant_realm_id`,`project_migrant_guid`,`last_login`,`taxi_path_point`) values (1,1,'Testeo',0,24,10,1,1,10,2,84546051,33554435,0,1448.53,3471.42,176.992,860,0,49,3.42536,'34 0 0 2 0 0 1 0 0 0 0 32 8 0 0 128 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 32 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 128 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 32 16 0 0 0 140 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ',0,1,128,128,1636074755,0,1.28374,0,0,'0 0 ',0,0,0,0,0,0,0,0,5736,0,'',0,0,0,0,4294967295,0,133,50,100,0,0,0,193,1,0,'0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1024 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ','0 0 0 0 0 0 0 0 72019 0 77509 0 72020 0 0 0 77526 0 0 0 0 0 0 0 0 0 0 0 0 0 73209 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ','0 0 0 0 0 0 0 0 ',0,0,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1636074632,0),(2,1,'Teste',0,9,4,0,90,0,227301,117440512,33554440,16777760,1734.59,-4473.41,35.1389,1,0,49,1.55518,'0 4 96 0 0 0 0 0 0 0 2 0 4 0 0 128 0 0 0 0 0 0 0 0 0 0 16 0 0 0 0 0 0 0 0 0 0 0 32 0 0 0 0 0 0 0 0 128 0 0 2 0 0 0 0 0 0 8 0 0 0 0 0 0 0 0 128 1 0 0 0 0 0 0 0 0 0 0 65 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ',0,1,1818,1774,1636076696,1,0,0,0,'0 0 ',0,0,0,0,0,0,0,0,1637,0,'',0,0,0,0,4294967295,0,153445,0,100,0,0,0,195,1,0,'0 0 2147483648 2147483656 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 134217728 0 8 0 0 0 0 0 0 0 0 1024 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2048 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 8388608 0 0 0 0 0 0 0 0 0 0 0 8208 0 0 32 0 0 0 0 0 0 0 0 0 0 0 0 262144 0 0 8391680 4194304 1536 1053952 0 48 1 0 0 0 2 0 0 0 0 0 536870912 0 320 0 0 0 0 0 0 536879104 0 16121856 4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ','0 0 0 0 0 0 0 0 49514 0 0 0 49515 0 49516 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 90322 0 50055 0 0 0 0 0 0 0 0 0 0 0 0 0 ','0 0 0 0 0 0 0 0 ',0,0,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1636075368,0),(3,1,'Ertre',0,22,8,0,1,0,0,33882368,33554439,0,-1451.53,1403.35,35.5561,654,0,49,0.333847,'34 0 0 2 0 0 1 0 0 0 0 32 8 0 0 128 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 32 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 128 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 32 16 0 0 0 140 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ',0,1,0,0,1636071648,0,0.00137778,0,0,'0 0 ',0,0,0,0,0,0,0,0,4755,0,'',0,0,0,0,4294967295,0,103,50,0,0,0,0,0,1,0,'0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ','0 0 0 0 0 0 0 0 49399 0 0 0 49400 0 49401 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 35 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ','0 0 0 0 0 0 0 0 ',0,0,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1636071648,0),(4,1,'Fea',0,5,10,0,1,0,0,67438336,33554438,0,1699.85,1706.56,135.928,0,0,49,4.88839,'0 4 96 0 0 0 0 0 0 0 2 0 4 0 0 128 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 32 0 0 0 0 0 0 0 0 128 0 0 2 0 0 0 0 0 0 8 0 0 0 0 0 0 0 0 128 1 0 0 0 0 0 0 0 0 0 0 65 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ',0,1,0,0,1636071976,0,0.00172222,0,0,'0 0 ',0,0,0,0,0,0,0,0,6454,0,'',0,0,0,0,4294967295,0,113,50,100,0,0,0,0,1,0,'0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ','0 0 0 0 0 0 0 0 72019 0 77509 0 72020 0 0 0 77526 0 0 0 0 0 0 0 0 0 0 0 0 0 73209 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ','0 0 0 0 0 0 0 0 ',0,0,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1636071976,0),(5,2,'Caza',0,24,3,1,1,0,0,33816578,33554432,0,1470.97,3466.06,181.64,860,0,49,2.78136,'34 0 0 2 0 0 1 0 0 0 0 32 8 0 0 128 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 32 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 128 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 32 16 0 0 0 140 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ',0,1,1,1,1636072289,0,0.00155,0,0,'0 0 ',0,0,0,0,0,4,0,0,5736,0,'',0,0,0,0,4294967295,0,123,100,0,0,0,0,0,1,0,'0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ','0 0 0 0 0 0 0 0 72019 0 77509 0 72020 0 0 0 77526 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ','0 0 0 0 0 0 0 0 ',0,0,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1636072288,0);
 
 /*Table structure for table `corpse` */
 
@@ -1251,7 +1249,7 @@ CREATE TABLE `corpse` (
   KEY `idx_instance` (`instanceId`),
   KEY `idx_player` (`guid`),
   KEY `idx_time` (`time`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Death System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Death System';
 
 /*Data for the table `corpse` */
 
@@ -1266,7 +1264,7 @@ CREATE TABLE `creature_respawn` (
   `instanceId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Instance Identifier',
   PRIMARY KEY (`guid`,`instanceId`),
   KEY `idx_instance` (`instanceId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Grid Loading System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Grid Loading System';
 
 /*Data for the table `creature_respawn` */
 
@@ -1281,13 +1279,13 @@ DROP TABLE IF EXISTS `custom_solocraft_character_stats`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `custom_solocraft_character_stats` (
-  `GUID` tinyint(3) unsigned NOT NULL,
+  `guid` int unsigned NOT NULL,
   `Difficulty` float NOT NULL,
   `GroupSize` int(11) NOT NULL,
   `SpellPower` int(10) unsigned NOT NULL DEFAULT '0',
   `Stats` float NOT NULL DEFAULT '100',
-  PRIMARY KEY (`GUID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  PRIMARY KEY (`guid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1310,7 +1308,7 @@ CREATE TABLE `custom_transmogrification` (
   `Owner` int(10) unsigned NOT NULL COMMENT 'Player guidLow',
   PRIMARY KEY (`GUID`),
   KEY `Owner` (`Owner`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='don''t work just yet.';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='don''t work just yet.';
 
 /*Data for the table `custom_transmogrification` */
 
@@ -1324,7 +1322,7 @@ CREATE TABLE `custom_transmogrification_sets` (
   `SetName` text COMMENT 'SetName',
   `SetData` text COMMENT 'Slot1 Entry1 Slot2 Entry2',
   PRIMARY KEY (`Owner`,`PresetID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='6_1';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='6_1';
 
 /*Data for the table `custom_transmogrification_sets` */
 
@@ -1344,7 +1342,7 @@ CREATE TABLE `daily_players_reports` (
   `teleportplane_reports` bigint(20) unsigned NOT NULL DEFAULT '0',
   `climb_reports` bigint(20) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `daily_players_reports` */
 
@@ -1360,7 +1358,7 @@ CREATE TABLE `executed_services` (
   `new_data` text NOT NULL,
   `execute_date` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `executed_services` */
 
@@ -1372,7 +1370,7 @@ CREATE TABLE `fake_items` (
   `guid` int(11) NOT NULL,
   `fakeEntry` int(11) NOT NULL,
   PRIMARY KEY (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `fake_items` */
 
@@ -1385,7 +1383,7 @@ CREATE TABLE `game_event_condition_save` (
   `condition_id` int(10) unsigned NOT NULL DEFAULT '0',
   `done` float DEFAULT '0',
   PRIMARY KEY (`eventEntry`,`condition_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `game_event_condition_save` */
 
@@ -1398,7 +1396,7 @@ CREATE TABLE `game_event_save` (
   `state` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `next_start` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`eventEntry`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `game_event_save` */
 
@@ -1413,7 +1411,7 @@ CREATE TABLE `gameobject_respawn` (
   `instanceId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Instance Identifier',
   PRIMARY KEY (`guid`,`instanceId`),
   KEY `idx_instance` (`instanceId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Grid Loading System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Grid Loading System';
 
 /*Data for the table `gameobject_respawn` */
 
@@ -1429,7 +1427,7 @@ CREATE TABLE `gm_subsurveys` (
   `rank` int(10) unsigned NOT NULL DEFAULT '0',
   `comment` text NOT NULL,
   PRIMARY KEY (`surveyId`,`subsurveyId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Player System';
 
 /*Data for the table `gm_subsurveys` */
 
@@ -1444,7 +1442,7 @@ CREATE TABLE `gm_surveys` (
   `overallComment` longtext NOT NULL,
   `createTime` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`surveyId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Player System';
 
 /*Data for the table `gm_surveys` */
 
@@ -1472,7 +1470,7 @@ CREATE TABLE `gm_tickets` (
   `viewed` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `haveTicket` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`ticketId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Player System';
 
 /*Data for the table `gm_tickets` */
 
@@ -1498,7 +1496,7 @@ CREATE TABLE `group_completed_challenges` (
   `member_5_guid` int(10) unsigned NOT NULL DEFAULT '0',
   `member_5_spec` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`map`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `group_completed_challenges` */
 
@@ -1512,7 +1510,7 @@ CREATE TABLE `group_instance` (
   `permanent` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`instance`),
   KEY `instance` (`instance`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `group_instance` */
 
@@ -1527,7 +1525,7 @@ CREATE TABLE `group_member` (
   `subgroup` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `roles` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`memberGuid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Groups';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Groups';
 
 /*Data for the table `group_member` */
 
@@ -1555,7 +1553,7 @@ CREATE TABLE `groups` (
   `slot` tinyint(3) unsigned NOT NULL,
   PRIMARY KEY (`guid`),
   KEY `leaderGuid` (`leaderGuid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Groups';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Groups';
 
 /*Data for the table `groups` */
 
@@ -1579,7 +1577,7 @@ CREATE TABLE `guild` (
   `level` int(10) unsigned DEFAULT '1',
   `experience` bigint(20) unsigned DEFAULT '0',
   PRIMARY KEY (`guildid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Guild System';
 
 /*Data for the table `guild` */
 
@@ -1593,7 +1591,7 @@ CREATE TABLE `guild_achievement` (
   `date` int(10) unsigned NOT NULL DEFAULT '0',
   `guids` text NOT NULL,
   PRIMARY KEY (`guildId`,`achievement`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `guild_achievement` */
 
@@ -1608,7 +1606,7 @@ CREATE TABLE `guild_achievement_progress` (
   `date` int(10) unsigned NOT NULL DEFAULT '0',
   `completedGuid` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildId`,`criteria`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `guild_achievement_progress` */
 
@@ -1630,7 +1628,7 @@ CREATE TABLE `guild_bank_eventlog` (
   KEY `guildid_key` (`guildid`),
   KEY `Idx_PlayerGuid` (`PlayerGuid`),
   KEY `Idx_LogGuid` (`LogGuid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `guild_bank_eventlog` */
 
@@ -1646,7 +1644,7 @@ CREATE TABLE `guild_bank_item` (
   PRIMARY KEY (`guildid`,`TabId`,`SlotId`),
   KEY `guildid_key` (`guildid`),
   KEY `Idx_item_guid` (`item_guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `guild_bank_item` */
 
@@ -1662,7 +1660,7 @@ CREATE TABLE `guild_bank_right` (
   `SlotPerDay` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildid`,`TabId`,`rid`),
   KEY `guildid_key` (`guildid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `guild_bank_right` */
 
@@ -1678,7 +1676,7 @@ CREATE TABLE `guild_bank_tab` (
   `TabText` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`guildid`,`TabId`),
   KEY `guildid_key` (`guildid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `guild_bank_tab` */
 
@@ -1694,7 +1692,7 @@ CREATE TABLE `guild_challenges` (
   `scenario` smallint(3) unsigned NOT NULL DEFAULT '0',
   `dungeon_challenge` smallint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guild_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `guild_challenges` */
 
@@ -1721,7 +1719,7 @@ CREATE TABLE `guild_completed_challenges` (
   `member_5_guid` int(10) unsigned NOT NULL DEFAULT '0',
   `member_5_spec` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`map`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `guild_completed_challenges` */
 
@@ -1741,7 +1739,7 @@ CREATE TABLE `guild_eventlog` (
   KEY `Idx_PlayerGuid1` (`PlayerGuid1`),
   KEY `Idx_PlayerGuid2` (`PlayerGuid2`),
   KEY `Idx_LogGuid` (`LogGuid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild Eventlog';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Guild Eventlog';
 
 /*Data for the table `guild_eventlog` */
 
@@ -1758,7 +1756,7 @@ CREATE TABLE `guild_finder_applicant` (
   `comment` varchar(255) DEFAULT NULL,
   `submitTime` int(10) unsigned DEFAULT NULL,
   UNIQUE KEY `guildId` (`guildId`,`playerGuid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `guild_finder_applicant` */
 
@@ -1775,7 +1773,7 @@ CREATE TABLE `guild_finder_guild_settings` (
   `listed` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `comment` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`guildId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `guild_finder_guild_settings` */
 
@@ -1801,7 +1799,7 @@ CREATE TABLE `guild_member` (
   UNIQUE KEY `guid_key` (`guid`),
   KEY `guildid_key` (`guildid`),
   KEY `guildid_rank_key` (`guildid`,`rank`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Guild System';
 
 /*Data for the table `guild_member` */
 
@@ -1821,7 +1819,7 @@ CREATE TABLE `guild_member_withdraw` (
   `tab7` int(10) unsigned NOT NULL DEFAULT '0',
   `money` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild Member Daily Withdraws';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Guild Member Daily Withdraws';
 
 /*Data for the table `guild_member_withdraw` */
 
@@ -1841,7 +1839,7 @@ CREATE TABLE `guild_newslog` (
   KEY `guildid_key` (`guildid`),
   KEY `Idx_PlayerGuid` (`PlayerGuid`),
   KEY `Idx_LogGuid` (`LogGuid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `guild_newslog` */
 
@@ -1858,7 +1856,7 @@ CREATE TABLE `guild_rank` (
   `BankMoneyPerDay` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildid`,`rid`),
   KEY `Idx_rid` (`rid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Guild System';
 
 /*Data for the table `guild_rank` */
 
@@ -1871,7 +1869,7 @@ CREATE TABLE `guild_reputation` (
   `guild` int(10) unsigned NOT NULL,
   `reputation` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `guild_reputation` */
 
@@ -1891,7 +1889,7 @@ CREATE TABLE `instance` (
   KEY `map` (`map`),
   KEY `resettime` (`resettime`),
   KEY `difficulty` (`difficulty`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `instance` */
 
@@ -1905,7 +1903,7 @@ CREATE TABLE `instance_reset` (
   `resettime` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`mapid`,`difficulty`),
   KEY `difficulty` (`difficulty`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `instance_reset` */
 
@@ -1927,7 +1925,7 @@ CREATE TABLE `item_deleted` (
   `restore_date` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `owner_guid_old_item_guid` (`owner_guid`,`old_item_guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `item_deleted` */
 
@@ -1959,7 +1957,7 @@ CREATE TABLE `item_instance` (
   `pet_level` int(11) unsigned NOT NULL,
   PRIMARY KEY (`guid`),
   KEY `idx_owner_guid` (`owner_guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Item System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Item System';
 
 /*Data for the table `item_instance` */
 
@@ -1981,7 +1979,7 @@ CREATE TABLE `item_loot_items` (
   `needs_quest` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'quest drop',
   `rnd_prop` int(10) NOT NULL DEFAULT '0' COMMENT 'random enchantment added when originally rolled',
   `rnd_suffix` int(10) NOT NULL DEFAULT '0' COMMENT 'random suffix added when originally rolled'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `item_loot_items` */
 
@@ -1992,7 +1990,7 @@ DROP TABLE IF EXISTS `item_loot_money`;
 CREATE TABLE `item_loot_money` (
   `container_id` int(10) NOT NULL DEFAULT '0' COMMENT 'guid of container (item_instance.guid)',
   `money` int(10) NOT NULL DEFAULT '0' COMMENT 'money loot (in copper)'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `item_loot_money` */
 
@@ -2006,7 +2004,7 @@ CREATE TABLE `item_refund_instance` (
   `paidMoney` int(10) unsigned NOT NULL DEFAULT '0',
   `paidExtendedCost` smallint(5) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`item_guid`,`player_guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Item Refund System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Item Refund System';
 
 /*Data for the table `item_refund_instance` */
 
@@ -2018,7 +2016,7 @@ CREATE TABLE `item_soulbound_trade_data` (
   `itemGuid` int(10) unsigned NOT NULL COMMENT 'Item GUID',
   `allowedPlayers` text NOT NULL COMMENT 'Space separated GUID list of players who can receive this item in trade',
   PRIMARY KEY (`itemGuid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Item Refund System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Item Refund System';
 
 /*Data for the table `item_soulbound_trade_data` */
 
@@ -2037,7 +2035,7 @@ CREATE TABLE `lag_reports` (
   `latency` int(10) unsigned NOT NULL DEFAULT '0',
   `createTime` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`reportId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Player System';
 
 /*Data for the table `lag_reports` */
 
@@ -2050,7 +2048,7 @@ CREATE TABLE `lfg_data` (
   `dungeon` int(10) unsigned NOT NULL DEFAULT '0',
   `state` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='LFG Data';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='LFG Data';
 
 /*Data for the table `lfg_data` */
 
@@ -2075,11 +2073,11 @@ CREATE TABLE `mail` (
   `checked` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `idx_receiver` (`receiver`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Mail System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Mail System';
 
 /*Data for the table `mail` */
 
-insert  into `mail`(`id`,`messageType`,`stationery`,`mailTemplateId`,`sender`,`receiver`,`subject`,`body`,`has_items`,`expire_time`,`deliver_time`,`money`,`cod`,`checked`) values (1,3,41,0,16128,2,'Level 80','Congratulations on your conviction to reach the 80th season of adventure. You are undoubtedly dedicated to the cause of ridding Azeroth of the evils which have plagued us.$b$bAnd while the journey thus far has been no minor feat, the true battle lies ahead.$b$bFight on!$b$bRhonin',1,1636161205,1636074805,0,0,0);
+insert into `mail`(`id`,`messageType`,`stationery`,`mailTemplateId`,`sender`,`receiver`,`subject`,`body`,`has_items`,`expire_time`,`deliver_time`,`money`,`cod`,`checked`) values (1,3,41,0,16128,2,'Level 80','Congratulations on your conviction to reach the 80th season of adventure. You are undoubtedly dedicated to the cause of ridding Azeroth of the evils which have plagued us.$b$bAnd while the journey thus far has been no minor feat, the true battle lies ahead.$b$bFight on!$b$bRhonin',1,1636161205,1636074805,0,0,0);
 
 /*Table structure for table `mail_items` */
 
@@ -2092,11 +2090,11 @@ CREATE TABLE `mail_items` (
   PRIMARY KEY (`item_guid`),
   KEY `idx_receiver` (`receiver`),
   KEY `idx_mail_id` (`mail_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `mail_items` */
 
-insert  into `mail_items`(`mail_id`,`item_guid`,`receiver`) values (1,61,2);
+insert into `mail_items`(`mail_id`,`item_guid`,`receiver`) values (1,61,2);
 
 /*Table structure for table `pet_aura` */
 
@@ -2115,7 +2113,7 @@ CREATE TABLE `pet_aura` (
   `remaintime` int(11) NOT NULL DEFAULT '0',
   `remaincharges` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`caster_guid`,`item_guid`,`spell`,`effect_mask`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `pet_aura` */
 
@@ -2130,7 +2128,7 @@ CREATE TABLE `pet_aura_effect` (
   `base_amount` int(10) NOT NULL DEFAULT '0',
   `amount` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`slot`,`effect`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `pet_aura_effect` */
 
@@ -2143,7 +2141,7 @@ CREATE TABLE `pet_spell` (
   `spell` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
   `active` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`spell`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pet System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Pet System';
 
 /*Data for the table `pet_spell` */
 
@@ -2159,7 +2157,7 @@ CREATE TABLE `pet_spell_cooldown` (
   `time` bigint(20) unsigned NOT NULL DEFAULT '0',
   `category_end` bigint(20) unsigned DEFAULT '0',
   PRIMARY KEY (`guid`,`spell`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `pet_spell_cooldown` */
 
@@ -2174,7 +2172,7 @@ CREATE TABLE `petition` (
   `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`ownerguid`,`type`),
   UNIQUE KEY `index_ownerguid_petitionguid` (`ownerguid`,`petitionguid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Guild System';
 
 /*Data for the table `petition` */
 
@@ -2191,7 +2189,7 @@ CREATE TABLE `petition_sign` (
   PRIMARY KEY (`petitionguid`,`playerguid`),
   KEY `Idx_playerguid` (`playerguid`),
   KEY `Idx_ownerguid` (`ownerguid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Guild System';
 
 /*Data for the table `petition_sign` */
 
@@ -2211,7 +2209,7 @@ CREATE TABLE `players_reports_status` (
   `teleportplane_reports` bigint(20) unsigned NOT NULL DEFAULT '0',
   `climb_reports` bigint(20) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `players_reports_status` */
 
@@ -2222,159 +2220,161 @@ CREATE TABLE `pool_quest_save`  (
   `pool_id` int UNSIGNED NOT NULL DEFAULT 0,
   `quest_id` int UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`pool_id`, `quest_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4;
 
 -- ----------------------------
 -- Records of pool_quest_save
 -- ----------------------------
-INSERT INTO `pool_quest_save` VALUES (334, 30473);
-INSERT INTO `pool_quest_save` VALUES (348, 24629);
-INSERT INTO `pool_quest_save` VALUES (349, 14104);
-INSERT INTO `pool_quest_save` VALUES (350, 13905);
-INSERT INTO `pool_quest_save` VALUES (351, 13916);
-INSERT INTO `pool_quest_save` VALUES (352, 11377);
-INSERT INTO `pool_quest_save` VALUES (353, 11669);
-INSERT INTO `pool_quest_save` VALUES (354, 13423);
-INSERT INTO `pool_quest_save` VALUES (356, 11363);
-INSERT INTO `pool_quest_save` VALUES (357, 11385);
-INSERT INTO `pool_quest_save` VALUES (358, 14080);
-INSERT INTO `pool_quest_save` VALUES (359, 14076);
-INSERT INTO `pool_quest_save` VALUES (360, 14136);
-INSERT INTO `pool_quest_save` VALUES (361, 14092);
-INSERT INTO `pool_quest_save` VALUES (362, 12759);
-INSERT INTO `pool_quest_save` VALUES (363, 14107);
-INSERT INTO `pool_quest_save` VALUES (380, 12736);
-INSERT INTO `pool_quest_save` VALUES (381, 12741);
-INSERT INTO `pool_quest_save` VALUES (382, 12762);
-INSERT INTO `pool_quest_save` VALUES (384, 13192);
-INSERT INTO `pool_quest_save` VALUES (385, 13154);
-INSERT INTO `pool_quest_save` VALUES (386, 12587);
-INSERT INTO `pool_quest_save` VALUES (500, 13674);
-INSERT INTO `pool_quest_save` VALUES (501, 13763);
-INSERT INTO `pool_quest_save` VALUES (502, 13770);
-INSERT INTO `pool_quest_save` VALUES (503, 13774);
-INSERT INTO `pool_quest_save` VALUES (504, 13780);
-INSERT INTO `pool_quest_save` VALUES (505, 13785);
-INSERT INTO `pool_quest_save` VALUES (506, 13666);
-INSERT INTO `pool_quest_save` VALUES (507, 13616);
-INSERT INTO `pool_quest_save` VALUES (508, 13741);
-INSERT INTO `pool_quest_save` VALUES (509, 13747);
-INSERT INTO `pool_quest_save` VALUES (510, 13758);
-INSERT INTO `pool_quest_save` VALUES (511, 13753);
-INSERT INTO `pool_quest_save` VALUES (512, 13107);
-INSERT INTO `pool_quest_save` VALUES (513, 13112);
-INSERT INTO `pool_quest_save` VALUES (514, 13832);
-INSERT INTO `pool_quest_save` VALUES (515, 12961);
-INSERT INTO `pool_quest_save` VALUES (516, 24579);
-INSERT INTO `pool_quest_save` VALUES (523, 14080);
-INSERT INTO `pool_quest_save` VALUES (524, 14112);
-INSERT INTO `pool_quest_save` VALUES (525, 14136);
-INSERT INTO `pool_quest_save` VALUES (526, 14092);
-INSERT INTO `pool_quest_save` VALUES (527, 14108);
-INSERT INTO `pool_quest_save` VALUES (528, 26536);
-INSERT INTO `pool_quest_save` VALUES (529, 29360);
-INSERT INTO `pool_quest_save` VALUES (530, 29365);
-INSERT INTO `pool_quest_save` VALUES (531, 29352);
-INSERT INTO `pool_quest_save` VALUES (532, 29314);
-INSERT INTO `pool_quest_save` VALUES (533, 29322);
-INSERT INTO `pool_quest_save` VALUES (534, 29345);
-INSERT INTO `pool_quest_save` VALUES (535, 29342);
-INSERT INTO `pool_quest_save` VALUES (536, 29359);
-INSERT INTO `pool_quest_save` VALUES (537, 30658);
-INSERT INTO `pool_quest_save` VALUES (537, 30700);
-INSERT INTO `pool_quest_save` VALUES (537, 30701);
-INSERT INTO `pool_quest_save` VALUES (538, 31526);
-INSERT INTO `pool_quest_save` VALUES (539, 32001);
-INSERT INTO `pool_quest_save` VALUES (540, 26227);
-INSERT INTO `pool_quest_save` VALUES (541, 26183);
-INSERT INTO `pool_quest_save` VALUES (542, 26557);
-INSERT INTO `pool_quest_save` VALUES (543, 25161);
-INSERT INTO `pool_quest_save` VALUES (544, 25105);
-INSERT INTO `pool_quest_save` VALUES (600, 31703);
-INSERT INTO `pool_quest_save` VALUES (601, 30156);
-INSERT INTO `pool_quest_save` VALUES (602, 31706);
-INSERT INTO `pool_quest_save` VALUES (603, 31720);
-INSERT INTO `pool_quest_save` VALUES (605, 31109);
-INSERT INTO `pool_quest_save` VALUES (605, 31487);
-INSERT INTO `pool_quest_save` VALUES (605, 31494);
-INSERT INTO `pool_quest_save` VALUES (605, 31496);
-INSERT INTO `pool_quest_save` VALUES (605, 31502);
-INSERT INTO `pool_quest_save` VALUES (605, 31503);
-INSERT INTO `pool_quest_save` VALUES (605, 31504);
-INSERT INTO `pool_quest_save` VALUES (608, 31808);
-INSERT INTO `pool_quest_save` VALUES (5662, 13675);
-INSERT INTO `pool_quest_save` VALUES (5663, 13762);
-INSERT INTO `pool_quest_save` VALUES (5664, 13769);
-INSERT INTO `pool_quest_save` VALUES (5665, 13773);
-INSERT INTO `pool_quest_save` VALUES (5666, 13778);
-INSERT INTO `pool_quest_save` VALUES (5667, 13784);
-INSERT INTO `pool_quest_save` VALUES (5668, 13670);
-INSERT INTO `pool_quest_save` VALUES (5669, 13603);
-INSERT INTO `pool_quest_save` VALUES (5670, 13741);
-INSERT INTO `pool_quest_save` VALUES (5671, 13746);
-INSERT INTO `pool_quest_save` VALUES (5672, 13759);
-INSERT INTO `pool_quest_save` VALUES (5673, 13752);
-INSERT INTO `pool_quest_save` VALUES (5674, 13107);
-INSERT INTO `pool_quest_save` VALUES (5675, 13114);
-INSERT INTO `pool_quest_save` VALUES (5676, 13832);
-INSERT INTO `pool_quest_save` VALUES (5677, 12961);
-INSERT INTO `pool_quest_save` VALUES (5678, 24581);
-INSERT INTO `pool_quest_save` VALUES (30136, 32215);
-INSERT INTO `pool_quest_save` VALUES (30136, 32217);
-INSERT INTO `pool_quest_save` VALUES (30136, 32227);
-INSERT INTO `pool_quest_save` VALUES (30136, 32729);
-INSERT INTO `pool_quest_save` VALUES (30137, 32538);
-INSERT INTO `pool_quest_save` VALUES (30137, 32540);
-INSERT INTO `pool_quest_save` VALUES (30137, 32544);
-INSERT INTO `pool_quest_save` VALUES (30137, 32733);
-INSERT INTO `pool_quest_save` VALUES (30138, 32204);
-INSERT INTO `pool_quest_save` VALUES (30138, 32254);
-INSERT INTO `pool_quest_save` VALUES (30138, 32299);
-INSERT INTO `pool_quest_save` VALUES (30139, 32537);
-INSERT INTO `pool_quest_save` VALUES (30139, 32546);
-INSERT INTO `pool_quest_save` VALUES (30139, 32606);
-INSERT INTO `pool_quest_save` VALUES (30140, 32219);
-INSERT INTO `pool_quest_save` VALUES (30140, 32224);
-INSERT INTO `pool_quest_save` VALUES (30140, 32225);
-INSERT INTO `pool_quest_save` VALUES (30140, 32728);
-INSERT INTO `pool_quest_save` VALUES (30141, 32525);
-INSERT INTO `pool_quest_save` VALUES (30141, 32528);
-INSERT INTO `pool_quest_save` VALUES (30141, 32531);
-INSERT INTO `pool_quest_save` VALUES (30141, 32731);
-INSERT INTO `pool_quest_save` VALUES (30142, 32293);
-INSERT INTO `pool_quest_save` VALUES (30143, 32576);
-INSERT INTO `pool_quest_save` VALUES (30145, 32301);
-INSERT INTO `pool_quest_save` VALUES (30145, 32485);
-INSERT INTO `pool_quest_save` VALUES (30145, 32627);
-INSERT INTO `pool_quest_save` VALUES (30145, 32628);
-INSERT INTO `pool_quest_save` VALUES (30145, 32633);
-INSERT INTO `pool_quest_save` VALUES (30145, 32637);
-INSERT INTO `pool_quest_save` VALUES (30146, 32265);
-INSERT INTO `pool_quest_save` VALUES (30146, 32268);
-INSERT INTO `pool_quest_save` VALUES (30146, 32288);
-INSERT INTO `pool_quest_save` VALUES (30146, 32300);
-INSERT INTO `pool_quest_save` VALUES (30146, 32302);
-INSERT INTO `pool_quest_save` VALUES (30146, 32305);
-INSERT INTO `pool_quest_save` VALUES (30147, 32572);
-INSERT INTO `pool_quest_save` VALUES (30147, 32574);
-INSERT INTO `pool_quest_save` VALUES (30148, 32228);
-INSERT INTO `pool_quest_save` VALUES (30148, 32506);
-INSERT INTO `pool_quest_save` VALUES (30149, 32551);
-INSERT INTO `pool_quest_save` VALUES (30149, 32552);
-INSERT INTO `pool_quest_save` VALUES (30149, 32554);
-INSERT INTO `pool_quest_save` VALUES (30150, 32283);
-INSERT INTO `pool_quest_save` VALUES (30150, 32297);
-INSERT INTO `pool_quest_save` VALUES (30150, 32298);
-INSERT INTO `pool_quest_save` VALUES (30151, 32556);
-INSERT INTO `pool_quest_save` VALUES (30151, 32558);
-INSERT INTO `pool_quest_save` VALUES (30151, 32559);
-INSERT INTO `pool_quest_save` VALUES (30152, 32206);
-INSERT INTO `pool_quest_save` VALUES (30152, 32493);
-INSERT INTO `pool_quest_save` VALUES (30152, 32494);
-INSERT INTO `pool_quest_save` VALUES (30153, 32209);
-INSERT INTO `pool_quest_save` VALUES (30154, 32588);
-INSERT INTO `pool_quest_save` VALUES (30155, 32677);
-INSERT INTO `pool_quest_save` VALUES (30156, 32608);
+INSERT INTO `pool_quest_save` VALUES 
+(334, 30473),
+(348, 24629),
+(349, 14104),
+(350, 13905),
+(351, 13916),
+(352, 11377),
+(353, 11669),
+(354, 13423),
+(356, 11363),
+(357, 11385),
+(358, 14080),
+(359, 14076),
+(360, 14136),
+(361, 14092),
+(362, 12759),
+(363, 14107),
+(380, 12736),
+(381, 12741),
+(382, 12762),
+(384, 13192),
+(385, 13154),
+(386, 12587),
+(500, 13674),
+(501, 13763),
+(502, 13770),
+(503, 13774),
+(504, 13780),
+(505, 13785),
+(506, 13666),
+(507, 13616),
+(508, 13741),
+(509, 13747),
+(510, 13758),
+(511, 13753),
+(512, 13107),
+(513, 13112),
+(514, 13832),
+(515, 12961),
+(516, 24579),
+(523, 14080),
+(524, 14112),
+(525, 14136),
+(526, 14092),
+(527, 14108),
+(528, 26536),
+(529, 29360),
+(530, 29365),
+(531, 29352),
+(532, 29314),
+(533, 29322),
+(534, 29345),
+(535, 29342),
+(536, 29359),
+(537, 30658),
+(537, 30700),
+(537, 30701),
+(538, 31526),
+(539, 32001),
+(540, 26227),
+(541, 26183),
+(542, 26557),
+(543, 25161),
+(544, 25105),
+(600, 31703),
+(601, 30156),
+(602, 31706),
+(603, 31720),
+(605, 31109),
+(605, 31487),
+(605, 31494),
+(605, 31496),
+(605, 31502),
+(605, 31503),
+(605, 31504),
+(608, 31808),
+(5662, 13675),
+(5663, 13762),
+(5664, 13769),
+(5665, 13773),
+(5666, 13778),
+(5667, 13784),
+(5668, 13670),
+(5669, 13603),
+(5670, 13741),
+(5671, 13746),
+(5672, 13759),
+(5673, 13752),
+(5674, 13107),
+(5675, 13114),
+(5676, 13832),
+(5677, 12961),
+(5678, 24581),
+(30136, 32215),
+(30136, 32217),
+(30136, 32227),
+(30136, 32729),
+(30137, 32538),
+(30137, 32540),
+(30137, 32544),
+(30137, 32733),
+(30138, 32204),
+(30138, 32254),
+(30138, 32299),
+(30139, 32537),
+(30139, 32546),
+(30139, 32606),
+(30140, 32219),
+(30140, 32224),
+(30140, 32225),
+(30140, 32728),
+(30141, 32525),
+(30141, 32528),
+(30141, 32531),
+(30141, 32731),
+(30142, 32293),
+(30143, 32576),
+(30145, 32301),
+(30145, 32485),
+(30145, 32627),
+(30145, 32628),
+(30145, 32633),
+(30145, 32637),
+(30146, 32265),
+(30146, 32268),
+(30146, 32288),
+(30146, 32300),
+(30146, 32302),
+(30146, 32305),
+(30147, 32572),
+(30147, 32574),
+(30148, 32228),
+(30148, 32506),
+(30149, 32551),
+(30149, 32552),
+(30149, 32554),
+(30150, 32283),
+(30150, 32297),
+(30150, 32298),
+(30151, 32556),
+(30151, 32558),
+(30151, 32559),
+(30152, 32206),
+(30152, 32493),
+(30152, 32494),
+(30153, 32209),
+(30154, 32588),
+(30155, 32677),
+(30156, 32608);
+
 /*Table structure for table `rated_pvp_info` */
 
 DROP TABLE IF EXISTS `rated_pvp_info`;
@@ -2396,7 +2396,7 @@ CREATE TABLE `rated_pvp_info` (
   `bonus_reward` tinyint(1) NOT NULL DEFAULT '0',
   `win_streak` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`slot`,`season`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `rated_pvp_info` */
 
@@ -2407,7 +2407,7 @@ DROP TABLE IF EXISTS `reserved_name`;
 CREATE TABLE `reserved_name` (
   `name` varchar(12) NOT NULL DEFAULT '',
   PRIMARY KEY (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player Reserved Names';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Player Reserved Names';
 
 /*Data for the table `reserved_name` */
 
@@ -2429,9 +2429,64 @@ CREATE TABLE `ticket_bug` (
   `assignedTo` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'GUID of admin to whom ticket is assigned',
   `comment` text NOT NULL,
   PRIMARY KEY (`ticketId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `ticket_bug` */
+
+--
+-- Table structure for table `updates`
+--
+
+DROP TABLE IF EXISTS `updates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `updates` (
+  `name` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'filename with extension of the update.',
+  `hash` char(40) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT 'sha1 hash of the sql file.',
+  `state` enum('RELEASED','ARCHIVED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if an update is released or archived.',
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'timestamp when the query was applied.',
+  `speed` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'time the query takes to apply in ms.',
+  PRIMARY KEY (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of all applied updates in this database.';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `updates`
+--
+
+LOCK TABLES `updates` WRITE;
+/*!40000 ALTER TABLE `updates` DISABLE KEYS */;
+INSERT INTO `updates` VALUES
+ ('2024_09_06_00_characters_auctionbidders.sql','0A664457BB1880267C74A9CF49E79E195907B825','RELEASED','2024-09-07 02:20:26',69),
+ ('2024_09_06_01_characters_auctionhouse_houseid.sql','F8682A431D50E54BDC4AC0E7DBED21AE8AAB6AD4','RELEASED','2024-09-07 02:41:38',1240);
+/*!40000 ALTER TABLE `updates` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `updates_include`
+--
+
+DROP TABLE IF EXISTS `updates_include`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `updates_include` (
+  `path` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'directory to include. $ means relative to the source directory.',
+  `state` enum('RELEASED','ARCHIVED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if the directory contains released or archived updates.',
+  PRIMARY KEY (`path`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of directories where we want to include sql updates.';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `updates_include`
+--
+
+LOCK TABLES `updates_include` WRITE;
+/*!40000 ALTER TABLE `updates_include` DISABLE KEYS */;
+INSERT INTO `updates_include` VALUES
+ ('$/sql/archive/characters','ARCHIVED'),
+ ('$/sql/updates/characters','RELEASED');
+/*!40000 ALTER TABLE `updates_include` ENABLE KEYS */;
+UNLOCK TABLES;
 
 /*Table structure for table `warden_action` */
 
@@ -2441,7 +2496,7 @@ CREATE TABLE `warden_action` (
   `wardenId` smallint(5) unsigned NOT NULL,
   `action` tinyint(3) unsigned DEFAULT NULL,
   PRIMARY KEY (`wardenId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `warden_action` */
 
@@ -2454,13 +2509,20 @@ CREATE TABLE `worldstates` (
   `value` int(10) unsigned NOT NULL DEFAULT '0',
   `comment` tinytext,
   PRIMARY KEY (`entry`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Variable Saves';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Variable Saves';
 
 /*Data for the table `worldstates` */
 
-insert  into `worldstates`(`entry`,`value`,`comment`) values (3781,9000000,NULL),(3801,0,NULL),(3802,1,NULL),(20001,1636196400,'NextArenaPointDistributionTime'),(20002,1636583941,'NextWeeklyQuestResetTime'),(20003,1636196400,'NextBGRandomDailyResetTime'),(20004,0,'cleaning_flags'),(20006,1636196400,NULL),(20007,1638334800,NULL),(20008,291,NULL),(20009,8,NULL),(20050,4,NULL);
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+INSERT INTO `worldstates`(`entry`,`value`,`comment`) VALUES 
+(3781,9000000,NULL),
+(3801,0,NULL),
+(3802,1,NULL),
+(20001,1636196400,'NextArenaPointDistributionTime'),
+(20002,1636583941,'NextWeeklyQuestResetTime'),
+(20003,1636196400,'NextBGRandomDailyResetTime'),
+(20004,0,'cleaning_flags'),
+(20006,1636196400,NULL),
+(20007,1638334800,NULL),
+(20008,291,NULL),
+(20009,8,NULL),
+(20050,4,NULL);

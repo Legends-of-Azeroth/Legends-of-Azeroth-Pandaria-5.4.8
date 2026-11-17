@@ -109,7 +109,7 @@ enum Worldstates
 
 struct CacheEligibilityCheckAccessor
 {
-    virtual bool IsPlayerEligibleForCache(uint64 playerGuid) const = 0;
+    virtual bool IsPlayerEligibleForCache(ObjectGuid playerGuid) const = 0;
 };
 
 template<class AI>

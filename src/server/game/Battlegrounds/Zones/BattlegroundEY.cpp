@@ -149,7 +149,7 @@ void BattlegroundEY::CheckSomeoneJoinedPoint()
     GameObject* obj = NULL;
     for (uint8 i = 0; i < EY_POINTS_MAX; ++i)
     {
-        obj = HashMapHolder<GameObject>::Find(BgObjects[BG_EY_OBJECT_TOWER_CAP_FEL_REAVER + i]);
+        obj = GetBgMap()->GetGameObject(BgObjects[BG_EY_OBJECT_TOWER_CAP_FEL_REAVER + i]);
         if (obj)
         {
             uint8 j = 0;
@@ -158,7 +158,7 @@ void BattlegroundEY::CheckSomeoneJoinedPoint()
                 Player* player = ObjectAccessor::FindPlayer(m_PlayersNearPoint[EY_POINTS_MAX][j]);
                 if (!player)
                 {
-                    TC_LOG_ERROR("bg.battleground", "BattlegroundEY:CheckSomeoneJoinedPoint: Player (GUID: %u) not found!", GUID_LOPART(m_PlayersNearPoint[EY_POINTS_MAX][j]));
+                    TC_LOG_ERROR("bg.battleground", "BattlegroundEY:CheckSomeoneJoinedPoint: Player (GUID: {}) not found!", m_PlayersNearPoint[EY_POINTS_MAX][j].GetCounter());
                     ++j;
                     continue;
                 }
@@ -189,7 +189,7 @@ void BattlegroundEY::CheckSomeoneLeftPoint()
     GameObject* obj = NULL;
     for (uint8 i = 0; i < EY_POINTS_MAX; ++i)
     {
-        obj = HashMapHolder<GameObject>::Find(BgObjects[BG_EY_OBJECT_TOWER_CAP_FEL_REAVER + i]);
+        obj = GetBgMap()->GetGameObject(BgObjects[BG_EY_OBJECT_TOWER_CAP_FEL_REAVER + i]);
         if (obj)
         {
             uint8 j = 0;
@@ -198,7 +198,7 @@ void BattlegroundEY::CheckSomeoneLeftPoint()
                 Player* player = ObjectAccessor::FindPlayer(m_PlayersNearPoint[i][j]);
                 if (!player)
                 {
-                    TC_LOG_ERROR("bg.battleground", "BattlegroundEY:CheckSomeoneLeftPoint Player (GUID: %u) not found!", GUID_LOPART(m_PlayersNearPoint[i][j]));
+                    TC_LOG_ERROR("bg.battleground", "BattlegroundEY:CheckSomeoneLeftPoint Player (GUID: {}) not found!", m_PlayersNearPoint[i][j].GetCounter());
                     //move not existed player to "free space" - this will cause many error showing in log, but it is a very important bug
                     m_PlayersNearPoint[EY_POINTS_MAX].push_back(m_PlayersNearPoint[i][j]);
                     m_PlayersNearPoint[i].erase(m_PlayersNearPoint[i].begin() + j);
@@ -368,7 +368,7 @@ void BattlegroundEY::AddPlayer(Player* player)
         player->StartCriteria(CRITERIA_START_TYPE_EVENT, EVENT_START_BATTLE_EY, (TimeValue::Now() - m_doorOpeningTime).ToMilliseconds());
 }
 
-void BattlegroundEY::RemovePlayer(Player* player, uint64 guid, uint32 team)
+void BattlegroundEY::RemovePlayer(Player* player, ObjectGuid guid, uint32 team)
 {
     Battleground::RemovePlayer(player, guid, team);
     // sometimes flag aura not removed :(
@@ -386,14 +386,14 @@ void BattlegroundEY::RemovePlayer(Player* player, uint64 guid, uint32 team)
                 EventPlayerDroppedFlag(player);
             else
             {
-                SetFlagPicker(0);
+                SetFlagPicker(ObjectGuid::Empty);
                 RespawnFlag(true);
             }
         }
     }
 }
 
-void BattlegroundEY::HandleAreaTrigger(Player* player, uint32 trigger)
+void BattlegroundEY::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -436,7 +436,7 @@ void BattlegroundEY::HandleAreaTrigger(Player* player, uint32 trigger)
         case 5866:
             break;
         default:
-            Battleground::HandleAreaTrigger(player, trigger);
+            Battleground::HandleAreaTrigger(player, trigger, entered);
             break;
     }
 }
@@ -508,12 +508,12 @@ bool BattlegroundEY::SetupBattleground()
         AreaTriggerEntry const* at = sAreaTriggerStore.LookupEntry(m_Points_Trigger[i]);
         if (!at)
         {
-            TC_LOG_ERROR("bg.battleground", "BattlegroundEY: Unknown trigger: %u", m_Points_Trigger[i]);
+            TC_LOG_ERROR("bg.battleground", "BattlegroundEY: Unknown trigger: {}", m_Points_Trigger[i]);
             continue;
         }
-        if (!AddObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REAVER + i * 3, Buff_Entries[0], at->x, at->y, at->z, 0.907571f, 0, 0, 0.438371f, 0.898794f, RESPAWN_ONE_DAY)
-            || !AddObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REAVER + i * 3 + 1, Buff_Entries[1], at->x, at->y, at->z, 0.907571f, 0, 0, 0.438371f, 0.898794f, RESPAWN_ONE_DAY)
-            || !AddObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REAVER + i * 3 + 2, Buff_Entries[2], at->x, at->y, at->z, 0.907571f, 0, 0, 0.438371f, 0.898794f, RESPAWN_ONE_DAY)
+        if (!AddObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REAVER + i * 3, Buff_Entries[0], at->Pos.X, at->Pos.Y, at->Pos.Z, 0.907571f, 0, 0, 0.438371f, 0.898794f, RESPAWN_ONE_DAY)
+            || !AddObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REAVER + i * 3 + 1, Buff_Entries[1], at->Pos.X, at->Pos.Y, at->Pos.Z, 0.907571f, 0, 0, 0.438371f, 0.898794f, RESPAWN_ONE_DAY)
+            || !AddObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REAVER + i * 3 + 2, Buff_Entries[2], at->Pos.X, at->Pos.Y, at->Pos.Z, 0.907571f, 0, 0, 0.438371f, 0.898794f, RESPAWN_ONE_DAY)
 )
             TC_LOG_ERROR("bg.battleground", "BattlegroundEY: Cannot spawn buff");
     }
@@ -549,8 +549,8 @@ void BattlegroundEY::Reset()
     m_HonorScoreTics[TEAM_HORDE] = 0;
     m_FlagState = BG_EY_FLAG_STATE_ON_BASE;
     m_FlagCapturedBgObjectType = 0;
-    m_FlagKeeper = 0;
-    m_DroppedFlagGUID = 0;
+    m_FlagKeeper.Clear();
+    m_DroppedFlagGUID.Clear();
     m_PointAddingTimer = 0;
     m_TowerCapCheckTimer = 0;
     bool isBGWeekend = sBattlegroundMgr->IsBGWeekend(GetTypeID());
@@ -590,13 +590,13 @@ void BattlegroundEY::RespawnFlagAfterDrop()
 {
     RespawnFlag(true);
 
-    GameObject* obj = HashMapHolder<GameObject>::Find(GetDroppedFlagGUID());
+    GameObject* obj = GetBgMap()->GetGameObject(GetDroppedFlagGUID());
     if (obj)
         obj->Delete();
     else
-        TC_LOG_ERROR("bg.battleground", "BattlegroundEY: Unknown dropped flag guid: %u", GUID_LOPART(GetDroppedFlagGUID()));
+        TC_LOG_ERROR("bg.battleground", "BattlegroundEY: Unknown dropped flag guid: {}", GetDroppedFlagGUID().GetCounter());
 
-    SetDroppedFlagGUID(0);
+    SetDroppedFlagGUID(ObjectGuid::Empty);
 }
 
 void BattlegroundEY::HandleKillPlayer(Player* player, Player* killer)
@@ -616,7 +616,7 @@ void BattlegroundEY::EventPlayerDroppedFlag(Player* player)
         // just take off the aura
         if (IsFlagPickedup() && GetFlagPickerGUID() == player->GetGUID())
         {
-            SetFlagPicker(0);
+            SetFlagPicker(ObjectGuid::Empty);
             player->RemoveAurasDueToSpell(BG_EY_NETHERSTORM_FLAG_SPELL);
         }
         return;
@@ -628,7 +628,7 @@ void BattlegroundEY::EventPlayerDroppedFlag(Player* player)
     if (GetFlagPickerGUID() != player->GetGUID())
         return;
 
-    SetFlagPicker(0);
+    SetFlagPicker(ObjectGuid::Empty);
     player->RemoveAurasDueToSpell(BG_EY_NETHERSTORM_FLAG_SPELL);
     m_FlagState = BG_EY_FLAG_STATE_ON_GROUND;
     m_FlagsTimer = BG_EY_FLAG_RESPAWN_TIME;
@@ -766,7 +766,7 @@ void BattlegroundEY::EventTeamCapturedPoint(Player* player, uint32 Point)
     WorldSafeLocsEntry const* sg = NULL;
     sg = sWorldSafeLocsStore.LookupEntry(m_CapturingPointTypes[Point].GraveYardId);
     if (!sg || !AddSpiritGuide(Point, sg->x, sg->y, sg->z, 3.124139f, Team))
-        TC_LOG_ERROR("bg.battleground", "BatteGroundEY: Failed to spawn spirit guide! point: %u, team: %u, graveyard_id: %u",
+        TC_LOG_ERROR("bg.battleground", "BatteGroundEY: Failed to spawn spirit guide! point: {}, team: {}, graveyard_id: {}",
             Point, Team, m_CapturingPointTypes[Point].GraveYardId);
 
 //    SpawnBGCreature(Point, RESPAWN_IMMEDIATELY);
@@ -796,7 +796,7 @@ void BattlegroundEY::EventPlayerCapturedFlag(Player* player, uint32 BgObjectType
     if (GetStatus() != STATUS_IN_PROGRESS || GetFlagPickerGUID() != player->GetGUID())
         return;
 
-    SetFlagPicker(0);
+    SetFlagPicker(ObjectGuid::Empty);
     m_FlagState = BG_EY_FLAG_STATE_WAIT_RESPAWN;
     player->RemoveAurasDueToSpell(BG_EY_NETHERSTORM_FLAG_SPELL);
 
@@ -935,7 +935,7 @@ WorldSafeLocsEntry const* BattlegroundEY::GetClosestGraveYard(Player* player)
         {
             entry = sWorldSafeLocsStore.LookupEntry(m_CapturingPointTypes[i].GraveYardId);
             if (!entry)
-                TC_LOG_ERROR("bg.battleground", "BattlegroundEY: Not found graveyard: %u", m_CapturingPointTypes[i].GraveYardId);
+                TC_LOG_ERROR("bg.battleground", "BattlegroundEY: Not found graveyard: {}", m_CapturingPointTypes[i].GraveYardId);
             else
             {
                 distance = (entry->x - plr_x)*(entry->x - plr_x) + (entry->y - plr_y)*(entry->y - plr_y) + (entry->z - plr_z)*(entry->z - plr_z);

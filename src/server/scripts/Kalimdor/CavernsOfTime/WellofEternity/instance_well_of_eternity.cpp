@@ -43,17 +43,17 @@ class instance_well_of_eternity : public InstanceMapScript
                 uiEventDemon2 = 0;
                 uiEventIllidan1 = 0;
 
-                uiIllidan1GUID = 0;
-                uiPerotharnGUID = 0;
-                uiIllidan2GUID = 0;
-                uiVarothenGUID = 0;
-                uiMannorothGUID = 0;
-                uiFireWallStalker = 0;
+                uiIllidan1GUID = ObjectGuid::Empty;
+                uiPerotharnGUID = ObjectGuid::Empty;
+                uiIllidan2GUID = ObjectGuid::Empty;
+                uiVarothenGUID = ObjectGuid::Empty;
+                uiMannorothGUID = ObjectGuid::Empty;
+                uiFireWallStalker = ObjectGuid::Empty;
 
-                uiRoyalCacheGUID = 0;
-                uiMinorCacheGUID = 0;
-                uiCourtyardDoor1GUID = 0;
-                uiLargeFirewallDoor1GUID = 0;
+                uiRoyalCacheGUID = ObjectGuid::Empty;
+                uiMinorCacheGUID = ObjectGuid::Empty;
+                uiCourtyardDoor1GUID = ObjectGuid::Empty;
+                uiLargeFirewallDoor1GUID = ObjectGuid::Empty;
                 uiSecondDemonDoors.clear();
                 uiPerotharnDoors.clear();
                 uiAfterPerotharnDoors.clear();
@@ -179,7 +179,7 @@ class instance_well_of_eternity : public InstanceMapScript
                         if (data == DONE)
                         {
                             if (!uiSecondDemonDoors.empty())
-                                for (std::vector<uint64>::const_iterator itr = uiSecondDemonDoors.begin(); itr != uiSecondDemonDoors.end(); ++itr)
+                                for (std::vector<ObjectGuid>::const_iterator itr = uiSecondDemonDoors.begin(); itr != uiSecondDemonDoors.end(); ++itr)
                                     HandleGameObject((*itr), true);
                             SaveToDB();
                         }
@@ -189,7 +189,7 @@ class instance_well_of_eternity : public InstanceMapScript
                         if (data == DONE)
                         {
                             if (!uiAfterPerotharnDoors.empty())
-                                for (std::vector<uint64>::const_iterator itr = uiAfterPerotharnDoors.begin(); itr != uiAfterPerotharnDoors.end(); ++itr)
+                                for (std::vector<ObjectGuid>::const_iterator itr = uiAfterPerotharnDoors.begin(); itr != uiAfterPerotharnDoors.end(); ++itr)
                                     HandleGameObject((*itr), false);
                             SaveToDB();
                         }
@@ -232,7 +232,7 @@ class instance_well_of_eternity : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -251,10 +251,8 @@ class instance_well_of_eternity : public InstanceMapScript
                     case DATA_MANNOROTH:
                         return uiMannorothGUID;
                     default:
-                        return 0;
+                        return ObjectGuid::Empty;
                 }
-
-                return 0;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -265,10 +263,10 @@ class instance_well_of_eternity : public InstanceMapScript
                 if (type == DATA_PEROTHARN)
                 {
                     if (!uiPerotharnDoors.empty())
-                        for (std::vector<uint64>::const_iterator itr = uiPerotharnDoors.begin(); itr != uiPerotharnDoors.end(); ++itr)
+                        for (std::vector<ObjectGuid>::const_iterator itr = uiPerotharnDoors.begin(); itr != uiPerotharnDoors.end(); ++itr)
                             HandleGameObject((*itr), state != IN_PROGRESS);
                     if (!uiAfterPerotharnDoors.empty())
-                        for (std::vector<uint64>::const_iterator itr = uiAfterPerotharnDoors.begin(); itr != uiAfterPerotharnDoors.end(); ++itr)
+                        for (std::vector<ObjectGuid>::const_iterator itr = uiAfterPerotharnDoors.begin(); itr != uiAfterPerotharnDoors.end(); ++itr)
                             HandleGameObject((*itr), state == DONE);
                 }
 
@@ -343,20 +341,20 @@ class instance_well_of_eternity : public InstanceMapScript
                 uint32 uiEventDemon2;
                 uint32 uiEventIllidan1;
 
-                uint64 uiIllidan1GUID;
-                uint64 uiPerotharnGUID;
-                uint64 uiIllidan2GUID;
-                uint64 uiVarothenGUID;
-                uint64 uiMannorothGUID;
-                uint64 uiFireWallStalker;
+                ObjectGuid uiIllidan1GUID;
+                ObjectGuid uiPerotharnGUID;
+                ObjectGuid uiIllidan2GUID;
+                ObjectGuid uiVarothenGUID;
+                ObjectGuid uiMannorothGUID;
+                ObjectGuid uiFireWallStalker;
                 
-                uint64 uiRoyalCacheGUID;
-                uint64 uiMinorCacheGUID;
-                uint64 uiCourtyardDoor1GUID;
-                uint64 uiLargeFirewallDoor1GUID;
-                std::vector<uint64> uiSecondDemonDoors;
-                std::vector<uint64> uiAfterPerotharnDoors;
-                std::vector<uint64> uiPerotharnDoors;
+                ObjectGuid uiRoyalCacheGUID;
+                ObjectGuid uiMinorCacheGUID;
+                ObjectGuid uiCourtyardDoor1GUID;
+                ObjectGuid uiLargeFirewallDoor1GUID;
+                std::vector<ObjectGuid> uiSecondDemonDoors;
+                std::vector<ObjectGuid> uiAfterPerotharnDoors;
+                std::vector<ObjectGuid> uiPerotharnDoors;
                
                 bool uiBlockedPathLeft;
                 bool uiBlockedPathRight;

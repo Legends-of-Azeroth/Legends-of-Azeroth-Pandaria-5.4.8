@@ -69,7 +69,7 @@ public:
                 if (InstanceScript* instance = creature->GetInstanceScript())
                 {
                     //are 5 minutes expected? go template may have data to despawn when used at quest
-                    instance->DoRespawnGameObject(instance->GetData64(DATA_GO_CHALICE), MINUTE*5);
+                    instance->DoRespawnGameObject(instance->GetGuidData(DATA_GO_CHALICE), MINUTE*5);
                 }
                 break;
         }
@@ -178,14 +178,15 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
         {
             me->RemoveAllAuras();
-            me->DeleteThreatList();
+            me->GetThreatManager().RemoveMeFromThreatLists();
+            me->GetThreatManager().ClearAllThreat();
             me->CombatStop(true);
             me->LoadCreaturesAddon();
             if (me->IsAlive())

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -308,7 +308,7 @@ class go_wg_vehicle_teleporter : public GameObjectScript
                     if (Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
                         // Tabulation madness in the hole!
                         for (uint8 i = 0; i < MAX_WINTERGRASP_VEHICLES; i++)
-                            if (Creature* vehicleCreature = go->FindNearestCreature(vehiclesList[i], 3.0f, true))
+                            if (Creature* vehicleCreature = me->FindNearestCreature(vehiclesList[i], 3.0f, true))
                                 if (!vehicleCreature->HasAura(SPELL_VEHICLE_TELEPORT) && vehicleCreature->GetFaction() == WintergraspFaction[wg->GetDefenderTeam()])
                                     if (Creature* teleportTrigger = vehicleCreature->FindNearestCreature(NPC_WORLD_TRIGGER_LARGE_AOI_NOT_IMMUNE_PC_NPC, 100.0f, true))
                                         teleportTrigger->CastSpell(vehicleCreature, SPELL_VEHICLE_TELEPORT, true);
@@ -350,15 +350,14 @@ class npc_wg_quest_giver : public CreatureScript
             // Player::PrepareQuestMenu(guid)
             if (creature->IsQuestGiver())
             {
-                QuestRelationBounds objectQR = sObjectMgr->GetCreatureQuestRelationBounds(creature->GetEntry());
-                QuestRelationBounds objectQIR = sObjectMgr->GetCreatureQuestInvolvedRelationBounds(creature->GetEntry());
+                QuestRelationResult objectQR = sObjectMgr->GetCreatureQuestRelations(creature->GetEntry());
+                QuestRelationResult objectQIR = sObjectMgr->GetCreatureQuestInvolvedRelations(creature->GetEntry());
 
                 QuestMenu& qm = player->PlayerTalkClass->GetQuestMenu();
                 qm.ClearMenu();
 
-                for (QuestRelations::const_iterator i = objectQIR.first; i != objectQIR.second; ++i)
+                for (uint32 questId : objectQIR)
                 {
-                    uint32 questId = i->second;
                     QuestStatus status = player->GetQuestStatus(questId);
                     if (status == QUEST_STATUS_COMPLETE)
                         qm.AddMenuItem(questId, 4);
@@ -368,9 +367,8 @@ class npc_wg_quest_giver : public CreatureScript
                     //    qm.AddMenuItem(quest_id, 2);
                 }
 
-                for (QuestRelations::const_iterator i = objectQR.first; i != objectQR.second; ++i)
+                for (uint32 questId : objectQR)
                 {
-                    uint32 questId = i->second;
                     Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
                     if (!quest)
                         continue;
@@ -424,7 +422,7 @@ class npc_wg_quest_giver : public CreatureScript
                             break;
                     }
 
-                    if (quest->IsAutoComplete())
+                    if (quest->IsTurnIn())
                         qm.AddMenuItem(questId, 4);
                     else if (player->GetQuestStatus(questId) == QUEST_STATUS_NONE)
                         qm.AddMenuItem(questId, 2);
@@ -573,8 +571,7 @@ public:
         {
             if (Unit* target = GetHitUnit())
             {
-                WorldLocation loc;
-                target->GetPosition(&loc);
+                WorldLocation loc = target->GetWorldLocation();
                 SetExplTargetDest(loc);
             }
         }

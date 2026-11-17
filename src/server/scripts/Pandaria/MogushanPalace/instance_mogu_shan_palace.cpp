@@ -45,31 +45,31 @@ class instance_mogu_shan_palace : public InstanceMapScript
 
             // Trial of the king.
             uint32 delay;
-            uint64 m_uiXinGuid;
-            uint64 m_uiKuaiGuid;
-            uint64 m_uiMingGuid;
-            uint64 m_uiHaiyanGuid;
-            uint64 m_uiBeaconGuid;
-            std::list<uint64> m_lScrapperList;
-            std::list<uint64> m_lAdeptList;
-            std::list<uint64> m_lGruntList;
+            ObjectGuid m_uiXinGuid;
+            ObjectGuid m_uiKuaiGuid;
+            ObjectGuid m_uiMingGuid;
+            ObjectGuid m_uiHaiyanGuid;
+            ObjectGuid m_uiBeaconGuid;
+            std::list<ObjectGuid> m_lScrapperList;
+            std::list<ObjectGuid> m_lAdeptList;
+            std::list<ObjectGuid> m_lGruntList;
 
             uint32 m_uiBossCount;
             uint32 m_auiBossNumber[3];
 
             // m_uiGekkanGuid.
-            uint64 m_uiGekkanGuid;
-            uint64 m_uiAncientTreasureGuid;
+            ObjectGuid m_uiGekkanGuid;
+            ObjectGuid m_uiAncientTreasureGuid;
 
             // Xin the weaponmaster.
-            std::list<uint64> m_lStaffList;
-            std::list<uint64> m_lAxeList;
+            std::list<ObjectGuid> m_lStaffList;
+            std::list<ObjectGuid> m_lAxeList;
 
-            uint64 m_uiScoutGuid;
+            ObjectGuid m_uiScoutGuid;
 
             // Storage
-            uint64 m_auiGuids64[MAX_GUIDS];
-            std::unordered_map<uint32, uint64> m_mGoEntryGuidMap;
+            ObjectGuid m_auiGuids64[MAX_GUIDS];
+            std::unordered_map<uint32, ObjectGuid> m_mGoEntryGuidMap;
 
             void Initialize() override
             {
@@ -79,18 +79,18 @@ class instance_mogu_shan_palace : public InstanceMapScript
                 SetBossNumber(MAX_ENCOUNTER);
 
                 delay = 0;
-                m_uiXinGuid = 0;
-                m_uiKuaiGuid = 0;
-                m_uiMingGuid = 0;
-                m_uiHaiyanGuid = 0;
-                m_uiBeaconGuid = 0;
+                m_uiXinGuid = ObjectGuid::Empty;
+                m_uiKuaiGuid = ObjectGuid::Empty;
+                m_uiMingGuid = ObjectGuid::Empty;
+                m_uiHaiyanGuid = ObjectGuid::Empty;
+                m_uiBeaconGuid = ObjectGuid::Empty;
 
-                m_uiGekkanGuid = 0;
-                m_uiAncientTreasureGuid = 0;
+                m_uiGekkanGuid = ObjectGuid::Empty;
+                m_uiAncientTreasureGuid = ObjectGuid::Empty;
 
                 InitializeTrialOfKing();
 
-                m_uiScoutGuid = 0;
+                m_uiScoutGuid = ObjectGuid::Empty;
 
                 if (instance->IsChallengeDungeon())
                     LoadScenarioInfo(scenarioBosses, CRITERIA_ENEMIES);
@@ -116,7 +116,7 @@ class instance_mogu_shan_palace : public InstanceMapScript
             {
                 GameObject* go = NULL;
 
-                std::unordered_map<uint32, uint64>::iterator find = m_mGoEntryGuidMap.find(uiEntry);
+                std::unordered_map<uint32, ObjectGuid>::iterator find = m_mGoEntryGuidMap.find(uiEntry);
 
                 if (find != m_mGoEntryGuidMap.cend())
                     go = instance->GetGameObject(find->second);
@@ -132,7 +132,7 @@ class instance_mogu_shan_palace : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_GEKKAN:
-                        HandleGameObject(0, state == DONE, GetGameObjectFromStorage(GO_DOOR_AFTER_TRIAL));
+                        HandleGameObject(ObjectGuid::Empty, state == DONE, GetGameObjectFromStorage(GO_DOOR_AFTER_TRIAL));
                         if (GameObject* pTreasure = instance->GetGameObject(m_uiAncientTreasureGuid))
                             pTreasure->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
                         break;
@@ -201,7 +201,7 @@ class instance_mogu_shan_palace : public InstanceMapScript
                     if (GameObject* go = GetGameObjectFromStorage(instance->GetDifficulty() == DUNGEON_DIFFICULTY_HEROIC ? GO_ANCIENT_MOGU_TREASURE_HC : GO_ANCIENT_MOGU_TREASURE))
                         go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND | GO_FLAG_NOT_SELECTABLE);
 
-                    HandleGameObject(0, true, GetGameObjectFromStorage(GO_GEKKAN_TREASURE_DOOR));
+                    HandleGameObject(ObjectGuid::Empty, true, GetGameObjectFromStorage(GO_GEKKAN_TREASURE_DOOR));
                 }
 
                 if (instance->IsChallengeDungeon() && !IsChallengeModeCompleted())
@@ -259,7 +259,7 @@ class instance_mogu_shan_palace : public InstanceMapScript
                 return m_auiEncounter[type];
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 if (type < MAX_GUIDS)
                     return m_auiGuids64[type];
@@ -268,7 +268,7 @@ class instance_mogu_shan_palace : public InstanceMapScript
                 if (find != m_mGoEntryGuidMap.cend())
                     return find->second;
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool isWipe()
@@ -319,8 +319,8 @@ class instance_mogu_shan_palace : public InstanceMapScript
                         break;
                     }
                     case TYPE_XIN:
-                        HandleGameObject(0, type != IN_PROGRESS, GetGameObjectFromStorage(GO_DOOR_BEFORE_KING));
-                        HandleGameObject(0, type != IN_PROGRESS, GetGameObjectFromStorage(GO_DOOR_BEFORE_KING2));
+                        HandleGameObject(ObjectGuid::Empty, type != IN_PROGRESS, GetGameObjectFromStorage(GO_DOOR_BEFORE_KING));
+                        HandleGameObject(ObjectGuid::Empty, type != IN_PROGRESS, GetGameObjectFromStorage(GO_DOOR_BEFORE_KING2));
                         break;
                 }
             }
@@ -352,7 +352,7 @@ class instance_mogu_shan_palace : public InstanceMapScript
                 {
                     case TYPE_WIPE_FIRST_BOSS:
                     {
-                        HandleGameObject(0, true, GetGameObjectFromStorage(GO_DOOR_BEFORE_TRIAL));
+                        HandleGameObject(ObjectGuid::Empty, true, GetGameObjectFromStorage(GO_DOOR_BEFORE_TRIAL));
                         switch (data)
                         {
                             case 0:
@@ -414,7 +414,7 @@ class instance_mogu_shan_palace : public InstanceMapScript
                         init.Launch();
 
                         delay = 0;
-                        uint64 tempGUID = pMing->GetGUID();
+                        ObjectGuid tempGUID = pMing->GetGUID();
                         pMing->m_Events.Schedule(delay += pMing->GetSplineDuration(), 10, [this,tempGUID]()
                         {
                             if (Creature* Ming = instance->GetCreature(tempGUID))
@@ -450,7 +450,7 @@ class instance_mogu_shan_palace : public InstanceMapScript
                         init.Launch();
 
                         delay = 0;
-                        uint64 tempGUID = pKuai->GetGUID();
+                        ObjectGuid tempGUID = pKuai->GetGUID();
                         pKuai->m_Events.Schedule(delay += pKuai->GetSplineDuration(), 10, [this, tempGUID]()
                         {
                             if (Creature* Kuai = instance->GetCreature(tempGUID))
@@ -487,7 +487,7 @@ class instance_mogu_shan_palace : public InstanceMapScript
                         init.Launch();
 
                         delay = 0;
-                        uint64 tempGUID = pHaiyan->GetGUID();
+                        ObjectGuid tempGUID = pHaiyan->GetGUID();
                         pHaiyan->m_Events.Schedule(delay += pHaiyan->GetSplineDuration(), 10, [this, tempGUID]()
                         {
                             if (Creature* Haiyan = instance->GetCreature(tempGUID))
@@ -513,7 +513,7 @@ class instance_mogu_shan_palace : public InstanceMapScript
                             if (creature && creature->GetAI())
                                 creature->GetAI()->DoAction(2); //ACTION_ATTACK
 
-                            std::list<uint64>::iterator itr = m_lGruntList.begin();
+                            std::list<ObjectGuid>::iterator itr = m_lGruntList.begin();
                             std::advance(itr, urand(0, m_lGruntList.size() - 1));
 
                             Creature* pGrunt = instance->GetCreature(*itr);
@@ -531,7 +531,7 @@ class instance_mogu_shan_palace : public InstanceMapScript
                             if (creature && creature->GetAI())
                                 creature->GetAI()->DoAction(2); //ACTION_ATTACK
 
-                            std::list<uint64>::iterator itr = m_lScrapperList.begin();
+                            std::list<ObjectGuid>::iterator itr = m_lScrapperList.begin();
                             std::advance(itr, urand(0, m_lScrapperList.size() - 1));
 
                             Creature* pScrapper = instance->GetCreature(*itr);
@@ -549,7 +549,7 @@ class instance_mogu_shan_palace : public InstanceMapScript
                             if (creature && creature->GetAI())
                                 creature->GetAI()->DoAction(2); //ACTION_ATTACK
 
-                            std::list<uint64>::iterator itr = m_lAdeptList.begin();
+                            std::list<ObjectGuid>::iterator itr = m_lAdeptList.begin();
                             std::advance(itr, urand(0, m_lAdeptList.size() - 1));
 
                             Creature* pAdept = instance->GetCreature(*itr);
@@ -617,7 +617,7 @@ class instance_mogu_shan_palace : public InstanceMapScript
                         if (m_uiBossCount < 3)
                         {
                             SetData(m_auiBossNumber[m_uiBossCount], 0);
-                            HandleGameObject(0, false, GetGameObjectFromStorage(GO_DOOR_BEFORE_TRIAL));
+                            HandleGameObject(ObjectGuid::Empty, false, GetGameObjectFromStorage(GO_DOOR_BEFORE_TRIAL));
                         }
                         else
                         {
@@ -632,7 +632,7 @@ class instance_mogu_shan_palace : public InstanceMapScript
                                     pScout->AI()->DoAction(0);
                             }
 
-                            HandleGameObject(0, true, GetGameObjectFromStorage(GO_DOOR_BEFORE_TRIAL));
+                            HandleGameObject(ObjectGuid::Empty, true, GetGameObjectFromStorage(GO_DOOR_BEFORE_TRIAL));
                         }
                         break;
                     case TYPE_TRIAL_CHEST:
@@ -646,13 +646,13 @@ class instance_mogu_shan_palace : public InstanceMapScript
                             for (auto&& itr : instance->GetPlayers())
                                 itr.GetSource()->ModifyCurrency(395, (instance->IsHeroic() ? 125 : 70) * CURRENCY_PRECISION);
 
-                        HandleGameObject(0, true, GetGameObjectFromStorage(GO_DOOR_SECRET_STEPS));
+                        HandleGameObject(ObjectGuid::Empty, true, GetGameObjectFromStorage(GO_DOOR_SECRET_STEPS));
                         m_mEvents.ScheduleEvent(1, 5 * IN_MILLISECONDS);
                         break;
                 }
             }
 
-            void SetData64(uint32 type, uint64 data) override
+            void SetGuidData(uint32 type, ObjectGuid data) override
             {
                 if (type >= MAX_GUIDS)
                     return;

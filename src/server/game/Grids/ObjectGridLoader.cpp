@@ -16,7 +16,6 @@
 */
 
 #include "ObjectGridLoader.h"
-#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Creature.h"
 #include "Vehicle.h"
@@ -63,7 +62,7 @@ class ObjectWorldLoader
 {
     public:
         explicit ObjectWorldLoader(ObjectGridLoader& gloader)
-            : i_cell(gloader.i_cell), i_map(gloader.i_map), i_corpses (0)
+            : i_cell(gloader.i_cell), i_map(gloader.i_map), i_grid(gloader.i_grid), i_corpses (gloader.i_corpses)
             { }
 
         void Visit(CorpseMapType &m);
@@ -73,6 +72,7 @@ class ObjectWorldLoader
     private:
         Cell i_cell;
         Map* i_map;
+        NGridType& i_grid;
     public:
         uint32 i_corpses;
 };
@@ -115,42 +115,10 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> 
     {
         T* obj = new T;
         uint32 guid = *i_guid;
-        //TC_LOG_INFO("misc", "DEBUG: LoadHelper from table: %s for (guid: %u) Loading", table, guid);
+        //TC_LOG_INFO("misc", "DEBUG: LoadHelper from table: {} for (guid: {}) Loading", table, guid);
         if (!obj->LoadFromDB(guid, map))
         {
             delete obj;
-            continue;
-        }
-
-        AddObjectHelper(cell, m, count, map, obj);
-    }
-}
-
-void LoadHelper(CellCorpseSet const& cell_corpses, CellCoord &cell, CorpseMapType &m, uint32 &count, Map* map)
-{
-    if (cell_corpses.empty())
-        return;
-
-    for (CellCorpseSet::const_iterator itr = cell_corpses.begin(); itr != cell_corpses.end(); ++itr)
-    {
-        if (itr->second != map->GetInstanceId())
-            continue;
-
-        uint32 player_guid = itr->first;
-
-        Corpse* obj = sObjectAccessor->GetCorpseForPlayerGUID(player_guid);
-        if (!obj)
-            continue;
-
-        /// @todo this is a hack
-        // corpse's map should be reset when the map is unloaded
-        // but it may still exist when the grid is unloaded but map is not
-        // in that case map == currMap
-        obj->SetMap(map);
-
-        if (obj->IsInGrid())
-        {
-            obj->AddToWorld();
             continue;
         }
 
@@ -172,12 +140,22 @@ void ObjectGridLoader::Visit(CreatureMapType &m)
     LoadHelper(cell_guids.creatures, cellCoord, m, i_creatures, i_map);
 }
 
-void ObjectWorldLoader::Visit(CorpseMapType &m)
+void ObjectWorldLoader::Visit(CorpseMapType& /*m*/)
 {
     CellCoord cellCoord = i_cell.GetCellCoord();
-    // corpses are always added to spawn mode 0 and they are spawned by their instance id
-    CellObjectGuids const& cell_guids = sObjectMgr->GetCellObjectGuids(i_map->GetId(), 0, cellCoord.GetId());
-    LoadHelper(cell_guids.corpses, cellCoord, m, i_corpses, i_map);
+    if (std::unordered_set<Corpse*> const* corpses = i_map->GetCorpsesInCell(cellCoord.GetId()))
+    {
+        for (Corpse* corpse : *corpses)
+        {
+            corpse->AddToWorld();
+            GridType& cell = i_grid.GetGridType(i_cell.CellX(), i_cell.CellY());
+            if (corpse->IsWorldObject())
+                cell.AddWorldObject(corpse);
+            else
+                cell.AddGridObject(corpse);
+            ++i_corpses;
+        }
+    }
 }
 
 void ObjectGridLoader::LoadN(void)
@@ -202,11 +180,10 @@ void ObjectGridLoader::LoadN(void)
                 ObjectWorldLoader worker(*this);
                 TypeContainerVisitor<ObjectWorldLoader, WorldTypeMapContainer> visitor(worker);
                 i_grid.VisitGrid(x, y, visitor);
-                i_corpses += worker.i_corpses;
             }
         }
     }
-    TC_LOG_DEBUG("maps", "%u GameObjects, %u Creatures, and %u Corpses/Bones loaded for grid %u on map %u", i_gameObjects, i_creatures, i_corpses, i_grid.GetGridId(), i_map->GetId());
+    TC_LOG_DEBUG("maps", "{} GameObjects, {} Creatures, and {} Corpses/Bones loaded for grid {} on map {}", i_gameObjects, i_creatures, i_corpses, i_grid.GetGridId(), i_map->GetId());
 }
 
 template<class T>
@@ -222,6 +199,11 @@ void ObjectGridUnloader::Visit(GridRefManager<T> &m)
         //So we need this even after cleaner (maybe we can remove cleaner)
         //Example: Flame Leviathan Turret 33139 is summoned when a creature is deleted
         /// @todo Check if that script has the correct logic. Do we really need to summons something before deleting?
+        // The loader registers objects with custom visibility on the map, and this is the one path that destroys
+        // them without Map::RemoveFromMap: the freed pointer would stay in the set until the next visibility scan.
+        if (obj->HasCustomVisibility())
+            if (Map* map = obj->FindMap())
+                map->RemoveCustomVisibilityObject(obj, obj->GetCustomVisibilityZoneID());
         obj->CleanupsBeforeDelete();
         ///- object will get delinked from the manager when deleted
         delete obj;
@@ -237,7 +219,8 @@ void ObjectGridStoper::Visit(CreatureMapType &m)
         if (iter->GetSource()->IsInCombat())
         {
             iter->GetSource()->CombatStop();
-            iter->GetSource()->DeleteThreatList();
+            iter->GetSource()->GetThreatManager().RemoveMeFromThreatLists();
+            iter->GetSource()->GetThreatManager().ClearAllThreat();
             iter->GetSource()->AI()->EnterEvadeMode();
         }
     }
@@ -247,13 +230,16 @@ template<class T>
 void ObjectGridCleaner::Visit(GridRefManager<T> &m)
 {
     for (typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        iter->GetSource()->SetDestroyedObject(true);
         iter->GetSource()->CleanupsBeforeDelete();
+    }
 }
 
 template void ObjectGridUnloader::Visit(CreatureMapType &);
 template void ObjectGridUnloader::Visit(GameObjectMapType &);
 template void ObjectGridUnloader::Visit(DynamicObjectMapType &);
-template void ObjectGridUnloader::Visit(CorpseMapType &);
+
 template void ObjectGridUnloader::Visit(AreaTriggerMapType &);
 template void ObjectGridCleaner::Visit(CreatureMapType &);
 template void ObjectGridCleaner::Visit<GameObject>(GameObjectMapType &);

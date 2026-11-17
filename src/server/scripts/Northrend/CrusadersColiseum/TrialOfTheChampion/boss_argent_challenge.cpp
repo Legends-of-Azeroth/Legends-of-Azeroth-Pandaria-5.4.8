@@ -235,7 +235,7 @@ class boss_eadric : public CreatureScript
                 Talk(SAY_COMMON_INTRO_1);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (damage >= me->GetHealth())
                 {
@@ -249,14 +249,14 @@ class boss_eadric : public CreatureScript
 
                     Talk(SAY_COMMON_DEATH);
 
-                    if (GameObject* go = GameObject::GetGameObject(*me, _instance->GetData64(DATA_MAIN_GATE)))
+                    if (GameObject* go = GameObject::GetGameObject(*me, _instance->GetGuidData(DATA_MAIN_GATE)))
                         _instance->HandleGameObject(go->GetGUID(), true);
-                    if (GameObject* go = GameObject::GetGameObject(*me, _instance->GetData64(DATA_PORTCULLIS)))
+                    if (GameObject* go = GameObject::GetGameObject(*me, _instance->GetGuidData(DATA_PORTCULLIS)))
                         _instance->HandleGameObject(go->GetGUID(), true);
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat(me, 150.0f);
                 Talk(SAY_COMMON_AGGRO);
@@ -269,7 +269,7 @@ class boss_eadric : public CreatureScript
                 _events.ScheduleEvent(EVENT_VENGEANCE, urand(12000, 15000));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
             }
@@ -556,14 +556,14 @@ class boss_paletress : public CreatureScript
 
                     Talk(SAY_COMMON_DEATH);
 
-                    if (GameObject* go = GameObject::GetGameObject(*me, _instance ? _instance->GetData64(DATA_MAIN_GATE) : 0))
+                    if (GameObject* go = GameObject::GetGameObject(*me, _instance ? _instance->GetGuidData(DATA_MAIN_GATE) : ObjectGuid::Empty))
                         _instance->HandleGameObject(go->GetGUID(), true);
-                    if (GameObject* go = GameObject::GetGameObject(*me, _instance ? _instance->GetData64(DATA_PORTCULLIS) : 0))
+                    if (GameObject* go = GameObject::GetGameObject(*me, _instance ? _instance->GetGuidData(DATA_PORTCULLIS) : ObjectGuid::Empty))
                         _instance->HandleGameObject(go->GetGUID(), true);
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat(me, 150.0f);
                 Talk(SAY_COMMON_AGGRO);
@@ -575,7 +575,7 @@ class boss_paletress : public CreatureScript
                 _events.ScheduleEvent(EVENT_HOLYSMITE, urand(3000, 6000));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
             }
@@ -589,7 +589,7 @@ class boss_paletress : public CreatureScript
                     _instance->SetData(DATA_MEMORY_ENTRY, summon->GetEntry());
             }
 
-            void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/)
+            void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) override
             {
                 me->RemoveAura(SPELL_SHIELD);
                 Talk(SAY_PALETRESS_MEMORY_DIES);
@@ -806,9 +806,9 @@ class npc_argent_soldier : public CreatureScript
     public:
         npc_argent_soldier() : CreatureScript("npc_argent_soldier") { }
 
-        struct npc_argent_soldierAI : public npc_escortAI
+        struct npc_argent_soldierAI : public EscortAI
         {
-            npc_argent_soldierAI(Creature* creature) : npc_escortAI(creature)
+            npc_argent_soldierAI(Creature* creature) : EscortAI(creature)
             {
                 _instance = creature->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
@@ -823,7 +823,7 @@ class npc_argent_soldier : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 switch (me->GetEntry())
                 {
@@ -847,9 +847,9 @@ class npc_argent_soldier : public CreatureScript
                 }
             }
 
-            void WaypointReached(uint32 point)
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                if (point == 0)
+                if (waypointId == 0)
                 {
                     switch (_waypoint)
                     {
@@ -869,7 +869,7 @@ class npc_argent_soldier : public CreatureScript
                 }
             }
 
-            void SetData(uint32 type, uint32 /*data*/)
+            void SetData(uint32 type, uint32 /*data*/) override
             {
                 switch (me->GetEntry())
                 {
@@ -917,7 +917,7 @@ class npc_argent_soldier : public CreatureScript
                         break;
                 }
 
-                Start(false, true, 0);
+                SetRun(true); Start(false, ObjectGuid::Empty);
                 _waypoint = type;
             }
 
@@ -938,7 +938,7 @@ class npc_argent_soldier : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;
@@ -1066,7 +1066,6 @@ class spell_paletress_summon_memory : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_paletress_summon_memory::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         OnEffectHitTarget += SpellEffectFn(spell_paletress_summon_memory::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };

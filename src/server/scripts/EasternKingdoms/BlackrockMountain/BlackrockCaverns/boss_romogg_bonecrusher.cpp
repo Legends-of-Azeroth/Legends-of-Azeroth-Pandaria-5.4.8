@@ -80,7 +80,7 @@ class boss_romogg_bonecrusher : public CreatureScript
                 _Reset();
                 stage      = 0;
                 HealthPct  = 66.0f;
-                targetGUID = 0;
+                targetGUID = ObjectGuid::Empty;
                 killedEarth = 0;
                 summons.DespawnAll();
                 me->SetReactState(REACT_AGGRESSIVE);
@@ -108,7 +108,7 @@ class boss_romogg_bonecrusher : public CreatureScript
                     case NPC_ANGERED_EARTH:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
-                            summon->AddThreat(target, 10.0f);
+                            summon->GetThreatManager().AddThreat(target, 10.0f);
                             summon->Attack(target, true);
                             summon->GetMotionMaster()->MoveChase(target);
                         }
@@ -132,9 +132,9 @@ class boss_romogg_bonecrusher : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 DoCast(me, SPELL_CALL_FOR_HELP);
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_WOUNDING_STRIKE, urand(5000, 7000));
@@ -213,7 +213,7 @@ class boss_romogg_bonecrusher : public CreatureScript
                                 if (me->GetMap()->IsDungeon() && !players.isEmpty())
                                     for (auto&& ref : players)
                                         if (Player* player = ref.GetSource())
-                                            me->SummonCreature(NPC_ANGERED_EARTH, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                            me->SummonCreature(NPC_ANGERED_EARTH, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
                             }
                             events.ScheduleEvent(EVENT_QUAKE, urand(18000, 20000));
                             break;
@@ -226,7 +226,7 @@ class boss_romogg_bonecrusher : public CreatureScript
             private:
                 uint8 stage;
                 uint32 killedEarth;
-                uint64 targetGUID;
+                ObjectGuid targetGUID;
                 float HealthPct;
         };
 

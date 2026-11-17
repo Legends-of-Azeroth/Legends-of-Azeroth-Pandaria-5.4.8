@@ -75,7 +75,7 @@ class boss_oondasta : public CreatureScript
             SummonList summons;
             TaskScheduler scheduler;
             EventMap events;
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             uint32 spiritFireCount;
 
             void Reset() override
@@ -84,7 +84,7 @@ class boss_oondasta : public CreatureScript
                 summons.DespawnAll();
                 events.Reset();
                 me->SetReactState(REACT_DEFENSIVE);
-                targetGUID = 0;
+                targetGUID = ObjectGuid::Empty;
                 spiritFireCount = 0;
 
                 scheduler
@@ -95,7 +95,7 @@ class boss_oondasta : public CreatureScript
                 });
             }
 
-            void EnterCombat(Unit* /*who*/) override 
+            void JustEngagedWith(Unit* /*who*/) override 
             {
                 if (Creature* dohaman = me->FindNearestCreature(NPC_DOHAMAN_THE_BEAST_LORD, 150.0f, true))
                     dohaman->AI()->Talk(TALK_INTRO);
@@ -135,7 +135,7 @@ class boss_oondasta : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NON_ATTACKABLE);

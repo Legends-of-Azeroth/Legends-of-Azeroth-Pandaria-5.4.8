@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -188,7 +188,7 @@ class boss_tortos : public CreatureScript
                 me->SetMaxPower(POWER_ENERGY, 100);
                 DoCast(me, SPELL_ZERO_POWER);
                 me->SetPower(POWER_ENERGY, 0);
-                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
 
                 breathScheduled = false;
@@ -224,12 +224,12 @@ class boss_tortos : public CreatureScript
                     me->GetMap()->SetWorldState(WORLDSTATE_ONE_UP, 1);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
-                _EnterCombat();
+                _JustEngagedWith();
 
                 me->AddAura(SPELL_KICK_SHELL_A, me);
                 me->AddAura(SPELL_ROCKFALL_AURA, me);
@@ -249,13 +249,14 @@ class boss_tortos : public CreatureScript
                 m_growingFuryCooldown = 8000;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->AddUnitState(UNIT_STATE_EVADE);
 
                 me->RemoveAllAuras();
                 Reset();
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
                 me->GetMotionMaster()->MovementExpired();
                 me->GetMotionMaster()->MoveTargetedHome();
@@ -308,11 +309,11 @@ class boss_tortos : public CreatureScript
                     }
                     else
                     {
-                        ThreatContainer::StorageType threatList = me->getThreatManager().getThreatList();
+                        auto threatList = me->GetThreatManager().GetUnsortedThreatList();
 
-                        for (ThreatContainer::StorageType::const_iterator itr = threatList.cbegin(); itr != threatList.cend(); ++itr)
+                        for (ThreatReference const* ref : threatList)
                         {
-                            if (Unit* target = (*itr)->getTarget())
+                            if (Unit* target = ref->GetVictim())
                             {
                                 if (me->IsWithinMeleeRange(target))
                                 {
@@ -453,7 +454,7 @@ class boss_tortos : public CreatureScript
 
                 void SetDeathCollision(bool enabled)
                 {
-                    if (GameObject* deathCollision = ObjectAccessor::GetGameObject(*me, instance ? instance->GetData64(GO_TORTOS_COLLISION) : 0))
+                    if (GameObject* deathCollision = ObjectAccessor::GetGameObject(*me, instance ? instance->GetGuidData(GO_TORTOS_COLLISION) : ObjectGuid::Empty))
                         deathCollision->SetPhaseMask(enabled ? me->GetPhaseMask() : 0, true);
                 }
 
@@ -572,8 +573,7 @@ class npc_whirl_turtle : public CreatureScript
                     case EVENT_INIT_MOVE:
                         me->SetSpeed(MOVE_RUN, 8.2f);
                         me->SetWalk(false);
-                        Position pos;
-                        me->GetRandomPoint(tortosCenter, 8.f, pos);
+                        Position pos = me->GetRandomPoint(tortosCenter, 8.f);
                         me->GetMotionMaster()->MovePoint(4, pos);
                         break;
                 }
@@ -636,7 +636,7 @@ class npc_rockfall_tortos : public CreatureScript
             void IsSummonedBy(Unit* /*summoner*/) override
             {
                 Reset();
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
+                me->SetDisplayFromModel(0);
                 DoCast(me, SPELL_ROCKFALL, true);
                 me->DespawnOrUnsummon(10000);
             }
@@ -668,7 +668,7 @@ struct npc_humming_crystal : public ScriptedAI
         DoCast(me, SPELL_CRYSTAL_SHELL_AURA, true);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
 
@@ -717,7 +717,7 @@ class spell_call_of_tortos : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     for (uint8 i = 0; i < 3; i++)
-                        caster->SummonCreature(NPC_WHIRL_TURTLE, aTurtlePos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000 + rand() % 5000);
+                        caster->SummonCreature(NPC_WHIRL_TURTLE, aTurtlePos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(10000 + rand() % 5000));
             }
 
             void Register() override
@@ -871,7 +871,7 @@ class spell_shell_concussion : public SpellScript
             if (turtle->GetEntry() != NPC_WHIRL_TURTLE)
                 return;
 
-            if (Creature* tortos = ObjectAccessor::GetCreature(*turtle, turtle->GetInstanceScript() ? turtle->GetInstanceScript()->GetData64(DATA_TORTOS) : 0))
+            if (Creature* tortos = ObjectAccessor::GetCreature(*turtle, turtle->GetInstanceScript() ? turtle->GetInstanceScript()->GetGuidData(DATA_TORTOS) : ObjectGuid::Empty))
                 tortos->AI()->SetData(TYPE_ONE_UP, 1);
         }
     }
@@ -1158,7 +1158,7 @@ class AreaTrigger_at_tortos_intro : public AreaTriggerScript
         {
             if (InstanceScript* instance = player->GetInstanceScript())
             {
-                if (Creature* introLeiShen = ObjectAccessor::GetCreature(*player, instance ? instance->GetData64(NPC_LEI_SHEN_TRIGGER) : 0))
+                if (Creature* introLeiShen = ObjectAccessor::GetCreature(*player, instance ? instance->GetGuidData(NPC_LEI_SHEN_TRIGGER) : ObjectGuid::Empty))
                 {
                     if (instance->GetData(DATA_TORTOS_EVENT) == DONE && !player->HasAura(SPELL_TELEPORT_DEPTH))
                     {

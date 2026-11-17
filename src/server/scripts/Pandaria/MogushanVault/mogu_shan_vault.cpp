@@ -164,7 +164,7 @@ class npc_cursed_mogu_sculpture : public CreatureScript
             InstanceScript* instance;
             EventMap events;
             bool activationDone;
-            uint64 playerActivate;
+            ObjectGuid playerActivate;
 
             void InitializeAI() override
             {
@@ -182,7 +182,7 @@ class npc_cursed_mogu_sculpture : public CreatureScript
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
-                playerActivate = 0;
+                playerActivate = ObjectGuid::Empty;
                 activationDone = false;
             }
 
@@ -191,11 +191,11 @@ class npc_cursed_mogu_sculpture : public CreatureScript
                 events.Reset();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
-                playerActivate = 0;
+                playerActivate = ObjectGuid::Empty;
                 activationDone = false;
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_CURSED_MOGU_SPIRIT_BOLT, urand(1.5 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_IMPALE, urand(2000, 3000));
@@ -248,7 +248,7 @@ class npc_cursed_mogu_sculpture : public CreatureScript
                 {
                     if (Player* itr = me->FindNearestPlayer(15.0f))
                     {
-                        if (Creature* ghostEssence = instance->instance->GetCreature(instance->GetData64(NPC_GHOST_ESSENCE)))
+                        if (Creature* ghostEssence = instance->instance->GetCreature(instance->GetGuidData(NPC_GHOST_ESSENCE)))
                         {
                             if (ghostEssence->AI()->GetData(TYPE_GHOST_ESSENCE_STATE))
                             {
@@ -428,7 +428,7 @@ class npc_enormous_stone_quilen : public CreatureScript
                 nextMovementTimer = 500;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetWalk(false);
                 events.ScheduleEvent(EVENT_ENORMOUS_QUILEN_BITE, urand(3000, 5000));
@@ -512,7 +512,7 @@ class npc_mogu_ghost_essence : public CreatureScript
                         lastMoguAround = true;
                         break;
                     case 1:
-                        if (Unit* Feng = ObjectAccessor::GetUnit(*me, instance->GetData64(NPC_FENG)))
+                        if (Unit* Feng = ObjectAccessor::GetUnit(*me, instance->GetGuidData(NPC_FENG)))
                             Feng->ToCreature()->AI()->DoAction(ACTION_CURSED_MOGU_ATTACK_PLAYER);
 
                         instance->SetData(DATA_FENG, SPECIAL);
@@ -583,7 +583,7 @@ class npc_stone_quilen : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->CallForHelp(9.6f);
                 events.ScheduleEvent(EVENT_QUILEN_SUNDERING_BITE, urand(5000, 6000));
@@ -687,7 +687,7 @@ class npc_zandalari_skullcharger : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_ZANDALARI_TROLL_RUSH, urand(5000, 6000));
             }
@@ -759,7 +759,7 @@ class npc_zandalari_pterror_wing : public CreatureScript
 
             InstanceScript* instance;
             EventMap events;
-            uint64 riderGUID;
+            ObjectGuid riderGUID;
             bool intro;
 
             void InitializeAI() override
@@ -786,7 +786,7 @@ class npc_zandalari_pterror_wing : public CreatureScript
                     Rider->ToCreature()->AI()->DoAction(1);
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void DoAction(int32 /*actionId*/) override { }
 
@@ -840,7 +840,7 @@ class npc_zandalari_terror_rider : public CreatureScript
             InstanceScript* instance;
             EventMap events, terrorwingEvents;
             bool InTerrorWing;
-            uint64 TerrorWingGUID;
+            ObjectGuid TerrorWingGUID;
 
             void InitializeAI() override
             {
@@ -1063,7 +1063,7 @@ class npc_mogu_secret_keeper : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SECRET_FLESH_TO_STONE, urand(5000, 12000));
                 events.ScheduleEvent(EVENT_SECRET_STONE_BLOCK, urand(15000, 20000));
@@ -1124,7 +1124,7 @@ class npc_mogu_warden : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_WARDEN_FORCEFUL_SWING, urand(5000, 12000));
                 events.ScheduleEvent(EVENT_WARDEN_TOUCH_OF_NALAK_SHA, urand(15000, 20000));
@@ -1189,7 +1189,7 @@ class npc_mogu_engine_keeper : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_KEEPER_ENHANCED_RECONSTRUCTION, urand(5000, 12000));
             }
@@ -1277,7 +1277,7 @@ class npc_shan_xi_watershaper: public CreatureScript
                 cosmeticEvents.ScheduleEvent(EVENT_FROST_CHANNELING, 1 * IN_MILLISECONDS);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->RemoveAura(SPELL_FROST_CHANNELING);
 
@@ -1356,7 +1356,7 @@ class npc_zandalari_fire_dancer : public CreatureScript
                 cosmeticEvents.ScheduleEvent(urand(EVENT_COSMETIC_FIREBALL, EVENT_FIRE_CHANNELING), 1 * IN_MILLISECONDS);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 cosmeticEvents.Reset();
 
@@ -1449,7 +1449,7 @@ class npc_zandalari_infiltrator : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SMOKE_BOMB, urand(4 * IN_MILLISECONDS, 8 * IN_MILLISECONDS));
             }
@@ -1855,7 +1855,7 @@ class npc_spirit_kings_guardian : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SPIRIT_MOGU_COMBAT, SpellTimer);
             }
@@ -2116,7 +2116,7 @@ class npc_mogushan_arcanist : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_ARCANIST_RAW_ENERGY, urand(5000, 12000));
             }

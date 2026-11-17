@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -59,7 +59,7 @@ struct npc_draenei_survivor : public ScriptedAI
 
     void Reset() override
     {
-        caster = 0;
+        caster = ObjectGuid::Empty;
         sayThanksTimer = 0;
         runAwayTimer = 0;
         despawnTimer = 0;
@@ -72,7 +72,7 @@ struct npc_draenei_survivor : public ScriptedAI
         me->SetStandState(UNIT_STAND_STATE_SLEEP);
     }
 
-    void EnterCombat(Unit* /*who*/) override { }
+    void JustEngagedWith(Unit* /*who*/) override { }
 
     void MoveInLineOfSight(Unit* who) override
     {
@@ -153,7 +153,7 @@ struct npc_draenei_survivor : public ScriptedAI
     }
 
 private:
-    uint64 caster;
+    ObjectGuid caster;
     uint32 sayHelpTimer;
     uint32 sayThanksTimer;
     uint32 runAwayTimer;
@@ -241,7 +241,7 @@ public:
             IsTreeEvent = false;
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             Talk(ATTACK_YELL, who);
         }
@@ -309,7 +309,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
@@ -345,8 +345,8 @@ public:
         if (quest->GetQuestId() == QUEST_A_CRY_FOR_SAY_HELP)
         {
             creature->SetFaction(113);
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_escortAI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
+            if (EscortAI* pEscortAI = CAST_AI(EscortAI, creature->AI()))
+                pEscortAI->Start(true, player->GetGUID());
         }
         return true;
     }
@@ -356,11 +356,11 @@ public:
         return new npc_magwinAI(creature);
     }
 
-    struct npc_magwinAI : public npc_escortAI
+    struct npc_magwinAI : public EscortAI
     {
-        npc_magwinAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_magwinAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             if (Player* player = GetPlayerForEscort())
             {
@@ -384,7 +384,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             Talk(SAY_AGGRO, who);
         }
@@ -434,7 +434,7 @@ public:
     {
         npc_geezleAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 SparkGUID;
+        ObjectGuid SparkGUID;
 
         uint8 Step;
         uint32 SayTimer;
@@ -443,18 +443,18 @@ public:
 
         void Reset() override
         {
-            SparkGUID = 0;
+            SparkGUID = ObjectGuid::Empty;
             Step = 0;
             StartEvent();
         }
 
-        void EnterCombat(Unit* /*who*/)override { }
+        void JustEngagedWith(Unit* /*who*/)override { }
 
         void StartEvent()
         {
             Step = 0;
             EventStarted = true;
-            if (Creature* Spark = me->SummonCreature(NPC_SPARK, SparkPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
+            if (Creature* Spark = me->SummonCreature(NPC_SPARK, SparkPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000ms))
             {
                 SparkGUID = Spark->GetGUID();
                 Spark->setActive(true);
@@ -526,7 +526,7 @@ public:
 
             for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 if ((*itr)->GetQuestStatus(QUEST_TREES_COMPANY) == QUEST_STATUS_INCOMPLETE && (*itr)->HasAura(SPELL_TREE_DISGUISE))
-                    (*itr)->KilledMonsterCredit(NPC_SPARK, 0);
+                    (*itr)->KilledMonsterCredit(NPC_SPARK, ObjectGuid::Empty);
         }
 
         void DespawnNagaFlag(bool despawn)
@@ -677,7 +677,7 @@ class npc_stillpine_capitive : public CreatureScript
                     cage->SetGoState(GO_STATE_READY);
                 }
                 _events.Reset();
-                _player = NULL;
+                _playerGUID.Clear();
                 _movementComplete = false;
             }
 
@@ -686,10 +686,9 @@ class npc_stillpine_capitive : public CreatureScript
                 if (owner)
                 {
                     Talk(CAPITIVE_SAY, owner);
-                    _player = owner;
+                    _playerGUID = owner->GetGUID();
                 }
-                Position pos;
-                me->GetNearPosition(pos, 3.0f, 0.0f);
+                Position pos = me->GetNearPosition(3.0f, 0.0f);
                 me->GetMotionMaster()->MovePoint(POINT_INIT, pos);
             }
 
@@ -698,7 +697,7 @@ class npc_stillpine_capitive : public CreatureScript
                 if (type != POINT_MOTION_TYPE || id != POINT_INIT)
                     return;
 
-                if (_player)
+                if (Player* _player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                     _player->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
 
                 _movementComplete = true;
@@ -717,7 +716,7 @@ class npc_stillpine_capitive : public CreatureScript
             }
 
         private:
-            Player* _player;
+            ObjectGuid _playerGUID;
             EventMap _events;
             bool _movementComplete;
         };

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -30,7 +30,10 @@
 #include "Battleground.h"
 #include "Chat.h"
 #include "CreatureTextMgr.h"
+#include "Creature.h"
+#include "GridNotifiers.h"
 #include "spell_common.h"
+#include "Random.h"
 
 // Generic script for handling item dummy effects which trigger another spell.
 class spell_item_trigger_spell : public SpellScriptLoader
@@ -2631,7 +2634,7 @@ class spell_item_stardust_no_2 : public AuraScript
     {
         if (Player* player = GetCaster()->ToPlayer())
             if (player->GetQuestStatus(QUEST_THE_LATEST_FASHION_ALLIANCE) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_THE_LATEST_FASHION_HORDE) == QUEST_STATUS_INCOMPLETE)
-                player->KilledMonsterCredit(NPC_THE_LATEST_FASHION_CREDIT, 0);
+                player->KilledMonsterCredit(NPC_THE_LATEST_FASHION_CREDIT, ObjectGuid::Empty);
     }
 
     void Register()
@@ -2898,7 +2901,7 @@ class spell_item_summon_sword_dancers : public SpellScript
             for (uint32 i = 0; i < 4; i++)
             {
                 GetPositionWithDistInOrientation(caster, 3.5f, Position::NormalizeOrientation(faceOri + i * (M_PI / 2)), x, y);
-                caster->SummonCreature(NPC_SWORD_DANCER_A + i, x, y, caster->GetPositionZ(), Position::NormalizeOrientation(faceOri + i * (M_PI / 2) - M_PI), TEMPSUMMON_TIMED_DESPAWN, 18 * IN_MILLISECONDS);
+                caster->SummonCreature(NPC_SWORD_DANCER_A + i, x, y, caster->GetPositionZ(), Position::NormalizeOrientation(faceOri + i * (M_PI / 2) - M_PI), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(18 * IN_MILLISECONDS));
             }
         }
     }
@@ -3370,14 +3373,14 @@ private:
                     default:
                     {
                         CreatureDisplayInfoEntry const* info = sCreatureDisplayInfoStore.LookupEntry(unit->GetDisplayId());
-                        if (!info || !info->ModelId)
+                        if (!info || !info->ModelID)
                             return true;
 
-                        CreatureModelDataEntry const* model = sCreatureModelDataStore.LookupEntry(info->ModelId);
+                        CreatureModelDataEntry const* model = sCreatureModelDataStore.LookupEntry(info->ModelID);
                         if (!model)
                             return true;
 
-                        if (strstr(model->ModelPath[LOCALE_enUS], "INVISIBLESTALKER"))
+                        if (strstr(model->ModelName, "INVISIBLESTALKER"))
                             return true;
 
                         return false;
@@ -4111,7 +4114,7 @@ class spell_item_symbiotic_growth_aura : public AuraScript
 
     uint32 spec = 0;
 
-    bool Load()
+    bool Load() override
     {
         if (GetUnitOwner()->GetTypeId() != TYPEID_PLAYER)
             return false;
@@ -4411,6 +4414,101 @@ class spell_item_seesaw : public SpellScript
     }
 };
 
+// 71610, 71641 - Echoes of Light (Althor's Abacus)
+class spell_item_echoes_of_light : public SpellScript
+{
+    PrepareSpellScript(spell_item_echoes_of_light);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.size() < 2)
+            return;
+
+        targets.sort(Trinity::HealthPctOrderPred());
+
+        WorldObject* target = targets.front();
+        targets.clear();
+        targets.push_back(target);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_item_echoes_of_light::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+};
+
+// 7434 - Fate Rune of Unsurpassed Vigor
+enum FateRuneOfUnsurpassedVigor
+{
+    SPELL_UNSURPASSED_VIGOR = 25733
+};
+
+class spell_item_fate_rune_of_unsurpassed_vigor : public AuraScript
+{
+    PrepareAuraScript(spell_item_fate_rune_of_unsurpassed_vigor);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_UNSURPASSED_VIGOR });
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(GetTarget(), SPELL_UNSURPASSED_VIGOR, true);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_item_fate_rune_of_unsurpassed_vigor::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 84421 - Loot-A-Rang
+class spell_item_loot_a_rang : public SpellScript
+{
+    PrepareSpellScript(spell_item_loot_a_rang);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetCaster()->ToPlayer())
+        {
+            std::list<Creature*> corpses;
+            auto check = [=](Creature const* creature)
+            {
+                if (creature->IsAlive())
+                    return false;
+                if (!player->IsWithinDist(creature, 40.0f))
+                    return false;
+                return player->IsAllowedToLoot(creature);
+            };
+            Trinity::CreatureListSearcher<decltype(check)> searcher{ player, corpses, check };
+            player->VisitNearbyGridObject(40.0f, searcher);
+
+            // find the nearest corpse
+            Creature* nearest = nullptr;
+            float minDist = 40.0f;
+            for (Creature* c : corpses)
+            {
+                float dist = player->GetExactDist(c);
+                if (dist < minDist)
+                {
+                    minDist = dist;
+                    nearest = c;
+                }
+            }
+
+            if (nearest)
+                player->SendLoot(nearest->GetGUID(), LOOT_CORPSE, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_item_loot_a_rang::HandleDummy, EFFECT_0, SPELL_EFFECT_CREATE_ITEM);
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4534,4 +4632,8 @@ void AddSC_item_spell_scripts()
     new spell_script<spell_item_party_grenade_eff>("spell_item_party_grenade_eff");
     new aura_script<spell_item_party_grenade>("spell_item_party_grenade");
     new spell_script<spell_item_seesaw>("spell_item_seesaw");
+    //RegisterSpellScript(spell_item_echoes_of_light);
+    new spell_script<spell_item_echoes_of_light>("spell_item_echoes_of_light");
+    new aura_script<spell_item_fate_rune_of_unsurpassed_vigor>("spell_item_fate_rune_of_unsurpassed_vigor");
+    new spell_script<spell_item_loot_a_rang>("spell_item_loot_a_rang");
 }

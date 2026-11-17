@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -30,6 +30,7 @@
 #include "spell_common.h"
 #include "Battleground.h"
 #include "Unit.h"
+#include "Random.h"
 
 enum MonkSpells
 {
@@ -671,7 +672,7 @@ class spell_monk_touch_of_karma : public AuraScript
 {
     PrepareAuraScript(spell_monk_touch_of_karma);
 
-    uint64 targetGuid = 0;
+    ObjectGuid targetGuid = ObjectGuid::Empty;
 
     void CalculateAmount(AuraEffect const*, float& amount, bool&)
     {
@@ -700,7 +701,7 @@ class spell_monk_touch_of_karma : public AuraScript
     }
 
 public:
-    void SetRedirectTarget(uint64 guid)
+    void SetRedirectTarget(ObjectGuid guid)
     {
         targetGuid = guid;
     }
@@ -719,7 +720,7 @@ class spell_monk_touch_of_karma_target : public SpellScript
 {
     PrepareSpellScript(spell_monk_touch_of_karma_target);
 
-    uint64 targetGuid = 0;
+    ObjectGuid targetGuid = ObjectGuid::Empty;
 
     void HandleAfterHit()
     {
@@ -1661,7 +1662,7 @@ struct npc_monk_s_e_f_spirit : public ScriptedAI
     };
 
 
-    uint64 victimGuid = 0;
+    ObjectGuid victimGuid = ObjectGuid::Empty;
     TaskScheduler scheduler;
     State state = State::Jumping;
 
@@ -1692,7 +1693,7 @@ struct npc_monk_s_e_f_spirit : public ScriptedAI
     }
 
 
-    void SetGUID(uint64 guid, int32) override
+    void SetGUID(ObjectGuid guid, int32) override
     {
         victimGuid = guid;
         if (Unit* target = ObjectAccessor::GetUnit(*me, guid))
@@ -1702,7 +1703,7 @@ struct npc_monk_s_e_f_spirit : public ScriptedAI
         }
     }
 
-    uint64 GetGUID(int32) const override
+    ObjectGuid GetGUID(int32) const override
     {
         return victimGuid;
     }
@@ -1743,7 +1744,7 @@ struct npc_monk_s_e_f_spirit : public ScriptedAI
                     if (Unit* target = me->SelectVictim())
                     {
                         float x, y, z;
-                        target->GetNearPoint(me, x, y, z, me->GetCombatReach(), CONTACT_DISTANCE, target->GetOrientation() + M_PI);
+                        target->GetNearPoint(me, x, y, z, CONTACT_DISTANCE, target->GetOrientation() + M_PI);
                         me->GetMotionMaster()->MovePoint(POINT_ATTACK_START, x, y, z);
                         state = State::GettingRound;
                     }
@@ -1783,7 +1784,7 @@ struct npc_monk_s_e_f_spirit : public ScriptedAI
         me->DespawnOrUnsummon();
     }
 
-    void EnterEvadeMode() override 
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override 
     {
         if (state == State::Attacking && me->IsAlive())
             DoDespawn();
@@ -1904,7 +1905,7 @@ struct spell_monk_specific_damage_base
         auto it = map.find(spellId);
         if (it == map.end())
         {
-            TC_LOG_ERROR("sql.sql", "spell_monk_specific_damage specifief in DB for spell %u but modificator not found", spellId);
+            TC_LOG_ERROR("sql.sql", "spell_monk_specific_damage specifief in DB for spell {} but modificator not found", spellId);
             return 0.0f;
         }
 
@@ -2316,13 +2317,13 @@ class sat_monk_healing_sphere : public IAreaTriggerOnce
         GetCaster()->CastSpell(*targets.front(), SPELL_MONK_HEALING_SPHERE_EXPIRE_HEAL, true);
     }
 
-    bool CheckTriggering(WorldObject* object)
+    bool CheckTriggering(WorldObject* object) override
     {
         Unit* unit = object->ToUnit();
         return unit && (!unit->IsFullHealth() || unit->HasAuraType(SPELL_AURA_SCHOOL_HEAL_ABSORB)) && unit->IsFriendlyTo(GetCaster());
     }
 
-    void OnTrigger(WorldObject* target)
+    void OnTrigger(WorldObject* target) override
     {
         GetCaster()->CastSpell(target->ToUnit(), SPELL_MONK_HEALING_SPHERE_HEAL, true);
     }
@@ -2384,7 +2385,8 @@ class spell_monk_summon_gift_of_the_ox : public SpellScript
         float angle = frand(min, max);
         float dist = frand(1.5f, 2.0f);
 
-        GetCaster()->GetFirstCollisionPosition(dest._position, dist, angle);
+        Position pos = GetCaster()->GetFirstCollisionPosition(dist, angle);
+        dest._position = WorldLocation(GetCaster()->GetMapId(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
     }
 
     void Register() override
@@ -2397,7 +2399,7 @@ class spell_monk_summon_gift_of_the_ox : public SpellScript
 // 373
 class sat_monk_gift_of_the_ox : public IAreaTriggerOnce
 {
-    bool CheckTriggering(WorldObject* object)
+    bool CheckTriggering(WorldObject* object) override
     {
         if (object != GetCaster())
             return false;
@@ -2406,7 +2408,7 @@ class sat_monk_gift_of_the_ox : public IAreaTriggerOnce
         return GetCaster()->IsInDist(GetTarget(), m_range);
     }
 
-    void OnTrigger(WorldObject* target)
+    void OnTrigger(WorldObject* target) override
     {
         GetCaster()->CastSpell(target->ToUnit(), SPELL_MONK_GIFT_OF_THE_OX_HEAL, true);
     }
@@ -2981,12 +2983,12 @@ class spell_monk_power_strikes : public SpellScript
 // 336 created by 121286 - Chi Sphere
 class sat_monk_chi_sphere : public IAreaTriggerOnce
 {
-    bool CheckTriggering(WorldObject* object)
+    bool CheckTriggering(WorldObject* object) override
     {
         return object == GetCaster();
     }
 
-    void OnTrigger(WorldObject*)
+    void OnTrigger(WorldObject*) override
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_MONK_CHI_SHERE_ENERGIZE, true);
     }
@@ -3909,18 +3911,18 @@ class spell_monk_gif_of_the_serpent_summon : public SpellScript
 // 321
 struct sat_monk_gift_of_the_serpent : public IAreaTriggerOnce
 {
-    bool CheckTriggering(WorldObject* object)
+    bool CheckTriggering(WorldObject* object) override
     {
         Unit* unit = object->ToUnit();
         return unit && (!unit->IsFullHealth() || unit->HasAuraType(SPELL_AURA_SCHOOL_HEAL_ABSORB)) && unit->IsFriendlyTo(GetCaster());
     }
 
-    void OnTrigger(WorldObject* target)
+    void OnTrigger(WorldObject* target) override
     {
         GetCaster()->CastSpell(target->ToUnit(), SPELL_MONK_GIFT_OF_THE_SERPENT_HEAL, true);
     }
 
-    void OnExpire()
+    void OnExpire() override
     {
         GetCaster()->CastSpell(*GetTarget(), SPELL_MONK_GIFT_OF_THE_SERPENT_HEAL_EXPIRED, true);
     }
@@ -4290,7 +4292,7 @@ struct npc_monk_xuen : public PetAI
 {
     npc_monk_xuen(Creature* c) : PetAI(c) { }
 
-    void IsSummonedBy(Unit* summoner)
+    void IsSummonedBy(Unit* summoner) override
     {
         Player* monk = summoner->ToPlayer();
         if (!monk || monk->GetSpecialization() != SPEC_MONK_BREWMASTER)
@@ -4454,7 +4456,8 @@ class spell_monk_summon_energy_sphere : public SpellScript
         float angle = frand(min, max);
         float dist = frand(GetCaster()->GetObjectSize() + 1.5f, GetCaster()->GetObjectSize() + 4.0f);
 
-        GetCaster()->GetFirstCollisionPosition(dest._position, dist, angle);
+        Position pos = GetCaster()->GetFirstCollisionPosition(dist, angle);
+        dest._position = WorldLocation(GetCaster()->GetMapId(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
     }
 
     void Register() override
@@ -5150,7 +5153,7 @@ class sat_monk_glyph_of_flying_serpent_kick : public IAreaTriggerOnce
         return false;
     }
 
-    void OnTrigger(WorldObject* target)
+    void OnTrigger(WorldObject* target) override
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_MONK_FLYING_SERPENT_KICK_TRIGGER, true);
     }

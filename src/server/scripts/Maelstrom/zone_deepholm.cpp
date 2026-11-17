@@ -111,9 +111,9 @@ const Position wyvernDeepholmPath[8] =
 };
 
 // Aronus 45005
-struct npc_deepholm_wyvern : public CreatureAI
+struct npc_deepholm_wyvern : public ScriptedAI
 {
-    npc_deepholm_wyvern(Creature* creature) : CreatureAI(creature)
+    npc_deepholm_wyvern(Creature* creature) : ScriptedAI(creature)
     {
         me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     }
@@ -124,24 +124,24 @@ struct npc_deepholm_wyvern : public CreatureAI
             clicker->CastSpell(clicker, SPELL_DEEPHOLM_INTRO_TAXI, true);
     }
 
-    void UpdateAI(const uint32 /*diff*/) { }
+    void UpdateAI(const uint32 /*diff*/) override { }
 };
 
 // Wyvern 45024
-struct npc_deepholm_wyvern_ride : public CreatureAI
+struct npc_deepholm_wyvern_ride : public ScriptedAI
 {
-    npc_deepholm_wyvern_ride(Creature* creature) : CreatureAI(creature) { }
+    npc_deepholm_wyvern_ride(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 targetGUID;
-    uint64 aggraGUID;
+    ObjectGuid targetGUID;
+    ObjectGuid aggraGUID;
     uint32 delay;
 
     void IsSummonedBy(Unit* summoner) override
     {
         targetGUID = summoner->GetGUID();
         me->OverrideInhabitType(INHABIT_AIR);
-        me->SetAnimationTier(UnitAnimationTier::Fly);
+        me->SetAnimTier(AnimTier::Fly);
         me->UpdateMovementFlags();
         me->SetSpeed(MOVE_FLIGHT, 2.5f);
 
@@ -226,12 +226,12 @@ struct npc_deepholm_wyvern_ride : public CreatureAI
 };
 
 // Aggra 45006
-struct npc_maelstorm_aggra : public CreatureAI
+struct npc_maelstorm_aggra : public ScriptedAI
 {
-    npc_maelstorm_aggra(Creature* creature) : CreatureAI(creature) { }
+    npc_maelstorm_aggra(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 summonerGUID;
+    ObjectGuid summonerGUID;
     uint32 delay;
 
     void IsSummonedBy(Unit* summoner) override
@@ -317,7 +317,7 @@ class spell_deepholm_intro_teleport : public AuraScript
 {
     PrepareAuraScript(spell_deepholm_intro_teleport);
 
-    bool Load()
+    bool Load() override
     {
         isLoading = false;
         return true;

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -80,8 +80,6 @@ enum SWPActions
 
 #define GO_FAILED   "You are unable to use this currently."
 
-#define EMOTE_UNABLE_TO_FIND    "is unable to find kalecgos"
-
 #define FLY_X   1679
 #define FLY_Y   900
 #define FLY_Z   82
@@ -133,7 +131,7 @@ class boss_kalecgos : public CreatureScript
                     if (instance->GetData(DATA_KALECGOS_EVENT) != DONE)
                         instance->SetData(DATA_KALECGOS_EVENT, NOT_STARTED);
 
-                    if (Creature* Sath = Unit::GetCreature(*me, instance->GetData64(DATA_SATHROVARR)))
+                    if (Creature* Sath = Unit::GetCreature(*me, instance->GetGuidData(DATA_SATHROVARR)))
                         Sath->AI()->EnterEvadeMode();
                 }
 
@@ -161,7 +159,7 @@ class boss_kalecgos : public CreatureScript
                 isBanished = false;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 justReset = true;
                 me->SetVisible(false);
@@ -193,7 +191,8 @@ class boss_kalecgos : public CreatureScript
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
                         me->InterruptNonMeleeSpells(true);
                         me->RemoveAllAuras();
-                        me->DeleteThreatList();
+                        me->GetThreatManager().RemoveMeFromThreatLists();
+                        me->GetThreatManager().ClearAllThreat();
                         me->CombatStop();
                         ++talkSequence;
                     }
@@ -233,13 +232,13 @@ class boss_kalecgos : public CreatureScript
                         }
                         if (HealthBelowPct(10) && !isEnraged)
                         {
-                            if (Creature* Sath = Unit::GetCreature(*me, instance->GetData64(DATA_SATHROVARR)))
+                            if (Creature* Sath = Unit::GetCreature(*me, instance->GetGuidData(DATA_SATHROVARR)))
                                 Sath->AI()->DoAction(DO_ENRAGE);
                             DoAction(DO_ENRAGE);
                         }
                         if (!isBanished && HealthBelowPct(1))
                         {
-                            if (Creature* Sath = Unit::GetCreature(*me, instance->GetData64(DATA_SATHROVARR)))
+                            if (Creature* Sath = Unit::GetCreature(*me, instance->GetGuidData(DATA_SATHROVARR)))
                             {
                                 if (Sath->HasAura(SPELL_BANISH))
                                 {
@@ -293,7 +292,7 @@ class boss_kalecgos : public CreatureScript
                 }
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) override
             {
                 if (justReset)//boss is invisible, don't attack
                     return;
@@ -323,7 +322,7 @@ class boss_kalecgos : public CreatureScript
                 DoCast(target, SPELL_SPECTRAL_BLAST_SELF_VISUAL, true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 Talk(SAY_EVIL_AGGRO);
@@ -333,12 +332,12 @@ class boss_kalecgos : public CreatureScript
                     instance->SetData(DATA_KALECGOS_EVENT, IN_PROGRESS);
             }
 
-            void KilledUnit(Unit* /*victim*/)override
+            void KilledUnit(Unit* /*victim*/) override
             {
                 Talk(SAY_EVIL_SLAY);
             }
 
-            void MovementInform(uint32 type,uint32 id)
+            void MovementInform(uint32 type,uint32 id) override
             {
                 if (type != EFFECT_MOTION_TYPE || id != 1)
                     return;
@@ -442,7 +441,7 @@ class boss_kalec : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage) override
             {
-                if (attacker->GetGUID() != instance->GetData64(DATA_SATHROVARR))
+                if (attacker->GetGUID() != instance->GetGuidData(DATA_SATHROVARR))
                     damage = 0;
                 else if (isEnraged)
                     damage *= 3;
@@ -543,12 +542,12 @@ class boss_sathrovarr : public CreatureScript
             boss_sathrovarrAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
-                kalecGUID = 0;
+                kalecGUID = ObjectGuid::Empty;
                 isStarted = false;
             }
 
             InstanceScript* instance;
-            uint64 kalecGUID;
+            ObjectGuid kalecGUID;
             uint32 corruptionStrikeTimer;
             uint32 agonyCurseTimer;
             uint32 shadowBoltTimer;
@@ -570,7 +569,7 @@ class boss_sathrovarr : public CreatureScript
                 {
                     if (Creature* kalec = Unit::GetCreature(*me, kalecGUID))
                         kalec->setDeathState(JUST_DIED);
-                    kalecGUID = 0;
+                    kalecGUID = ObjectGuid::Empty;
                 }
 
                 shadowBoltTimer = urand(7, 10) * 1000;
@@ -586,14 +585,14 @@ class boss_sathrovarr : public CreatureScript
                     TeleportAllPlayersBack();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 isStarted = true;
-                if (Creature* kalec = me->SummonCreature(NPC_KALEC, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
+                if (Creature* kalec = me->SummonCreature(NPC_KALEC, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0ms))
                 {
                     kalecGUID = kalec->GetGUID();
                     me->CombatStart(kalec);
-                    me->AddThreat(kalec, 100.0f);
+                    me->GetThreatManager().AddThreat(kalec, 100.0f);
                     kalec->setActive(true);
                 }
                 Talk(SAY_SATH_AGGRO);
@@ -610,7 +609,7 @@ class boss_sathrovarr : public CreatureScript
                 if (victim->GetGUID() == kalecGUID)
                 {
                     TeleportAllPlayersBack();
-                    if (Creature* kalecgos = Unit::GetCreature(*me, instance->GetData64(DATA_KALECGOS_DRAGON)))
+                    if (Creature* kalecgos = Unit::GetCreature(*me, instance->GetGuidData(DATA_KALECGOS_DRAGON)))
                     {
                         CAST_AI(boss_kalecgos::boss_kalecgosAI, kalecgos->AI())->talkTimer = 1;
                         CAST_AI(boss_kalecgos::boss_kalecgosAI, kalecgos->AI())->isFriendly = false;
@@ -626,7 +625,7 @@ class boss_sathrovarr : public CreatureScript
                 Talk(SAY_SATH_DEATH);
                 me->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), DRAGON_REALM_Z, me->GetOrientation());
                 TeleportAllPlayersBack();
-                if (Creature* kalecgos = Unit::GetCreature(*me, instance->GetData64(DATA_KALECGOS_DRAGON)))
+                if (Creature* kalecgos = Unit::GetCreature(*me, instance->GetGuidData(DATA_KALECGOS_DRAGON)))
                 {
                     CAST_AI(boss_kalecgos::boss_kalecgosAI, kalecgos->AI())->talkTimer = 1;
                     CAST_AI(boss_kalecgos::boss_kalecgosAI, kalecgos->AI())->isFriendly = true;
@@ -681,19 +680,19 @@ class boss_sathrovarr : public CreatureScript
                     Creature* kalec = Unit::GetCreature(*me, kalecGUID);
                     if (!kalec || (kalec && !kalec->IsAlive()))
                     {
-                        if (Creature* kalecgos = Unit::GetCreature(*me, instance->GetData64(DATA_KALECGOS_DRAGON)))
+                        if (Creature* kalecgos = Unit::GetCreature(*me, instance->GetGuidData(DATA_KALECGOS_DRAGON)))
                             kalecgos->AI()->EnterEvadeMode();
                             return;
                     }
 
                     if (HealthBelowPct(10) && !isEnraged)
                     {
-                        if (Creature* kalecgos = Unit::GetCreature(*me, instance->GetData64(DATA_KALECGOS_DRAGON)))
+                        if (Creature* kalecgos = Unit::GetCreature(*me, instance->GetGuidData(DATA_KALECGOS_DRAGON)))
                             kalecgos->AI()->DoAction(DO_ENRAGE);
                         DoAction(DO_ENRAGE);
                     }
 
-                    Creature* kalecgos = Unit::GetCreature(*me, instance->GetData64(DATA_KALECGOS_DRAGON));
+                    Creature* kalecgos = Unit::GetCreature(*me, instance->GetGuidData(DATA_KALECGOS_DRAGON));
                     if (kalecgos)
                     {
                         if (!kalecgos->IsInCombat())
@@ -717,7 +716,6 @@ class boss_sathrovarr : public CreatureScript
                         }
                         else
                         {
-                            me->MonsterTextEmote(EMOTE_UNABLE_TO_FIND, 0);
                             EnterEvadeMode();
                             return;
                         }
@@ -727,11 +725,11 @@ class boss_sathrovarr : public CreatureScript
 
                 if (resetThreat <= diff)
                 {
-                    for (auto&& itr : me->getThreatManager().getThreatList())
+                    for (auto&& ref : me->GetThreatManager().GetUnsortedThreatList())
                     {
-                        if (Unit* unit = Unit::GetUnit(*me, itr->getUnitGuid()))
+                        if (Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID()))
                             if (unit->GetPositionZ() > me->GetPositionZ()+5)
-                                me->getThreatManager().modifyThreatPercent(unit,-100);
+                                me->GetThreatManager().ModifyThreatByPercent(unit,-100);
                     }
                     resetThreat = 1000;
                 } else resetThreat -= diff;

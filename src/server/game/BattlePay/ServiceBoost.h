@@ -18,8 +18,6 @@
 #ifndef CHARACTER_BOOST_H
 #define CHARACTER_BOOST_H
 
-#define MAX_SPECIALIZATIONS     4
-
 enum CharBoostMisc
 {
     // Items
@@ -63,9 +61,9 @@ float const startPosition[2][4] =
 
 struct CharacterBoostData
 {
-    CharacterBoostData() : charGuid(0), action(0), specialization(0), allianceFaction(false) { }
+    CharacterBoostData() : charGuid(ObjectGuid::Empty), action(0), specialization(0), allianceFaction(false) { }
 
-    uint64 charGuid;
+    ObjectGuid charGuid;
     uint32 action;
     uint32 specialization;
     bool allianceFaction;
@@ -94,9 +92,9 @@ class CharacterBooster
         CharacterBooster(WorldSession* session);
 
         uint32 GetCurrentAction() const { return m_charBoostInfo.action; }
-        uint32 GetGuidLow() const { return GUID_LOPART(m_charBoostInfo.charGuid); }
+        ObjectGuid::LowType GetGuidLow() const { return m_charBoostInfo.charGuid.GetCounter(); }
         void HandleCharacterBoost();
-        bool IsBoosting(uint32 lowGuid) const { return m_boosting && (GUID_LOPART(m_charBoostInfo.charGuid) == lowGuid); }
+        bool IsBoosting(ObjectGuid::LowType lowGuid) const { return m_boosting && (m_charBoostInfo.charGuid.GetCounter() == lowGuid); }
         void SetBoostedCharInfo(ObjectGuid guid, uint32 action, uint32 specialization, bool allianceFaction);
         void Update(uint32 diff);
         void SendCharBoostPacket(PreparedItemsMap items) const;

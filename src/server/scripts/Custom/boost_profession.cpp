@@ -86,7 +86,7 @@ public:
         return true;
     }
 
-    void OnGossipSelect(Player* player, Item* item, uint32 sender, uint32 action)
+    void OnGossipSelect(Player* player, Item* item, uint32 sender, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         uint32 confirm = 0;
@@ -283,7 +283,7 @@ public:
         return true;
     }
 
-    void OnGossipSelect(Player* player, Item* item, uint32 sender, uint32 action)
+    void OnGossipSelect(Player* player, Item* item, uint32 sender, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         

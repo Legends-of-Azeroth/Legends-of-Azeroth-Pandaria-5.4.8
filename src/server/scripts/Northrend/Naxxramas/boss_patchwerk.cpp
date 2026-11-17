@@ -86,9 +86,9 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Enraged = false;
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_HATEFUL, 1000);
@@ -115,10 +115,9 @@ public:
                         //amount of HP within melee distance
                         uint32 MostHP = 0;
                         Unit* pMostHPTarget = NULL;
-                        std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
-                        for (; i != me->getThreatManager().getThreatList().end(); ++i)
+                        for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
                         {
-                            Unit* target = (*i)->getTarget();
+                            Unit* target = ref->GetVictim();
                             if (target->IsAlive() && target != me->GetVictim() && target->GetHealth() > MostHP && me->IsWithinMeleeRange(target))
                             {
                                 MostHP = target->GetHealth();

@@ -52,7 +52,7 @@ struct boss_vanndar : public ScriptedAI
         _events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(YELL_AGGRO);
         _events.ScheduleEvent(EVENT_CAST_SPELL_AVATAR, 3s);
@@ -62,7 +62,7 @@ struct boss_vanndar : public ScriptedAI
         _events.ScheduleEvent(EVENT_VANNDAR_RESET, 5s);
     }
 
-    void JustRespawned() override
+    void JustAppeared() override
     {
         Reset();
         Talk(YELL_RESPAWN);

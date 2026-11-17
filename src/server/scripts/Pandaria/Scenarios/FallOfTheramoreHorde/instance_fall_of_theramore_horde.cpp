@@ -31,8 +31,8 @@ class instance_fall_of_theramore_horde : public InstanceMapScript
             instance_fall_of_theramore_horde_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             uint32 m_auiEncounter[CHAPTERS];
-            std::map<uint32, uint64> TheramoreEncounters;
-            std::list<uint64> guardGUIDs;
+            std::map<uint32, ObjectGuid> TheramoreEncounters;
+            std::list<ObjectGuid> guardGUIDs;
             uint32 chapterOne, chapterTwo, chapterThree, chapterFour, chapterFive, barrelsExplode, gryponsDied, baldrucDied, tanksDestoyed, bigBessaDied, hedricDied;
             uint32 captainsSlain;
             EventMap m_mEvents;
@@ -260,7 +260,7 @@ class instance_fall_of_theramore_horde : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -270,10 +270,10 @@ class instance_fall_of_theramore_horde : public InstanceMapScript
                         return TheramoreEncounters.find(type)->second;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
-            bool IsWipe(float range, Unit* source)
+            bool IsWipe(float range, Unit* source) override
             {
                 Map::PlayerList const &playerList = instance->GetPlayers();
 
@@ -297,7 +297,7 @@ class instance_fall_of_theramore_horde : public InstanceMapScript
                     switch (type)
                     {
                         case DATA_TO_THE_WATERLINE:
-                            if (Creature* SparkFuse = instance->GetCreature(GetData64(NPC_BLASTMASTER_SPARKFUSE)))
+                            if (Creature* SparkFuse = instance->GetCreature(GetGuidData(NPC_BLASTMASTER_SPARKFUSE)))
                                 SparkFuse->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             break;
                         case DATA_THE_BLASTMASTER:

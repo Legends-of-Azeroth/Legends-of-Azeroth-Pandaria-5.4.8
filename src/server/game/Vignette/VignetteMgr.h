@@ -28,7 +28,7 @@ class Player;
 
 namespace Vignette
 {
-    using VignetteContainer = std::map<uint64, Entity*>;
+    using VignetteContainer = std::map<ObjectGuid, Entity*>;
 
     class Manager
     {
@@ -53,7 +53,7 @@ namespace Vignette
             * @param position : Position of the vignette
             * @param sourceGuid : Source of the vignette if any (can be gameobject or creature), the vignette will follow the position of the source
             */
-            Entity* CreateAndAddVignette(VignetteEntry const* vignetteEntry, uint32 const mapId, Type const vignetteType, G3D::Vector3 const position, uint64 const sourceGuid = 0);
+            Entity* CreateAndAddVignette(VignetteEntry const* vignetteEntry, Map* map, uint32 const mapId, Type const vignetteType, G3D::Vector3 const position, ObjectGuid const sourceGuid = ObjectGuid::Empty);
 
             /*
             * Remove the vignettes of the manager if they are of the same ID as specified, and destroy them
@@ -95,11 +95,11 @@ namespace Vignette
             */
             void SendVignetteUpdateToClient();
 
-            Player const*       m_Owner;             // Player for who we handle the vignettes
-            VignetteContainer   m_Vignettes;         // Contains all the vignette the player can see
-            std::set<uint64>    m_RemovedVignette;   // Contains all the removed vignettes to send to client at the next SMSG_VIGNETTE_UPDATE
-            std::set<uint64>    m_AddedVignette;     // Contains all the added vignettes to send to client at the next SMSG_VIGNETTE_UPDATE
-            std::set<uint64>    m_UpdatedVignette;   // Contains all the updated vignettes to send to client at the next SMSG_VIGNETTE_UPDATE
+            Player const*        m_Owner;             // Player for who we handle the vignettes
+            VignetteContainer    m_Vignettes;         // Contains all the vignette the player can see
+            std::set<ObjectGuid> m_RemovedVignette;   // Contains all the removed vignettes to send to client at the next SMSG_VIGNETTE_UPDATE
+            std::set<ObjectGuid> m_AddedVignette;     // Contains all the added vignettes to send to client at the next SMSG_VIGNETTE_UPDATE
+            std::set<ObjectGuid> m_UpdatedVignette;   // Contains all the updated vignettes to send to client at the next SMSG_VIGNETTE_UPDATE
     };
 }
 

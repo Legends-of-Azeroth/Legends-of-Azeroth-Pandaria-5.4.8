@@ -211,11 +211,11 @@ class OPvPCapturePointZM_GraveYard : public OPvPCapturePoint
 
         void UpdateTowerState();
 
-        int32 HandleOpenGo(Player* player, uint64 guid);
+        int32 HandleOpenGo(Player* player, ObjectGuid guid);
 
         void SetBeaconState(uint32 controlling_team); // not good atm
 
-        bool HandleGossipOption(Player* player, uint64 guid, uint32 gossipid);
+        bool HandleGossipOption(Player* player, Creature* creature, uint32 gossipid);
 
         bool HandleDropFlag(Player* player, uint32 spellId);
 
@@ -231,7 +231,7 @@ class OPvPCapturePointZM_GraveYard : public OPvPCapturePoint
 
         uint32 m_BothControllingFaction;
 
-        uint64 m_FlagCarrierGUID;
+        ObjectGuid m_FlagCarrierGUID;
 };
 
 class OutdoorPvPZM : public OutdoorPvP

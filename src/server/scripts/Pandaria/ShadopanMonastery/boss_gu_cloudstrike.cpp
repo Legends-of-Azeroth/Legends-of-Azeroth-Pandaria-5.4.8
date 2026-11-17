@@ -164,7 +164,7 @@ class boss_gu_cloudstrike : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)
@@ -174,11 +174,11 @@ class boss_gu_cloudstrike : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (!azurePhase)
                 {
-                    _EnterCombat();
+                    _JustEngagedWith();
                     Talk(TALK_AGGRO);
                     if (instance)
                     {
@@ -206,7 +206,7 @@ class boss_gu_cloudstrike : public CreatureScript
                             me->CastSpell(me, SPELL_OVERCHARGED_SOUL, false);
                             me->CastSpell(me, SPELL_CHARGING_SOUL, false);
 
-                            if (auto const azureSerpent = Unit::GetCreature(*me, instance->GetData64(DATA_AZURE_SERPENT)))
+                            if (auto const azureSerpent = Unit::GetCreature(*me, instance->GetGuidData(DATA_AZURE_SERPENT)))
                                if (azureSerpent->IsAIEnabled)
                                    azureSerpent->AI()->DoAction(ACTION_AZURE_SERPENT_P_2);
                             break;
@@ -236,7 +236,7 @@ class boss_gu_cloudstrike : public CreatureScript
                         case EVENT_STATIC_FIELD:
                             if (auto const target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                             {
-                                if (auto const azureSerpent = Unit::GetCreature(*me, instance->GetData64(DATA_AZURE_SERPENT)))
+                                if (auto const azureSerpent = Unit::GetCreature(*me, instance->GetGuidData(DATA_AZURE_SERPENT)))
                                     azureSerpent->CastSpell(target, SPELL_STATIC_FIELD, false);
                             }
                             events.ScheduleEvent(EVENT_STATIC_FIELD, urand(13 * IN_MILLISECONDS, 16 * IN_MILLISECONDS));
@@ -340,7 +340,7 @@ class npc_azure_serpent : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (auto const gu = Unit::GetCreature(*me, instance->GetData64(DATA_GU_CLOUDSTRIKE)))
+                if (auto const gu = Unit::GetCreature(*me, instance->GetGuidData(DATA_GU_CLOUDSTRIKE)))
                    if (gu->IsAIEnabled)
                        gu->AI()->DoAction(ACTION_GU_P_3);
             }
@@ -350,7 +350,7 @@ class npc_azure_serpent : public CreatureScript
                 if (me->HealthBelowPctDamaged(50, damage) && !halfHealth)
                 {
                     halfHealth = true;
-                    if (auto const gu = Unit::GetCreature(*me, instance->GetData64(DATA_GU_CLOUDSTRIKE)))
+                    if (auto const gu = Unit::GetCreature(*me, instance->GetGuidData(DATA_GU_CLOUDSTRIKE)))
                        if (gu->IsAIEnabled)
                            gu->AI()->Talk(TALK_HALF_HEALTH);
                 }
@@ -358,7 +358,7 @@ class npc_azure_serpent : public CreatureScript
                 if (me->HealthBelowPctDamaged(15, damage) && !quarterHealth)
                 {
                     quarterHealth = true;
-                    if (auto const gu = Unit::GetCreature(*me, instance->GetData64(DATA_GU_CLOUDSTRIKE)))
+                    if (auto const gu = Unit::GetCreature(*me, instance->GetGuidData(DATA_GU_CLOUDSTRIKE)))
                        if (gu->IsAIEnabled)
                            gu->AI()->Talk(TALK_QUARTER_HEALTH);
                 }
@@ -391,7 +391,7 @@ class npc_azure_serpent : public CreatureScript
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_STATIC_FIELD:
-                        if (Creature* gu = Unit::GetCreature(*me, instance->GetData64(DATA_GU_CLOUDSTRIKE)))
+                        if (Creature* gu = Unit::GetCreature(*me, instance->GetGuidData(DATA_GU_CLOUDSTRIKE)))
                            if (gu->IsAIEnabled)
                                gu->AI()->DoAction(ACTION_STATIC_FIELD);
                         break;
@@ -484,7 +484,7 @@ class AreaTrigger_at_gu_intro : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
             if (auto const instance = player->GetInstanceScript())
-               if (auto const gu = instance->instance->GetCreature(instance->GetData64(DATA_GU_CLOUDSTRIKE)))
+               if (auto const gu = instance->instance->GetCreature(instance->GetGuidData(DATA_GU_CLOUDSTRIKE)))
                  if (gu->IsAIEnabled)
                     gu->AI()->DoAction(ACTION_INTRO);
 

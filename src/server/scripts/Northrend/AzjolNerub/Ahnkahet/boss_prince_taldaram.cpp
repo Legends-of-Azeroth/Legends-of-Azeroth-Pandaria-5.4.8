@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -98,7 +98,7 @@ class boss_taldaram : public CreatureScript
             uint32 uiFlamesphereTimer;
             uint32 uiPhaseTimer;
 
-            uint64 uiEmbraceTarget;
+            ObjectGuid uiEmbraceTarget;
 
             CombatPhase Phase;
 
@@ -125,7 +125,7 @@ class boss_taldaram : public CreatureScript
                 uiEmbraceTakenDamage = 0;
                 Phase = NORMAL;
                 uiPhaseTimer = 0;
-                uiEmbraceTarget = 0;
+                uiEmbraceTarget = ObjectGuid::Empty;
 
                 if (instance)
                 instance->SetData(DATA_PRINCE_TALDARAM_EVENT, NOT_STARTED);
@@ -137,7 +137,7 @@ class boss_taldaram : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (instance)
                     instance->SetData(DATA_PRINCE_TALDARAM_EVENT, IN_PROGRESS);
@@ -162,7 +162,7 @@ class boss_taldaram : public CreatureScript
                             Creature* pSpheres[3];
 
                             //DoCast(me, SPELL_FLAME_SPHERE_SUMMON_1);
-                            pSpheres[0] = DoSpawnCreature(NPC_FLAME_SPHERE, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS);
+                            pSpheres[0] = DoSpawnCreature(NPC_FLAME_SPHERE, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10s);
                             Unit* pSphereTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                             if (pSphereTarget && pSpheres[0])
                             {
@@ -175,9 +175,9 @@ class boss_taldaram : public CreatureScript
                             if (IsHeroic())
                             {
                                 //DoCast(me, SPELL_FLAME_SPHERE_SUMMON_1_H);
-                                pSpheres[1] = DoSpawnCreature(NPC_FLAME_SPHERE_1_H, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS);
+                                pSpheres[1] = DoSpawnCreature(NPC_FLAME_SPHERE_1_H, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10s);
                                 //DoCast(me, SPELL_FLAME_SPHERE_SUMMON_2_H);
-                                pSpheres[2] = DoSpawnCreature(NPC_FLAME_SPHERE_2_H, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS);
+                                pSpheres[2] = DoSpawnCreature(NPC_FLAME_SPHERE_2_H, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10s);
                                 if (pSphereTarget && pSpheres[1] && pSpheres[2])
                                 {
                                     float angle,x,y;
@@ -218,7 +218,7 @@ class boss_taldaram : public CreatureScript
                         case FEEDING:
                             Phase = NORMAL;
                             uiPhaseTimer = 0;
-                            uiEmbraceTarget = 0;
+                            uiEmbraceTarget = ObjectGuid::Empty;
                             break;
                         case NORMAL:
                             if (uiBloodthirstTimer <= diff)
@@ -240,9 +240,9 @@ class boss_taldaram : public CreatureScript
                                 // Count alive players
                                 Unit* target = NULL;
                                 std::vector<Unit*> target_list;
-                                for (auto&& threat : me->getThreatManager().getThreatList())
+                                for (auto&& threat : me->GetThreatManager().GetUnsortedThreatList())
                                 {
-                                    target = Unit::GetUnit(*me, threat->getUnitGuid());
+                                    target = Unit::GetUnit(*me, threat->GetVictim()->GetGUID());
                                     // exclude pets & totems
                                     if (target && target->GetTypeId() == TYPEID_PLAYER && target->IsAlive())
                                         target_list.push_back(target);
@@ -282,7 +282,7 @@ class boss_taldaram : public CreatureScript
                   {
                       Phase = NORMAL;
                       uiPhaseTimer = 0;
-                      uiEmbraceTarget = 0;
+                      uiEmbraceTarget = ObjectGuid::Empty;
                       me->CastStop();
                   }
                 }
@@ -307,7 +307,7 @@ class boss_taldaram : public CreatureScript
                 {
                     Phase = NORMAL;
                     uiPhaseTimer = 0;
-                    uiEmbraceTarget = 0;
+                    uiEmbraceTarget = ObjectGuid::Empty;
                 }
                 Talk(SAY_SLAY);
             }
@@ -317,9 +317,9 @@ class boss_taldaram : public CreatureScript
                 if (!instance)
                     return false;
 
-                uint64 uiSphereGuids[2];
-                uiSphereGuids[0] = instance->GetData64(DATA_SPHERE1);
-                uiSphereGuids[1] = instance->GetData64(DATA_SPHERE2);
+                ObjectGuid uiSphereGuids[2];
+                uiSphereGuids[0] = instance->GetGuidData(DATA_SPHERE1);
+                uiSphereGuids[1] = instance->GetGuidData(DATA_SPHERE2);
 
                 for (uint8 i=0; i < 2; ++i)
                 {
@@ -357,7 +357,7 @@ class boss_taldaram : public CreatureScript
                     Talk(SAY_WARNING);
                     warning = true;
                 }
-                uint64 prison_GUID = instance->GetData64(DATA_PRINCE_TALDARAM_PLATFORM);
+                ObjectGuid prison_GUID = instance->GetGuidData(DATA_PRINCE_TALDARAM_PLATFORM);
                 instance->HandleGameObject(prison_GUID,true);
             }
         };
@@ -387,7 +387,7 @@ class npc_taldaram_flamesphere : public CreatureScript
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlying(true);
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
+                me->SetDisplayFromModel(0);
                 me->SetFaction(16);
                 me->SetObjectScale(1.0f);
                 DoCast(me, SPELL_FLAME_SPHERE_VISUAL);
@@ -396,9 +396,9 @@ class npc_taldaram_flamesphere : public CreatureScript
                 uiDespawnTimer = 10 * IN_MILLISECONDS;
             }
 
-            void EnterCombat(Unit* /*who*/) { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
-            void MoveInLineOfSight(Unit* /*who*/) { }
+            void MoveInLineOfSight(Unit* /*who*/) override { }
 
             void JustDied(Unit* /*killer*/) override
             {
@@ -429,7 +429,7 @@ class go_prince_taldaram_sphere : public GameObjectScript
         {
             InstanceScript* instance = go->GetInstanceScript();
 
-            Creature* pPrinceTaldaram = Unit::GetCreature(*go, instance ? instance->GetData64(DATA_PRINCE_TALDARAM) : 0);
+            Creature* pPrinceTaldaram = Unit::GetCreature(*go, instance ? instance->GetGuidData(DATA_PRINCE_TALDARAM) : ObjectGuid::Empty);
             if (pPrinceTaldaram && pPrinceTaldaram->IsAlive())
             {
                 go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);

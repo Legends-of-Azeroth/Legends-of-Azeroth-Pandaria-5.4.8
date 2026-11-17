@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -168,7 +168,7 @@ void AggroAllPlayers(Creature* source)
                     source->SetInCombatWith(vehicle);
                     player->SetInCombatWith(source);
                     vehicle->SetInCombatWith(source);
-                    source->AddThreat(vehicle, 0.0f);
+                    source->GetThreatManager().AddThreat(vehicle, 0.0f);
                  }
             }
             else if (player->IsAlive())
@@ -177,7 +177,7 @@ void AggroAllPlayers(Creature* source)
                 source->SetReactState(REACT_AGGRESSIVE);
                 source->SetInCombatWith(player);
                 player->SetInCombatWith(source);
-                source->AddThreat(player, 0.0f);
+                source->GetThreatManager().AddThreat(player, 0.0f);
             }
         }
     }
@@ -235,14 +235,14 @@ class npc_faction_champion_toc5 : public CreatureScript
                     _events.RescheduleEvent(EVENT_CHARGE, 1);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.ScheduleEvent(EVENT_THRUST, urand(5000, 10000));
                 _events.ScheduleEvent(EVENT_CHARGE, urand(5000, 15000));
                 _events.ScheduleEvent(EVENT_SHIELD, 1);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (GetRangedTarget(0.0f , 200.0f, me))
                 {
@@ -277,14 +277,14 @@ class npc_faction_champion_toc5 : public CreatureScript
                             if (Unit* target = GetRangedTarget(8.0f, 25.0f, me))
                             {
                                 DoResetThreat();
-                                me->AddThreat(target, 100.0f);
+                                me->GetThreatManager().AddThreat(target, 100.0f);
                                 me->GetMotionMaster()->MoveChase(me->GetVictim());
                                 DoCast(target, SPELL_CHARGE);
                             }
                             else if (!GetRangedTarget(8.0f, 200.0f, me)) // all targets below 8 yd distance, try to get range
                             {
                                 float x, y, z;
-                                me->GetNearPoint(me, x, y, z, 1.0f, 12.0f, float(M_PI * 2 * rand_norm()));
+                                me->GetNearPoint(me, x, y, z, 12.0f, float(M_PI * 2 * rand_norm()));
                                 me->GetMotionMaster()->MovePoint(POINT_RANGE, x, y, z);
                             }
                             else if (me->GetVictim())
@@ -388,7 +388,7 @@ class boss_grand_champion_toc5 : public CreatureScript
                         _phase = 1;
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetWalk(false);
-                        if (Creature* announcer = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(DATA_ANNOUNCER) : 0))
+                        if (Creature* announcer = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetGuidData(DATA_ANNOUNCER) : ObjectGuid::Empty))
                             announcer->AI()->SetData(DATA_GRAND_CHAMPIONS_DEFEATED, announcer->AI()->GetData(DATA_GRAND_CHAMPIONS_DEFEATED) - 1);
                         CreatureAddon const* cainfo = me->GetCreatureAddon();
                         if (cainfo && cainfo->mount != 0)
@@ -465,7 +465,7 @@ class boss_grand_champion_toc5 : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat(me, 150.0f);
                 me->CallForHelp(20.0f);
@@ -521,12 +521,12 @@ class boss_grand_champion_toc5 : public CreatureScript
                             me->SetReactState(REACT_PASSIVE);
                             me->SetWalk(true);
                             SearchMount();
-                            if (Creature* announcer = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(DATA_ANNOUNCER) : 0))
+                            if (Creature* announcer = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetGuidData(DATA_ANNOUNCER) : ObjectGuid::Empty))
                                 announcer->AI()->SetData(DATA_GRAND_CHAMPIONS_DEFEATED, announcer->AI()->GetData(DATA_GRAND_CHAMPIONS_DEFEATED) + 1);
                             break;
                         case 3:
                             _phase = 4;
-                            me->MonsterYell("Excellent work!", LANG_UNIVERSAL, 0); // SAY_START_1
+                            me->Yell("Excellent work!", LANG_UNIVERSAL); // SAY_START_1
                             me->InterruptNonMeleeSpells(true);
                             me->RemoveAurasDueToSpell(SPELL_BLADESTORM);
                             DoCast(me, SPELL_KNEEL, true);
@@ -538,7 +538,7 @@ class boss_grand_champion_toc5 : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (_phase != 0 && GetRangedTarget(0.0f , 200.0f, me))
                 {
@@ -619,14 +619,14 @@ class boss_grand_champion_toc5 : public CreatureScript
                             if (Unit* target = GetRangedTarget(8.0f, 25.0f, me))
                             {
                                 DoResetThreat();
-                                me->AddThreat(target, 100.0f);
+                                me->GetThreatManager().AddThreat(target, 100.0f);
                                 me->GetMotionMaster()->MoveChase(me->GetVictim());
                                 DoCast(target, SPELL_CHARGE);
                             }
                             else if (!GetRangedTarget(8.0f, 200.0f, me)) // all targets below 8 yd distance, try to get range
                             {
                                 float x, y, z;
-                                me->GetNearPoint(me, x, y, z, 1.0f, 12.0f, float(M_PI*2*rand_norm()));
+                                me->GetNearPoint(me, x, y, z, 12.0f, float(M_PI*2*rand_norm()));
                                 me->GetMotionMaster()->MovePoint(POINT_RANGE, x, y, z);
                             }
                             else if (me->GetVictim())

@@ -100,7 +100,7 @@ class boss_garfrost : public CreatureScript
                 instance->SetBossState(DATA_GARFROST, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_PERMAFROST);
@@ -118,13 +118,13 @@ class boss_garfrost : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
-                if (Creature* tyrannus = me->GetCreature(*me, instance->GetData64(DATA_TYRANNUS)))
+                if (Creature* tyrannus = me->GetCreature(*me, instance->GetGuidData(DATA_TYRANNUS)))
                     tyrannus->AI()->Talk(SAY_TYRANNUS_DEATH);
 
                 instance->SetBossState(DATA_GARFROST, DONE);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
             {
                 if (events.IsInPhase(PHASE_ONE) && !HealthAbovePct(66))
                 {

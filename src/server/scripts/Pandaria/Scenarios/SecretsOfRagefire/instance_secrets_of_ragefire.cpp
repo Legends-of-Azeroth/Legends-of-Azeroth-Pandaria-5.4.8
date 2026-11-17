@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -33,30 +33,30 @@ class instance_secrets_of_ragefire : public InstanceMapScript
             EventMap events;
             uint32 m_auiEncounter[4];
             uint32 chapterOne, chapterTwo, chapterThree, chapterFour;
-            uint64 detonatorGUID;
-            uint64 voltGUID;
-            uint64 newtGUID;
-            uint64 tickerGUID;
-            uint64 gritGUID;
-            uint64 patchGUID;
-            uint64 xorenthGUID;
-            uint64 elagloGUID;
-            uint64 entranceDoorGUID;
-            uint64 teleporterGUID;
+            ObjectGuid detonatorGUID;
+            ObjectGuid voltGUID;
+            ObjectGuid newtGUID;
+            ObjectGuid tickerGUID;
+            ObjectGuid gritGUID;
+            ObjectGuid patchGUID;
+            ObjectGuid xorenthGUID;
+            ObjectGuid elagloGUID;
+            ObjectGuid entranceDoorGUID;
+            ObjectGuid teleporterGUID;
             uint32 investigateCount;
-            uint64 artifactsGUID;
-            uint64 cratesGUID;
-            uint64 eggsGUID;
-            uint64 playerGUID;
-            uint64 teleporterControllerGUID;
-            uint64 mantidBombGUID;
-            uint64 mantidTargetGUID;
+            ObjectGuid artifactsGUID;
+            ObjectGuid cratesGUID;
+            ObjectGuid eggsGUID;
+            ObjectGuid playerGUID;
+            ObjectGuid teleporterControllerGUID;
+            ObjectGuid mantidBombGUID;
+            ObjectGuid mantidTargetGUID;
             uint32 batteryCount;
             uint32 yolkCount;
             uint32 cannonBallsCount;
             uint32 ponnyCount;
-            std::vector<uint64> protoDrakeGUIDs;
-            std::vector<uint64> bombCatalystGUIDs;
+            std::vector<ObjectGuid> protoDrakeGUIDs;
+            std::vector<ObjectGuid> bombCatalystGUIDs;
 
             void Initialize() override
             {
@@ -66,28 +66,28 @@ class instance_secrets_of_ragefire : public InstanceMapScript
                 chapterTwo       = 0;
                 chapterThree     = 0;
                 chapterFour      = 0;
-                detonatorGUID    = 0;
-                voltGUID         = 0;
-                newtGUID         = 0;
-                tickerGUID       = 0;
-                gritGUID         = 0;
-                patchGUID        = 0;
-                xorenthGUID      = 0;
-                elagloGUID       = 0;
-                entranceDoorGUID = 0;
-                teleporterGUID   = 0;
+                detonatorGUID = ObjectGuid::Empty;
+                voltGUID = ObjectGuid::Empty;
+                newtGUID = ObjectGuid::Empty;
+                tickerGUID = ObjectGuid::Empty;
+                gritGUID = ObjectGuid::Empty;
+                patchGUID = ObjectGuid::Empty;
+                xorenthGUID = ObjectGuid::Empty;
+                elagloGUID = ObjectGuid::Empty;
+                entranceDoorGUID = ObjectGuid::Empty;
+                teleporterGUID = ObjectGuid::Empty;
                 investigateCount = 0;
-                artifactsGUID    = 0;
-                cratesGUID       = 0;
-                eggsGUID         = 0;
-                playerGUID       = 0;
+                artifactsGUID = ObjectGuid::Empty;
+                cratesGUID = ObjectGuid::Empty;
+                eggsGUID = ObjectGuid::Empty;
+                playerGUID = ObjectGuid::Empty;
                 batteryCount     = 0;
                 yolkCount        = 0;
                 cannonBallsCount = 0;
                 ponnyCount       = 0;
-                mantidBombGUID   = 0;
-                mantidTargetGUID = 0;
-                teleporterControllerGUID = 0;
+                mantidBombGUID = ObjectGuid::Empty;
+                mantidTargetGUID = ObjectGuid::Empty;
+                teleporterControllerGUID = ObjectGuid::Empty;
                 events.Reset();
                 protoDrakeGUIDs.clear();
                 bombCatalystGUIDs.clear();
@@ -198,13 +198,13 @@ class instance_secrets_of_ragefire : public InstanceMapScript
                             if (Player* player = itr.GetSource())
                                 sScenarioMgr->SendScenarioState(player, 1131, DATA_RECONNAISSANCE, 0);
 
-                        if (Creature* grit = instance->GetCreature(GetData64(NPC_GRIT)))
+                        if (Creature* grit = instance->GetCreature(GetGuidData(NPC_GRIT)))
                             grit->AI()->DoAction(ACTION_RECONNAISSANCE);
 
                         // Activate items for investigate
                         for (auto&& itr : investigatedItems)
                         {
-                            if (Creature* exploreItem = instance->GetCreature(GetData64(itr.first)))
+                            if (Creature* exploreItem = instance->GetCreature(GetGuidData(itr.first)))
                             {
                                 exploreItem->SetVisible(true);
                                 exploreItem->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
@@ -220,7 +220,7 @@ class instance_secrets_of_ragefire : public InstanceMapScript
                                 if (Player* player = itr.GetSource())
                                     sScenarioMgr->SendScenarioState(player, 1131, DATA_SEALED_GATE, 0);
 
-                            if (Creature* grit = instance->GetCreature(GetData64(NPC_GRIT)))
+                            if (Creature* grit = instance->GetCreature(GetGuidData(NPC_GRIT)))
                                 grit->AI()->DoAction(ACTION_SEALED_GATES);
                         }
                         break;
@@ -231,7 +231,7 @@ class instance_secrets_of_ragefire : public InstanceMapScript
                             if (Player* player = itr.GetSource())
                                 sScenarioMgr->SendScenarioState(player, 1131, DATA_HOLDOUT, 0);
 
-                        if (Creature* grit = instance->GetCreature(GetData64(NPC_GRIT)))
+                        if (Creature* grit = instance->GetCreature(GetGuidData(NPC_GRIT)))
                             grit->AI()->DoAction(ACTION_EXPLOSIVE_GATES);
                         break;
                     case DATA_HOLDOUT:
@@ -239,7 +239,7 @@ class instance_secrets_of_ragefire : public InstanceMapScript
 
                         SendScenarioProgressUpdate(CriteriaProgressData(CRITERIA_GOB_SQUAD_DEFENDED, 1, GetScenarioGUID(), time(NULL), 0, 0));
 
-                        if (Creature* grit = instance->GetCreature(GetData64(NPC_GRIT)))
+                        if (Creature* grit = instance->GetCreature(GetGuidData(NPC_GRIT)))
                             grit->AI()->DoAction(ACTION_GOB_SQUAD_DEFENDED);
 
                         DoFinishLFGDungeon(instance->GetDifficulty() == SCENARIO_DIFFICULTY_HEROIC ? 625 : 649);
@@ -247,7 +247,7 @@ class instance_secrets_of_ragefire : public InstanceMapScript
                         break;
                     case PROTDRAKES_DATA:
                         // Announce
-                        if (Creature* elagro = instance->GetCreature(GetData64(NPC_OVERSEER_ELAGLO)))
+                        if (Creature* elagro = instance->GetCreature(GetGuidData(NPC_OVERSEER_ELAGLO)))
                             elagro->AI()->Talk(TALK_INTRO);
 
                         for (auto&& itr : protoDrakeGUIDs)
@@ -313,7 +313,7 @@ class instance_secrets_of_ragefire : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -353,7 +353,7 @@ class instance_secrets_of_ragefire : public InstanceMapScript
                         return mantidTargetGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void Update(uint32 diff) override
@@ -364,7 +364,7 @@ class instance_secrets_of_ragefire : public InstanceMapScript
                 {
                     if (eventId == 1)
                     {
-                        if (Creature* grit = instance->GetCreature(GetData64(NPC_GRIT)))
+                        if (Creature* grit = instance->GetCreature(GetGuidData(NPC_GRIT)))
                             grit->AI()->DoAction(ACTION_START_INTRO);
                     }
                     break;

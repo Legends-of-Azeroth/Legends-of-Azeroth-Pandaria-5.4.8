@@ -159,7 +159,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                 ScriptedAI::MoveInLineOfSight(who);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }
@@ -270,12 +270,12 @@ class npc_fel_orc_convert : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_HEMORRHAGE, 3000);
 
                 if (instance)
-                    if (Creature* Kurse = Unit::GetCreature(*me, instance->GetData64(NPC_GRAND_WARLOCK_NETHEKURSE)))
+                    if (Creature* Kurse = Unit::GetCreature(*me, instance->GetGuidData(NPC_GRAND_WARLOCK_NETHEKURSE)))
                         Kurse->AI()->SetData(SETDATA_DATA, SETDATA_PEON_AGGRO);
             }
 
@@ -286,7 +286,7 @@ class npc_fel_orc_convert : public CreatureScript
                     if (instance->GetBossState(DATA_NETHEKURSE) != IN_PROGRESS)
                         return;
 
-                    if (Creature* Kurse = Unit::GetCreature(*me, instance->GetData64(NPC_GRAND_WARLOCK_NETHEKURSE)))
+                    if (Creature* Kurse = Unit::GetCreature(*me, instance->GetGuidData(NPC_GRAND_WARLOCK_NETHEKURSE)))
                         Kurse->AI()->SetData(SETDATA_DATA, SETDATA_PEON_DEATH);
                 }
             }
@@ -334,7 +334,7 @@ class npc_lesser_shadow_fissure : public CreatureScript
             void Reset() override { }
             void MoveInLineOfSight(Unit* /*who*/) override { }
             void AttackStart(Unit* /*who*/) override { }
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
         };
 
         CreatureAI* GetAI(Creature* creature) const override

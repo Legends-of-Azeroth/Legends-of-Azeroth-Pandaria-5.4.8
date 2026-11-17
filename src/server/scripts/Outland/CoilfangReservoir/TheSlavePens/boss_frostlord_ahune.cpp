@@ -155,21 +155,21 @@ class boss_frostlord_ahune : public CreatureScript
                     return;
 
                 _isStarted = false;
-                _starterGUID = 0;
+                _starterGUID = ObjectGuid::Empty;
                 _introDone = false;
                 _firstPhase = true;
                 _earthenRingAttacks = 0;
 
                 _totemCount = 0;
-                _totemAGUID = 0;
-                _totemBGUID = 0;
-                _totemCGUID = 0;
+                _totemAGUID = ObjectGuid::Empty;
+                _totemBGUID = ObjectGuid::Empty;
+                _totemCGUID = ObjectGuid::Empty;
                 _flamecallerCount = 0;
-                _flamecallerAGUID = 0;
-                _flamecallerBGUID = 0;
-                _flamecallerCGUID = 0;
+                _flamecallerAGUID = ObjectGuid::Empty;
+                _flamecallerBGUID = ObjectGuid::Empty;
+                _flamecallerCGUID = ObjectGuid::Empty;
 
-                _icyCoreGUID = 0;
+                _icyCoreGUID = ObjectGuid::Empty;
 
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
@@ -190,7 +190,7 @@ class boss_frostlord_ahune : public CreatureScript
                     spear->Delete();
             }
 
-            void SetGUID(uint64 guid, int32 type) override
+            void SetGUID(ObjectGuid guid, int32 type) override
             {
                 if (type == TYPE_STARTER_GUID)
                     _starterGUID = guid;
@@ -278,7 +278,7 @@ class boss_frostlord_ahune : public CreatureScript
 
                 if (summoned->GetEntry() == NPC_FROZEN_CORE)
                 {
-                    _icyCoreGUID = 0;
+                    _icyCoreGUID = ObjectGuid::Empty;
                     me->SetHealth(summoned->GetHealth());
                 }
             }
@@ -287,12 +287,12 @@ class boss_frostlord_ahune : public CreatureScript
             {
                 if (summoned->GetEntry() == NPC_FROZEN_CORE)
                 {
-                    _icyCoreGUID = 0;
+                    _icyCoreGUID = ObjectGuid::Empty;
                     me->DealDamage(me, me->GetHealth());
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 summons.DespawnAll();
                 ScriptedAI::EnterEvadeMode();
@@ -410,7 +410,7 @@ class boss_frostlord_ahune : public CreatureScript
                             events.ScheduleEvent(EVENT_ICE_CORE, 5 * IN_MILLISECONDS, 0, PHASE_CORE);
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                             me->RemoveAurasDueToSpell(SPELL_AHUNE_SHIELD);
-                            me->SummonCreature(NPC_FROZEN_CORE, *me, TEMPSUMMON_TIMED_DESPAWN, 40 * IN_MILLISECONDS);
+                            me->SummonCreature(NPC_FROZEN_CORE, *me, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(40 * IN_MILLISECONDS));
                             DoCast(SPELL_MAKE_BONFIRE);
                             DoCast(SPELL_SUBMERGE);
                             Talk(EMOTE_SUBMERGED);
@@ -454,13 +454,13 @@ class boss_frostlord_ahune : public CreatureScript
 
             }
 
-            void PlayerSay(uint64 playerGUID, uint8 sayText) // TODO: should be CHAT_MSG_SAY, not CHAT_MSG_ADDON
+            void PlayerSay(ObjectGuid playerGUID, uint8 sayText) // TODO: should be CHAT_MSG_SAY, not CHAT_MSG_ADDON
             {
                 if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                     sCreatureTextMgr->SendChat(me, sayText, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
             }
 
-            void EarthenAttack(uint64 totemGUID, uint64 flamecallerGUID)
+            void EarthenAttack(ObjectGuid totemGUID, ObjectGuid flamecallerGUID)
             {
                 if (Creature* flamecaller = ObjectAccessor::GetCreature(*me, flamecallerGUID))
                 {
@@ -475,21 +475,21 @@ class boss_frostlord_ahune : public CreatureScript
 
             private:
                 bool _isStarted;
-                uint64 _starterGUID;
+                ObjectGuid _starterGUID;
                 bool _introDone;
                 bool _firstPhase;
                 uint8 _earthenRingAttacks;
 
                 uint8 _totemCount;
-                uint64 _totemAGUID;
-                uint64 _totemBGUID;
-                uint64 _totemCGUID;
+                ObjectGuid _totemAGUID;
+                ObjectGuid _totemBGUID;
+                ObjectGuid _totemCGUID;
                 uint8 _flamecallerCount;
-                uint64 _flamecallerAGUID;
-                uint64 _flamecallerBGUID;
-                uint64 _flamecallerCGUID;
+                ObjectGuid _flamecallerAGUID;
+                ObjectGuid _flamecallerBGUID;
+                ObjectGuid _flamecallerCGUID;
 
-                uint64 _icyCoreGUID;
+                ObjectGuid _icyCoreGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const

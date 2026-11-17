@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -40,7 +40,6 @@ enum Spells
     SPELL_SUBMERGE          = 37550,
     SPELL_EMERGE            = 20568,
 
-
     // Ambusher spells
     SPELL_SPREAD_SHOT       = 37790,
     SPELL_SHOOT             = 37770,
@@ -49,13 +48,17 @@ enum Spells
     SPELL_HAMSTRING         = 26211
 };
 
+enum Misc
+{
+    EMOTE_SPOUT             = 0,     // "The Lurker Below takes a deep breath."
+    SPOUT_DIST              = 100
+};
+
 enum Creatures
 {
     NPC_COILFANG_GUARDIAN   = 21873,
     NPC_COILFANG_AMBUSHER   = 21865
 };
-
-#define EMOTE_SPOUT "The Lurker Below takes a deep breath."
 
 #define SPOUT_DIST  100
 
@@ -159,7 +162,7 @@ public:
             Summons.DespawnAll();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             if (instance)
                 instance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
@@ -221,7 +224,7 @@ public:
                 return;
             }
 
-            if (me->getThreatManager().getThreatList().empty()) // check if should evade
+            if (me->GetThreatManager().IsThreatListEmpty()) // check if should evade
             {
                 if (me->IsInCombat())
                     EnterEvadeMode();
@@ -239,7 +242,7 @@ public:
 
                 if (SpoutTimer <= diff)
                 {
-                    me->MonsterTextEmote(EMOTE_SPOUT, 0, true);
+                    Talk(EMOTE_SPOUT);
                     me->SetReactState(REACT_PASSIVE);
                     me->GetMotionMaster()->MoveRotate(20000, urand(0, 1) ? ROTATE_DIRECTION_LEFT : ROTATE_DIRECTION_RIGHT);
                     SpoutTimer = 45000;
@@ -342,7 +345,7 @@ public:
                     return;
                 } else PhaseTimer-=diff;
 
-                if (me->getThreatManager().getThreatList().empty()) // check if should evade
+                if (me->GetThreatManager().IsThreatListEmpty()) // check if should evade
                 {
                     EnterEvadeMode();
                     return;
@@ -356,7 +359,7 @@ public:
                     me->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     // spawn adds
                     for (uint8 i = 0; i < 9; ++i)
-                        if (Creature* summoned = me->SummonCreature(i < 6 ? NPC_COILFANG_AMBUSHER : NPC_COILFANG_GUARDIAN, AddPos[i][0], AddPos[i][1], AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                        if (Creature* summoned = me->SummonCreature(i < 6 ? NPC_COILFANG_AMBUSHER : NPC_COILFANG_GUARDIAN, AddPos[i][0], AddPos[i][1], AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms))
                             Summons.Summon(summoned);
                     Spawned = true;
                 }

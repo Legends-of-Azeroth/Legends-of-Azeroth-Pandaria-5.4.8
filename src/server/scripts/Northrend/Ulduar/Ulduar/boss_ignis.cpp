@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -130,7 +130,7 @@ class boss_ignis : public CreatureScript
                 {
                     slagPotTarget->ExitVehicle();
                     slagPotTarget->RemoveAurasDueToSpell(SPELL_SLAG_POT);
-                    _slagPotGUID = 0;
+                    _slagPotGUID = ObjectGuid::Empty;
                 }
 
                 ClearSummons(false);
@@ -159,9 +159,9 @@ class boss_ignis : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_FLAME_JETS, 30000);
                 events.ScheduleEvent(EVENT_SCORCH, 25000);
@@ -169,7 +169,7 @@ class boss_ignis : public CreatureScript
                 events.ScheduleEvent(EVENT_CONSTRUCT, 15000);
                 events.ScheduleEvent(EVENT_END_POT, 40000);
                 events.ScheduleEvent(EVENT_BERSERK, 480000);
-                _slagPotGUID = 0;
+                _slagPotGUID = ObjectGuid::Empty;
                 me->GetMap()->SetWorldState(WORLDSTATE_SHATTERED, 0);
                 _firstConstructKill = 0;
                 instance->DoStartCriteria(CRITERIA_START_TYPE_EVENT, ACHIEVEMENT_IGNIS_START_EVENT);
@@ -181,7 +181,7 @@ class boss_ignis : public CreatureScript
                 {
                     slagPotTarget->ExitVehicle();
                     slagPotTarget->RemoveAurasDueToSpell(SPELL_SLAG_POT);
-                    _slagPotGUID = 0;
+                    _slagPotGUID = ObjectGuid::Empty;
                 }
                 
                 ClearSummons(true);
@@ -266,7 +266,7 @@ class boss_ignis : public CreatureScript
                             {
                                 slagPotTarget->ExitVehicle();
                                 slagPotTarget = nullptr;
-                                _slagPotGUID = 0;
+                                _slagPotGUID = ObjectGuid::Empty;
                             }
                             break;
                         case EVENT_SCORCH:
@@ -280,9 +280,8 @@ class boss_ignis : public CreatureScript
                             break;
                         case EVENT_SCORCH_SPAWN:
                         {
-                            Position pos;
-                            me->GetFirstCollisionPosition(pos, me->GetObjectSize(), 0.0f);
-                            me->SummonCreature(NPC_GROUND_SCORCH, pos, TEMPSUMMON_TIMED_DESPAWN, 45000);
+                            Position pos = me->GetFirstCollisionPosition(me->GetObjectSize(), 0.0f);
+                            me->SummonCreature(NPC_GROUND_SCORCH, pos, TEMPSUMMON_TIMED_DESPAWN, 45000ms);
                             break;
                         }
                         case EVENT_SCORCH_END:
@@ -295,7 +294,7 @@ class boss_ignis : public CreatureScript
                             Talk(SAY_SUMMON);
                             if (!_creatureList.empty())
                             {
-                                std::list<uint64>::iterator itr = _creatureList.begin();
+                                std::list<ObjectGuid>::iterator itr = _creatureList.begin();
                                 std::advance(itr, urand(0, _creatureList.size() - 1));
                                 if (Creature* construct = Unit::GetCreature(*me, *itr))
                                 {
@@ -325,9 +324,9 @@ class boss_ignis : public CreatureScript
             }
 
         private:
-            uint64 _slagPotGUID;
+            ObjectGuid _slagPotGUID;
             time_t _firstConstructKill;
-            std::list<uint64> _creatureList;
+            std::list<ObjectGuid> _creatureList;
 
         };
 
@@ -361,7 +360,7 @@ class npc_iron_construct : public CreatureScript
                 if (me->HasAura(SPELL_BRITTLE) && damage >= needDamage)
                 {
                     DoCastAOE(SPELL_SHATTER, true);
-                    if (Creature* ignis = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_IGNIS)))
+                    if (Creature* ignis = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_IGNIS)))
                         if (ignis->AI())
                             ignis->AI()->DoAction(ACTION_REMOVE_BUFF);
 
@@ -431,7 +430,7 @@ class npc_scorch_ground : public CreatureScript
                 creature->SetDisplayId(16925); //model 2 in db cannot overwrite wdb fields
             }
 
-            void MoveInLineOfSight(Unit* unit)
+            void MoveInLineOfSight(Unit* unit) override
             {
                 if (!_heat)
                 {
@@ -450,7 +449,7 @@ class npc_scorch_ground : public CreatureScript
             {
                 _heat = false;
                 DoCast(me, SPELL_GROUND);
-                _constructGUID = 0;
+                _constructGUID = ObjectGuid::Empty;
                 _heatTimer = 0;
             }
 
@@ -473,7 +472,7 @@ class npc_scorch_ground : public CreatureScript
             }
 
         private:
-            uint64 _constructGUID;
+            ObjectGuid _constructGUID;
             uint32 _heatTimer;
             bool _heat;
         };
@@ -493,7 +492,7 @@ class spell_ignis_slag_pot : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ignis_slag_pot_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SLAG_POT_DAMAGE_N))
                     return false;

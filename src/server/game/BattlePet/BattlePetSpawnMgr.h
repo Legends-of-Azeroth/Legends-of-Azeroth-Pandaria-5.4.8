@@ -24,11 +24,11 @@
 #define BATTLE_PET_SPAWN_MGR_UPDATE 2000
 
 //          replacement  
-typedef std::map<uint64, BattlePet*> BattlePetInfoStore;
+typedef std::map<ObjectGuid, BattlePet*> BattlePetInfoStore;
 //             replaced  replacement
-typedef std::map<uint64, uint64> CreatureReplacedRelationStore;
+typedef std::map<ObjectGuid, ObjectGuid> CreatureReplacedRelationStore;
 //         toBeReplaced
-typedef std::set<uint64> ReadyReplacementStore;
+typedef std::set<ObjectGuid> ReadyReplacementStore;
 
 struct BattlePetSpawnTemplate
 {
@@ -51,15 +51,15 @@ class BattlePetSpawnZoneMgr
 public:
     void AddTemplate(BattlePetSpawnTemplate spawnTemplate) { m_spawnTemplates.push_back(spawnTemplate); }
 
-    void PopulateZone();
-    void DepopulateZone();
+    void PopulateZone(Map* map);
+    void DepopulateZone(Map* map);
 
     void OnAddToZone(Creature* creature);
     void OnRemoveFromZone(Creature* creature);
     void OnRespawn(Creature* creature, BattlePet* battlePet);
 
-    void SpawnCreature(uint64 guid, BattlePetSpawnTemplate* spawnTemplate);
-    void RemoveCreature(uint64 guid, BattlePetSpawnTemplate* spawnTemplate);
+    void SpawnCreature(Map* map, ObjectGuid guid, BattlePetSpawnTemplate* spawnTemplate);
+    void RemoveCreature(Map* map, ObjectGuid guid, BattlePetSpawnTemplate* spawnTemplate);
 
     WildBattlePetSpawnVec m_spawnTemplates;
 };

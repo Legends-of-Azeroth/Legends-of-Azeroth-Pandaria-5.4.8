@@ -65,7 +65,7 @@ class boss_high_botanist_freywinn : public CreatureScript
         {
             boss_high_botanist_freywinnAI(Creature* creature) : BossAI(creature, DATA_HIGH_BOTANIST_FREYWINN) { }
 
-            std::list<uint64> Adds_List;
+            std::list<ObjectGuid> Adds_List;
 
             uint32 SummonSeedling_Timer;
             uint32 TreeForm_Timer;
@@ -84,7 +84,7 @@ class boss_high_botanist_freywinn : public CreatureScript
                 MoveFree = true;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }
@@ -148,7 +148,7 @@ class boss_high_botanist_freywinn : public CreatureScript
                     {
                         if (!Adds_List.empty())
                         {
-                            for (std::list<uint64>::iterator itr = Adds_List.begin(); itr != Adds_List.end(); ++itr)
+                            for (std::list<ObjectGuid>::iterator itr = Adds_List.begin(); itr != Adds_List.end(); ++itr)
                             {
                                 if (Unit* temp = Unit::GetUnit(*me, *itr))
                                 {

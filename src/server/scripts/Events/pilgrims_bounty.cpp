@@ -79,7 +79,7 @@ class spell_gen_turkey_tracker : public SpellScript
 {
     PrepareSpellScript(spell_gen_turkey_tracker);
 
-    bool Validate(SpellInfo const* /*spellEntry*/)
+    bool Validate(SpellInfo const* /*spellEntry*/) override
     {
         if (!sSpellMgr->GetSpellInfo(SPELL_KILL_COUNTER_VISUAL))
             return false;
@@ -193,7 +193,7 @@ class spell_gen_well_fed_pilgrims_bounty : public SpellScriptLoader
             spell_gen_well_fed_pilgrims_bounty_SpellScript(uint32 triggeredSpellId1, uint32 triggeredSpellId2) : SpellScript(),
                 _triggeredSpellId1(triggeredSpellId1), _triggeredSpellId2(triggeredSpellId2) { }
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(_triggeredSpellId2))
                     return false;
@@ -285,7 +285,7 @@ class spell_gen_on_plate_pilgrims_bounty : public SpellScriptLoader
             spell_gen_on_plate_pilgrims_bounty_SpellScript(uint32 triggeredSpellId1, uint32 triggeredSpellId2) : SpellScript(),
                 _triggeredSpellId1(triggeredSpellId1), _triggeredSpellId2(triggeredSpellId2) { }
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(_triggeredSpellId1))
                     return false;
@@ -378,7 +378,7 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
         public:
             spell_pilgrims_bounty_buff_food_AuraScript(uint32 triggeredSpellId) : AuraScript(), _triggeredSpellId(triggeredSpellId) { }
 
-            bool Load()
+            bool Load() override
             {
                 _handled = false;
                 return true;

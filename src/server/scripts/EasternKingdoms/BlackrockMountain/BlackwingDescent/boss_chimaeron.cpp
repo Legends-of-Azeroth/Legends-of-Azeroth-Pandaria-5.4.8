@@ -126,7 +126,7 @@ class boss_chimaeron : public CreatureScript
                 _Reset();
 
                 instance->SetData(DATA_BILE_O_TRON_800, 0);
-                if (Creature* bileotron800 = Unit::GetCreature(*me, instance->GetData64(DATA_BILE_O_TRON_800)))
+                if (Creature* bileotron800 = Unit::GetCreature(*me, instance->GetGuidData(DATA_BILE_O_TRON_800)))
                     bileotron800->RemoveAurasDueToSpell(SPELL_FINKLES_MIXTURE);
                 massacrecount = 0;
                 stage = 0;
@@ -157,7 +157,7 @@ class boss_chimaeron : public CreatureScript
             void JustReachedHome() override
             {
                 _JustReachedHome();
-                if (Creature* pBileotron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BILE_O_TRON_800)))
+                if (Creature* pBileotron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BILE_O_TRON_800)))
                     pBileotron->AI()->DoAction(ACTION_BILE_O_TRON_RESET);
                 DoCast(SPELL_FAST_ASLEEP);
             }
@@ -169,7 +169,7 @@ class boss_chimaeron : public CreatureScript
                         me->GetMap()->SetWorldState(WORLDSTATE_FULL_OF_SOUND_AND_FURY, 0);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_BERSERK, 7.5 * MINUTE * IN_MILLISECONDS);
@@ -186,7 +186,7 @@ class boss_chimaeron : public CreatureScript
                 {
                     instance->SetData(DATA_BILE_O_TRON_800, 1);
 
-                    if (Creature* bileotron800 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BILE_O_TRON_800)))
+                    if (Creature* bileotron800 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BILE_O_TRON_800)))
                         bileotron800->AI()->DoCast(SPELL_FINKLES_MIXTURE);
 
                     instance->SetBossState(DATA_CHIMAERON, IN_PROGRESS);
@@ -212,7 +212,7 @@ class boss_chimaeron : public CreatureScript
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MORTALITY);
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BREAK);
 
-                    if (Creature* pBileotron800 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BILE_O_TRON_800)))
+                    if (Creature* pBileotron800 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BILE_O_TRON_800)))
                     {
                         pBileotron800->RemoveAurasDueToSpell(SPELL_FINKLES_MIXTURE);
                         pBileotron800->AI()->DoAction(ACTION_BILE_O_TRON_RESET);
@@ -307,7 +307,7 @@ class boss_chimaeron : public CreatureScript
                             bFeud = true;
                             Talk(SAY_OFFLINE);
                             instance->SetData(DATA_BILE_O_TRON_800, 0);
-                            if (Creature* pBileotron800 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BILE_O_TRON_800)))
+                            if (Creature* pBileotron800 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BILE_O_TRON_800)))
                                 pBileotron800->AI()->DoAction(ACTION_BILE_O_TRON_OFFLINE);
                             DoCast(me, SPELL_FEUD);
                             if (IsHeroic())
@@ -323,7 +323,7 @@ class boss_chimaeron : public CreatureScript
                             me->RemoveAurasDueToSpell(SPELL_FEUD);
                             massacrecount++;
                             Talk(SAY_ONLINE);
-                            if (Creature* pBileotron800 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BILE_O_TRON_800)))
+                            if (Creature* pBileotron800 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BILE_O_TRON_800)))
                                 pBileotron800->AI()->DoAction(ACTION_BILE_O_TRON_ONLINE);
                             if (!me->HealthBelowPct(20))
                             {
@@ -422,7 +422,7 @@ class npc_finkle_einhorn : public CreatureScript
                 case GOSSIP_ACTION_INFO_DEF+5:
                     player->SEND_GOSSIP_MENU(GOSSIP_MENU_6, creature->GetGUID());
                     instance->SetData(DATA_BILE_O_TRON_800, 1);
-                    if (Creature* pBileotron = ObjectAccessor::GetCreature(*creature, instance->GetData64(DATA_BILE_O_TRON_800)))
+                    if (Creature* pBileotron = ObjectAccessor::GetCreature(*creature, instance->GetGuidData(DATA_BILE_O_TRON_800)))
                         pBileotron->AI()->DoAction(ACTION_BILE_O_TRON_START);
                     break;
             }

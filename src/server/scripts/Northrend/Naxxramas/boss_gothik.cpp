@@ -172,8 +172,8 @@ class boss_gothik : public CreatureScript
             bool phaseTwo;
             bool thirtyPercentReached;
 
-            std::vector<uint64> LiveTriggerGUID;
-            std::vector<uint64> DeadTriggerGUID;
+            std::vector<ObjectGuid> LiveTriggerGUID;
+            std::vector<ObjectGuid> DeadTriggerGUID;
 
             void Reset() override
             {
@@ -189,7 +189,7 @@ class boss_gothik : public CreatureScript
                 thirtyPercentReached = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 for (uint32 i = 0; i < POS_LIVE; ++i)
                     if (Creature* trigger = DoSummon(WORLD_TRIGGER, PosSummonLive[i]))
@@ -205,7 +205,7 @@ class boss_gothik : public CreatureScript
                     return;
                 }
 
-                _EnterCombat();
+                _JustEngagedWith();
                 waveCount = 0;
                 events.ScheduleEvent(EVENT_SUMMON, 30000);
                 DoTeleportTo(PosPlatform);
@@ -480,10 +480,10 @@ class boss_gothik : public CreatureScript
                                 else
                                     DoTeleportTo(PosGroundLiveSide);
 
-                                me->getThreatManager().resetAggro(NotOnSameSide(me));
+                                me->GetThreatManager().ResetAllThreat();
                                 if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
                                 {
-                                    me->getThreatManager().addThreat(target, 100.0f);
+                                    me->GetThreatManager().AddThreat(target, 100.0f);
                                     AttackStart(target);
                                 }
 
@@ -542,7 +542,7 @@ class npc_gothik_minion : public CreatureScript
                         CombatAI::JustDied(owner);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (!gateClose)
                 {

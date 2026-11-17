@@ -75,9 +75,9 @@ class boss_magus_telestra : public CreatureScript
 
             InstanceScript* instance;
 
-            uint64 uiFireMagusGUID;
-            uint64 uiFrostMagusGUID;
-            uint64 uiArcaneMagusGUID;
+            ObjectGuid uiFireMagusGUID;
+            ObjectGuid uiFrostMagusGUID;
+            ObjectGuid uiArcaneMagusGUID;
 
             bool bFireMagusDead;
             bool bFrostMagusDead;
@@ -103,9 +103,9 @@ class boss_magus_telestra : public CreatureScript
                 uiGravityWellTimer = 15 * IN_MILLISECONDS;
                 uiCooldown = 0;
 
-                uiFireMagusGUID = 0;
-                uiFrostMagusGUID = 0;
-                uiArcaneMagusGUID = 0;
+                uiFireMagusGUID = ObjectGuid::Empty;
+                uiFrostMagusGUID = ObjectGuid::Empty;
+                uiArcaneMagusGUID = ObjectGuid::Empty;
 
                 bIsWaitingToAppear = false;
 
@@ -119,7 +119,7 @@ class boss_magus_telestra : public CreatureScript
                     instance->SetData(DATA_MAGUS_TELESTRA_EVENT, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
                 Talk(SAY_AGGRO);
@@ -166,9 +166,9 @@ class boss_magus_telestra : public CreatureScript
                 }
             }
 
-            uint64 SplitPersonality(uint32 entry)
+            ObjectGuid SplitPersonality(uint32 entry)
             {
-                if (Creature* Summoned = me->SummonCreature(entry, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1 * IN_MILLISECONDS))
+                if (Creature* Summoned = me->SummonCreature(entry, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, Milliseconds(1 * IN_MILLISECONDS)))
                 {
                     switch (entry)
                     {
@@ -190,7 +190,7 @@ class boss_magus_telestra : public CreatureScript
 
                     return Summoned->GetGUID();
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void SummonedCreatureDespawn(Creature* summon) override
@@ -249,9 +249,9 @@ class boss_magus_telestra : public CreatureScript
                             Phase = 2;
                         if (Phase == 3)
                             Phase = 4;
-                        uiFireMagusGUID = 0;
-                        uiFrostMagusGUID = 0;
-                        uiArcaneMagusGUID = 0;
+                        uiFireMagusGUID = ObjectGuid::Empty;
+                        uiFrostMagusGUID = ObjectGuid::Empty;
+                        uiArcaneMagusGUID = ObjectGuid::Empty;
                         bIsWaitingToAppear = true;
                         uiIsWaitingToAppearTimer = 4 * IN_MILLISECONDS;
                         Talk(SAY_MERGE);

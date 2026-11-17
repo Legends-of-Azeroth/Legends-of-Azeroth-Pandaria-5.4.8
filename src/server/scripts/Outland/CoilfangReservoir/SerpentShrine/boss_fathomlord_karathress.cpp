@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -72,7 +72,6 @@ enum FathomlordKarathress
     SPELL_CYCLONE_CYCLONE           = 29538,
 
     //Yells and Quotes
-    SOUND_GAIN_BLESSING_OF_TIDES    = 11278,
     SOUND_MISC                      = 11283,
 
     //Summoned Unit GUIDs
@@ -91,7 +90,6 @@ enum FathomlordKarathress
 #define OLUM_Z                     -7.54773f
 #define OLUM_O                     0.401581f
 
-#define SAY_GAIN_BLESSING_OF_TIDES      "Your overconfidence will be your undoing! Guards, lend me your strength!"
 #define SAY_MISC                        "Alana be'lendor!" //don't know what use this
 
 #define MAX_ADVISORS 3
@@ -111,9 +109,9 @@ public:
         boss_fathomlord_karathressAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            Advisors[0] = 0;
-            Advisors[1] = 0;
-            Advisors[2] = 0;
+            Advisors[0] = ObjectGuid::Empty;
+            Advisors[1] = ObjectGuid::Empty;
+            Advisors[2] = ObjectGuid::Empty;
         }
 
         InstanceScript* instance;
@@ -124,7 +122,7 @@ public:
 
         bool BlessingOfTides;
 
-        uint64 Advisors[MAX_ADVISORS];
+        ObjectGuid Advisors[MAX_ADVISORS];
 
         void Reset() override
         {
@@ -136,10 +134,10 @@ public:
 
             if (instance)
             {
-                uint64 RAdvisors[MAX_ADVISORS];
-                RAdvisors[0] = instance->GetData64(DATA_SHARKKIS);
-                RAdvisors[1] = instance->GetData64(DATA_TIDALVESS);
-                RAdvisors[2] = instance->GetData64(DATA_CARIBDIS);
+                ObjectGuid RAdvisors[MAX_ADVISORS];
+                RAdvisors[0] = instance->GetGuidData(DATA_SHARKKIS);
+                RAdvisors[1] = instance->GetGuidData(DATA_TIDALVESS);
+                RAdvisors[2] = instance->GetGuidData(DATA_CARIBDIS);
                 //Respawn of the 3 Advisors
                 Creature* pAdvisor = NULL;
                 for (int i=0; i<MAX_ADVISORS; ++i)
@@ -181,9 +179,9 @@ public:
             if (!instance)
                 return;
 
-            Advisors[0] = instance->GetData64(DATA_SHARKKIS);
-            Advisors[1] = instance->GetData64(DATA_TIDALVESS);
-            Advisors[2] = instance->GetData64(DATA_CARIBDIS);
+            Advisors[0] = instance->GetGuidData(DATA_SHARKKIS);
+            Advisors[1] = instance->GetGuidData(DATA_TIDALVESS);
+            Advisors[2] = instance->GetGuidData(DATA_CARIBDIS);
         }
 
         void StartEvent(Unit* who)
@@ -213,10 +211,10 @@ public:
                 instance->SetData(DATA_FATHOMLORDKARATHRESSEVENT, DONE);
 
             //support for quest 10944
-            me->SummonCreature(SEER_OLUM, OLUM_X, OLUM_Y, OLUM_Z, OLUM_O, TEMPSUMMON_TIMED_DESPAWN, 3600000);
+            me->SummonCreature(SEER_OLUM, OLUM_X, OLUM_Y, OLUM_Z, OLUM_O, TEMPSUMMON_TIMED_DESPAWN, 3600000ms);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             StartEvent(who);
         }
@@ -226,7 +224,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->IsInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
             {
-                if (Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER)))
+                if (Unit* target = Unit::GetUnit(*me, instance->GetGuidData(DATA_KARATHRESSEVENT_STARTER)))
                 {
                     AttackStart(target);
                     GetAdvisors();
@@ -292,8 +290,7 @@ public:
                 if (continueTriggering)
                 {
                     DoCast(me, SPELL_BLESSING_OF_THE_TIDES);
-                    me->MonsterYell(SAY_GAIN_BLESSING_OF_TIDES, LANG_UNIVERSAL, 0);
-                    DoPlaySoundToSet(me, SOUND_GAIN_BLESSING_OF_TIDES);
+                    Talk(SAY_GAIN_BLESSING);
                 }
             }
 
@@ -330,7 +327,7 @@ public:
 
         bool pet;
 
-        uint64 SummonedPet;
+        ObjectGuid SummonedPet;
 
         void Reset() override
         {
@@ -347,7 +344,7 @@ public:
                 Pet->DealDamage(Pet, Pet->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             }
 
-            SummonedPet = 0;
+            SummonedPet = ObjectGuid::Empty;
 
             if (instance)
                 instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
@@ -357,12 +354,12 @@ public:
         {
             if (instance)
             {
-                if (Creature* Karathress = (Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS))))
+                if (Creature* Karathress = (Unit::GetCreature((*me), instance->GetGuidData(DATA_KARATHRESS))))
                     CAST_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventSharkkisDeath();
             }
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (instance)
             {
@@ -376,7 +373,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->IsInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
             {
-                if (Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER)))
+                if (Unit* target = Unit::GetUnit(*me, instance->GetGuidData(DATA_KARATHRESSEVENT_STARTER)))
                     AttackStart(target);
             }
 
@@ -436,7 +433,7 @@ public:
                 //DoCast(me, spell_id, true);
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    if (Creature* Pet = DoSpawnCreature(pet_id, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
+                    if (Creature* Pet = DoSpawnCreature(pet_id, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000ms))
                     {
                         Pet->AI()->AttackStart(target);
                         SummonedPet = Pet->GetGUID();
@@ -490,12 +487,12 @@ public:
         {
             if (instance)
             {
-                if (Creature* Karathress = Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS)))
+                if (Creature* Karathress = Unit::GetCreature((*me), instance->GetGuidData(DATA_KARATHRESS)))
                     CAST_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventTidalvessDeath();
             }
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (instance)
             {
@@ -510,7 +507,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->IsInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
             {
-                if (Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER)))
+                if (Unit* target = Unit::GetUnit(*me, instance->GetGuidData(DATA_KARATHRESSEVENT_STARTER)))
                     AttackStart(target);
             }
 
@@ -541,7 +538,7 @@ public:
             if (Spitfire_Timer <= diff)
             {
                 DoCast(me, SPELL_SPITFIRE_TOTEM);
-                if (Unit* SpitfireTotem = Unit::GetUnit(*me, CREATURE_SPITFIRE_TOTEM))
+                if (Unit* SpitfireTotem = Unit::GetUnit(*me, ObjectGuid(uint64(CREATURE_SPITFIRE_TOTEM))))
                     SpitfireTotem->ToCreature()->AI()->AttackStart(me->GetVictim());
 
                 Spitfire_Timer = 60000;
@@ -613,12 +610,12 @@ public:
         {
             if (instance)
             {
-                if (Creature* Karathress = Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS)))
+                if (Creature* Karathress = Unit::GetCreature((*me), instance->GetGuidData(DATA_KARATHRESS)))
                     CAST_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventCaribdisDeath();
             }
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (instance)
             {
@@ -632,7 +629,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->IsInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
             {
-                if (Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER)))
+                if (Unit* target = Unit::GetUnit(*me, instance->GetGuidData(DATA_KARATHRESSEVENT_STARTER)))
                     AttackStart(target);
             }
 
@@ -670,7 +667,7 @@ public:
                 //DoCast(me, SPELL_SUMMON_CYCLONE); // Doesn't work
                 Cyclone_Timer = 30000+rand()%10000;
 
-                if (Creature* Cyclone = me->SummonCreature(CREATURE_CYCLONE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand()%5), TEMPSUMMON_TIMED_DESPAWN, 15000))
+                if (Creature* Cyclone = me->SummonCreature(CREATURE_CYCLONE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand()%5), TEMPSUMMON_TIMED_DESPAWN, 15000ms))
                 {
                     Cyclone->SetObjectScale(3.0f);
                     Cyclone->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -710,13 +707,13 @@ public:
                 switch (rand()%4)
                 {
                 case 0:
-                    unit = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESS));
+                    unit = Unit::GetUnit(*me, instance->GetGuidData(DATA_KARATHRESS));
                     break;
                 case 1:
-                    unit = Unit::GetUnit(*me, instance->GetData64(DATA_SHARKKIS));
+                    unit = Unit::GetUnit(*me, instance->GetGuidData(DATA_SHARKKIS));
                     break;
                 case 2:
-                    unit = Unit::GetUnit(*me, instance->GetData64(DATA_TIDALVESS));
+                    unit = Unit::GetUnit(*me, instance->GetGuidData(DATA_TIDALVESS));
                     break;
                 case 3:
                     unit = me;

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -300,9 +300,9 @@ class boss_jikun : public CreatureScript
                 return 0;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                 {
@@ -330,7 +330,7 @@ class boss_jikun : public CreatureScript
                 additionalEvents.ScheduleEvent(EVENT_DROP_GOLDEN_EGG, 20 * IN_MILLISECONDS);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (instance)
                 {
@@ -394,7 +394,7 @@ class boss_jikun : public CreatureScript
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEED_POOL_EFF);
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENTLE_YET_FIRM);
 
-                    if (Creature* chamberExit = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_EXIT_CHAMBER)))
+                    if (Creature* chamberExit = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_EXIT_CHAMBER)))
                         chamberExit->CastSpell(chamberExit, SPELL_EXIT_CHAMBER_AT, true);
 
                     // Save in data cuz setBossState not possible check hanlde after crash. Need for activate feathers and portal
@@ -555,7 +555,7 @@ struct npc_jikun_incubator : public ScriptedAI
 
     void IsSummonedBy(Unit* summoner) override
     {
-        if (Creature* jiKun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_JI_KUN) : 0))
+        if (Creature* jiKun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_JI_KUN) : ObjectGuid::Empty))
             jiKun->AI()->JustSummoned(me);
 
         me->SetDisableGravity(true);
@@ -590,7 +590,7 @@ struct npc_young_hatchling_jikun : public ScriptedAI
     {
         instance = me->GetInstanceScript();
 
-        if (Creature* jiKun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_JI_KUN) : 0))
+        if (Creature* jiKun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_JI_KUN) : ObjectGuid::Empty))
             jiKun->AI()->JustSummoned(me);
 
         me->setRegeneratingHealth(false);
@@ -637,7 +637,7 @@ struct npc_young_hatchling_jikun : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_CHEEP, urand(2.5 * IN_MILLISECONDS, 8 * IN_MILLISECONDS));
     }
@@ -706,7 +706,7 @@ struct npc_juvenile : public ScriptedAI
 
     void IsSummonedBy(Unit* summoner) override
     {
-        if (Creature* jiKun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_JI_KUN) : 0))
+        if (Creature* jiKun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_JI_KUN) : ObjectGuid::Empty))
             jiKun->AI()->JustSummoned(me);
 
         me->SetInCombatWithZone();
@@ -774,7 +774,7 @@ struct npc_egg_of_jikun : public ScriptedAI
 
     void IsSummonedBy(Unit* summoner) override
     {
-        if (Creature* jiKun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_JI_KUN) : 0))
+        if (Creature* jiKun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_JI_KUN) : ObjectGuid::Empty))
             jiKun->AI()->JustSummoned(me);
 
         if (me->GetEntry() == NPC_FLEDGLING_EGG_JIKUN)
@@ -840,12 +840,12 @@ struct npc_fall_catcher_jikun : public ScriptedAI
     npc_fall_catcher_jikun(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 summonerGUID;
+    ObjectGuid summonerGUID;
     float x, y;
 
     void IsSummonedBy(Unit* summoner) override
     {
-        me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+        me->SetDisplayFromModel(1);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         summonerGUID = summoner->GetGUID();
         x = 0.0f; y = 0.0f;
@@ -862,7 +862,7 @@ struct npc_fall_catcher_jikun : public ScriptedAI
             {
                 passenger->ExitVehicle();
                 
-                if (Creature* jikun = ObjectAccessor::GetCreature(*me, passenger->GetInstanceScript() ? passenger->GetInstanceScript()->GetData64(DATA_JI_KUN) : 0))
+                if (Creature* jikun = ObjectAccessor::GetCreature(*me, passenger->GetInstanceScript() ? passenger->GetInstanceScript()->GetGuidData(DATA_JI_KUN) : ObjectGuid::Empty))
                 {
                     GetPositionWithDistInOrientation(jikun, 38.0f, jikun->GetAngle(passenger), x, y);
                     passenger->CastSpell(x, y, jikunJumpPos.GetPositionZ(), SPELL_JUMP_TO_PLATFORM, true);
@@ -886,14 +886,14 @@ struct npc_jikun_feed : public ScriptedAI
 
     TaskScheduler scheduler;
     EventMap nonCombatEvents;
-    std::vector<uint64> slimedGUIDs;
+    std::vector<ObjectGuid> slimedGUIDs;
 
     void IsSummonedBy(Unit* summoner) override
     {
         slimedGUIDs.clear();
-        me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+        me->SetDisplayFromModel(1);
 
-        if (Creature* jiKun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_JI_KUN) : 0))
+        if (Creature* jiKun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_JI_KUN) : ObjectGuid::Empty))
             jiKun->AI()->JustSummoned(me);
 
         scheduler
@@ -971,7 +971,7 @@ struct npc_pool_of_feed_effect : public ScriptedAI
 
     void IsSummonedBy(Unit* summoner) override
     {
-        if (Creature* jiKun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_JI_KUN) : 0))
+        if (Creature* jiKun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_JI_KUN) : ObjectGuid::Empty))
             jiKun->AI()->JustSummoned(me);
 
         DoCast(me, SPELL_FEED_POOL_VISUAL, true);
@@ -1011,7 +1011,7 @@ struct npc_pool_of_feed_hatchling_effect : public ScriptedAI
 
     void IsSummonedBy(Unit* summoner) override
     {
-        if (Creature* jiKun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_JI_KUN) : 0))
+        if (Creature* jiKun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_JI_KUN) : ObjectGuid::Empty))
             jiKun->AI()->JustSummoned(me);
 
         DoCast(me, SPELL_FEED_POOL_VISUAL_HATCHLING, true);
@@ -1046,14 +1046,14 @@ struct npc_nest_guardian : public ScriptedAI
     EventMap events;
     TaskScheduler scheduler;
     InstanceScript* instance;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
 
     void IsSummonedBy(Unit* summoner) override
     {
-        targetGUID = 0;
+        targetGUID = ObjectGuid::Empty;
         instance = me->GetInstanceScript();
 
-        if (Creature* jiKun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_JI_KUN) : 0))
+        if (Creature* jiKun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_JI_KUN) : ObjectGuid::Empty))
             jiKun->AI()->JustSummoned(me);
 
         me->setRegeneratingHealth(false);
@@ -1071,12 +1071,12 @@ struct npc_nest_guardian : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_TALON_RAKE, urand(2.5 * IN_MILLISECONDS, 8 * IN_MILLISECONDS));
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         // Periodic AOE at evade
         scheduler
@@ -1468,9 +1468,9 @@ class spell_regurgitate : public SpellScript
                 // Not Used Feed
                 for (uint8 i = 0; i < 3; ++i)
                 {
-                    if (Creature* unusedFeed = caster->SummonCreature(NPC_FEED_POOL, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ() + 6.0f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 12000))
+                    if (Creature* unusedFeed = caster->SummonCreature(NPC_FEED_POOL, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ() + 6.0f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 12000ms))
                     {
-                        unusedFeed->GetRandomPoint(jiKunCenter, 40.0f, relocateFeed);
+                        relocateFeed = unusedFeed->GetRandomPoint(jiKunCenter, 40.0f);
                         unusedFeed->GetMotionMaster()->MoveJump(relocateFeed.GetPositionX(), relocateFeed.GetPositionY(), 6.0f, 35.0f, 20.0f, POINT_GREEN_FEED_AIR/*, 10.0f*/);
                     }
                 }
@@ -1491,9 +1491,9 @@ class spell_regurgitate : public SpellScript
                     // Feed for hatchlings
                     for (uint32 i = 0; i < 3; i++)
                     {
-                        if (Creature* Feed = caster->SummonCreature(NPC_FEED_HATCHLINGS, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ() + 6.0f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 12000))
+                        if (Creature* Feed = caster->SummonCreature(NPC_FEED_HATCHLINGS, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ() + 6.0f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 12000ms))
                         {
-                            Feed->GetRandomPoint(nestPos[nestEntry - 1], 5.5f, relocateFeed);
+                            relocateFeed = Feed->GetRandomPoint(nestPos[nestEntry - 1], 5.5f);
                             Feed->GetMotionMaster()->MoveJump(relocateFeed.GetPositionX(), relocateFeed.GetPositionY(), relocateFeed.GetPositionZ() + 1.0f, 15.0f, 50.0f, POINT_FEED_CAME_TO_HATCHLING/*, 10.0f*/);
                         }
                     }
@@ -1502,9 +1502,9 @@ class spell_regurgitate : public SpellScript
                 {
                     for (uint8 i = 0; i < 3; ++i)
                     {
-                        if (Creature* unusedFeed = caster->SummonCreature(NPC_FEED_POOL, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ() + 6.0f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 12000))
+                        if (Creature* unusedFeed = caster->SummonCreature(NPC_FEED_POOL, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ() + 6.0f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 12000ms))
                         {
-                            unusedFeed->GetRandomPoint(jiKunCenter, 40.0f, relocateFeed);
+                            relocateFeed = unusedFeed->GetRandomPoint(jiKunCenter, 40.0f);
                             unusedFeed->GetMotionMaster()->MoveJump(relocateFeed.GetPositionX(), relocateFeed.GetPositionY(), 6.0f, 35.0f, 20.0f, POINT_GREEN_FEED_AIR/*, 10.0f*/);
                         }
                     }
@@ -1600,7 +1600,7 @@ class spell_jikun_gentle_yet_firm : public AuraScript
     {
         if (Player* owner = GetOwner()->ToPlayer())
         {
-            if (Creature* jikun = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetData64(DATA_JI_KUN) : 0))
+            if (Creature* jikun = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetGuidData(DATA_JI_KUN) : ObjectGuid::Empty))
                 jikun->AI()->SetData(TYPE_SOFT_HANDS, 1);
 
             // Remove Daedalian Wings from catcher
@@ -1611,7 +1611,7 @@ class spell_jikun_gentle_yet_firm : public AuraScript
     void OnRemove(AuraEffect const*  /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Player* owner = GetOwner()->ToPlayer())
-            if (Creature* jikun = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetData64(DATA_JI_KUN) : 0))
+            if (Creature* jikun = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetGuidData(DATA_JI_KUN) : ObjectGuid::Empty))
                 jikun->AI()->SetData(TYPE_SOFT_HANDS, 0);
     }
 

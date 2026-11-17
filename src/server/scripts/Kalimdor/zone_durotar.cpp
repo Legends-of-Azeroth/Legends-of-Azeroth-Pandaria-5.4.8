@@ -187,25 +187,25 @@ class npc_lazy_peon : public CreatureScript
         {
             npc_lazy_peonAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 PlayerGUID;
+            ObjectGuid PlayerGUID;
 
             uint32 RebuffTimer;
             bool work;
 
             void Reset() override
             {
-                PlayerGUID = 0;
+                PlayerGUID = ObjectGuid::Empty;
                 RebuffTimer = 0;
                 work = false;
             }
 
-            void MovementInform(uint32 /*type*/, uint32 id)
+            void MovementInform(uint32 /*type*/, uint32 id) override
             {
                 if (id == 1)
                     work = true;
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell)
+            void SpellHit(Unit* caster, const SpellInfo* spell) override
             {
                 if (spell->Id != SPELL_AWAKEN_PEON)
                     return;
@@ -264,7 +264,7 @@ class npc_garrosh_hellscream_warchief : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_WHIRLWIND, 25 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_CHARGE_B, urand(1 * IN_MILLISECONDS, 5 * IN_MILLISECONDS));
@@ -340,9 +340,9 @@ class npc_garrosh_horde_way_quest : public CreatureScript
         {
             npc_garrosh_horde_way_questAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 summonerGUID;
+            ObjectGuid summonerGUID;
             uint32 delay, slainCount;
-            std::vector<uint64> challengerGUIDs;
+            std::vector<ObjectGuid> challengerGUIDs;
 
             void IsSummonedBy(Unit* summoner) override
             {
@@ -557,7 +557,7 @@ class npc_ji_firepaw_horde_way_quest : public CreatureScript
         {
             npc_ji_firepaw_horde_way_questAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 summonerGUID;
+            ObjectGuid summonerGUID;
             uint32 delay;
             bool allowFollow;
 
@@ -587,7 +587,7 @@ class npc_ji_firepaw_horde_way_quest : public CreatureScript
                 });
             }
 
-            void EnterEvadeMode() override 
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override 
             {
                 me->HandleEmoteStateCommand(EMOTE_STATE_NONE);
                 Talk(SAY_SPECIAL_2);
@@ -622,7 +622,7 @@ struct npc_trial_challengers : public ScriptedAI
 {
     npc_trial_challengers(Creature* creature) : ScriptedAI(creature) { }
 
-    uint64 ownerGUID;
+    ObjectGuid ownerGUID;
     uint32 delay;
     float x, y;
 
@@ -790,7 +790,7 @@ struct npc_captive_pitescale_scout : public ScriptedAI
 {
     npc_captive_pitescale_scout(Creature* creature) : ScriptedAI(creature) { }
 
-    void JustRespawned() override
+    void JustAppeared() override
     {
         if (GameObject* caje = me->FindNearestGameObject(201968, 30.0f))
             caje->ResetDoorOrButton();

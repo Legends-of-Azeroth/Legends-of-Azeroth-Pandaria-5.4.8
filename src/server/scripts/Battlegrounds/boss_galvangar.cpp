@@ -54,7 +54,7 @@ struct boss_galvangar : public ScriptedAI
         _events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(YELL_AGGRO);
         _events.ScheduleEvent(EVENT_CAST_SPELL_CLEAVE, randtime(1s, 9s));
@@ -66,7 +66,7 @@ struct boss_galvangar : public ScriptedAI
         _events.ScheduleEvent(EVENT_GALVANGAR_RESET, 5s);
     }
 
-    void JustRespawned() override
+    void JustAppeared() override
     {
         Reset();
     }

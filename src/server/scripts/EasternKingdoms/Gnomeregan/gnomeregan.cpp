@@ -93,8 +93,8 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
             player->PlayerTalkClass->ClearMenus();
             if (action == GOSSIP_ACTION_INFO_DEF+1)
             {
-                if (npc_escortAI* pEscortAI = CAST_AI(npc_blastmaster_emi_shortfuse::npc_blastmaster_emi_shortfuseAI, creature->AI()))
-                    pEscortAI->Start(true, false, player->GetGUID());
+                if (EscortAI* pEscortAI = CAST_AI(npc_blastmaster_emi_shortfuse::npc_blastmaster_emi_shortfuseAI, creature->AI()))
+                    pEscortAI->Start(true, player->GetGUID());
 
                 creature->SetFaction(player->GetFaction());
                 creature->AI()->SetData(1, 0);
@@ -116,9 +116,9 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
             return true;
         }
 
-        struct npc_blastmaster_emi_shortfuseAI : public npc_escortAI
+        struct npc_blastmaster_emi_shortfuseAI : public EscortAI
         {
-            npc_blastmaster_emi_shortfuseAI(Creature* creature) : npc_escortAI(creature)
+            npc_blastmaster_emi_shortfuseAI(Creature* creature) : EscortAI(creature)
             {
                 instance = creature->GetInstanceScript();
                 creature->RestoreFaction();
@@ -130,8 +130,8 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
             uint8 uiPhase;
             uint32 uiTimer;
 
-            std::list<uint64> SummonList;
-            std::list<uint64> GoSummonList;
+            std::list<ObjectGuid> SummonList;
+            std::list<ObjectGuid> GoSummonList;
 
             void Reset() override
             {
@@ -161,7 +161,7 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
                 if (GoSummonList.empty())
                     return;
 
-                for (std::list<uint64>::const_iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
+                for (std::list<ObjectGuid>::const_iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
                 {
                    if (GameObject* go = GameObject::GetGameObject(*me, *itr))
                    {
@@ -182,12 +182,12 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
                if (bBool)
                {
                     if (instance)
-                        if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
-                            instance->HandleGameObject(0, false, go);
+                        if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_RIGHT)))
+                            instance->HandleGameObject(ObjectGuid::Empty, false, go);
                }else
                     if (instance)
-                        if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_LEFT)))
-                            instance->HandleGameObject(0, false, go);
+                        if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_LEFT)))
+                            instance->HandleGameObject(ObjectGuid::Empty, false, go);
             }
 
             void SetInFace(bool bBool)
@@ -197,10 +197,10 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
 
                 if (bBool)
                 {
-                    if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
+                    if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_RIGHT)))
                         me->SetFacingToObject(go);
                 }else
-                    if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_LEFT)))
+                    if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_LEFT)))
                         me->SetFacingToObject(go);
             }
 
@@ -209,21 +209,21 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
                 if (!instance)
                     return;
 
-                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
-                    instance->HandleGameObject(0, false, go);
+                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_RIGHT)))
+                    instance->HandleGameObject(ObjectGuid::Empty, false, go);
 
-                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_LEFT)))
-                    instance->HandleGameObject(0, false, go);
+                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_LEFT)))
+                    instance->HandleGameObject(ObjectGuid::Empty, false, go);
 
                 if (!GoSummonList.empty())
-                    for (std::list<uint64>::const_iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
+                    for (std::list<ObjectGuid>::const_iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
                     {
                         if (GameObject* go = GameObject::GetGameObject(*me, *itr))
                             go->RemoveFromWorld();
                     }
 
                 if (!SummonList.empty())
-                    for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
+                    for (std::list<ObjectGuid>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                     {
                         if (Creature* summon = Unit::GetCreature(*me, *itr))
                         {
@@ -253,13 +253,13 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
                         {
                             temp->SetInCombatWith(player);
                             player->SetInCombatWith(temp);
-                            temp->AddThreat(player, 0.0f);
+                            temp->GetThreatManager().AddThreat(player, 0.0f);
                         }
                     }
                 }
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
                 //just in case
                 if (GetPlayerForEscort())
@@ -335,16 +335,16 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
                 switch (uiCase)
                 {
                     case 1:
-                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[4], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[5], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[6], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[7], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[8], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[9], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms);
+                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms);
+                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms);
+                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms);
+                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[4], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms);
+                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[5], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms);
+                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[6], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms);
+                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[7], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms);
+                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[8], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms);
+                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[9], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms);
                         break;
                     case 2:
                         if (GameObject* go = me->SummonGameObject(183410, -533.140f, -105.322f, -156.016f, 0, { }, 1000))
@@ -355,10 +355,10 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
                         Summon(3);
                         break;
                     case 3:
-                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms);
+                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms);
+                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms);
+                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms);
                         Talk(SAY_BLASTMASTER_7);
                         break;
                     case 4:
@@ -369,11 +369,11 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
                         }
                         break;
                     case 5:
-                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[10], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[11], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[12], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[13], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[14], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[10], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms);
+                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[11], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms);
+                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[12], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms);
+                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[13], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms);
+                        me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[14], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms);
                         break;
                     case 6:
                         if (GameObject* go = me->SummonGameObject(183410, -507.820f, -103.333f, -151.353f, 0, { }, 1000))
@@ -391,9 +391,9 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
                         }
                         break;
                     case 8:
-                        if (Creature* grubbis = me->SummonCreature(NPC_GRUBBIS, SpawnPosition[15], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000))
+                        if (Creature* grubbis = me->SummonCreature(NPC_GRUBBIS, SpawnPosition[15], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms))
                             grubbis->AI()->Talk(SAY_GRUBBIS);
-                        me->SummonCreature(NPC_CHOMPER, SpawnPosition[16], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                        me->SummonCreature(NPC_CHOMPER, SpawnPosition[16], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000ms);
                         break;
                     case 9:
                         me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[17].GetPositionX(), SpawnPosition[17].GetPositionY(), SpawnPosition[17].GetPositionZ(), SpawnPosition[17].GetOrientation(), { }, 7200);
@@ -437,8 +437,8 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
                                 Talk(SAY_BLASTMASTER_5);
                                 Summon(1);
                                 if (instance)
-                                    if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
-                                        instance->HandleGameObject(0, true, go);
+                                    if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_RIGHT)))
+                                        instance->HandleGameObject(ObjectGuid::Empty, true, go);
                                 NextStep(3000, true);
                                 break;
                             case 7:
@@ -484,8 +484,8 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
                                 Talk(SAY_BLASTMASTER_14);
                                 SetInFace(false);
                                 if (instance)
-                                    if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_LEFT)))
-                                        instance->HandleGameObject(0, true, go);
+                                    if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_LEFT)))
+                                        instance->HandleGameObject(ObjectGuid::Empty, true, go);
                                 NextStep(2000, true);
                                 break;
                             case 17:
@@ -586,7 +586,7 @@ class boss_grubbis : public CreatureScript
                         creature->AI()->SetData(2, 1);
             }
 
-            void EnterCombat(Unit* /*who*/) override 
+            void JustEngagedWith(Unit* /*who*/) override 
             {
                 events.ScheduleEvent(EVENT_STRIKE, urand(7 * IN_MILLISECONDS, 11 * IN_MILLISECONDS));
             }

@@ -62,7 +62,7 @@ public:
             {
                 player->AddDonateTokenCount(Coins);
                 player->DestroyItemCount(item->GetEntry(), 1, true);
-                ChatHandler(player->GetSession()).PSendSysMessage(player->GetSession()->GetTrinityString(BATTLEPAY_TOKEN_TRINITYSTRING_SUCCESS),Coins/10000);
+                ChatHandler(player->GetSession()).PSendSysMessage(player->GetSession()->GetTrinityString(BATTLEPAY_TOKEN_TRINITYSTRING_SUCCESS), Coins/10000);
                 player->SaveToDB();
             }
             else

@@ -189,7 +189,7 @@ class npc_neptulon : public CreatureScript
                 summons.DespawnAll();
                 me->SetHealth(me->GetMaxHealth());
                 DoCastAOE(SPELL_CLEAR_TIDAL_SURGE, true);
-                if (Creature* ozumat = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_OZUMAT)))
+                if (Creature* ozumat = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_OZUMAT)))
                     ozumat->AI()->DoAction(ACTION_OZUMAT_RESET);
                 if (instance)
                     if (instance->GetBossState(DATA_OZUMAT) != DONE)
@@ -239,7 +239,7 @@ class npc_neptulon : public CreatureScript
                         events.ScheduleEvent(EVENT_SUMMON_SAPPER, 8000);
                         events.ScheduleEvent(EVENT_SUMMON_BEAST, 14000);
                         events.ScheduleEvent(EVENT_BLIGHT_OF_OZUMAT, urand(9000, 11000));
-                        if (Creature* ozumat = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_OZUMAT)))
+                        if (Creature* ozumat = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_OZUMAT)))
                             ozumat->AI()->DoAction(ACTION_OZUMAT_APPEAR);
                     }
                     else
@@ -257,7 +257,7 @@ class npc_neptulon : public CreatureScript
                         events.ScheduleEvent(EVENT_PLAYER_CHECK, 1000);
                         DoCastAOE(SPELL_BLIGHT_OF_OZUMAT_SUMMON_2, true);
                         DoCastAOE(SPELL_TIDAL_SURGE);
-                        if (Creature* ozumat = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_OZUMAT)))
+                        if (Creature* ozumat = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_OZUMAT)))
                             ozumat->AI()->DoAction(ACTION_OZUMAT_START);
                     }
                 }
@@ -347,14 +347,14 @@ class npc_neptulon : public CreatureScript
                         case EVENT_SUMMON_MINDLASHER:
                             if (Creature* pMindlasher = me->SummonCreature(NPC_VICIOUS_MINDLASHER, spawnPos[urand(0, 1)]))
                             {
-                                pMindlasher->AddThreat(me, 1.0f);
+                                pMindlasher->GetThreatManager().AddThreat(me, 1.0f);
                                 pMindlasher->AI()->AttackStart(me);
                             }
                             break;
                         case EVENT_SUMMON_BEHEMOTH:
                             if (Creature* pBehemoth = me->SummonCreature(NPC_UNYIELDING_BEHEMOTH, spawnPos[urand(0, 1)]))
                             {
-                                pBehemoth->AddThreat(me, 1.0f);
+                                pBehemoth->GetThreatManager().AddThreat(me, 1.0f);
                                 pBehemoth->AI()->AttackStart(me);
                             }
                             break;
@@ -378,7 +378,7 @@ class npc_neptulon : public CreatureScript
                             {
                                 if (Creature* pMurloc = me->SummonCreature(NPC_DEEP_MURLOC_INVADER, spawnPos[urand(0, 1)]))
                                 {
-                                    pMurloc->AddThreat(me, 1.0f);
+                                    pMurloc->GetThreatManager().AddThreat(me, 1.0f);
                                     pMurloc->AI()->AttackStart(me);
                                 }
                             }
@@ -386,7 +386,7 @@ class npc_neptulon : public CreatureScript
                             break;
                         case EVENT_BLIGHT_OF_OZUMAT:
                             if (Player* target = GetRandomPlayer())
-                                if (Creature* ozumat = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_OZUMAT)))
+                                if (Creature* ozumat = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_OZUMAT)))
                                     ozumat->CastSpell(target, SPELL_BLIGHT_OF_OZUMAT_MISSILE, true);
                             events.ScheduleEvent(EVENT_BLIGHT_OF_OZUMAT, urand(10000, 18000));
                             break;
@@ -482,7 +482,7 @@ class npc_ozumat : public CreatureScript
                 {
                     damage = 0;
 
-                    if (Creature* neptulon = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_NEPTULON)))
+                    if (Creature* neptulon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NEPTULON)))
                         neptulon->AI()->DoAction(ACTION_OZUMAT_DEAD);
 
                     me->DisappearAndDie(); // No fancy animations T_T
@@ -560,7 +560,7 @@ class npc_vicious_mindslasher : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_BRAIN_SPIKE, urand(6000, 10000));
                 if (IsHeroic())
@@ -571,7 +571,7 @@ class npc_vicious_mindslasher : public CreatureScript
             void KilledUnit(Unit* /*victim*/) override
             {
                 if (instance)
-                    if (Creature* pNeptulon = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_NEPTULON)))
+                    if (Creature* pNeptulon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NEPTULON)))
                         pNeptulon->AI()->Talk(SAY_KILL);
             }
 
@@ -636,11 +636,11 @@ class npc_unyielding_behemoth : public CreatureScript
             void KilledUnit(Unit* /*victim*/) override
             {
                 if (instance)
-                    if (Creature* pNeptulon = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_NEPTULON)))
+                    if (Creature* pNeptulon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NEPTULON)))
                         pNeptulon->AI()->Talk(SAY_KILL);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_BLIGHT_SPRAY, urand(8000, 12000));
             }
@@ -750,7 +750,7 @@ class at_tott_ozumat : public AreaTriggerScript
                     && instance->GetBossState(DATA_OZUMAT) != DONE)
                 {
                     instance->SetData(DATA_NEPTULON_EVENT, DONE);
-                    if (Creature* pNeptulon = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_NEPTULON)))
+                    if (Creature* pNeptulon = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_NEPTULON)))
                     {
                         pNeptulon->AI()->DoAction(ACTION_NEPTULON_START_EVENT);
                     }

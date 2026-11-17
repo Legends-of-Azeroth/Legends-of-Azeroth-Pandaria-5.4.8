@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -30,6 +30,7 @@
 #include "Group.h"
 #include "BattlePetMgr.h"
 #include "spell_common.h"
+#include "Random.h"
 
 enum PriestSpells
 {
@@ -201,7 +202,9 @@ enum PriestSpells
     SPELL_PRIEST_GLYPH_OF_INSPIRED_HYMNS            = 147072,
     SPELL_PRIEST_GLYPH_OF_INSPIRED_HYMNS_VISUAL     = 147065,
     SPELL_PRIEST_GLYPH_OF_SHADOWY_FRIENDS           = 126745,
-    SPELL_PRIEST_GLYPH_OF_CONFESSION                = 126123
+    SPELL_PRIEST_GLYPH_OF_CONFESSION                = 126123,
+    SPELL_PRIEST_BODY_AND_SOUL_PASSIVE              = 64129,
+    SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081
 };
 
 // Power Word : Fortitude - 21562
@@ -259,7 +262,7 @@ class spell_pri_void_tendrils : public SpellScript
             tendril->CastSpell(GetHitUnit(), SPELL_PRIEST_VOID_TENDRILS_GRASP, true);
             tendril->m_Events.Schedule(200, [=]
             {
-                if (Unit* target = ObjectAccessor::GetUnit(*tendril, tendril->GetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT)))
+                if (Unit* target = ObjectAccessor::GetUnit(*tendril, tendril->GetGuidValue(UNIT_FIELD_CHANNEL_OBJECT)))
                 {
                     if (!G3D::fuzzyEq(tendril->GetPositionX(), target->GetPositionX()) ||
                         !G3D::fuzzyEq(tendril->GetPositionY(), target->GetPositionY()) ||
@@ -665,7 +668,11 @@ class spell_pri_leap_of_faith : public SpellScript
 
     void HandleHit()
     {
-        GetHitUnit()->CastSpell(GetCaster(), PRIEST_LEAP_OF_FAITH_JUMP, true);
+        Unit* target = GetHitUnit();
+        target->CastSpell(GetCaster(), PRIEST_LEAP_OF_FAITH_JUMP, true);
+
+        if (AuraEffect const* bodyAndSoul = GetCaster()->GetAuraEffectOfRankedSpell(SPELL_PRIEST_BODY_AND_SOUL_PASSIVE, EFFECT_0))
+            target->CastCustomSpell(SPELL_PRIEST_BODY_AND_SOUL_SPEED, SPELLVALUE_BASE_POINT0, bodyAndSoul->GetAmount(), NULL, true);
     }
 
     void Register() override
@@ -1095,11 +1102,25 @@ class spell_pri_power_word_shield : public AuraScript
         }
     }
 
+    void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+    {
+        if (mode & AURA_EFFECT_HANDLE_REAL)
+        {
+            Unit* target = GetUnitOwner();
+            target->CastSpell(target, PRIEST_WEAKENED_SOUL, true);
+
+            if (Unit* caster = GetCaster())
+                if (AuraEffect const* bodyAndSoul = caster->GetAuraEffectOfRankedSpell(SPELL_PRIEST_BODY_AND_SOUL_PASSIVE, EFFECT_0))
+                    target->CastCustomSpell(SPELL_PRIEST_BODY_AND_SOUL_SPEED, SPELLVALUE_BASE_POINT0, bodyAndSoul->GetAmount(), NULL, true, NULL, aurEff);
+        }
+    }
+
     void Register() override
     {
         AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield::ReflectDamage, EFFECT_0);
         AfterEffectRemove += AuraEffectRemoveFn(spell_pri_power_word_shield::AfterRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
         AfterEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectApply += AuraEffectApplyFn(spell_pri_power_word_shield::HandleEffectApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 };
 
@@ -1276,7 +1297,7 @@ class spell_pri_confession : public SpellScriptLoader
                     if (bct)
                         baseText = bct->GetText(loc_idx, _player->GetGender());
 
-                    target->MonsterTextEmote(baseText.c_str(), nullptr); 
+                    target->TextEmote(baseText.c_str(), nullptr); 
                 }
             }
 
@@ -1549,7 +1570,7 @@ class spell_pri_spirit_of_redemption : public AuraScript
                 if (attacker)
                     attackerType = attacker->GetTypeId() == TYPEID_PLAYER ? "player" : "creature";
 
-                TC_LOG_ERROR("shitlog", "spell_pri_spirit_of_redemption, owner: %u, attacker: %u (%s), spell: %u", priest->GetGUIDLow(), attackerId, attackerType, dmgInfo.GetSpellInfo() ? dmgInfo.GetSpellInfo()->Id : 0);
+                TC_LOG_ERROR("shitlog", "spell_pri_spirit_of_redemption, owner: {}, attacker: {} ({}), spell: {}", priest->GetGUIDLow(), attackerId, attackerType, dmgInfo.GetSpellInfo() ? dmgInfo.GetSpellInfo()->Id : 0);
                 */
                 absorbAmount = dmgInfo.GetDamage();
                 return;
@@ -2376,7 +2397,7 @@ class spell_pri_divine_star_dummy : public SpellScript
             if (std::abs(z - GetCaster()->GetPositionZ()) > 10.0f)
                 inAir = true;
         }
-        GetCaster()->GetPosition(&dest._position);
+        dest._position = GetCaster()->GetWorldLocation();
         GetCaster()->MovePositionToFirstCollosionBySteps(dest._position, 24.0f, 0.0f, 2.0f, inAir);
         dest._position.RelocateOffset(0.0f, 6.0f);
     }
@@ -2900,7 +2921,7 @@ struct npc_pri_psy_fiend : public PassiveAI
     std::set<uint64> Guids;
     std::map<uint64, uint32> Attackers;
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
     void UpdateAI(uint32 diff) override
     {
@@ -3448,7 +3469,7 @@ class spell_pri_t15_shadow_2p_bonus : public SpellScript
 {
     PrepareSpellScript(spell_pri_t15_shadow_2p_bonus);
 
-    bool Load()
+    bool Load() override
     {
         return GetCaster()->HasAura(SPELL_PRIEST_T15_SHADOW_2P_BONUS);
     }
@@ -3886,6 +3907,29 @@ class spell_pri_glyph_of_inspired_hymns : public AuraScript
     }
 };
 
+// 77484 - Mastery: Discipline (Shield)
+class spell_mastery_shield_discipline : public AuraScript
+{
+    PrepareAuraScript(spell_mastery_shield_discipline);
+
+    void CalculateAmount(AuraEffect const*, float& amount, bool&)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            if (caster->HasAura(SPELL_PRIEST_SHIELD_DISCIPLINE) && caster->GetLevel() >= 80)
+            {
+                float mastery = 1.0f + (caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f / 100.0f);
+                amount = amount * mastery;
+            }
+        }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_shield_discipline::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_power_word_fortitude();
@@ -4011,4 +4055,5 @@ void AddSC_priest_spell_scripts()
     new aura_script<spell_pri_prayer_of_mending_proc>("spell_pri_prayer_of_mending_proc");
     new aura_script<spell_pri_chakra_chastise>("spell_pri_chakra_chastise");
     new aura_script<spell_pri_glyph_of_inspired_hymns>("spell_pri_glyph_of_inspired_hymns");
+    new aura_script<spell_mastery_shield_discipline>("spell_mastery_shield_discipline");
 }

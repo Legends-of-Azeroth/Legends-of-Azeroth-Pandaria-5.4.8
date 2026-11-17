@@ -66,9 +66,9 @@ class boss_loatheb : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_SPORE_LOSER, 1);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_NECROTIC_AURA, 17000);
                 events.ScheduleEvent(EVENT_DEATHBLOOM, 5000);
                 events.ScheduleEvent(EVENT_SPORE, IsHeroic() ? 18000 : 36000);

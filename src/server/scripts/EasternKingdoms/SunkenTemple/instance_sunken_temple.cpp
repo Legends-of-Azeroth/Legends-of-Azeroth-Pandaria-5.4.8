@@ -41,7 +41,7 @@ class instance_sunken_temple : public InstanceMapScript
             instance_sunken_temple_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             uint32 State, m_wCount;
-            std::map<uint32, uint64> m_SunkenEncounters;
+            std::map<uint32, ObjectGuid> m_SunkenEncounters;
             uint32 m_auiEncounter[EncounterCount];
 
             void Initialize() override
@@ -110,7 +110,7 @@ class instance_sunken_temple : public InstanceMapScript
                 return saveStream.str();
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -123,7 +123,7 @@ class instance_sunken_temple : public InstanceMapScript
                     case NPC_SHADE_OF_ERANIKUS:
                         return m_SunkenEncounters.find(type)->second;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void Load(const char* in) override

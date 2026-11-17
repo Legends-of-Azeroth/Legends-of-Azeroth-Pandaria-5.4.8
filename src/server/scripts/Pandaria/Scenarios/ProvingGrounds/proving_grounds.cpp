@@ -130,7 +130,7 @@ struct provingGroundsAI : public customCreatureAI
     bool hasReached;
     bool allowCast;
     float x, y;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
     uint32 timerID;
 
     void Reset() override
@@ -141,25 +141,25 @@ struct provingGroundsAI : public customCreatureAI
         allowCast  = true;
         DoCast(me, invIllusionaryType.find(me->GetEntry())->second);
         me->SetInCombatWithZone();
-        targetGUID = 0;
+        targetGUID = ObjectGuid::Empty;
         timerID    = 0;
 
         // Send Attack us by player friends
         for (auto&& itr : invHealerTrialFriends)
-            if (Creature* helper = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(itr.first) : 0))
+            if (Creature* helper = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(itr.first) : ObjectGuid::Empty))
                 helper->AI()->AttackStart(me);
 
-        if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SIKARI_THE_MISTWEAVER) : 0))
+        if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SIKARI_THE_MISTWEAVER) : ObjectGuid::Empty))
             sikari->AI()->AttackStart(me);
 
         if (IsDpsTrial())
             me->PrepareChanneledCast(me->GetOrientation());
         else // force to attack our friends
         {
-            if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SIKARI_THE_MISTWEAVER) : 0))
+            if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SIKARI_THE_MISTWEAVER) : ObjectGuid::Empty))
                 AttackStart(sikari);
 
-            if (Creature* oto = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_OTO_THE_PROTECTOR) : 0))
+            if (Creature* oto = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_OTO_THE_PROTECTOR) : ObjectGuid::Empty))
                 AttackStart(oto);
         }
 
@@ -185,7 +185,7 @@ struct provingGroundsAI : public customCreatureAI
     // 1% per each wave, depend of role (increase health or damage done)
     void HandleUpscaleEndless()
     {
-        if (Creature* controller = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+        if (Creature* controller = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
         {
             if (controller->AI()->GetData(TRIAL_DATA) < TRIAL_DD_ENDLESS)
                 return;
@@ -216,7 +216,7 @@ struct provingGroundsAI : public customCreatureAI
         if (protectorsList.empty())
             return;
 
-        uint64 interruptMemberGUID = Trinity::Containers::SelectRandomContainerElement(protectorsList)->GetGUID();
+        ObjectGuid interruptMemberGUID = Trinity::Containers::SelectRandomContainerElement(protectorsList)->GetGUID();
 
         scheduler
             .Schedule(Milliseconds(500), [this, interruptMemberGUID](TaskContext context)
@@ -262,7 +262,7 @@ struct npc_proving_grounds_illusionary_guardian : public provingGroundsAI
 {
     npc_proving_grounds_illusionary_guardian(Creature* creature) : provingGroundsAI(creature) { }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler
             .Schedule(Seconds(1), [this](TaskContext context)
@@ -283,12 +283,12 @@ struct npc_proving_grounds_illusionary_amber_weaver : public provingGroundsAI
 {
     npc_proving_grounds_illusionary_amber_weaver(Creature* creature) : provingGroundsAI(creature) { }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler
             .Schedule(Seconds(2), [this](TaskContext context)
         {
-            if (Player* target = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+            if (Player* target = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
             {
                 DoCast(target, SPELL_AMBER_GLOBULE_LINK); // tracking
                 DoCast(me, SPELL_AMBER_GLOBULE);
@@ -309,7 +309,7 @@ struct npc_proving_grounds_illusionary_mystic : public provingGroundsAI
 {
     npc_proving_grounds_illusionary_mystic(Creature* creature) : provingGroundsAI(creature) { }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler
             .Schedule(Seconds(7), [this](TaskContext context)
@@ -327,7 +327,7 @@ struct npc_proving_grounds_illusionary_mystic : public provingGroundsAI
     }
 
     private:
-        uint64 getLowestFriendlyGUID()
+        ObjectGuid getLowestFriendlyGUID()
         {
             std::list<Creature*> tmpTargets;
             GetCreatureListWithEntryInGrid(tmpTargets, me, NPC_LARGE_ILLUSIONARY_SLAYER, 70.0f);
@@ -348,13 +348,13 @@ struct npc_proving_grounds_illusionary_mystic : public provingGroundsAI
             GetCreatureListWithEntryInGrid(tmpTargets, me, NPC_LARGE_ILLUSIONARY_SHA, 70.0f);
 
             if (tmpTargets.empty())
-                return 0;
+                return ObjectGuid::Empty;
 
             tmpTargets.sort(Trinity::HealthPctOrderPred());
 
             if (Creature* lowestTarget = tmpTargets.front())
                 return lowestTarget->GetGUID();
-            return 0;
+            return ObjectGuid::Empty;
         }
 };
 
@@ -363,7 +363,7 @@ struct npc_proving_grounds_illusionary_banana_tosser : public provingGroundsAI
 {
     npc_proving_grounds_illusionary_banana_tosser(Creature* creature) : provingGroundsAI(creature) { }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler
             .Schedule(Seconds(2), [this](TaskContext context)
@@ -394,7 +394,7 @@ struct npc_proving_grounds_illusionary_banshe : public provingGroundsAI
 {
     npc_proving_grounds_illusionary_banshe(Creature* creature) : provingGroundsAI(creature) { }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler
             .Schedule(Seconds(2), [this](TaskContext context)
@@ -439,7 +439,7 @@ struct npc_proving_grounds_illusionary_sha : public provingGroundsAI
 {
     npc_proving_grounds_illusionary_sha(Creature* creature) : provingGroundsAI(creature) { }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         DoCast(me, SPELL_PROTECTION_SHIELD);
     }
@@ -455,7 +455,7 @@ struct npc_proving_grounds_illusionary_forager : public provingGroundsAI
 {
     npc_proving_grounds_illusionary_forager(Creature* creature) : provingGroundsAI(creature) { }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler
             .Schedule(Seconds(3), Seconds(7), [this](TaskContext context)
@@ -486,7 +486,7 @@ struct npc_proving_grounds_illusionary_flamecaller : public provingGroundsAI
         SetCombatMovement(false);
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler
             .Schedule(Seconds(3), [this](TaskContext context)
@@ -521,7 +521,7 @@ struct npc_proving_grounds_illusionary_wind_guard : public provingGroundsAI
 {
     npc_proving_grounds_illusionary_wind_guard(Creature* creature) : provingGroundsAI(creature) { }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler
             .Schedule(Seconds(5), [this](TaskContext context)
@@ -558,7 +558,7 @@ struct npc_proving_grounds_illusionary_ambusher : public provingGroundsAI
 {
     npc_proving_grounds_illusionary_ambusher(Creature* creature) : provingGroundsAI(creature) { }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler
             .Schedule(Seconds(3), [this](TaskContext context)
@@ -584,7 +584,7 @@ struct npc_proving_grounds_illusionary_conqueror : public provingGroundsAI
 {
     npc_proving_grounds_illusionary_conqueror(Creature* creature) : provingGroundsAI(creature) { }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler
             .Schedule(Seconds(5), [this](TaskContext context)
@@ -628,7 +628,7 @@ struct npc_proving_grounds_illusionary_hive_singer : public provingGroundsAI
 {
     npc_proving_grounds_illusionary_hive_singer(Creature* creature) : provingGroundsAI(creature) { }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler
             .Schedule(Seconds(2), [this](TaskContext context)
@@ -664,7 +664,7 @@ struct npc_proving_grounds_illusionary_flamecaller_healer : public provingGround
 {
     npc_proving_grounds_illusionary_flamecaller_healer(Creature* creature) : provingGroundsAI(creature) { }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler
             .Schedule(Seconds(3), [this](TaskContext context)
@@ -739,7 +739,7 @@ struct npc_proving_grounds_illusionary_aqualyte : public provingGroundsAI
 {
     npc_proving_grounds_illusionary_aqualyte(Creature* creature) : provingGroundsAI(creature) { }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler
             .Schedule(Seconds(2), [this](TaskContext context)
@@ -776,7 +776,7 @@ struct npc_proving_grounds_illusionary_tunneler : public provingGroundsAI
 {
     npc_proving_grounds_illusionary_tunneler(Creature* creature) : provingGroundsAI(creature) { }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler
             .Schedule(Seconds(2), [this](TaskContext context)
@@ -813,13 +813,13 @@ struct npc_proving_grounds_illusionary_conqueror_healer : public provingGroundsA
 {
     npc_proving_grounds_illusionary_conqueror_healer(Creature* creature) : provingGroundsAI(creature) { }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler
             .Schedule(Seconds(8), [this](TaskContext context)
         {
             // Send Oto use shield wall not depend of CD or not
-            if (Creature* oto = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_OTO_THE_PROTECTOR) : 0))
+            if (Creature* oto = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_OTO_THE_PROTECTOR) : ObjectGuid::Empty))
             {
                 oto->AI()->Talk(TALK_OTO_SHIELDWALL);
                 oto->CastSpell(oto, SPELL_SHIELD_WALL, true);
@@ -879,7 +879,7 @@ struct npc_proving_grounds_kavan_the_arcanist : public customCreatureAI
 {
     npc_proving_grounds_kavan_the_arcanist(Creature* creature) : customCreatureAI(creature) 
     { 
-        if (Creature* controller = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+        if (Creature* controller = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
             if (controller->AI()->GetData(TRIAL_DATA) == TRIAL_HEAL_SILVER)
                 Talk(TALK_HEALER_SILVER_INTRO);
     }
@@ -905,7 +905,7 @@ struct npc_proving_grounds_kavan_the_arcanist : public customCreatureAI
             DoStartNoMovement(target);
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         events.ScheduleEvent(EVENT_ARCANE_BLAST, 1 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_ARCANE_BARRAGE, 3.5 * IN_MILLISECONDS);
@@ -924,7 +924,7 @@ struct npc_proving_grounds_kavan_the_arcanist : public customCreatureAI
         if (HealthBelowPct(90) && attacker && attacker->GetTarget() == me->GetGUID())
         {
             // Re-taunt if available
-            if (Creature* oto = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_OTO_THE_PROTECTOR) : 0))
+            if (Creature* oto = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_OTO_THE_PROTECTOR) : ObjectGuid::Empty))
             {
                 if (!oto->AI()->GetData(TAUNT_DATA))
                     return;
@@ -951,7 +951,7 @@ struct npc_proving_grounds_kavan_the_arcanist : public customCreatureAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (Creature* controller = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+        if (Creature* controller = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
             controller->AI()->DoAction(ACTION_FAIL_TRIAL);
     }
 
@@ -1015,7 +1015,7 @@ struct npc_proving_grounds_ki_the_assassin : public customCreatureAI
 {
     npc_proving_grounds_ki_the_assassin(Creature* creature) : customCreatureAI(creature) 
     {
-        if (Creature* controller = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+        if (Creature* controller = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
             if (controller->AI()->GetData(TRIAL_DATA) == TRIAL_HEAL_GOLD)
                 Talk(TALK_HEALER_GOLD_INTRO);
     }
@@ -1041,7 +1041,7 @@ struct npc_proving_grounds_ki_the_assassin : public customCreatureAI
             DoCast(victim, SPELL_CHEAP_SHOT, true);
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         events.ScheduleEvent(EVENT_MUTILATE, 2 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_FAN_OF_KNIVES, 8 * IN_MILLISECONDS);
@@ -1062,7 +1062,7 @@ struct npc_proving_grounds_ki_the_assassin : public customCreatureAI
         if (HealthBelowPct(90) && attacker && attacker->GetTarget() == me->GetGUID())
         {
             // Re-taunt if available
-            if (Creature* oto = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_OTO_THE_PROTECTOR) : 0))
+            if (Creature* oto = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_OTO_THE_PROTECTOR) : ObjectGuid::Empty))
             {
                 if (!oto->AI()->GetData(TAUNT_DATA))
                     return;
@@ -1089,7 +1089,7 @@ struct npc_proving_grounds_ki_the_assassin : public customCreatureAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (Creature* controller = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+        if (Creature* controller = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
             controller->AI()->DoAction(ACTION_FAIL_TRIAL);
     }
 
@@ -1155,8 +1155,8 @@ struct npc_proving_grounds_ki_the_assassin : public customCreatureAI
         uint32 getTotalVictims()
         {
             uint32 count = 0;
-            for (auto&& itr : me->getThreatManager().getThreatList())
-                if (Creature* target = ObjectAccessor::GetCreature(*me, itr->getUnitGuid()))
+            for (auto&& ref : me->GetThreatManager().GetUnsortedThreatList())
+                if (Creature* target = ObjectAccessor::GetCreature(*me, ref->GetVictim()->GetGUID()))
                     count++;
 
             return count;
@@ -1168,7 +1168,7 @@ struct npc_proving_grounds_oto_the_protector : public customCreatureAI
 {
     npc_proving_grounds_oto_the_protector(Creature* creature) : customCreatureAI(creature) 
     {
-        if (Creature* controller = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+        if (Creature* controller = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
             if (controller->AI()->GetData(TRIAL_DATA) == TRIAL_HEAL_BRONZE)
                 Talk(TALK_HEALER_BRONZE_INTRO);
     }
@@ -1188,7 +1188,7 @@ struct npc_proving_grounds_oto_the_protector : public customCreatureAI
         DoCast(me, SPELL_DEFENSIVE_STANCE, true);
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         DoCast(who, SPELL_CHARGE_S);
         events.ScheduleEvent(EVENT_DEVASTATE, 2 * IN_MILLISECONDS);
@@ -1237,7 +1237,7 @@ struct npc_proving_grounds_oto_the_protector : public customCreatureAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (Creature* controller = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+        if (Creature* controller = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
             controller->AI()->DoAction(ACTION_FAIL_TRIAL);
     }
 
@@ -1316,8 +1316,8 @@ struct npc_proving_grounds_oto_the_protector : public customCreatureAI
         uint32 getTotalVictims()
         {
             uint32 count = 0;
-            for (auto&& itr : me->getThreatManager().getThreatList())
-                if (Creature* target = ObjectAccessor::GetCreature(*me, itr->getUnitGuid()))
+            for (auto&& ref : me->GetThreatManager().GetUnsortedThreatList())
+                if (Creature* target = ObjectAccessor::GetCreature(*me, ref->GetVictim()->GetGUID()))
                     count++;
 
             return count;
@@ -1345,7 +1345,7 @@ struct npc_proving_grounds_sooli_the_survivalist : public customCreatureAI
         allowFeignDeath = true;
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         events.ScheduleEvent(EVENT_AUTO_SHOT, 0.5 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_EXPLOSIVE_SHOT, 8 * IN_MILLISECONDS);
@@ -1367,7 +1367,7 @@ struct npc_proving_grounds_sooli_the_survivalist : public customCreatureAI
         if (HealthBelowPct(90) && attacker && attacker->GetTarget() == me->GetGUID())
         {
             // Re-taunt if available
-            if (Creature* oto = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_OTO_THE_PROTECTOR) : 0))
+            if (Creature* oto = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_OTO_THE_PROTECTOR) : ObjectGuid::Empty))
             {
                 if (!oto->AI()->GetData(TAUNT_DATA))
                     return;
@@ -1412,7 +1412,7 @@ struct npc_proving_grounds_sooli_the_survivalist : public customCreatureAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (Creature* controller = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+        if (Creature* controller = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
             controller->AI()->DoAction(ACTION_FAIL_TRIAL);
     }
 
@@ -1470,8 +1470,8 @@ struct npc_proving_grounds_sooli_the_survivalist : public customCreatureAI
         uint32 getTotalVictims()
         {
             uint32 count = 0;
-            for (auto&& itr : me->getThreatManager().getThreatList())
-                if (Creature* target = ObjectAccessor::GetCreature(*me, itr->getUnitGuid()))
+            for (auto&& ref : me->GetThreatManager().GetUnsortedThreatList())
+                if (Creature* target = ObjectAccessor::GetCreature(*me, ref->GetVictim()->GetGUID()))
                     count++;
 
             return count;
@@ -1492,51 +1492,51 @@ class npc_proving_grounds_trial_master_rotun : public CreatureScript
             switch (action)
             {
                 case GOSSIP_ACTION_INFO_DEF + 1:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
                         controller->AI()->DoAction(ACTION_DD_BRONZE_TRIAL);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 2:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
                         controller->AI()->DoAction(ACTION_TANK_BRONZE_TRIAL);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 3:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
                         controller->AI()->DoAction(ACTION_HEALER_BRONZE_TRIAL);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 4:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
                         controller->AI()->DoAction(ACTION_DD_SILVER_TRIAL);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 5:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
                         controller->AI()->DoAction(ACTION_DD_GOLD_TRIAL);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 10:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
                         controller->AI()->DoAction(ACTION_TANK_SILVER_TRIAL);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 9:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
                         controller->AI()->DoAction(ACTION_TANK_GOLD_TRIAL);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 14:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
                         controller->AI()->DoAction(ACTION_HEALER_SILVER_TRIAL);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 13:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
                         controller->AI()->DoAction(ACTION_HEALER_GOLD_TRIAL);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 6:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
                         controller->AI()->DoAction(ACTION_DD_ENDLESS_TRIAL);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 8:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
                         controller->AI()->DoAction(ACTION_TANK_ENDLESS_TRIAL);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 12:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
                         controller->AI()->DoAction(ACTION_HEALER_ENDLESS_TRIAL);
                     break;
             }
@@ -1575,7 +1575,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
     uint32 waveId;
     uint32 trialId;
     uint32 endlessWaveId;
-    std::vector<uint64> illusionGUIDs;
+    std::vector<ObjectGuid> illusionGUIDs;
     bool hasYellSlayer;
     bool hasYellVarmint;
     bool hasYellGuardian;
@@ -1607,11 +1607,11 @@ struct npc_proving_grounds_controller : public ScriptedAI
                 hasTrialStarted = true;
                 trialId = TRIAL_DD_BRONZE;
 
-                if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TRIAL_MASTER_ROTUN) : 0))
+                if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TRIAL_MASTER_ROTUN) : ObjectGuid::Empty))
                     rotun->AI()->Talk(TALK_TRIAL_BEGINNING);
 
                 // For self
-                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                 {
                     for (auto&& itr : raidBuffs)
                         trialOwner->CastSpell(trialOwner, itr, true);
@@ -1647,15 +1647,15 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     switch (waveId)
                     {
                         case 1:
-                            if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TRIAL_MASTER_ROTUN) : 0))
+                            if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TRIAL_MASTER_ROTUN) : ObjectGuid::Empty))
                                 rotun->AI()->Talk(TALK_ILLUSIONARY_SLAYER);
                             break;
                         case 3:
-                            if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TRIAL_MASTER_ROTUN) : 0))
+                            if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TRIAL_MASTER_ROTUN) : ObjectGuid::Empty))
                                 rotun->AI()->Talk(TALK_ILLUSIONARY_GUARDIAN);
                             break;
                         case 4:
-                            if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TRIAL_MASTER_ROTUN) : 0))
+                            if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TRIAL_MASTER_ROTUN) : ObjectGuid::Empty))
                                 rotun->AI()->Talk(TALK_ILLUSIONARY_VARMINT);
 
                             me->SummonCreature(NPC_BERSERKING, berserkSpawnPos[0], TEMPSUMMON_MANUAL_DESPAWN);
@@ -1674,7 +1674,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     currentTimer += 10 * IN_MILLISECONDS;
 
 
-                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                     {
                         ScenarioChallenge waveData = ScenarioChallenge(waveId, 5, ChallengeMedals::MedalTypeBronze, currentTimer / IN_MILLISECONDS);
                         sScenarioMgr->SendScenarioState(trialOwner, 1148, 1, 0, 33614, 248, 0, &waveData);
@@ -1690,11 +1690,11 @@ struct npc_proving_grounds_controller : public ScriptedAI
                 hasTrialStarted = true;
                 trialId = TRIAL_DD_SILVER;
 
-                if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TRIAL_MASTER_ROTUN) : 0))
+                if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TRIAL_MASTER_ROTUN) : ObjectGuid::Empty))
                     rotun->AI()->Talk(TALK_TRIAL_BEGINNING_SILVER);
 
                 // For self
-                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                 {
                     for (auto&& itr : raidBuffs)
                         trialOwner->CastSpell(trialOwner, itr, true);
@@ -1730,14 +1730,14 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     switch (waveId)
                     {
                         case 3:
-                            if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TRIAL_MASTER_ROTUN) : 0))
+                            if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TRIAL_MASTER_ROTUN) : ObjectGuid::Empty))
                                 rotun->AI()->Talk(TALK_ILLUSIONARY_AMBER_WEAVER);
                             break;
                         case 4:
                             me->SummonCreature(NPC_BERSERKING, berserkSpawnPos[0], TEMPSUMMON_MANUAL_DESPAWN);
                             break;
                         case 5:
-                            if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TRIAL_MASTER_ROTUN) : 0))
+                            if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TRIAL_MASTER_ROTUN) : ObjectGuid::Empty))
                                 rotun->AI()->Talk(TALK_ILLUSIONARY_MYSTIC);
                             break;
                         case 7:
@@ -1756,7 +1756,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
 
                     currentTimer += 5 * IN_MILLISECONDS;
 
-                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                     {
                         ScenarioChallenge waveData = ScenarioChallenge(waveId, 8, ChallengeMedals::MedalTypeSilver, currentTimer / IN_MILLISECONDS);
                         sScenarioMgr->SendScenarioState(trialOwner, 1148, 1, 0, 33614, 248, 0, &waveData);
@@ -1772,11 +1772,11 @@ struct npc_proving_grounds_controller : public ScriptedAI
                 hasTrialStarted = true;
                 trialId = TRIAL_DD_GOLD;
 
-                if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TRIAL_MASTER_ROTUN) : 0))
+                if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TRIAL_MASTER_ROTUN) : ObjectGuid::Empty))
                     rotun->AI()->Talk(TALK_TRIAL_BEGINNING_GOLD);
 
                 // For self
-                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                 {
                     for (auto&& itr : raidBuffs)
                         trialOwner->CastSpell(trialOwner, itr, true);
@@ -1819,7 +1819,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
 
                     currentTimer += 5 * IN_MILLISECONDS;
 
-                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                     {
                         ScenarioChallenge waveData = ScenarioChallenge(waveId, 10, ChallengeMedals::MedalTypeGold, currentTimer / IN_MILLISECONDS);
                         sScenarioMgr->SendScenarioState(trialOwner, 1148, 1, 0, 33614, 248, 0, &waveData);
@@ -1829,14 +1829,14 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     switch (waveId)
                     {
                         case 2:
-                            if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TRIAL_MASTER_ROTUN) : 0))
+                            if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TRIAL_MASTER_ROTUN) : ObjectGuid::Empty))
                                 rotun->AI()->Talk(TALK_ILLUSIONARY_BANANA_TOSSER);
                             break;
                         case 4:
                             me->SummonCreature(NPC_BERSERKING, berserkSpawnPos[0], TEMPSUMMON_MANUAL_DESPAWN);
                             break;
                         case 5:
-                            if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TRIAL_MASTER_ROTUN) : 0))
+                            if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TRIAL_MASTER_ROTUN) : ObjectGuid::Empty))
                                 rotun->AI()->Talk(TALK_ILLUSIONARY_BANSHEE);
 
                             scheduler
@@ -1878,7 +1878,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                             });
                             break;
                         case 8:
-                            if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TRIAL_MASTER_ROTUN) : 0))
+                            if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TRIAL_MASTER_ROTUN) : ObjectGuid::Empty))
                                 rotun->AI()->Talk(TALK_ILLUSIONARY_SHA);
                             break;
                         case 9:
@@ -1918,7 +1918,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     sikari->AI()->Talk(TALK_SIKARI_BRONZE_INTRO);
 
                 // For self
-                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                 {
                     for (auto&& itr : raidBuffs)
                         trialOwner->CastSpell(trialOwner, itr, true);
@@ -1953,12 +1953,12 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     for (auto&& illusions : itr->second)
                         me->SummonCreature(illusions.first, illusions.second.GetPositionX() + frand(-2.5f, 2.5f), illusions.second.GetPositionY() + frand(-2.5f, 2.5f), illusions.second.GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
 
-                    if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SIKARI_THE_MISTWEAVER) : 0))
+                    if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SIKARI_THE_MISTWEAVER) : ObjectGuid::Empty))
                         sikari->SetInCombatWithZone();
 
                     currentTimer += 10 * IN_MILLISECONDS;
 
-                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                     {
                         ScenarioChallenge waveData = ScenarioChallenge(waveId, 5, ChallengeMedals::MedalTypeBronze, currentTimer / IN_MILLISECONDS);
                         sScenarioMgr->SendScenarioState(trialOwner, 1148, 1, 0, 33614, 248, 0, &waveData);
@@ -1968,11 +1968,11 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     switch (waveId)
                     {
                         case 1:
-                            if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SIKARI_THE_MISTWEAVER) : 0))
+                            if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SIKARI_THE_MISTWEAVER) : ObjectGuid::Empty))
                                 sikari->AI()->Talk(TALK_ILLUSIONARY_RIPPER);
                             break;
                         case 3:
-                            if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SIKARI_THE_MISTWEAVER) : 0))
+                            if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SIKARI_THE_MISTWEAVER) : ObjectGuid::Empty))
                                 sikari->AI()->Talk(TALK_ILLUSIONARY_FORAGER);
                             break;
                         case 5:
@@ -2006,7 +2006,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     sikari->AI()->Talk(TALK_SIKARI_SILVER_INTRO);
 
                 // For self
-                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                 {
                     for (auto&& itr : raidBuffs)
                         trialOwner->CastSpell(trialOwner, itr, true);
@@ -2041,13 +2041,13 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     for (auto&& illusions : itr->second)
                         me->SummonCreature(illusions.first, illusions.second.GetPositionX() + frand(-2.5f, 2.5f), illusions.second.GetPositionY() + frand(-2.5f, 2.5f), illusions.second.GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
 
-                    if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SIKARI_THE_MISTWEAVER) : 0))
+                    if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SIKARI_THE_MISTWEAVER) : ObjectGuid::Empty))
                         sikari->SetInCombatWithZone();
 
                     if (waveId > 3)
                         currentTimer += 5 * IN_MILLISECONDS;
 
-                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                     {
                         ScenarioChallenge waveData = ScenarioChallenge(waveId, 8, ChallengeMedals::MedalTypeSilver, currentTimer / IN_MILLISECONDS);
                         sScenarioMgr->SendScenarioState(trialOwner, 1148, 1, 0, 33614, 248, 0, &waveData);
@@ -2057,7 +2057,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     switch (waveId)
                     {
                         case 3:
-                            if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SIKARI_THE_MISTWEAVER) : 0))
+                            if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SIKARI_THE_MISTWEAVER) : ObjectGuid::Empty))
                                 sikari->AI()->Talk(TALK_ILLUSIONARY_FLAMECALLER);
                             break;
                         case 5:
@@ -2070,7 +2070,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                             });
                             break;
                         case 6:
-                            if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SIKARI_THE_MISTWEAVER) : 0))
+                            if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SIKARI_THE_MISTWEAVER) : ObjectGuid::Empty))
                                 sikari->AI()->Talk(TALK_ILLUSIONARY_WIND_GUARD);
                             break;
                         case 8:
@@ -2104,7 +2104,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     sikari->AI()->Talk(TALK_SIKARI_GOLD_INTRO);
 
                 // For self
-                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                 {
                     for (auto&& itr : raidBuffs)
                         trialOwner->CastSpell(trialOwner, itr, true);
@@ -2139,7 +2139,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     for (auto&& illusions : itr->second)
                         me->SummonCreature(illusions.first, illusions.second.GetPositionX() + frand(-2.5f, 2.5f), illusions.second.GetPositionY() + frand(-2.5f, 2.5f), illusions.second.GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
 
-                    if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SIKARI_THE_MISTWEAVER) : 0))
+                    if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SIKARI_THE_MISTWEAVER) : ObjectGuid::Empty))
                         sikari->SetInCombatWithZone();
 
                     switch (waveId)
@@ -2165,7 +2165,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                             break;
                     }
 
-                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                     {
                         ScenarioChallenge waveData = ScenarioChallenge(waveId, 10, ChallengeMedals::MedalTypeGold, currentTimer / IN_MILLISECONDS);
                         sScenarioMgr->SendScenarioState(trialOwner, 1148, 1, 0, 33614, 248, 0, &waveData);
@@ -2175,7 +2175,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     switch (waveId)
                     {
                         case 3:
-                            if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SIKARI_THE_MISTWEAVER) : 0))
+                            if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SIKARI_THE_MISTWEAVER) : ObjectGuid::Empty))
                                 sikari->AI()->Talk(TALK_ILLUSIONARY_AMBUSHER);
 
                             scheduler
@@ -2211,7 +2211,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                             });
                             break;
                         case 6:
-                            if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SIKARI_THE_MISTWEAVER) : 0))
+                            if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SIKARI_THE_MISTWEAVER) : ObjectGuid::Empty))
                                 sikari->AI()->Talk(TALK_ILLUSIONARY_CONQUEROR);
                             break;
                         case 7:
@@ -2304,7 +2304,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     me->GetInstanceScript()->SendChallengeStartTimer(10);
 
                 // Summon our party
-                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                 {
                     for (auto&& itr : invHealerTrialFriends)
                     {
@@ -2354,14 +2354,14 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     switch (waveId)
                     {
                         case 1:
-                            if (Creature* ki = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_KI_THE_ASSASSIN) : 0))
+                            if (Creature* ki = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_KI_THE_ASSASSIN) : ObjectGuid::Empty))
                                 ki->AI()->Talk(TALK_ILLUSIONARY_RIPPER_H);
                             break;
                         case 2:
                             currentTimer += 5 * IN_MILLISECONDS;
                             break;
                         case 3:
-                            if (Creature* oto = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_OTO_THE_PROTECTOR) : 0))
+                            if (Creature* oto = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_OTO_THE_PROTECTOR) : ObjectGuid::Empty))
                                 oto->AI()->Talk(TALK_ILLUSIONARY_HIVE_SINGER);
 
                             currentTimer += 15 * IN_MILLISECONDS;
@@ -2373,7 +2373,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                             currentTimer += 30 * IN_MILLISECONDS;
 
                             // Use time warp on group at last wave
-                            if (Creature* kavan = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_KAVAN_THE_ARCANIST) : 0))
+                            if (Creature* kavan = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_KAVAN_THE_ARCANIST) : ObjectGuid::Empty))
                                 kavan->CastSpell(kavan, SPELL_TIME_WARP, true);
 
                             scheduler
@@ -2386,7 +2386,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                             break;
                     }
 
-                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                     {
                         ScenarioChallenge waveData = ScenarioChallenge(waveId, 5, ChallengeMedals::MedalTypeBronze, currentTimer / IN_MILLISECONDS);
                         sScenarioMgr->SendScenarioState(trialOwner, 1148, 1, 0, 33614, 248, 0, &waveData);
@@ -2406,7 +2406,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     me->GetInstanceScript()->SendChallengeStartTimer(10);
 
                 // Summon our party
-                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                 {
                     for (auto&& itr : invHealerTrialFriends)
                     {
@@ -2458,7 +2458,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                         case 3:
                             currentTimer += 5 * IN_MILLISECONDS;
 
-                            if (Creature* ki = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_KI_THE_ASSASSIN) : 0))
+                            if (Creature* ki = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_KI_THE_ASSASSIN) : ObjectGuid::Empty))
                                 ki->AI()->Talk(TALK_ILLUSIONARY_FLAMECALLER_H);
                             break;
                         case 4:
@@ -2476,7 +2476,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                         case 6:
                             currentTimer -= 5 * IN_MILLISECONDS;
 
-                            if (Creature* kavan = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_KAVAN_THE_ARCANIST) : 0))
+                            if (Creature* kavan = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_KAVAN_THE_ARCANIST) : ObjectGuid::Empty))
                                 kavan->AI()->Talk(TALK_ILLUSIONARY_AQUALYTE);
                             break;
                         case 7:
@@ -2489,7 +2489,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                                 .Schedule(Milliseconds(20 * IN_MILLISECONDS), [this](TaskContext context)
                             {
                                 // Use time warp on group at last wave
-                                if (Creature* kavan = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_KAVAN_THE_ARCANIST) : 0))
+                                if (Creature* kavan = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_KAVAN_THE_ARCANIST) : ObjectGuid::Empty))
                                     kavan->CastSpell(kavan, SPELL_TIME_WARP, true);
                             });
 
@@ -2504,7 +2504,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                             break;
                     }
 
-                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                     {
                         ScenarioChallenge waveData = ScenarioChallenge(waveId, 8, ChallengeMedals::MedalTypeSilver, currentTimer / IN_MILLISECONDS);
                         sScenarioMgr->SendScenarioState(trialOwner, 1148, 1, 0, 33614, 248, 0, &waveData);
@@ -2524,7 +2524,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     me->GetInstanceScript()->SendChallengeStartTimer(10);
 
                 // Summon our party
-                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                 {
                     for (auto&& itr : invHealerTrialFriends)
                     {
@@ -2579,7 +2579,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                         case 3:
                             currentTimer -= 5 * IN_MILLISECONDS;
 
-                            if (Creature* sooli = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SOOLI_THE_SURVIVALIST) : 0))
+                            if (Creature* sooli = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SOOLI_THE_SURVIVALIST) : ObjectGuid::Empty))
                                 sooli->AI()->Talk(TALK_ILLUSIONARY_TUNNELER);
                             break;
                         case 4:
@@ -2599,7 +2599,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                         case 6:
                             currentTimer -= 10 * IN_MILLISECONDS;
 
-                            if (Creature* oto = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_OTO_THE_PROTECTOR) : 0))
+                            if (Creature* oto = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_OTO_THE_PROTECTOR) : ObjectGuid::Empty))
                                 oto->AI()->Talk(TALK_ILLUSIONARY_CONQUEROR_H);
                             break;
                         case 7:
@@ -2639,13 +2639,13 @@ struct npc_proving_grounds_controller : public ScriptedAI
                                 .Schedule(Milliseconds(45 * IN_MILLISECONDS), [this](TaskContext context)
                             {
                                 // Use time warp on group at last wave
-                                if (Creature* kavan = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_KAVAN_THE_ARCANIST) : 0))
+                                if (Creature* kavan = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_KAVAN_THE_ARCANIST) : ObjectGuid::Empty))
                                     kavan->CastSpell(kavan, SPELL_TIME_WARP, true);
                             });
                             break;
                     }
 
-                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                     {
                         ScenarioChallenge waveData = ScenarioChallenge(waveId, 10, ChallengeMedals::MedalTypeGold, currentTimer / IN_MILLISECONDS);
                         sScenarioMgr->SendScenarioState(trialOwner, 1148, 1, 0, 33614, 248, 0, &waveData);
@@ -2661,11 +2661,11 @@ struct npc_proving_grounds_controller : public ScriptedAI
                 hasTrialStarted = true;
                 trialId = TRIAL_DD_ENDLESS;
 
-                if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TRIAL_MASTER_ROTUN) : 0))
+                if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TRIAL_MASTER_ROTUN) : ObjectGuid::Empty))
                     rotun->AI()->Talk(TALK_TRIAL_BEGINNING_GOLD);
 
                 // For self
-                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                 {
                     for (auto&& itr : raidBuffs)
                         trialOwner->CastSpell(trialOwner, itr, true);
@@ -2742,7 +2742,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                             break;
                     }
 
-                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                     {
                         ScenarioChallenge waveData = ScenarioChallenge(endlessWaveId, 0, ChallengeMedals::MaxMedalType, currentTimer / IN_MILLISECONDS);
                         sScenarioMgr->SendScenarioState(trialOwner, 1148, 1, 0, 33614, 248, 0, &waveData);
@@ -2768,7 +2768,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     sikari->AI()->Talk(TALK_SIKARI_GOLD_INTRO);
 
                 // For self
-                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                 {
                     for (auto&& itr : raidBuffs)
                         trialOwner->CastSpell(trialOwner, itr, true);
@@ -2805,7 +2805,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     for (auto&& illusions : itr->second)
                         me->SummonCreature(illusions.first, illusions.second.GetPositionX() + frand(-2.5f, 2.5f), illusions.second.GetPositionY() + frand(-2.5f, 2.5f), illusions.second.GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
 
-                    if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SIKARI_THE_MISTWEAVER) : 0))
+                    if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SIKARI_THE_MISTWEAVER) : ObjectGuid::Empty))
                         sikari->SetInCombatWithZone();
 
                     // Special Announce about each of illusion
@@ -2935,7 +2935,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                             break;
                     }
 
-                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                     {
                         ScenarioChallenge waveData = ScenarioChallenge(endlessWaveId, 0, ChallengeMedals::MaxMedalType, currentTimer / IN_MILLISECONDS);
                         sScenarioMgr->SendScenarioState(trialOwner, 1148, 1, 0, 33614, 248, 0, &waveData);
@@ -2955,7 +2955,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     me->GetInstanceScript()->SendChallengeStartTimer(10);
 
                 // Summon our party
-                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                 {
                     for (auto&& itr : invHealerTrialFriends)
                     {
@@ -3030,7 +3030,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                                 me->SummonCreature(NPC_SMALL_ILLUSIONARY_FLAMECALLER_H, innerPillarsPos[4].GetPositionX() + frand(-2.5f, 2.5f), innerPillarsPos[4].GetPositionY() + frand(-2.5f, 2.5f), innerPillarsPos[4].GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
 
                                 // Use time warp on group at last wave
-                                if (Creature* kavan = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_KAVAN_THE_ARCANIST) : 0))
+                                if (Creature* kavan = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_KAVAN_THE_ARCANIST) : ObjectGuid::Empty))
                                     kavan->CastSpell(kavan, SPELL_TIME_WARP, true);
                             });
                         
@@ -3044,7 +3044,7 @@ struct npc_proving_grounds_controller : public ScriptedAI
                             break;
                     }
 
-                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                     {
                         ScenarioChallenge waveData = ScenarioChallenge(endlessWaveId, 0, ChallengeMedals::MaxMedalType, currentTimer / IN_MILLISECONDS);
                         sScenarioMgr->SendScenarioState(trialOwner, 1148, 1, 0, 33614, 248, 0, &waveData);
@@ -3054,14 +3054,14 @@ struct npc_proving_grounds_controller : public ScriptedAI
                 });
                 break;
             case ACTION_FAIL_TRIAL:
-                if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TRIAL_MASTER_ROTUN) : 0))
+                if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TRIAL_MASTER_ROTUN) : ObjectGuid::Empty))
                     rotun->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-                if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SIKARI_THE_MISTWEAVER) : 0))
+                if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SIKARI_THE_MISTWEAVER) : ObjectGuid::Empty))
                     sikari->DespawnOrUnsummon();
 
                 for (auto&& itr : invHealerTrialFriends)
-                    if (Creature* healerMember = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(itr.first) : 0))
+                    if (Creature* healerMember = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(itr.first) : ObjectGuid::Empty))
                         healerMember->DespawnOrUnsummon();
 
                 if (me->GetInstanceScript())
@@ -3073,31 +3073,31 @@ struct npc_proving_grounds_controller : public ScriptedAI
                     me->GetInstanceScript()->SetData(DATA_TRIAL, FAIL);
 
                 // Repeat Scenario
-                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                     sScenarioMgr->SendScenarioState(trialOwner, 1148, DATA_SELECT_A_TRIAL, 0);
 
                 Reset();
                 break;
             case ACTION_COMPLETE_TRIAL:
-                if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_TRIAL_MASTER_ROTUN) : 0))
+                if (Creature* rotun = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_TRIAL_MASTER_ROTUN) : ObjectGuid::Empty))
                 {
                     rotun->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
                     if (me->GetInstanceScript())
                         me->GetInstanceScript()->SetData(DATA_TRIAL, DONE);
 
-                    if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_SIKARI_THE_MISTWEAVER) : 0))
+                    if (Creature* sikari = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SIKARI_THE_MISTWEAVER) : ObjectGuid::Empty))
                         sikari->DespawnOrUnsummon();
 
                     for (auto&& itr : invHealerTrialFriends)
-                        if (Creature* healerMember = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(itr.first) : 0))
+                        if (Creature* healerMember = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(itr.first) : ObjectGuid::Empty))
                             healerMember->DespawnOrUnsummon(3 * IN_MILLISECONDS);
 
                     if (me->GetInstanceScript())
                         me->GetInstanceScript()->SendChallengeStopElapsedTimer(TIMER_SCENARIO);
 
                     // Repeat Scenario
-                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(PLAYER_DATA) : 0))
+                    if (Player* trialOwner = ObjectAccessor::GetPlayer(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(PLAYER_DATA) : ObjectGuid::Empty))
                         sScenarioMgr->SendScenarioState(trialOwner, 1148, DATA_SELECT_A_TRIAL, 0);
                 }
 
@@ -3157,7 +3157,7 @@ struct npc_proving_grounds_sikari_the_mistweaver : public customCreatureAI
         scheduler.CancelAll();
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         scheduler
             .Schedule(Seconds(1), [this](TaskContext context)
@@ -3186,7 +3186,7 @@ struct npc_proving_grounds_sikari_the_mistweaver : public customCreatureAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (Creature* controller = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+        if (Creature* controller = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
             controller->AI()->DoAction(ACTION_FAIL_TRIAL);
     }
 
@@ -3202,8 +3202,8 @@ struct npc_proving_grounds_sikari_the_mistweaver : public customCreatureAI
         uint32 getTotalVictims()
         {
             uint32 count = 0;
-            for (auto&& itr : me->getThreatManager().getThreatList())
-                if (Creature* target = ObjectAccessor::GetCreature(*me, itr->getUnitGuid()))
+            for (auto&& ref : me->GetThreatManager().GetUnsortedThreatList())
+                if (Creature* target = ObjectAccessor::GetCreature(*me, ref->GetVictim()->GetGUID()))
                     count++;
 
             return count;
@@ -3305,7 +3305,7 @@ class spell_proving_grounds_banshe_timer : public AuraScript
             return;
 
         if (Creature* owner = GetOwner()->ToCreature())
-            if (Creature* controller = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetData64(NPC_PROVING_GROUNDS_2) : 0))
+            if (Creature* controller = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
                 controller->AI()->DoAction(ACTION_FAIL_TRIAL);
     }
 
@@ -3437,7 +3437,7 @@ class spell_proving_grounds_wing_blast : public SpellScript
     void HandleHit(SpellEffIndex effIndex)
     {
         if (Player* affectedTarget = GetHitPlayer())
-            GetCaster()->getThreatManager().modifyThreatPercent(affectedTarget, -100);
+            GetCaster()->GetThreatManager().ModifyThreatByPercent(affectedTarget, -100);
     }
 
     void Register() override

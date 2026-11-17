@@ -248,7 +248,7 @@ class boss_spirit_kings_controller : public CreatureScript
         {
             boss_spirit_kings_controllerAI(Creature* creature) : BossAI(creature, DATA_SPIRIT_KINGS) { }
 
-            uint64 flankingGuid[MAX_FLANKING_MOGU];
+            ObjectGuid flankingGuid[MAX_FLANKING_MOGU];
             std::vector<uint32> spiritKingsEntry;
             bool fightInProgress;
             bool _introZianDone;
@@ -283,7 +283,7 @@ class boss_spirit_kings_controller : public CreatureScript
                 nextSpirit = 0;
 
                 for (uint8 i = 0; i < MAX_FLANKING_MOGU; ++i)
-                    flankingGuid[i] = 0;
+                    flankingGuid[i] = ObjectGuid::Empty;
 
                 me->SetReactState(REACT_PASSIVE);
                 instance->DoRemoveBloodLustDebuffSpellOnPlayers();
@@ -336,7 +336,7 @@ class boss_spirit_kings_controller : public CreatureScript
                         for (uint32 i = 1; i < 4; ++i)
                             spiritKingsEntry[i] = instance->GetData(DATA_SPIRIT_KINGS_STATE + i);
 
-                        if (Creature* incomingSpirit = instance->instance->GetCreature(instance->GetData64(spiritKingsEntry[1])))
+                        if (Creature* incomingSpirit = instance->instance->GetCreature(instance->GetGuidData(spiritKingsEntry[1])))
                             me->AddAura(SPELL_ACTIVATION_VISUAL, incomingSpirit);
 
                         fightInProgress = true;
@@ -368,7 +368,7 @@ class boss_spirit_kings_controller : public CreatureScript
                                 GetPositionWithDistInOrientation(flankingMogu, 80.0f, orientation, x, y);
 
                                 uint32 delay = 0;
-                                uint64 moguGUID = flankingMogu->GetGUID();
+                                ObjectGuid moguGUID = flankingMogu->GetGUID();
 
                                 me->m_Events.Schedule(delay += 2000, 20, [this, moguGUID, x, y]()
                                 {
@@ -399,7 +399,7 @@ class boss_spirit_kings_controller : public CreatureScript
                             if (!IsHeroic())
                                 nextSpirit = vanquishedCount;
 
-                            if (Creature* spirit = ObjectAccessor::GetCreature(*me, instance->GetData64(spiritKingsEntry[nextSpirit])))
+                            if (Creature* spirit = ObjectAccessor::GetCreature(*me, instance->GetGuidData(spiritKingsEntry[nextSpirit])))
                             {
                                 spirit->AI()->DoAction(ACTION_ENTER_COMBAT);
 
@@ -407,7 +407,7 @@ class boss_spirit_kings_controller : public CreatureScript
                                 {
                                     nextSpirit++;
 
-                                    if (Creature* incomingSpirit = instance->instance->GetCreature(instance->GetData64(spiritKingsEntry[nextSpirit])))
+                                    if (Creature* incomingSpirit = instance->instance->GetCreature(instance->GetGuidData(spiritKingsEntry[nextSpirit])))
                                         me->AddAura(SPELL_ACTIVATION_VISUAL, incomingSpirit);
                                 }
                             }
@@ -433,7 +433,7 @@ class boss_spirit_kings_controller : public CreatureScript
 
                             for (auto&& entry : spiritKingsEntry)
                             {
-                                if (Creature* spirit = instance->instance->GetCreature(instance->GetData64(entry)))
+                                if (Creature* spirit = instance->instance->GetCreature(instance->GetGuidData(entry)))
                                 {
                                     spirit->LowerPlayerDamageReq(spirit->GetMaxHealth());
                                     spirit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -463,7 +463,7 @@ class boss_spirit_kings_controller : public CreatureScript
                         if (vanquishedCount > 2)
                             break;
 
-                        if (Creature* incomingSpirit = instance->instance->GetCreature(instance->GetData64(spiritKingsEntry[vanquishedCount + 1])))
+                        if (Creature* incomingSpirit = instance->instance->GetCreature(instance->GetGuidData(spiritKingsEntry[vanquishedCount + 1])))
                         {
                             switch (incomingSpirit->GetEntry())
                             {
@@ -546,7 +546,7 @@ class boss_spirit_kings_controller : public CreatureScript
                             if (instance && instance->IsWipe(45.0f, me))
                             {
                                 for (auto&& itr : spiritKingsEntry)
-                                    if (Creature* spirit = ObjectAccessor::GetCreature(*me, instance->GetData64(itr)))
+                                    if (Creature* spirit = ObjectAccessor::GetCreature(*me, instance->GetGuidData(itr)))
                                         spirit->AI()->EnterEvadeMode();
 
                                 instance->SetBossState(DATA_SPIRIT_KINGS, FAIL);
@@ -563,7 +563,7 @@ class boss_spirit_kings_controller : public CreatureScript
                         }
                         case EVENT_BERSERK:
                             for (auto&& itr : spiritKingsEntry)
-                                if (Creature* spirit = ObjectAccessor::GetCreature(*me, instance->GetData64(itr)))
+                                if (Creature* spirit = ObjectAccessor::GetCreature(*me, instance->GetGuidData(itr)))
                                     spirit->CastSpell(spirit, SPELL_BERSERK, true);
                             break;
                     }
@@ -603,7 +603,7 @@ class boss_spirit_kings : public CreatureScript
 
             uint8 shadowCount;
             uint8 maxShadowCount;
-            uint64 targetGuid;
+            ObjectGuid targetGuid;
             float targetAngle;
 
             void InitializeAI() override
@@ -623,7 +623,7 @@ class boss_spirit_kings : public CreatureScript
 
                 shadowCount = 0;
                 maxShadowCount = 3;
-                targetGuid = 0;
+                targetGuid = ObjectGuid::Empty;
 
                 vanquished = false;
                 _introQiangDone = false;
@@ -674,7 +674,7 @@ class boss_spirit_kings : public CreatureScript
             Creature* GetControler()
             {
                 if (instance)
-                    return instance->instance->GetCreature(instance->GetData64(NPC_SPIRIT_GUID_CONTROLLER));
+                    return instance->instance->GetCreature(instance->GetGuidData(NPC_SPIRIT_GUID_CONTROLLER));
                 else
                     return NULL;
             }
@@ -723,7 +723,7 @@ class boss_spirit_kings : public CreatureScript
                 return false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (!aggroDone)
                 {
@@ -844,7 +844,7 @@ class boss_spirit_kings : public CreatureScript
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     me->AddAura(SPELL_INACTIVE, me);
                     me->SetReactState(REACT_PASSIVE);
-                    me->getThreatManager().resetAllAggro();
+                    me->GetThreatManager().ResetAllThreat();
                     me->CombatStop();
                     me->StopMoving();
                     me->GetMotionMaster()->Clear();
@@ -911,7 +911,7 @@ class boss_spirit_kings : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (!me->IsAlive())
                     return;
@@ -1262,15 +1262,15 @@ class npc_pinning_arrow : public CreatureScript
             }
 
             InstanceScript* instance;
-            uint64 playerGuid;
+            ObjectGuid playerGuid;
 
             void Reset() override
             {
                 me->SetReactState(REACT_PASSIVE);
-                playerGuid = 0;
+                playerGuid = ObjectGuid::Empty;
             }
 
-            void SetGUID(uint64 guid, int32 /*type*/) override
+            void SetGUID(ObjectGuid guid, int32 /*type*/) override
             {
                 DoZoneInCombat(me, 150.0f);
                 playerGuid = guid;
@@ -1332,14 +1332,14 @@ class npc_undying_shadow : public CreatureScript
             bool phase;
             uint32 switchPhaseTimer;
             float scale;
-            uint64 targetGuid;
+            ObjectGuid targetGuid;
 
             void Reset() override
             {
                 me->CastSpell(me, SPELL_UNDYING_SHADOW_DOT, true);
                 DoZoneInCombat();
 
-                targetGuid = 0;
+                targetGuid = ObjectGuid::Empty;
 
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, CasterSpecTargetSelector()))
                 {
@@ -1383,7 +1383,7 @@ class npc_undying_shadow : public CreatureScript
                         phase = PHASE_COALESCING_SHADOW;
                         switchPhaseTimer = 60000;
                         damage = 0;
-                        targetGuid = 0;
+                        targetGuid = ObjectGuid::Empty;
                     }
                 }
                 else
@@ -1633,14 +1633,14 @@ class spell_maddening_shout : public SpellScriptLoader
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* owner = GetOwner()->ToPlayer())
-                    owner->SetByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 1, UNIT_BYTE2_FLAG_UNK1);
+                    owner->SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_UNK1);
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* owner = GetOwner()->ToPlayer())
                 {
-                    owner->RemoveByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 1, UNIT_BYTE2_FLAG_UNK1);
+                    owner->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_UNK1);
 
                     // Stop attack only if our target has normal faction
                     if (Unit* target = ObjectAccessor::GetUnit(*owner, owner->GetTarget()))

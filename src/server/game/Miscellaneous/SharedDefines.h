@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -24,6 +24,9 @@
 
 #define MAX_CREATURE_BASE_HP 5
 #define MAX_CREATURE_BASE_DAMAGE 5
+
+float const GROUND_HEIGHT_TOLERANCE = 0.05f; // Extra tolerance to z position to check if it is in air or on ground.
+constexpr float Z_OFFSET_FIND_HEIGHT = 1.5f;
 
 enum SpellEffIndex
 {
@@ -732,6 +735,8 @@ enum SpellAttr11
     SPELL_ATTR11_USABLE_WHILE_STUNNED           = 0x04000000,
 };
 
+#define MAX_SPECIALIZATIONS         5
+
 enum Roles
 {
     ROLES_DEFAULT   = 0,
@@ -883,15 +888,15 @@ enum TeamId
 
 enum Team
 {
-    HORDE               = 67,
-    ALLIANCE            = 469,
-    PANDAREN_NEUTRAL    = 1249,                              // Pandaren is neutral
-    //TEAM_STEAMWHEEDLE_CARTEL = 169,                       // not used in code
-    //TEAM_ALLIANCE_FORCES     = 891,
-    //TEAM_HORDE_FORCES        = 892,
-    //TEAM_SANCTUARY           = 936,
-    //TEAM_OUTLAND             = 980,
-    TEAM_OTHER               = 0                            // if ReputationListId > 0 && Flags != FACTION_FLAG_TEAM_HEADER
+    HORDE						= 67,
+    ALLIANCE					= 469,
+    //TEAM_STEAMWHEEDLE_CARTEL  = 169,   // not used in code
+    //TEAM_ALLIANCE_FORCES      = 891,
+    //TEAM_HORDE_FORCES         = 892,
+    //TEAM_SANCTUARY            = 936,
+    //TEAM_OUTLAND              = 980,
+	PANDAREN_NEUTRAL		    = 1249,  // Pandaren is neutral on start
+    TEAM_OTHER                  = 0      // if ReputationListId > 0 && Flags != FACTION_FLAG_TEAM_HEADER
 };
 
 enum SpellEffects
@@ -1062,11 +1067,11 @@ enum SpellEffects
     SPELL_EFFECT_REMOVE_AURA                        = 164,
     SPELL_EFFECT_DAMAGE_FROM_MAX_HEALTH_PCT         = 165,
     SPELL_EFFECT_GIVE_CURRENCY                      = 166,
-    SPELL_EFFECT_167                                = 167,
+    SPELL_EFFECT_UPDATE_PLAYER_PHASE                = 167,
     SPELL_EFFECT_168                                = 168,
     SPELL_EFFECT_DESTROY_ITEM                       = 169,
-    SPELL_EFFECT_170                                = 170,
-    SPELL_EFFECT_171                                = 171, // Summons gamebject
+    SPELL_EFFECT_UPDATE_ZONE_AURAS_AND_PHASES       = 170,
+    SPELL_EFFECT_SUMMON_PERSONAL_GAMEOBJECT         = 171, // Summons gamebject
     SPELL_EFFECT_RESURRECT_WITH_AURA                = 172,
     SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB             = 173, // Guild tab unlocked (guild perk)
     SPELL_EFFECT_APPLY_AREA_AURA_ENTRY              = 174,
@@ -3397,22 +3402,35 @@ enum HolidayIds
     HOLIDAY_CALL_TO_ARMS_DG_3D       = 516,
 };
 
-// values based at QuestInfo.dbc
-enum QuestTypes
+enum QuestType
 {
-    QUEST_TYPE_GROUP               = 1,
-    QUEST_TYPE_CLASS               = 21,
-    QUEST_TYPE_PVP                 = 41,
-    QUEST_TYPE_RAID                = 62,
-    QUEST_TYPE_DUNGEON             = 81,
-    QUEST_TYPE_WORLD_EVENT         = 82,
-    QUEST_TYPE_LEGENDARY           = 83,
-    QUEST_TYPE_ESCORT              = 84,
-    QUEST_TYPE_HEROIC              = 85,
-    QUEST_TYPE_RAID_10             = 88,
-    QUEST_TYPE_RAID_25             = 89,
-    QUEST_TYPE_SCENARIO            = 98,
-    QUEST_TYPE_ACCOUNT             = 102,
+    QUEST_TYPE_TURNIN               = 0,
+    QUEST_TYPE_WITH_MAX_LEVEL       = 1,
+    QUEST_TYPE_NORMAL               = 2,
+    QUEST_TYPE_TASK                 = 3,
+    MAX_DB_ALLOWED_QUEST_TYPES      = 4,
+
+    // values used in quest menu packets
+    QUEST_TYPE_IN_PROGRESS          = 4,
+    QUEST_TYPE_TASK_IN_PROGRESS     = 5
+};
+
+// values based at QuestInfo.dbc
+enum QuestInfo
+{
+    QUEST_INFO_GROUP               = 1,
+    QUEST_INFO_CLASS               = 21,
+    QUEST_INFO_PVP                 = 41,
+    QUEST_INFO_RAID                = 62,
+    QUEST_INFO_DUNGEON             = 81,
+    QUEST_INFO_WORLD_EVENT         = 82,
+    QUEST_INFO_LEGENDARY           = 83,
+    QUEST_INFO_ESCORT              = 84,
+    QUEST_INFO_HEROIC              = 85,
+    QUEST_INFO_RAID_10             = 88,
+    QUEST_INFO_RAID_25             = 89,
+    QUEST_INFO_SCENARIO            = 98,
+    QUEST_INFO_ACCOUNT             = 102,
 };
 
 // values based at QuestSort.dbc
@@ -3985,7 +4003,10 @@ enum EventId
     /// Special charge event which is used for charge spells that have explicit targets
     /// and had a path already generated - using it in PointMovementGenerator will not
     /// create a new spline and launch it
-    EVENT_CHARGE_PREPATH    = 1005
+    EVENT_CHARGE_PREPATH    = 1005,
+
+    /// Used for facing changes (MotionMaster::MoveFace)
+    EVENT_FACE              = 1006
 };
 
 enum ResponseCodes
@@ -4442,35 +4463,6 @@ enum PartyResult
     ERR_PARTY_LFG_TELEPORT_IN_COMBAT    = 30
 };
 
-const uint32 MMAP_MAGIC = 0x4d4d4150; // 'MMAP'
-#define MMAP_VERSION 7
-
-struct MmapTileHeader
-{
-    uint32 mmapMagic;
-    uint32 dtVersion;
-    uint32 mmapVersion;
-    uint32 size;
-    bool usesLiquids : 1;
-
-    MmapTileHeader() : mmapMagic(MMAP_MAGIC), dtVersion(DT_NAVMESH_VERSION),
-        mmapVersion(MMAP_VERSION), size(0), usesLiquids(true) { }
-};
-
-enum NavTerrain
-{
-    NAV_EMPTY   = 0x00,
-    NAV_GROUND  = 0x01,
-    NAV_MAGMA   = 0x02,
-    NAV_SLIME   = 0x04,
-    NAV_WATER   = 0x08,
-    NAV_UNUSED1 = 0x10,
-    NAV_UNUSED2 = 0x20,
-    NAV_UNUSED3 = 0x40,
-    NAV_UNUSED4 = 0x80
-    // we only have 8 bits
-};
-
 enum DiminishingLevels
 {
     DIMINISHING_LEVEL_1             = 0,
@@ -4481,7 +4473,7 @@ enum DiminishingLevels
     DIMINISHING_LEVEL_TAUNT_IMMUNE  = 4
 };
 
-enum class GameError
+enum class GameError : uint32
 {
     ERR_INV_FULL                                               = 0,
     ERR_BANK_FULL                                              = 1,

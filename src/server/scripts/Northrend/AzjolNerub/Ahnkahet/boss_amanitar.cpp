@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -57,8 +57,8 @@ class boss_amanitar : public CreatureScript
 
         struct boss_amanitarAI : public BossAI
         {
-            boss_amanitarAI(Creature* creature) : BossAI(creature, DATA_AMANITAR) 
-            { 
+            boss_amanitarAI(Creature* creature) : BossAI(creature, DATA_AMANITAR)
+            {
                me->ApplySpellImmune(0, IMMUNITY_ID, 16857, true);
                me->ApplySpellImmune(0, IMMUNITY_ID, 770, true);
              }
@@ -89,9 +89,9 @@ class boss_amanitar : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_ROOT, urand(5 * IN_MILLISECONDS, 9 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_BASH, urand(10 * IN_MILLISECONDS, 14 * IN_MILLISECONDS));
@@ -110,9 +110,8 @@ class boss_amanitar : public CreatureScript
 
                 for (uint8 i = 0; i < 30; ++i)
                 {
-                    Position pos;
-                    me->GetPosition(&pos);
-                    me->GetRandomNearPosition(pos, 30.0f);
+                    Position pos = me->GetPosition();
+                    me->GetRandomNearPosition(30.0f);
                     pos.m_positionZ = me->GetMap()->GetHeight(pos.GetPositionX(), pos.GetPositionY(), MAX_HEIGHT) + 2.0f;
 
                     if (Creature* trigger = me->SummonCreature(NPC_TRIGGER, pos))
@@ -125,7 +124,7 @@ class boss_amanitar : public CreatureScript
                         {
                             u = 1 - u;
                             trigger->DisappearAndDie();
-                            me->SummonCreature(u > 0 ? NPC_POISONOUS_MUSHROOM : NPC_HEALTHY_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30 * IN_MILLISECONDS);
+                            me->SummonCreature(u > 0 ? NPC_POISONOUS_MUSHROOM : NPC_HEALTHY_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, Milliseconds(30 * IN_MILLISECONDS));
                         }
                     }
                 }
@@ -198,7 +197,7 @@ class npc_amanitar_mushrooms : public CreatureScript
                 events.Reset();
                 events.ScheduleEvent(EVENT_AURA, 1 * IN_MILLISECONDS);
 
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+                me->SetDisplayFromModel(1);
                 DoCast(SPELL_PUTRID_MUSHROOM);
 
                 if (me->GetEntry() == NPC_POISONOUS_MUSHROOM)
@@ -207,7 +206,7 @@ class npc_amanitar_mushrooms : public CreatureScript
                     DoCast(SPELL_POWER_MUSHROOM_VISUAL_AURA);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage) override
             {
                 if (damage >= me->GetHealth() && me->GetEntry() == NPC_HEALTHY_MUSHROOM)
                 {
@@ -221,7 +220,7 @@ class npc_amanitar_mushrooms : public CreatureScript
                     DoCast(me, SPELL_POISONOUS_MUSHROOM_POISON_CLOUD, true);
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void AttackStart(Unit* /*who*/) override { }
 

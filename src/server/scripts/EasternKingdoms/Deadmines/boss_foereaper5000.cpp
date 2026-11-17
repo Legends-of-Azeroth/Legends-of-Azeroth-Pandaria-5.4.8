@@ -18,7 +18,7 @@
 #include "ScriptPCH.h"
 #include "deadmines.h"
 
-// todo: реализовать робота и аддов на героике, включение робота после убийства пары мобов
+// todo: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 
 enum ScriptTexts
 {
@@ -85,7 +85,7 @@ class boss_foereaper5000 : public CreatureScript
         {
             boss_foereaper5000AI(Creature* creature) : BossAI(creature, DATA_FOEREAPER) { }
 
-            uint64 harvestTargetGuid = 0;
+            ObjectGuid harvestTargetGuid = ObjectGuid::Empty;
             bool bEnrage;
 
             void InitializeAI() override
@@ -116,7 +116,7 @@ class boss_foereaper5000 : public CreatureScript
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
                 bEnrage = false;
-                harvestTargetGuid = 0;
+                harvestTargetGuid = ObjectGuid::Empty;
             }
 
             void UpdateAI(uint32 diff) override
@@ -185,9 +185,9 @@ class boss_foereaper5000 : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override 
+            void JustEngagedWith(Unit* /*who*/) override 
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);

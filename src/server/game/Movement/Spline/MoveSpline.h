@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -67,6 +67,7 @@ namespace Movement
         int32           effect_start_time;
         int32           point_Idx;
         int32           point_Idx_offset;
+        float           velocity;
 
         void init_spline(const MoveSplineInitArgs& args);
 
@@ -119,9 +120,10 @@ namespace Movement
         bool HasAnimation() const { return splineflags.animation; }
         bool IsWalking() { return splineflags.walkmode; }
         bool IsEnteringTransport() { return splineflags.transportEnter; }
-        UnitAnimationTier GetAnimation() const { return (UnitAnimationTier)splineflags.getAnimationId(); }
+        AnimTier GetAnimation() const { return (AnimTier)splineflags.getAnimationId(); }
         Vector3 FinalDestination() const { return Initialized() ? spline.getPoint(spline.last()) : Vector3(); }
         Vector3 CurrentDestination() const { return Initialized() ? spline.getPoint(point_Idx + 1) : Vector3(); }
+        float Velocity() const { return velocity; }
         int32 currentPathIdx() const;
 
         bool onTransport;

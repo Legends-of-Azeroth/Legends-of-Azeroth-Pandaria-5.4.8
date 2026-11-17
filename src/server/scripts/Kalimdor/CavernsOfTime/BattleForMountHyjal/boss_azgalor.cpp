@@ -82,7 +82,7 @@ public:
                 instance->SetData(DATA_AZGALOREVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             if (instance && IsEvent)
                 instance->SetData(DATA_AZGALOREVENT, IN_PROGRESS);
@@ -94,13 +94,14 @@ public:
             Talk(SAY_ONSLAY);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
             if (waypointId == 7 && instance)
             {
-                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_THRALL));
+                Unit* target = Unit::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
                 if (target && target->IsAlive())
-                    me->AddThreat(target, 0.0f);
+                    me->GetThreatManager().AddThreat(target, 0.0f);
             }
         }
 
@@ -116,8 +117,8 @@ public:
         {
             if (IsEvent)
             {
-                //Must update npc_escortAI
-                npc_escortAI::UpdateAI(diff);
+                //Must update EscortAI
+                EscortAI::UpdateAI(diff);
                 if (!go)
                 {
                     go = true;
@@ -131,7 +132,7 @@ public:
                         AddWaypoint(5, 5508.16f,    -2659.2f,    1480.15f);
                         AddWaypoint(6, 5489.62f,    -2704.05f,    1482.18f);
                         AddWaypoint(7, 5457.04f,    -2726.26f,    1485.10f);
-                        Start(false, true);
+                        SetRun(true); Start(false);
                         SetDespawnAtEnd(false);
                     }
                 }
@@ -195,13 +196,13 @@ public:
         {
             instance = creature->GetInstanceScript();
             if (instance)
-                AzgalorGUID = instance->GetData64(DATA_AZGALOR);
+                AzgalorGUID = instance->GetGuidData(DATA_AZGALOR);
         }
 
         uint32 CrippleTimer;
         uint32 WarstompTimer;
         uint32 CheckTimer;
-        uint64 AzgalorGUID;
+        ObjectGuid AzgalorGUID;
         InstanceScript* instance;
 
         void Reset() override
@@ -212,7 +213,7 @@ public:
             CheckTimer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
         }
 
@@ -220,8 +221,9 @@ public:
         {
         }
 
-        void WaypointReached(uint32 /*waypointId*/) override
+        void MovementInform(uint32 type, uint32 waypointId) override
         {
+            EscortAI::MovementInform(type, waypointId);
         }
 
         void MoveInLineOfSight(Unit* who) override

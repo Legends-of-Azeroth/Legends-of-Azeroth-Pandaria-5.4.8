@@ -35,15 +35,15 @@ public:
     {
         static std::vector<ChatCommand> battlefieldcommandTable =
         {
-            { "start",          SEC_GAMEMASTER, false,  &HandleBattlefieldStart,    },
-            { "stop",           SEC_GAMEMASTER, false,  &HandleBattlefieldEnd,      },
-            { "switch",         SEC_GAMEMASTER, false,  &HandleBattlefieldSwitch,   },
-            { "timer",          SEC_GAMEMASTER, false,  &HandleBattlefieldTimer,    },
-            { "enable",         SEC_GAMEMASTER, false,  &HandleBattlefieldEnable,   },
+            { "start",          &HandleBattlefieldStart,    rbac::RBAC_PERM_COMMAND_BF_START,  Trinity::ChatCommands::Console::No },
+            { "stop",           &HandleBattlefieldEnd,      rbac::RBAC_PERM_COMMAND_BF_STOP,   Trinity::ChatCommands::Console::No },
+            { "switch",         &HandleBattlefieldSwitch,   rbac::RBAC_PERM_COMMAND_BF_SWITCH, Trinity::ChatCommands::Console::No },
+            { "timer",          &HandleBattlefieldTimer,    rbac::RBAC_PERM_COMMAND_BF_TIMER,  Trinity::ChatCommands::Console::No },
+            { "enable",         &HandleBattlefieldEnable,   rbac::RBAC_PERM_COMMAND_BF_ENABLE, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "bf",             SEC_GAMEMASTER, false,  battlefieldcommandTable     },
+            { "bf",             battlefieldcommandTable,     rbac::RBAC_PERM_COMMAND_BF_START,  Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

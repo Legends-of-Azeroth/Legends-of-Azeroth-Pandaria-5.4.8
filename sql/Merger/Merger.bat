@@ -1,1 +1,0 @@
-copy /b *.sql all.sql

@@ -87,9 +87,9 @@ class boss_varos : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
             }
 
@@ -181,7 +181,7 @@ class npc_azure_ring_captain : public CreatureScript
 
             void Initialize()
             {
-                targetGUID = 0;
+                targetGUID = ObjectGuid::Empty;
             }
 
             void Reset() override
@@ -226,7 +226,7 @@ class npc_azure_ring_captain : public CreatureScript
                 switch (action)
                 {
                    case ACTION_CALL_DRAGON_EVENT:
-                        if (Creature* varos = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VAROS)))
+                        if (Creature* varos = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VAROS)))
                         {
                             if (Unit* victim = varos->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
@@ -241,7 +241,7 @@ class npc_azure_ring_captain : public CreatureScript
            }
 
         private:
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             InstanceScript* instance;
         };
 
@@ -266,10 +266,10 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
                     return;
 
                 // flags taken from sniffs
-                if (GetCaster()->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_UNK_6))
+                if (GetCaster()->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CAN_SWIM|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_UNK_6))
                 {
                     GetCaster()->ToCreature()->SetReactState(REACT_PASSIVE);
-                    GetCaster()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_UNK_6);
+                    GetCaster()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CAN_SWIM|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_UNK_6);
                 }
             }
 
@@ -279,7 +279,7 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
                     return;
 
                 GetCaster()->ToCreature()->SetReactState(REACT_AGGRESSIVE);
-                GetCaster()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_UNK_6);
+                GetCaster()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CAN_SWIM|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_UNK_6);
             }
 
             void Register() override

@@ -7,16 +7,22 @@ on:
   pull_request:
     paths-ignore:
       - 'sql/**'
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
+    if: ${{ !github.event.pull_request.draft }}
     steps:
     - uses: actions/checkout@v2
     - name: Dependencies
       run: |
-        sudo apt-get update && sudo apt-get install -yq libboost-all-dev clang-14 libace-dev
-        sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-14 100 
-        sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-14 100
+        sudo apt-get update && sudo apt-get install -yq libboost-all-dev clang-15 libreadline-dev libbz2-dev
+        sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-15 100 
+        sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 100
     - name: Setup
       run: |
         mkdir bin

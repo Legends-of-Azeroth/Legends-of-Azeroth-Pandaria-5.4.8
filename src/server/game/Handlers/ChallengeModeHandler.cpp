@@ -22,8 +22,9 @@
 #include "Group.h"
 #include "LFGMgr.h"
 #include "SpellHistory.h"
+#include "Realm.h"
 
-void WorldSession::HandleGetChallengeModeRewards(WorldPacket& /*recvData*/)
+void WorldSession::HandleGetChallengeModeRewards(WorldPackets::ChallengeMode::GetChallengeModeRewards& /*packet*/)
 {
     ByteBuffer buffer;
     WorldPacket data(SMSG_CHALLENGE_MODE_REWARDS);
@@ -61,11 +62,9 @@ void WorldSession::HandleGetChallengeModeRewards(WorldPacket& /*recvData*/)
     SendPacket(&data);
 }
 
-void WorldSession::HandleChallengeModeRequestLeaders(WorldPacket& recvData)
+void WorldSession::HandleChallengeModeRequestLeaders(WorldPackets::ChallengeMode::ChallengeModeRequestLeaders& packet)
 {
-    uint32 mapId = recvData.read<uint32>();
-    recvData.read_skip<uint32>(); // Last Guild update
-    recvData.read_skip<uint32>(); // Last Realm update
+    uint32 mapId = packet.MapId;
 
     RealmCompletedChallenge* groupChallenge = sObjectMgr->GetGroupCompletedChallengeForMap(mapId);
     RealmCompletedChallenge* guildChallenge = sObjectMgr->GetGuildCompletedChallengeForMap(mapId);
@@ -97,19 +96,31 @@ void WorldSession::HandleChallengeModeRequestLeaders(WorldPacket& recvData)
         {
             ObjectGuid guid = guildChallenge->Members[j].Guid;
 
-            data.WriteGuidMask(guid, 5, 2, 3, 0, 7, 1, 4, 6);
+            data.WriteBit(guid[5]);
+            data.WriteBit(guid[2]);
+            data.WriteBit(guid[3]);
+            data.WriteBit(guid[0]);
+            data.WriteBit(guid[7]);
+            data.WriteBit(guid[1]);
+            data.WriteBit(guid[4]);
+            data.WriteBit(guid[6]);
 
-            guildBuffer.WriteGuidBytes(guid, 3);
+            guildBuffer.WriteByteSeq(guid[3]);
             guildBuffer << uint32(guildChallenge->Members[j].SpecId);
-            guildBuffer << uint32(realmID);
-            guildBuffer.WriteGuidBytes(guid, 1, 5, 0);
-            guildBuffer << uint32(realmID);
-            guildBuffer.WriteGuidBytes(guid, 4, 7, 6, 2);
+            guildBuffer << uint32(realm.Id.Realm);
+            guildBuffer.WriteByteSeq(guid[1]);
+            guildBuffer.WriteByteSeq(guid[5]);
+            guildBuffer.WriteByteSeq(guid[0]);
+            guildBuffer << uint32(realm.Id.Realm);
+            guildBuffer.WriteByteSeq(guid[4]);
+            guildBuffer.WriteByteSeq(guid[7]);
+            guildBuffer.WriteByteSeq(guid[6]);
+            guildBuffer.WriteByteSeq(guid[2]);
         }
 
         guildBuffer << uint32(guildChallenge->AttemptId);
         guildBuffer << uint32(guildChallenge->MedalEarned);
-        guildBuffer << uint32(realmID);
+        guildBuffer << uint32(realm.Id.Realm);
         guildBuffer << uint32(guildChallenge->CompletionTime);
         guildBuffer << uint32(guildChallenge->CompletionDate);
     }
@@ -125,17 +136,30 @@ void WorldSession::HandleChallengeModeRequestLeaders(WorldPacket& recvData)
         {
             ObjectGuid guid = groupChallenge->Members[j].Guid;
 
-            data.WriteGuidMask(guid, 5, 3, 0, 1, 2, 4, 6, 7);
+            data.WriteBit(guid[5]);
+            data.WriteBit(guid[3]);
+            data.WriteBit(guid[0]);
+            data.WriteBit(guid[1]);
+            data.WriteBit(guid[2]);
+            data.WriteBit(guid[4]);
+            data.WriteBit(guid[6]);
+            data.WriteBit(guid[7]);
 
-            realmBuffer.WriteGuidBytes(guid, 4, 3, 6, 7, 2, 1);
-            realmBuffer << uint32(realmID);
+            realmBuffer.WriteByteSeq(guid[4]);
+            realmBuffer.WriteByteSeq(guid[3]);
+            realmBuffer.WriteByteSeq(guid[6]);
+            realmBuffer.WriteByteSeq(guid[7]);
+            realmBuffer.WriteByteSeq(guid[2]);
+            realmBuffer.WriteByteSeq(guid[1]);
+            realmBuffer << uint32(realm.Id.Realm);
             realmBuffer << uint32(groupChallenge->Members[j].SpecId);
-            realmBuffer << uint32(realmID);
-            realmBuffer.WriteGuidBytes(guid, 0, 5);
+            realmBuffer << uint32(realm.Id.Realm);
+            realmBuffer.WriteByteSeq(guid[0]);
+            realmBuffer.WriteByteSeq(guid[5]);
         }
 
         realmBuffer << uint32(groupChallenge->CompletionDate);
-        realmBuffer << uint32(realmID);
+        realmBuffer << uint32(realm.Id.Realm);
         realmBuffer << uint32(groupChallenge->AttemptId);
         realmBuffer << uint32(groupChallenge->CompletionTime);
         realmBuffer << uint32(groupChallenge->MedalEarned);
@@ -152,7 +176,7 @@ void WorldSession::HandleChallengeModeRequestLeaders(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleChallengeModeRequestMapStats(WorldPacket& /*recvData*/)
+void WorldSession::HandleChallengeModeRequestMapStats(WorldPackets::ChallengeMode::ChallengeModeRequestMapStats& /*packet*/)
 {
     uint32 mapsCount = _player->GetCompletedChallenges().size();
 
@@ -235,7 +259,7 @@ struct CooldownResetPredicate
     }
 };
 
-void WorldSession::HandleResetChallengeMode(WorldPacket& /*recvData*/)
+void WorldSession::HandleResetChallengeMode(WorldPackets::ChallengeMode::ResetChallengeMode& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_RESET_CHALLENGE_MODE");
 

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -24,7 +24,9 @@
 #include "Implementation/LoginDatabase.h"
 #include "Implementation/CharacterDatabase.h"
 #include "Implementation/WorldDatabase.h"
-
+#ifdef PLAYERBOTS
+#include "Implementation/PlayerbotsDatabase.h"
+#endif
 #include "Field.h"
 #include "PreparedStatement.h"
 #include "QueryCallback.h"
@@ -37,5 +39,8 @@ TC_DATABASE_API extern DatabaseWorkerPool<WorldDatabaseConnection> WorldDatabase
 TC_DATABASE_API extern DatabaseWorkerPool<CharacterDatabaseConnection> CharacterDatabase;
 /// Accessor to the realm/login database
 TC_DATABASE_API extern DatabaseWorkerPool<LoginDatabaseConnection> LoginDatabase;
-
+#ifdef PLAYERBOTS
+/// Accessor to the playerbots database
+TC_DATABASE_API extern DatabaseWorkerPool<PlayerbotsDatabaseConnection> PlayerbotsDatabase;
+#endif
 #endif

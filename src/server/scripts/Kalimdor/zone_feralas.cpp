@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -78,12 +78,12 @@ struct npc_feralas_wisp : public ScriptedAI
 
     EventMap _events;
     bool _isFollowing;
-    uint64 _playerGUID;
+    ObjectGuid _playerGUID;
 
     void Reset() override
     {
         _isFollowing = false;
-        _playerGUID = 0;
+        _playerGUID = ObjectGuid::Empty;
     }
 
     void SpellHit(Unit* caster, SpellInfo const* spell) override
@@ -146,7 +146,7 @@ struct npc_feralas_hippogryph : public ScriptedAI
     npc_feralas_hippogryph(Creature* creature) : ScriptedAI(creature) { }
 
     EventMap _events;
-    uint64 _playerGUID;
+    ObjectGuid _playerGUID;
     bool _hippogryph_called;
 
     uint32 _timer_spell_air_blast;
@@ -155,7 +155,7 @@ struct npc_feralas_hippogryph : public ScriptedAI
 
     void Reset() override
     {
-        _playerGUID = 0;
+        _playerGUID = ObjectGuid::Empty;
         _hippogryph_called = false;
 
         _timer_spell_air_blast = urand(2000, 3000);
@@ -185,7 +185,7 @@ struct npc_feralas_hippogryph : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* /*victim*/) override
+    void JustEngagedWith(Unit* /*victim*/) override
     {
         if (_hippogryph_called)
         {
@@ -271,7 +271,7 @@ struct npc_feralas_wandering_forest_walker : public ScriptedAI
     npc_feralas_wandering_forest_walker(Creature* creature) : ScriptedAI(creature) { }
 
     EventMap _events;
-    uint64 _playerGUID;
+    ObjectGuid _playerGUID;
     bool _treant_called;
 
     uint32 _timer_spell_regrowth;
@@ -279,7 +279,7 @@ struct npc_feralas_wandering_forest_walker : public ScriptedAI
 
     void Reset() override
     {
-        _playerGUID = 0;
+        _playerGUID = ObjectGuid::Empty;
         _treant_called = false;
 
         _timer_spell_regrowth = urand(2000, 3000);
@@ -306,7 +306,7 @@ struct npc_feralas_wandering_forest_walker : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* /*victim*/) override
+    void JustEngagedWith(Unit* /*victim*/) override
     {
         if (_treant_called)
         {
@@ -374,7 +374,7 @@ struct npc_feralas_horde_poacher : public ScriptedAI
     npc_feralas_horde_poacher(Creature* creature) : ScriptedAI(creature) { }
 
     EventMap _events;
-    uint64 _playerGUID;
+    ObjectGuid _playerGUID;
     bool _cd_spell_net;
     bool _cd_spell_shot;
     bool _cd_spell_aimed_shot;
@@ -382,7 +382,7 @@ struct npc_feralas_horde_poacher : public ScriptedAI
 
     void Reset() override
     {
-        _playerGUID = 0;
+        _playerGUID = ObjectGuid::Empty;
         _cd_spell_net = false;
         _cd_spell_shot = false;
         _cd_spell_aimed_shot = false;
@@ -420,7 +420,7 @@ struct npc_feralas_horde_poacher : public ScriptedAI
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (_playerGUID)
             me->DespawnOrUnsummon(10);
@@ -541,9 +541,9 @@ enum ForceOfNatureTypes
 };
 
 // Mountain Giant 40026
-struct npc_feralas_mountain_giant : public CreatureAI
+struct npc_feralas_mountain_giant : public ScriptedAI
 {
-    npc_feralas_mountain_giant(Creature* creature) : CreatureAI(creature) { }
+    npc_feralas_mountain_giant(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
     bool hasCredit;
@@ -563,8 +563,7 @@ struct npc_feralas_mountain_giant : public CreatureAI
                 .Schedule(Seconds(3), [this](TaskContext context)
             {
                 // Move away!
-                Position pos;
-                me->GetNearPosition(pos, 10.0f, frand(0.0f, 2 * M_PI));
+                Position pos = me->GetNearPosition(10.0f, frand(0.0f, 2 * M_PI));
                 me->SetWalk(true);
                 me->GetMotionMaster()->MovePoint(0, pos);
                 me->DespawnOrUnsummon(me->GetSplineDuration());

@@ -81,13 +81,13 @@ class boss_najentus : public CreatureScript
 
             InstanceScript* instance;
             EventMap events;
-            uint64 SpineTargetGUID;
+            ObjectGuid SpineTargetGUID;
 
             void Reset() override
             {
                 events.Reset();
 
-                SpineTargetGUID = 0;
+                SpineTargetGUID = ObjectGuid::Empty;
 
                 if (instance)
                     instance->SetData(DATA_HIGH_WARLORD_NAJENTUS_EVENT, NOT_STARTED);
@@ -117,7 +117,7 @@ class boss_najentus : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(DATA_HIGH_WARLORD_NAJENTUS_EVENT, who->ToPlayer()))
                 {
@@ -142,7 +142,7 @@ class boss_najentus : public CreatureScript
                 Unit* target = Unit::GetUnit(*me, SpineTargetGUID);
                 if (target && target->HasAura(SPELL_IMPALING_SPINE))
                     target->RemoveAurasDueToSpell(SPELL_IMPALING_SPINE);
-                SpineTargetGUID=0;
+                SpineTargetGUID=ObjectGuid::Empty;
                 return true;
             }
 
@@ -228,7 +228,7 @@ class go_najentus_spine : public GameObjectScript
         bool OnGossipHello(Player* player, GameObject* go) override
         {
             if (InstanceScript* instance = go->GetInstanceScript())
-                if (Creature* Najentus = Unit::GetCreature(*go, instance->GetData64(DATA_HIGH_WARLORD_NAJENTUS)))
+                if (Creature* Najentus = Unit::GetCreature(*go, instance->GetGuidData(DATA_HIGH_WARLORD_NAJENTUS)))
                     if (CAST_AI(boss_najentus::boss_najentusAI, Najentus->AI())->RemoveImpalingSpine())
                     {
                         player->CastSpell(player, SPELL_CREATE_NAJENTUS_SPINE, true);

@@ -29,18 +29,18 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
         {
             instance_the_vortex_pinnacle_InstanceMapScript(InstanceMap* map) : InstanceScript(map) { }
 
-            uint64 uiGrandVizierErtanGUID;
-            uint64 uiAltairusGUID;
-            uint64 uiAsaadGUID;
+            ObjectGuid uiGrandVizierErtanGUID;
+            ObjectGuid uiAltairusGUID;
+            ObjectGuid uiAsaadGUID;
             uint32 goldenOrbsCollected;
             uint32 archaeologyQuestAura;
 
             void Initialize() override
             {
                 SetBossNumber(MAX_ENCOUNTER);
-                uiGrandVizierErtanGUID = 0;
-                uiAltairusGUID = 0;
-                uiAsaadGUID = 0;                
+                uiGrandVizierErtanGUID = ObjectGuid::Empty;
+                uiAltairusGUID = ObjectGuid::Empty;
+                uiAsaadGUID = ObjectGuid::Empty;
                 goldenOrbsCollected = 0;
                 archaeologyQuestAura = 0;
             }
@@ -106,7 +106,7 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -117,7 +117,7 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
                     case DATA_ASAAD:
                         return uiAsaadGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData() override

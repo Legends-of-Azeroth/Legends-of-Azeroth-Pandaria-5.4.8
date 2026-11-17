@@ -198,7 +198,7 @@ class boss_lich_king_hor : public CreatureScript
                 }
 
                 // Leader caught, wipe
-                if (Creature* pLider = ((Creature*)Unit::GetUnit(*me, instance->GetData64(DATA_ESCAPE_LIDER))))
+                if (Creature* pLider = ((Creature*)Unit::GetUnit(*me, instance->GetGuidData(DATA_ESCAPE_LIDER))))
                 {
                     if (pLider->IsWithinDistInMap(me, 2.0f) && instance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS)
                     {
@@ -273,10 +273,10 @@ class boss_lich_king_hor : public CreatureScript
                     WaypointsEnded = true;
                     instance->SetData(DATA_LICHKING_EVENT, SPECIAL);
                     Talk(SAY_LICH_KING_ESCAPE_03);
-                    if (Creature* leader = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ESCAPE_LIDER)))
+                    if (Creature* leader = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ESCAPE_LIDER)))
                         me->CastSpell(leader, SPELL_HARVEST_SOUL, false);
 
-                    if (Transport* gunship = ObjectAccessor::GetTransport(*me, instance->GetData64(DATA_GUNSHIP)))
+                    if (Transport* gunship = ObjectAccessor::GetTransport(*me, instance->GetGuidData(DATA_GUNSHIP)))
                         gunship->EnableMovement(true);
 
                     me->setActive(false);
@@ -361,7 +361,7 @@ class boss_lich_king_hor : public CreatureScript
                 if (!splineStarted)
                 {
                     me->SetWalk(walk);
-                    if (Creature* leader = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ESCAPE_LIDER)))
+                    if (Creature* leader = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ESCAPE_LIDER)))
                         me->GetMotionMaster()->MoveFollow(leader, 0.1f, 0.0f);
                 }
 
@@ -437,11 +437,11 @@ class npc_raging_gnoul : public CreatureScript
                         {
                             //me->RemoveFlag(SPLINEFLAG_WALKING | MOVEMENTFLAG_WALKING, true);
                             Emerge = true;
-                            if (Creature* pLider = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ESCAPE_LIDER)))
+                            if (Creature* pLider = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ESCAPE_LIDER)))
                             {
                                 DoResetThreat();
                                 me->AI()->AttackStart(pLider);
-                                me->AddThreat(pLider, 100.0f);
+                                me->GetThreatManager().AddThreat(pLider, 100.0f);
                                 me->GetMotionMaster()->Clear();
                                 me->GetMotionMaster()->MoveChase(pLider);
                             }
@@ -460,7 +460,7 @@ class npc_raging_gnoul : public CreatureScript
                         if (!Jumped && me->IsWithinDistInMap(target, 30.0f) && !me->IsWithinDistInMap(target, 5.0f))
                         {
                             Jumped = true;
-                            me->AddThreat(target, 200.0f);
+                            me->GetThreatManager().AddThreat(target, 200.0f);
                             AttackStart(target);
                             DoCast(target, SPELL_GNOUL_JUMP);
                         }
@@ -542,11 +542,11 @@ class npc_risen_witch_doctor : public CreatureScript
                         if (EmergeTimer < diff)
                         {
                             Emerge = true;
-                            if (Creature* pLider = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ESCAPE_LIDER)))
+                            if (Creature* pLider = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ESCAPE_LIDER)))
                             {
                                 DoResetThreat();
                                 me->AI()->AttackStart(pLider);
-                                me->AddThreat(pLider, 100.0f);
+                                me->GetThreatManager().AddThreat(pLider, 100.0f);
                                 me->GetMotionMaster()->Clear();
                                 me->GetMotionMaster()->MoveChase(pLider);
                             }
@@ -638,11 +638,11 @@ class npc_abon : public CreatureScript
                     if (Walk != true)
                     {
                         Walk = true;
-                        if (Creature* pLider = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ESCAPE_LIDER)))
+                        if (Creature* pLider = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ESCAPE_LIDER)))
                         {
                             DoResetThreat();
                             me->AI()->AttackStart(pLider);
-                            me->AddThreat(pLider, 100.0f);
+                            me->GetThreatManager().AddThreat(pLider, 100.0f);
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MoveChase(pLider);
                         }

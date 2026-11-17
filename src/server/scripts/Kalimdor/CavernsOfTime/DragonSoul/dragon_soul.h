@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 
 #ifndef DEF_DRAGONSOUL_H
 #define DEF_DRAGONSOUL_H
+
+#include <optional>
 
 // 109247 - ds nerf real
 // 109251 - ds nerf dummy
@@ -367,7 +369,7 @@ class instance_dragon_soul_trash_accessor
 {
     public:
         virtual Creature* GetNextTwilightAssaulterStalker(Creature const* current) = 0;
-        virtual Position const* GetRandomTwilightAssaulterAssaultPosition(bool horizonal, bool fromEnd, uint8& lane, uint64& targetGUID) = 0;
+        virtual std::optional<Position> GetRandomTwilightAssaulterAssaultPosition(bool horizonal, bool fromEnd, uint8& lane, ObjectGuid& targetGUID) = 0;
         virtual void FreeTwilightAssaulterAssaultLane(bool horizontal, uint8 lane) = 0;
         virtual void CleanTwilightAssaulterAssaultLane(bool horizontal, uint8 lane) = 0;
 };

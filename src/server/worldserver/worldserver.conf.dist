@@ -36,10 +36,11 @@
 #    BLACK MARKET SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
 #    STARTING GUILD
+#    LOAD SETTINGS
 #
 ###################################################################################################
-Battleground.PremadeGroupWaitForMatch = 1800000
-Battleground.PrematureFinishTimer = 300000
+Respawn.GuidWarnLevel = 12000000
+Respawn.GuidAlertLevel = 16000000
 mmap.AllowReuseOfPreviousPathSegments = 1
 AuthServer.Process =
 AuthServer.Command =
@@ -49,7 +50,7 @@ Arena.BonusReward.Item.2v2 = 0
 Arena.BonusReward.MailTitle.2v2 = 
 Arena.BonusReward.MailText.2v2 =
 Arena.BonusReward.GamesCount.3v3 = 0
-Arena.BonusReward.Item.3v3 = 
+Arena.BonusReward.Item.3v3 = 0
 Arena.BonusReward.MailTitle.3v3 = 
 Arena.BonusReward.MailText.3v3 =
 Arena.BonusReward.GamesCount.5v5 = 0
@@ -60,6 +61,16 @@ Arena.BonusReward.GamesCount.RBG = 0
 Arena.BonusReward.Item.RBG = 0 
 Arena.BonusReward.MailTitle.RBG = 
 Arena.BonusReward.MailText.RBG = 
+Arena.SeasonReward.Cleanup.KeepWithAchievements = 2091
+Arena.SeasonReward.Cleanup.Achievements = 2093 2092 2090
+Arena.SeasonReward.Cleanup.Titles = 44 43 45
+Arena.SeasonReward.RatingThreshold.3x3 = -1
+Arena.SeasonReward.RatingThreshold.5x5 = -1
+Arena.SeasonReward.RatingThreshold.2x2 = -1
+Updates.CleanDeadRefMaxCount = 3
+Updates.ArchivedRedundancy = 0
+Updates.AllowRehash = 1
+Updates.Redundancy = 1
 ###################################################################################################
 # EXAMPLE CONFIG
 #
@@ -172,6 +183,67 @@ WorldServerPort = 8085
 BindIP = "0.0.0.0"
 
 #
+#    ThreadPool
+#        Description: Number of threads to be used for the global thread pool
+#                     The thread pool is currently used for:
+#                      - Signal handling
+#                      - Remote access
+#                      - Database keep-alive ping
+#                      - Core freeze check
+#                      - World socket networking
+#        Default:     2
+
+ThreadPool = 2
+
+#
+#    CMakeCommand
+#        Description: The path to your CMake binary.
+#                     If the path is left empty, the built-in CMAKE_COMMAND is used.
+#        Example:     "C:/Program Files (x86)/CMake/bin/cmake.exe"
+#                     "/usr/bin/cmake"
+#        Default:     ""
+
+CMakeCommand  = ""
+
+#
+#    BuildDirectory
+#        Description: The path to your build directory.
+#                     If the path is left empty, the built-in CMAKE_BINARY_DIR is used.
+#        Example:     "../TrinityCore"
+#        Default:     ""
+
+BuildDirectory  = ""
+
+#
+#    SourceDirectory
+#        Description: The path to your TrinityCore source directory.
+#                     If the path is left empty, the built-in CMAKE_SOURCE_DIR is used.
+#        Example:     "../TrinityCore"
+#        Default:     ""
+
+SourceDirectory  = ""
+
+#
+#    MySQLExecutable
+#        Description: The path to your MySQL CLI binary.
+#                     If the path is left empty, built-in path from cmake is used.
+#        Example:     "C:/Program Files/MySQL/MySQL Server 5.6/bin/mysql.exe"
+#                     "mysql.exe"
+#                     "/usr/bin/mysql"
+#        Default:     ""
+
+MySQLExecutable = ""
+
+#
+#    IPLocationFile
+#        Description: The path to your IP2Location database CSV file.
+#        Example:     "C:/Trinity/IP2LOCATION-LITE-DB1.CSV"
+#                     "/home/trinity/IP2LOCATION-LITE-DB1.CSV"
+#        Default:     ""  - (Disabled)
+
+IPLocationFile = ""
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -250,6 +322,15 @@ GridUnload = 1
 SocketTimeOutTime = 900000
 
 #
+#    SocketTimeOutTimeActive
+#        Description: Time (in milliseconds) after which an idle connection is dropped while
+#                     logged into the world.
+#                     The client sends keepalive packets every 30 seconds. Values <= 30s are not recommended.
+#        Default:     60000 - (1 minute)
+
+SocketTimeOutTimeActive = 60000
+
+#
 #    SessionAddDelay
 #        Description: Time (in microseconds) that a network thread will sleep after authentication
 #                     protocol handling before adding a connection to the world session map.
@@ -265,11 +346,18 @@ SessionAddDelay = 10000
 GridCleanUpDelay = 300000
 
 #
+#    MinWorldUpdateTime
+#        Description: Minimum time (milliseconds) between world update ticks (for mostly idle servers).
+#        Default:     1 - (0.001 second)
+
+MinWorldUpdateTime = 1
+
+#
 #    MapUpdateInterval
 #        Description: Time (milliseconds) for map update interval.
-#        Default:     100 - (0.1 second)
+#        Default:     10 - (0.01 second)
 
-MapUpdateInterval = 100
+MapUpdateInterval = 10
 
 #
 #    ChangeWeatherInterval
@@ -415,6 +503,24 @@ CleanCharacterDB = 0
 #        Default:     0  - (All cleanup methods will be disabled after the next cleanup)
 
 PersistentCharacterCleanFlags = 0
+
+#
+#    Auction.GetAllScanDelay
+#        Description: Sets the minimum time in seconds, a single player character can perform a getall scan.
+#                     The value is only held in memory so a server restart will clear it.
+#                     Setting this to zero, will disable GetAll functions completely.
+#        Default:     900 - (GetAll scan limited to once every 15mins per player character)
+
+Auction.GetAllScanDelay = 900
+
+#
+#    Auction.SearchDelay
+#        Description: Sets the minimum time in milliseconds (seconds x 1000), that the client must wait between
+#                     auction search operations. This can be increased if somehow Auction House activity is causing
+#                     too much load.
+#        Default:     300 - (Time delay between auction searches set to 0.3secs)
+
+Auction.SearchDelay = 300
 
 #
 ###################################################################################################
@@ -1115,6 +1221,14 @@ Event.Announce = 1
 BeepAtStart = 1
 
 #
+#    FlashAtStart
+#        Description: Flashes in taskbar when the world server finished starting. (Works on Windows only)
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+FlashAtStart = 1
+
+#
 #    Motd
 #        Description: Message of the Day, displayed at login.
 #                     Use '@' for a newline and be sure to escape special characters.
@@ -1163,7 +1277,13 @@ TicketSystem.FeedBackTickets = 1
 #        Default:     1
 
 DungeonFinder.OptionsMask = 1
+#
+#    LFGSolo.Enabled
+#        Description: Looking for Group Solo Option to queue solo thru LFG\RFD
+#        Default:     1  - (Enabled)
+#                     0  - (Disabled)
 
+LFGSolo.Enabled = 1
 #
 #   DBC.EnforceItemAttributes
 #        Description: Disallow overriding item attributes stored in DBC files with values from the
@@ -1188,6 +1308,34 @@ AccountInstancesPerHour = 5
 #
 
 BirthdayTime = 1222964635
+
+#
+###################################################################################################
+
+###################################################################################################
+# UPDATE SETTINGS
+#
+#    Updates.EnableDatabases
+#        Description: A mask that describes which databases shall be updated.
+#
+#        Following flags are available
+#           DATABASE_LOGIN     = 1, // Auth database
+#           DATABASE_CHARACTER = 2, // Character database
+#           DATABASE_WORLD     = 4, // World database
+#
+#        Default:     7  - (All enabled)
+#                     4  - (Enable world only)
+#                     0  - (All disabled)
+
+Updates.EnableDatabases = 0
+
+#
+#    Updates.AutoSetup
+#        Description: Auto populate empty databases.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+Updates.AutoSetup   = 0
 
 #
 ###################################################################################################
@@ -1339,7 +1487,7 @@ ThreatRadius = 60
 #                     1.5 - (Enabled, 150%)
 #                     0   - (Disabled, 0%)
 
-Rate.Creature.Aggro = 0.5
+Rate.Creature.Aggro = 1
 
 #
 #    CreatureFamilyFleeAssistanceRadius
@@ -1489,6 +1637,22 @@ ListenRange.TextEmote = 40
 ListenRange.Yell = 300
 
 #
+#    Creature.MovingStopTimeForPlayer
+#        Description: Time (in milliseconds) during which creature will not move after
+#                     interaction with player.
+#        Default: 180000
+
+Creature.MovingStopTimeForPlayer = 180000
+
+#    MonsterSight
+#        Description: The maximum distance in yards that a "monster" creature can see
+#                     regardless of level difference (through CreatureAI::IsVisible).
+#                     Increases CONFIG_SIGHT_MONSTER to 50 yards. Used to be 20 yards.
+#        Default:     50.000000
+
+MonsterSight = 50.000000
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -1557,24 +1721,18 @@ Channel.RestrictedLfg = 1
 
 #
 #    ChatLevelReq.Channel
-#        Description: Level requirement for characters to be able to write in chat channels.
+#    ChatLevelReq.Whisper
+#    ChatLevelReq.Emote
+#    ChatLevelReq.Say
+#    ChatLevelReq.Yell
+#        Description: Level requirement for characters to be able to use chats.
 #        Default:     1
 
 ChatLevelReq.Channel = 1
-
-#
-#    ChatLevelReq.Whisper
-#        Description: Level requirement for characters to be able to whisper other characters.
-#        Default:     1
-
 ChatLevelReq.Whisper = 1
-
-#
-#    ChatLevelReq.Say
-#        Description: Level requirement for characters to be able to use say/yell/emote.
-#        Default:     1
-
+ChatLevelReq.Emote = 1
 ChatLevelReq.Say = 1
+ChatLevelReq.Yell = 1
 
 #
 #    PreserveCustomChannels
@@ -2156,7 +2314,7 @@ Battleground.InvitationType = 0
 #        Default:     300000 - (Enabled, 5 minutes)
 #                     0      - (Disabled, Not recommended)
 
-BattleGround.PrematureFinishTimer = 300000
+Battleground.PrematureFinishTimer = 300000
 
 #
 #    BattleGround.PremadeGroupWaitForMatch
@@ -2165,7 +2323,7 @@ BattleGround.PrematureFinishTimer = 300000
 #        Default:     1800000 - (Enabled, 30 minutes)
 #                     0       - (Disabled, Not recommended)
 
-BattleGround.PremadeGroupWaitForMatch = 1800000
+Battleground.PremadeGroupWaitForMatch = 1800000
 
 #
 #    Battleground.GiveXPForKills
@@ -4330,7 +4488,6 @@ BonusRates.Enabled = 1
 
 DisconnectToleranceInterval = 1
 
-MonsterSight = 50
 GuarderSight = 50
 
 Channel.ConstantLocale = 0
@@ -4470,3 +4627,18 @@ Eluna.TraceBack = false
 Eluna.ScriptPath = "lua_scripts"
 
 ###############################################################################
+
+###################################################################################################
+# LOAD SETTINGS
+#
+# These settings control content loading
+#
+#    Load.Locales
+#        Description: Toggles the loading of Locales.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Load.Locales = 1
+
+#
+###################################################################################################

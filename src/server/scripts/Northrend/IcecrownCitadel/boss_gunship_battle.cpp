@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -275,6 +275,17 @@ enum Texts
     SAY_OVERHEAT_ALERT               = 0,
 };
 
+enum MiscData
+{
+    ITEM_GOBLIN_ROCKET_PACK    = 49278,
+    SPELL_CREATE_ROCKET_PACK   = 70055,
+
+    PHASE_COMBAT               = 0,
+    PHASE_INTRO                = 1,
+
+    MUSIC_ENCOUNTER            = 17289
+};
+
 enum Points
 {
     POINT_OUTRO_MIDWAY,
@@ -373,7 +384,7 @@ class npc_gunship_boss : public CreatureScript
                 evading = false;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->CastStop();
                 me->AttackStop();
@@ -389,7 +400,8 @@ class npc_gunship_boss : public CreatureScript
                             Position dest = IsAlliance()
                                 ? (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? Position { 13.51547f, -0.160213f, 20.87252f, 3.106686f } : Position { 1.344813f, -0.077413f, 20.84917f, 3.159046f })
                                 : (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? Position { 36.40547f, 0.184604f, 36.71532f, 3.106686f } : Position { 36.4055f, 0.184604f, 36.7153f, 3.10669f });
-                            MyTransport()->CalculatePassengerPosition(dest.m_positionX, dest.m_positionY, dest.m_positionZ, &dest.m_orientation);
+                            float m_orientation = dest.GetOrientation();
+                            MyTransport()->CalculatePassengerPosition(dest.m_positionX, dest.m_positionY, dest.m_positionZ, &m_orientation);
                             me->GetMotionMaster()->MovePoint(POINT_UPDATE_STOP, dest);
                             return;
                         }
@@ -497,7 +509,7 @@ class npc_gunship_boss : public CreatureScript
                             events.ScheduleEvent(EVENT_INTRO_HORDE_5, 11000);
                         }
                         DoAction(ACTION_BATTLE_EVENT);
-                        SendMusicToPlayers(17289);
+                        me->GetMap()->SetZoneMusic(AREA_ICECROWN_CITADEL, MUSIC_ENCOUNTER);
                         break;
                     case ACTION_BATTLE_EVENT:
                     {
@@ -513,8 +525,8 @@ class npc_gunship_boss : public CreatureScript
 
                              horde->SetInCombatWith(alliance);
                              alliance->SetInCombatWith(horde);
-                             horde->AddThreat(alliance, 0.0f);
-                             alliance->AddThreat(horde, 0.0f);
+                             horde->GetThreatManager().AddThreat(alliance, 0.0f);
+                             alliance->GetThreatManager().AddThreat(horde, 0.0f);
                              DoZoneInCombat(OtherBoss(), 200.0f);
 
                              for (auto&& passenger : OtherTransport()->GetStaticPassengers())
@@ -559,7 +571,7 @@ class npc_gunship_boss : public CreatureScript
                         if (Creature* zafod = me->FindNearestCreature(NPC_GB_ZAFOD_BOOMBOX, 500.0f, true))
                             zafod->CastSpell(zafod, SPELL_REMOVE_ROCKET_PACK, true);
 
-                        SendMusicToPlayers(0);
+                        me->GetMap()->SetZoneMusic(AREA_ICECROWN_CITADEL, 0);
 
                         Talk(AH(SAY_ALLIANCE_VICTORY, SAY_HORDE_VICTORY));
 
@@ -588,7 +600,7 @@ class npc_gunship_boss : public CreatureScript
                         if (Creature* zafod = me->FindNearestCreature(NPC_GB_ZAFOD_BOOMBOX, 500.0f, true))
                             zafod->CastSpell(zafod, SPELL_REMOVE_ROCKET_PACK, true);
 
-                        SendMusicToPlayers(0);
+                        me->GetMap()->SetZoneMusic(AREA_ICECROWN_CITADEL, 0);
 
                         Talk(AH(SAY_ALLIANCE_DEFEAT, SAY_HORDE_DEFEAT));
 
@@ -977,12 +989,12 @@ class npc_gunship_boss : public CreatureScript
             inline Transport* OtherTransport() const { if (Creature* boss = OtherBoss()) return boss->GetTransport(); return nullptr; }
             inline Transport* Skybreaker() const { return IsAlliance() ? MyTransport() : OtherTransport(); }
             inline Transport* OrgrimsHammer() const { return IsHorde() ? MyTransport() : OtherTransport(); }
-            inline Creature* AllianceShip() const { return ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SKYBREAKER_BOSS)); }
-            inline Creature* HordeShip() const { return ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ORGRIMMAR_HAMMER_BOSS)); }
+            inline Creature* AllianceShip() const { return ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SKYBREAKER_BOSS)); }
+            inline Creature* HordeShip() const { return ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ORGRIMMAR_HAMMER_BOSS)); }
             inline Creature* MyShip() const { return IsAlliance() ? AllianceShip() : HordeShip(); }
             inline Creature* OtherShip() const { return IsAlliance() ? HordeShip() : AllianceShip(); }
-            inline Creature* AllianceBoss() const { return IsAlliance() ? me : ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GB_MURADIN_BRONZEBEARD)); }
-            inline Creature* HordeBoss() const { return IsHorde() ? me : ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GB_HIGH_OVERLORD_SAURFANG)); }
+            inline Creature* AllianceBoss() const { return IsAlliance() ? me : ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GB_MURADIN_BRONZEBEARD)); }
+            inline Creature* HordeBoss() const { return IsHorde() ? me : ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GB_HIGH_OVERLORD_SAURFANG)); }
             inline Creature* OtherBoss() const { return IsAlliance() ? HordeBoss() : AllianceBoss(); }
 
             template<class T>
@@ -1014,13 +1026,6 @@ class npc_gunship_boss : public CreatureScript
                 }
 
                 return nullptr;
-            }
-
-            void SendMusicToPlayers(uint32 musicId) const
-            {
-                WorldPacket data(SMSG_PLAY_MUSIC, 4);
-                data << uint32(musicId);
-                SendPacketToPlayers(&data);
             }
 
             void SendPacketToPlayers(WorldPacket const* data) const
@@ -1148,7 +1153,7 @@ class npc_gunship_boss : public CreatureScript
                     if (Player* player = ref.GetSource())
                     {
                         player->CombatStop();
-                        player->getHostileRefManager().deleteReferences();
+                        player->GetThreatManager().RemoveMeFromThreatLists();
                     }
                 }
             }
@@ -1165,7 +1170,7 @@ class npc_gunship_boss : public CreatureScript
             void SummonGameObjectWild(Map* map, uint32 entry, float x, float y, float z, float o, uint32 respawnTime)
             {
                 GameObject* go = new GameObject();
-                if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, 65535, x, y, z, o, { }, 255, GO_STATE_READY))
+                if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, 65535, x, y, z, o, { }, 255, GO_STATE_READY))
                 {
                     delete go;
                     return;
@@ -1206,7 +1211,7 @@ class npc_gunship : public CreatureScript
                 me->SetArmor(0);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 SetCombatMovement(false);
@@ -1227,12 +1232,12 @@ class npc_gunship : public CreatureScript
 
                 if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                 {
-                    if (Creature* pMuradin = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GB_MURADIN_BRONZEBEARD)))
+                    if (Creature* pMuradin = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GB_MURADIN_BRONZEBEARD)))
                         pMuradin->AI()->DoAction(me->GetEntry() == NPC_GB_SKYBREAKER ? ACTION_FAIL : ACTION_DONE);
                 }
                 else if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                 {
-                    if (Creature* pSaurfang = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GB_HIGH_OVERLORD_SAURFANG)))
+                    if (Creature* pSaurfang = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GB_HIGH_OVERLORD_SAURFANG)))
                         pSaurfang->AI()->DoAction(me->GetEntry() == NPC_GB_SKYBREAKER ? ACTION_DONE : ACTION_FAIL);
                 }
             }
@@ -1353,7 +1358,7 @@ class npc_korkron_axethrower_rifleman : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetData64(instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? DATA_GB_HIGH_OVERLORD_SAURFANG : DATA_GB_MURADIN_BRONZEBEARD)))
+                if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? DATA_GB_HIGH_OVERLORD_SAURFANG : DATA_GB_MURADIN_BRONZEBEARD)))
                     boss->AI()->DoAction(ACTION_RANGED_DIE);
                 me->AddObjectToRemoveList();
             }
@@ -1366,7 +1371,10 @@ class npc_korkron_axethrower_rifleman : public CreatureScript
                 if (pointId == POINT_DEFENSE_APPROACH)
                 {
                     if (Transport* transport = me->GetTransport())
-                        transport->CalculatePassengerPosition(finalPosition.m_positionX, finalPosition.m_positionY, finalPosition.m_positionZ, &finalPosition.m_orientation);
+                    {
+                        float m_orientation = finalPosition.GetOrientation();
+                        transport->CalculatePassengerPosition(finalPosition.m_positionX, finalPosition.m_positionY, finalPosition.m_positionZ, &m_orientation);
+                    }
                     me->GetMotionMaster()->MovePoint(POINT_DEFENSE_FINAL, finalPosition);
                 }
                 else if (pointId == POINT_DEFENSE_FINAL)
@@ -1463,8 +1471,8 @@ class npc_sergeant : public CreatureScript
                 if (instance->GetBossState(DATA_GUNSHIP_EVENT) != IN_PROGRESS)
                     return;
 
-                if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetData64(me->GetEntry() == NPC_GB_SKYBREAKER_SERGEANT ? DATA_GB_HIGH_OVERLORD_SAURFANG : DATA_GB_MURADIN_BRONZEBEARD)))
-                    me->getThreatManager().modifyThreatPercent(boss, -100);
+                if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(me->GetEntry() == NPC_GB_SKYBREAKER_SERGEANT ? DATA_GB_HIGH_OVERLORD_SAURFANG : DATA_GB_MURADIN_BRONZEBEARD)))
+                    me->GetThreatManager().ModifyThreatByPercent(boss, -100);
 
                 UpdateVictim();
 
@@ -1559,8 +1567,8 @@ class npc_marine_or_reaver : public CreatureScript
                 if (instance->GetBossState(DATA_GUNSHIP_EVENT) != IN_PROGRESS)
                     return;
 
-                if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetData64(me->GetEntry() == NPC_GB_SKYBREAKER_MARINE ? DATA_GB_HIGH_OVERLORD_SAURFANG : DATA_GB_MURADIN_BRONZEBEARD)))
-                    me->getThreatManager().modifyThreatPercent(boss, -100);
+                if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(me->GetEntry() == NPC_GB_SKYBREAKER_MARINE ? DATA_GB_HIGH_OVERLORD_SAURFANG : DATA_GB_MURADIN_BRONZEBEARD)))
+                    me->GetThreatManager().ModifyThreatByPercent(boss, -100);
 
                 UpdateVictim();
 
@@ -1617,8 +1625,8 @@ class npc_gunship_mage : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetData64(instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? DATA_GB_HIGH_OVERLORD_SAURFANG : DATA_GB_MURADIN_BRONZEBEARD)))
-                    boss->AI()->DoAction(me->GetGUID() == instance->GetData64(DATA_GB_BATTLE_MAGE) ? ACTION_MAGE_DIE : ACTION_MAGE_MISC_DIE);
+                if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? DATA_GB_HIGH_OVERLORD_SAURFANG : DATA_GB_MURADIN_BRONZEBEARD)))
+                    boss->AI()->DoAction(me->GetGUID() == instance->GetGuidData(DATA_GB_BATTLE_MAGE) ? ACTION_MAGE_DIE : ACTION_MAGE_MISC_DIE);
                 me->AddObjectToRemoveList();
             }
 
@@ -1643,7 +1651,7 @@ class npc_gunship_mage : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (me->GetGUID() == instance->GetData64(DATA_GB_BATTLE_MAGE))
+                if (me->GetGUID() == instance->GetGuidData(DATA_GB_BATTLE_MAGE))
                 {
                     events.Update(diff);
 
@@ -1702,7 +1710,7 @@ class npc_gunship_cannon : public CreatureScript
                     DoCast(me, SPELL_HEAT_DRAIN, true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
@@ -1715,7 +1723,7 @@ class npc_gunship_cannon : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage) override
             {
-                if (Creature* boss = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetData64(me->GetEntry() == NPC_GB_ALLIANCE_CANNON ? DATA_SKYBREAKER_BOSS : DATA_ORGRIMMAR_HAMMER_BOSS)))
+                if (Creature* boss = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetGuidData(me->GetEntry() == NPC_GB_ALLIANCE_CANNON ? DATA_SKYBREAKER_BOSS : DATA_ORGRIMMAR_HAMMER_BOSS)))
                     attacker->DealDamage(boss, damage);
             }
 
@@ -1778,7 +1786,7 @@ class npc_mortar_soldier_or_rocketeer : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetData64(instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? DATA_GB_HIGH_OVERLORD_SAURFANG : DATA_GB_MURADIN_BRONZEBEARD)))
+                if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? DATA_GB_HIGH_OVERLORD_SAURFANG : DATA_GB_MURADIN_BRONZEBEARD)))
                     boss->AI()->DoAction(ACTION_SIEGE_DIE);
                 me->m_Events.Schedule(10000, [this]() { me->AddObjectToRemoveList(); });
             }
@@ -1791,7 +1799,10 @@ class npc_mortar_soldier_or_rocketeer : public CreatureScript
                 if (pointId == POINT_DEFENSE_APPROACH)
                 {
                     if (Transport* transport = me->GetTransport())
-                        transport->CalculatePassengerPosition(finalPosition.m_positionX, finalPosition.m_positionY, finalPosition.m_positionZ, &finalPosition.m_orientation);
+                    {
+                        float m_orientation = finalPosition.GetOrientation();
+                        transport->CalculatePassengerPosition(finalPosition.m_positionX, finalPosition.m_positionY, finalPosition.m_positionZ, &m_orientation);
+                    }
                     me->GetMotionMaster()->MovePoint(POINT_DEFENSE_FINAL, finalPosition);
                 }
                 else if (pointId == POINT_DEFENSE_FINAL)
@@ -1878,8 +1889,8 @@ class npc_zafod_boombox : public CreatureScript
             bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
             {
                 player->CLOSE_GOSSIP_MENU();
-                if (sender == 10885 && action == 0 && !player->HasItemCount(49278, 1, true))
-                    player->AddItem(49278, 1);
+                if (sender == 10885 && action == 0 && !player->HasItemCount(ITEM_GOBLIN_ROCKET_PACK, 1, true))
+                    player->AddItem(ITEM_GOBLIN_ROCKET_PACK, 1);
                 return true;
             }
         };
@@ -1955,7 +1966,7 @@ class npc_gunship_trigger : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 SetCombatMovement(false);
@@ -2476,7 +2487,7 @@ class npc_icc_spire_frostwyrm: public CreatureScript
                     landed = true;
                     me->SetFlying(false);
                     me->SetInCombatWith(who);
-                    me->AddThreat(who, 1.0f);
+                    me->GetThreatManager().AddThreat(who, 1.0f);
                     me->GetMotionMaster()->MoveChase(who);
                 }
             }
@@ -2549,7 +2560,7 @@ class transport_icc_gunship : public TransportScript
             const_cast<GameObjectValue*>(transport->GetGOValue())->Transport.PathProgress = itr->ArriveTime;
         }
 
-        void OnAddCreaturePassenger(Transport* transport, Creature* passenger)
+        void OnAddCreaturePassenger(Transport* transport, Creature* passenger) override
         {
             passenger->Respawn();
             passenger->setActive(false, ActiveFlags::OnTransport);
@@ -2606,8 +2617,8 @@ class spell_icc_remove_rocket_pack : public SpellScriptLoader
                 uint32 itemCount = hitPlr->GetItemCount(itemId, false); // Should be 1, but just in case.
                 hitPlr->DestroyItemCount(itemId, itemCount, true, false);
 
-              if (hitPlr->HasItemCount(49278, 1, true))
-                hitPlr->DestroyItemCount(49278, 1, true);
+              if (hitPlr->HasItemCount(ITEM_GOBLIN_ROCKET_PACK, 1, true))
+                hitPlr->DestroyItemCount(ITEM_GOBLIN_ROCKET_PACK, 1, true);
             }
 
             void Register() override
@@ -2865,7 +2876,7 @@ class spell_gb_melee_targeting : public SpellScriptLoader
                         if (caster->GetVictim() != target)
                         {
                             caster->GetAI()->AttackStart(target);
-                            caster->AddThreat(target, 1000.0f);
+                            caster->GetThreatManager().AddThreat(target, 1000.0f);
                         }
                     }
                 }

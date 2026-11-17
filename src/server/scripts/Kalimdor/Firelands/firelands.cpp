@@ -220,7 +220,7 @@ class npc_firelands_ancient_core_hound : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_DINNER_TIME, urand (15000, 20000));
                 events.ScheduleEvent(EVENT_TERRIFYING_ROAR, urand(8000, 20000));
@@ -282,7 +282,7 @@ class npc_firelands_ancient_lava_dweller : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_LAVA_SHOWER, urand(15000, 20000));
             }
@@ -371,7 +371,7 @@ class npc_firelands_fire_turtle_hatchling : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SHELL_SPIN, urand(10000, 20000));
             }
@@ -436,7 +436,7 @@ class npc_firelands_flame_archon : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_FLAME_TORRENT, 10000);
                 events.ScheduleEvent(EVENT_FIERY_TORMENT, 20000);
@@ -513,7 +513,7 @@ class npc_firelands_molten_lord : public CreatureScript
                 AllowAcceptLegendaryQuest();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_FLAME_STOMP, 5000);
                 events.ScheduleEvent(EVENT_MELT_ARMOR, urand(3000, 7000));
@@ -620,7 +620,7 @@ class npc_firelands_molten_flamefather : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_EARTHQUAKE, urand(5000, 10000));
                 events.ScheduleEvent(EVENT_MAGMA_CONDUIT, urand(6000, 7000));
@@ -1068,9 +1068,9 @@ class npc_harbinger_of_flame : public CreatureScript
         {
             npc_harbinger_of_flameAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void EnterCombat(Unit* /*who*/)
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                if (Creature* bird = ObjectAccessor::GetCreature(*me, me->GetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT)))
+                if (Creature* bird = ObjectAccessor::GetCreature(*me, me->GetGuidValue(UNIT_FIELD_CHANNEL_OBJECT)))
                     DoZoneInCombat(bird, 200.0f);
 
                 me->InterruptSpell(CURRENT_CHANNELED_SPELL);
@@ -1148,7 +1148,7 @@ class npc_blazing_monstrosity : public CreatureScript
         {
             npc_blazing_monstrosityAI(Creature* creature) : PassiveAI(creature), _summons(creature) { }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _summons.DespawnAll();
                 _events.Reset();
@@ -1166,7 +1166,7 @@ class npc_blazing_monstrosity : public CreatureScript
                 AlysrazorTrashEvaded(me);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
                 me->RemoveAurasDueToSpell(SPELL_SLEEP_ULTRA_HIGH_PRIORITY);
@@ -1282,9 +1282,9 @@ class npc_egg_pile : public CreatureScript
     public:
         npc_egg_pile() : CreatureScript("npc_egg_pile") { }
 
-        struct npc_egg_pileAI : public CreatureAI
+        struct npc_egg_pileAI : public ScriptedAI
         {
-            npc_egg_pileAI(Creature* creature) : CreatureAI(creature) { }
+            npc_egg_pileAI(Creature* creature) : ScriptedAI(creature) { }
 
             void AttackStart(Unit* /*target*/) override { }
 
@@ -1450,9 +1450,9 @@ class npc_firelands_volcanus : public CreatureScript
     public:
         npc_firelands_volcanus() : CreatureScript("npc_firelands_volcanus") { }
 
-        struct npc_firelands_volcanusAI : public CreatureAI
+        struct npc_firelands_volcanusAI : public ScriptedAI
         {
-            npc_firelands_volcanusAI(Creature* creature) : CreatureAI(creature)
+            npc_firelands_volcanusAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -1475,14 +1475,14 @@ class npc_firelands_volcanus : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_FLAMEWAKE, 3000);
             }
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* pStalker = me->SummonCreature(NPC_STALKER, me->GetHomePosition(), TEMPSUMMON_TIMED_DESPAWN, 10000))
+                if (Creature* pStalker = me->SummonCreature(NPC_STALKER, me->GetHomePosition(), TEMPSUMMON_TIMED_DESPAWN, 10000ms))
                 {
                     pStalker->RemoveAllAuras();
                     pStalker->CastSpell(pStalker, SPELL_BRANCH_OF_NORDRASSIL_WIN_COSMETIC);
@@ -1536,7 +1536,7 @@ class spell_alysrazor_cosmetic_egg_xplosion : public SpellScriptLoader
         {
             PrepareSpellScript(spell_alysrazor_cosmetic_egg_xplosion_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sCreatureDisplayInfoStore.LookupEntry(MODEL_INVISIBLE_STALKER))
                     return false;
@@ -1573,7 +1573,7 @@ class spell_alysrazor_turn_monstrosity : public SpellScriptLoader
         {
             PrepareSpellScript(spell_alysrazor_turn_monstrosity_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_GENERIC_DUMMY_CAST))
                     return false;
@@ -1671,8 +1671,8 @@ class spell_alysrazor_aggro_closest : public SpellScriptLoader
             void HandleEffect(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                float curThreat = GetCaster()->getThreatManager().getThreat(GetHitUnit(), true);
-                GetCaster()->getThreatManager().addThreat(GetHitUnit(), -curThreat + 50000.0f / std::min(1.0f, GetCaster()->GetDistance(GetHitUnit())));
+                float curThreat = GetCaster()->GetThreatManager().GetThreat(GetHitUnit(), true);
+                GetCaster()->GetThreatManager().AddThreat(GetHitUnit(), -curThreat + 50000.0f / std::min(1.0f, GetCaster()->GetDistance(GetHitUnit())));
             }
 
             void UpdateThreat()
@@ -1728,9 +1728,9 @@ class npc_firelands_instance_portal : public CreatureScript
     public:
         npc_firelands_instance_portal() : CreatureScript("npc_firelands_instance_portal") { }
 
-        struct npc_firelands_instance_portalAI : public CreatureAI
+        struct npc_firelands_instance_portalAI : public ScriptedAI
         {
-            npc_firelands_instance_portalAI(Creature* creature) : CreatureAI(creature) { }
+            npc_firelands_instance_portalAI(Creature* creature) : ScriptedAI(creature) { }
 
             void OnSpellClick(Unit* clicker, bool& result) override
             {
@@ -1754,9 +1754,9 @@ class npc_firelands_instance_portal : public CreatureScript
 };
 
 // Majordomo Stagheim Event 54015
-struct npc_firelands_majordomo_stagheim_event : public CreatureAI
+struct npc_firelands_majordomo_stagheim_event : public ScriptedAI
 {
-    npc_firelands_majordomo_stagheim_event(Creature* creature) : CreatureAI(creature) { }
+    npc_firelands_majordomo_stagheim_event(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
     bool hasInitialize;
@@ -1769,7 +1769,7 @@ struct npc_firelands_majordomo_stagheim_event : public CreatureAI
             me->Respawn();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         if (hasInitialize)
             return;
@@ -1818,7 +1818,7 @@ struct npc_firelands_majordomo_stagheim_event : public CreatureAI
             .Schedule(Milliseconds(delay += 5500), [this](TaskContext context)
         {
             // Summon Alysrazor
-            if (Creature* firelandsEventBunny = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_FIRELANDS_EVENT_BUNNY) : 0))
+            if (Creature* firelandsEventBunny = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_FIRELANDS_EVENT_BUNNY) : ObjectGuid::Empty))
                 firelandsEventBunny->SummonCreature(NPC_ALYSRAZOR, *firelandsEventBunny, TEMPSUMMON_MANUAL_DESPAWN);
 
             // Leave this
@@ -1862,7 +1862,7 @@ class spell_firelands_kneel_to_the_flame : public SpellScriptLoader
                         return true;
 
                     uint32 emote = unit->GetUInt32Value(UNIT_FIELD_NPC_EMOTESTATE);
-                    UnitStandStateType stand = (UnitStandStateType)unit->getStandState();
+                    UnitStandStateType stand = (UnitStandStateType)unit->GetStandState();
                     if (emote == EMOTE_STATE_KNEEL ||
                         emote == EMOTE_STATE_SIT ||
                         emote == EMOTE_STATE_SLEEP ||

@@ -62,7 +62,7 @@ class boss_attumen : public CreatureScript
                 ChargeTimer = 20000;
             }
 
-            uint64 midnightGUID;
+            ObjectGuid midnightGUID;
             uint8 Phase;
             uint32 CleaveTimer;
             uint32 CurseTimer;
@@ -75,13 +75,13 @@ class boss_attumen : public CreatureScript
                 ResetTimer = 0;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
                 ResetTimer = 2000;
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void KilledUnit(Unit* /*victim*/) override
             {
@@ -119,21 +119,21 @@ class boss_midnight : public CreatureScript
         {
             boss_midnightAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 attumenGUID;
+            ObjectGuid attumenGUID;
             uint8 Phase;
             uint32 Mount_Timer;
 
             void Reset() override
             {
                 Phase = 1;
-                attumenGUID = 0;
+                attumenGUID = ObjectGuid::Empty;
                 Mount_Timer = 0;
 
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->SetVisible(true);
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void KilledUnit(Unit* /*victim*/) override
             {
@@ -152,7 +152,7 @@ class boss_midnight : public CreatureScript
                 if (Phase == 1 && HealthBelowPct(95))
                 {
                     Phase = 2;
-                    if (Creature* attumen = me->SummonCreature(SUMMON_ATTUMEN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000))
+                    if (Creature* attumen = me->SummonCreature(SUMMON_ATTUMEN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000ms))
                     {
                         attumenGUID = attumen->GetGUID();
                         attumen->AI()->AttackStart(me->GetVictim());
@@ -218,7 +218,7 @@ class boss_midnight : public CreatureScript
                 Mount_Timer = 1000;
             }
 
-            void SetMidnight(Creature* attumen, uint64 value)
+            void SetMidnight(Creature* attumen, ObjectGuid value)
             {
                 CAST_AI(boss_attumen::boss_attumenAI, attumen->AI())->midnightGUID = value;
             }
@@ -242,7 +242,7 @@ void boss_attumen::boss_attumenAI::UpdateAI(uint32 diff)
                 midnight->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 midnight->SetVisible(true);
             }
-            midnightGUID = 0;
+            midnightGUID = ObjectGuid::Empty;
             me->SetVisible(false);
             me->Kill(me);
         }  else ResetTimer -= diff;
@@ -273,9 +273,9 @@ void boss_attumen::boss_attumenAI::UpdateAI(uint32 diff)
         {
             Unit* target = nullptr;
             std::vector<Unit *> target_list;
-            for (auto&& itr : me->getThreatManager().getThreatList())
+            for (auto&& ref : me->GetThreatManager().GetUnsortedThreatList())
             {
-                target = Unit::GetUnit(*me, itr->getUnitGuid());
+                target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                 if (target && !target->IsWithinDist(me, ATTACK_DISTANCE, false))
                     target_list.push_back(target);
                 target = nullptr;

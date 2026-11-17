@@ -1,114 +1,172 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef _BYTEBUFFER_H
 #define _BYTEBUFFER_H
 
 #include "Define.h"
-#include "Errors.h"
 #include "ByteConverter.h"
-
-#include <exception>
-#include <list>
-#include <map>
+#include <array>
 #include <string>
 #include <vector>
 #include <cstring>
-#include <time.h>
-#include <cstdarg>
 
-#include "ObjectGuid.h"
+class MessageBuffer;
 
 // Root of ByteBuffer exception hierarchy
-class ByteBufferException : public std::exception
+class TC_SHARED_API ByteBufferException : public std::exception
 {
 public:
-    virtual ~ByteBufferException() throw() { }
+    explicit ByteBufferException() = default;
+    explicit ByteBufferException(std::string&& message) noexcept : msg_(std::move(message)) { }
 
-    char const* what() const throw() { return msg_.c_str(); }
+    char const* what() const noexcept override { return msg_.c_str(); }
 
 protected:
-    std::string & message() throw() { return msg_; }
-
-private:
     std::string msg_;
 };
 
-class ByteBufferPositionException : public ByteBufferException
+class TC_SHARED_API ByteBufferPositionException : public ByteBufferException
 {
 public:
-    ByteBufferPositionException(bool add, size_t pos, size_t size, size_t valueSize);
-
-    ~ByteBufferPositionException() noexcept = default;
+    ByteBufferPositionException(size_t pos, size_t size, size_t valueSize);
 };
 
-class ByteBufferSourceException : public ByteBufferException
-{
-public:
-    ByteBufferSourceException(size_t pos, size_t size, size_t valueSize);
-
-    ~ByteBufferSourceException() noexcept = default;
-};
-
-class ByteBufferInvalidValueException : public ByteBufferException
+class TC_SHARED_API ByteBufferInvalidValueException : public ByteBufferException
 {
 public:
     ByteBufferInvalidValueException(char const* type, char const* value);
-
-    ~ByteBufferInvalidValueException() noexcept = default;
 };
 
-
-class ByteBuffer
+class TC_SHARED_API ByteBuffer
 {
 public:
     constexpr static size_t DEFAULT_SIZE = 0x1000;
+    constexpr static uint8 InitialBitPos = 8;
 
     // constructor
-    ByteBuffer() : _rpos(0), _wpos(0), _bitpos(8), _curbitval(0)
+    ByteBuffer() : _rpos(0), _wpos(0), _bitpos(InitialBitPos), _curbitval(0)
     {
         _storage.reserve(DEFAULT_SIZE);
     }
 
-    ByteBuffer(size_t reserve) : _rpos(0), _wpos(0), _bitpos(8), _curbitval(0)
+    // reserve/resize tag
+    struct Reserve { };
+    struct Resize { };
+
+    ByteBuffer(size_t size, Reserve) : _rpos(0), _wpos(0), _bitpos(InitialBitPos), _curbitval(0)
     {
-        _storage.reserve(reserve);
+        _storage.reserve(size);
     }
 
-    // copy constructor
-    ByteBuffer(const ByteBuffer &buf) : _rpos(buf._rpos), _wpos(buf._wpos),
-        _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(buf._storage)
+    ByteBuffer(size_t size, Resize) : _rpos(0), _wpos(size), _bitpos(InitialBitPos), _curbitval(0)
     {
+        _storage.resize(size);
     }
 
-    void clear();
+    ByteBuffer(ByteBuffer&& buf) noexcept : _rpos(buf._rpos), _wpos(buf._wpos),
+                                            _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(buf.Move()) { }
 
-    template <typename T> void append(T value)
+    ByteBuffer(ByteBuffer const& right) = default;
+
+    ByteBuffer(MessageBuffer&& buffer);
+
+    std::vector<uint8>&& Move() noexcept
     {
-        FlushBits();
+        _rpos = 0;
+        _wpos = 0;
+        _bitpos = InitialBitPos;
+        _curbitval = 0;
+        return std::move(_storage);
+    }
+
+    ByteBuffer& operator=(ByteBuffer const& right)
+    {
+        if (this != &right)
+        {
+            _rpos = right._rpos;
+            _wpos = right._wpos;
+            _bitpos = right._bitpos;
+            _curbitval = right._curbitval;
+            _storage = right._storage;
+        }
+
+        return *this;
+    }
+
+    ByteBuffer& operator=(ByteBuffer&& right) noexcept
+    {
+        if (this != &right)
+        {
+            _rpos = right._rpos;
+            _wpos = right._wpos;
+            _bitpos = right._bitpos;
+            _curbitval = right._curbitval;
+            _storage = right.Move();
+        }
+
+        return *this;
+    }
+
+    virtual ~ByteBuffer() = default;
+
+    void clear()
+    {
+        _rpos = 0;
+        _wpos = 0;
+        _bitpos = InitialBitPos;
+        _curbitval = 0;
+        _storage.clear();
+    }
+
+    template <typename T>
+    void append(T value)
+    {
+        static_assert(std::is_trivially_copyable<T>::value, "append(T) must be used with trivially copyable types");
         EndianConvert(value);
         append((uint8 *)&value, sizeof(value));
     }
 
-    void FlushBits();
+    bool HasUnfinishedBitPack() const
+    {
+        return _bitpos != 8;
+    }
 
-    void WriteBitInOrder(ObjectGuid guid, uint8 order[8]);
+    void FlushBits()
+    {
+        if (_bitpos == 8)
+            return;
 
-    bool WriteBit(uint32 bit)
+        _bitpos = 8;
+
+        append((uint8 *)&_curbitval, sizeof(uint8));
+        _curbitval = 0;
+    }
+
+    void ResetBitPos()
+    {
+        if (_bitpos > 7)
+            return;
+
+        _bitpos = 8;
+        _curbitval = 0;
+    }
+
+    bool WriteBit(bool bit)
     {
         --_bitpos;
         if (bit)
@@ -121,47 +179,7 @@ public:
             _curbitval = 0;
         }
 
-        return (bit != 0);
-    }
-
-    void ReadBitInOrder(ObjectGuid& guid, uint8 order[8])
-    {
-        for (uint8 i = 0; i < 8; ++i)
-            guid[order[i]] = ReadBit();
-    }
-
-    bool ReadBit()
-    {
-        ++_bitpos;
-        if (_bitpos > 7)
-        {
-            _bitpos = 0;
-            _curbitval = read<uint8>();
-        }
-
-        return ((_curbitval >> (7 - _bitpos)) & 1) != 0;
-    }
-
-    template <typename T> void WriteBits(T value, size_t bits)
-    {
-        for (int32 i = bits - 1; i >= 0; --i)
-            WriteBit((value >> i) & 1);
-    }
-
-    uint32 ReadBits(size_t bits)
-    {
-        uint32 value = 0;
-        for (int32 i = bits - 1; i >= 0; --i)
-            if (ReadBit())
-                value |= (1 << (i));
-
-        return value;
-    }
-
-    void ReadBytesSeq(ObjectGuid& guid, uint8 order[8])
-    {
-        for (uint8 i = 0; i < 8; ++i)
-            ReadByteSeq(guid[order[i]]);
+        return bit;
     }
 
     // Reads a byte (if needed) in-place
@@ -171,135 +189,61 @@ public:
             b ^= read<uint8>();
     }
 
-    void WriteBytesSeq(ObjectGuid guid, uint8 order[8])
-    {
-        for (uint8 i = 0; i < 8; ++i)
-            WriteByteSeq(guid[order[i]]);
-    }
-
     void WriteByteSeq(uint8 b)
     {
         if (b != 0)
             append<uint8>(b ^ 1);
     }
 
-    template <typename T> void put(size_t pos, T value)
+    bool ReadBit()
     {
+        ++_bitpos;
+        if (_bitpos > 7)
+        {
+            _curbitval = read<uint8>();
+            _bitpos = 0;
+        }
+
+        return ((_curbitval >> (7-_bitpos)) & 1) != 0;
+    }
+
+    void WriteBits(std::size_t value, int32 bits)
+    {
+        for (int32 i = bits - 1; i >= 0; --i)
+            WriteBit((value >> i) & 1);
+    }
+
+    uint32 ReadBits(int32 bits)
+    {
+        uint32 value = 0;
+        for (int32 i = bits - 1; i >= 0; --i)
+            if (ReadBit())
+                value |= (1 << (i));
+
+        return value;
+    }
+
+    template <typename T>
+    void put(std::size_t pos, T value)
+    {
+        static_assert(std::is_trivially_copyable<T>::value, "put(size_t, T) must be used with trivially copyable types");
         EndianConvert(value);
         put(pos, (uint8 *)&value, sizeof(value));
     }
 
-    void ReadGuidMaskList(ObjectGuid& guid, int count, ...)
-    {
-        va_list ap;
-        va_start(ap, count);
-        for (uint8 i = 0; i<count; ++i)
-        {
-            uint8 offset = va_arg(ap, uint32);
-            guid[offset] = ReadBit();
-        }
-        va_end(ap);
-    }
-    void ReadGuidMask(ObjectGuid& guid, uint8 v1)                                                                           { ReadGuidMaskList(guid, 1, v1); }
-    void ReadGuidMask(ObjectGuid& guid, uint8 v1, uint8 v2)                                                                 { ReadGuidMaskList(guid, 2, v1, v2); }
-    void ReadGuidMask(ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3)                                                       { ReadGuidMaskList(guid, 3, v1, v2, v3); }
-    void ReadGuidMask(ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3, uint8 v4)                                             { ReadGuidMaskList(guid, 4, v1, v2, v3, v4); }
-    void ReadGuidMask(ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3, uint8 v4, uint8 v5)                                   { ReadGuidMaskList(guid, 5, v1, v2, v3, v4, v5); }
-    void ReadGuidMask(ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3, uint8 v4, uint8 v5, uint8 v6)                         { ReadGuidMaskList(guid, 6, v1, v2, v3, v4, v5, v6); }
-    void ReadGuidMask(ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3, uint8 v4, uint8 v5, uint8 v6, uint8 v7)               { ReadGuidMaskList(guid, 7, v1, v2, v3, v4, v5, v6, v7); }
-    void ReadGuidMask(ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3, uint8 v4, uint8 v5, uint8 v6, uint8 v7, uint8 v8)     { ReadGuidMaskList(guid, 8, v1, v2, v3, v4, v5, v6, v7, v8); }
-
-    void WriteGuidMaskList(const ObjectGuid& guid, int count, ...)
-    {
-        va_list ap;
-        va_start(ap, count);
-        for (uint8 i = 0; i<count; ++i)
-        {
-            uint8 offset = va_arg(ap, uint32);
-            WriteBit(guid[offset]);
-        }
-        va_end(ap);
-    }
-
-    void WriteGuidMask(const ObjectGuid& guid, uint8 v1)                                                                           { WriteGuidMaskList(guid, 1, v1); }
-    void WriteGuidMask(const ObjectGuid& guid, uint8 v1, uint8 v2)                                                                 { WriteGuidMaskList(guid, 2, v1, v2); }
-    void WriteGuidMask(const ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3)                                                       { WriteGuidMaskList(guid, 3, v1, v2, v3); }
-    void WriteGuidMask(const ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3, uint8 v4)                                             { WriteGuidMaskList(guid, 4, v1, v2, v3, v4); }
-    void WriteGuidMask(const ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3, uint8 v4, uint8 v5)                                   { WriteGuidMaskList(guid, 5, v1, v2, v3, v4, v5); }
-    void WriteGuidMask(const ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3, uint8 v4, uint8 v5, uint8 v6)                         { WriteGuidMaskList(guid, 6, v1, v2, v3, v4, v5, v6); }
-    void WriteGuidMask(const ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3, uint8 v4, uint8 v5, uint8 v6, uint8 v7)               { WriteGuidMaskList(guid, 7, v1, v2, v3, v4, v5, v6, v7); }
-    void WriteGuidMask(const ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3, uint8 v4, uint8 v5, uint8 v6, uint8 v7, uint8 v8)     { WriteGuidMaskList(guid, 8, v1, v2, v3, v4, v5, v6, v7, v8); }
-
-    void ReadGuidBytesList(ObjectGuid& guid, int count, ...)
-    {
-        va_list ap;
-        va_start(ap, count);
-        for (uint8 i = 0; i<count; ++i)
-        {
-            uint8 offset = va_arg(ap, uint32);
-            ReadByteSeq(guid[offset]);
-        }
-        va_end(ap);
-    }
-    void ReadGuidBytes(ObjectGuid& guid, uint8 v1)                                                                          { ReadGuidBytesList(guid, 1, v1); }
-    void ReadGuidBytes(ObjectGuid& guid, uint8 v1, uint8 v2)                                                                { ReadGuidBytesList(guid, 2, v1, v2); }
-    void ReadGuidBytes(ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3)                                                      { ReadGuidBytesList(guid, 3, v1, v2, v3); }
-    void ReadGuidBytes(ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3, uint8 v4)                                            { ReadGuidBytesList(guid, 4, v1, v2, v3, v4); }
-    void ReadGuidBytes(ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3, uint8 v4, uint8 v5)                                  { ReadGuidBytesList(guid, 5, v1, v2, v3, v4, v5); }
-    void ReadGuidBytes(ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3, uint8 v4, uint8 v5, uint8 v6)                        { ReadGuidBytesList(guid, 6, v1, v2, v3, v4, v5, v6); }
-    void ReadGuidBytes(ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3, uint8 v4, uint8 v5, uint8 v6, uint8 v7)              { ReadGuidBytesList(guid, 7, v1, v2, v3, v4, v5, v6, v7); }
-    void ReadGuidBytes(ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3, uint8 v4, uint8 v5, uint8 v6, uint8 v7, uint8 v8)    { ReadGuidBytesList(guid, 8, v1, v2, v3, v4, v5, v6, v7, v8); }
-
-    void WriteGuidBytesList(const ObjectGuid& guid, int count, ...)
-    {
-        va_list ap;
-        va_start(ap, count);
-        for (uint8 i = 0; i<count; ++i)
-        {
-            uint8 offset = va_arg(ap, uint32);
-            WriteByteSeq(guid[offset]);
-        }
-        va_end(ap);
-    }
-    void WriteGuidBytes(const ObjectGuid& guid, uint8 v1)                                                                           { WriteGuidBytesList(guid, 1, v1); }
-    void WriteGuidBytes(const ObjectGuid& guid, uint8 v1, uint8 v2)                                                                 { WriteGuidBytesList(guid, 2, v1, v2); }
-    void WriteGuidBytes(const ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3)                                                       { WriteGuidBytesList(guid, 3, v1, v2, v3); }
-    void WriteGuidBytes(const ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3, uint8 v4)                                             { WriteGuidBytesList(guid, 4, v1, v2, v3, v4); }
-    void WriteGuidBytes(const ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3, uint8 v4, uint8 v5)                                   { WriteGuidBytesList(guid, 5, v1, v2, v3, v4, v5); }
-    void WriteGuidBytes(const ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3, uint8 v4, uint8 v5, uint8 v6)                         { WriteGuidBytesList(guid, 6, v1, v2, v3, v4, v5, v6); }
-    void WriteGuidBytes(const ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3, uint8 v4, uint8 v5, uint8 v6, uint8 v7)               { WriteGuidBytesList(guid, 7, v1, v2, v3, v4, v5, v6, v7); }
-    void WriteGuidBytes(const ObjectGuid& guid, uint8 v1, uint8 v2, uint8 v3, uint8 v4, uint8 v5, uint8 v6, uint8 v7, uint8 v8)     { WriteGuidBytesList(guid, 8, v1, v2, v3, v4, v5, v6, v7, v8); }
-
     /**
-    * @name   PutBits
-    * @brief  Places specified amount of bits of value at specified position in packet.
-    *         To ensure all bits are correctly written, only call this method after
-    *         bit flush has been performed
+      * @name   PutBits
+      * @brief  Places specified amount of bits of value at specified position in packet.
+      *         To ensure all bits are correctly written, only call this method after
+      *         bit flush has been performed
 
-    * @param  pos Position to place the value at, in bits. The entire value must fit in the packet
-    *             It is advised to obtain the position using bitwpos() function.
+      * @param  pos Position to place the value at, in bits. The entire value must fit in the packet
+      *             It is advised to obtain the position using bitwpos() function.
 
-    * @param  value Data to write.
-    * @param  bitCount Number of bits to store the value on.
+      * @param  value Data to write.
+      * @param  bitCount Number of bits to store the value on.
     */
-    template <typename T> void PutBits(size_t pos, T value, uint32 bitCount)
-    {
-        if (!bitCount)
-            throw ByteBufferSourceException((pos + bitCount) / 8, size(), 0);
-
-        if (pos + bitCount > size() * 8)
-            throw ByteBufferPositionException(true, (pos + bitCount) / 8, size(), (bitCount - 1) / 8 + 1);
-
-        for (uint32 i = 0; i < bitCount; ++i)
-        {
-            size_t wp = (pos + i) / 8;
-            size_t bit = (pos + i) % 8;
-            if ((value >> (bitCount - i - 1)) & 1)
-                _storage[wp] |= 1 << (7 - bit);
-            else
-                _storage[wp] &= ~(1 << (7 - bit));
-        }
-    }
+    void PutBits(std::size_t pos, std::size_t value, uint32 bitCount);
 
     ByteBuffer &operator<<(uint8 value)
     {
@@ -363,20 +307,22 @@ public:
         return *this;
     }
 
-    ByteBuffer &operator<<(const std::string &value)
+    ByteBuffer &operator<<(std::string_view value)
     {
         if (size_t len = value.length())
-            append((uint8 const*)value.c_str(), len);
-        append((uint8)0);
+            append(reinterpret_cast<uint8 const*>(value.data()), len);
+        append(static_cast<uint8>(0));
         return *this;
     }
 
-    ByteBuffer &operator<<(const char *str)
+    ByteBuffer& operator<<(std::string const& str)
     {
-        if (size_t len = (str ? strlen(str) : 0))
-            append((uint8 const*)str, len);
-        append((uint8)0);
-        return *this;
+        return operator<<(std::string_view(str));
+    }
+
+    ByteBuffer &operator<<(char const* str)
+    {
+        return operator<<(std::string_view(str ? str : ""));
     }
 
     ByteBuffer &operator>>(bool &value)
@@ -434,42 +380,26 @@ public:
         return *this;
     }
 
-    ByteBuffer &operator>>(float &value)
-    {
-        value = read<float>();
-        return *this;
-    }
+    ByteBuffer &operator>>(float &value);
+    ByteBuffer &operator>>(double &value);
 
-    ByteBuffer &operator>>(double &value)
+    ByteBuffer& operator>>(std::string& value)
     {
-        value = read<double>();
-        return *this;
-    }
-
-    ByteBuffer &operator>>(std::string& value)
-    {
-        value.clear();
-        while (rpos() < size())                         // prevent crash at wrong string format in packet
-        {
-            char c = read<char>();
-            if (c == 0)
-                break;
-            value += c;
-        }
+        value = ReadCString(true);
         return *this;
     }
 
     uint8& operator[](size_t const pos)
     {
         if (pos >= size())
-            throw ByteBufferPositionException(false, pos, 1, size());
+            throw ByteBufferPositionException(pos, 1, size());
         return _storage[pos];
     }
 
     uint8 const& operator[](size_t const pos) const
     {
         if (pos >= size())
-            throw ByteBufferPositionException(false, pos, 1, size());
+            throw ByteBufferPositionException(pos, 1, size());
         return _storage[pos];
     }
 
@@ -510,38 +440,59 @@ public:
     void read_skip(size_t skip)
     {
         if (_rpos + skip > size())
-            throw ByteBufferPositionException(false, _rpos, skip, size());
+            throw ByteBufferPositionException(_rpos, skip, size());
+
+        ResetBitPos();
         _rpos += skip;
     }
 
-    template <typename T> T read()
+    template <typename T, typename Underlying = T>
+    T read()
     {
-        T r = read<T>(_rpos);
-        _rpos += sizeof(T);
+        ResetBitPos();
+        T r = read<T, Underlying>(_rpos);
+        _rpos += sizeof(Underlying);
         return r;
     }
 
-    template <typename T> T read(size_t pos) const
+    template <typename T, typename Underlying = T>
+    T read(size_t pos) const
     {
-        if (pos + sizeof(T) > size())
-            throw ByteBufferPositionException(false, pos, sizeof(T), size());
-        T val = *((T const*)&_storage[pos]);
+        if (pos + sizeof(Underlying) > size())
+            throw ByteBufferPositionException(pos, sizeof(Underlying), size());
+        Underlying val;
+        std::memcpy(&val, &_storage[pos], sizeof(Underlying));
         EndianConvert(val);
-        return val;
+        return static_cast<T>(val);
+    }
+
+    template<class T>
+    void read(T* dest, size_t count)
+    {
+        static_assert(std::is_trivially_copyable<T>::value, "read(T*, size_t) must be used with trivially copyable types");
+        return read(reinterpret_cast<uint8*>(dest), count * sizeof(T));
     }
 
     void read(uint8 *dest, size_t len)
     {
         if (_rpos + len > size())
-            throw ByteBufferPositionException(false, _rpos, len, size());
+            throw ByteBufferPositionException(_rpos, len, size());
+
+        ResetBitPos();
         std::memcpy(dest, &_storage[_rpos], len);
         _rpos += len;
+    }
+
+    template <size_t Size>
+    void read(std::array<uint8, Size>& arr)
+    {
+        read(arr.data(), Size);
     }
 
     void readPackGUID(uint64& guid)
     {
         if (rpos() + 1 > size())
-            throw ByteBufferPositionException(false, _rpos, 1, size());
+            throw ByteBufferPositionException(_rpos, 1, size());
 
         guid = 0;
 
@@ -553,7 +504,7 @@ public:
             if (guidmark & (uint8(1) << i))
             {
                 if (rpos() + 1 > size())
-                    throw ByteBufferPositionException(false, _rpos, 1, size());
+                    throw ByteBufferPositionException(_rpos, 1, size());
 
                 uint8 bit;
                 (*this) >> bit;
@@ -562,15 +513,17 @@ public:
         }
     }
 
-    std::string ReadString(size_t length)
+    void ReadPackedUInt64(uint64& guid)
     {
-        if (!length)
-            return std::string();
-        char* buffer = new char[length + 1]();
-        read((uint8*)buffer, length);
-        std::string retval = buffer;
-        delete[] buffer;
-        return retval;
+        guid = 0;
+        ReadPackedUInt64(read<uint8>(), guid);
+    }
+
+    void ReadPackedUInt64(uint8 mask, uint64& value)
+    {
+        for (uint32 i = 0; i < 8; ++i)
+            if (mask & (uint8(1) << i))
+                value |= (uint64(read<uint8>()) << (i * 8));
     }
 
     //! Method for writing strings that have their length sent separately in packet
@@ -581,7 +534,21 @@ public:
             append(str.c_str(), len);
     }
 
+    void WriteString(std::string_view str)
+    {
+        if (size_t len = str.length())
+            append(str.data(), len);
+    }
+
+    void WriteString(char const* str, size_t len)
+    {
+        if (len)
+            append(str, len);
+    }
+
     std::string ReadCString(bool requireValidUtf8 = true);
+
+    std::string ReadString(uint32 length, bool requireValidUtf8 = true);
 
     uint32 ReadPackedTime();
 
@@ -591,9 +558,19 @@ public:
         return *this;
     }
 
-    uint8 * contents() { return &_storage[0]; }
+    uint8* contents()
+    {
+        if (_storage.empty())
+            throw ByteBufferException();
+        return _storage.data();
+    }
 
-    const uint8 *contents() const { return &_storage[0]; }
+    uint8 const* contents() const
+    {
+        if (_storage.empty())
+            throw ByteBufferException();
+        return _storage.data();
+    }
 
     size_t size() const { return _storage.size(); }
     bool empty() const { return _storage.empty(); }
@@ -611,29 +588,34 @@ public:
             _storage.reserve(ressize);
     }
 
+    void shrink_to_fit()
+    {
+        _storage.shrink_to_fit();
+    }
+
     void append(const char *src, size_t cnt)
     {
         return append((const uint8 *)src, cnt);
     }
 
-    template<class T> void append(const T *src, size_t cnt)
+    template<class T>
+    void append(const T *src, size_t cnt)
     {
         return append((const uint8 *)src, cnt * sizeof(T));
     }
+
     void append(uint8 const* src, size_t cnt);
 
-    void append(const ByteBuffer& buffer)
+    void append(ByteBuffer const& buffer)
     {
-        if (buffer.wpos())
-            append(buffer.contents(), buffer.wpos());
+        if (!buffer.empty())
+            append(buffer.contents(), buffer.size());
     }
 
-    void AppendBits(const ByteBuffer& buffer)
+    template <size_t Size>
+    void append(std::array<uint8, Size> const& arr)
     {
-        for (uint32 i = 0; i < buffer.wpos(); ++i)
-            WriteBits(*(buffer.contents() + i), 8);
-
-        WriteBits(buffer._curbitval >> buffer._bitpos, 8 - buffer._bitpos);
+        append(arr.data(), Size);
     }
 
     // can be used in SMSG_MONSTER_MOVE opcode
@@ -648,15 +630,14 @@ public:
 
     void appendPackGUID(uint64 guid)
     {
-        uint8 packGUID[8 + 1];
-        packGUID[0] = 0;
+        uint8 packGUID[8 + 1] = { };
         size_t size = 1;
         for (uint8 i = 0; guid != 0; ++i)
         {
             if (guid & 0xFF)
             {
                 packGUID[0] |= uint8(1 << i);
-                packGUID[size] = uint8(guid & 0xFF);
+                packGUID[size] =  uint8(guid & 0xFF);
                 ++size;
             }
 
@@ -665,9 +646,42 @@ public:
         append(packGUID, size);
     }
 
+    void AppendPackedUInt64(uint64 guid)
+    {
+        uint8 mask = 0;
+        size_t pos = wpos();
+        *this << uint8(mask);
+
+        uint8 packed[8];
+        if (size_t packedSize = PackUInt64(guid, &mask, packed))
+            append(packed, packedSize);
+
+        put<uint8>(pos, mask);
+    }
+
+    static size_t PackUInt64(uint64 value, uint8* mask, uint8* result)
+    {
+        size_t resultSize = 0;
+        *mask = 0;
+        memset(result, 0, 8);
+
+        for (uint8 i = 0; value != 0; ++i)
+        {
+            if (value & 0xFF)
+            {
+                *mask |= uint8(1 << i);
+                result[resultSize++] = uint8(value & 0xFF);
+            }
+
+            value >>= 8;
+        }
+
+        return resultSize;
+    }
+
     void AppendPackedTime(time_t time);
 
-    void put(size_t pos, const uint8 *src, size_t cnt);
+    void put(size_t pos, uint8 const* src, size_t cnt);
 
     void print_storage() const;
 
@@ -680,85 +694,6 @@ protected:
     uint8 _curbitval;
     std::vector<uint8> _storage;
 };
-
-template <typename T>
-inline ByteBuffer &operator<<(ByteBuffer &b, std::vector<T> v)
-{
-    b << (uint32)v.size();
-    for (typename std::vector<T>::iterator i = v.begin(); i != v.end(); ++i)
-    {
-        b << *i;
-    }
-    return b;
-}
-
-template <typename T>
-inline ByteBuffer &operator>>(ByteBuffer &b, std::vector<T> &v)
-{
-    uint32 vsize;
-    b >> vsize;
-    v.clear();
-    while (vsize--)
-    {
-        T t;
-        b >> t;
-        v.push_back(t);
-    }
-    return b;
-}
-
-template <typename T>
-inline ByteBuffer &operator<<(ByteBuffer &b, std::list<T> v)
-{
-    b << (uint32)v.size();
-    for (typename std::list<T>::iterator i = v.begin(); i != v.end(); ++i)
-    {
-        b << *i;
-    }
-    return b;
-}
-
-template <typename T>
-inline ByteBuffer &operator>>(ByteBuffer &b, std::list<T> &v)
-{
-    uint32 vsize;
-    b >> vsize;
-    v.clear();
-    while (vsize--)
-    {
-        T t;
-        b >> t;
-        v.push_back(t);
-    }
-    return b;
-}
-
-template <typename K, typename V>
-inline ByteBuffer &operator<<(ByteBuffer &b, std::map<K, V> &m)
-{
-    b << (uint32)m.size();
-    for (typename std::map<K, V>::iterator i = m.begin(); i != m.end(); ++i)
-    {
-        b << i->first << i->second;
-    }
-    return b;
-}
-
-template <typename K, typename V>
-inline ByteBuffer &operator>>(ByteBuffer &b, std::map<K, V> &m)
-{
-    uint32 msize;
-    b >> msize;
-    m.clear();
-    while (msize--)
-    {
-        K k;
-        V v;
-        b >> k >> v;
-        m.insert(make_pair(k, v));
-    }
-    return b;
-}
 
 /// @todo Make a ByteBuffer.cpp and move all this inlining to it.
 template<> inline std::string ByteBuffer::read<std::string>()

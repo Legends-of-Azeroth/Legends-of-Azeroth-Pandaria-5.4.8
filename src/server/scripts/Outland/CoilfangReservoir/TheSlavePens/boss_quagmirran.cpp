@@ -54,16 +54,16 @@ class boss_quagmirran : public CreatureScript
                     instance->SetData(DATA_QUAGMIRRAN, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_CLEAVE, urand(9 * IN_MILLISECONDS, 18 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_UPPERCUT, urand(20 * IN_MILLISECONDS, 21 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_POISON_BOLT_VOLLEY, urand(25 * IN_MILLISECONDS, 28 * IN_MILLISECONDS));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
 

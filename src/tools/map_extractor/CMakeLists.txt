@@ -28,9 +28,10 @@ add_executable(mapextractor
 
 target_link_libraries(mapextractor
   PRIVATE
-    ${BZIP2_LIBRARIES}
-    ${ZLIB_LIBRARIES}
+    bzip2
+    zlib
     storm
+    ${CMAKE_DL_LIBS}
 )
 
 add_dependencies(mapextractor storm)

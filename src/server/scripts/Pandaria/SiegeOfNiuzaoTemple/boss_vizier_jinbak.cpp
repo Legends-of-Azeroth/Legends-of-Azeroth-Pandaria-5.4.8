@@ -28,7 +28,7 @@ enum
     NPC_SAPPLING                    = 61623
 };
 
-typedef std::pair<float, uint64> SapplingTrigger;
+typedef std::pair<float, ObjectGuid> SapplingTrigger;
 
 const Position centerPos = { 1529.520020f, 5163.240234f, 160.570999f, 0.0f };
 
@@ -66,7 +66,7 @@ class boss_vizier_jinbak : public CreatureScript
             boss_vizier_jinbakAI(Creature* creature) : BossAI(creature, BOSS_JINBAK)
             {
                 visualTimer = 5000;
-                puddleGUID = 0;
+                puddleGUID = ObjectGuid::Empty;
                 introDone = false;
             }
 
@@ -114,7 +114,7 @@ class boss_vizier_jinbak : public CreatureScript
                 BossAI::MoveInLineOfSight(who);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->InterruptNonMeleeSpells(true);
                 visualTimer = 0;
@@ -145,7 +145,7 @@ class boss_vizier_jinbak : public CreatureScript
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_SUMMON_GLOBULES, 10000);
                 events.ScheduleEvent(EVENT_DETONATE, 30000);
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void JustSummoned(Creature* summon) override
@@ -270,7 +270,7 @@ class boss_vizier_jinbak : public CreatureScript
             uint32 evadeCheckCooldown;
             uint32 visualTimer;
             std::list<SapplingTrigger > summonDestList;
-            uint64 puddleGUID;
+            ObjectGuid puddleGUID;
             bool introDone;
         };
 
@@ -424,7 +424,7 @@ class spell_sap_residue : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sap_residue_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sap_residue_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_CASTER);
             }
         };
 

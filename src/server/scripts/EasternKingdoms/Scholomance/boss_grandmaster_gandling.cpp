@@ -100,7 +100,7 @@ class boss_grandmaster_gandling : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)
@@ -112,9 +112,9 @@ class boss_grandmaster_gandling : public CreatureScript
                 HandleDoors(true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(TALK_AGGRO);
 
                 if (instance)
@@ -138,7 +138,7 @@ class boss_grandmaster_gandling : public CreatureScript
             {
                 if (instance)
                     if (GameObject* Idoor = GetClosestGameObjectWithEntry(me, GO_GANDLING_INTRO_DOOR, 150.0f))
-                        instance->HandleGameObject(0, reset, Idoor);
+                        instance->HandleGameObject(ObjectGuid::Empty, reset, Idoor);
             }
 
             void KilledUnit(Unit* victim) override
@@ -147,15 +147,15 @@ class boss_grandmaster_gandling : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
-            uint64 RoomController()
+            ObjectGuid RoomController()
             {
                 std::list <Creature*> Controllers;
                 GetCreatureListWithEntryInGrid(Controllers, me, NPC_GANDLING_ROOM_STALKER, 200.0f);
 
                 if (Controllers.empty())
-                    return 0;
+                    return ObjectGuid::Empty;
 
-                uint64 RoomGUID = Trinity::Containers::SelectRandomContainerElement(Controllers)->GetGUID();
+                ObjectGuid RoomGUID = Trinity::Containers::SelectRandomContainerElement(Controllers)->GetGUID();
 
                 return RoomGUID;
             }

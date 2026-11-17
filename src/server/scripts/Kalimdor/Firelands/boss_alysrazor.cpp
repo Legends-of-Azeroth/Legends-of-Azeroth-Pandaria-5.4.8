@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
 #include "ScriptPCH.h"
 #include "firelands.h"
 #include "MoveSplineInit.h"
+#include "Random.h"
 
 enum ScriptTexts
 {
@@ -323,9 +324,9 @@ class boss_alysrazor : public CreatureScript
             bool bSpawnCloud;
             bool bVortex;
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* summoner) override
             {
-                if (GameObject* volcano = ObjectAccessor::GetGameObject(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_VOLCANO) : 0))
+                if (GameObject* volcano = ObjectAccessor::GetGameObject(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_VOLCANO) : ObjectGuid::Empty))
                 {
                     volcano->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
                     volcano->setActive(true);
@@ -364,7 +365,7 @@ class boss_alysrazor : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_DO_A_BARREL_LAVA_SPEW, 1);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->CombatStop(true);
                 if (me->isMoving())
@@ -431,7 +432,7 @@ class boss_alysrazor : public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 RemoveEncounterAuras();
                 Talk(SAY_AGGRO);
@@ -467,7 +468,7 @@ class boss_alysrazor : public CreatureScript
                     events.ScheduleEvent(EVENT_FIRESTORM, 80000);
                     events.ScheduleEvent(EVENT_VORTEX, 235000);
                     for (uint8 i = 0; i < 8; ++i)
-                        me->SummonCreature(NPC_MOLTEN_FEATHER, featherPos[i], TEMPSUMMON_TIMED_DESPAWN, 35000);
+                        me->SummonCreature(NPC_MOLTEN_FEATHER, featherPos[i], TEMPSUMMON_TIMED_DESPAWN, 35000ms);
                 }
                 else
                 {
@@ -590,26 +591,24 @@ class boss_alysrazor : public CreatureScript
                             break;
                         case EVENT_BLAZING_POWER:
                         {
-                            Position pos;
                             int32 offset = (bSpawnCloud ? 8 : -8);
-                            me->GetPosition(&pos);
+                            Position pos = me->GetPosition();
                             pos.m_positionX = pos.m_positionX + offset;
                             pos.m_positionY = pos.m_positionY + offset;
                             //DoCast(me, SPELL_BLAZING_POWER_SUM, true);
-                            me->SummonCreature(NPC_BLAZING_POWER, pos, TEMPSUMMON_TIMED_DESPAWN, 5000);
+                            me->SummonCreature(NPC_BLAZING_POWER, pos, TEMPSUMMON_TIMED_DESPAWN, 5000ms);
                             bSpawnCloud = !bSpawnCloud;
                             events.ScheduleEvent(EVENT_BLAZING_POWER, urand(2000, 4000));
                             break;
                         }
                         case EVENT_INCINDIARY_CLOUD:
                         {
-                            Position pos;
                             int32 offset = (bSpawnCloud ? 8 : -8);
-                            me->GetPosition(&pos);
+                            Position pos = me->GetPosition();
                             pos.m_positionX = pos.m_positionX + offset;
                             pos.m_positionY = pos.m_positionY + offset;
                             //DoCast(me, SPELL_INCINDIARY_CLOUD_SUM, true);
-                            me->SummonCreature(NPC_INCINDIARY_CLOUD, pos, TEMPSUMMON_TIMED_DESPAWN, 5000);
+                            me->SummonCreature(NPC_INCINDIARY_CLOUD, pos, TEMPSUMMON_TIMED_DESPAWN, 5000ms);
                             bSpawnCloud = !bSpawnCloud;
                             events.ScheduleEvent(EVENT_INCINDIARY_CLOUD, urand(2000, 4000));
                             break;
@@ -693,7 +692,7 @@ class boss_alysrazor : public CreatureScript
                             events.ScheduleEvent(EVENT_REMOVE_WINGS, 500);
                             //DoCast(me, SPELL_MOLTING_2, true);
                             for (uint8 i = 0; i < 8; ++i)
-                                me->SummonCreature(NPC_MOLTEN_FEATHER, featherPos[i], TEMPSUMMON_TIMED_DESPAWN, 35000);
+                                me->SummonCreature(NPC_MOLTEN_FEATHER, featherPos[i], TEMPSUMMON_TIMED_DESPAWN, 35000ms);
                             events.ScheduleEvent(EVENT_INITIATE, urand(1000, 15000));
                             events.RescheduleEvent(EVENT_BLAZING_POWER, urand(2000, 5000));
                             events.RescheduleEvent(EVENT_INCINDIARY_CLOUD, urand(3000, 5000));
@@ -868,7 +867,7 @@ class npc_alysrazor_fiery_vortex : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_HARSH_WIND, 5000);
             }
@@ -892,8 +891,7 @@ class npc_alysrazor_fiery_vortex : public CreatureScript
                                     {
                                         pTornado->CastSpell(pTornado, SPELL_FIERY_TORNADO);
                                         pTornado->ClearUnitState(UNIT_STATE_CASTING);
-                                        Position pos;
-                                        me->GetNearPosition(pos, 5.0f + 12.0f * i, (float(i) * M_PI / 2));
+                                        Position pos = me->GetNearPosition(5.0f + 12.0f * i, (float(i) * M_PI / 2));
                                         pTornado->SetSpeed(MOVE_RUN, 2.0f, true);
                                         pTornado->GetMotionMaster()->MovePoint((bClock ? POINT_TORNADO_1 : POINT_TORNADO_2), pos);
                                         bClock = !bClock;
@@ -1028,7 +1026,7 @@ class npc_alysrazor_blazing_talon_initiate : public CreatureScript
 
             void IsSummonedBy(Unit* /*summoner*/) override
             {
-                me->SetAnimationTier(UnitAnimationTier::Hover);
+                me->SetAnimTier(AnimTier::Hover);
                 me->SetCanFly(true);
                 me->SetDisableGravity(true);
                 me->OverrideInhabitType(INHABIT_AIR);
@@ -1070,7 +1068,7 @@ class npc_alysrazor_blazing_talon_initiate : public CreatureScript
                     me->SetDisableGravity(false);
                     me->OverrideInhabitType(INHABIT_GROUND);
                     me->UpdateMovementFlags();
-                    me->SetAnimationTier(UnitAnimationTier::Ground);
+                    me->SetAnimTier(AnimTier::Ground);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 }
             }
@@ -1200,7 +1198,7 @@ class npc_alysrazor_blazing_talon_clawshaper : public CreatureScript
 
             void IsSummonedBy(Unit* /*summoner*/) override
             {
-                me->SetAnimationTier(UnitAnimationTier::Hover);
+                me->SetAnimTier(AnimTier::Hover);
                 me->SetCanFly(true);
                 me->SetDisableGravity(true);
                 me->OverrideInhabitType(INHABIT_AIR);
@@ -1225,7 +1223,7 @@ class npc_alysrazor_blazing_talon_clawshaper : public CreatureScript
                     me->SetDisableGravity(false);
                     me->OverrideInhabitType(INHABIT_GROUND);
                     me->UpdateMovementFlags();
-                    me->SetAnimationTier(UnitAnimationTier::Ground);
+                    me->SetAnimTier(AnimTier::Ground);
                 }
                 else if (pointId == POINT_CLAWSHAPER_2)
                 {
@@ -1268,7 +1266,7 @@ class npc_alysrazor_blazing_talon_clawshaper : public CreatureScript
                                     me->SetDisableGravity(true);
                                     me->OverrideInhabitType(INHABIT_AIR);
                                     me->UpdateMovementFlags();
-                                    me->SetAnimationTier(UnitAnimationTier::Hover);
+                                    me->SetAnimTier(AnimTier::Hover);
                                     me->GetMotionMaster()->MovePoint(POINT_CLAWSHAPER_2, initiatePos[bLeft ? 0 : 1]);
                                 }
                                 else
@@ -1305,7 +1303,7 @@ class npc_alysrazor_blazing_broodmother : public CreatureScript
 
             void IsSummonedBy(Unit* /*summoner*/) override
             {
-                me->SetAnimationTier(UnitAnimationTier::Hover);
+                me->SetAnimTier(AnimTier::Hover);
                 me->SetCanFly(true);
                 me->SetDisableGravity(true);
                 me->OverrideInhabitType(INHABIT_AIR);
@@ -1549,7 +1547,7 @@ class npc_alysrazor_plump_lava_worm : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_LAVA_SPEW);
                 events.ScheduleEvent(EVENT_ROTATE, 4000);
@@ -1652,7 +1650,7 @@ class npc_alysrazor_herald_of_the_burning_end : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_RITUAL_OF_THE_FLAME, true);

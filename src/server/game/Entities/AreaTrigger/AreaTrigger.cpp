@@ -159,7 +159,7 @@ void IAreaTriggerAura::OnUpdate(uint32)
             // remove
             if (WorldObject* object = ObjectAccessor::GetWorldObject(*m_target, iter->Guid))
                 OnTriggeringRemove(object);
-            else if (Player* player = ObjectAccessor::FindPlayerInOrOutOfWorld(iter->Guid))
+            else if (Player* player = ObjectAccessor::FindConnectedPlayer(iter->Guid))
                 if (player->GetMap() == m_areaTrigger->GetMap())
                     OnTriggeringRemove(player);
 
@@ -206,7 +206,7 @@ AreaTrigger::AreaTrigger() : AreaTrigger(nullptr)
 }
 
 AreaTrigger::AreaTrigger(AuraEffect const* eff)
-    : WorldObject(false), m_auraOwner(eff ? eff->GetBase()->GetOwner()->GetGUID() : 0), m_effectIndex(eff ? eff->GetEffIndex() : 0)
+    : WorldObject(false), m_auraOwner(eff ? eff->GetBase()->GetOwner()->GetGUID() : ObjectGuid::Empty), m_effectIndex(eff ? eff->GetEffIndex() : 0)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -226,7 +226,7 @@ void AreaTrigger::AddToWorld()
     ///- Register the AreaTrigger for guid lookup and for caster
     if (!IsInWorld())
     {
-        sObjectAccessor->AddObject(this);
+        GetMap()->GetObjectsStore().Insert<AreaTrigger>(GetGUID(), this);
         WorldObject::AddToWorld();
         BindToCaster();
 
@@ -248,7 +248,7 @@ void AreaTrigger::RemoveFromWorld()
 
         UnbindFromCaster();
         WorldObject::RemoveFromWorld();
-        sObjectAccessor->RemoveObject(this);
+        GetMap()->GetObjectsStore().Remove<AreaTrigger>(GetGUID());
     }
 }
 
@@ -258,11 +258,11 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     Relocate(pos);
     if (!IsPositionValid())
     {
-        TC_LOG_ERROR("misc", "AreaTrigger (spell %u) not created. Invalid coordinates (X: %f Y: %f)", spell->Id, GetPositionX(), GetPositionY());
+        TC_LOG_ERROR("misc", "AreaTrigger (spell {}) not created. Invalid coordinates (X: {} Y: {})", spell->Id, GetPositionX(), GetPositionY());
         return false;
     }
 
-    WorldObject::_Create(guidlow, HIGHGUID_AREATRIGGER, caster->GetPhaseMask());
+    WorldObject::_Create(guidlow, HighGuid::AreaTrigger, caster->GetPhaseMask(), caster->GetPhases());
 
     int32 duration = spell->GetDuration();
     if (Player* modOwner = caster->GetSpellModOwner())
@@ -272,7 +272,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     SetDuration(duration);
     SetObjectScale(1);
 
-    SetUInt64Value(AREATRIGGER_FIELD_CASTER, caster->GetGUID());
+    SetGuidValue(AREATRIGGER_FIELD_CASTER, caster->GetGUID());
     SetUInt32Value(AREATRIGGER_FIELD_SPELL_ID, spell->Id);
     SetUInt32Value(AREATRIGGER_FIELD_SPELL_VISUAL_ID, spell->SpellVisual[0]);
     SetInt32Value(AREATRIGGER_FIELD_DURATION, duration);
@@ -376,7 +376,7 @@ void AreaTrigger::Remove()
             Unit* auraOwner = ObjectAccessor::GetUnit(*this, m_auraOwner);
             if (!auraOwner)
             {
-                TC_LOG_ERROR("shitlog", "!auraOwner, spell %u, owner " UI64FMTD ", caster " UI64FMTD "\n", GetSpellId(), m_auraOwner, GetCasterGUID());
+                TC_LOG_ERROR("shitlog", "!auraOwner, spell {}, owner " "{}" ", caster " "{}" "\n", GetSpellId(), m_auraOwner.GetRawValue(), GetCasterGUID().GetRawValue());
             }
             else
             {
@@ -418,13 +418,13 @@ void AreaTrigger::InitSpline(std::vector<Position> const& path, int32 duration)
 {
     if (path.size() < 2)
     {
-        TC_LOG_ERROR("entities.areatrigger", "AreaTrigger::InitSpline - Size of path < 2 (entry: %u)", GetEntry());
+        TC_LOG_ERROR("entities.areatrigger", "AreaTrigger::InitSpline - Size of path < 2 (entry: {})", GetEntry());
         return;
     }
 
     if (duration < 0)
     {
-        TC_LOG_ERROR("entities.areatrigger", "AreaTrigger::InitSpline - duration < 0 (entry: %u)", GetEntry());
+        TC_LOG_ERROR("entities.areatrigger", "AreaTrigger::InitSpline - duration < 0 (entry: {})", GetEntry());
         return;
     }
 
@@ -483,7 +483,7 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
         float progress = sDB2Manager.GetCurveValueAt(GetMiscTemplate()->MoveCurveId, currentTimePercent);
         if (progress < 0.f || progress > 1.f)
         {
-            TC_LOG_ERROR("entities.areatrigger", "AreaTrigger (Id: %u, SpellMiscId: %u) has wrong progress (%f) caused by curve calculation (MoveCurveId: %u)",
+            TC_LOG_ERROR("entities.areatrigger", "AreaTrigger (Id: {}, SpellMiscId: {}) has wrong progress ({}) caused by curve calculation (MoveCurveId: {})",
                 GetTemplate()->Id, GetMiscTemplate()->MiscId, progress, GetMiscTemplate()->MorphCurveId);
         }
         else

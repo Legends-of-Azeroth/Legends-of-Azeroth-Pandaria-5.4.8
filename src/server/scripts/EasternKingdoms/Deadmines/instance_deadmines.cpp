@@ -41,19 +41,19 @@ class instance_deadmines : public InstanceMapScript
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doordata);
                 
-                uiGlubtokGUID        = 0;
-                uiHelixGUID          = 0;
-                uiOafGUID            = 0;
-                uiFoereaperGUID      = 0;
-                uiAdmiralGUID        = 0;
-                uiCaptainGUID        = 0;
+                uiGlubtokGUID = ObjectGuid::Empty;
+                uiHelixGUID = ObjectGuid::Empty;
+                uiOafGUID = ObjectGuid::Empty;
+                uiFoereaperGUID = ObjectGuid::Empty;
+                uiAdmiralGUID = ObjectGuid::Empty;
+                uiCaptainGUID = ObjectGuid::Empty;
 
-                GoblinTeleporterGUID = 0;
-                HeavyDoorGUID        = 0;
-                HeavyDoor2GUID       = 0;
-                IronCladDoorGUID     = 0;
-                DefiasCannonGUID     = 0;
-                DoorLeverGUID        = 0;
+                GoblinTeleporterGUID = ObjectGuid::Empty;
+                HeavyDoorGUID = ObjectGuid::Empty;
+                HeavyDoor2GUID       = ObjectGuid::Empty;
+                IronCladDoorGUID = ObjectGuid::Empty;
+                DefiasCannonGUID = ObjectGuid::Empty;
+                DoorLeverGUID = ObjectGuid::Empty;
                 TeamInInstance       = 0;
                 uiVanessaEvent       = 0;
                 OverchargeCount      = 0;
@@ -150,7 +150,7 @@ class instance_deadmines : public InstanceMapScript
                             OverchargeCount++;
 
                             if (OverchargeCount >= 4)
-                                if (Creature* FoeReaper = instance->GetCreature(GetData64(DATA_FOEREAPER)))
+                                if (Creature* FoeReaper = instance->GetCreature(GetGuidData(DATA_FOEREAPER)))
                                     FoeReaper->RemoveAurasDueToSpell(SPELL_OFF_LINE);
                             break;
                     }
@@ -234,7 +234,7 @@ class instance_deadmines : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -249,9 +249,9 @@ class instance_deadmines : public InstanceMapScript
                     case DATA_ADMIRAL:
                         return uiAdmiralGUID;
                     case DATA_TEAM_IN_INSTANCE:     
-                        return TeamInInstance;
+                        return ObjectGuid(uint64(TeamInInstance));
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
             
             bool SetBossState(uint32 type, EncounterState state) override
@@ -343,25 +343,25 @@ class instance_deadmines : public InstanceMapScript
             }
 
         private:
-            uint64 uiGlubtokGUID;
-            uint64 uiHelixGUID;
-            uint64 uiOafGUID;
-            uint64 uiFoereaperGUID;
-            uint64 uiAdmiralGUID;
-            uint64 uiCaptainGUID;
+            ObjectGuid uiGlubtokGUID;
+            ObjectGuid uiHelixGUID;
+            ObjectGuid uiOafGUID;
+            ObjectGuid uiFoereaperGUID;
+            ObjectGuid uiAdmiralGUID;
+            ObjectGuid uiCaptainGUID;
 
-            uint64 FactoryDoorGUID;
-            uint64 FoundryDoorGUID;
-            uint64 MastRoomDoorGUID;
-            uint64 GoblinTeleporterGUID;
-            uint64 HeavyDoorGUID;
-            uint64 HeavyDoor2GUID;
-            uint64 IronCladDoorGUID;
-            uint64 DefiasCannonGUID;
-            uint64 DoorLeverGUID;
-            uint64 DefiasPirate1GUID;
-            uint64 DefiasPirate2GUID;
-            uint64 DefiasCompanionGUID;
+            ObjectGuid FactoryDoorGUID;
+            ObjectGuid FoundryDoorGUID;
+            ObjectGuid MastRoomDoorGUID;
+            ObjectGuid GoblinTeleporterGUID;
+            ObjectGuid HeavyDoorGUID;
+            ObjectGuid HeavyDoor2GUID;
+            ObjectGuid IronCladDoorGUID;
+            ObjectGuid DefiasCannonGUID;
+            ObjectGuid DoorLeverGUID;
+            ObjectGuid DefiasPirate1GUID;
+            ObjectGuid DefiasPirate2GUID;
+            ObjectGuid DefiasCompanionGUID;
 
             uint32 State;
             uint32 uiVanessaEvent;

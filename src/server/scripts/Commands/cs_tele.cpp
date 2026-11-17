@@ -39,17 +39,17 @@ public:
     {
         static std::vector<ChatCommand> teleCommandTable =
         {
-            { "add",    SEC_ADMINISTRATOR,  false,  &HandleTeleAddCommand,      },
-            { "del",    SEC_ADMINISTRATOR,  true,   &HandleTeleDelCommand,      },
-            { "name",   SEC_ADMINISTRATOR,  true,   &HandleTeleNameCommand,     },
-            { "group",  SEC_ADMINISTRATOR,  false,  &HandleTeleGroupCommand,    },
-            { "",       SEC_GAMEMASTER,  false,  &HandleTeleCommand,         },
-            
+            { "add",    &HandleTeleAddCommand,      rbac::RBAC_PERM_COMMAND_TELE_ADD,  Trinity::ChatCommands::Console::No },
+            { "del",    &HandleTeleDelCommand,      rbac::RBAC_PERM_COMMAND_TELE_DEL,  Trinity::ChatCommands::Console::Yes },
+            { "name",   &HandleTeleNameCommand,     rbac::RBAC_PERM_COMMAND_TELE_NAME, Trinity::ChatCommands::Console::Yes },
+            { "group",  &HandleTeleGroupCommand,    rbac::RBAC_PERM_COMMAND_TELE_GROUP, Trinity::ChatCommands::Console::No },
+            { "",       &HandleTeleCommand,         rbac::RBAC_PERM_COMMAND_TELE,      Trinity::ChatCommands::Console::No },
+
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "tele",   SEC_GAMEMASTER,  false,  teleCommandTable            },
-            
+            { "tele",   teleCommandTable,            rbac::RBAC_PERM_COMMAND_TELE,      Trinity::ChatCommands::Console::No },
+
         };
         return commandTable;
     }
@@ -123,7 +123,7 @@ public:
             return false;
 
         Player* target;
-        uint64 target_guid;
+        ObjectGuid target_guid;
         std::string target_name;
         if (!handler->extractPlayerTarget(nameStr, &target, &target_guid, &target_name))
             return false;
@@ -166,7 +166,7 @@ public:
         if (target)
         {
             // check online security
-            if (handler->HasLowerSecurity(target, 0))
+            if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
                 return false;
 
             std::string chrNameLink = handler->playerLink(target_name);
@@ -204,7 +204,7 @@ public:
 
             handler->PSendSysMessage(LANG_TELEPORTING_TO, nameLink.c_str(), handler->GetTrinityString(LANG_OFFLINE), tele->name.c_str());
             Player::SavePositionInDB(tele->mapId, tele->position_x, tele->position_y, tele->position_z, tele->orientation,
-                sMapMgr->GetZoneId(tele->mapId, tele->position_x, tele->position_y, tele->position_z), target_guid);
+                sMapMgr->GetZoneId(PHASEMASK_NORMAL, tele->mapId, tele->position_x, tele->position_y, tele->position_z), target_guid);
         }
 
         return true;
@@ -225,7 +225,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
@@ -263,7 +263,7 @@ public:
                 continue;
 
             // check online security
-            if (handler->HasLowerSecurity(player, 0))
+            if (handler->HasLowerSecurity(player, ObjectGuid::Empty))
                 return false;
 
             std::string plNameLink = handler->GetNameLink(player);

@@ -33,31 +33,31 @@ class instance_blood_in_the_snow : public InstanceMapScript
             EventMap events;
             uint32 m_auiEncounter[4];
             uint32 chapterOne, chapterTwo, chapterThree, chapterFour, chapterFive, chapterSix;
-            uint64 grimboltGUID;
-            uint64 stonebeardGUID;
-            uint64 forgeFellowGUID;
-            uint64 boldBrewGUID;
-            uint64 varianIntroGUID;
-            uint64 varianOutroGUID;
-            uint64 moiraIntroGUID;
-            uint64 moiraOutroGUID;
-            uint64 roastingSpitGUID;
-            uint64 hekimaGUID;
-            uint64 farastuGUID;
+            ObjectGuid grimboltGUID;
+            ObjectGuid stonebeardGUID;
+            ObjectGuid forgeFellowGUID;
+            ObjectGuid boldBrewGUID;
+            ObjectGuid varianIntroGUID;
+            ObjectGuid varianOutroGUID;
+            ObjectGuid moiraIntroGUID;
+            ObjectGuid moiraOutroGUID;
+            ObjectGuid roastingSpitGUID;
+            ObjectGuid hekimaGUID;
+            ObjectGuid farastuGUID;
             uint32 shimmerweedCount;
-            std::vector<uint64> victoryorDeathSceneGUIDs;
+            std::vector<ObjectGuid> victoryorDeathSceneGUIDs;
 
             void Initialize() override
             {
                 SetBossNumber(6);
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-                grimboltGUID     = 0;
-                stonebeardGUID   = 0;
-                forgeFellowGUID  = 0;
-                boldBrewGUID     = 0;
-                roastingSpitGUID = 0;
-                hekimaGUID       = 0;
-                farastuGUID      = 0;
+                grimboltGUID = ObjectGuid::Empty;
+                stonebeardGUID = ObjectGuid::Empty;
+                forgeFellowGUID = ObjectGuid::Empty;
+                boldBrewGUID = ObjectGuid::Empty;
+                roastingSpitGUID = ObjectGuid::Empty;
+                hekimaGUID = ObjectGuid::Empty;
+                farastuGUID = ObjectGuid::Empty;
                 shimmerweedCount = 0;
                 events.ScheduleEvent(1, 3500);
 
@@ -156,7 +156,7 @@ class instance_blood_in_the_snow : public InstanceMapScript
                                 sScenarioMgr->SendScenarioState(player, 1130, DATA_SAVE_SCOUT_STONEBEARD, 0);
 
                         // Allow spellclick to spit
-                        if (Creature* spit = instance->GetCreature(GetData64(NPC_ROASTING_SPIT)))
+                        if (Creature* spit = instance->GetCreature(GetGuidData(NPC_ROASTING_SPIT)))
                             spit->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                         break;
                     case DATA_SAVE_SCOUT_STONEBEARD:
@@ -166,7 +166,7 @@ class instance_blood_in_the_snow : public InstanceMapScript
                             if (Player* player = itr.GetSource())
                                 sScenarioMgr->SendScenarioState(player, 1130, DATA_SAVE_SCOUT_BOLD_BREW, 0);
 
-                        if (Creature* boldbrew = instance->GetCreature(GetData64(NPC_SCOUT_BOLDBREW)))
+                        if (Creature* boldbrew = instance->GetCreature(GetGuidData(NPC_SCOUT_BOLDBREW)))
                             boldbrew->SetVisible(true);
                         break;
                     case DATA_SAVE_SCOUT_BOLD_BREW:
@@ -176,7 +176,7 @@ class instance_blood_in_the_snow : public InstanceMapScript
                             if (Player* player = itr.GetSource())
                                 sScenarioMgr->SendScenarioState(player, 1130, DATA_SAVE_SCOUT_FORGEFELLOW, 0);
 
-                        if (Creature* forgefellow = instance->GetCreature(GetData64(NPC_SCOUT_FORGEFELLOW)))
+                        if (Creature* forgefellow = instance->GetCreature(GetGuidData(NPC_SCOUT_FORGEFELLOW)))
                             forgefellow->SetVisible(true);
                         break;
                     case DATA_SAVE_SCOUT_FORGEFELLOW:
@@ -186,7 +186,7 @@ class instance_blood_in_the_snow : public InstanceMapScript
                             if (Player* player = itr.GetSource())
                                 sScenarioMgr->SendScenarioState(player, 1130, DATA_COLD_CAVE, 0);
 
-                        if (Creature* farastu = instance->GetCreature(GetData64(NPC_FARASTU)))
+                        if (Creature* farastu = instance->GetCreature(GetGuidData(NPC_FARASTU)))
                         {
                             farastu->SetVisible(true);
                             farastu->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PACIFIED);
@@ -202,7 +202,7 @@ class instance_blood_in_the_snow : public InstanceMapScript
                         // Remove Blizzard Weather from players
                         DoRemoveAurasDueToSpellOnPlayers(SPELL_BLIZZARD_WEATHER);
 
-                        if (Creature* moira = instance->GetCreature(GetData64(NPC_MOIRA_THAURISSAN + 1)))
+                        if (Creature* moira = instance->GetCreature(GetGuidData(NPC_MOIRA_THAURISSAN + 1)))
                         {
                             moira->SetVisible(true);
                             moira->AI()->Talk(TALK_SPECIAL_7);
@@ -218,7 +218,7 @@ class instance_blood_in_the_snow : public InstanceMapScript
                             }
                         }
 
-                        if (Creature* hekima = instance->GetCreature(GetData64(NPC_HEKIMA_THE_WISE)))
+                        if (Creature* hekima = instance->GetCreature(GetGuidData(NPC_HEKIMA_THE_WISE)))
                         {
                             hekima->AI()->DoAction(ACTION_LAST_STAND);
 
@@ -241,7 +241,7 @@ class instance_blood_in_the_snow : public InstanceMapScript
                             chapterSix = DONE;
 
                             // Last Outscene with Varian
-                            if (Creature* varian = instance->GetCreature(GetData64(NPC_KING_VARIAN_WRYNN + 1)))
+                            if (Creature* varian = instance->GetCreature(GetGuidData(NPC_KING_VARIAN_WRYNN + 1)))
                                 varian->AI()->DoAction(ACTION_LAST_STAND);
 
                             DoFinishLFGDungeon(instance->GetDifficulty() == SCENARIO_DIFFICULTY_HEROIC ? 637 : 646);
@@ -281,7 +281,7 @@ class instance_blood_in_the_snow : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -309,7 +309,7 @@ class instance_blood_in_the_snow : public InstanceMapScript
                         return farastuGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void Update(uint32 diff) override
@@ -321,11 +321,11 @@ class instance_blood_in_the_snow : public InstanceMapScript
                     switch (eventId)
                     {
                         case 1:
-                            if (Creature* varian = instance->GetCreature(GetData64(NPC_KING_VARIAN_WRYNN)))
+                            if (Creature* varian = instance->GetCreature(GetGuidData(NPC_KING_VARIAN_WRYNN)))
                                 varian->AI()->DoAction(ACTION_START_INTRO);
                             break;
                         case 2:
-                            if (Creature* moira = instance->GetCreature(GetData64(NPC_MOIRA_THAURISSAN + 1)))
+                            if (Creature* moira = instance->GetCreature(GetGuidData(NPC_MOIRA_THAURISSAN + 1)))
                             {
                                 // Check Trolls every 2s
                                 std::list<Creature*> trolls;

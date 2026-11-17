@@ -93,7 +93,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                     instance->SetBossState(DATA_KARGATH, DONE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }
@@ -143,7 +143,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
 
             void removeAdds()
             {
-                for (std::vector<uint64>::const_iterator itr = adds.begin(); itr!= adds.end(); ++itr)
+                for (std::vector<ObjectGuid>::const_iterator itr = adds.begin(); itr!= adds.end(); ++itr)
                 {
                     Creature* creature = Unit::GetCreature(*me, *itr);
                     if (creature && creature->IsAlive())
@@ -155,7 +155,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 }
                 adds.clear();
 
-                for (std::vector<uint64>::const_iterator itr = assassins.begin(); itr!= assassins.end(); ++itr)
+                for (std::vector<ObjectGuid>::const_iterator itr = assassins.begin(); itr!= assassins.end(); ++itr)
                 {
                     Creature* creature = Unit::GetCreature(*me, *itr);
                     if (creature && creature->IsAlive())
@@ -169,10 +169,10 @@ class boss_warchief_kargath_bladefist : public CreatureScript
             }
             void SpawnAssassin()
             {
-                me->SummonCreature(NPC_SHATTERED_ASSASSIN, AssassEntrance[0], AssassEntrance[1]+8, AssassEntrance[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                me->SummonCreature(NPC_SHATTERED_ASSASSIN, AssassEntrance[0], AssassEntrance[1]-8, AssassEntrance[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                me->SummonCreature(NPC_SHATTERED_ASSASSIN, AssassExit[0], AssassExit[1]+8, AssassExit[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                me->SummonCreature(NPC_SHATTERED_ASSASSIN, AssassExit[0], AssassExit[1]-8, AssassExit[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                me->SummonCreature(NPC_SHATTERED_ASSASSIN, AssassEntrance[0], AssassEntrance[1]+8, AssassEntrance[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000ms);
+                me->SummonCreature(NPC_SHATTERED_ASSASSIN, AssassEntrance[0], AssassEntrance[1]-8, AssassEntrance[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000ms);
+                me->SummonCreature(NPC_SHATTERED_ASSASSIN, AssassExit[0], AssassExit[1]+8, AssassExit[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000ms);
+                me->SummonCreature(NPC_SHATTERED_ASSASSIN, AssassExit[0], AssassExit[1]-8, AssassExit[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000ms);
             }
 
             void UpdateAI(uint32 diff) override
@@ -260,13 +260,13 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                             switch (urand(0, 2))
                             {
                                 case 0:
-                                    me->SummonCreature(NPC_HEARTHEN_GUARD, AddsEntrance[0], AddsEntrance[1], AddsEntrance[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                                    me->SummonCreature(NPC_HEARTHEN_GUARD, AddsEntrance[0], AddsEntrance[1], AddsEntrance[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000ms);
                                     break;
                                 case 1:
-                                    me->SummonCreature(NPC_SHARPSHOOTER_GUARD, AddsEntrance[0], AddsEntrance[1], AddsEntrance[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                                    me->SummonCreature(NPC_SHARPSHOOTER_GUARD, AddsEntrance[0], AddsEntrance[1], AddsEntrance[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000ms);
                                     break;
                                 case 2:
-                                    me->SummonCreature(NPC_REAVER_GUARD, AddsEntrance[0], AddsEntrance[1], AddsEntrance[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                                    me->SummonCreature(NPC_REAVER_GUARD, AddsEntrance[0], AddsEntrance[1], AddsEntrance[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000ms);
                                     break;
                             }
                         }
@@ -295,8 +295,8 @@ class boss_warchief_kargath_bladefist : public CreatureScript
             }
 
             private:
-                std::vector<uint64> adds;
-                std::vector<uint64> assassins;
+                std::vector<ObjectGuid> adds;
+                std::vector<ObjectGuid> assassins;
                 uint32 Charge_timer;
                 uint32 Blade_Dance_Timer;
                 uint32 Summon_Assistant_Timer;

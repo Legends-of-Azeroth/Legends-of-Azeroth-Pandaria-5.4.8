@@ -44,18 +44,18 @@ class instance_bastion_of_twilight : public InstanceMapScript
             {
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doordata);
-                uiWyrmbreakerGUID = 0;
-                uiValionaGUID = 0;
-                uiTheralionGUID = 0;
-                uiFeludiusGUID = 0;
-                uiArionGUID = 0;
-                uiIgnaciousGUID = 0;
-                uiTerrastraGUID = 0;
-                uiMonstrosityGUID = 0;
-                uiWhelpCageGUID = 0;
+                uiWyrmbreakerGUID = ObjectGuid::Empty;
+                uiValionaGUID = ObjectGuid::Empty;
+                uiTheralionGUID = ObjectGuid::Empty;
+                uiFeludiusGUID = ObjectGuid::Empty;
+                uiArionGUID = ObjectGuid::Empty;
+                uiIgnaciousGUID = ObjectGuid::Empty;
+                uiTerrastraGUID = ObjectGuid::Empty;
+                uiMonstrosityGUID = ObjectGuid::Empty;
+                uiWhelpCageGUID = ObjectGuid::Empty;
                 uiValionaTheralionHealth = 0;
-                uiChogallGUID = 0;
-                uiChogallFloorGUID = 0;
+                uiChogallGUID = ObjectGuid::Empty;
+                uiChogallFloorGUID = ObjectGuid::Empty;
                 memset(m_uiDialogs, 0, sizeof(m_uiDialogs));
                 playerDied = 0;
             }
@@ -154,7 +154,7 @@ class instance_bastion_of_twilight : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -179,7 +179,7 @@ class instance_bastion_of_twilight : public InstanceMapScript
                     case DATA_CHOGALL:
                         return uiChogallGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             uint32 GetData(uint32 type) const override
@@ -277,7 +277,7 @@ class instance_bastion_of_twilight : public InstanceMapScript
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const override
             {
-                if (player && player->IsGameMaster())
+                if (_SkipCheckRequiredBosses(player))
                     return true;
             
                 switch (bossId)
@@ -372,26 +372,26 @@ class instance_bastion_of_twilight : public InstanceMapScript
             }
 
             private:
-                uint64 uiWyrmbreakerGUID;
+                ObjectGuid uiWyrmbreakerGUID;
                 uint32 m_uiDialogs[8];
-                uint64 uiValionaGUID;
-                uint64 uiTheralionGUID;
-                uint64 uiFeludiusGUID;
-                uint64 uiArionGUID;
-                uint64 uiIgnaciousGUID;
-                uint64 uiTerrastraGUID;
-                uint64 uiMonstrosityGUID;
+                ObjectGuid uiValionaGUID;
+                ObjectGuid uiTheralionGUID;
+                ObjectGuid uiFeludiusGUID;
+                ObjectGuid uiArionGUID;
+                ObjectGuid uiIgnaciousGUID;
+                ObjectGuid uiTerrastraGUID;
+                ObjectGuid uiMonstrosityGUID;
                 uint32 uiValionaTheralionHealth;
-                uint64 uiChogallGUID;
-                uint64 uiWhelpCageGUID;
-                uint64 uiDoorHalfusEntranceGUID;
-                uint64 uiDoorHalfusExitGUID;
-                uint64 uiDoorTherEntranceGUID;
-                uint64 uiDoorTherExitGUID;
-                uint64 uiDoorCouncilEntranceGUID;
-                uint64 uiDoorCouncilExitGUID;
-                uint64 uiDoorChogallEntranceGUID;
-                uint64 uiChogallFloorGUID;
+                ObjectGuid uiChogallGUID;
+                ObjectGuid uiWhelpCageGUID;
+                ObjectGuid uiDoorHalfusEntranceGUID;
+                ObjectGuid uiDoorHalfusExitGUID;
+                ObjectGuid uiDoorTherEntranceGUID;
+                ObjectGuid uiDoorTherExitGUID;
+                ObjectGuid uiDoorCouncilEntranceGUID;
+                ObjectGuid uiDoorCouncilExitGUID;
+                ObjectGuid uiDoorChogallEntranceGUID;
+                ObjectGuid uiChogallFloorGUID;
                 uint32 playerDied;
         };
 

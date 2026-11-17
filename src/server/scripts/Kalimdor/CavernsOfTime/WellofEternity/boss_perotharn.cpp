@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -157,7 +157,7 @@ class boss_perotharn : public CreatureScript
                 _Reset();
 
                 phase = 0;
-                targetGUID = 0;
+                targetGUID = ObjectGuid::Empty;
                 me->GetMap()->SetWorldState(WORLDSTATE_LAZY_EYE, 0);
 
                 if (instance->GetData(DATA_EVENT_DEMON) == DONE)
@@ -218,7 +218,7 @@ class boss_perotharn : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 
@@ -247,14 +247,14 @@ class boss_perotharn : public CreatureScript
                 if (Creature* pIllidan = me->FindNearestCreature(NPC_ILLIDAN_1, 100.0f))
                     pIllidan->AI()->DoAction(1); // ACTION_PEROTHARN_DEAD
 
-                instance->DoKilledMonsterKredit(QUEST_IN_UNENDING_NUMBERS, 58239, 0);
-                instance->DoKilledMonsterKredit(QUEST_IN_UNENDING_NUMBERS, 58240, 0);
-                instance->DoKilledMonsterKredit(QUEST_IN_UNENDING_NUMBERS, 58241, 0);                               
+                instance->DoKilledMonsterKredit(QUEST_IN_UNENDING_NUMBERS, 58239, ObjectGuid::Empty);
+                instance->DoKilledMonsterKredit(QUEST_IN_UNENDING_NUMBERS, 58240, ObjectGuid::Empty);
+                instance->DoKilledMonsterKredit(QUEST_IN_UNENDING_NUMBERS, 58241, ObjectGuid::Empty);
             }
             
             void KilledUnit(Unit* victim) override { }
 
-            void SetGUID(uint64 guid, int32 /*type*/) override
+            void SetGUID(ObjectGuid guid, int32 /*type*/) override
             {
                 targetGUID = guid;
             }
@@ -368,8 +368,7 @@ class boss_perotharn : public CreatureScript
                             events.ScheduleEvent(EVENT_END_HUNT, 45000);
                             for (float i = 0.0f; i < 2 * M_PI; i += (M_PI / 4))
                             {
-                                Position pos;
-                                me->GetNearPosition(pos, 5.0f, i);
+                                Position pos = me->GetNearPosition(5.0f, i);
                                 me->SummonCreature(NPC_HUNTING_SUMMON_CIRCLE, pos);
                                 me->SummonCreature(NPC_EYE_OF_PEROTHARN_1, pos);
                             }
@@ -429,7 +428,7 @@ class boss_perotharn : public CreatureScript
             uint32 updatePositionTimer;
             uint32 preeventDisapperTimer;
             uint8 phase;
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             bool hasPreeventAppeared;
         };
 
@@ -459,7 +458,7 @@ class npc_perotharn_eye_of_perotharn : public CreatureScript
                 me->SetSpeed(MOVE_RUN, 0.8f, true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             { 
                 events.ScheduleEvent(EVENT_NEXT_MOVE, urand(500, 2000));
             }

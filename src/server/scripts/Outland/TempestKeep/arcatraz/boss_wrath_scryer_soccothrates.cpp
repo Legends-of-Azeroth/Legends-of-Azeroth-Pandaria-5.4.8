@@ -52,7 +52,7 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
 
             EventMap nonCombatEvents;
             uint32 felfireCounter, felfireCalculate;
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             float x, y;
             bool intro, hasYell;
 
@@ -69,7 +69,7 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                 events.Reset();
                 felfireCounter   = 1;
                 felfireCalculate = 0;
-                targetGUID       = 0;
+                targetGUID = ObjectGuid::Empty;
                 x                = 0.0f;
                 y                = 0.0f;
                 hasYell          = false;
@@ -80,15 +80,15 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
 
             Creature* Dalliah()
             {
-                if (Creature* sDalliah = ObjectAccessor::GetCreature(*me, instance->GetData64(TYPE_DALLIAH)))
+                if (Creature* sDalliah = ObjectAccessor::GetCreature(*me, instance->GetGuidData(TYPE_DALLIAH)))
                     return sDalliah;
 
                 return 0;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(TALK_SD_AGGRO);
 
                 if (Creature* dalliah = Dalliah())
@@ -106,7 +106,7 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                     Talk(TALK_SD_SLAY);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 me->GetMotionMaster()->MoveTargetedHome();
@@ -242,7 +242,7 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                                     felfireCalculate = dive;
 
                                 GetPositionWithDistInOrientation(me, 5.0f, me->GetOrientation(), x, y);
-                                me->SummonCreature(NPC_SCRYER_FELFIRE, x, y, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 6 * IN_MILLISECONDS);
+                                me->SummonCreature(NPC_SCRYER_FELFIRE, x, y, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(6 * IN_MILLISECONDS));
                                 events.ScheduleEvent(EVENT_FELFIRE_CHARGE_EFF, 100);
                             }
                             events.ScheduleEvent(EVENT_FELFIRE_CHARGE, urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS));
@@ -292,9 +292,9 @@ class npc_scryer_felfire : public CreatureScript
     public:
         npc_scryer_felfire() : CreatureScript("npc_scryer_felfire") { }
 
-        struct npc_scryer_felfireAI : public CreatureAI
+        struct npc_scryer_felfireAI : public ScriptedAI
         {
-            npc_scryer_felfireAI(Creature* creature) : CreatureAI(creature) { }
+            npc_scryer_felfireAI(Creature* creature) : ScriptedAI(creature) { }
 
             EventMap events;
             float x, y;
@@ -308,7 +308,7 @@ class npc_scryer_felfire : public CreatureScript
 
                 if (InstanceScript* instance = me->GetInstanceScript())
                 {
-                    if (Creature* Scryer = ObjectAccessor::GetCreature(*me, instance->GetData64(TYPE_SOCCOTHRATES)))
+                    if (Creature* Scryer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(TYPE_SOCCOTHRATES)))
                     {
                         if (felData = Scryer->AI()->GetData(TYPE_FELFIRE))
                         {
@@ -334,7 +334,7 @@ class npc_scryer_felfire : public CreatureScript
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     if (eventId==EVENT_FELFIRE_CHARGE)
-                        me->SummonCreature(NPC_SCRYER_FELFIRE, x, y, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 6 * IN_MILLISECONDS);
+                        me->SummonCreature(NPC_SCRYER_FELFIRE, x, y, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(6 * IN_MILLISECONDS));
                     break;
                 }
             }

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -129,7 +129,7 @@ struct npc_thunder_king_treasure_sentry_totem : public ScriptedAI
     npc_thunder_king_treasure_sentry_totem(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
 
     void InitializeAI() override
     {
@@ -140,12 +140,12 @@ struct npc_thunder_king_treasure_sentry_totem : public ScriptedAI
         });
     }
 
-    void SetGUID(uint64 guid, int32 /*type*/) override
+    void SetGUID(ObjectGuid guid, int32 /*type*/) override
     {
         targetGUID = guid;
     }
 
-    uint64 GetGUID(int32 /*type*/) const override
+    ObjectGuid GetGUID(int32 /*type*/) const override
     {
         return targetGUID;
     }
@@ -172,7 +172,7 @@ struct npc_thunder_king_treasure_stasis_rune : public ScriptedAI
 
     void InitializeAI() override
     {
-        me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
+        me->SetDisplayFromModel(0);
 
         hasTriggered = false;
 
@@ -212,7 +212,7 @@ struct npc_thunder_king_treasure_speed_rune : public ScriptedAI
 
     void InitializeAI() override
     {
-        me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
+        me->SetDisplayFromModel(0);
 
         scheduler
             .Schedule(Seconds(1), [this](TaskContext context)
@@ -241,7 +241,7 @@ struct npc_thunder_king_treasure_zandalari_arcweaver : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_ARCANE_BOLT, urand(3.5 * IN_MILLISECONDS, 5 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(8 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
@@ -276,9 +276,9 @@ struct npc_thunder_king_treasure_sentry_beam_bunny : public ScriptedAI
     npc_thunder_king_treasure_sentry_beam_bunny(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
 
-    void IsSummonedBy(Unit* summoner)
+    void IsSummonedBy(Unit* summoner) override
     {
         if (summoner->ToCreature())
             targetGUID = summoner->ToCreature()->AI()->GetGUID();
@@ -324,7 +324,7 @@ struct npc_god_hulk_gulkan : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_MIGHTY_STOMP, urand(10 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_MIGHTY_CRASH, 7.5 * IN_MILLISECONDS);
@@ -361,7 +361,7 @@ struct npc_zandalari_venomblade : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         DoCast(who, SPELL_IMPALING_PULL, true);
         events.ScheduleEvent(EVENT_BATTLE_SHOUT, urand(10 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
@@ -473,7 +473,7 @@ struct npc_thunder_king_treasure_stone_watcher : public customCreatureAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         me->SetReactState(REACT_AGGRESSIVE);
         me->RemoveAurasDueToSpell(SPELL_ETERNAL_SLUMBER);

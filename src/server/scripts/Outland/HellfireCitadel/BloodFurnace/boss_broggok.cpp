@@ -73,7 +73,7 @@ class boss_broggok : public CreatureScript
                 instance->SetData(TYPE_BROGGOK_EVENT, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }
@@ -123,8 +123,8 @@ class boss_broggok : public CreatureScript
             {
                 if (instance)
                 {
-                    instance->HandleGameObject(instance->GetData64(DATA_DOOR4), true);
-                    instance->HandleGameObject(instance->GetData64(DATA_DOOR5), true);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_DOOR4), true);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_DOOR5), true);
                     instance->SetData(TYPE_BROGGOK_EVENT, DONE);
                 }
             }
@@ -168,7 +168,7 @@ class go_broggok_lever : public GameObjectScript
                 if (instance->GetData(TYPE_BROGGOK_EVENT) != DONE && instance->GetData(TYPE_BROGGOK_EVENT) != IN_PROGRESS)
                 {
                     instance->SetData(TYPE_BROGGOK_EVENT, IN_PROGRESS);
-                    if (Creature* broggok = Creature::GetCreature(*go, instance->GetData64(DATA_BROGGOK)))
+                    if (Creature* broggok = Creature::GetCreature(*go, instance->GetGuidData(DATA_BROGGOK)))
                         broggok->AI()->DoAction(ACTION_PREPARE_BROGGOK);
                 }
             go->UseDoorOrButton();

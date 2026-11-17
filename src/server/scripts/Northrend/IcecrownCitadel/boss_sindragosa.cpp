@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -20,7 +20,7 @@
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "icecrown_citadel.h"
-#include "../../../collision/Management/VMapFactory.h"
+#include "VMapFactory.h"
 
 enum Texts
 {
@@ -215,7 +215,7 @@ class boss_sindragosa : public CreatureScript
                 DoCast(me, SPELL_FROST_INFUSION_CREDIT);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(DATA_SINDRAGOSA, who->ToPlayer()))
                 {
@@ -224,7 +224,7 @@ class boss_sindragosa : public CreatureScript
                     return;
                 }
 
-                BossAI::EnterCombat(who);
+                BossAI::JustEngagedWith(who);
                 instance->SetBossState(DATA_SINDRAGOSA, IN_PROGRESS);
                 DoCast(me, SPELL_FROST_AURA);
                 DoCast(me, SPELL_PERMAEATING_CHILL);
@@ -531,7 +531,7 @@ class boss_sindragosa : public CreatureScript
                                 Talk(EMOTE_WARN_FROZEN_ORB, target);
                                 DoCast(target, SPELL_ICE_TOMB_DUMMY, true);
 
-                                uint64 targetGuid = target->GetGUID();
+                                ObjectGuid targetGuid = target->GetGUID();
                                 me->m_Events.Schedule(500, [this, targetGuid]()
                                 {
                                     if (Unit* target = ObjectAccessor::GetUnit(*me, targetGuid))
@@ -628,8 +628,8 @@ class npc_ice_tomb : public CreatureScript
             npc_ice_tombAI(Creature* creature) : ScriptedAI(creature)
             {
                 SetCombatMovement(false);
-                _trappedPlayerGUID = 0;
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_INSTANTLY_APPEAR_MODEL);
+                _trappedPlayerGUID = ObjectGuid::Empty;
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_INSTANTLY_APPEAR_MODEL);
             }
 
             void Reset() override
@@ -648,7 +648,7 @@ class npc_ice_tomb : public CreatureScript
                 DoCast(me, 26586, true); // Birth
             }
 
-            void SetGUID(uint64 guid, int32 type/* = 0 */) override
+            void SetGUID(ObjectGuid guid, int32 type/* = 0 */) override
             {
                 if (type == DATA_TRAPPED_PLAYER)
                 {
@@ -677,14 +677,14 @@ class npc_ice_tomb : public CreatureScript
 
                 if (Player* player = ObjectAccessor::GetPlayer(*me, _trappedPlayerGUID))
                 {
-                    _trappedPlayerGUID = 0;
+                    _trappedPlayerGUID = ObjectGuid::Empty;
                     player->RemoveAurasDueToSpell(SPELL_ICE_TOMB_UNTARGETABLE);
                     player->RemoveAurasDueToSpell(SPELL_ICE_TOMB_DAMAGE);
                     player->RemoveAurasDueToSpell(SPELL_ASPHYXIATION);
 
                     // set back in combat with sindragosa
                     if (InstanceScript* instance = player->GetInstanceScript())
-                        if (Creature* sindragosa = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_SINDRAGOSA)))
+                        if (Creature* sindragosa = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_SINDRAGOSA)))
                         {
                             sindragosa->SetInCombatWith(player);
                             player->SetInCombatWith(sindragosa);
@@ -727,7 +727,7 @@ class npc_ice_tomb : public CreatureScript
             }
 
         private:
-            uint64 _trappedPlayerGUID;
+            ObjectGuid _trappedPlayerGUID;
             uint32 _existenceCheckTimer;
             bool _asphyxiationTimerEnabled;
             uint32 _asphyxiationTimer;
@@ -774,17 +774,17 @@ class npc_spinestalker : public CreatureScript
                     me->OverrideInhabitType(INHABIT_GROUND);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 // Close this door when Rimefang or Spinestalker get infight
                 // Server crashes can be ignored in this case, since teleporter to Sindragosa is active
-                if (GameObject* sindragosaDoor = _instance->instance->GetGameObject(_instance->GetData64(GO_SINDRAGOSA_ENTRANCE_DOOR)))
-                    _instance->HandleGameObject(_instance->GetData64(GO_SINDRAGOSA_ENTRANCE_DOOR), false, sindragosaDoor);
+                if (GameObject* sindragosaDoor = _instance->instance->GetGameObject(_instance->GetGuidData(GO_SINDRAGOSA_ENTRANCE_DOOR)))
+                    _instance->HandleGameObject(_instance->GetGuidData(GO_SINDRAGOSA_ENTRANCE_DOOR), false, sindragosaDoor);
             }
 
-            void JustRespawned() override
+            void JustAppeared() override
             {
-                ScriptedAI::JustRespawned();
+                ScriptedAI::JustAppeared();
                 _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1);  // this cannot be in Reset because reset also happens on evade
             }
 
@@ -928,9 +928,9 @@ class npc_rimefang : public CreatureScript
                     me->OverrideInhabitType(INHABIT_GROUND);
             }
 
-            void JustRespawned() override
+            void JustAppeared() override
             {
-                ScriptedAI::JustRespawned();
+                ScriptedAI::JustAppeared();
                 _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1);  // this cannot be in Reset because reset also happens on evade
             }
 
@@ -1004,14 +1004,14 @@ class npc_rimefang : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_FROST_AURA_RIMEFANG, true);
 
                 // Close this door when Rimefang or Spinestalker get infight
                 // Server crashes can be ignored in this case, since teleporter to Sindragosa is active
-                if (GameObject* sindragosaDoor = _instance->instance->GetGameObject(_instance->GetData64(GO_SINDRAGOSA_ENTRANCE_DOOR)))
-                    _instance->HandleGameObject(_instance->GetData64(GO_SINDRAGOSA_ENTRANCE_DOOR), false, sindragosaDoor);
+                if (GameObject* sindragosaDoor = _instance->instance->GetGameObject(_instance->GetGuidData(GO_SINDRAGOSA_ENTRANCE_DOOR)))
+                    _instance->HandleGameObject(_instance->GetGuidData(GO_SINDRAGOSA_ENTRANCE_DOOR), false, sindragosaDoor);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1115,9 +1115,9 @@ class npc_sindragosa_trash : public CreatureScript
                 _isTaunted = false;
             }
 
-            void JustRespawned() override
+            void JustAppeared() override
             {
-                ScriptedAI::JustRespawned();
+                ScriptedAI::JustAppeared();
 
                 // Increase add count
                 if (me->GetEntry() != NPC_FROSTWARDEN_HANDLER)
@@ -1431,7 +1431,7 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
 
                 caster->CastSpell(target, SPELL_ICE_TOMB_DUMMY, true);
 
-                uint64 targetGuid = target->GetGUID();
+                ObjectGuid targetGuid = target->GetGUID();
                 caster->m_Events.Schedule(500, [caster, targetGuid]()
                 {
                     if (Unit* target = ObjectAccessor::GetUnit(*caster, targetGuid))
@@ -1472,8 +1472,7 @@ class spell_sindragosa_ice_tomb_trap : public SpellScriptLoader
                 if (!unit || !caster)
                     return;
 
-                Position pos;
-                unit->GetPosition(&pos);
+                Position pos = unit->GetPosition();
 
                 if (TempSummon* summon = caster->SummonCreature(NPC_ICE_TOMB, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()))
                 {
@@ -1704,7 +1703,7 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                GetCaster()->AddThreat(GetHitUnit(), float(GetEffectValue()));
+                GetCaster()->GetThreatManager().AddThreat(GetHitUnit(), float(GetEffectValue()));
                 GetCaster()->GetAI()->SetData(DATA_WHELP_MARKER, 1);
             }
 
@@ -1723,7 +1722,7 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
                 {
-                    caster->AddThreat(GetTarget(), -float(GetSpellInfo()->Effects[EFFECT_1].CalcValue()));
+                    caster->GetThreatManager().AddThreat(GetTarget(), -float(GetSpellInfo()->Effects[EFFECT_1].CalcValue()));
                     caster->GetAI()->SetData(DATA_WHELP_MARKER, 0);
                 }
             }
@@ -1788,11 +1787,11 @@ class at_sindragosa_lair : public AreaTriggerScript
                     return true;
 
                 if (!instance->GetData(DATA_SPINESTALKER))
-                    if (Creature* spinestalker = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_SPINESTALKER)))
+                    if (Creature* spinestalker = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_SPINESTALKER)))
                         spinestalker->AI()->DoAction(ACTION_START_FROSTWYRM);
 
                 if (!instance->GetData(DATA_RIMEFANG))
-                    if (Creature* rimefang = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_RIMEFANG)))
+                    if (Creature* rimefang = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_RIMEFANG)))
                         rimefang->AI()->DoAction(ACTION_START_FROSTWYRM);
 
                 if ((!instance->GetData(DATA_SINDRAGOSA_FROSTWYRMS) && instance->GetBossState(DATA_SINDRAGOSA) != DONE) ||
@@ -1801,7 +1800,7 @@ class at_sindragosa_lair : public AreaTriggerScript
                     if (player->GetMap()->IsHeroic() && !instance->GetData(DATA_HEROIC_ATTEMPTS))
                         return true;
 
-                    Creature* sindragosa = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_SINDRAGOSA));
+                    Creature* sindragosa = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_SINDRAGOSA));
 
                     // Sindragosa is not spawned, so respawn now
                     if (!sindragosa)
@@ -1830,8 +1829,8 @@ class FrostBombTargetSelector
             if (object->ToUnit()->HasAura(SPELL_ICE_TOMB_DAMAGE))
                 return true;
 
-            float oldOrientation = _caster->m_orientation;
-            _caster->m_orientation = _caster->GetAngle(object);
+            float oldOrientation = _caster->GetOrientation();
+            _caster->SetOrientation(_caster->GetAngle(object));
 
             float distToTarget = _caster->GetExactDist2dSq(object);
 
@@ -1840,7 +1839,7 @@ class FrostBombTargetSelector
                 if ((*itr)->IsAlive() && distToTarget > _caster->GetExactDist2dSq(*itr) && _caster->HasInArc(0.0f, *itr, 2.0f))
                     result = true;
 
-            _caster->m_orientation = oldOrientation;
+            _caster->SetOrientation(oldOrientation);
 
             return result;
         }
@@ -1889,8 +1888,10 @@ class spell_sindragosa_tail_smash : public SpellScriptLoader
 
             void TargetSelect(SpellDestination& dest)
             {
-                if (Unit* caster = GetCaster())
-                    caster->GetNearPosition(dest._position, 40.0f, M_PI);
+                if (Unit* caster = GetCaster()){
+                    Position pos = caster->GetNearPosition(40.0f, M_PI);
+                    dest._position = WorldLocation(GetCaster()->GetMapId(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+                }
             }
 
             void Register() override

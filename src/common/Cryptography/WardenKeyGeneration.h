@@ -15,7 +15,8 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "SHA1.h"
+#include "CryptoGenerics.h"
+#include "CryptoHash.h"
 
 #ifndef _WARDEN_KEY_GENERATION_H
 #define _WARDEN_KEY_GENERATION_H
@@ -27,17 +28,17 @@ public:
     {
         uint32 taken = size/2;
 
-        sh.Initialize();
-        sh.UpdateData(buff, taken);
-        sh.Finalize();
+        Trinity::Crypto::SHA1 sha1;
+        sha1.UpdateData(buff, taken);
+        sha1.Finalize();
 
-        memcpy(o1, sh.GetDigest(), 20);
+        memcpy(o1, sha1.GetDigest().data(), 20);
 
-        sh.Initialize();
-        sh.UpdateData(buff + taken, size - taken);
-        sh.Finalize();
+        Trinity::Crypto::SHA1 sha2;
+        sha2.UpdateData(buff + taken, size - taken);
+        sha2.Finalize();
 
-        memcpy(o2, sh.GetDigest(), 20);
+        memcpy(o2, sha2.GetDigest().data(), 20);
 
         memset(o0, 0x00, 20);
 
@@ -59,18 +60,17 @@ public:
 private:
     void FillUp()
     {
-        sh.Initialize();
+        Trinity::Crypto::SHA1 sh;
         sh.UpdateData(o1, 20);
         sh.UpdateData(o0, 20);
         sh.UpdateData(o2, 20);
         sh.Finalize();
 
-        memcpy(o0, sh.GetDigest(), 20);
+        memcpy(o0, sh.GetDigest().data(), 20);
 
         taken = 0;
     }
-
-    SHA1Hash sh;
+    
     uint32 taken;
     uint8 o0[20], o1[20], o2[20];
 };

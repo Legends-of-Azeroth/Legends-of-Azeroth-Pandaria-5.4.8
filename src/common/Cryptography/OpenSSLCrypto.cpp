@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
 
 #include <OpenSSLCrypto.h>
 #include <openssl/crypto.h>
-#include <filesystem>
+
 #if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x1010000fL
 #include <vector>
 #include <thread>
@@ -25,12 +25,12 @@
 
 std::vector<std::mutex*> cryptoLocks;
 
-static void lockingCallback(int mode, int type, const char* /*file*/, int /*line*/)
+static void lockingCallback(int mode, int type, char const* /*file*/, int /*line*/)
 {
     if (mode & CRYPTO_LOCK)
-        cryptoLocks[type]->acquire();
+        cryptoLocks[type]->lock();
     else
-        cryptoLocks[type]->release();
+        cryptoLocks[type]->unlock();
 }
 
 static void threadIdCallback(CRYPTO_THREADID * id)
@@ -44,26 +44,27 @@ OSSL_PROVIDER* LegacyProvider;
 OSSL_PROVIDER* DefaultProvider;
 #endif
 
-void OpenSSLCrypto::threadsSetup()
+void OpenSSLCrypto::threadsSetup([[maybe_unused]] boost::filesystem::path const& providerModulePath)
 {
-#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x1010000fL 
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x1010000fL
     cryptoLocks.resize(CRYPTO_num_locks());
     for(int i = 0 ; i < CRYPTO_num_locks(); ++i)
     {
         cryptoLocks[i] = new std::mutex();
     }
+
     (void)&threadIdCallback;
     CRYPTO_THREADID_set_callback(threadIdCallback);
 
     (void)&lockingCallback;
     CRYPTO_set_locking_callback(lockingCallback);
 #elif OPENSSL_VERSION_NUMBER >= 0x30000000L
-#ifdef WIN32
-    OSSL_PROVIDER_set_default_search_path(nullptr, std::filesystem::current_path().string().c_str());
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+    OSSL_PROVIDER_set_default_search_path(nullptr, providerModulePath.string().c_str());
 #endif
     LegacyProvider = OSSL_PROVIDER_load(nullptr, "legacy");
     DefaultProvider = OSSL_PROVIDER_load(nullptr, "default");
-#endif    
+#endif
 }
 
 void OpenSSLCrypto::threadsCleanup()
@@ -80,5 +81,5 @@ void OpenSSLCrypto::threadsCleanup()
     OSSL_PROVIDER_unload(LegacyProvider);
     OSSL_PROVIDER_unload(DefaultProvider);
     OSSL_PROVIDER_set_default_search_path(nullptr, nullptr);
-#endif    
+#endif
 }

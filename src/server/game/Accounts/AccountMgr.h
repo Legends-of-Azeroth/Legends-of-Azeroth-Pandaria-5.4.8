@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -19,7 +19,9 @@
 #define SF_ACCMGR_H
 
 #include "Define.h"
+#include "RBAC.h"
 #include <string>
+#include <map>
 #include "Util.h"
 
 enum class AccountOpResult : uint8
@@ -44,6 +46,12 @@ enum PasswordChangeSecurity
 #define MAX_PASS_STR 16
 #define MAX_ACCOUNT_STR 16
 #define MAX_EMAIL_STR 64
+
+namespace rbac
+{
+typedef std::map<uint32, rbac::RBACPermission*> RBACPermissionsContainer;
+typedef std::map<uint8, rbac::RBACPermissionContainer> RBACDefaultPermissionsContainer;
+}
 
 class AccountMgr
 {
@@ -76,7 +84,20 @@ class AccountMgr
         static bool IsAdminAccount(uint32 gmlevel);
         static bool IsConsoleAccount(uint32 gmlevel);
 
-        void UpdateAccountAccess(uint32 accountId, uint8 securityLevel, int32 realmId);
+        static bool HasPermission(uint32 accountId, uint32 permissionId, uint32 realmId);
+
+        void UpdateAccountAccess(rbac::RBACData* rbac, uint32 accountId, uint8 securityLevel, int32 realmId);
+
+        void LoadRBAC();
+        rbac::RBACPermission const* GetRBACPermission(uint32 permissionId) const;
+
+        rbac::RBACPermissionsContainer const& GetRBACPermissionList() const { return _permissions; }
+        rbac::RBACPermissionContainer const& GetRBACDefaultPermissions(uint8 secLevel);
+
+    private:
+        void ClearRBAC();
+        rbac::RBACPermissionsContainer _permissions;
+        rbac::RBACDefaultPermissionsContainer _defaultPermissions;
 };
 
 #define sAccountMgr AccountMgr::instance()

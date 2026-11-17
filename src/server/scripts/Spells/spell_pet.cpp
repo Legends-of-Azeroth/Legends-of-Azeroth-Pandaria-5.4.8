@@ -27,6 +27,7 @@
 #include "Unit.h"
 #include "Player.h"
 #include "Pet.h"
+#include "Random.h"
 
 enum HunterPetCalculate
 {

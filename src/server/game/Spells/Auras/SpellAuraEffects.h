@@ -31,9 +31,9 @@ typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const* aurApp, uin
 class AuraEffect
 {
     friend void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount);
-    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID);
+    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount, Item* castItem, ObjectGuid casterGUID);
     friend Aura::~Aura();
-    friend Aura::Aura(SpellInfo const*, WorldObject*, Unit*, Item*, uint64, uint32, int32*);
+    friend Aura::Aura(SpellInfo const*, WorldObject*, Unit*, Item*, ObjectGuid, uint32, int32*);
     friend void Aura::RemoveEffect(uint8 effIndex);
 
     private:
@@ -43,7 +43,7 @@ class AuraEffect
 
     public:
         Unit* GetCaster() const { return GetBase()->GetCaster(); }
-        uint64 GetCasterGUID() const { return GetBase()->GetCasterGUID(); }
+        ObjectGuid GetCasterGUID() const { return GetBase()->GetCasterGUID(); }
         Aura* GetBase() const { return m_base; }
         void GetTargetList(std::list<Unit*> & targetList) const;
         void GetApplicationList(std::list<AuraApplication*> & applicationList) const;
@@ -189,6 +189,7 @@ class AuraEffect
         void HandleSpiritOfRedemption(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraGhost(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandlePhase(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandlePhaseGroup(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  unit model
         void HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, bool apply) const;

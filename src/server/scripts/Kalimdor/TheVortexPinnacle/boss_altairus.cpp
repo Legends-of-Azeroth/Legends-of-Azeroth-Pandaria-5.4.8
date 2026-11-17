@@ -81,11 +81,11 @@ class boss_altairus : public CreatureScript
 
                 // Should have Fly anim in combat too
                 me->OverrideInhabitType(INHABIT_AIR);
-                me->SetAnimationTier(UnitAnimationTier::Fly);
+                me->SetAnimTier(AnimTier::Fly);
                 me->UpdateMovementFlags();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -104,7 +104,7 @@ class boss_altairus : public CreatureScript
                 instance->SetBossState(DATA_ALTAIRUS, IN_PROGRESS);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();
@@ -257,7 +257,7 @@ struct npc_altairus_twister : public ScriptedAI
     void IsSummonedBy(Unit* summoner) override
     {
         me->OverrideInhabitType(INHABIT_AIR);
-        me->SetAnimationTier(UnitAnimationTier::Fly);
+        me->SetAnimTier(AnimTier::Fly);
         me->UpdateMovementFlags();
 
         DoCast(me, SPELL_TWISTER_AURA);

@@ -24,12 +24,13 @@
 #include "GameObject.h"
 #include "CreatureAI.h"
 
-class GameObjectAI
+class TC_GAME_API GameObjectAI
 {
     protected:
-        GameObject* const go;
+        GameObject* const me;
+
     public:
-        explicit GameObjectAI(GameObject* g) : go(g) { }
+        explicit GameObjectAI(GameObject* go) : me(go) { }
         virtual ~GameObjectAI() { }
 
         virtual void UpdateAI(uint32 /*diff*/) { }
@@ -45,13 +46,13 @@ class GameObjectAI
 
         static int Permissible(GameObject const* go);
 
-        virtual bool GossipHello(Player* /*player*/) { return false; }
+        virtual bool OnGossipHello(Player* /*player*/, bool /*isUse*/) { return false; }
         virtual bool OnReportUse(Player* /*player*/) { return false; }
-        virtual bool GossipSelect(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/) { return false; }
-        virtual bool GossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, char const* /*code*/) { return false; }
-        virtual bool QuestAccept(Player* /*player*/, Quest const* /*quest*/) { return false; }
-        virtual bool QuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
-        virtual uint32 GetDialogStatus(Player* /*player*/) { return 100; }
+        virtual bool OnGossipSelect(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/) { return false; }
+        virtual bool OnGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, char const* /*code*/) { return false; }
+        virtual bool OnQuestAccept(Player* /*player*/, Quest const* /*quest*/) { return false; }
+        virtual bool OnQuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
+        virtual Optional<QuestGiverStatus> GetDialogStatus(Player* /*player*/) { return {}; }
         virtual void Destroyed(Player* /*player*/, uint32 /*eventId*/) { }
         virtual uint32 GetData(uint32 /*id*/) const { return 0; }
         virtual void SetData64(uint32 /*id*/, uint64 /*value*/) { }
@@ -62,7 +63,7 @@ class GameObjectAI
         virtual void EventInform(uint32 /*eventId*/) { }
 };
 
-class NullGameObjectAI : public GameObjectAI
+class TC_GAME_API NullGameObjectAI : public GameObjectAI
 {
     public:
         explicit NullGameObjectAI(GameObject* g);

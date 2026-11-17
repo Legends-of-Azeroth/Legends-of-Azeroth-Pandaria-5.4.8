@@ -67,7 +67,7 @@ class boss_thalnos_the_soulrender : public CreatureScript
             boss_thalnos_the_soulrenderAI(Creature* creature) : BossAI(creature, BOSS_THALNOS_THE_SOULRENDER) { }
 
             bool IntroAnn;
-            uint64 victimGUID;
+            ObjectGuid victimGUID;
             uint32 zombieAliveCount;
 
             void InitializeAI() override
@@ -84,7 +84,7 @@ class boss_thalnos_the_soulrender : public CreatureScript
                 events.Reset();
                 me->setRegeneratingHealth(true);
                 me->SetReactState(REACT_AGGRESSIVE);
-                victimGUID       = 0;
+                victimGUID = ObjectGuid::Empty;
                 zombieAliveCount = 0;
                 me->GetMap()->SetWorldState(WORLDSTATE_EMPOWERED_SPIRITUALIST, 0);
 
@@ -120,7 +120,7 @@ class boss_thalnos_the_soulrender : public CreatureScript
                     itr->DespawnOrUnsummon();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 DespawnSummoned();
@@ -155,9 +155,9 @@ class boss_thalnos_the_soulrender : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(TALK_INTO);
                 if (instance)
                 {
@@ -330,7 +330,7 @@ struct npc_empowering_spirit : public ScriptedAI
     {
         if (zombie_timer <= diff)
         {
-            if (Creature* thalnos = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(BOSS_THALNOS_THE_SOULRENDER) : 0))
+            if (Creature* thalnos = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(BOSS_THALNOS_THE_SOULRENDER) : ObjectGuid::Empty))
                 thalnos->SummonCreature(NPC_EMPOWERED_ZOMBIE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), TEMPSUMMON_MANUAL_DESPAWN);
 
             me->DespawnOrUnsummon();

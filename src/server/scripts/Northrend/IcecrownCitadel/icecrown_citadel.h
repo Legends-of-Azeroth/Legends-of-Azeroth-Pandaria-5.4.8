@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -706,6 +706,12 @@ enum AreaIds
     AREA_THE_FROZEN_THRONE  = 4859,
 };
 
+enum ICMisc
+{
+    AREA_ICECROWN_CITADEL   = 4812,
+    AT_NERUBAR_BROODKEEPER  = 5611
+};
+
 class spell_trigger_spell_from_caster : public SpellScriptLoader
 {
     public:
@@ -747,14 +753,12 @@ class spell_trigger_spell_from_caster : public SpellScriptLoader
         uint32 _triggerId;
 };
 
-template<class AI>
-CreatureAI* GetIcecrownCitadelAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetIcecrownCitadelAI(T* obj)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(ICCScriptName))
-                return new AI(creature);
-    return nullptr;
+    return GetInstanceAI<AI>(obj, ICCScriptName);
 }
+
+#define RegisterIcecrownCitadelCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetIcecrownCitadelAI)
 
 #endif // ICECROWN_CITADEL_H_

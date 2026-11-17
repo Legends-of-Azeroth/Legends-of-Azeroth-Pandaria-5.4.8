@@ -81,7 +81,7 @@ class boss_jammalan_prophet : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_INTRO, 2 * IN_MILLISECONDS);
@@ -196,7 +196,7 @@ class npc_ogom_wretched : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_CURSE_WEAKNESS, 10 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_SWP, urand(5 * IN_MILLISECONDS, 5.5*IN_MILLISECONDS));

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -83,9 +83,9 @@ class boss_grilek : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
                 events.ScheduleEvent(EVENT_RUPTURE_LINE, 15000);
@@ -132,7 +132,7 @@ class boss_grilek : public CreatureScript
                             break;
                         case EVENT_PURSUIT_END:
                             events.RemovePhase(PHASE_PURSUIT);
-                            me->getThreatManager().resetAllAggro();
+                            me->GetThreatManager().ResetAllThreat();
                             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
                             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
                             break;
@@ -168,8 +168,8 @@ class boss_grilek : public CreatureScript
             {
                 if (target && spell->Id == SPELL_PURSUIT)
                 {
-                    me->getThreatManager().resetAllAggro();
-                    me->getThreatManager().addThreat(target, 100000);
+                    me->GetThreatManager().ResetAllThreat();
+                    me->GetThreatManager().AddThreat(target, 100000);
                     me->SetTarget(target->GetGUID());
                     me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MoveChase(target);
@@ -197,9 +197,8 @@ class spell_grilek_rupture_line : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                     if (Unit* target = GetHitUnit())
                     {
-                        Position casterPos, targetPos;
-                        caster->GetPosition(&casterPos);
-                        target->GetPosition(&targetPos);
+                        Position casterPos = caster->GetPosition();
+                        Position targetPos = target->GetPosition();
                         float direction = caster->GetAngle(&targetPos);
                         direction += M_PI / 6;
                         float distance = 0;

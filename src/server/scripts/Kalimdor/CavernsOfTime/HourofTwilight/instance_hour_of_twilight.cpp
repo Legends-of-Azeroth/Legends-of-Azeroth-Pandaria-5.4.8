@@ -78,7 +78,7 @@ class instance_hour_of_twilight : public InstanceMapScript
 
             void SetData(uint32 /*type*/, uint32 /*data*/) override { }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -90,7 +90,7 @@ class instance_hour_of_twilight : public InstanceMapScript
                         return BenedictusGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -163,10 +163,10 @@ class instance_hour_of_twilight : public InstanceMapScript
             }
 
             protected:
-                uint64 emptyGUID;
-                uint64 ArcurionGUID;
-                uint64 AsiraGUID;
-                uint64 BenedictusGUID;
+                ObjectGuid emptyGUID;
+                ObjectGuid ArcurionGUID;
+                ObjectGuid AsiraGUID;
+                ObjectGuid BenedictusGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

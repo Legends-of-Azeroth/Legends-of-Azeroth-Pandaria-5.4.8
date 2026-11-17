@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -199,8 +199,8 @@ class boss_thok_the_bloodthirsty : public CreatureScript
             uint32 cleaveSpellEntry;
             uint32 nextFrenzyPct;
             uint32 thirdCageCount;
-            uint64 targetGUID;
-            uint64 fixateTargetGUID;
+            ObjectGuid targetGUID;
+            ObjectGuid fixateTargetGUID;
 
             void Reset() override
             {
@@ -211,8 +211,8 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                 me->SetPower(POWER_MANA, 0);
                 me->setRegeneratingMana(false);
                 me->SetSpeed(MOVE_RUN, 1.8f);
-                targetGUID       = 0;
-                fixateTargetGUID = 0;
+                targetGUID = ObjectGuid::Empty;
+                fixateTargetGUID = ObjectGuid::Empty;
                 eatHelperEntry   = 0;
                 cleaveSpellEntry = 0;
                 nextFrenzyPct    = 80;
@@ -235,7 +235,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
                 // Not available to use
-                if (GameObject* thirdCage = ObjectAccessor::GetGameObject(*me, instance ? instance->GetData64(GO_THRICE_LOCKED_CAGE) : 0))
+                if (GameObject* thirdCage = ObjectAccessor::GetGameObject(*me, instance ? instance->GetGuidData(GO_THRICE_LOCKED_CAGE) : ObjectGuid::Empty))
                     thirdCage->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
                 scheduler
@@ -255,7 +255,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                     if (instance && instance->GetData(DATA_THOK_BLOODTHIRSTY_PRE_EVENT) == DONE)
                     {
                         me->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
-                        instance->HandleGameObject(instance->GetData64(GO_REX_DOOR), true, NULL);
+                        instance->HandleGameObject(instance->GetGuidData(GO_REX_DOOR), true, NULL);
 
                         Movement::MoveSplineInit init(me);
 
@@ -269,12 +269,12 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                 });
             }
 
-            void SetGUID(uint64 guid, int32 /*type*/) override
+            void SetGUID(ObjectGuid guid, int32 /*type*/) override
             {
                 fixateTargetGUID = guid;
             }
 
-            uint64 GetGUID(int32 /*type*/) const override
+            ObjectGuid GetGUID(int32 /*type*/) const override
             {
                 return fixateTargetGUID;
             }
@@ -302,9 +302,9 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->RemoveAurasDueToSpell(SPELL_MELEE);
@@ -324,7 +324,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                     shockCollar->CastSpell(me, VEHICLE_SPELL_RIDE_HARDCODED, true);
 
                 // Allow to use it (Achievement)
-                if (GameObject* thirdCage = ObjectAccessor::GetGameObject(*me, instance ? instance->GetData64(GO_THRICE_LOCKED_CAGE) : 0))
+                if (GameObject* thirdCage = ObjectAccessor::GetGameObject(*me, instance ? instance->GetGuidData(GO_THRICE_LOCKED_CAGE) : ObjectGuid::Empty))
                     thirdCage->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
                 events.ScheduleEvent(EVENT_FEARSOME_ROAR, 12 * IN_MILLISECONDS);
@@ -371,14 +371,14 @@ class boss_thok_the_bloodthirsty : public CreatureScript
 
                         if (instance)
                         {
-                            instance->HandleGameObject(instance->GetData64(GO_REX_DOOR), true, NULL);
+                            instance->HandleGameObject(instance->GetGuidData(GO_REX_DOOR), true, NULL);
                             instance->SetData(DATA_THOK_BLOODTHIRSTY_PRE_EVENT, DONE);
 
                             // Pull beasts
-                            if (Creature* yeti = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_STARVED_YETI_TRASH)))
+                            if (Creature* yeti = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_STARVED_YETI_TRASH)))
                                 yeti->AI()->DoAction(ACTION_START_INTRO);
 
-                            if (Creature* mushan = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_ENRAGED_MUSHAN_BEAST)))
+                            if (Creature* mushan = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_ENRAGED_MUSHAN_BEAST)))
                                 mushan->AI()->DoAction(ACTION_START_INTRO);
                         }
 
@@ -484,7 +484,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                         // Init new events depends of devour
                         DoCast(me, key->second[4]);
 
-                        if (Creature* helper = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(actionId) : 0))
+                        if (Creature* helper = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(actionId) : ObjectGuid::Empty))
                         {
                             DoCast(helper, SPELL_CREATURE_FIXATE);
                             me->GetMotionMaster()->MovePoint(1, *helper);
@@ -562,7 +562,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                     me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
                     me->RemoveAurasDueToSpell(SPELL_FIXATE_IMMUNE);
 
-                    if (Creature* helper = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(eatHelperEntry) : 0))
+                    if (Creature* helper = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(eatHelperEntry) : ObjectGuid::Empty))
                     {
                         if (helper->GetEntry() == NPC_AKOLIK)
                             helper->AI()->Talk(TALK_SPECIAL_2);
@@ -593,7 +593,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/) override { }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();
@@ -625,7 +625,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                 berserkerEvents.Reset();
                 me->SetAutoattackOverrideSpell(0, 0);
 
-                if (GameObject* thirdCage = ObjectAccessor::GetGameObject(*me, instance ? instance->GetData64(GO_THRICE_LOCKED_CAGE) : 0))
+                if (GameObject* thirdCage = ObjectAccessor::GetGameObject(*me, instance ? instance->GetGuidData(GO_THRICE_LOCKED_CAGE) : ObjectGuid::Empty))
                 {
                     thirdCage->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     thirdCage->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
@@ -658,7 +658,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                     // Achiev Snail!
                     if (GetData(TYPE_GIANT_SNAIL_LOCKED_COUNT) > 2)
                     {
-                        if (Creature* gastropod = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_MONSTROUS_GASTROPOD)))
+                        if (Creature* gastropod = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_MONSTROUS_GASTROPOD)))
                             gastropod->AI()->DoAction(ACTION_START_INTRO);
                     }
                 }
@@ -922,7 +922,7 @@ struct npc_korkron_jailer : public ScriptedAI
             me->PrepareChanneledCast(me->GetOrientation());
             me->SetHealth(1);
             me->SetFaction(35); // cuz ref doesn`t work
-            me->SetFlag(UNIT_FIELD_FLAGS2, 69240832);
+            me->SetFlag(UNIT_FIELD_FLAGS_2, 69240832);
             DoCast(me, SPELL_PERMANENT_FEIGN_DEATH, true);
 
             if (me->GetInstanceScript())
@@ -930,7 +930,7 @@ struct npc_korkron_jailer : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(TALK_INTRO);
         events.ScheduleEvent(EVENT_ENRAGE, 7.5 * IN_MILLISECONDS);
@@ -1031,7 +1031,7 @@ struct helpers_baseAI : public ScriptedAI
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (me->GetInstanceScript() && me->GetInstanceScript()->GetBossState(DATA_THOK_THE_BLOODTHIRSTY) == IN_PROGRESS)
             return;
@@ -1124,14 +1124,14 @@ struct npc_thok_ice_tomb : public ScriptedAI
         SetCombatMovement(false);
     }
 
-    uint64 ownerGUID;
+    ObjectGuid ownerGUID;
 
     void IsSummonedBy(Unit* summoner) override
     {
-        if (Creature* thok = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_THOK_THE_BLOODTHIRSTY) : 0))
+        if (Creature* thok = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_THOK_THE_BLOODTHIRSTY) : ObjectGuid::Empty))
             thok->AI()->JustSummoned(me);
 
-        me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+        me->SetDisplayFromModel(1);
         ownerGUID = summoner->GetGUID();
         summoner->CastSpell(summoner, SPELL_SUMMON_ICE_TOMB_STUN, true);
 
@@ -1220,9 +1220,9 @@ struct npc_thok_captive_cave_bat : public ScriptedAI
         return 0;
     }
 
-    void EnterCombat(Unit* /*who*/) override { }
+    void JustEngagedWith(Unit* /*who*/) override { }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         Reset();
@@ -1287,7 +1287,7 @@ struct npc_thok_starved_yeti : public ScriptedAI
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         Reset();
@@ -1363,7 +1363,7 @@ struct npc_thok_monstrous_gastropod : public ScriptedAI
             for (auto&& itr : gastropodPath)
                 init.Path().push_back(G3D::Vector3(itr.GetPositionX(), itr.GetPositionY(), itr.GetPositionZ()));
 
-            if (Creature* thok = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_THOK_THE_BLOODTHIRSTY) : 0))
+            if (Creature* thok = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_THOK_THE_BLOODTHIRSTY) : ObjectGuid::Empty))
                 init.Path().push_back(G3D::Vector3(thok->GetPositionX(), thok->GetPositionY(), thok->GetPositionZ()));
 
             init.SetUncompressed();
@@ -1408,7 +1408,7 @@ class go_thok_third_locked_cage : public GameObjectScript
         {
             if (player->HasAura(SPELL_SKELETON_KEY) && go->GetInstanceScript() && go->GetInstanceScript()->GetBossState(DATA_THOK_THE_BLOODTHIRSTY) == IN_PROGRESS)
             {
-                if (Creature* thok = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetData64(DATA_THOK_THE_BLOODTHIRSTY) : 0))
+                if (Creature* thok = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(DATA_THOK_THE_BLOODTHIRSTY) : ObjectGuid::Empty))
                 {
                     thok->AI()->SetData(TYPE_GIANT_SNAIL_LOCKED_COUNT, 1);
 
@@ -1646,7 +1646,7 @@ class spell_thok_clump_check : public SpellScript
 
         // second phase
         if (m_targets.size() >= targetCount)
-            if (Creature* thok = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript() ? GetCaster()->GetInstanceScript()->GetData64(DATA_THOK_THE_BLOODTHIRSTY) : 0))
+            if (Creature* thok = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript() ? GetCaster()->GetInstanceScript()->GetGuidData(DATA_THOK_THE_BLOODTHIRSTY) : ObjectGuid::Empty))
                 thok->AI()->DoAction(ACTION_FRENZY);
     }
 
@@ -2161,7 +2161,7 @@ class spell_thok_skeleton_key : public AuraScript
                 return;
 
             // Summon Jailer
-            if (Creature* thok = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetData64(DATA_THOK_THE_BLOODTHIRSTY) : 0))
+            if (Creature* thok = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetGuidData(DATA_THOK_THE_BLOODTHIRSTY) : ObjectGuid::Empty))
                 thok->SummonCreature(NPC_KORKRON_JAILER, jailerEntrancePos, TEMPSUMMON_MANUAL_DESPAWN);
         }
     }
@@ -2202,7 +2202,7 @@ class spell_thok_unlocking : public SpellScript
 
             if (GameObject* go = GetHitGObj())
             {
-                if (Creature* prisoner = ObjectAccessor::GetCreature(*go, go->GetInstanceScript() ? go->GetInstanceScript()->GetData64(invCageType.find(go->GetEntry())->second) : 0))
+                if (Creature* prisoner = ObjectAccessor::GetCreature(*go, go->GetInstanceScript() ? go->GetInstanceScript()->GetGuidData(invCageType.find(go->GetEntry())->second) : ObjectGuid::Empty))
                 {
                     if (!prisoner->IsAlive()) // cage has a twice sectors
                     {
@@ -2225,7 +2225,7 @@ class spell_thok_unlocking : public SpellScript
     {
         if (GetCaster() && GetCaster()->ToPlayer() && GetCaster()->HasAura(SPELL_SKELETON_KEY) && GetCaster()->ToPlayer()->HasItemCount(ITEM_SKELETON_KEY, 1) && GetCaster()->GetInstanceScript() && GetCaster()->GetInstanceScript()->GetBossState(DATA_THOK_THE_BLOODTHIRSTY) == IN_PROGRESS && GetHitGObj() && GetHitGObj()->GetEntry() != GO_THRICE_LOCKED_CAGE)
         {
-            if (Creature* prisoner = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript() ? GetCaster()->GetInstanceScript()->GetData64(invCageType.find(GetHitGObj()->GetEntry())->second) : 0))
+            if (Creature* prisoner = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript() ? GetCaster()->GetInstanceScript()->GetGuidData(invCageType.find(GetHitGObj()->GetEntry())->second) : ObjectGuid::Empty))
             {
                 if (!prisoner->IsAlive()) // cage has a twice sectors
                 {
@@ -2350,7 +2350,7 @@ class spell_thok_wrecking_ball : public SpellScript
 
             if (Creature* bunny = GetCaster()->SummonCreature(NPC_GENERAL_FLY_BUNNY, x, y, z, 0.0f, TEMPSUMMON_MANUAL_DESPAWN))
             {
-                if (Creature* thok = ObjectAccessor::GetCreature(*caster, caster->GetInstanceScript() ? caster->GetInstanceScript()->GetData64(DATA_THOK_THE_BLOODTHIRSTY) : 0))
+                if (Creature* thok = ObjectAccessor::GetCreature(*caster, caster->GetInstanceScript() ? caster->GetInstanceScript()->GetGuidData(DATA_THOK_THE_BLOODTHIRSTY) : ObjectGuid::Empty))
                     thok->AI()->JustSummoned(bunny);
 
                 bunny->CastSpell(bunny, SPELL_WRECKING_BALL_VISUAL, true);

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -21,6 +21,7 @@
 #include "SpellAuras.h"
 #include "MapManager.h"
 #include "icecrown_citadel.h"
+#include "Random.h"
 
 enum ScriptTexts
 {
@@ -176,7 +177,7 @@ class boss_lord_marrowgar : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_BONED, 1);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(DATA_LORD_MARROWGAR, who->ToPlayer()))
                 {
@@ -236,8 +237,7 @@ class boss_lord_marrowgar : public CreatureScript
                                 break;
                             }
 
-                            auto list = me->getThreatManager().getThreatList();
-                            if (!instance->instance->IsHeroic() && list.size() == 1)
+                            if (!instance->instance->IsHeroic() && me->GetThreatManager().GetThreatListSize() == 1)
                                 break;
 
                             DoCast(me, SPELL_BONE_SPIKE_GRAVEYARD);
@@ -247,7 +247,7 @@ class boss_lord_marrowgar : public CreatureScript
                         }
                         case EVENT_COLDFLAME:
                             _coldflameLastPos.Relocate(me);
-                            _coldflameTarget = 0LL;
+                            _coldflameTarget = ObjectGuid::Empty;
 
                             DoCastAOE(SPELL_COLDFLAME_NORMAL, true);
 
@@ -255,7 +255,7 @@ class boss_lord_marrowgar : public CreatureScript
                             break;
                         case EVENT_COLDFLAME_BONE_STORM:
                             _coldflameLastPos.Relocate(me);
-                            _coldflameTarget = 0LL;
+                            _coldflameTarget = ObjectGuid::Empty;
 
                             DoCast(me, SPELL_COLDFLAME_BONE_STORM, true);
                             break;
@@ -373,7 +373,7 @@ class boss_lord_marrowgar : public CreatureScript
                 return &_coldflameLastPos;
             }
 
-            uint64 GetGUID(int32 type /* = 0 */) const override
+            ObjectGuid GetGUID(int32 type /* = 0 */) const override
             {
                 switch (type)
                 {
@@ -391,10 +391,10 @@ class boss_lord_marrowgar : public CreatureScript
                     }
                 }
 
-                return 0LL;
+                return ObjectGuid::Empty;
             }
 
-            void SetGUID(uint64 guid, int32 type /* = 0 */) override
+            void SetGUID(ObjectGuid guid, int32 type /* = 0 */) override
             {
                 switch (type)
                 {
@@ -449,8 +449,8 @@ class boss_lord_marrowgar : public CreatureScript
 
         private:
             Position _coldflameLastPos;
-            std::vector<uint64> _boneSpikeImmune;
-            uint64 _coldflameTarget;
+            std::vector<ObjectGuid> _boneSpikeImmune;
+            ObjectGuid _coldflameTarget;
             uint32 _coldflameSummonSpell;
             uint32 _boneStormDuration;
             float _baseSpeed;
@@ -477,7 +477,7 @@ class npc_coldflame : public CreatureScript
             {
             }
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* owner) override
             {
                 if (owner->GetTypeId() != TYPEID_UNIT || !owner->GetAI())
                     return;
@@ -506,7 +506,7 @@ class npc_coldflame : public CreatureScript
                         //ang = ownerPos->GetAngle(me);
                         ang = Position::NormalizeOrientation(ang);
                         me->SetOrientation(ang);
-                        owner->GetNearPosition(pos, 2.5f, ang - owner->GetOrientation());
+                        pos = owner->GetNearPosition(2.5f, ang - owner->GetOrientation());
                     }
                 }
                 else
@@ -521,10 +521,11 @@ class npc_coldflame : public CreatureScript
 
                     ang = owner->GetAngle(target);
                     me->SetOrientation(ang);
-                    owner->GetNearPosition(pos, owner->GetObjectSize() / 2.0f, ang - owner->GetOrientation());
+                    pos = owner->GetNearPosition(owner->GetObjectSize() / 2.0f, ang - owner->GetOrientation());
                 }
 
-                me->UpdateGroundPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ, 10.0f, 50.0f);
+                //me->UpdateGroundPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ, 10.0f, 50.0f);
+                me->UpdateGroundPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ);
 
                 me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), me->GetOrientation());
                 if (omnidirection)
@@ -538,9 +539,9 @@ class npc_coldflame : public CreatureScript
 
                 if (_events.ExecuteEvent() == EVENT_COLDFLAME_TRIGGER)
                 {
-                    Position newPos;
-                    me->GetNearPosition(newPos, 5.0f, 0.0f);
-                    me->UpdateGroundPositionZ(newPos.GetPositionX(), newPos.GetPositionY(), newPos.m_positionZ, 10.0f, 50.0f);
+                    Position newPos = me->GetNearPosition(5.0f, 0.0f);
+                    //me->UpdateGroundPositionZ(newPos.GetPositionX(), newPos.GetPositionY(), newPos.m_positionZ, 10.0f, 50.0f);
+                    me->UpdateGroundPositionZ(newPos.GetPositionX(), newPos.GetPositionY(), newPos.m_positionZ);
                     me->NearTeleportTo(newPos.GetPositionX(), newPos.GetPositionY(), newPos.GetPositionZ(), me->GetOrientation());
                     DoCast(SPELL_COLDFLAME_SUMMON);
                     _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 500);
@@ -595,7 +596,7 @@ class npc_bone_spike : public CreatureScript
                     KilledUnit(passenger);
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* summoner) override
             {
                 DoCast(summoner, SPELL_IMPALED);
                 summoner->CastSpell(me, SPELL_RIDE_VEHICLE, true);
@@ -920,7 +921,7 @@ class at_lord_marrowgar_entrance : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                if (Creature* lordMarrowgar = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_LORD_MARROWGAR)))
+                if (Creature* lordMarrowgar = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_LORD_MARROWGAR)))
                     lordMarrowgar->AI()->DoAction(ACTION_TALK_ENTER_ZONE);
 
             return true;

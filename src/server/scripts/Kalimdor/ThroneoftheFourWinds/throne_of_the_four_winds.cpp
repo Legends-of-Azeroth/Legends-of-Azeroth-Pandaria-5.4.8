@@ -56,7 +56,7 @@ class npc_slipstream_raid : public CreatureScript
 
         struct npc_slipstream_raidAI : public ScriptedAI
         {
-            npc_slipstream_raidAI(Creature* creature) : ScriptedAI(creature), isActive(true), linkedSlipstreamObjectGuid(0), linkedBossGuid(0), isUltimate(false)
+            npc_slipstream_raidAI(Creature* creature) : ScriptedAI(creature), isActive(true), linkedSlipstreamObjectGuid(), linkedBossGuid(), isUltimate(false)
             {
                 instance = creature->GetInstanceScript();
                 SlipstreamPosition = DIR_TO_MIDDLE;
@@ -91,7 +91,7 @@ class npc_slipstream_raid : public CreatureScript
                 result = true;
             }
 
-            void SetGUID(uint64 guid, int32 /*type*/) override
+            void SetGUID(ObjectGuid guid, int32 /*type*/) override
             {
                 if (!isActive)
                     return;
@@ -164,8 +164,8 @@ class npc_slipstream_raid : public CreatureScript
             bool isUltimate;
             bool isActive;
 
-            uint64 linkedSlipstreamObjectGuid;
-            uint64 linkedBossGuid;
+            ObjectGuid linkedSlipstreamObjectGuid;
+            ObjectGuid linkedBossGuid;
 
             class MovementEvent : public BasicEvent
             {
@@ -200,9 +200,9 @@ class npc_fall_catcher : public CreatureScript
     public:
         npc_fall_catcher() : CreatureScript("npc_fall_catcher") { }
 
-        struct npc_fall_catcherAI : public CreatureAI
+        struct npc_fall_catcherAI : public ScriptedAI
         {
-            npc_fall_catcherAI(Creature* creature) : CreatureAI(creature) { }
+            npc_fall_catcherAI(Creature* creature) : ScriptedAI(creature) { }
 
             void IsSummonedBy(Unit* summoner) override
             {

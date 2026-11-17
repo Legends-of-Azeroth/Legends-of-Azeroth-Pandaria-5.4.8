@@ -102,9 +102,9 @@ class boss_general_umbriss : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -189,7 +189,7 @@ class boss_general_umbriss : public CreatureScript
                                     target->GetPositionX(),
                                     target->GetPositionY(),
                                     target->GetPositionZ(),
-                                    0.0f, TEMPSUMMON_TIMED_DESPAWN, 6000))
+                                    0.0f, TEMPSUMMON_TIMED_DESPAWN, 6000ms))
                                     DoCast(stalker, SPELL_GROUND_SIEGE);
                             }
                             events.ScheduleEvent(EVENT_GROUND_SIEGE, 18000);
@@ -202,7 +202,7 @@ class boss_general_umbriss : public CreatureScript
                                     target->GetPositionX(),
                                     target->GetPositionY(),
                                     target->GetPositionZ(),
-                                    0.0f, TEMPSUMMON_TIMED_DESPAWN, 6000))
+                                    0.0f, TEMPSUMMON_TIMED_DESPAWN, 6000ms))
                                     DoCast(_blitz, SPELL_BLITZ);
                             }
                             events.ScheduleEvent(EVENT_BLITZ, 23000);
@@ -246,7 +246,7 @@ class npc_malignant_trogg : public CreatureScript
                 DoCast(me, SPELL_MODGUD_MALICE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_CLAW_PUNCTURE, 5000);
             }
@@ -300,7 +300,7 @@ class npc_umbriss_trogg_dweller : public CreatureScript
 
             EventMap events;
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_CLAW_PUNCTURE, 5000);
             }

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -69,8 +69,8 @@ class npc_nightmare_illusion : public CreatureScript
                 me->SetSpeed(MOVE_FLIGHT, 0.25f, true);
                 //me->SetWalk(true);
                 aiSet = false;
-                nightmareOwner = 0;
-                nightmareTarget = 0;
+                nightmareOwner = ObjectGuid::Empty;
+                nightmareTarget = ObjectGuid::Empty;
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -104,14 +104,13 @@ class npc_nightmare_illusion : public CreatureScript
                 {
                     me->SetTarget(nightmareTarget);
                     DoCast(target, SPELL_WAKING_NIGHTMARE, true);
-                    Position pos;
-                    target->GetPosition(&pos);
+                    Position pos = target->GetPosition();
                     me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MovePoint(POINT_NIGHTMARE_TARGET, pos);
                 }
             }
 
-            void SetNightmareTarget(uint64 owner, uint64 target)
+            void SetNightmareTarget(ObjectGuid owner, ObjectGuid target)
             {
                 nightmareOwner = owner;
                 nightmareTarget = target;
@@ -133,8 +132,8 @@ class npc_nightmare_illusion : public CreatureScript
 
         protected:
             bool aiSet;
-            uint64 nightmareOwner;
-            uint64 nightmareTarget;
+            ObjectGuid nightmareOwner;
+            ObjectGuid nightmareTarget;
 
         private:
             InstanceScript* instance;
@@ -176,9 +175,9 @@ class boss_hazzarah : public CreatureScript
                 summonedAt33Pct = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
                 events.ScheduleEvent(EVENT_EARTH_SHOCK, 8000);
@@ -255,7 +254,7 @@ class boss_hazzarah : public CreatureScript
                 me->InterruptSpell(CURRENT_CHANNELED_SPELL);
 
                 // Gather all nearby player GUIDs
-                uint64 playerGuids[5];
+                ObjectGuid playerGuids[5];
                 uint32 playerCount = 0;
                 ObjectList* units = GetWorldObjectsInDist(me, 100);
                 for (ObjectList::const_iterator itr = units->begin(); itr != units->end(); ++itr)
@@ -293,14 +292,14 @@ class boss_hazzarah : public CreatureScript
                 // Spawn nightmare for each player
                 for (uint32 i = 0; i < stunnedPlayerCount; ++i)
                 {
-                    uint64 guid = playerGuids[stunnedPlayerIndexes[i]];
-                    playerGuids[stunnedPlayerIndexes[i]] = 0;
+                    ObjectGuid guid = playerGuids[stunnedPlayerIndexes[i]];
+                    playerGuids[stunnedPlayerIndexes[i]] = ObjectGuid::Empty;
                     if (Player* player = ObjectAccessor::GetPlayer(*me, guid))
                     {
                         Position pos;
                         do
                         {
-                            player->GetNearPosition(pos, 30, (float)(rand_norm() * 2 * M_PI));
+                            pos = player->GetNearPosition(30, (float)(rand_norm() * 2 * M_PI));
                         }
                         while (player->GetDistance(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()) < 20);
                         if (TempSummon* summon = me->SummonCreature(52284, pos, TEMPSUMMON_DEAD_DESPAWN))
@@ -314,10 +313,10 @@ class boss_hazzarah : public CreatureScript
                     // Announce to the only player that is not sleeping
                     for (uint32 i = 0; i < playerCount; ++i)
                     {
-                        uint64 guid = playerGuids[i];
+                        ObjectGuid guid = playerGuids[i];
                         if (guid)
                         {
-                            playerGuids[i] = 0;
+                            playerGuids[i] = ObjectGuid::Empty;
                             if (Player* player = ObjectAccessor::GetPlayer(*me, guid))
                                 Talk(SAY_DREAMSTATE_ANNOUNCE, player);
                         }

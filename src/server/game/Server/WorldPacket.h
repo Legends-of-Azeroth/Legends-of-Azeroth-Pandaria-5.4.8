@@ -21,46 +21,72 @@
 #include "Common.h"
 #include "Opcodes.h"
 #include "ByteBuffer.h"
+#include "Duration.h"
 #include <chrono>
-
-struct z_stream_s;
+#include "MessageBuffer.h"
 
 class WorldPacket : public ByteBuffer
 {
     public:
-                                                            // just container for later use
-        WorldPacket() : ByteBuffer(0), m_opcode(UNKNOWN_OPCODE), m_rcvdOpcodeNumber(0), _compressionStream(NULL)
+        // just container for later use
+        WorldPacket() : ByteBuffer(0, Reserve{}), m_opcode(UNKNOWN_OPCODE)
         {
         }
 
-        WorldPacket(Opcodes opcode, size_t res = 200) : ByteBuffer(res), m_opcode(opcode), m_rcvdOpcodeNumber(0), _compressionStream(NULL)
+        WorldPacket(uint32 opcode) : ByteBuffer(0, Reserve{}), m_opcode(opcode) { }
+
+        WorldPacket(uint32 opcode, size_t res, Reserve) : ByteBuffer(res, Reserve{}), m_opcode(opcode) { }
+
+        WorldPacket(uint32 opcode, size_t res, Resize) : ByteBuffer(res, Resize{}), m_opcode(opcode) { }
+
+        WorldPacket(uint32 opcode, size_t res) : WorldPacket(opcode, res, Reserve{}) { }
+
+        WorldPacket(WorldPacket&& packet) noexcept : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode), m_receivedTime(packet.m_receivedTime)
         {
         }
 
-                                                            // copy constructor
-        WorldPacket(WorldPacket const& packet) : ByteBuffer(packet), m_opcode(packet.m_opcode), m_rcvdOpcodeNumber(0), _compressionStream(NULL)
+        WorldPacket(WorldPacket const& right) = default;
+
+        WorldPacket& operator=(WorldPacket const& right)
         {
+            if (this != &right)
+            {
+                m_opcode = right.m_opcode;
+                ByteBuffer::operator =(right);
+            }
+
+            return *this;
         }
 
-        void Initialize(Opcodes opcode, size_t newres = 200)
+        WorldPacket& operator=(WorldPacket&& right) noexcept
+        {
+            if (this != &right)
+            {
+                m_opcode = right.m_opcode;
+                ByteBuffer::operator=(std::move(right));
+            }
+
+            return *this;
+        }
+
+        WorldPacket(uint32 opcode, MessageBuffer&& buffer) : ByteBuffer(std::move(buffer)), m_opcode(opcode) { }
+
+        void Initialize(uint32 opcode, size_t newres = 200)
         {
             clear();
             _storage.reserve(newres);
             m_opcode = opcode;
         }
 
-        Opcodes GetOpcode() const { return m_opcode; }
-        void SetOpcode(Opcodes opcode) { m_opcode = opcode; }
-        void Compress(z_stream_s* compressionStream);
-        void Compress(z_stream_s* compressionStream, WorldPacket const* source);
-        void SetReceivedOpcode(uint16 opcode) { m_rcvdOpcodeNumber = opcode; }
-        uint16 GetReceivedOpcode() { return m_rcvdOpcodeNumber; }
+        uint32 GetOpcode() const { return m_opcode; }
+        void SetOpcode(uint32 opcode) { m_opcode = opcode; }
+
+        TimePoint GetReceivedTime() const { return m_receivedTime; }
+        void SetReceiveTime(TimePoint receivedTime) { m_receivedTime = receivedTime; }
 
     protected:
-        Opcodes m_opcode;
-        uint16 m_rcvdOpcodeNumber;
-        void Compress(void* dst, uint32 *dst_size, const void* src, int src_size);
-        z_stream_s* _compressionStream = nullptr;
-        
+        uint32 m_opcode;
+        TimePoint m_receivedTime; // only set for a specific set of opcodes, for performance reasons.
 };
+
 #endif

@@ -78,7 +78,7 @@ class boss_armsmaster_harlan : public CreatureScript
             boss_armsmaster_harlanAI(Creature* creature) : BossAI(creature, BOSS_ARMSMASTER_HARLAN) { }
 
             bool bers;
-            uint64 targetGuid;
+            ObjectGuid targetGuid;
             uint32 wp, m_bSeats;
 
             void Reset() override
@@ -89,7 +89,7 @@ class boss_armsmaster_harlan : public CreatureScript
                 me->SetReactState(REACT_AGGRESSIVE);
 
                 bers       = false;
-                targetGuid = 0;
+                targetGuid = ObjectGuid::Empty;
                 wp         = 0;
                 m_bSeats   = 1;
             }
@@ -104,7 +104,7 @@ class boss_armsmaster_harlan : public CreatureScript
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
 
@@ -114,9 +114,9 @@ class boss_armsmaster_harlan : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(TALK_INTO);
 
                 if (instance)
@@ -213,7 +213,7 @@ class boss_armsmaster_harlan : public CreatureScript
                             if (Unit* vict = me->GetVictim())
                                 targetGuid = vict->GetGUID();
 
-                            me->getThreatManager().resetAllAggro();
+                            me->GetThreatManager().ResetAllThreat();
                             me->AttackStop();
                             me->SetReactState(REACT_PASSIVE);
                             break;
@@ -314,7 +314,7 @@ class spell_heavy_armor : public AuraScript
 
     void Register() override
     {
-        OnEffectRemove += AuraEffectRemoveFn(spell_heavy_armor::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_heavy_armor::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -392,7 +392,7 @@ class spell_harlan_light_blades_eff : public SpellScript
                 // Delay last hit
                 target->m_Events.Schedule(200, [=]()
                 {
-                    if (Creature* harlan = ObjectAccessor::GetCreature(*target, target->GetInstanceScript() ? target->GetInstanceScript()->GetData64(BOSS_ARMSMASTER_HARLAN) : 0))
+                    if (Creature* harlan = ObjectAccessor::GetCreature(*target, target->GetInstanceScript() ? target->GetInstanceScript()->GetGuidData(BOSS_ARMSMASTER_HARLAN) : ObjectGuid::Empty))
                         harlan->CastSpell(target, SPELL_LIGHT_BLADES, true);
                 });
             }

@@ -40,10 +40,10 @@ public:
         instance_obsidian_sanctum_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
-        uint64 m_uiSartharionGUID;
-        uint64 m_uiTenebronGUID;
-        uint64 m_uiShadronGUID;
-        uint64 m_uiVesperonGUID;
+        ObjectGuid m_uiSartharionGUID;
+        ObjectGuid m_uiTenebronGUID;
+        ObjectGuid m_uiShadronGUID;
+        ObjectGuid m_uiVesperonGUID;
         uint32 lootAvailable;
 
         bool m_bTenebronKilled;
@@ -54,10 +54,10 @@ public:
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-            m_uiSartharionGUID = 0;
-            m_uiTenebronGUID   = 0;
-            m_uiShadronGUID    = 0;
-            m_uiVesperonGUID   = 0;
+            m_uiSartharionGUID = ObjectGuid::Empty;
+            m_uiTenebronGUID = ObjectGuid::Empty;
+            m_uiShadronGUID = ObjectGuid::Empty;
+            m_uiVesperonGUID = ObjectGuid::Empty;
             lootAvailable      = 0;
 
             m_bTenebronKilled = false;
@@ -128,7 +128,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 uiData) const override
+        ObjectGuid GetGuidData(uint32 uiData) const override
         {
             switch (uiData)
             {
@@ -141,7 +141,7 @@ public:
                 case DATA_VESPERON:
                     return m_uiVesperonGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
     };
 

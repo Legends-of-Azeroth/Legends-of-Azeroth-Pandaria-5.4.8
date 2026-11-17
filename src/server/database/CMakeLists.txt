@@ -39,49 +39,32 @@ set(database_STAT_SRCS
   ${sources_localdir}
 )
 
-include_directories(
-  PUBLIC
-    ${CMAKE_BINARY_DIR}
-  PRIVATE
-    ${CMAKE_SOURCE_DIR}/dep/SFMT
-    ${CMAKE_SOURCE_DIR}/dep/fmt/include
-    ${CMAKE_SOURCE_DIR}/src/server
-    ${CMAKE_SOURCE_DIR}/src/common
-    ${CMAKE_SOURCE_DIR}/src/common/Asio
-    ${CMAKE_SOURCE_DIR}/src/common/Configuration
-    ${CMAKE_SOURCE_DIR}/src/common/Cryptography
-    ${CMAKE_SOURCE_DIR}/src/common/Debugging
-    ${CMAKE_SOURCE_DIR}/src/common/Logging
-    ${CMAKE_SOURCE_DIR}/src/common/Utilities
-    ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic
-    ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/Database
-    ${CMAKE_CURRENT_SOURCE_DIR}/Logging
-    ${CMAKE_CURRENT_SOURCE_DIR}/Updater
-    ${MYSQL_INCLUDE_DIR}
-    ${OPENSSL_INCLUDE_DIR} 
-)
-
-if (Boost_FOUND)
-  include_directories(
-    PRIVATE
-      ${Boost_INCLUDE_DIRS}
-  )
-endif()
-
 add_library(database STATIC
   ${database_STAT_SRCS}
 )
 
-target_link_libraries(database
+target_include_directories(database
+  PUBLIC
+    ${CMAKE_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/Database
+    ${CMAKE_CURRENT_SOURCE_DIR}/Database/Implementation
+    ${CMAKE_CURRENT_SOURCE_DIR}/Logging
+    ${CMAKE_CURRENT_SOURCE_DIR}/Updater
   PRIVATE
-    fmt
     common
-    ${MYSQL_LIBRARY}
-    ${Boost_LIBRARIES}
+    shared
+    ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic
+    mysql
+    boost
 )
 
+target_link_libraries(database
+  PRIVATE
+    common
+    mysql
+    boost
+)
 
 # Generate precompiled header
 if (USE_COREPCH)

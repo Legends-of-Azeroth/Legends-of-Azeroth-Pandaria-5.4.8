@@ -131,11 +131,11 @@ class boss_wing_leader_neronok : public CreatureScript
                         Talk(EMOTE_WINDS);
                         me->SetReactState(REACT_PASSIVE);
                         me->AttackStop();
-                        me->SetTarget(0);
+                        me->SetTarget(ObjectGuid::Empty);
                         me->SetCanFly(true);
                         me->SendMovementFlagUpdate();
                         me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
-                        me->SetAnimationTier(UnitAnimationTier::Hover);
+                        me->SetAnimTier(AnimTier::Hover);
                         me->SetDisableGravity(true);
                         me->GetMotionMaster()->MovePoint(0, bridgePos[phase]);
                         events.CancelEventGroup(EVENT_GROUP_COMBAT);
@@ -172,7 +172,7 @@ class boss_wing_leader_neronok : public CreatureScript
                 _JustReachedHome();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ClearDebuffs();
                 BossAI::EnterEvadeMode();
@@ -187,13 +187,13 @@ class boss_wing_leader_neronok : public CreatureScript
                 me->SummonCreature(NPC_CHUM_KIU, 1851.226f, 5214.163f, 131.2519f, 4.03f);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_HAUL_BRICK, 1000, EVENT_GROUP_COMBAT);
                 events.ScheduleEvent(EVENT_CAUSTIC_PITCH, 3000, EVENT_GROUP_COMBAT);
                 events.ScheduleEvent(EVENT_QUICK_DRY_RESIN, 8000, EVENT_GROUP_COMBAT);
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void UpdateAI(uint32 diff) override

@@ -59,11 +59,11 @@ class npc_aged_dying_ancient_kodo : public CreatureScript
 public:
     npc_aged_dying_ancient_kodo() : CreatureScript("npc_aged_dying_ancient_kodo") { }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (player->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && creature->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
         {
-            player->TalkedToCreature(creature->GetEntry(), 0);
+            player->TalkedToCreature(creature->GetEntry(), ObjectGuid::Empty);
             player->RemoveAurasDueToSpell(SPELL_KODO_KOMBO_PLAYER_BUFF);
         }
 
@@ -75,7 +75,7 @@ public:
     {
         npc_aged_dying_ancient_kodoAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (who->GetEntry() == NPC_SMEED && me->IsWithinDistInMap(who, 10.0f) && !me->HasAura(SPELL_KODO_KOMBO_GOSSIP))
             {
@@ -86,7 +86,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell)
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_KODO_KOMBO_ITEM)
             {
@@ -163,8 +163,8 @@ class go_demon_portal : public GameObjectScript
         {
             if (player->GetQuestStatus(QUEST_PORTAL_OF_THE_LEGION_H) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_PORTAL_OF_THE_LEGION_A) == QUEST_STATUS_INCOMPLETE)
             {
-                uint64 goGuid = go->GetGUID();
-                if (Creature* guardian = go->SummonCreature(NPC_DEMON_GUARDIAN, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0))
+                ObjectGuid goGuid = go->GetGUID();
+                if (Creature* guardian = go->SummonCreature(NPC_DEMON_GUARDIAN, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0ms))
                 {
                     guardian->AI()->AttackStart(player);
                     guardian->SetOwnerGUID(goGuid);

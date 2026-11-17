@@ -106,7 +106,7 @@ public:
             Talk(SAY_ZAPPED);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
     };
 
 };
@@ -143,18 +143,18 @@ public:
     {
         npc_restless_soulAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 Tagger;
+        ObjectGuid Tagger;
         uint32 Die_Timer;
         bool Tagged;
 
         void Reset() override
         {
-            Tagger = 0;
+            Tagger = ObjectGuid::Empty;
             Die_Timer = 5000;
             Tagged = false;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void SpellHit(Unit* caster, const SpellInfo* spell) override
         {
@@ -177,7 +177,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (Tagged)
-                me->SummonCreature(NPC_FREED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 300000);
+                me->SummonCreature(NPC_FREED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 300000ms);
         }
 
         void UpdateAI(uint32 diff) override
@@ -234,7 +234,7 @@ public:
             Tagged = false;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
@@ -250,7 +250,7 @@ public:
                 {
                      //100%, 50%, 33%, 25% chance to spawn
                      if (urand(1, i) == 1)
-                         DoSummon(NPC_RESTLESS, me, 20.0f, 600000);
+                         DoSummon(NPC_RESTLESS, me, 20.0f, 600000ms);
                 }
             }
         }

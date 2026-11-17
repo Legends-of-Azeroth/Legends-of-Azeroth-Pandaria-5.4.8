@@ -18,6 +18,7 @@
 #include "ScriptPCH.h"
 #include "CreatureTextMgr.h"
 #include "dragon_soul.h"
+#include "Random.h"
 
 enum ScriptedTexts
 {
@@ -215,7 +216,7 @@ class npc_spine_of_deathwing_deathwing : public CreatureScript
                         if (destroyedPlates == 1)
                         {
                             sCreatureTextMgr->SendSound(me, RAND(26347, 26348, 26349), CHAT_MSG_MONSTER_YELL, 0, TEXT_RANGE_NORMAL, TEAM_OTHER, false);
-                            instance->HandleGameObject(instance->GetData64(DATA_BACK_PLATE_1), true);
+                            instance->HandleGameObject(instance->GetGuidData(DATA_BACK_PLATE_1), true);
                             for (uint8 i = 4; i < 6; ++i)
                                 if (Creature* pCorruption = me->SummonCreature(NPC_CORRUPTION_1, corruptionPos[i]))
                                 {
@@ -226,7 +227,7 @@ class npc_spine_of_deathwing_deathwing : public CreatureScript
                         else if (destroyedPlates == 2)
                         {
                             sCreatureTextMgr->SendSound(me, RAND(26347, 26348, 26349), CHAT_MSG_MONSTER_YELL, 0, TEXT_RANGE_NORMAL, TEAM_OTHER, false);
-                            instance->HandleGameObject(instance->GetData64(DATA_BACK_PLATE_2), true);
+                            instance->HandleGameObject(instance->GetGuidData(DATA_BACK_PLATE_2), true);
                             for (uint8 i = 6; i < 8; ++i)
                                 if (Creature* pCorruption = me->SummonCreature(NPC_CORRUPTION_1, corruptionPos[i]))
                                 {
@@ -237,7 +238,7 @@ class npc_spine_of_deathwing_deathwing : public CreatureScript
                         else if (destroyedPlates == 3)
                         {
                             sCreatureTextMgr->SendSound(me, RAND(26347, 26348, 26349), CHAT_MSG_MONSTER_YELL, 0, TEXT_RANGE_NORMAL, TEAM_OTHER, false);
-                            instance->HandleGameObject(instance->GetData64(DATA_BACK_PLATE_3), true);
+                            instance->HandleGameObject(instance->GetGuidData(DATA_BACK_PLATE_3), true);
                             events.ScheduleEvent(EVENT_END_ENCOUNTER, 1000);
                         }
                     }
@@ -435,9 +436,9 @@ class npc_spine_of_deathwing_deathwing : public CreatureScript
                     instance->SetBossState(DATA_SPINE, (done ? DONE : NOT_STARTED));
                     if (!done)
                     {
-                        instance->HandleGameObject(instance->GetData64(DATA_BACK_PLATE_1),  false);
-                        instance->HandleGameObject(instance->GetData64(DATA_BACK_PLATE_2),  false);
-                        instance->HandleGameObject(instance->GetData64(DATA_BACK_PLATE_3),  false);
+                        instance->HandleGameObject(instance->GetGuidData(DATA_BACK_PLATE_1),  false);
+                        instance->HandleGameObject(instance->GetGuidData(DATA_BACK_PLATE_2),  false);
+                        instance->HandleGameObject(instance->GetGuidData(DATA_BACK_PLATE_3),  false);
 
                         Map::PlayerList const& players = instance->instance->GetPlayers();
                         if (!players.isEmpty())
@@ -565,7 +566,7 @@ class npc_spine_of_deathwing_corruption : public CreatureScript
                     pSpawner->DespawnOrUnsummon();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (!instance->GetData(DATA_IS_LFR))
                 {
@@ -763,7 +764,7 @@ class npc_spine_of_deathwing_hideous_amalgamation : public CreatureScript
                 return 0;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_BLOOD_CORRUPTION, urand(6000, 11000));
@@ -1032,7 +1033,7 @@ class npc_spine_of_deathwing_burning_tendons : public CreatureScript
                 return 0;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 return;
             }

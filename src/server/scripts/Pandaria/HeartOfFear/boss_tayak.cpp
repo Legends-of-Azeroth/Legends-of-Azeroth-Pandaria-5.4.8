@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -152,12 +152,12 @@ class boss_tayak : public CreatureScript
         {
             boss_tayakAI(Creature* creature) : BossAI(creature, DATA_TAYAK) { }
 
-            uint64 unseenTank, unseenTarget, currentTank, targetGUID;
+            ObjectGuid unseenTank, unseenTarget, currentTank, targetGUID;
             bool entranceDone, introDone, storm1Done, unseenReturn, evadeModeEnabled, m_rightSide;
             uint8 Phase;    // 0 - Phase 1 | 1 - TP Players | 2 - Players have been TP
             uint32 delay;
             uint32 braziersCount;
-            std::list<uint64> playerGuids;
+            std::list<ObjectGuid> playerGuids;
             uint32 PrevSideTornado, spellTornado;
             std::map<uint32, uint32> m_TornadoType;
 
@@ -192,11 +192,11 @@ class boss_tayak : public CreatureScript
                     instance->DoRemoveBloodLustDebuffSpellOnPlayers();
                 }
 
-                unseenTank       = 0;
+                unseenTank       = ObjectGuid::Empty;
                 PrevSideTornado  = 0;
                 spellTornado     = 0;
-                currentTank      = 0;
-                targetGUID       = 0;
+                currentTank      = ObjectGuid::Empty;
+                targetGUID       = ObjectGuid::Empty;
                 braziersCount    = 0;
                 storm1Done       = false;
                 unseenReturn     = false;
@@ -224,7 +224,7 @@ class boss_tayak : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_CANDLE_IN_THE_WIND, 0);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (instance)
                 {
@@ -233,7 +233,7 @@ class boss_tayak : public CreatureScript
 
                     instance->SetBossState(DATA_TAYAK, FAIL);
 
-                    if (GameObject* entranceDoor = instance->instance->GetGameObject(instance->GetData64(GO_QUARTERS_DOOR_ENTRANCE)))
+                    if (GameObject* entranceDoor = instance->instance->GetGameObject(instance->GetGuidData(GO_QUARTERS_DOOR_ENTRANCE)))
                         entranceDoor->SetGoState(GO_STATE_ACTIVE);
 
                     // Remove fire from candles and makes them unclickable
@@ -267,7 +267,7 @@ class boss_tayak : public CreatureScript
                     instance->SetBossState(DATA_TAYAK, FAIL);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(DATA_TAYAK, who->ToPlayer()))
                 {
@@ -279,7 +279,7 @@ class boss_tayak : public CreatureScript
                 if (instance->GetBossState(DATA_TAYAK) == IN_PROGRESS)
                     return;
 
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_TEMPEST_SLASH, 10 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_UNSEEN_STRIKE, 30.5 * IN_MILLISECONDS);
@@ -298,7 +298,7 @@ class boss_tayak : public CreatureScript
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                     instance->SetBossState(DATA_TAYAK, IN_PROGRESS);
 
-                    if (GameObject* entranceDoor = ObjectAccessor::GetGameObject(*me, instance ? instance->GetData64(GO_QUARTERS_DOOR_ENTRANCE) : 0))
+                    if (GameObject* entranceDoor = ObjectAccessor::GetGameObject(*me, instance ? instance->GetGuidData(GO_QUARTERS_DOOR_ENTRANCE) : ObjectGuid::Empty))
                         entranceDoor->SetGoState(GO_STATE_READY);
                 }
 
@@ -415,7 +415,7 @@ class boss_tayak : public CreatureScript
                     instance->SetBossState(DATA_TAYAK, DONE);
                     instance->DoRemoveBloodLustDebuffSpellOnPlayers();
 
-                    if (GameObject* entranceDoor = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_QUARTERS_DOOR_ENTRANCE)))
+                    if (GameObject* entranceDoor = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_QUARTERS_DOOR_ENTRANCE)))
                         entranceDoor->SetGoState(GO_STATE_ACTIVE);
                 }
                 ActivateGaleWinds(ACTION_STOP_WIND);
@@ -564,7 +564,7 @@ class boss_tayak : public CreatureScript
                                 break;
 
                             // Blizzard pls don`t make anymore these spells with cone proc
-                            unseenTank = me->GetVictim() ? me->GetVictim()->GetGUID() : 0;
+                            unseenTank = me->GetVictim() ? me->GetVictim()->GetGUID() : ObjectGuid::Empty;
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankSpecTargetSelector()))
                             {
                                 Talk(ANN_UNSEEN, target);
@@ -848,7 +848,7 @@ class npc_tempest_slash_tornado : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
             void MovementInform(uint32 type, uint32 pointId) override
             {
@@ -901,7 +901,7 @@ class npc_storm_unleashed_tornado : public CreatureScript
             InstanceScript* instance;
             bool storm1;
             float x, y;
-            uint64 m_ownerGUID;
+            ObjectGuid m_ownerGUID;
             uint32 m_passenger;
 
             void IsSummonedBy(Unit* summoner) override
@@ -940,7 +940,7 @@ class npc_storm_unleashed_tornado : public CreatureScript
                         ExPos.m_positionX = me->GetPositionX() + ExAngle;
                         ExPos.m_positionY = me->GetPositionY() + frand(-4.0f, 4.0f);
                         ExPos.m_positionZ = me->GetPositionZ();
-                        ExPos.m_orientation = me->GetOrientation();
+                        ExPos.SetOrientation(me->GetOrientation());
                         passenger->ExitVehicle(&ExPos);
                     }
                 }
@@ -996,7 +996,7 @@ class npc_storm_unleashed_tornado : public CreatureScript
 
                 // Removing storm from the 1st storm phase (20-10%) when switching on 2nd storm phase (10-0%)
                 if (storm1)
-                    if (Creature* tayak = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_TAYAK) : 0))
+                    if (Creature* tayak = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_TAYAK) : ObjectGuid::Empty))
                         if (tayak->AI()->GetData(TYPE_TARGET_ID))
                             Eject();
 
@@ -1037,7 +1037,7 @@ class npc_gale_winds_stalker : public CreatureScript
                 {
                     case ACTION_WIND:
                     {
-                        if (Creature* tayak = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_TAYAK) : 0))
+                        if (Creature* tayak = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_TAYAK) : ObjectGuid::Empty))
                         {
                             bool firstPos = tayak->AI()->GetData(TYPE_TARGET_ID);
                             if ((firstPos && firstWind) || (!firstPos && !firstWind))
@@ -1058,7 +1058,7 @@ class npc_gale_winds_stalker : public CreatureScript
                     {
                         me->RemoveAurasDueToSpell(SPELL_SU_WIND_GALE);
 
-                        if (Creature* tayak = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_TAYAK) : 0))
+                        if (Creature* tayak = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_TAYAK) : ObjectGuid::Empty))
                         {
                             Position pos = { tayak->GetPositionX(), tayak->GetPositionY(), tayak->GetPositionZ(), 0.0f };
 
@@ -1084,7 +1084,7 @@ class npc_gale_winds_stalker : public CreatureScript
                 if (!instance || !isActive)
                     return;
 
-                if (Creature* tayak = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_TAYAK) : 0))
+                if (Creature* tayak = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_TAYAK) : ObjectGuid::Empty))
                 {
                     Position pos = { tayak->GetPositionX(), tayak->GetPositionY(), tayak->GetPositionZ(), 0.0f };
 
@@ -1203,7 +1203,7 @@ struct npc_achiev_brazier : public ScriptedAI
             hasLaunched = true;
             DoCast(me, SPELL_BRAZIER_FIRE, true);
 
-            if (Creature* tayak = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(DATA_TAYAK) : 0))
+            if (Creature* tayak = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_TAYAK) : ObjectGuid::Empty))
                 tayak->AI()->SetData(TYPE_BRAZIERS, 1);
         }
     }
@@ -1225,11 +1225,11 @@ class spell_tayak_wind_step : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    uint64 casterGUID = caster->GetGUID();
+                    ObjectGuid casterGUID = caster->GetGUID();
                     uint32 delay = 0;
-                    caster->m_Events.Schedule(delay += 200, 20, [this, casterGUID]()
+                    caster->m_Events.Schedule(delay += 200, 20, [caster, casterGUID]()
                     {
-                        if (Unit* m_caster = ObjectAccessor::FindUnit(casterGUID))
+                        if (Unit* m_caster = ObjectAccessor::GetUnit(*caster, casterGUID))
                             m_caster->CastSpell(m_caster, SPELL_WIND_STEP_EFF, false);
                     });
                 }
@@ -1448,7 +1448,7 @@ class spell_su_dummy_visual : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScrpt() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_su_dummy_visualAuraScript();
         }
@@ -1572,14 +1572,14 @@ class spell_su_vehicle_apply : public SpellScriptLoader
 
                 // Not pull same target again
                 if (uint32 stormLowId = caster->GetAI()->GetData(TYPE_TARGET_ID))
-                    if (stormLowId == target->GetGUIDLow())
+                    if (stormLowId == target->GetGUID().GetCounter())
                         return;
 
                 // Pull only if we haven`t anyone already in us
                 if (!target->IsOnVehicle() && caster->GetVehicleKit() && !caster->GetVehicleKit()->GetPassenger(0))
                 {
                     target->CastSpell(caster, SPELL_SU_RV, true);
-                    caster->GetAI()->SetData(TYPE_TARGET_ID, target->GetGUIDLow());
+                    caster->GetAI()->SetData(TYPE_TARGET_ID, target->GetGUID().GetCounter());
                 }
             }
 
@@ -1618,7 +1618,7 @@ class spell_blade_templest_jump : public SpellScriptLoader
 
                 if (Unit* caster = GetCaster())
                     if (InstanceScript* instance = caster->GetInstanceScript())
-                        if (Unit* target = ObjectAccessor::GetUnit(*caster, instance->GetData64(DATA_TAYAK)))
+                        if (Unit* target = ObjectAccessor::GetUnit(*caster, instance->GetGuidData(DATA_TAYAK)))
                             if (caster->GetExactDist2d(target) > 2.0f)
                                 caster->GetMotionMaster()->MoveJump(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 35.0f, 15.0f);
 
@@ -1675,7 +1675,7 @@ class AreaTrigger_at_tayak_room : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                if (Unit* tayak = ObjectAccessor::GetUnit(*player, instance->GetData64(DATA_TAYAK)))
+                if (Unit* tayak = ObjectAccessor::GetUnit(*player, instance->GetGuidData(DATA_TAYAK)))
                     if (tayak->ToCreature() && tayak->ToCreature()->AI() && instance->GetData(DATA_TAYAK) < DONE)
                         tayak->ToCreature()->AI()->DoAction(ACTION_TAYAK_ENTRANCE);
 

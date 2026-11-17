@@ -31,15 +31,15 @@ public:
     {
         static std::vector<ChatCommand> sendCommandTable =
         {
-            { "items",      SEC_GAMEMASTER, true,   &HandleSendItemsCommand,    },
-            { "mail",       SEC_GAMEMASTER, true,   &HandleSendMailCommand,     },
-            { "message",    SEC_GAMEMASTER, true,   &HandleSendMessageCommand,  },
-            { "money",      SEC_GAMEMASTER, true,   &HandleSendMoneyCommand,    },
+            { "items",      &HandleSendItemsCommand,    rbac::RBAC_PERM_COMMAND_SEND_ITEMS,   Trinity::ChatCommands::Console::Yes },
+            { "mail",       &HandleSendMailCommand,     rbac::RBAC_PERM_COMMAND_SEND_MAIL,    Trinity::ChatCommands::Console::Yes },
+            { "message",    &HandleSendMessageCommand,  rbac::RBAC_PERM_COMMAND_SEND_MESSAGE, Trinity::ChatCommands::Console::Yes },
+            { "money",      &HandleSendMoneyCommand,    rbac::RBAC_PERM_COMMAND_SEND_MONEY,   Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "send",       SEC_GAMEMASTER, false,  sendCommandTable            },
+            { "send",       sendCommandTable,            rbac::RBAC_PERM_COMMAND_SEND,         Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }
@@ -49,7 +49,7 @@ public:
     {
         // format: name "subject text" "mail text"
         Player* target;
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
         std::string targetName;
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
             return false;
@@ -75,12 +75,12 @@ public:
         std::string text    = msgText;
 
         // from console show not existed sender
-        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUIDLow() : 0, MAIL_STATIONERY_GM);
+        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : 0, MAIL_STATIONERY_GM);
 
         /// @todo Fix poor design
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         MailDraft(subject, text)
-            .SendMailTo(trans, MailReceiver(target, GUID_LOPART(targetGuid)), sender);
+            .SendMailTo(trans, MailReceiver(target, targetGuid.GetCounter()), sender);
 
         CharacterDatabase.CommitTransaction(trans);
 
@@ -94,7 +94,7 @@ public:
     {
         // format: name "subject text" "mail text" item1[:count1] item2[:count2] ... item12[:count12]
         Player* receiver;
-        uint64 receiverGuid;
+        ObjectGuid receiverGuid;
         std::string receiverName;
         if (!handler->extractPlayerTarget((char*)args, &receiver, &receiverGuid, &receiverName))
             return false;
@@ -171,7 +171,7 @@ public:
         while (!items.empty())
         {
             // from console show not existed sender
-            MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUIDLow() : 0, MAIL_STATIONERY_GM);
+            MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : 0, MAIL_STATIONERY_GM);
 
             // fill mail
             MailDraft draft(subject, text);
@@ -186,7 +186,7 @@ public:
                 }
                 items.erase(itr);
             }
-            draft.SendMailTo(trans, MailReceiver(receiver, GUID_LOPART(receiverGuid)), sender);
+            draft.SendMailTo(trans, MailReceiver(receiver, receiverGuid.GetCounter()), sender);
         }
 
         CharacterDatabase.CommitTransaction(trans);
@@ -201,7 +201,7 @@ public:
         /// format: name "subject text" "mail text" money
 
         Player* receiver;
-        uint64 receiverGuid;
+        ObjectGuid receiverGuid;
         std::string receiverName;
         if (!handler->extractPlayerTarget((char*)args, &receiver, &receiverGuid, &receiverName))
             return false;
@@ -232,13 +232,13 @@ public:
         std::string text    = msgText;
 
         // from console show not existed sender
-        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUIDLow() : 0, MAIL_STATIONERY_GM);
+        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : 0, MAIL_STATIONERY_GM);
 
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
         MailDraft(subject, text)
             .AddMoney(money)
-            .SendMailTo(trans, MailReceiver(receiver, GUID_LOPART(receiverGuid)), sender);
+            .SendMailTo(trans, MailReceiver(receiver, receiverGuid.GetCounter()), sender);
 
         CharacterDatabase.CommitTransaction(trans);
 

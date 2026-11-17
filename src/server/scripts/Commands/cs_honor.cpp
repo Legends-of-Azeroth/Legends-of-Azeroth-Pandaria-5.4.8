@@ -37,19 +37,19 @@ public:
     {
         static std::vector<ChatCommand> honorAddCommandTable =
         {
-            { "kill",   SEC_ADMINISTRATOR,  false,  &HandleHonorAddKillCommand, },
-            { "",       SEC_ADMINISTRATOR,  false,  &HandleHonorAddCommand,     },
+            { "kill",   &HandleHonorAddKillCommand,  rbac::RBAC_PERM_COMMAND_HONOR_ADD_KILL,  Trinity::ChatCommands::Console::No },
+            { "",       &HandleHonorAddCommand,      rbac::RBAC_PERM_COMMAND_HONOR_ADD,       Trinity::ChatCommands::Console::No },
         };
 
         static std::vector<ChatCommand> honorCommandTable =
         {
-            { "add",    SEC_ADMINISTRATOR,  false,  honorAddCommandTable        },
-            { "update", SEC_ADMINISTRATOR,  false,  &HandleHonorUpdateCommand,  },
+            { "add",    honorAddCommandTable,        rbac::RBAC_PERM_COMMAND_HONOR_ADD,       Trinity::ChatCommands::Console::No },
+            { "update", &HandleHonorUpdateCommand,   rbac::RBAC_PERM_COMMAND_HONOR_UPDATE,    Trinity::ChatCommands::Console::No },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "honor",  SEC_ADMINISTRATOR,  false,  honorCommandTable           },
+            { "honor",  honorCommandTable,           rbac::RBAC_PERM_COMMAND_HONOR_ADD,       Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }
@@ -68,7 +68,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         uint32 amount = (uint32)atoi(args);
@@ -88,7 +88,7 @@ public:
 
         // check online security
         if (Player* player = target->ToPlayer())
-            if (handler->HasLowerSecurity(player, 0))
+            if (handler->HasLowerSecurity(player, ObjectGuid::Empty))
                 return false;
 
         handler->GetSession()->GetPlayer()->RewardHonor(target, 1);
@@ -106,7 +106,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         target->UpdateHonorFields();

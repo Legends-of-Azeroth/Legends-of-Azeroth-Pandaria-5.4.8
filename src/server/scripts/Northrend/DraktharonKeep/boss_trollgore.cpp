@@ -108,7 +108,7 @@ class boss_trollgore : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_CONSUMPTION_JUNCTION, 1);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (who->IsControlledByPlayer())
                 {

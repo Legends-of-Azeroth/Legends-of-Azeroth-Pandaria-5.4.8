@@ -162,7 +162,7 @@ class boss_grand_empress_shekzeer : public CreatureScript
 
             EventMap nonCombatEvents, berserkEvents;
             uint32 _phases, introWp, guardianDied, delay;
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             bool intro;
 
             void Reset() override
@@ -179,7 +179,7 @@ class boss_grand_empress_shekzeer : public CreatureScript
                 }
 
                 _phases = FIRST_PHASE;
-                targetGUID   = 0;
+                targetGUID = ObjectGuid::Empty;
                 guardianDied = 0;
                 delay        = 0;
                 SetPowerType();
@@ -221,7 +221,7 @@ class boss_grand_empress_shekzeer : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();
@@ -269,7 +269,7 @@ class boss_grand_empress_shekzeer : public CreatureScript
                     instance->SetBossState(DATA_SHEKZEER, FAIL);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(DATA_SHEKZEER, who->ToPlayer()))
                 {
@@ -279,7 +279,7 @@ class boss_grand_empress_shekzeer : public CreatureScript
                 }
 
                 // @TODO: Set in combat for other protectors
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -712,7 +712,7 @@ struct royal_guards_typeAI : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override 
     {
-        if (Creature* Shekzeer = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_SHEKZEER) : 0))
+        if (Creature* Shekzeer = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_SHEKZEER) : ObjectGuid::Empty))
             Shekzeer->AI()->DoAction(ACTION_ROYAL_GUARDIAN_DIE);
     } 
 };
@@ -727,11 +727,11 @@ class npc_setthik_windblade : public CreatureScript
         {
             npc_setthik_windbladeAI(Creature* creature) : royal_guards_typeAI(creature) { }
 
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
 
             void IsSummonedBy(Unit* summoner) override
             {
-                targetGUID = 0;
+                targetGUID = ObjectGuid::Empty;
                 SetEquipmentSlots(false, MELJARAK_2H_WEAPON, 0, EQUIP_NO_CHANGE);
 
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
@@ -1054,7 +1054,7 @@ class npc_sha_of_fear_shekzeer : public CreatureScript
                         break;
                     case ACTION_SHA_AGGRO:
                         Talk(SAY_AGGRO_S);
-                        if (Unit* Shekzeer = ObjectAccessor::GetUnit(*me, instance ? instance->GetData64(DATA_SHEKZEER) : 0))
+                        if (Unit* Shekzeer = ObjectAccessor::GetUnit(*me, instance ? instance->GetGuidData(DATA_SHEKZEER) : ObjectGuid::Empty))
                         {
                             me->CastSpell(Shekzeer, SPELL_ULTIMATE_CORRAPTION, false);
 
@@ -1735,7 +1735,7 @@ class spell_servant_of_the_empress : public AuraScript
     {
         if (Unit* caster = GetCaster())
             if (InstanceScript* instance = caster->GetInstanceScript())
-                if (Creature* shekzeer = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_SHEKZEER)))
+                if (Creature* shekzeer = ObjectAccessor::GetCreature(*caster, instance->GetGuidData(DATA_SHEKZEER)))
                     shekzeer->CastSpell(caster, SPELL_SERVANT_OF_THE_EMPRESS_EFF, true);
     }
 
@@ -1743,7 +1743,7 @@ class spell_servant_of_the_empress : public AuraScript
     {
         if (Unit* caster = GetCaster())
             if (InstanceScript* instance = caster->GetInstanceScript())
-                if (Creature* Shekzeer = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_SHEKZEER)))
+                if (Creature* Shekzeer = ObjectAccessor::GetCreature(*caster, instance->GetGuidData(DATA_SHEKZEER)))
                     caster->RemoveAurasDueToSpell(SPELL_SERVANT_OF_THE_EMPRESS_EFF);
     }
 
@@ -1910,7 +1910,7 @@ class AreaTrigger_at_behind_shekzeer : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                if (Creature* Shekzeer = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_SHEKZEER)))
+                if (Creature* Shekzeer = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_SHEKZEER)))
                     Shekzeer->AI()->DoAction(ACTION_SHEKZEER_INTRO);
 
             return false;

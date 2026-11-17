@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -251,11 +251,11 @@ class boss_anubarak_trial : public CreatureScript
                         _burrowGUID.push_back(summoned->GetGUID());
                         summoned->SetReactState(REACT_PASSIVE);
                         summoned->CastSpell(summoned, SPELL_CHURNING_GROUND, false);
-                        summoned->SetDisplayId(summoned->GetCreatureTemplate()->Modelid2);
+                        summoned->SetDisplayFromModel(1);
                         break;
                     case NPC_SPIKE:
                         summoned->CombatStart(target);
-                        summoned->SetDisplayId(summoned->GetCreatureTemplate()->Modelid1);
+                        summoned->SetDisplayFromModel(0);
                         Talk(EMOTE_SPIKE, target);
                         break;
                     default:
@@ -264,9 +264,9 @@ class boss_anubarak_trial : public CreatureScript
                 summons.Summon(summoned);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
 
@@ -339,7 +339,7 @@ class boss_anubarak_trial : public CreatureScript
                             /* WORKAROUND
                             * - The correct implementation is more likely the comment below but it needs spell knowledge
                             */
-                            std::list<uint64>::iterator i = _burrowGUID.begin();
+                            std::list<ObjectGuid>::iterator i = _burrowGUID.begin();
                             uint32 at = urand(0, _burrowGUID.size()-1);
                             for (uint32 k = 0; k < at; k++)
                                 ++i;
@@ -414,8 +414,8 @@ class boss_anubarak_trial : public CreatureScript
             }
 
             private:
-                std::list<uint64> _burrowGUID;
-                uint64 _sphereGUID[6];
+                std::list<ObjectGuid> _burrowGUID;
+                ObjectGuid _sphereGUID[6];
                 bool _intro;
                 bool _reachedPhase3;
         };
@@ -445,7 +445,7 @@ class npc_swarm_scarab : public CreatureScript
                 DoCast(me, SPELL_ACID_MANDIBLE);
                 me->SetInCombatWithZone();
                 if (me->IsInCombat())
-                    if (Creature* Anubarak = ObjectAccessor::GetCreature(*me, _instance->GetData64(NPC_ANUBARAK)))
+                    if (Creature* Anubarak = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_ANUBARAK)))
                         Anubarak->AI()->JustSummoned(me);
             }
 
@@ -519,7 +519,7 @@ class npc_nerubian_burrower : public CreatureScript
                 DoCast(me, SPELL_AWAKENED);
                 me->SetInCombatWithZone();
                 if (me->IsInCombat())
-                    if (Creature* Anubarak = ObjectAccessor::GetCreature(*me, _instance->GetData64(NPC_ANUBARAK)))
+                    if (Creature* Anubarak = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_ANUBARAK)))
                         Anubarak->AI()->JustSummoned(me);
             }
 
@@ -601,7 +601,7 @@ class npc_frost_sphere : public CreatureScript
             {
                 me->SetReactState(REACT_PASSIVE);
                 DoCast(SPELL_FROST_SPHERE);
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+                me->SetDisplayFromModel(1);
                 me->GetMotionMaster()->MoveRandom(20.0f);
             }
 
@@ -683,7 +683,7 @@ class npc_anubarak_spike : public CreatureScript
                 return victim->GetTypeId() == TYPEID_PLAYER;
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                 {
@@ -788,12 +788,12 @@ class npc_anubarak_spike : public CreatureScript
                 DoCast(who, SPELL_MARK);
                 me->SetSpeed(MOVE_RUN, 0.5f);
                 // make sure the Spine will really follow the one he should
-                me->getThreatManager().clearReferences();
+                me->GetThreatManager().ClearAllThreat();
                 me->SetInCombatWithZone();
-                me->getThreatManager().addThreat(who, std::numeric_limits<float>::max());
+                me->GetThreatManager().AddThreat(who, std::numeric_limits<float>::max());
                 me->GetMotionMaster()->Clear(true);
                 me->GetMotionMaster()->MoveChase(who);
-                me->TauntApply(who);
+                me->GetThreatManager().TauntUpdate();
             }
 
             private:

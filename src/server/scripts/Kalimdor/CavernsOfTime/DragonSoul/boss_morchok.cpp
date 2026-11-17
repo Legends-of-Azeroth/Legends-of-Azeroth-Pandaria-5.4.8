@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -137,8 +137,8 @@ class boss_morchok: public CreatureScript
 
                 me->LowerPlayerDamageReq(me->GetHealth());
 
-                _stompguid1 = 0;
-                _stompguid2 = 0;
+                _stompguid1 = ObjectGuid::Empty;
+                _stompguid2 = ObjectGuid::Empty;
                 bEnrage = false;
                 bKohcrom = false;
                 bFirstStomp = false;
@@ -149,7 +149,7 @@ class boss_morchok: public CreatureScript
                 me->SetObjectScale(1.0f);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 
@@ -160,8 +160,8 @@ class boss_morchok: public CreatureScript
                 if (!IsHeroic())
                     events.ScheduleEvent(EVENT_CRUSH_ARMOR, urand(6000, 12000));
 
-                _stompguid1 = 0;
-                _stompguid2 = 0;
+                _stompguid1 = ObjectGuid::Empty;
+                _stompguid2 = ObjectGuid::Empty;
                 bEnrage = false;
                 bKohcrom = false;
                 bFirstStomp = false;
@@ -188,7 +188,7 @@ class boss_morchok: public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void SetGUID(uint64 guid, int32 type) override
+            void SetGUID(ObjectGuid guid, int32 type) override
             {
                 if (type == DATA_GUID_1)
                     _stompguid1 = guid;
@@ -196,14 +196,14 @@ class boss_morchok: public CreatureScript
                     _stompguid2 = guid;
             }
 
-            uint64 GetGUID(int32 type) const override
+            ObjectGuid GetGUID(int32 type) const override
             {
                 if (type == DATA_GUID_1)
                     return _stompguid1;
                 else if (type == DATA_GUID_2)
                     return _stompguid2;
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void JustSummoned(Creature* summon) override
@@ -351,8 +351,8 @@ class boss_morchok: public CreatureScript
                             break;
                         case EVENT_STOMP:
                         {
-                            _stompguid1 = 0;
-                            _stompguid2 = 0;
+                            _stompguid1 = ObjectGuid::Empty;
+                            _stompguid2 = ObjectGuid::Empty;
 
                             int32 tim = int32(events.GetNextEventTime(EVENT_EARTHEN_VORTEX)) - int32(events.GetTimer());
                             if (tim <= 7000)
@@ -373,8 +373,7 @@ class boss_morchok: public CreatureScript
 
                             Talk(ANN_CRYSTAL);
                             Talk(SAY_CRYSTAL);
-                            Position pos;
-                            me->GetNearPosition(pos, frand(25.0f, 45.0f), frand(0, 2 * M_PI));
+                            Position pos = me->GetNearPosition(frand(25.0f, 45.0f), frand(0, 2 * M_PI));
                             me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_RESONATING_CRYSTAL, true);
                             events.ScheduleEvent(EVENT_RESONATING_CRYSTAL, urand(12000, 14000));
                             if (bKohcrom && !bFirstCrystal && pKohcrom)
@@ -428,8 +427,8 @@ class boss_morchok: public CreatureScript
 
         private:
             Creature* pKohcrom;
-            uint64 _stompguid1;
-            uint64 _stompguid2;
+            ObjectGuid _stompguid1;
+            ObjectGuid _stompguid2;
             bool bEnrage;
             bool bKohcrom;
             bool bFirstStomp;
@@ -473,12 +472,12 @@ class npc_morchok_kohcrom: public CreatureScript
                 events.Reset();
                 summons.DespawnAll();
 
-                _stompguid1 = 0;
-                _stompguid2 = 0;
+                _stompguid1 = ObjectGuid::Empty;
+                _stompguid2 = ObjectGuid::Empty;
                 bEnrage = false;
             }
 
-            void SetGUID(uint64 guid, int32 type) override
+            void SetGUID(ObjectGuid guid, int32 type) override
             {
                 if (type == DATA_GUID_1)
                     _stompguid1 = guid;
@@ -486,14 +485,14 @@ class npc_morchok_kohcrom: public CreatureScript
                     _stompguid2 = guid;
             }
 
-            uint64 GetGUID(int32 type) const override
+            ObjectGuid GetGUID(int32 type) const override
             {
                 if (type == DATA_GUID_1)
                     return _stompguid1;
                 else if (type == DATA_GUID_2)
                     return _stompguid2;
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void IsSummonedBy(Unit* /*summoner*/) override
@@ -552,14 +551,13 @@ class npc_morchok_kohcrom: public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_STOMP:
-                            _stompguid1 = 0;
-                            _stompguid2 = 0;
+                            _stompguid1 = ObjectGuid::Empty;
+                            _stompguid2 = ObjectGuid::Empty;
                             DoCast(me, SPELL_STOMP);
                             break;
                         case EVENT_RESONATING_CRYSTAL:
                         {
-                            Position pos;
-                            me->GetNearPosition(pos, frand(25.0f, 45.0f), frand(0, 2 * M_PI));
+                            Position pos = me->GetNearPosition(frand(25.0f, 45.0f), frand(0, 2 * M_PI));
                             me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_RESONATING_CRYSTAL, true);
                             break;
                         }
@@ -589,8 +587,8 @@ class npc_morchok_kohcrom: public CreatureScript
             EventMap events;
             SummonList summons;
             InstanceScript* instance;
-            uint64 _stompguid1;
-            uint64 _stompguid2;
+            ObjectGuid _stompguid1;
+            ObjectGuid _stompguid2;
             bool bEnrage;
         };
 

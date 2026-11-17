@@ -31,12 +31,12 @@ class instance_blackrock_caverns : public InstanceMapScript
             { 
                 SetBossNumber(MAX_ENCOUNTER);
 
-                 uiRomoggGUID         = 0;
-                 uiCorlaGUID          = 0;
-                 uiKarshGUID          = 0;
-                 uiBeautyGUID         = 0;
-                 uiRazCrazedGUID      = 0;
-                 uiLordObsidiusGUID   = 0;
+                 uiRomoggGUID = ObjectGuid::Empty;
+                 uiCorlaGUID = ObjectGuid::Empty;
+                 uiKarshGUID = ObjectGuid::Empty;
+                 uiBeautyGUID = ObjectGuid::Empty;
+                 uiRazCrazedGUID = ObjectGuid::Empty;
+                 uiLordObsidiusGUID = ObjectGuid::Empty;
                  archaeologyQuestAura = 0;
                  memset(m_uiPortalGUID, 0, sizeof(m_uiPortalGUID));
             }
@@ -103,7 +103,7 @@ class instance_blackrock_caverns : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 data) const override
+            ObjectGuid GetGuidData(uint32 data) const override
             {
                 switch(data)
                 {
@@ -120,7 +120,7 @@ class instance_blackrock_caverns : public InstanceMapScript
                     case NPC_RAZ_THE_CRAZED:
                         return uiRazCrazedGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void SetData(uint32 type, uint32 data) override
@@ -139,7 +139,7 @@ class instance_blackrock_caverns : public InstanceMapScript
                     return false;
 
                 if (type == DATA_ROMOGG && state == DONE)
-                    if (Creature* Raz = instance->GetCreature(GetData64(NPC_RAZ_THE_CRAZED)))
+                    if (Creature* Raz = instance->GetCreature(GetGuidData(NPC_RAZ_THE_CRAZED)))
                         Raz->AI()->DoAction(ACTION_RAZ_BREAK_PRISON);
 
                 return true;
@@ -194,13 +194,13 @@ class instance_blackrock_caverns : public InstanceMapScript
             }
 
             private:
-                uint64 uiRomoggGUID;
-                uint64 uiCorlaGUID;
-                uint64 uiKarshGUID;
-                uint64 uiBeautyGUID;
-                uint64 uiLordObsidiusGUID;
-                uint64 uiRazCrazedGUID;
-                uint64 m_uiPortalGUID[4];
+                ObjectGuid uiRomoggGUID;
+                ObjectGuid uiCorlaGUID;
+                ObjectGuid uiKarshGUID;
+                ObjectGuid uiBeautyGUID;
+                ObjectGuid uiLordObsidiusGUID;
+                ObjectGuid uiRazCrazedGUID;
+                ObjectGuid m_uiPortalGUID[4];
                 uint32 archaeologyQuestAura;
         };
 

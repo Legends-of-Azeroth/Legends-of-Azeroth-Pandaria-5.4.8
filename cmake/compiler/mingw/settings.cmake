@@ -13,7 +13,7 @@
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Set build-directive (used in core to tell which buildtype we used)
-add_definitions(-D_BUILD_DIRECTIVE=\\"${CMAKE_BUILD_TYPE}\\")
+add_compile_options(-D_BUILD_DIRECTIVE="$<CONFIG>")
 
 if(PLATFORM EQUAL 32)
   # Required on 32-bit systems to enable SSE2 (standard on x64)
@@ -21,7 +21,7 @@ if(PLATFORM EQUAL 32)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${SSE_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SSE_FLAGS}")
 endif()
-add_definitions(-DHAVE_SSE2 -D__SSE2__)
+add_compile_options(-DHAVE_SSE2 -D__SSE2__)
 message(STATUS "GCC: SFMT enabled, SSE2 flags forced")
 
 if( WITH_WARNINGS )

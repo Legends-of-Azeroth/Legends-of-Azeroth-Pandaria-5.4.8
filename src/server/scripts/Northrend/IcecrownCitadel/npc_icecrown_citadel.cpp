@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -266,7 +266,8 @@ class npc_ancient_skeletal_soldier_icc : public CreatureScript
                 Position pos;
                 pos.Relocate(me);
                 pos.RelocateOffset(0.0f, dist);
-                me->UpdateAllowedPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ, 5.0f, 100.0f);
+                //me->UpdateAllowedPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ, 5.0f, 100.0f);
+                me->UpdateAllowedPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ);
                 me->SetWalk(true);
                 me->GetMotionMaster()->MovePoint(0, pos);
                 me->SetHomePosition(pos);
@@ -445,9 +446,9 @@ class npc_nerubar_broodkeeper_icc : public CreatureScript
 
                 descended = true;
 
-                Position pos;
-                me->GetPosition(&pos);
-                me->UpdateGroundPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ, -10.0f, 200.0f);
+                Position pos = me->GetPosition();
+                //me->UpdateGroundPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ, -10.0f, 200.0f);
+                me->UpdateGroundPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ);
                 me->GetMotionMaster()->MoveLand(POINT_DESCEND, pos);
 
                 DoCast(me, SPELL_WEB_BEAM);
@@ -461,7 +462,7 @@ class npc_nerubar_broodkeeper_icc : public CreatureScript
                     me->InterruptSpell(CURRENT_CHANNELED_SPELL);
                     me->SetHomePosition(*me);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-                    me->SetAnimationTier(UnitAnimationTier::Ground);
+                    me->SetAnimTier(AnimTier::Ground);
                 }
             }
 
@@ -608,7 +609,8 @@ class npc_servant_of_the_throne_icc : public CreatureScript
                 Position pos;
                 pos.Relocate(me);
                 pos.RelocateOffset(0.0f, dist);
-                me->UpdateAllowedPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ, 5.0f, 100.0f);
+                //me->UpdateAllowedPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ, 5.0f, 100.0f);
+                me->UpdateAllowedPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ);
                 me->SetWalk(true);
                 me->GetMotionMaster()->MovePoint(POINT_DESCEND, pos);
                 me->SetHomePosition(pos);
@@ -696,7 +698,8 @@ class spell_glacial_blast : public SpellScriptLoader
                 if (!caster || !dest)
                     return;
 
-                caster->GetPosition(&destination._position);
+                Position pos = caster->GetPosition();
+                destination._position = WorldLocation(caster->GetMapId(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
                 for (int32 dist = GetSpellInfo()->Effects[EFFECT_0].CalcValue(); dist > 0; dist -= 5)
                     caster->MovePositionToFirstCollision(destination._position, 5.0f, caster->GetRelativeAngle(dest));
             }
@@ -1134,15 +1137,15 @@ public:
         }
         EventMap events;
 
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
 
         void Reset() override
         {
-            targetGuid = 0;
+            targetGuid = ObjectGuid::Empty;
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             events.ScheduleEvent(EVENT_DARKRECKONING, 10000);
             events.ScheduleEvent(EVENT_DARKRECKONING_EFFECT, 19000);
@@ -1368,7 +1371,8 @@ class npc_vengeful_fleshreapert_icc : public CreatureScript
                         Position wp;
                         wp.Relocate(pos);
                         wp.RelocateOffset(M_PI / 2, frand(-5.0f, 5.0f));
-                        me->UpdateGroundPositionZ(wp.GetPositionX(), wp.GetPositionY(), wp.m_positionZ, 10.0f, 100.0f);
+                        //me->UpdateGroundPositionZ(wp.GetPositionX(), wp.GetPositionY(), wp.m_positionZ, 10.0f, 100.0f);
+                        me->UpdateGroundPositionZ(wp.GetPositionX(), wp.GetPositionY(), wp.m_positionZ);
                         runWaypoints.push_back(wp);
                     }
                     for (uint32 i = 0; i < MAX_FLESHREAPER_WAYPOINTS; ++i)
@@ -1396,7 +1400,7 @@ class npc_vengeful_fleshreapert_icc : public CreatureScript
             void DoAction(int32 action) override
             {
                 float x, y;
-                me->GetNearPoint2D(x, y, frand(10.0f, 20.0f), me->GetOrientation());
+                me->GetNearPoint2D(nullptr, x, y, frand(10.0f, 20.0f), me->GetOrientation());
                 me->GetMotionMaster()->MovePoint(POINT_ALERT, x, y, me->GetPositionZ());
                 if (!action)
                     Talk(SAY_ALERT);
@@ -1430,7 +1434,7 @@ class npc_vengeful_fleshreapert_icc : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (!_EnterEvadeMode())
                     return;
@@ -1731,7 +1735,7 @@ class npc_darkfallen_archmage_10man_icc : public CreatureScript
                 m_uiPOLYMORPH_Timer = urand(9000, 12000);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
             }
@@ -1819,7 +1823,7 @@ class npc_darkfallen_blood_knight_icc : public CreatureScript
                 m_uiMIRROR_Timer = urand(4000, 5000);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
             }
@@ -1892,7 +1896,7 @@ class npc_darkfallen_noble_10man_icc : public CreatureScript
                 m_uiFIEND_Timer = 15000;
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
             }
@@ -1969,7 +1973,7 @@ class npc_vampiric_fiend_icc : public CreatureScript
                 m_uiLEECHING_Timer = 10000;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_DISEASE_CLOUD);
             }
@@ -2176,7 +2180,7 @@ class npc_darkfallen_tactician_icc : public CreatureScript
                 m_uiSTRIKE_Timer = urand(2000, 3000);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
             }
@@ -2249,7 +2253,7 @@ class npc_ymirjar_deathbringer_10man_icc : public CreatureScript
                 autoCastTimer.SetInterval(2500);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 me->InterruptSpell(CURRENT_CHANNELED_SPELL);
                 channelCooldown = 60000;
@@ -2276,7 +2280,7 @@ class npc_ymirjar_deathbringer_10man_icc : public CreatureScript
             void JustSummoned(Creature* summon) override
             {
                 summon->m_Events.Schedule(1, [summon]() { summon->ToTempSummon()->SetTempSummonType(TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT); });
-                summon->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_INSTANTLY_APPEAR_MODEL);
+                summon->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_INSTANTLY_APPEAR_MODEL);
                 summon->CastSpell(summon, 26586, true);
             }
 
@@ -2374,7 +2378,7 @@ class npc_ymirjar_frostbinder_icc : public CreatureScript
                 events.ScheduleEvent(EVENT_TWISTED_WINDS, urand(20000, 25000));
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 me->InterruptSpell(CURRENT_CHANNELED_SPELL);
                 me->SetHover(true);
@@ -2509,9 +2513,9 @@ struct npc_ymirjar_icc_base : public ScriptedAI
         });
     }
 
-    void JustRespawned() override
+    void JustAppeared() override
     {
-        ScriptedAI::JustRespawned();
+        ScriptedAI::JustAppeared();
         if (me->GetEntry() == NPC_YMIRJAR_HUNTRESS)
             me->m_Events.Schedule(1000, [this]() { DoCastAOE(SPELL_SUMMON_WARHAWK, true); });
     }

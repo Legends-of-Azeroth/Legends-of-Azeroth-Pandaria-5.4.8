@@ -43,13 +43,13 @@ class npc_pet_gen_mojo : public CreatureScript
 
             void Reset() override
             {
-                _victimGUID = 0;
+                _victimGUID = ObjectGuid::Empty;
 
                 if (Unit* owner = me->GetOwner())
                     me->GetMotionMaster()->MoveFollow(owner, 0.0f, 0.0f);
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
             void UpdateAI(uint32 /*diff*/) override { }
 
             void ReceiveEmote(Player* player, uint32 emote) override
@@ -76,7 +76,7 @@ class npc_pet_gen_mojo : public CreatureScript
             }
 
         private:
-            uint64 _victimGUID;
+            ObjectGuid _victimGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

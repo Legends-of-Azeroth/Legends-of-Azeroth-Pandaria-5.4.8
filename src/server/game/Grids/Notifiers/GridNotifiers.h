@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -91,20 +91,23 @@ namespace Trinity
         void Visit(AreaTriggerMapType &m) { updateObjects<AreaTrigger>(m); }
     };
 
-    struct MessageDistDeliverer
+    struct TC_GAME_API MessageDistDeliverer
     {
-        WorldObject* i_source;
-        WorldPacket* i_message;
+        WorldObject const* i_source;
+        WorldPacket const* i_message;
         uint32 i_phaseMask;
         float i_distSq;
         uint32 team;
         Player const* skipped_receiver;
-        MessageDistDeliverer(WorldObject* src, WorldPacket* msg, float dist, bool own_team_only = false, Player const* skipped = NULL)
-            : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist),
-            team(0), skipped_receiver(skipped)
+        bool required3dDist;        
+        MessageDistDeliverer(WorldObject const* src, WorldPacket const* msg, float dist, bool own_team_only = false, Player const* skipped = nullptr, bool req3dDist = false)
+            : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist)
+            , team(0)
+            , skipped_receiver(skipped)
+            , required3dDist(req3dDist)
         {
             if (own_team_only)
-                if (Player* player = src->ToPlayer())
+                if (Player const* player = src->ToPlayer())
                     team = player->GetTeam();
         }
 
@@ -122,8 +125,7 @@ namespace Trinity
             if (!player->HaveAtClient(i_source))
                 return;
 
-            if (WorldSession* session = player->GetSession())
-                session->SendPacket(i_message);
+            player->SendDirectMessage(i_message);
         }
     };
 
@@ -1215,7 +1217,10 @@ namespace Trinity
 
             bool operator()(Creature* u)
             {
-                if (u->GetEntry() == i_entry && u->IsAlive() == i_alive && i_obj.IsWithinDistInMap(u, i_range))
+                if (u->GetEntry() == i_entry 
+                    && u->IsAlive() == i_alive 
+                    && i_obj.IsWithinDistInMap(u, i_range) 
+                    && u->CheckPrivateObjectOwnerVisibility(&i_obj))
                 {
                     i_range = i_obj.GetDistance(u);         // use found unit range as new range limit for next check
                     return true;

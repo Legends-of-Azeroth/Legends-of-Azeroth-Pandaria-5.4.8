@@ -140,9 +140,9 @@ class boss_amber_shaper_unsok : public CreatureScript
             boss_amber_shaper_unsokAI(Creature* creature) : BossAI(creature, DATA_UNSOK) { }
 
             std::list<Creature*> LivingAmber;
-            std::list<uint64> protList;
+            std::list<ObjectGuid> protList;
             uint32 _phase, delay;
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             bool IntroDone, IsFirstReshape, InShift;
 
             void Reset() override
@@ -177,7 +177,7 @@ class boss_amber_shaper_unsok : public CreatureScript
                 Reset();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();
@@ -208,7 +208,7 @@ class boss_amber_shaper_unsok : public CreatureScript
                     instance->SetBossState(DATA_UNSOK, FAIL);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(DATA_UNSOK, who->ToPlayer()))
                 {
@@ -217,7 +217,7 @@ class boss_amber_shaper_unsok : public CreatureScript
                     return;
                 }
 
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                 {
@@ -488,11 +488,11 @@ class boss_amber_shaper_unsok : public CreatureScript
                         protList.push_back(vict->GetGUID());
                 }
 
-                uint64 GetReshapeLifeTarget()
+                ObjectGuid GetReshapeLifeTarget()
                 {
                     for (auto it = protList.begin(); it != protList.end(); ++it)
                     {
-                        uint64 guid = *it;
+                        ObjectGuid guid = *it;
                         if (Unit* target = ObjectAccessor::GetUnit(*me, guid))
                         {
                             if (target->IsAlive())
@@ -504,7 +504,7 @@ class boss_amber_shaper_unsok : public CreatureScript
                         }
                     }
 
-                    return 0;
+                    return ObjectGuid::Empty;
                 }
 
                 void DoMeleeAttackIfReady()
@@ -552,14 +552,14 @@ class npc_amber_monstrosity : public CreatureScript
 
             EventMap events;
             InstanceScript* instance;
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
 
             void IsSummonedBy(Unit* summoner) override
             {
                 instance = me->GetInstanceScript();
                 me->SetInCombatWithZone();
 
-                if (Creature* unsok = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_UNSOK) : 0))
+                if (Creature* unsok = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_UNSOK) : ObjectGuid::Empty))
                     me->CastSpell(unsok, SPELL_AMBER_CARAPACE, false);
 
                 events.ScheduleEvent(EVENT_MASSIVE_STOMP, urand(18000, 25000));
@@ -571,7 +571,7 @@ class npc_amber_monstrosity : public CreatureScript
             {
                 Talk(SAY_DEATH_AM);
 
-                if (Creature* unsok = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_UNSOK) : 0))
+                if (Creature* unsok = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_UNSOK) : ObjectGuid::Empty))
                     unsok->AI()->DoAction(ACTION_UNLEASHED);
             }
 
@@ -579,8 +579,8 @@ class npc_amber_monstrosity : public CreatureScript
             {
                 if (target && spell->Id == SPELL_GRAB)
                 {
-                    if (me->getThreatManager().getThreat(target))
-                        me->getThreatManager().modifyThreatPercent(target, -100);
+                    if (me->GetThreatManager().GetThreat(target))
+                        me->GetThreatManager().ModifyThreatByPercent(target, -100);
                 }
             }
 
@@ -660,7 +660,7 @@ class npc_burning_amber_stalker : public CreatureScript
                         me->DespawnOrUnsummon(20000);
                         break;
                     case NPC_BURNING_AMBER:
-                        if (Creature* unsok = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_UNSOK) : 0))
+                        if (Creature* unsok = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_UNSOK) : ObjectGuid::Empty))
                             unsok->AI()->JustSummoned(me);
 
                         DoCast(me, SPELL_BURNING_AMBER);
@@ -676,7 +676,7 @@ class npc_burning_amber_stalker : public CreatureScript
                 switch (actionId)
                 {
                     case ACTION_LIVING_AMBER:
-                        if (Creature* unsok = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_UNSOK) : 0))
+                        if (Creature* unsok = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_UNSOK) : ObjectGuid::Empty))
                             unsok->SummonCreature(NPC_LIVING_AMBER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
 
                         me->DespawnOrUnsummon();
@@ -719,7 +719,7 @@ class npc_mutated_construct_p : public CreatureScript
             npc_mutated_construct_pAI(Creature* creature) : ScriptedAI(creature) { }
 
             EventMap events;
-            uint64 ownerGUID;
+            ObjectGuid ownerGUID;
             bool Apply;
 
             // Using as actor for each player that was affecter by reshaper.
@@ -799,7 +799,7 @@ class npc_amber_scalpel : public CreatureScript
             npc_amber_scalpelAI(Creature* creature) : ScriptedAI(creature) { }
 
             EventMap events;
-            uint64 ownerGUID;
+            ObjectGuid ownerGUID;
 
             void IsSummonedBy(Unit* summoner) override
             {
@@ -807,7 +807,7 @@ class npc_amber_scalpel : public CreatureScript
                 ownerGUID = summoner->GetGUID();
                 AttackStart(summoner);
                 me->SetInCombatWith(summoner);
-                me->getThreatManager().addThreat(summoner, 300.0f);
+                me->GetThreatManager().AddThreat(summoner, 300.0f);
                 me->GetMotionMaster()->MoveChase(summoner);
                 me->DespawnOrUnsummon(11 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_RISE_AMBER, 3 * IN_MILLISECONDS);
@@ -839,7 +839,7 @@ class npc_amber_scalpel : public CreatureScript
             }
 
             private:
-                uint64 SelectLivingAmberGUID()
+                ObjectGuid SelectLivingAmberGUID()
                 {
                     std::list<Creature*> AmberStalkers;
                     GetCreatureListWithEntryInGrid(AmberStalkers, me, NPC_MOLTEN_AMBER, 150.0f);
@@ -847,7 +847,7 @@ class npc_amber_scalpel : public CreatureScript
                     if (!AmberStalkers.empty())
                         return Trinity::Containers::SelectRandomContainerElement(AmberStalkers)->GetGUID();
 
-                    return 0;
+                    return ObjectGuid::Empty;
                 }
         };
 
@@ -876,13 +876,13 @@ class npc_living_amber : public CreatureScript
 
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankSpecTargetSelector()))
                 {
-                    me->getThreatManager().addThreat(target, 10000.0f);
+                    me->GetThreatManager().AddThreat(target, 10000.0f);
                     me->GetMotionMaster()->MoveChase(target, 0, me->GetAngle(target));
                     me->Attack(target, true);
                 }
                 else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true))
                 {
-                    me->getThreatManager().addThreat(target, 10000.0f);
+                    me->GetThreatManager().AddThreat(target, 10000.0f);
                     me->GetMotionMaster()->MoveChase(target, 0, me->GetAngle(target));
                     me->Attack(target, true);
                 }
@@ -949,7 +949,7 @@ class npc_amber_pool_stalker : public CreatureScript
                         nonCombatEvents.ScheduleEvent(EVENT_AMBER_GLOBULE, urand(10, 29)*IN_MILLISECONDS);
                         break;
                     case ACTION_DRAW_POWER:
-                        if (Creature* Unsok = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_UNSOK) : 0))
+                        if (Creature* Unsok = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_UNSOK) : ObjectGuid::Empty))
                             me->CastSpell(Unsok, SPELL_GROWTH_DUMMY, false);
                         break;
                 }
@@ -1019,7 +1019,7 @@ class npc_amber_pool_stalker : public CreatureScript
                                 init.SetUncompressed();
                                 init.Launch();
 
-                                uint64 amberGUID = amber->GetGUID();
+                                ObjectGuid amberGUID = amber->GetGUID();
                                 delay = 0;
                                 me->m_Events.Schedule(delay += amber->GetSplineDuration(), 13, [this, amberGUID]()
                                 {
@@ -1071,7 +1071,7 @@ class npc_amber_globule : public CreatureScript
             bool phase;
             uint32 switchPhaseTimer;
             float scale;
-            uint64 targetGuid;
+            ObjectGuid targetGuid;
 
             void IsSummonedBy(Unit* summoner) override
             {
@@ -1095,7 +1095,7 @@ class npc_amber_globule : public CreatureScript
             {
                 DoZoneInCombat(me, 400.0f);
 
-                targetGuid = 0;
+                targetGuid = ObjectGuid::Empty;
 
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankSpecTargetSelector()))
                 {
@@ -1115,7 +1115,7 @@ class npc_amber_globule : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->DespawnOrUnsummon();
             }
@@ -1206,7 +1206,7 @@ class spell_amber_scalpel : public SpellScriptLoader
             {
                 if (Unit* owner = GetOwner()->ToUnit())
                     if (InstanceScript* instance = owner->GetInstanceScript())
-                        if (Creature* m_unsok = ObjectAccessor::GetCreature(*owner, instance->GetData64(DATA_UNSOK)))
+                        if (Creature* m_unsok = ObjectAccessor::GetCreature(*owner, instance->GetGuidData(DATA_UNSOK)))
                             m_unsok->SummonCreature(NPC_MOLTEN_AMBER, owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), owner->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
             }
 
@@ -1319,7 +1319,7 @@ class spell_break_free : public SpellScript
 
             // At third phase players into abomination couldn`t use break free
             if (InstanceScript* instance = caster->GetInstanceScript())
-                if (Creature* unsok = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_UNSOK)))
+                if (Creature* unsok = ObjectAccessor::GetCreature(*caster, instance->GetGuidData(DATA_UNSOK)))
                     if (unsok->AI()->GetData(TYPE_UNSOK_PHASE) == PHASE_3)
                         return SPELL_FAILED_CHARMED;
         }
@@ -1456,7 +1456,7 @@ class spell_unsok_reshape_of_life : public AuraScript
         if (Player* owner = GetOwner()->ToPlayer())
         {
             owner->SummonCreature(NPC_MUTATED_CONSTRUCT, *owner, TEMPSUMMON_MANUAL_DESPAWN);
-            owner->SetByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 1, UNIT_BYTE2_FLAG_UNK1);
+            owner->SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_UNK1);
         }
     }
 
@@ -1468,7 +1468,7 @@ class spell_unsok_reshape_of_life : public AuraScript
 
             // Temp hack:: SPELL_AURA_MOD_INCREASE_HEALTH not right calculated at remove
             owner->SetHealth(owner->GetMaxHealth());
-            owner->RemoveByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 1, UNIT_BYTE2_FLAG_UNK1);
+            owner->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_UNK1);
         }
     }
 
@@ -1568,7 +1568,7 @@ class spell_reshape_life : public SpellScriptLoader
                 {
                     if (Unit* caster = GetCaster())
                     {
-                        caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, owner->GetGUID());
+                        caster->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, owner->GetGUID());
                         caster->CastSpell(owner, SPELL_RESHAPE_LIFE, true);
                     }
                 }
@@ -1668,7 +1668,7 @@ class AreaTrigger_at_behind_unsok : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                if (Creature* Unsok = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_UNSOK)))
+                if (Creature* Unsok = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_UNSOK)))
                     Unsok->AI()->DoAction(ACTION_UNSOK_INTRO);
 
             return false;

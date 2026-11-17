@@ -123,7 +123,7 @@ class Channel
 {
     struct PlayerInfo
     {
-        uint64 player;
+        ObjectGuid player;
         uint8 flags;
 
         bool HasFlag(uint8 flag) const { return flags & flag; }
@@ -170,21 +170,21 @@ class Channel
         void UnBan(Player const* player, std::string const& badname);
         void Password(Player const* player, std::string const& pass);
         void SetMode(Player const* player, std::string const& p2n, bool mod, bool set);
-        void SetOwner(uint64 guid, bool exclaim = true);
+        void SetOwner(ObjectGuid guid, bool exclaim = true);
         void SetOwner(Player const* player, std::string const& name);
-        void SendWhoOwner(uint64 guid);
+        void SendWhoOwner(ObjectGuid guid);
         void SetModerator(Player const* player, std::string const& newname) { SetMode(player, newname, true, true); }
         void UnsetModerator(Player const* player, std::string const& newname) { SetMode(player, newname, true, false); }
         void SetMute(Player const* player, std::string const& newname) { SetMode(player, newname, false, true); }
         void UnsetMute(Player const* player, std::string const& newname) { SetMode(player, newname, false, false); }
         void List(Player const* player);
         void Announce(Player const* player);
-        void Say(uint64 guid, std::string const& what, uint32 lang);
+        void Say(ObjectGuid guid, std::string const& what, uint32 lang);
         void Invite(Player const* player, std::string const& newp);
         void Voice(uint64 guid1, uint64 guid2);
         void DeVoice(uint64 guid1, uint64 guid2);
-        void JoinNotify(uint64 guid);                                           // invisible notify
-        void LeaveNotify(uint64 guid);                                          // invisible notify
+        void JoinNotify(ObjectGuid guid);                                           // invisible notify
+        void LeaveNotify(ObjectGuid guid);                                          // invisible notify
         void SetOwnership(bool ownership) { _ownership = ownership; };
         static void CleanOldChannelsInDB();
 
@@ -204,9 +204,9 @@ class Channel
         void MakePlayerNotFound(WorldPacket* data, std::string const& name);   //+ 0x09
         void MakeNotOwner(WorldPacket* data);                                   //? 0x0A
         void MakeChannelOwner(WorldPacket* data);                               //? 0x0B
-        void MakeModeChange(WorldPacket* data, uint64 guid, uint8 oldflags);    //+ 0x0C
-        void MakeAnnouncementsOn(WorldPacket* data, uint64 guid);               //+ 0x0D
-        void MakeAnnouncementsOff(WorldPacket* data, uint64 guid);              //+ 0x0E
+        void MakeModeChange(WorldPacket* data, ObjectGuid guid, uint8 oldflags);//+ 0x0C
+        void MakeAnnouncementsOn(WorldPacket* data, ObjectGuid guid);           //+ 0x0D
+        void MakeAnnouncementsOff(WorldPacket* data, ObjectGuid guid);          //+ 0x0E
         void MakeMuted(WorldPacket* data);                                      //? 0x11
         void MakePlayerKicked(WorldPacket* data, uint64 bad, uint64 good);      //? 0x12
         void MakeBanned(WorldPacket* data);                                     //? 0x13
@@ -227,23 +227,23 @@ class Channel
         void MakeVoiceOn(WorldPacket* data, uint64 guid);                       //+ 0x22
         void MakeVoiceOff(WorldPacket* data, uint64 guid);                      //+ 0x23
 
-        void SendToAll(WorldPacket* data, uint64 guid = 0);
-        void SendToAllButOne(WorldPacket* data, uint64 who);
-        void SendToOne(WorldPacket* data, uint64 who);
+        void SendToAll(WorldPacket* data, ObjectGuid guid = ObjectGuid::Empty);
+        void SendToAllButOne(WorldPacket* data, ObjectGuid who);
+        void SendToOne(WorldPacket* data, ObjectGuid who);
 
-        bool IsOn(uint64 who) const { return playersStore.find(who) != playersStore.end(); }
-        bool IsBanned(uint64 guid) const { return bannedStore.find(guid) != bannedStore.end(); }
+        bool IsOn(ObjectGuid who) const { return playersStore.find(who) != playersStore.end(); }
+        bool IsBanned(ObjectGuid guid) const { return bannedStore.find(guid) != bannedStore.end(); }
 
         void UpdateChannelInDB() const;
         void UpdateChannelUseageInDB() const;
 
-        uint8 GetPlayerFlags(uint64 guid) const
+        uint8 GetPlayerFlags(ObjectGuid guid) const
         {
             PlayerContainer::const_iterator itr = playersStore.find(guid);
             return itr != playersStore.end() ? itr->second.flags : 0;
         }
 
-        void SetModerator(uint64 guid, bool set)
+        void SetModerator(ObjectGuid guid, bool set)
         {
             if (playersStore[guid].IsModerator() != set)
             {
@@ -256,7 +256,7 @@ class Channel
             }
         }
 
-        void SetMute(uint64 guid, bool set)
+        void SetMute(ObjectGuid guid, bool set)
         {
             if (playersStore[guid].IsMuted() != set)
             {
@@ -269,8 +269,8 @@ class Channel
             }
         }
 
-        typedef std::map<uint64, PlayerInfo> PlayerContainer;
-        typedef std::set<uint64> BannedContainer;
+        typedef std::map<ObjectGuid, PlayerInfo> PlayerContainer;
+        typedef std::set<ObjectGuid> BannedContainer;
 
         bool _announce;
         bool _ownership;
@@ -278,7 +278,7 @@ class Channel
         uint8 _flags;
         uint32 _channelId;
         uint32 _Team;
-        uint64 _ownerGUID;
+        ObjectGuid _ownerGUID;
         std::string _name;
         std::string _password;
         PlayerContainer playersStore;

@@ -77,14 +77,14 @@ class boss_wushoolay : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                rushTarget = 0;
+                rushTarget = ObjectGuid::Empty;
                 preRushTarget = NULL;
                 SetCombatMovement(true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
                 events.ScheduleEvent(EVENT_FORKED_LIGHTNING, 15000);
@@ -230,7 +230,7 @@ class boss_wushoolay : public CreatureScript
             }
 
         protected:
-            uint64 rushTarget;
+            ObjectGuid rushTarget;
             Unit* preRushTarget;
         };
 

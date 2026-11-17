@@ -94,20 +94,20 @@ class instance_serpent_shrine : public InstanceMapScript
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-                LurkerBelow = 0;
-                Sharkkis = 0;
-                Tidalvess = 0;
-                Caribdis = 0;
-                LadyVashj = 0;
-                Karathress = 0;
-                KarathressEvent_Starter = 0;
-                LeotherasTheBlind = 0;
-                LeotherasEventStarter = 0;
+                LurkerBelow = ObjectGuid::Empty;
+                Sharkkis = ObjectGuid::Empty;
+                Tidalvess = ObjectGuid::Empty;
+                Caribdis = ObjectGuid::Empty;
+                LadyVashj = ObjectGuid::Empty;
+                Karathress = ObjectGuid::Empty;
+                KarathressEvent_Starter = ObjectGuid::Empty;
+                LeotherasTheBlind = ObjectGuid::Empty;
+                LeotherasEventStarter = ObjectGuid::Empty;
 
-                ControlConsole = 0;
-                BridgePart[0] = 0;
-                BridgePart[1] = 0;
-                BridgePart[2] = 0;
+                ControlConsole = ObjectGuid::Empty;
+                BridgePart[0] = ObjectGuid::Empty;
+                BridgePart[1] = ObjectGuid::Empty;
+                BridgePart[2] = ObjectGuid::Empty;
                 StrangePool = 0;
                 Water = WATERSTATE_FRENZY;
 
@@ -163,7 +163,7 @@ class instance_serpent_shrine : public InstanceMapScript
                                     //spawn frenzy
                                     if (DoSpawnFrenzy)
                                     {
-                                        if (Creature* frenzy = player->SummonCreature(NPC_COILFANG_FRENZY, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2000))
+                                        if (Creature* frenzy = player->SummonCreature(NPC_COILFANG_FRENZY, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2000ms))
                                         {
                                             frenzy->Attack(player, false);
                                             frenzy->SetSwim(true);
@@ -247,7 +247,7 @@ class instance_serpent_shrine : public InstanceMapScript
                 }
             }
 
-            void SetData64(uint32 type, uint64 data) override
+            void SetGuidData(uint32 type, ObjectGuid data) override
             {
                 if (type == DATA_KARATHRESSEVENT_STARTER)
                     KarathressEvent_Starter = data;
@@ -255,7 +255,7 @@ class instance_serpent_shrine : public InstanceMapScript
                     LeotherasEventStarter = data;
             }
 
-            uint64 GetData64(uint32 identifier) const override
+            ObjectGuid GetGuidData(uint32 identifier) const override
             {
                 switch (identifier)
                 {
@@ -280,7 +280,7 @@ class instance_serpent_shrine : public InstanceMapScript
                     default:
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void SetData(uint32 type, uint32 data) override
@@ -297,7 +297,7 @@ class instance_serpent_shrine : public InstanceMapScript
                             HandleGameObject(BridgePart[1], true);
                             HandleGameObject(BridgePart[2], true);
                         }
-                        ControlConsole = data;
+                        ControlConsole = ObjectGuid(uint64(data));
                         break;
                     case DATA_TRASH:
                         if (data == 1 && TrashCount < MIN_KILLS)
@@ -424,18 +424,18 @@ class instance_serpent_shrine : public InstanceMapScript
             }
 
         private:
-            uint64 LurkerBelow;
-            uint64 Sharkkis;
-            uint64 Tidalvess;
-            uint64 Caribdis;
-            uint64 LadyVashj;
-            uint64 Karathress;
-            uint64 KarathressEvent_Starter;
-            uint64 LeotherasTheBlind;
-            uint64 LeotherasEventStarter;
+            ObjectGuid LurkerBelow;
+            ObjectGuid Sharkkis;
+            ObjectGuid Tidalvess;
+            ObjectGuid Caribdis;
+            ObjectGuid LadyVashj;
+            ObjectGuid Karathress;
+            ObjectGuid KarathressEvent_Starter;
+            ObjectGuid LeotherasTheBlind;
+            ObjectGuid LeotherasEventStarter;
 
-            uint64 ControlConsole;
-            uint64 BridgePart[3];
+            ObjectGuid ControlConsole;
+            ObjectGuid BridgePart[3];
             uint32 StrangePool;
             uint32 FishingTimer;
             uint32 WaterCheckTimer;

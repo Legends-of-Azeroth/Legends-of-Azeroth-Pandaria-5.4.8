@@ -19,6 +19,7 @@
 #include "Vehicle.h"
 #include "AchievementMgr.h"
 #include "CombatAI.h"
+#include "Random.h"
 
 enum Spells
 {
@@ -82,7 +83,7 @@ class npc_garr : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_MAGMA_SHACKLES, 30000);
                 events.ScheduleEvent(EVENT_MASSIVE_ERUPTION, 32000);
@@ -159,7 +160,7 @@ class npc_garr_firesworn : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_IMMOLATE, urand(5000, 7000));
             }
@@ -238,8 +239,8 @@ class npc_marion_wormswing : public CreatureScript
                     if (Player* owner = attacker->GetCharmerOrOwnerPlayerOrPlayerItself())
                         if (owner->GetQuestStatus(25731) == QUEST_STATUS_INCOMPLETE)
                         {
-                            owner->KilledMonsterCredit(41169, 0);
-                            owner->KilledMonsterCredit(41170, 0);
+                            owner->KilledMonsterCredit(41169, ObjectGuid::Empty);
+                            owner->KilledMonsterCredit(41170, ObjectGuid::Empty);
                         }
                     me->SetFaction(35);
                     me->DespawnOrUnsummon(5000);
@@ -261,7 +262,7 @@ class npc_marion_wormswing : public CreatureScript
         bool OnGossipHello(Player* player, GameObject* go) override
         {
             if (!go->FindNearestCreature(41112, 100.0f) && player->GetQuestStatus(25731) == QUEST_STATUS_INCOMPLETE)
-                go->SummonCreature(41112, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 60000);
+                go->SummonCreature(41112, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 60000ms);
             return false;
         }
 }; */
@@ -281,9 +282,9 @@ class npc_soft_target : public CreatureScript
     public:
         npc_soft_target() : CreatureScript("npc_soft_target") { }
 
-        struct npc_soft_targetAI : public CreatureAI
+        struct npc_soft_targetAI : public ScriptedAI
         {
-            npc_soft_targetAI(Creature* creature) : CreatureAI(creature)
+            npc_soft_targetAI(Creature* creature) : ScriptedAI(creature)
             {
                 timer = 0;
                 clearTimer = 0;
@@ -354,9 +355,9 @@ class npc_angry_little_squirrel : public CreatureScript
     public:
         npc_angry_little_squirrel() : CreatureScript("npc_angry_little_squirrel") { }
 
-        struct npc_angry_little_squirrelAI : public CreatureAI
+        struct npc_angry_little_squirrelAI : public ScriptedAI
         {
-            npc_angry_little_squirrelAI(Creature* creature) : CreatureAI(creature), timer(0) { }
+            npc_angry_little_squirrelAI(Creature* creature) : ScriptedAI(creature), timer(0) { }
 
             void UpdateAI(uint32 diff) override
             {
@@ -372,8 +373,8 @@ class npc_angry_little_squirrel : public CreatureScript
                     for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
                         if (Player* player = *itr)
                             if (player->IsInCombat())
-                                for (HostileRefManager::iterator itr2 = player->getHostileRefManager().begin(); itr2 != player->getHostileRefManager().end(); ++itr2)
-                                    if (Unit* enemy = itr2->GetSource()->GetOwner())
+                                for (auto const& threatEntry : player->GetThreatManager().GetThreatenedByMeList())
+                                    if (Unit* enemy = threatEntry.second->GetOwner())
                                         if (enemy->GetTypeId() == TYPEID_UNIT && me->IsValidAttackTarget(enemy))
                                             enemies.push_back(enemy);
 
@@ -477,7 +478,7 @@ class npc_flamewaker_sentinel : public CreatureScript
                                 if (Unit* bunny = GetClosestCreatureWithEntry(me, NPC_WAVE_GENESIS_BUNNY, 50.0f))
                                 {
                                     float x, y, z;
-                                    bunny->GetNearPoint(me, x, y, z, 0, 2.5f, bunny->GetAngle(me));
+                                    bunny->GetNearPoint(me, x, y, z, 2.5f, bunny->GetAngle(me));
                                     z += 5;
                                     me->UpdateAllowedPositionZ(x, y, z);
                                     me->SetWalk(true);
@@ -553,11 +554,11 @@ class npc_morthis_whisperwing : public CreatureScript
                 return false;
 
             for (uint32 i = 0; i < 100; ++i)
-                player->KilledMonsterCredit(NPC_FLAMEWAKER_CENTURION, 0);
+                player->KilledMonsterCredit(NPC_FLAMEWAKER_CENTURION, ObjectGuid::Empty);
             for (uint32 i = 0; i < 40; ++i)
-                player->KilledMonsterCredit(NPC_CINDERWEB_MATRIARCH, 0);
+                player->KilledMonsterCredit(NPC_CINDERWEB_MATRIARCH, ObjectGuid::Empty);
             for (uint32 i = 0; i < 3; ++i)
-                player->KilledMonsterCredit(NPC_MOLTEN_LORD, 0);
+                player->KilledMonsterCredit(NPC_MOLTEN_LORD, ObjectGuid::Empty);
 
             player->CastSpell(player, SPELL_RAGEPYRE, true);
             player->CastSpell(player, SPELL_FLASHFIRE, true);
@@ -610,7 +611,7 @@ class npc_baron_geddon : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_INFERNO, 18000);
             }
@@ -714,9 +715,9 @@ const Position aronusFlyPath4[10] =
 };
 
 // Aronus 39140
-struct npc_hyjal_aronus : public CreatureAI
+struct npc_hyjal_aronus : public ScriptedAI
 {
-    npc_hyjal_aronus(Creature* creature) : CreatureAI(creature)
+    npc_hyjal_aronus(Creature* creature) : ScriptedAI(creature)
     {
         me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     }
@@ -731,19 +732,19 @@ struct npc_hyjal_aronus : public CreatureAI
 };
 
 // Aronus Ride 39128
-struct npc_hyjal_aronus_ride : public CreatureAI
+struct npc_hyjal_aronus_ride : public ScriptedAI
 {
-    npc_hyjal_aronus_ride(Creature* creature) : CreatureAI(creature) { }
+    npc_hyjal_aronus_ride(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
-    uint64 targetGUID;
+    ObjectGuid targetGUID;
     uint32 delay;
 
     void IsSummonedBy(Unit* summoner) override
     {
         targetGUID = summoner->GetGUID();
         me->OverrideInhabitType(INHABIT_AIR);
-        me->SetAnimationTier(UnitAnimationTier::Fly);
+        me->SetAnimTier(AnimTier::Fly);
         me->UpdateMovementFlags();
         me->SetSpeed(MOVE_FLIGHT, 2.5f);
         delay = 0;
@@ -879,7 +880,7 @@ class spell_sethrias_roost_squad_aura : public SpellScriptLoader
 
             PrepareAuraScript(spell_sethrias_roost_squad_aura_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 sethriasRoostSummonCreatures.clear();
                 for (uint32 i = 0; i < sizeof(sethriasRoostSummonSpells) / sizeof(sethriasRoostSummonSpells[0]); ++i)

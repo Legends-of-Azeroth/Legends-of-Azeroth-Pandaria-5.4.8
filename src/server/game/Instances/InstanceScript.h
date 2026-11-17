@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -23,11 +23,11 @@
 #include "ObjectMgr.h"
 #include "WorldStateBuilder.h"
 
-#define OUT_SAVE_INST_DATA             TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
-#define OUT_SAVE_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance %s (Map %d, Instance Id %d) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
-#define OUT_LOAD_INST_DATA(a)          TC_LOG_DEBUG("scripts", "Loading Instance Data for Instance %s (Map %d, Instance Id %d). Input is '%s'", instance->GetMapName(), instance->GetId(), instance->GetInstanceId(), a)
-#define OUT_LOAD_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Instance Data Load for Instance %s (Map %d, Instance Id: %d) is complete.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
-#define OUT_LOAD_INST_DATA_FAIL        TC_LOG_ERROR("scripts", "Unable to load Instance Data for Instance %s (Map %d, Instance Id: %d).", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#define OUT_SAVE_INST_DATA             TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance {} (Map {}, Instance Id {})", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#define OUT_SAVE_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance {} (Map {}, Instance Id {}) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#define OUT_LOAD_INST_DATA(a)          TC_LOG_DEBUG("scripts", "Loading Instance Data for Instance {} (Map {}, Instance Id {}). Input is '{}'", instance->GetMapName(), instance->GetId(), instance->GetInstanceId(), a)
+#define OUT_LOAD_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Instance Data Load for Instance {} (Map {}, Instance Id: {}) is complete.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#define OUT_LOAD_INST_DATA_FAIL        TC_LOG_ERROR("scripts", "Unable to load Instance Data for Instance {} (Map {}, Instance Id: {}).", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 
 class Map;
 class Unit;
@@ -157,6 +157,7 @@ typedef std::multimap<uint32 /*entry*/, DoorInfo> DoorInfoMap;
 typedef std::pair<DoorInfoMap::const_iterator, DoorInfoMap::const_iterator> DoorInfoMapBounds;
 
 typedef std::map<uint32 /*entry*/, MinionInfo> MinionInfoMap;
+typedef std::map<uint32 /*type*/, ObjectGuid /*guid*/> ObjectGuidMap;
 
 enum ChallengeMedals
 {
@@ -202,7 +203,7 @@ struct CriteriaProgressData
     {
         Id                = 0;
         Quantity          = 0;
-        InstanceGuid      = 0;
+        InstanceGuid      = ObjectGuid::Empty;
         Date              = 0;
         TimeFromStart     = 0;
         TimeFromCreate    = 0;
@@ -317,13 +318,13 @@ class InstanceScript : public ZoneScript
         //Handle open / close objects
         //use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
         //use HandleGameObject(GUID, boolen, NULL); in any other script
-        void HandleGameObject(uint64 guid, bool open, GameObject* go = NULL);
+        void HandleGameObject(ObjectGuid guid, bool open, GameObject* go = nullptr);
 
         //change active state of doors or buttons
-        void DoUseDoorOrButton(uint64 guid, uint32 withRestoreTime = 0, bool useAlternativeState = false);
+        void DoUseDoorOrButton(ObjectGuid guid, uint32 withRestoreTime = 0, bool useAlternativeState = false);
 
         //Respawns a GO having negative spawntimesecs in gameobject-table
-        void DoRespawnGameObject(uint64 guid, uint32 timeToDespawn = MINUTE);
+        void DoRespawnGameObject(ObjectGuid guid, uint32 timeToDespawn = MINUTE);
 
         //sends world state update to all players in instance
         void DoUpdateWorldState(uint32 worldstateId, uint32 worldstateValue);
@@ -369,7 +370,7 @@ class InstanceScript : public ZoneScript
 
         void DoStartMovie(uint32 movieId);
 
-        void DoKilledMonsterKredit(uint32 questId, uint32 entry, uint64 guid = 0);
+        void DoKilledMonsterKredit(uint32 questId, uint32 entry, ObjectGuid guid = ObjectGuid::Empty);
 
         void DoFinishLFGDungeon(uint32 dungeonId);
 
@@ -386,6 +387,8 @@ class InstanceScript : public ZoneScript
 
         // Checks boss requirements (one boss required to kill other)
         virtual bool CheckRequiredBosses(uint32 /*bossId*/, Player const* /*player*/ = NULL) const { return true; }
+
+        bool _SkipCheckRequiredBosses(Player const* player = NULL) const;
 
         // Checks encounter state at kill/spellcast
         void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source);
@@ -424,12 +427,13 @@ class InstanceScript : public ZoneScript
         bool CanUseResurrection();
         void ResetResurrectionsCount() { resurrections = 0; }
 
-        ObjectGuid GetGUID() const { return instanceGuid; }
+        ObjectGuid GetObjectGuid(uint32 type) const;
+        virtual ObjectGuid GetGuidData(uint32 type) const override;
 
         // Scenarios
         void SendScenarioState(ScenarioData data, Player* player = nullptr);
         void SendScenarioProgressUpdate(CriteriaProgressData data, Player* player = nullptr);
-        void SetScenarioId(uint32 newScenarioId) { scenarioId = newScenarioId; scenarioGuid = MAKE_NEW_GUID(scenarioId, instance->GetInstanceId(), HIGHGUID_SCENARIO); } // used only for 5ppl dungeons
+        void SetScenarioId(uint32 newScenarioId) { scenarioId = newScenarioId; scenarioGuid = ObjectGuid::Create<HighGuid::Scenario>(instance->GetInstanceId(), scenarioId); } // used only for 5ppl dungeons
         uint32 GetScenarioId() const { return scenarioId; }
         uint8 GetcurrentScenarioStep() const { return scenarioStep; }
         ObjectGuid GetScenarioGUID() const { return scenarioGuid; }
@@ -458,10 +462,10 @@ class InstanceScript : public ZoneScript
         uint32 GetBeginingTime() const { return beginningTime; }
         uint32 GetChallengeTime() const { return challengeTime; }
 
-        void GameObjectRemoved(GameObject* go);
+        void GameObjectRemoved(GameObject* go) override;
 
-        void UpdateDynamicHealth(uint64 single = 0);
-        void AddFlexCreature(uint64 guid) { flexCreatures.push_back(guid); }
+        void UpdateDynamicHealth(ObjectGuid single = ObjectGuid::Empty);
+        void AddFlexCreature(ObjectGuid guid) { flexCreatures.push_back(guid); }
 
     protected:
         void SetBossNumber(uint32 number);
@@ -481,10 +485,11 @@ class InstanceScript : public ZoneScript
     private:
         std::vector<BossInfo> bosses;
         std::vector<ScenarioBosses> bossesScenarios;
-        std::vector<uint64> dampenedGUIDs;
-        std::vector<uint64> flexCreatures;
+        std::vector<ObjectGuid> dampenedGUIDs;
+        std::vector<ObjectGuid> flexCreatures;
         DoorInfoMap doors;
         MinionInfoMap minions;
+        ObjectGuidMap _objectGuids;
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
         uint8 resurrections;
         uint8 determinationCount;
@@ -492,7 +497,6 @@ class InstanceScript : public ZoneScript
         ObjectGuid scenarioGuid;
         uint32 scenarioId;
 
-        ObjectGuid instanceGuid;
         std::vector<ObjectGuid> challengeDoorGuids;
         uint32 startChallengeTime;
         uint32 challengeTime;
@@ -509,15 +513,26 @@ class InstanceScript : public ZoneScript
         time_t startFightTime;
 };
 
-template<class AI, class T>
+TC_GAME_API bool InstanceHasScript(WorldObject const* obj, char const* scriptName);
+
+template <class AI, class T>
 AI* GetInstanceAI(T* obj, char const* scriptName)
 {
-    if (InstanceMap* instance = obj->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(scriptName))
-                return new AI(obj);
+    if (InstanceHasScript(obj, scriptName))
+        return new AI(obj);
 
-    return NULL;
+    return nullptr;
 }
+
+// template<class AI, class T>
+// AI* GetInstanceAI(T* obj, char const* scriptName)
+// {
+//     if (InstanceMap* instance = obj->GetMap()->ToInstanceMap())
+//         if (instance->GetInstanceScript())
+//             if (instance->GetScriptId() == sObjectMgr->GetScriptId(scriptName))
+//                 return new AI(obj);
+
+//     return NULL;
+// }
 
 #endif // TRINITY_INSTANCE_DATA_H

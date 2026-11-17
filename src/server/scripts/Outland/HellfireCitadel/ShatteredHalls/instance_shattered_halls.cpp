@@ -50,7 +50,7 @@ class instance_shattered_halls : public InstanceMapScript
             {
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                nethekurseGUID      = 0;
+                nethekurseGUID = ObjectGuid::Empty;
                 teamInInstance      = 0;
             }
 
@@ -105,12 +105,12 @@ class instance_shattered_halls : public InstanceMapScript
                 return true;
             }
 
-            uint64 GetData64(uint32 data) const override
+            ObjectGuid GetGuidData(uint32 data) const override
             {
                 if (data == NPC_GRAND_WARLOCK_NETHEKURSE)
                     return nethekurseGUID;
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData() override
@@ -157,7 +157,7 @@ class instance_shattered_halls : public InstanceMapScript
             }
 
             protected:
-                uint64 nethekurseGUID;
+                ObjectGuid nethekurseGUID;
                 uint32 teamInInstance;
         };
 };

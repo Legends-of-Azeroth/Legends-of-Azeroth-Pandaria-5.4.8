@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -167,15 +167,15 @@ const std::vector<uint32> protectorsEntry=
     NPC_ANCIENT_REGAIL
 };
 
-bool ProtectorsInCombat(uint32 entry, uint64 casterGUID)
+bool ProtectorsInCombat(Unit* me, uint32 entry, ObjectGuid casterGUID)
 {
     for (auto&& itr : protectorsEntry)
     {
         if (itr == entry)
             continue;
 
-        if (Unit* caster = ObjectAccessor::FindUnit(casterGUID))
-            if (Creature* protector = ObjectAccessor::GetCreature(*caster, caster->GetInstanceScript() ? caster->GetInstanceScript()->GetData64(entry) : 0))
+        if (Unit* caster = ObjectAccessor::GetUnit(*me, casterGUID))
+            if (Creature* protector = ObjectAccessor::GetCreature(*caster, caster->GetInstanceScript() ? caster->GetInstanceScript()->GetGuidData(entry) : ObjectGuid::Empty))
                 if (!protector->IsInCombat() && protector->IsAlive())
                     return false;
     }
@@ -188,21 +188,21 @@ void RespawnProtectors(InstanceScript* instance, Creature* me)
     if (!instance || !me)
         return;
 
-    Creature* asani = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_ASANI));
+    Creature* asani = instance->instance->GetCreature(instance->GetGuidData(NPC_ANCIENT_ASANI));
     if (asani)
     {
         asani->Respawn();
         asani->GetMotionMaster()->MoveTargetedHome();
     }
 
-    Creature* regail = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_REGAIL));
+    Creature* regail = instance->instance->GetCreature(instance->GetGuidData(NPC_ANCIENT_REGAIL));
     if (regail)
     {
         regail->Respawn();
         regail->GetMotionMaster()->MoveTargetedHome();
     }
 
-    Creature* kaolan = instance->instance->GetCreature(instance->GetData64(NPC_PROTECTOR_KAOLAN));
+    Creature* kaolan = instance->instance->GetCreature(instance->GetGuidData(NPC_PROTECTOR_KAOLAN));
     if (kaolan)
     {
         kaolan->Respawn();
@@ -220,15 +220,15 @@ void StartProtectors(InstanceScript* instance, Creature* /*me*/, Unit* /*target*
 
     instance->SetBossState(DATA_PROTECTORS, IN_PROGRESS);
 
-    Creature* asani = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_ASANI));
+    Creature* asani = instance->instance->GetCreature(instance->GetGuidData(NPC_ANCIENT_ASANI));
     if (asani)
         asani->SetInCombatWithZone();
 
-    Creature* regail = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_REGAIL));
+    Creature* regail = instance->instance->GetCreature(instance->GetGuidData(NPC_ANCIENT_REGAIL));
     if (regail)
         regail->SetInCombatWithZone();
 
-    Creature* kaolan = instance->instance->GetCreature(instance->GetData64(NPC_PROTECTOR_KAOLAN));
+    Creature* kaolan = instance->instance->GetCreature(instance->GetGuidData(NPC_PROTECTOR_KAOLAN));
     if (kaolan)
         kaolan->SetInCombatWithZone();
 }
@@ -303,15 +303,15 @@ struct boss_protector_base : public BossAI
         if (!instance)
             return count;
 
-        Creature* asani = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_ASANI));
+        Creature* asani = instance->instance->GetCreature(instance->GetGuidData(NPC_ANCIENT_ASANI));
         if (asani && asani->IsAlive())
             ++count;
 
-        Creature* regail = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_REGAIL));
+        Creature* regail = instance->instance->GetCreature(instance->GetGuidData(NPC_ANCIENT_REGAIL));
         if (regail && regail->IsAlive())
             ++count;
 
-        Creature* kaolan = instance->instance->GetCreature(instance->GetData64(NPC_PROTECTOR_KAOLAN));
+        Creature* kaolan = instance->instance->GetCreature(instance->GetGuidData(NPC_PROTECTOR_KAOLAN));
         if (kaolan && kaolan->IsAlive())
             ++count;
 
@@ -342,7 +342,7 @@ struct boss_protector_base : public BossAI
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CORRUPTED_ESSENCE);
         _JustDied();
 
-        if (Creature* minionController = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_MINION_OF_FEAR_CONTROLLER)))
+        if (Creature* minionController = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_MINION_OF_FEAR_CONTROLLER)))
             minionController->AI()->DoAction(ACTION_RESET_MINION_CONTROLLER);
     }
 };
@@ -391,7 +391,7 @@ class boss_ancient_regail : public CreatureScript
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CORRUPTED_ESSENCE);
                     instance->DoRemoveBloodLustDebuffSpellOnPlayers();
 
-                    if (Creature* minionController = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_MINION_OF_FEAR_CONTROLLER)))
+                    if (Creature* minionController = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_MINION_OF_FEAR_CONTROLLER)))
                         minionController->AI()->DoAction(ACTION_RESET_MINION_CONTROLLER);
 
                     RespawnProtectors(instance, me);
@@ -414,7 +414,7 @@ class boss_ancient_regail : public CreatureScript
                     instance->SetBossState(DATA_PROTECTORS, FAIL);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (instance)
                 {
@@ -424,7 +424,7 @@ class boss_ancient_regail : public CreatureScript
                     Talk(TALK_REGAIL_AGGRO);
 
                     if (IsHeroic())
-                        if (Creature* minionController = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_MINION_OF_FEAR_CONTROLLER)))
+                        if (Creature* minionController = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_MINION_OF_FEAR_CONTROLLER)))
                             minionController->AI()->DoAction(ACTION_INIT_MINION_CONTROLLER);
 
                     events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 2000);
@@ -472,8 +472,8 @@ class boss_ancient_regail : public CreatureScript
                 {
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
-                    Creature* asani = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_ASANI));
-                    Creature* kaolan = instance->instance->GetCreature(instance->GetData64(NPC_PROTECTOR_KAOLAN));
+                    Creature* asani = instance->instance->GetCreature(instance->GetGuidData(NPC_ANCIENT_ASANI));
+                    Creature* kaolan = instance->instance->GetCreature(instance->GetGuidData(NPC_PROTECTOR_KAOLAN));
 
                     switch (AliveProtectorsNumber())
                     {
@@ -555,9 +555,9 @@ class boss_ancient_regail : public CreatureScript
                         me->SetFacingTo(ENTRANCE_ORIENTATION);
                         me->SetReactState(REACT_AGGRESSIVE);
 
-                        if (GameObject* vortex = instance->instance->GetGameObject(instance->GetData64(GO_COUNCILS_VORTEX)))
+                        if (GameObject* vortex = instance->instance->GetGameObject(instance->GetGuidData(GO_COUNCILS_VORTEX)))
                             vortex->SetGoState(GO_STATE_ACTIVE);
-                        if (GameObject* wall = instance->instance->GetGameObject(instance->GetData64(GO_WALL_OF_COUNCILS_VORTEX)))
+                        if (GameObject* wall = instance->instance->GetGameObject(instance->GetGuidData(GO_WALL_OF_COUNCILS_VORTEX)))
                             wall->SetGoState(GO_STATE_ACTIVE);
 
                         break;
@@ -576,13 +576,13 @@ class boss_ancient_regail : public CreatureScript
                     me->SetReactState(REACT_PASSIVE);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_LOOTING);
 
-                    if (GameObject* vortex = instance->instance->GetGameObject(instance->GetData64(GO_COUNCILS_VORTEX)))
+                    if (GameObject* vortex = instance->instance->GetGameObject(instance->GetGuidData(GO_COUNCILS_VORTEX)))
                     {
                         me->SetFacingToObject(vortex);
                         vortex->SetGoState(GO_STATE_READY);
                     }
 
-                    if (GameObject* wall = instance->instance->GetGameObject(instance->GetData64(GO_WALL_OF_COUNCILS_VORTEX)))
+                    if (GameObject* wall = instance->instance->GetGameObject(instance->GetGuidData(GO_WALL_OF_COUNCILS_VORTEX)))
                         wall->SetGoState(GO_STATE_READY);
                 }
 
@@ -592,7 +592,7 @@ class boss_ancient_regail : public CreatureScript
                 events.Update(diff);
 
                 // Misdirection exploit
-                if (CombatDelayDone && !ProtectorsInCombat(me->GetEntry(), me->GetGUID()))
+                if (CombatDelayDone && !ProtectorsInCombat(me, me->GetEntry(), me->GetGUID()))
                     EnterEvadeMode();
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -743,7 +743,7 @@ class boss_ancient_asani : public CreatureScript
                     me->GetMotionMaster()->MoveChase(vict);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (instance)
                 {
@@ -797,8 +797,8 @@ class boss_ancient_asani : public CreatureScript
                 {
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
-                    Creature* regail = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_REGAIL));
-                    Creature* kaolan = instance->instance->GetCreature(instance->GetData64(NPC_PROTECTOR_KAOLAN));
+                    Creature* regail = instance->instance->GetCreature(instance->GetGuidData(NPC_ANCIENT_REGAIL));
+                    Creature* kaolan = instance->instance->GetCreature(instance->GetGuidData(NPC_PROTECTOR_KAOLAN));
 
                     switch (AliveProtectorsNumber())
                     {
@@ -882,9 +882,9 @@ class boss_ancient_asani : public CreatureScript
                         me->SetFacingTo(ENTRANCE_ORIENTATION);
                         me->SetReactState(REACT_AGGRESSIVE);
 
-                        if (GameObject* vortex = instance->instance->GetGameObject(instance->GetData64(GO_COUNCILS_VORTEX)))
+                        if (GameObject* vortex = instance->instance->GetGameObject(instance->GetGuidData(GO_COUNCILS_VORTEX)))
                             vortex->SetGoState(GO_STATE_ACTIVE);
-                        if (GameObject* wall = instance->instance->GetGameObject(instance->GetData64(GO_WALL_OF_COUNCILS_VORTEX)))
+                        if (GameObject* wall = instance->instance->GetGameObject(instance->GetGuidData(GO_WALL_OF_COUNCILS_VORTEX)))
                             wall->SetGoState(GO_STATE_ACTIVE);
 
                         break;
@@ -903,13 +903,13 @@ class boss_ancient_asani : public CreatureScript
                     me->SetReactState(REACT_PASSIVE);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_LOOTING);
 
-                    if (GameObject* vortex = instance->instance->GetGameObject(instance->GetData64(GO_COUNCILS_VORTEX)))
+                    if (GameObject* vortex = instance->instance->GetGameObject(instance->GetGuidData(GO_COUNCILS_VORTEX)))
                     {
                         me->SetFacingToObject(vortex);
                         vortex->SetGoState(GO_STATE_READY);
                     }
 
-                    if (GameObject* wall = instance->instance->GetGameObject(instance->GetData64(GO_WALL_OF_COUNCILS_VORTEX)))
+                    if (GameObject* wall = instance->instance->GetGameObject(instance->GetGuidData(GO_WALL_OF_COUNCILS_VORTEX)))
                         wall->SetGoState(GO_STATE_READY);
                 }
 
@@ -917,7 +917,7 @@ class boss_ancient_asani : public CreatureScript
                     return;
 
                 // Misdirection exploit
-                if (CombatDelayDone && !ProtectorsInCombat(me->GetEntry(), me->GetGUID()))
+                if (CombatDelayDone && !ProtectorsInCombat(me, me->GetEntry(), me->GetGUID()))
                     EnterEvadeMode();
 
                 events.Update(diff);
@@ -985,7 +985,7 @@ class boss_ancient_asani : public CreatureScript
             }
 
             private:
-                uint64 GetLowestFriendlyGUID()
+                ObjectGuid GetLowestFriendlyGUID()
                 {
                     std::list<Creature*> tmpTargets;
 
@@ -995,14 +995,14 @@ class boss_ancient_asani : public CreatureScript
                     tmpTargets.remove_if([=](Creature* target) { return !target->IsAlive(); });
 
                     if (tmpTargets.empty())
-                        return 0;
+                        return ObjectGuid::Empty;
 
                     tmpTargets.sort(Trinity::HealthPctOrderPred());
 
                     if (Creature* lowestTarget = tmpTargets.front())
                         return lowestTarget->GetGUID();
 
-                    return 0;
+                    return ObjectGuid::Empty;
                 }
 
                 bool HandleRescheduleEventsIfCastAny(uint32 eventId)
@@ -1079,7 +1079,7 @@ class boss_protector_kaolan : public CreatureScript
                     instance->SetBossState(DATA_PROTECTORS, FAIL);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (instance)
                 {
@@ -1133,8 +1133,8 @@ class boss_protector_kaolan : public CreatureScript
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_SHA);
 
-                    Creature* regail = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_REGAIL));
-                    Creature* asani = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_ASANI));
+                    Creature* regail = instance->instance->GetCreature(instance->GetGuidData(NPC_ANCIENT_REGAIL));
+                    Creature* asani = instance->instance->GetCreature(instance->GetGuidData(NPC_ANCIENT_ASANI));
 
                     switch (AliveProtectorsNumber())
                     {
@@ -1216,9 +1216,9 @@ class boss_protector_kaolan : public CreatureScript
                         me->SetFacingTo(ENTRANCE_ORIENTATION);
                         me->SetReactState(REACT_AGGRESSIVE);
 
-                        if (GameObject* vortex = instance->instance->GetGameObject(instance->GetData64(GO_COUNCILS_VORTEX)))
+                        if (GameObject* vortex = instance->instance->GetGameObject(instance->GetGuidData(GO_COUNCILS_VORTEX)))
                             vortex->SetGoState(GO_STATE_ACTIVE);
-                        if (GameObject* wall = instance->instance->GetGameObject(instance->GetData64(GO_WALL_OF_COUNCILS_VORTEX)))
+                        if (GameObject* wall = instance->instance->GetGameObject(instance->GetGuidData(GO_WALL_OF_COUNCILS_VORTEX)))
                             wall->SetGoState(GO_STATE_ACTIVE);
 
                         break;
@@ -1237,13 +1237,13 @@ class boss_protector_kaolan : public CreatureScript
                     me->SetReactState(REACT_PASSIVE);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_LOOTING);
 
-                    if (GameObject* vortex = instance->instance->GetGameObject(instance->GetData64(GO_COUNCILS_VORTEX)))
+                    if (GameObject* vortex = instance->instance->GetGameObject(instance->GetGuidData(GO_COUNCILS_VORTEX)))
                     {
                         me->SetFacingToObject(vortex);
                         vortex->SetGoState(GO_STATE_READY);
                     }
 
-                    if (GameObject* wall = instance->instance->GetGameObject(instance->GetData64(GO_WALL_OF_COUNCILS_VORTEX)))
+                    if (GameObject* wall = instance->instance->GetGameObject(instance->GetGuidData(GO_WALL_OF_COUNCILS_VORTEX)))
                         wall->SetGoState(GO_STATE_READY);
                 }
 
@@ -1251,7 +1251,7 @@ class boss_protector_kaolan : public CreatureScript
                     return;
 
                 // Misdirection exploit
-                if (CombatDelayDone && !ProtectorsInCombat(me->GetEntry(), me->GetGUID()))
+                if (CombatDelayDone && !ProtectorsInCombat(me, me->GetEntry(), me->GetGUID()))
                     EnterEvadeMode();
 
                 events.Update(diff);
@@ -1443,7 +1443,7 @@ class npc_minion_of_fear : public CreatureScript
             npc_minion_of_fearAI(Creature* creature) : ScriptedAI(creature) { }
 
             InstanceScript* instance;
-            uint64 protectorTargetedGuid;
+            ObjectGuid protectorTargetedGuid;
             uint32 wp;
             Creature* target;
             std::list<Creature*> targets;
@@ -1452,7 +1452,7 @@ class npc_minion_of_fear : public CreatureScript
             void InitializeAI() override
             {
                 instance = me->GetInstanceScript();
-                protectorTargetedGuid = 0;
+                protectorTargetedGuid = ObjectGuid::Empty;
                 wp = 0;
                 me->SetReactState(REACT_PASSIVE);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
@@ -1464,13 +1464,13 @@ class npc_minion_of_fear : public CreatureScript
             {
                 if (instance && !protectorTargetedGuid)
                 {
-                    if (Creature* asani = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_ASANI)))
+                    if (Creature* asani = instance->instance->GetCreature(instance->GetGuidData(NPC_ANCIENT_ASANI)))
                         if (asani->IsAlive())
                             targets.push_back(asani);
-                    if (Creature* kaolan = instance->instance->GetCreature(instance->GetData64(NPC_PROTECTOR_KAOLAN)))
+                    if (Creature* kaolan = instance->instance->GetCreature(instance->GetGuidData(NPC_PROTECTOR_KAOLAN)))
                         if (kaolan->IsAlive())
                             targets.push_back(kaolan);
-                    if (Creature* regail = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_REGAIL)))
+                    if (Creature* regail = instance->instance->GetCreature(instance->GetGuidData(NPC_ANCIENT_REGAIL)))
                         if (regail->IsAlive())
                             targets.push_back(regail);
 
@@ -1544,7 +1544,7 @@ class npc_minion_of_fear : public CreatureScript
                             me->AddAura(SPELL_SUPERIOR_CORRUPTED_ESSENCE, protector);
 
                         me->DespawnOrUnsummon(50);
-                        protectorTargetedGuid = 0;
+                        protectorTargetedGuid = ObjectGuid::Empty;
                     }
 
                     if (target)
@@ -1618,8 +1618,7 @@ class npc_minion_of_fear_controller : public CreatureScript
                 {
                     if (eventId == EVENT_SPAWN_MINION_OF_FEAR)
                     {
-                        Position pos;
-                        me->GetPosition(&pos);
+                        Position pos = me->GetPosition();
 
                         me->SummonCreature(NPC_MINION_OF_FEAR, pos);
                         events.ScheduleEvent(EVENT_SPAWN_MINION_OF_FEAR, 15000);

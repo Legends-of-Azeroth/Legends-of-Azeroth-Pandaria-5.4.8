@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -78,9 +78,9 @@ class boss_drakos : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
             }
 
@@ -100,12 +100,11 @@ class boss_drakos : public CreatureScript
                     {
                         case EVENT_BOMB_SUMMON:
                             {
-                                Position position;
-                                me->GetPosition(&position);
+                                Position position = me->GetPosition();
 
                                 for (uint8 i = 0; i <= (postPull ? 3 : 0); i++)
                                 {
-                                    me->GetRandomNearPosition(position, frand(0.0f, 10.0f));
+                                    position = me->GetRandomNearPosition(frand(0.0f, 10.0f));
                                     me->SummonCreature(NPC_UNSTABLE_SPHERE, position);
                                 }
                             }

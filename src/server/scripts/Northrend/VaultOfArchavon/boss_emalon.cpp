@@ -85,7 +85,7 @@ class boss_emalon : public CreatureScript
                 _Reset();
 
                 for (uint8 i = 0; i < MAX_TEMPEST_MINIONS; ++i)
-                    me->SummonCreature(NPC_TEMPEST_MINION, TempestMinions[i], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    me->SummonCreature(NPC_TEMPEST_MINION, TempestMinions[i], TEMPSUMMON_CORPSE_DESPAWN, 0ms);
             }
 
             void JustSummoned(Creature* summoned) override
@@ -97,11 +97,11 @@ class boss_emalon : public CreatureScript
                     summoned->AI()->AttackStart(me->GetVictim());
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!summons.empty())
                 {
-                    for (std::list<uint64>::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
+                    for (std::list<ObjectGuid>::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
                     {
                         Creature* minion = Unit::GetCreature(*me, *itr);
                         if (minion && minion->IsAlive() && !minion->GetVictim() && minion->AI())
@@ -114,7 +114,7 @@ class boss_emalon : public CreatureScript
                 events.ScheduleEvent(EVENT_BERSERK, 360000);
                 events.ScheduleEvent(EVENT_OVERCHARGE, 45000);
 
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void UpdateAI(uint32 diff) override
@@ -195,22 +195,22 @@ class npc_tempest_minion : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* emalon = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EMALON) : 0))
+                if (Creature* emalon = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_EMALON) : ObjectGuid::Empty))
                 {
                     if (emalon->IsAlive())
                     {
-                        emalon->SummonCreature(NPC_TEMPEST_MINION, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        emalon->SummonCreature(NPC_TEMPEST_MINION, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
                         Talk(EMOTE_MINION_RESPAWN);
                     }
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 DoZoneInCombat();
                 events.ScheduleEvent(EVENT_SHOCK, 20000);
 
-                if (Creature* pEmalon = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EMALON) : 0))
+                if (Creature* pEmalon = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_EMALON) : ObjectGuid::Empty))
                 {
                     if (!pEmalon->GetVictim() && pEmalon->AI())
                         pEmalon->AI()->AttackStart(who);

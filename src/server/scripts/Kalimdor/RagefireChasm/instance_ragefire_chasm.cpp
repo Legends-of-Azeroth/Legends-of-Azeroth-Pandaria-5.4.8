@@ -35,19 +35,19 @@ class instance_ragefire_chasm : public InstanceMapScript
         {
             instance_ragefire_chasm_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
-            uint64 AdaroggGUID;
-            uint64 CoranthalGUID;
-            uint64 SlagmawGUID;
-            uint64 GordothGUID;
+            ObjectGuid AdaroggGUID;
+            ObjectGuid CoranthalGUID;
+            ObjectGuid SlagmawGUID;
+            ObjectGuid GordothGUID;
 
             void Initialize() override
             {
                 SetBossNumber(TOTAL_ENCOUNTERS);
 
-                AdaroggGUID   = 0;
-                CoranthalGUID = 0;
-                SlagmawGUID   = 0;
-                GordothGUID   = 0;
+                AdaroggGUID = ObjectGuid::Empty;
+                CoranthalGUID = ObjectGuid::Empty;
+                SlagmawGUID = ObjectGuid::Empty;
+                GordothGUID = ObjectGuid::Empty;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -69,7 +69,7 @@ class instance_ragefire_chasm : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -83,7 +83,7 @@ class instance_ragefire_chasm : public InstanceMapScript
                         return GordothGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData() override

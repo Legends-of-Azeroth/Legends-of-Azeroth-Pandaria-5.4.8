@@ -36,8 +36,6 @@ struct LfgProposal;
 class Queuer
 {
 public:
-    using guid_t = uint64;
-
     enum class Compatibility : uint8
     {
         OK,
@@ -46,19 +44,19 @@ public:
         HasIgnores,
     };
 
-    Queuer() : m_guid(0), m_queueId(0) { }
-    Queuer(guid_t guid, uint32 queueId) : m_guid(guid), m_queueId(queueId) { }
+    Queuer() : m_queueId(0) { }
+    Queuer(ObjectGuid guid, uint32 queueId) : m_guid(guid), m_queueId(queueId) { }
 
-    guid_t GetGUID() const { return m_guid; }
+    ObjectGuid GetGUID() const { return m_guid; }
     uint32 GetQeueueId() const { return m_queueId; }
 
-    bool IsGroup() const { return IS_GROUP_GUID(GetGUID()); }
+    bool IsGroup() const { return GetGUID().IsGroup(); }
     bool IsPlayer() const { return !IsGroup(); }
     bool IsLFGGroup() const;
     uint32 GetPlayersCount() const;
 
     LfgGuidSet const& GetGroupPlayers() const;
-    bool Contains(guid_t playerGUID) const;
+    bool Contains(ObjectGuid playerGUID) const;
 
     Compatibility CheckCompatibilityWith(Queuer const& other, DungeonQueue* queue) const;
 
@@ -68,7 +66,7 @@ public:
     bool operator==(Queuer const& other) const { return m_guid == other.m_guid && m_queueId == other.m_queueId; }
 
 private:
-    guid_t m_guid;
+    ObjectGuid m_guid;
     uint32 m_queueId;
 };
 
@@ -77,7 +75,7 @@ class Bucket
 public:
     using RoleContainer = std::vector<Queuer>;
     using QueuerContainer = std::vector<Queuer>; // Not a set because we want to preserve order
-    using QueuerRoleMap = std::map<Queuer::guid_t, LfgRoles>;
+    using QueuerRoleMap = std::map<ObjectGuid, LfgRoles>;
 
     Bucket(DungeonQueue* queue);
 
@@ -138,7 +136,7 @@ private:
     DungeonQueue* m_queue;
 
     bool CanAdd(Queuer const& queuer, LfgRolesMap& assignedRoles) const;
-    void Add(LfgRoles role, Queuer const& queuer, Queuer::guid_t playerGUID)
+    void Add(LfgRoles role, Queuer const& queuer, ObjectGuid playerGUID)
     {
         if (role == PLAYER_ROLE_TANK) m_tanks.push_back(queuer);
         else if (role == PLAYER_ROLE_HEALER) m_healers.push_back(queuer);
@@ -253,7 +251,7 @@ public:
     using DungeonQueueMap = std::map<uint32, DungeonQueue>;
     struct QueuerData
     {
-        Queuer::guid_t GUID;
+        ObjectGuid GUID;
         uint32 QueueId;
         time_t JoinTime;
         LfgDungeonSet Dungeons;
@@ -261,9 +259,9 @@ public:
         LfgGuidSet Players;
         LfgGuidSet Ignores;
 
-        QueuerData(uint64 guid, uint32 queueId, time_t joinTime, LfgDungeonSet const& dungeons, LfgRolesMap const& roles);
+        QueuerData(ObjectGuid guid, uint32 queueId, time_t joinTime, LfgDungeonSet const& dungeons, LfgRolesMap const& roles);
     };
-    using QueuerDataMap = std::multimap<Queuer::guid_t, QueuerData>;
+    using QueuerDataMap = std::multimap<ObjectGuid, QueuerData>;
     using RandomSeed = std::random_device;
     using RandomGenerator = std::mt19937;
     enum class ProfilingType

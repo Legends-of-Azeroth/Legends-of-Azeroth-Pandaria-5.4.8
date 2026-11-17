@@ -57,7 +57,7 @@ class boss_ironaya : public CreatureScript
                 bHasCastedWstomp = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }
@@ -80,7 +80,7 @@ class boss_ironaya : public CreatureScript
                         target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
 
                     if (target)
-                        me->TauntApply(target);
+                        me->GetThreatManager().TauntUpdate();
 
                     //Shouldn't cast this agian
                     bHasCastedKnockaway = true;

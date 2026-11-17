@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -209,7 +209,7 @@ class boss_maloriak : public CreatureScript
                 instance->SetData(DATA_MALORIAK_ABERRATIONS, 18);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 instance->DoResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, ACHIEVEMENT_CRITERIA_CONDITION_NO_SPELL_HIT, SPELL_CLEAR_ACHIEVEMENT);
                 instance->DoResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, ACHIEVEMENT_CRITERIA_CONDITION_NO_SPELL_HIT, SPELL_CLEAR_ACHIEVEMENT);
@@ -557,11 +557,11 @@ class npc_maloriak_flash_freeze : public CreatureScript
         {
             npc_maloriak_flash_freezeAI(Creature* creature) : ScriptedAI(creature)
             {
-                trappedPlayer = 0;
+                trappedPlayer = ObjectGuid::Empty;
                 SetCombatMovement(false);
             }
 
-            uint64 trappedPlayer;
+            ObjectGuid trappedPlayer;
             uint32 existenceCheckTimer;
 
             void Reset() override
@@ -569,7 +569,7 @@ class npc_maloriak_flash_freeze : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void SetGUID(uint64 guid, int32 type) override
+            void SetGUID(ObjectGuid guid, int32 type) override
             {
                 if (type == DATA_TRAPPED_PLAYER)
                 {
@@ -582,7 +582,7 @@ class npc_maloriak_flash_freeze : public CreatureScript
             {
                 if (Player* player = ObjectAccessor::GetPlayer(*me, trappedPlayer))
                 {
-                    trappedPlayer = 0;
+                    trappedPlayer = ObjectGuid::Empty;
                     player->RemoveAurasDueToSpell(SPELL_FLASH_FREEZE);
                 }
                 DoCast(me, SPELL_SHATTER);
@@ -630,7 +630,7 @@ class npc_absolute_zero : public CreatureScript
                 creature->SetSpeed(MOVE_WALK, 0.5f);
             }
 
-            uint32 uiPauseTimer; //чтобы не срабатывало сразу при саммоне возле игрока
+            uint32 uiPauseTimer; //пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
             uint32 uiDespawnTimer;
             bool bCanExplode; 
 
@@ -702,9 +702,8 @@ class npc_magma_jet : public CreatureScript
                     return;
 
                 creOwner = summoner->ToCreature();
-                Position pos;
                 me->SetOrientation(creOwner->GetOrientation());
-                summoner->GetNearPosition(pos, summoner->GetObjectSize() / 2.0f, 0.0f);
+                Position pos = summoner->GetNearPosition(summoner->GetObjectSize() / 2.0f, 0.0f);
                 me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                 events.ScheduleEvent(EVENT_MAGMA_JETS_T, 200);
             }
@@ -715,10 +714,9 @@ class npc_magma_jet : public CreatureScript
 
                 if (events.ExecuteEvent() == EVENT_MAGMA_JETS_T)
                 {
-                    Position newPos;
-                    me->GetNearPosition(newPos, 5.5f, 0.0f);
+                    Position newPos = me->GetNearPosition(5.5f, 0.0f);
                     me->NearTeleportTo(newPos.GetPositionX(), newPos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-                    if (creOwner->GetDistance(me) >= 50.0f) // спавнить разломы на расстоянии до 50 от босса
+                    if (creOwner->GetDistance(me) >= 50.0f) // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ 50 пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
                         me->DespawnOrUnsummon();
                     else
                     {
@@ -823,7 +821,7 @@ class npc_prime_subject : public CreatureScript
                 DoCast(SPELL_GROWN_CATALYST);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 //events.ScheduleEvent(EVENT_FIXATE, 5000);
                 events.ScheduleEvent(EVENT_REND, 12000);
@@ -874,7 +872,7 @@ class npc_vile_swill : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_DARK_SLUDGE, urand(5000, 10000));
             }
@@ -919,8 +917,7 @@ class spell_maloriak_flash_freeze : public SpellScriptLoader
 
             void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                Position pos;
-                aurEff->GetBase()->GetOwner()->GetPosition(&pos);
+                Position pos = aurEff->GetBase()->GetOwner()->GetPosition();
                 if (!GetCaster())
                     return;
                 if (TempSummon* summon = GetCaster()->SummonCreature(NPC_FLASH_FREEZE, pos))

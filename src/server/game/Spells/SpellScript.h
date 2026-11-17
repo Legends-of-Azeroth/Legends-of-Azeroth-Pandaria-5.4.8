@@ -52,7 +52,7 @@ enum SpellScriptState
 #define SPELL_SCRIPT_STATE_END SPELL_SCRIPT_STATE_UNLOADING + 1
 
 // helper class from which SpellScript and SpellAura derive, use these classes instead
-class _SpellScript
+class TC_GAME_API _SpellScript
 {
     // internal use classes & functions
     // DO NOT OVERRIDE THESE IN SCRIPTS
@@ -60,7 +60,7 @@ class _SpellScript
         virtual bool _Validate(SpellInfo const* entry);
 
     public:
-        _SpellScript() : m_currentScriptState(SPELL_SCRIPT_STATE_NONE) { }
+        _SpellScript() : m_currentScriptState(SPELL_SCRIPT_STATE_NONE), m_scriptName(nullptr), m_scriptSpellId(0) { }
         virtual ~_SpellScript() { }
         virtual void _Register();
         virtual void _Unload();
@@ -68,7 +68,7 @@ class _SpellScript
         std::string const* _GetScriptName() const;
 
     protected:
-        class EffectHook
+        class TC_GAME_API EffectHook
         {
             public:
                 EffectHook(uint8 _effIndex);
@@ -82,7 +82,7 @@ class _SpellScript
                 uint8 effIndex;
         };
 
-        class EffectNameCheck
+        class TC_GAME_API EffectNameCheck
         {
             public:
                 EffectNameCheck(uint16 _effName) { effName = _effName; }
@@ -92,7 +92,7 @@ class _SpellScript
                 uint16 effName;
         };
 
-        class EffectAuraNameCheck
+        class TC_GAME_API EffectAuraNameCheck
         {
             public:
                 EffectAuraNameCheck(uint16 _effAurName) { effAurName = _effAurName; }
@@ -105,6 +105,7 @@ class _SpellScript
         uint8 m_currentScriptState;
         std::string const* m_scriptName;
         uint32 m_scriptSpellId;
+
     public:
         //
         // SpellScript/AuraScript interface base
@@ -121,6 +122,35 @@ class _SpellScript
         // Function called when script is destroyed
         // use for: deallocating memory allocated by script
         virtual void Unload() { }
+        // Helpers
+        static bool ValidateSpellInfo(std::initializer_list<uint32> spellIds)
+        {
+            return _ValidateSpellInfo(spellIds.begin(), spellIds.end());
+        }
+
+        template <class T>
+        static bool ValidateSpellInfo(T const& spellIds)
+        {
+            return _ValidateSpellInfo(std::begin(spellIds), std::end(spellIds));
+        }
+
+    private:
+        template<typename Iterator>
+        static bool _ValidateSpellInfo(Iterator begin, Iterator end)
+        {
+            bool allValid = true;
+            while (begin != end)
+            {
+                if (!_ValidateSpellInfo(*begin))
+                    allValid = false;
+
+                ++begin;
+            }
+            return allValid;
+        }
+
+        static bool _ValidateSpellInfo(uint32 spellId);        
+
 };
 
 // SpellScript interface - enum used for runtime checks of script function calls
@@ -148,7 +178,7 @@ enum SpellScriptHookType
 #define HOOK_SPELL_END SPELL_SCRIPT_HOOK_CHECK_CAST + 1
 #define HOOK_SPELL_COUNT HOOK_SPELL_END - HOOK_SPELL_START
 
-class SpellScript : public _SpellScript
+class TC_GAME_API SpellScript : public _SpellScript
 {
     // internal use classes & functions
     // DO NOT OVERRIDE THESE IN SCRIPTS
@@ -164,7 +194,7 @@ class SpellScript : public _SpellScript
 
         SPELLSCRIPT_FUNCTION_TYPE_DEFINES(SpellScript)
 
-        class CastHandler
+        class TC_GAME_API CastHandler
         {
             public:
                 CastHandler(SpellCastFnType _pCastHandlerScript);
@@ -173,7 +203,7 @@ class SpellScript : public _SpellScript
                 SpellCastFnType pCastHandlerScript;
         };
 
-        class CheckCastHandler
+        class TC_GAME_API CheckCastHandler
         {
             public:
                 CheckCastHandler(SpellCheckCastFnType checkCastHandlerScript);
@@ -182,7 +212,7 @@ class SpellScript : public _SpellScript
                 SpellCheckCastFnType _checkCastHandlerScript;
         };
 
-        class EffectHandler : public  _SpellScript::EffectNameCheck, public _SpellScript::EffectHook
+        class TC_GAME_API EffectHandler : public  _SpellScript::EffectNameCheck, public _SpellScript::EffectHook
         {
             public:
                 EffectHandler(SpellEffectFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName);
@@ -193,7 +223,7 @@ class SpellScript : public _SpellScript
                 SpellEffectFnType pEffectHandlerScript;
         };
 
-        class HitHandler
+        class TC_GAME_API HitHandler
         {
             public:
                 HitHandler(SpellHitFnType _pHitHandlerScript);
@@ -202,7 +232,7 @@ class SpellScript : public _SpellScript
                 SpellHitFnType pHitHandlerScript;
         };
 
-        class TargetHook : public _SpellScript::EffectHook
+        class TC_GAME_API TargetHook : public _SpellScript::EffectHook
         {
             public:
                 TargetHook(uint8 _effectIndex, uint16 _targetType, bool _area, bool _dest);
@@ -214,7 +244,7 @@ class SpellScript : public _SpellScript
                 bool dest;
         };
 
-        class ObjectAreaTargetSelectHandler : public TargetHook
+        class TC_GAME_API ObjectAreaTargetSelectHandler : public TargetHook
         {
             public:
                 ObjectAreaTargetSelectHandler(SpellObjectAreaTargetSelectFnType _pObjectAreaTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType);
@@ -223,7 +253,7 @@ class SpellScript : public _SpellScript
                 SpellObjectAreaTargetSelectFnType pObjectAreaTargetSelectHandlerScript;
         };
 
-        class ObjectTargetSelectHandler : public TargetHook
+        class TC_GAME_API ObjectTargetSelectHandler : public TargetHook
         {
             public:
                 ObjectTargetSelectHandler(SpellObjectTargetSelectFnType _pObjectTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType);
@@ -232,7 +262,7 @@ class SpellScript : public _SpellScript
                 SpellObjectTargetSelectFnType pObjectTargetSelectHandlerScript;
         };
 
-        class DestinationTargetSelectHandler : public TargetHook
+        class TC_GAME_API DestinationTargetSelectHandler : public TargetHook
         {
             public:
                 DestinationTargetSelectHandler(SpellDestinationTargetSelectFnType _DestinationTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType);
@@ -252,7 +282,9 @@ class SpellScript : public _SpellScript
 
         #define PrepareSpellScript(CLASSNAME) SPELLSCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) SPELLSCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME)
     public:
-        bool _Validate(SpellInfo const* entry);
+        SpellScript();
+        ~SpellScript();        
+        bool _Validate(SpellInfo const* entry) override;
         bool _Load(Spell* spell);
         void _InitHit();
         bool _IsEffectPrevented(SpellEffIndex effIndex) { return m_hitPreventEffectMask & (1<<effIndex); }
@@ -951,7 +983,7 @@ public:
         uint32 GetId() const;
 
         // returns guid of object which casted the aura (m_originalCaster of the Spell class)
-        uint64 GetCasterGUID() const;
+        ObjectGuid GetCasterGUID() const;
         // returns unit which casted the aura or NULL if not avalible (caster logged out for example)
         Unit* GetCaster() const;
         // returns object on which aura was casted, target for non-area auras, area aura source for area auras
@@ -1013,7 +1045,7 @@ public:
         virtual void SetData(uint32 /*type*/, uint32 /*data*/) { }
 
         // Permit to communicate some uint64 data with the script
-        virtual void SetGuid(uint32 /*type*/, uint64 /*data*/) { }
+        virtual void SetGuid(uint32 /*type*/, ObjectGuid /*data*/) { }
 
         // AuraScript interface - functions which are redirecting to AuraApplication class
         // Do not call these in hooks in which AuraApplication is not avalible, otherwise result will differ from expected (the functions will return NULL)

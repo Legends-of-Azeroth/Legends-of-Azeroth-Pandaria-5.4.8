@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -33,7 +33,7 @@ void BattlePet::Initialise(bool newBattlePet)
 {
     // existence is checked before this, no problem should arise
     m_npc = sBattlePetSpeciesStore.LookupEntry(m_species)->NpcId;
-    m_displayId = sObjectMgr->GetCreatureTemplate(m_npc)->Modelid1;
+    m_displayId = sObjectMgr->GetCreatureTemplate(m_npc)->GetModelByIdx(0)->CreatureDisplayID;
 
     // setup initial battle pet states
     InitialiseStates(newBattlePet);

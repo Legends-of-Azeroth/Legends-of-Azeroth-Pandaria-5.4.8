@@ -148,7 +148,7 @@ class boss_lei_shi : public CreatureScript
             uint8 nextAfraidPct;
             uint8 nextProtectPct;
             uint8 endCombatPct;
-            std::list<uint64> animatedProtectors;
+            std::list<ObjectGuid> animatedProtectors;
             bool hidden;
             bool shielded;
             bool getAwayPhase;
@@ -212,7 +212,7 @@ class boss_lei_shi : public CreatureScript
                 me->RemoveAura(SPELL_HIDE);
                 me->RemoveAura(SPELL_HIDE_STACKS);
 
-                if (Creature* pReflection = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_REFLECTION_OF_LEI_SHI) : 0))
+                if (Creature* pReflection = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_REFLECTION_OF_LEI_SHI) : ObjectGuid::Empty))
                     pReflection->RemoveAura(SPELL_SCARY_FOG_CIRCLE);
 
                 me->RemoveAura(SPELL_SCARY_FOG_DOT);
@@ -237,7 +237,7 @@ class boss_lei_shi : public CreatureScript
                     me->CastSpell(me, SPELL_LEI_SHI_TRANSFORM, true);
 
                 if (IsHeroic())
-                    if (Creature* pReflection = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_REFLECTION_OF_LEI_SHI) : 0))
+                    if (Creature* pReflection = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_REFLECTION_OF_LEI_SHI) : ObjectGuid::Empty))
                         pReflection->RemoveAurasDueToSpell(SPELL_SCARY_FOG_CIRCLE);
             }
 
@@ -277,7 +277,7 @@ class boss_lei_shi : public CreatureScript
 
                 if (pointId == 47)
                 {
-                    if (Creature* pSha = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_SHA_OF_FEAR) : 0))
+                    if (Creature* pSha = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SHA_OF_FEAR) : ObjectGuid::Empty))
                     {
                         if (pSha->AI())
                             pSha->AI()->DoAction(ACTION_SHA_INTRO);
@@ -290,9 +290,9 @@ class boss_lei_shi : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                 {
@@ -304,7 +304,7 @@ class boss_lei_shi : public CreatureScript
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
                     if (IsHeroic())
-                        if (Creature* pReflection = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_REFLECTION_OF_LEI_SHI) : 0))
+                        if (Creature* pReflection = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_REFLECTION_OF_LEI_SHI) : ObjectGuid::Empty))
                             pReflection->CastSpell(pReflection, SPELL_SCARY_FOG_CIRCLE, true);
 
                     Talk(TALK_AGGRO);
@@ -389,7 +389,7 @@ class boss_lei_shi : public CreatureScript
                     instance->SetBossState(DATA_LEI_SHI, DONE);
 
                     if (IsHeroic())
-                        if (Creature* pReflection = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_REFLECTION_OF_LEI_SHI) : 0))
+                        if (Creature* pReflection = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_REFLECTION_OF_LEI_SHI) : ObjectGuid::Empty))
                             pReflection->RemoveAurasDueToSpell(SPELL_SCARY_FOG_CIRCLE);
 
                     events.Reset();
@@ -398,7 +398,8 @@ class boss_lei_shi : public CreatureScript
                     EnterEvadeMode();
 
                     me->CombatStop();
-                    me->DeleteThreatList();
+                    me->GetThreatManager().RemoveMeFromThreatLists();
+                    me->GetThreatManager().ClearAllThreat();
                     me->SetFaction(35);
                     me->CastSpell(me, SPELL_LEI_SHI_TRANSFORM, true);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -407,7 +408,7 @@ class boss_lei_shi : public CreatureScript
                     me->RemoveAura(SPELL_HIDE);
                     me->RemoveAura(SPELL_HIDE_STACKS);
 
-                    if (Creature* pReflection = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_REFLECTION_OF_LEI_SHI) : 0))
+                    if (Creature* pReflection = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_REFLECTION_OF_LEI_SHI) : ObjectGuid::Empty))
                         pReflection->RemoveAura(SPELL_SCARY_FOG_CIRCLE);
 
                     me->RemoveAura(SPELL_SCARY_FOG_DOT);
@@ -440,7 +441,7 @@ class boss_lei_shi : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (instance)
                 {
@@ -572,7 +573,7 @@ class boss_lei_shi : public CreatureScript
                         hidden = false;
 
                         if (IsHeroic())
-                            if (Creature* pReflection = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_REFLECTION_OF_LEI_SHI) : 0))
+                            if (Creature* pReflection = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_REFLECTION_OF_LEI_SHI) : ObjectGuid::Empty))
                                 pReflection->CastSpell(me, SPELL_SCARY_FOG_CIRCLE, true);
 
                         // Only have Lei Shi (hidden) in summons
@@ -587,13 +588,13 @@ class boss_lei_shi : public CreatureScript
                         me->SetReactState(REACT_AGGRESSIVE);
                         Talk(TALK_INTRO);
                         
-                        if (Creature* pReflection = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_REFLECTION_OF_LEI_SHI) : 0))
+                        if (Creature* pReflection = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_REFLECTION_OF_LEI_SHI) : ObjectGuid::Empty))
                         {
                             pReflection->SetDisplayId(17612);
                             pReflection->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
                         }
 
-                        if (GameObject* pVortexWall = ObjectAccessor::GetGameObject(*me, instance ? instance->GetData64(GO_WALL_OF_LEI_SHI) : 0))
+                        if (GameObject* pVortexWall = ObjectAccessor::GetGameObject(*me, instance ? instance->GetGuidData(GO_WALL_OF_LEI_SHI) : ObjectGuid::Empty))
                             pVortexWall->SetGoState(GO_STATE_ACTIVE);
 
                         break;
@@ -716,7 +717,7 @@ class boss_lei_shi : public CreatureScript
                             else
                                 me->InterruptNonMeleeSpells(true);
 
-                            if (Creature* pReflection = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_REFLECTION_OF_LEI_SHI) : 0))
+                            if (Creature* pReflection = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_REFLECTION_OF_LEI_SHI) : ObjectGuid::Empty))
                                 pReflection->RemoveAurasDueToSpell(SPELL_SCARY_FOG_CIRCLE);
 
                             Talk(TALK_HIDE);
@@ -838,7 +839,7 @@ class npc_animated_protector : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* leiShi = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_LEI_SHI) : 0))
+                if (Creature* leiShi = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_LEI_SHI) : ObjectGuid::Empty))
                     leiShi->AI()->DoAction(ACTION_ANIMATED_PROTECTOR_DIED);
             }
 
@@ -887,7 +888,7 @@ class npc_lei_shi_corrupted_protector : public CreatureScript
                 InFlee = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_DISPERSE, 1 * IN_MILLISECONDS);
             }
@@ -961,7 +962,7 @@ class npc_lei_shi_hidden : public CreatureScript
                 events.Reset();
                 events.ScheduleEvent(EVENT_HIDDEN_SPRAY, 400);
 
-                if (Creature* leiShi = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_LEI_SHI) : 0))
+                if (Creature* leiShi = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_LEI_SHI) : ObjectGuid::Empty))
                 {
                     auto const afraid = leiShi->GetAuraEffect(SPELL_AFRAID, EFFECT_0);
                     if (!afraid)
@@ -997,10 +998,10 @@ class npc_lei_shi_hidden : public CreatureScript
                             break;
                         }
 
-                        uint64 leiShiGuid = 0;
+                        ObjectGuid leiShiGuid = ObjectGuid::Empty;
 
                         if (instance)
-                            leiShiGuid = instance->GetData64(NPC_LEI_SHI);
+                            leiShiGuid = instance->GetGuidData(NPC_LEI_SHI);
 
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f))
                             me->CastSpell(target, SPELL_SPRAY, false, NULL, NULL, leiShiGuid);
@@ -1078,7 +1079,7 @@ class npc_lei_shi_reflection : public CreatureScript
                             events.ScheduleEvent(EVENT_APPEAR, 10000);
                             break;
                         case EVENT_APPEAR:
-                            if (Creature* pLeiShi = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetData64(NPC_LEI_SHI) : 0))
+                            if (Creature* pLeiShi = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_LEI_SHI) : ObjectGuid::Empty))
                             {
                                 Talk(EMOTE_APPEAR, pLeiShi);
 
@@ -1137,7 +1138,7 @@ struct npc_parasitoid_sha : public ScriptedAI
         {
             DoCast(*players.begin(), SPELL_PARASITIC_CLUTCH);
             if (me->GetInstanceScript())
-                if (Creature* leiShi = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetData(DATA_LEI_SHI)))
+                if (Creature* leiShi = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetGuidData(DATA_LEI_SHI)))
                     if (auto ai = dynamic_cast<boss_lei_shi::boss_lei_shiAI*>(leiShi->AI()))
                         ai->EnforceParasitoidSpawn(spawnLocation);
         }

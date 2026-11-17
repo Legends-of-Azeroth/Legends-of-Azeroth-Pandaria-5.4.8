@@ -1,0 +1,9 @@
+-- 
+DELETE FROM `achievement_reward` WHERE `entry` IN (8301,8335,8337,8340,8343,8345);
+INSERT INTO `achievement_reward` (`entry`, `title_A`, `title_H`, `item`, `spell`, `sender`, `subject`, `text`) VALUES 
+(8301, 348, 348, 0, 0, 0, NULL, NULL),
+(8335, 0, 0, 93195, 0, 67260, 'Another Brawler\'s Pass', 'You keep pumping out those wins down here at Brawl\'gar!\r\n\r\nHere\'s another invitation.  Invite some of your friends to come join in the carnage.\r\n\r\nOr, you can just sell it to the highest bidder.  That\'s what I\'d do.\r\n\r\n- Boss Bazzelflange'),
+(8337, 0, 0, 93228, 0, 67260, 'Another Brawler\'s Pass', 'You keep pumping out those wins down here at Brawl\'gar!\r\n\r\nHere\'s another invitation.  Invite some of your friends to come join in the carnage.\r\n\r\nOr, you can just sell it to the highest bidder.  That\'s what I\'d do.\r\n\r\n- Boss Bazzelflange'),
+(8340, 0, 0, 98543, 0, 67260, 'Wraps of the Blood-Soaked Brawler', 'Let\'s take a quick inventory: You\'ve defeated a shark, a robotic crocolisk, a pile of ooze, a pair of penguins, and a whole roomful of deadly brawlers from around the world.\r\n\r\nYeah. I\'d say you earned a shirt.'),
+(8343, 0, 0, 98543, 0, 67260, 'Wraps of the Blood-Soaked Brawler', 'Let\'s take a quick inventory: You\'ve defeated a shark, a robotic crocolisk, a pile of ooze, a pair of penguins, and a whole roomful of deadly brawlers from around the world.\r\n\r\nYeah. I\'d say you earned a shirt.'),
+(8345, 0, 0, 98618, 0, 32216, 'Hearthsteed', '$n,\r\n\r\nThis fine magical construct arrived\r\nonly yesterday, and you were the first\r\nadventurer I thought of.\r\n\r\nEnjoy!\r\n\r\nMei Francis\r\nExotic Mounts\r\nDalaran');

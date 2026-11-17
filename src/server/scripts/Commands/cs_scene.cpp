@@ -30,15 +30,15 @@ public:
     {
         static std::vector<ChatCommand> sceneCommandTable =
         {
-            { "debug",          SEC_ADMINISTRATOR,  false,  &HandleDebugSceneCommand,       },
-            { "play",           SEC_ADMINISTRATOR,  false,  &HandlePlaySceneCommand,        },
-            { "playpackage",    SEC_ADMINISTRATOR,  false,  &HandlePlayScenePackageCommand, },
-            { "cancel",         SEC_ADMINISTRATOR,  false,  &HandleCancelSceneCommand,      },
+            { "debug",          &HandleDebugSceneCommand,       rbac::RBAC_PERM_COMMAND_SCENE_DEBUG,       Trinity::ChatCommands::Console::No },
+            { "play",           &HandlePlaySceneCommand,        rbac::RBAC_PERM_COMMAND_SCENE_PLAY,        Trinity::ChatCommands::Console::No },
+            { "playpackage",    &HandlePlayScenePackageCommand, rbac::RBAC_PERM_COMMAND_SCENE_PLAY_PACKAGE, Trinity::ChatCommands::Console::No },
+            { "cancel",         &HandleCancelSceneCommand,      rbac::RBAC_PERM_COMMAND_SCENE_CANCEL,      Trinity::ChatCommands::Console::No },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "scene",          SEC_ADMINISTRATOR,  true,   sceneCommandTable               },
+            { "scene",          sceneCommandTable,               rbac::RBAC_PERM_COMMAND_SCENE,             Trinity::ChatCommands::Console::Yes },
         };
 
         return commandTable;

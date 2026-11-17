@@ -30,6 +30,7 @@ EndScriptData */
 #include "Player.h"
 #include "TicketMgr.h"
 #include "ScriptMgr.h"
+#include "Realm.h"
 
 class ticket_commandscript : public CommandScript
 {
@@ -40,45 +41,45 @@ public:
     {
         static std::vector<ChatCommand> ticketBugCommandTable =
         {
-            { "assign",         SEC_GAMEMASTER, true,   &HandleTicketAssignToCommand<BugTicket>,    },
-            { "close",          SEC_GAMEMASTER, true,   &HandleTicketCloseByIdCommand<BugTicket>,   },
-            { "closedlist",     SEC_GAMEMASTER, true,   &HandleTicketListClosedCommand<BugTicket>,  },
-            { "comment",        SEC_GAMEMASTER, true,   &HandleTicketCommentCommand<BugTicket>,     },
-            { "delete",         SEC_GAMEMASTER, true,   &HandleTicketDeleteByIdCommand<BugTicket>,  },
-            { "list",           SEC_GAMEMASTER, true,   &HandleTicketListCommand<BugTicket>,        },
-            { "unassign",       SEC_GAMEMASTER, true,   &HandleTicketUnAssignCommand<BugTicket>,    },
-            { "view",           SEC_GAMEMASTER, true,   &HandleTicketGetByIdCommand<BugTicket>,     },
-            { "reset",          SEC_GAMEMASTER, true,   &HandleTicketResetCommand<BugTicket>,       },
+            { "assign",         &HandleTicketAssignToCommand<BugTicket>,    rbac::RBAC_PERM_COMMAND_TICKET_BUG_ASSIGN,    Trinity::ChatCommands::Console::Yes },
+            { "close",          &HandleTicketCloseByIdCommand<BugTicket>,   rbac::RBAC_PERM_COMMAND_TICKET_BUG_CLOSE,     Trinity::ChatCommands::Console::Yes },
+            { "closedlist",     &HandleTicketListClosedCommand<BugTicket>,  rbac::RBAC_PERM_COMMAND_TICKET_BUG_CLOSEDLIST, Trinity::ChatCommands::Console::Yes },
+            { "comment",        &HandleTicketCommentCommand<BugTicket>,     rbac::RBAC_PERM_COMMAND_TICKET_BUG_COMMENT,   Trinity::ChatCommands::Console::Yes },
+            { "delete",         &HandleTicketDeleteByIdCommand<BugTicket>,  rbac::RBAC_PERM_COMMAND_TICKET_BUG_DELETE,    Trinity::ChatCommands::Console::Yes },
+            { "list",           &HandleTicketListCommand<BugTicket>,        rbac::RBAC_PERM_COMMAND_TICKET_BUG_LIST,      Trinity::ChatCommands::Console::Yes },
+            { "unassign",       &HandleTicketUnAssignCommand<BugTicket>,    rbac::RBAC_PERM_COMMAND_TICKET_BUG_UNASSIGN,  Trinity::ChatCommands::Console::Yes },
+            { "view",           &HandleTicketGetByIdCommand<BugTicket>,     rbac::RBAC_PERM_COMMAND_TICKET_BUG_VIEW,      Trinity::ChatCommands::Console::Yes },
+            { "reset", &HandleTicketResetCommand<BugTicket>, rbac::RBAC_PERM_COMMAND_TICKET_BUG_RESET, Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> ticketResponseCommandTable =
         {
-            { "append",         SEC_GAMEMASTER, true,   &HandleGMTicketResponseAppendCommand,   },
-            { "appendln",       SEC_GAMEMASTER, true,   &HandleGMTicketResponseAppendLnCommand, },
+            { "append",         &HandleGMTicketResponseAppendCommand,   rbac::RBAC_PERM_COMMAND_TICKET_RESPONSE_APPEND,   Trinity::ChatCommands::Console::Yes },
+            { "appendln",       &HandleGMTicketResponseAppendLnCommand, rbac::RBAC_PERM_COMMAND_TICKET_RESPONSE_APPENDLN, Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> ticketCommandTable =
         {
-            { "assign",         SEC_GAMEMASTER, true,   &HandleGMTicketAssignToCommand,         },
-            { "bug",            SEC_GAMEMASTER, true,   ticketBugCommandTable                   },
-            { "close",          SEC_GAMEMASTER, true,   &HandleGMTicketCloseByIdCommand,        },
-            { "closedlist",     SEC_GAMEMASTER, true,   &HandleGMTicketListClosedCommand,       },
-            { "comment",        SEC_GAMEMASTER, true,   &HandleGMTicketCommentCommand,          },
-            { "complete",       SEC_GAMEMASTER, true,   &HandleGMTicketCompleteCommand,         },
-            { "delete",         SEC_GAMEMASTER, true,   &HandleGMTicketDeleteByIdCommand,       },
-            { "escalate",       SEC_GAMEMASTER, true,   &HandleGMTicketEscalateCommand,         },
-            { "escalatedlist",  SEC_GAMEMASTER, true,   &HandleGMTicketListEscalatedCommand,    },
-            { "list",           SEC_GAMEMASTER, true,   &HandleGMTicketListCommand,             },
-            { "onlinelist",     SEC_GAMEMASTER, true,   &HandleGMTicketListOnlineCommand,       },
-            { "reset",          SEC_GAMEMASTER, true,   &HandleGMTicketResetCommand,            },
-            { "response",       SEC_GAMEMASTER, true,   ticketResponseCommandTable              },
-            { "togglesystem",   SEC_GAMEMASTER, true,   &HandleToggleGMTicketSystem,            },
-            { "unassign",       SEC_GAMEMASTER, true,   &HandleGMTicketUnAssignCommand,         },
-            { "viewid",         SEC_GAMEMASTER, true,   &HandleGMTicketGetByIdCommand,          },
-            { "viewname",       SEC_GAMEMASTER, true,   &HandleGMTicketGetByNameCommand,        },
+            { "assign",         &HandleGMTicketAssignToCommand,         rbac::RBAC_PERM_COMMAND_TICKET_ASSIGN,         Trinity::ChatCommands::Console::Yes },
+            { "bug",            ticketBugCommandTable,                   rbac::RBAC_PERM_COMMAND_TICKET_BUG,            Trinity::ChatCommands::Console::Yes },
+            { "close",          &HandleGMTicketCloseByIdCommand,        rbac::RBAC_PERM_COMMAND_TICKET_CLOSE,          Trinity::ChatCommands::Console::Yes },
+            { "closedlist",     &HandleGMTicketListClosedCommand,       rbac::RBAC_PERM_COMMAND_TICKET_CLOSEDLIST,     Trinity::ChatCommands::Console::Yes },
+            { "comment",        &HandleGMTicketCommentCommand,          rbac::RBAC_PERM_COMMAND_TICKET_COMMENT,        Trinity::ChatCommands::Console::Yes },
+            { "complete",       &HandleGMTicketCompleteCommand,         rbac::RBAC_PERM_COMMAND_TICKET_COMPLETE,       Trinity::ChatCommands::Console::Yes },
+            { "delete",         &HandleGMTicketDeleteByIdCommand,       rbac::RBAC_PERM_COMMAND_TICKET_DELETE,         Trinity::ChatCommands::Console::Yes },
+            { "escalate",       &HandleGMTicketEscalateCommand,         rbac::RBAC_PERM_COMMAND_TICKET_ESCALATE,       Trinity::ChatCommands::Console::Yes },
+            { "escalatedlist",  &HandleGMTicketListEscalatedCommand,    rbac::RBAC_PERM_COMMAND_TICKET_ESCALATEDLIST,  Trinity::ChatCommands::Console::Yes },
+            { "list",           &HandleGMTicketListCommand,             rbac::RBAC_PERM_COMMAND_TICKET_LIST,           Trinity::ChatCommands::Console::Yes },
+            { "onlinelist",     &HandleGMTicketListOnlineCommand,       rbac::RBAC_PERM_COMMAND_TICKET_ONLINELIST,     Trinity::ChatCommands::Console::Yes },
+            { "reset",          &HandleGMTicketResetCommand,            rbac::RBAC_PERM_COMMAND_TICKET_RESET,          Trinity::ChatCommands::Console::Yes },
+            { "response",       ticketResponseCommandTable,              rbac::RBAC_PERM_COMMAND_TICKET_RESPONSE,       Trinity::ChatCommands::Console::Yes },
+            { "togglesystem",   &HandleToggleGMTicketSystem,            rbac::RBAC_PERM_COMMAND_TICKET_TOGGLESYSTEM,   Trinity::ChatCommands::Console::Yes },
+            { "unassign",       &HandleGMTicketUnAssignCommand,         rbac::RBAC_PERM_COMMAND_TICKET_UNASSIGN,       Trinity::ChatCommands::Console::Yes },
+            { "viewid",         &HandleGMTicketGetByIdCommand,          rbac::RBAC_PERM_COMMAND_TICKET_VIEWID,         Trinity::ChatCommands::Console::Yes },
+            { "viewname",       &HandleGMTicketGetByNameCommand,        rbac::RBAC_PERM_COMMAND_TICKET_VIEWNAME,       Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "ticket",         SEC_GAMEMASTER, false,  ticketCommandTable                      },
+            { "ticket",         ticketCommandTable,                      rbac::RBAC_PERM_COMMAND_TICKET,                Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }
@@ -106,10 +107,10 @@ public:
             return true;
         }
 
-        uint64 targetGuid = sObjectMgr->GetPlayerGUIDByName(target);
+        ObjectGuid targetGuid = sObjectMgr->GetPlayerGUIDByName(target);
         uint32 accountId = sObjectMgr->GetPlayerAccountIdByGUID(targetGuid);
         // Target must exist and have administrative rights
-        //if (!AccountMgr::HasPermission(accountId, rbac::RBAC_PERM_COMMANDS_BE_ASSIGNED_TICKET, realmID))
+        //if (!AccountMgr::HasPermission(accountId, rbac::RBAC_PERM_COMMANDS_BE_ASSIGNED_TICKET, realm.Id.Realm))
         //{
         //    handler->SendSysMessage(LANG_COMMAND_TICKETASSIGNERROR_A);
         //    return true;
@@ -133,7 +134,7 @@ public:
 
         // Assign ticket
         CharacterDatabaseTransaction trans = CharacterDatabaseTransaction(nullptr);
-        ticket->SetAssignedTo(targetGuid, AccountMgr::IsAdminAccount(AccountMgr::GetSecurity(accountId, realmID)));
+        ticket->SetAssignedTo(targetGuid, AccountMgr::IsAdminAccount(AccountMgr::GetSecurity(accountId, realm.Id.Realm)));
         ticket->SaveToDB(trans);
         sTicketMgr->UpdateLastChange();
 
@@ -164,7 +165,7 @@ public:
             return true;
         }
 
-        sTicketMgr->CloseTicket<GmTicket>(ticket->GetTicketId(), player ? player->GetGUID() : -1);
+        sTicketMgr->CloseTicket<GmTicket>(ticket->GetTicketId(), player ? player->GetGUID() : ObjectGuid::Empty);
         sTicketMgr->UpdateLastChange();
 
         std::string msg = ticket->FormatMessageString(*handler, player ? player->GetName().c_str() : "Console", NULL, NULL, NULL);
@@ -310,9 +311,9 @@ public:
             security = assignedPlayer->GetSession()->GetSecurity();
         else
         {
-            uint64 guid = ticket->GetAssignedToGUID();
+            ObjectGuid guid = ticket->GetAssignedToGUID();
             uint32 accountId = sObjectMgr->GetPlayerAccountIdByGUID(guid);
-            security = AccountMgr::GetSecurity(accountId, realmID);
+            security = AccountMgr::GetSecurity(accountId, realm.Id.Realm);
         }
 
         // Check security
@@ -385,7 +386,7 @@ public:
         ObjectGuid targetGuid = sObjectMgr->GetPlayerGUIDByName(target);
         uint32 accountId = sObjectMgr->GetPlayerAccountIdByGUID(targetGuid);
         // Target must exist and have administrative rights
-        //if (!AccountMgr::HasPermission(accountId, rbac::RBAC_PERM_COMMANDS_BE_ASSIGNED_TICKET, realmID))
+        //if (!AccountMgr::HasPermission(accountId, rbac::RBAC_PERM_COMMANDS_BE_ASSIGNED_TICKET, realm.Id.Realm))
         //{
         //    handler->SendSysMessage(LANG_COMMAND_TICKETASSIGNERROR_A);
         //    return true;
@@ -409,7 +410,7 @@ public:
 
         // Assign ticket
         CharacterDatabaseTransaction trans = CharacterDatabaseTransaction(nullptr);
-        ticket->SetAssignedTo(targetGuid, AccountMgr::IsAdminAccount(AccountMgr::GetSecurity(accountId, realmID)));
+        ticket->SetAssignedTo(targetGuid, AccountMgr::IsAdminAccount(AccountMgr::GetSecurity(accountId, realm.Id.Realm)));
          sTicketMgr->UpdateLastChange();
 
         ticket->SaveToDB(trans);
@@ -442,7 +443,7 @@ public:
             return true;
         }
 
-        sTicketMgr->CloseTicket<T>(ticket->GetTicketId(), player ? player->GetGUID() : -1);
+        sTicketMgr->CloseTicket<T>(ticket->GetTicketId(), player ? player->GetGUID() : ObjectGuid::Empty);
 
         std::string msg = ticket->FormatMessageString(*handler, player ? player->GetName().c_str() : "Console", NULL, NULL, NULL);
         handler->SendGlobalGMSysMessage(msg.c_str());
@@ -573,9 +574,9 @@ public:
             security = assignedPlayer->GetSession()->GetSecurity();
         else
         {
-            uint64 guid = ticket->GetAssignedToGUID();
+            ObjectGuid guid = ticket->GetAssignedToGUID();
             uint32 accountId = sObjectMgr->GetPlayerAccountIdByGUID(guid);
-            security = AccountMgr::GetSecurity(accountId, realmID);
+            security = AccountMgr::GetSecurity(accountId, realm.Id.Realm);
         }
 
         // Check security
@@ -711,8 +712,8 @@ public:
             return false;
 
         // Detect target's GUID
-        uint64 guid = 0;
-        if (Player* player = sObjectAccessor->FindPlayerByName(name))
+        ObjectGuid guid = ObjectGuid::Empty;
+        if (Player* player = ObjectAccessor::FindPlayerByName(name))
             guid = player->GetGUID();
         else
             guid = sObjectMgr->GetPlayerGUIDByName(name);

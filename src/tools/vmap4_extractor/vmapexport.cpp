@@ -1,21 +1,19 @@
 /*
- * Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2016 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 3 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #define _CRT_SECURE_NO_DEPRECATE
 #include <cstdio>
@@ -46,6 +44,7 @@
 #include "adtfile.h"
 #include "wdtfile.h"
 #include "dbcfile.h"
+#include "StringFormat.h"
 #include "wmo.h"
 #include "mpqfile.h"
 
@@ -105,20 +104,26 @@ typedef struct
 {
     char name[64];
     unsigned int id;
-}map_id;
+} map_id;
 
-map_id * map_ids;
-uint16 *LiqType = 0;
+std::vector<map_id> map_ids;
 uint32 map_count;
+uint16 *LiqType = 0;
 char output_path[128]=".";
 char input_path[1024]=".";
 bool preciseVectorData = false;
+std::unordered_map<std::string, WMODoodadData> WmoDoodads;
 
 // Constants
 
-//static const char * szWorkDirMaps = ".\\Maps";
 const char* szWorkDirWmo = "./Buildings";
-const char* szRawVMAPMagic = "VMAP043";
+
+std::map<std::pair<uint32, uint16>, uint32> uniqueObjectIds;
+
+uint32 GenerateUniqueObjectId(uint32 clientId, uint16 clientDoodadId)
+{
+    return uniqueObjectIds.emplace(std::make_pair(clientId, clientDoodadId), uniqueObjectIds.size() + 1).first->second;
+}
 
 bool LoadLocaleMPQFile(int locale)
 {
@@ -302,40 +307,42 @@ void ReadLiquidTypeTableDBC()
     printf("Done! (%zu LiqTypes loaded)\n", LiqType_count);
 }
 
-bool ExtractWmo()
-{
-    bool success = false;
+// bool ExtractWmo()
+// {
+//     bool success = false;
 
-    //const char* ParsArchiveNames[] = {"patch-2.MPQ", "patch.MPQ", "common.MPQ", "expansion.MPQ"};
+//     //const char* ParsArchiveNames[] = {"patch-2.MPQ", "patch.MPQ", "common.MPQ", "expansion.MPQ"};
 
-    SFILE_FIND_DATA data;
-    HANDLE find = SFileFindFirstFile(WorldMpq, "*.wmo", &data, NULL);
-    if (find != NULL)
-    {
-        do
-        {
-            std::string str = data.cFileName;
-            //printf("Extracting wmo %s\n", str.c_str());
-            success |= ExtractSingleWmo(str);
-        }
-        while (SFileFindNextFile(find, &data));
-    }
-    SFileFindClose(find);
+//     SFILE_FIND_DATA data;
+//     HANDLE find = SFileFindFirstFile(WorldMpq, "*.wmo", &data, NULL);
+//     if (find != NULL)
+//     {
+//         do
+//         {
+//             std::string str = data.cFileName;
+//             //printf("Extracting wmo %s\n", str.c_str());
+//             success |= ExtractSingleWmo(str);
+//         }
+//         while (SFileFindNextFile(find, &data));
+//     }
+//     SFileFindClose(find);
 
-    if (success)
-        printf("\nExtract wmo complete (No (fatal) errors)\n");
+//     if (success)
+//         printf("\nExtract wmo complete (No (fatal) errors)\n");
 
-    return success;
-}
+//     return success;
+// }
 
 bool ExtractSingleWmo(std::string& fname)
 {
     // Copy files from archive
+    std::string originalName = fname;
 
     char szLocalFile[1024];
-    const char * plain_name = GetPlainName(fname.c_str());
+    char* plain_name = GetPlainName(&fname[0]);
+    fixnamen(plain_name, strlen(plain_name));
+    fixname2(plain_name, strlen(plain_name));    
     sprintf(szLocalFile, "%s/%s", szWorkDirWmo, plain_name);
-    FixNameCase(szLocalFile,strlen(szLocalFile));
 
     if (FileExists(szLocalFile))
         return true;
@@ -343,7 +350,7 @@ bool ExtractSingleWmo(std::string& fname)
     int p = 0;
     // Select root wmo files
     char const* rchr = strrchr(plain_name, '_');
-    if (rchr != NULL)
+    if (rchr != nullptr)
     {
         char cpy[4];
         strncpy((char*)cpy, rchr, 4);
@@ -359,8 +366,8 @@ bool ExtractSingleWmo(std::string& fname)
         return true;
 
     bool file_ok = true;
-    std::cout << "Extracting " << fname << std::endl;
-    WMORoot froot(fname);
+    printf("Extracting %s\n", originalName.c_str());
+    WMORoot froot(originalName);
     if(!froot.open())
     {
         printf("Couldn't open RootWmo!!!\n");
@@ -373,34 +380,50 @@ bool ExtractSingleWmo(std::string& fname)
         return false;
     }
     froot.ConvertToVMAPRootWmo(output);
+    WMODoodadData& doodads = WmoDoodads[plain_name];
+    std::swap(doodads, froot.DoodadData);
     int Wmo_nVertices = 0;
+    uint32 groupCount = 0;
     //printf("root has %d groups\n", froot->nGroups);
     if (froot.nGroups !=0)
     {
         for (uint32 i = 0; i < froot.nGroups; ++i)
         {
             char temp[1024];
-            strcpy(temp, fname.c_str());
+            strncpy(temp, fname.c_str(), 1024);
             temp[fname.length()-4] = 0;
-            char groupFileName[1024];
-            sprintf(groupFileName, "%s_%03u.wmo", temp, i);
-            //printf("Trying to open groupfile %s\n",groupFileName);
 
-            std::string s = groupFileName;
-            WMOGroup fgroup(s);
-            if(!fgroup.open())
+            WMOGroup fgroup(Trinity::StringFormat("{}_{:03}.wmo", temp, i));
+            if (!fgroup.open(&froot))
             {
                 printf("Could not open all Group file for: %s\n", plain_name);
                 file_ok = false;
                 break;
             }
 
-            Wmo_nVertices += fgroup.ConvertToVMAPGroupWmo(output, &froot, preciseVectorData);
+            if (fgroup.ShouldSkip(&froot))
+                continue;            
+
+            Wmo_nVertices += fgroup.ConvertToVMAPGroupWmo(output, preciseVectorData);
+            ++groupCount;
+            for (uint16 groupReference : fgroup.DoodadReferences)
+            {
+                if (groupReference >= doodads.Spawns.size())
+                    continue;
+
+                uint32 doodadNameIndex = doodads.Spawns[groupReference].NameIndex;
+                if (froot.ValidDoodadNames.find(doodadNameIndex) == froot.ValidDoodadNames.end())
+                    continue;
+
+                doodads.References.insert(groupReference);
+            }
         }
     }
 
     fseek(output, 8, SEEK_SET); // store the correct no of vertices
     fwrite(&Wmo_nVertices,sizeof(int),1,output);
+    // store the correct no of groups
+    fwrite(&groupCount, sizeof(uint32), 1, output);    
     fclose(output);
 
     // Delete the extracted file in the case of an error
@@ -413,13 +436,11 @@ void ParsMapFiles()
 {
     char fn[512];
     //char id_filename[64];
-    char id[10];
     for (unsigned int i=0; i<map_count; ++i)
     {
-        sprintf(id,"%04u",map_ids[i].id);
         sprintf(fn,"World\\Maps\\%s\\%s.wdt", map_ids[i].name, map_ids[i].name);
         WDTFile WDT(fn,map_ids[i].name);
-        if(WDT.init(id, map_ids[i].id))
+        if (WDT.init(map_ids[i].id))
         {
             printf("Processing Map %u\n[", map_ids[i].id);
             for (int x=0; x<64; ++x)
@@ -576,10 +597,6 @@ int main(int argc, char ** argv)
 
     ReadLiquidTypeTableDBC();
 
-    // extract data
-    if (success)
-        success = ExtractWmo();
-
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     //map.dbc
     if (success)
@@ -591,20 +608,18 @@ int main(int argc, char ** argv)
             printf("FATAL ERROR: Map.dbc not found in data file.\n");
             return 1;
         }
-        map_count=dbc->getRecordCount ();
-        map_ids=new map_id[map_count];
-        for (unsigned int x=0;x<map_count;++x)
+        map_count = dbc->getRecordCount();
+        map_ids.resize(map_count);
+        for (unsigned int x = 0; x < map_count; ++x)
         {
-            map_ids[x].id=dbc->getRecord (x).getUInt(0);
-            strcpy(map_ids[x].name,dbc->getRecord(x).getString(1));
+            map_ids[x].id = dbc->getRecord(x).getUInt(0);
+            strcpy(map_ids[x].name, dbc->getRecord(x).getString(1));
             printf("Map - %s\n",map_ids[x].name);
         }
 
-
         delete dbc;
         ParsMapFiles();
-        delete [] map_ids;
-        //nError = ERROR_SUCCESS;
+
         // Extract models, listed in GameObjectDisplayInfo.dbc
         ExtractGameobjectModels(&input_path[0]);
     }

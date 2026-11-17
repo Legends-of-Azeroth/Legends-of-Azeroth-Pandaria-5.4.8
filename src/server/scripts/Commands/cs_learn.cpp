@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -40,33 +40,33 @@ public:
     {
         static std::vector<ChatCommand> learnAllMyCommandTable =
         {
-            { "class",      SEC_GAMEMASTER, false, &HandleLearnAllMyClassCommand,       },
-            { "pettalents", SEC_GAMEMASTER, false, &HandleLearnAllMyPetTalentsCommand,  },
-            { "spells",     SEC_GAMEMASTER, false, &HandleLearnAllMySpellsCommand,      },
-            { "talents",    SEC_GAMEMASTER, false, &HandleLearnAllMyTalentsCommand,     },
-            { "glyphs",     SEC_GAMEMASTER, false, &HandleLearnAllMyGlyphsCommand,      },
+            { "class",      &HandleLearnAllMyClassCommand,       rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_CLASS,     Trinity::ChatCommands::Console::No },
+            { "pettalents", &HandleLearnAllMyPetTalentsCommand, rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_PETTALENTS, Trinity::ChatCommands::Console::No },
+            { "spells",     &HandleLearnAllMySpellsCommand,      rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_SPELLS,    Trinity::ChatCommands::Console::No },
+            { "talents", &HandleLearnAllMyTalentsCommand, rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_TALENTS, Trinity::ChatCommands::Console::No },
+            { "glyphs", &HandleLearnAllMyGlyphsCommand, rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_GLYPHS, Trinity::ChatCommands::Console::No },
         };
 
         static std::vector<ChatCommand> learnAllCommandTable =
         {
-            { "my",         SEC_GAMEMASTER, false,  learnAllMyCommandTable              },
-            { "gm",         SEC_GAMEMASTER, false,  &HandleLearnAllGMCommand,           },
-            { "crafts",     SEC_GAMEMASTER, false,  &HandleLearnAllCraftsCommand,       },
-            { "default",    SEC_GAMEMASTER, false,  &HandleLearnAllDefaultCommand,      },
-            { "lang",       SEC_GAMEMASTER, false,  &HandleLearnAllLangCommand,         },
-            { "recipes",    SEC_GAMEMASTER, false,  &HandleLearnAllRecipesCommand,      },
+            { "my",         learnAllMyCommandTable,              rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY,           Trinity::ChatCommands::Console::No },
+            { "gm",         &HandleLearnAllGMCommand,            rbac::RBAC_PERM_COMMAND_LEARN_ALL_GM,           Trinity::ChatCommands::Console::No },
+            { "crafts",     &HandleLearnAllCraftsCommand,        rbac::RBAC_PERM_COMMAND_LEARN_ALL_CRAFTS,       Trinity::ChatCommands::Console::No },
+            { "default",    &HandleLearnAllDefaultCommand,       rbac::RBAC_PERM_COMMAND_LEARN_ALL_DEFAULT,      Trinity::ChatCommands::Console::No },
+            { "lang",       &HandleLearnAllLangCommand,          rbac::RBAC_PERM_COMMAND_LEARN_ALL_LANG,         Trinity::ChatCommands::Console::No },
+            { "recipes",    &HandleLearnAllRecipesCommand,       rbac::RBAC_PERM_COMMAND_LEARN_ALL_RECIPES,      Trinity::ChatCommands::Console::No },
         };
 
         static std::vector<ChatCommand> learnCommandTable =
         {
-            { "all",        SEC_GAMEMASTER, false,  learnAllCommandTable                },
-            { "",           SEC_GAMEMASTER, false,  &HandleLearnCommand,                },
+            { "all", learnAllCommandTable, rbac::RBAC_PERM_COMMAND_LEARN_ALL, Trinity::ChatCommands::Console::No },
+            { "",           &HandleLearnCommand,                rbac::RBAC_PERM_COMMAND_LEARN,                  Trinity::ChatCommands::Console::No },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "learn",      SEC_GAMEMASTER, false,  learnCommandTable                   },
-            { "unlearn",    SEC_GAMEMASTER, false,  &HandleUnLearnCommand,              },
+            { "learn",      learnCommandTable,                   rbac::RBAC_PERM_COMMAND_LEARN,                  Trinity::ChatCommands::Console::No },
+            { "unlearn",    &HandleUnLearnCommand,               rbac::RBAC_PERM_COMMAND_UNLEARN,                Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }
@@ -113,7 +113,7 @@ public:
         else
             targetPlayer->LearnSpell(spell, false);
 
-        if (GetTalentSpellCost(spellInfo->GetFirstRankSpell()->Id))
+        if (sDBCManager.GetTalentSpellCost(spellInfo->GetFirstRankSpell()->Id))
             targetPlayer->SendTalentsInfoData();
 
         return true;
@@ -157,7 +157,7 @@ public:
             if (!entry)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->spellId);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Spell);
             if (!spellInfo)
                 continue;
 
@@ -174,7 +174,7 @@ public:
                 continue;
 
             // skip spells with first rank learned as talent (and all talents then also)
-            if (GetTalentSpellCost(spellInfo->GetFirstRankSpell()->Id) > 0)
+            if (sDBCManager.GetTalentSpellCost(spellInfo->GetFirstRankSpell()->Id) > 0)
                 continue;
 
             // skip broken spells
@@ -215,7 +215,7 @@ public:
                 continue;
 
             // search highest talent rank
-            uint32 spellId = talentInfo->SpellId;
+            uint32 spellId = talentInfo->SpellID;
 
             if (!spellId)                                        // ??? none spells in talent
                 continue;
@@ -337,10 +337,10 @@ public:
             if (!skillInfo)
                 continue;
 
-            if ((skillInfo->categoryId == SKILL_CATEGORY_PROFESSION || skillInfo->categoryId == SKILL_CATEGORY_SECONDARY) &&
-                skillInfo->canLink)                             // only prof. with recipes have
+            if ((skillInfo->CategoryID == SKILL_CATEGORY_PROFESSION || skillInfo->CategoryID == SKILL_CATEGORY_SECONDARY) &&
+                skillInfo->CanLink)                             // only prof. with recipes have
             {
-                HandleLearnSkillRecipesHelper(target, skillInfo->id);
+                HandleLearnSkillRecipesHelper(target, skillInfo->ID);
             }
         }
 
@@ -377,12 +377,12 @@ public:
             if (!skillInfo)
                 continue;
 
-            if ((skillInfo->categoryId != SKILL_CATEGORY_PROFESSION &&
-                skillInfo->categoryId != SKILL_CATEGORY_SECONDARY) ||
-                !skillInfo->canLink)                            // only prof with recipes have set
+            if ((skillInfo->CategoryID != SKILL_CATEGORY_PROFESSION &&
+                skillInfo->CategoryID != SKILL_CATEGORY_SECONDARY) ||
+                !skillInfo->CanLink)                            // only prof with recipes have set
                 continue;
 
-            name = skillInfo->name[handler->GetSessionDbcLocale()];
+            name = skillInfo->DisplayName;
             if (name.empty())
                 continue;
 
@@ -395,10 +395,10 @@ public:
         if (!targetSkillInfo)
             return false;
 
-        HandleLearnSkillRecipesHelper(target, targetSkillInfo->id);
+        HandleLearnSkillRecipesHelper(target, targetSkillInfo->ID);
 
-        uint16 maxLevel = target->GetPureMaxSkillValue(targetSkillInfo->id);
-        target->SetSkill(targetSkillInfo->id, target->GetSkillStep(targetSkillInfo->id), maxLevel, maxLevel);
+        uint16 maxLevel = target->GetPureMaxSkillValue(targetSkillInfo->ID);
+        target->SetSkill(targetSkillInfo->ID, target->GetSkillStep(targetSkillInfo->ID), maxLevel, maxLevel);
         handler->PSendSysMessage(LANG_COMMAND_LEARN_ALL_RECIPES, name.c_str());
         return true;
     }
@@ -414,26 +414,26 @@ public:
                 continue;
 
             // wrong skill
-            if (skillLine->skillId != skillId)
+            if (skillLine->SkillLine != skillId)
                 continue;
 
             // not high rank
-            if (skillLine->forward_spellid)
+            if (skillLine->SupercededBySpell)
                 continue;
 
             // skip racial skills
-            if (skillLine->racemask != 0)
+            if (skillLine->RaceMask != 0)
                 continue;
 
             // skip wrong class skills
-            if (skillLine->classmask && (skillLine->classmask & classmask) == 0)
+            if (skillLine->ClassMask && (skillLine->ClassMask & classmask) == 0)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(skillLine->spellId);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(skillLine->Spell);
             if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, player, false))
                 continue;
 
-            player->LearnSpell(skillLine->spellId, false);
+            player->LearnSpell(skillLine->Spell, false);
         }
     }
 
@@ -466,7 +466,7 @@ public:
         else
             handler->SendSysMessage(LANG_FORGET_SPELL);
 
-        if (GetTalentSpellCost(spellId))
+        if (sDBCManager.GetTalentSpellCost(spellId))
             target->SendTalentsInfoData();
 
         return true;

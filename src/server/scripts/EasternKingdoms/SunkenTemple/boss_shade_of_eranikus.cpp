@@ -74,9 +74,9 @@ class boss_shade_of_eranikus : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 DoZoneInCombat();
                 instance->SetBossState(DATA_ERANIKUS, IN_PROGRESS);
@@ -157,7 +157,7 @@ class at_sunket_temple_eranikus : public AreaTriggerScript
             if (InstanceScript* instance = player->GetInstanceScript())
             {
                 if (instance->GetBossState(DATA_HAKKAR) == DONE && instance->GetBossState(DATA_JAMMAL) == DONE && instance->GetBossState(DATA_WARDENS) == DONE)
-                    if (Creature* m_eranikus = ObjectAccessor::GetCreature(*player, instance->GetData64(NPC_SHADE_OF_ERANIKUS)))
+                    if (Creature* m_eranikus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_SHADE_OF_ERANIKUS)))
                         m_eranikus->AI()->DoAction(ACTION_ERANIKUS_DREAM);
             }
 

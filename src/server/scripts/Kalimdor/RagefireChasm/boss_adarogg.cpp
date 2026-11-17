@@ -61,16 +61,16 @@ class boss_adarogg : public CreatureScript
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 // @TODO: Set in combat for other protectors
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                 {
@@ -85,7 +85,7 @@ class boss_adarogg : public CreatureScript
             {
                 if (pointId == EVENT_CHARGE)
                     if (uint32 m_inferno = GetData(TYPE_TARGET_ID))
-                        if (Player* InfernoTarget = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(m_inferno, 0, HIGHGUID_PLAYER)))
+                        if (Player* InfernoTarget = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player, m_inferno)))
                             DoCast(InfernoTarget, SPELL_INFERNO_CHARGE_EFF);
             }
 
@@ -129,7 +129,7 @@ class boss_adarogg : public CreatureScript
                             {
                                 //Talk(TALK_ANN, target);
                                 me->CastSpell(target, SPELL_INFERNO_CHARGE, false);
-                                m_InfernoTarget = target->GetGUIDLow();
+                                m_InfernoTarget = target->GetGUID();
                             }
 
                             events.ScheduleEvent(EVENT_INFERNO_CHARGE, urand(11 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
@@ -168,7 +168,7 @@ class spell_ragefire_inferno_charge : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                     if (caster->ToCreature() && caster->ToCreature()->AI())
                         if (uint32 m_inferno = caster->ToCreature()->AI()->GetData(TYPE_TARGET_ID))
-                            if (Player* InfernoTarget = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(m_inferno, 0, HIGHGUID_PLAYER)))
+                            if (Player* InfernoTarget = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player, m_inferno)))
                                 caster->GetMotionMaster()->MoveCharge(InfernoTarget->GetPositionX(), InfernoTarget->GetPositionY(), InfernoTarget->GetPositionZ(), 42.0f, EVENT_CHARGE);
             }
 

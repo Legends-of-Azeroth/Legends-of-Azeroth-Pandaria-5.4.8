@@ -96,7 +96,7 @@ class boss_gal_darah : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_SHARE_THE_LOVE, 0);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 
@@ -108,7 +108,7 @@ class boss_gal_darah : public CreatureScript
 
             void JustSummoned(Creature* summon) override
             {
-                summon->AddThreat(me, 1.0f); // To prevent them from entering evade mode via UpdateVictim()
+                summon->GetThreatManager().AddThreat(me, 1.0f); // To prevent them from entering evade mode via UpdateVictim()
                 summon->SetReactState(REACT_PASSIVE);
                 summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
                 summon->DespawnOrUnsummon(1500);
@@ -261,7 +261,7 @@ class boss_gal_darah : public CreatureScript
             InstanceScript* instance;
             EventMap events;
             std::set<uint64> impaled;
-            uint64 stampedeTarget;
+            ObjectGuid stampedeTarget;
             uint32 oocTimer;
         };
 
@@ -280,11 +280,11 @@ class npc_drakkari_rhino : public CreatureScript
         {
             npc_drakkari_rhinoAI(Creature* creature) : SmartAI(creature) { }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 me->RemoveAurasDueToSpell(VEHICLE_SPELL_RIDE_HARDCODED);
 
-                SmartAI::EnterCombat(who);
+                SmartAI::JustEngagedWith(who);
             }
 
             void GetPassengerExitPosition(Unit* passenger, int8 seatId, Position& pos) override

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -98,7 +98,7 @@ struct boss_twinemperorsAI : public ScriptedAI
     uint32 EnrageTimer;
 
     virtual bool IAmVeklor() = 0;
-    virtual void Reset() = 0;
+    virtual void Reset() override = 0;
     virtual void CastSpellOnBug(Creature* target) = 0;
 
     void TwinReset()
@@ -118,7 +118,7 @@ struct boss_twinemperorsAI : public ScriptedAI
     Creature* GetOtherBoss()
     {
         if (instance)
-            return Unit::GetCreature(*me, instance->GetData64(IAmVeklor() ? NPC_VEKNILASH : NPC_VEKLOR));
+            return Unit::GetCreature(*me, instance->GetGuidData(IAmVeklor() ? NPC_VEKNILASH : NPC_VEKLOR));
         else
             return NULL;
     }
@@ -164,7 +164,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         DoPlaySoundToSet(me, IAmVeklor() ? SOUND_VL_KILL : SOUND_VN_KILL);
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         DoZoneInCombat();
         Creature* pOtherBoss = GetOtherBoss();
@@ -243,7 +243,6 @@ struct boss_twinemperorsAI : public ScriptedAI
         Creature* pOtherBoss = GetOtherBoss();
         if (pOtherBoss)
         {
-            //me->MonsterYell("Teleporting ...", LANG_UNIVERSAL, 0);
             Position thisPos;
             thisPos.Relocate(me);
             Position otherPos;
@@ -289,7 +288,7 @@ struct boss_twinemperorsAI : public ScriptedAI
                 {
                     //DoYell(nearu->GetName(), LANG_UNIVERSAL, 0);
                     AttackStart(nearu);
-                    me->AddThreat(nearu, 10000);
+                    me->GetThreatManager().AddThreat(nearu, 10000);
                 }
                 return true;
             }
@@ -421,7 +420,7 @@ class boss_veknilash : public CreatureScript
     
         struct boss_veknilashAI : public boss_twinemperorsAI
         {
-            bool IAmVeklor() {return false;}
+            bool IAmVeklor() override { return false; }
             boss_veknilashAI(Creature* creature) : boss_twinemperorsAI(creature) { }
     
             uint32 UpperCut_Timer;
@@ -459,10 +458,10 @@ class boss_veknilash : public CreatureScript
                 }
             }
     
-            void CastSpellOnBug(Creature* target)
+            void CastSpellOnBug(Creature* target) override
             {
                 target->SetFaction(14);
-                target->AI()->AttackStart(me->getThreatManager().getHostilTarget());
+                target->AI()->AttackStart(me->GetThreatManager().GetCurrentVictim());
                 target->AddAura(SPELL_MUTATE_BUG, target);
                 target->SetFullHealth();
             }
@@ -521,7 +520,7 @@ class boss_veklor : public CreatureScript
     
         struct boss_veklorAI : public boss_twinemperorsAI
         {
-            bool IAmVeklor() {return true;}
+            bool IAmVeklor() override { return true; }
             boss_veklorAI(Creature* creature) : boss_twinemperorsAI(creature) { }
     
             uint32 ShadowBolt_Timer;
@@ -548,7 +547,7 @@ class boss_veklor : public CreatureScript
                 me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 0);
             }
     
-            void CastSpellOnBug(Creature* target)
+            void CastSpellOnBug(Creature* target) override
             {
                 target->SetFaction(14);
                 target->AddAura(SPELL_EXPLODEBUG, target);
@@ -569,7 +568,7 @@ class boss_veklor : public CreatureScript
                     me->m_Events.Schedule(delay += 3000, 10, [this]()
                     {
                         if (instance)
-                            if (Creature* vekhilash = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_VEKNILASH)))
+                            if (Creature* vekhilash = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_VEKNILASH)))
                                 vekhilash->AI()->DoAction(ACTION_INTRO);
                     });
 
@@ -652,7 +651,7 @@ class boss_veklor : public CreatureScript
                     if (me->Attack(who, false))
                     {
                         me->GetMotionMaster()->MoveChase(who, VEKLOR_DIST, 0);
-                        me->AddThreat(who, 0.0f);
+                        me->GetThreatManager().AddThreat(who, 0.0f);
                     }
                 }
             }
@@ -668,7 +667,7 @@ class AreaTrigger_at_twin_emperors : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                if (Creature* Veklor = ObjectAccessor::GetCreature(*player, instance->GetData64(NPC_VEKLOR)))
+                if (Creature* Veklor = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_VEKLOR)))
                     Veklor->AI()->DoAction(ACTION_INTRO);
     
             return false;

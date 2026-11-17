@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -327,7 +327,7 @@ public:
     void InitialiseStates(bool newBattlePet);
 
     Player* GetOwner() const { return m_owner; }
-    uint64 GetId() const { return m_id; }
+    ObjectGuid GetId() const { return m_id; }
     uint32 GetSpecies() const { return m_species; }
     uint8 GetFamilty() const { return m_family; }
     std::string GetNickname() const { return m_nickname; }
@@ -389,7 +389,7 @@ public:
 
 private:
     Player* m_owner;
-    uint64 m_id;
+    ObjectGuid m_id;
     std::string m_nickname;
     uint32 m_timestamp;
     uint32 m_species;

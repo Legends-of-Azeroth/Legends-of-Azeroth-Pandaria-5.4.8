@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -80,7 +80,7 @@ class npc_ritual_tiki_mask : public CreatureScript
                 me->SetDisableGravity(false);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_TIKI_BURN, urand(5000, 6000));
             }
@@ -167,7 +167,7 @@ class npc_cache_of_madness_artifact : public CreatureScript
                     default:
                         return true;
                 }
-                uint64 guid = instance->GetData64(dataId);
+                ObjectGuid guid = instance->GetGuidData(dataId);
                 EncounterState state = instance->GetBossState(DATA_CACHE_OF_MADNESS_BOSS);
                 if (creature->GetGUID() == guid && (state == NOT_STARTED || state == TO_BE_DECIDED))
                 {
@@ -217,8 +217,7 @@ class npc_cache_of_madness_artifact : public CreatureScript
                             }
                             if (summonId)
                             {
-                                Position pos;
-                                me->GetPosition(&pos);
+                                Position pos = me->GetPosition();
                                 me->SummonCreature(summonId, pos);
                                 me->SetPhaseMask(2, true);
                             }

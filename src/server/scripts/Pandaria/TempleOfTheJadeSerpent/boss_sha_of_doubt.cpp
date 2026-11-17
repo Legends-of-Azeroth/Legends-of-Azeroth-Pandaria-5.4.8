@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -148,7 +148,7 @@ class boss_sha_of_doubt : public CreatureScript
                         creature->DespawnOrUnsummon();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(TALK_AGGRO);
                 events.ScheduleEvent(EVENT_WITHER_WILL, 5 * IN_MILLISECONDS);
@@ -165,11 +165,11 @@ class boss_sha_of_doubt : public CreatureScript
                 me->m_Events.Schedule(delay += 3000, 20, [this]()
                 {
                     if (me->IsInCombat())
-                        _EnterCombat();
+                        _JustEngagedWith();
                 });
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)
@@ -319,7 +319,7 @@ class npc_figment_of_doubt : public CreatureScript
                     me->CastSpell((Unit*)NULL, SPELL_DRAW_DOUBT, false);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->CastSpell(me, SPELL_GATHERING_DOUBT, false);
                 events.ScheduleEvent(EVENT_GATHERING_DOUBT, 1 * IN_MILLISECONDS);
@@ -365,7 +365,7 @@ class npc_figment_of_doubt : public CreatureScript
                         summoner->RemoveAura(SPELL_DRAW_DOUBT);
                 }
 
-                if (Creature* sha = Unit::GetCreature(*me, instance->GetData64(DATA_SHA_OF_DOUBT)))
+                if (Creature* sha = Unit::GetCreature(*me, instance->GetGuidData(DATA_SHA_OF_DOUBT)))
                 {
                     if (sha->IsAIEnabled)
                         sha->AI()->DoAction(ACTION_FIGMENT_DIE);
@@ -472,12 +472,12 @@ struct npc_ghost_of_lin_dagu : public ScriptedAI
     InstanceScript* instance;
     EventMap events;
 
-    void Reset()
+    void Reset() override
     {
         events.Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(TALK_LIN_DEATH);
         events.ScheduleEvent(EVENT_NOODLES, urand(5, 8) * IN_MILLISECONDS);
@@ -628,7 +628,7 @@ class spell_noodles : public SpellScript
             Position pos;
             for (uint8 i = 0; i < 3; i++)
             {
-                caster->GetRandomNearPosition(pos, 15.0f);
+                pos = caster->GetRandomNearPosition(15.0f);
                 caster->CastSpell(pos, 147144);
             }
         }
@@ -652,7 +652,7 @@ class spell_dash_of_spice : public SpellScript
             Position pos;
             for (uint8 i = 0; i < 3; i++)
             {
-                caster->GetRandomNearPosition(pos, 25.0f);
+                pos = caster->GetRandomNearPosition(25.0f);
                 caster->CastSpell(pos, 147146);
             }
         }

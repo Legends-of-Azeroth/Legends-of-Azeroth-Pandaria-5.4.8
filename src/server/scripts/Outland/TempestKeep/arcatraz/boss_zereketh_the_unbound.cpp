@@ -61,9 +61,9 @@ class boss_zereketh_the_unbound : public CreatureScript
                     instance->SetData(TYPE_ZEREKETH, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(TALK_AGGRO);
 
                 events.ScheduleEvent(EVENT_VOID_ZONE, 14 * IN_MILLISECONDS);
@@ -76,7 +76,7 @@ class boss_zereketh_the_unbound : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
 

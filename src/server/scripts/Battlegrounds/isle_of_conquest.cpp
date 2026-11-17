@@ -42,7 +42,7 @@ struct boss_isle_of_conquest : public ScriptedAI
 {
     boss_isle_of_conquest(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset()
+    void Reset() override
     {
         uiMortalStrikeTimer         = 8 * IN_MILLISECONDS;
         uiDaggerThrowTimer          = 2 * IN_MILLISECONDS;
@@ -50,7 +50,7 @@ struct boss_isle_of_conquest : public ScriptedAI
         uiResetTimer                = 5 * IN_MILLISECONDS;
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         if (!me->IsWithinLOSInMap(who))
             EnterEvadeMode();
@@ -58,7 +58,7 @@ struct boss_isle_of_conquest : public ScriptedAI
         //Talk(YELL_AGGRO);
     }
 
-    void JustRespawned() override
+    void JustAppeared() override
     {
         Reset();
     }
@@ -234,7 +234,7 @@ struct npc_ioc_keep_cannon : public VehicleAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
-        if (me->HasFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH))
+        if (me->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH))
             damage = 0;
 
         if (me->GetHealth() <= damage)
@@ -341,7 +341,7 @@ class spell_ioc_launch : public SpellScript
         {
             GetCaster()->CastSpell(GetCaster(), SPELL_LAUNCH_NO_FALLING_DAMAGE_AURA, true);
 
-            uint64 vehicleGUID = GetCaster()->GetGUID();
+            ObjectGuid vehicleGUID = GetCaster()->GetGUID();
             SpellCastTargets targets = GetSpell()->m_targets;
             player->m_Events.Schedule(1500, [player, vehicleGUID, targets]()
             {

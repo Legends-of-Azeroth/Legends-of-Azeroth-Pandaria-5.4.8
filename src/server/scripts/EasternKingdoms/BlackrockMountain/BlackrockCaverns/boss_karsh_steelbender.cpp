@@ -78,9 +78,9 @@ class boss_karsh_steelbender : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_TOO_HOT_TO_HANDLE, 0);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);

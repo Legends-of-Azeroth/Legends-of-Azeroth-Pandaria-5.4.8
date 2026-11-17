@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -32,6 +32,7 @@ using QueryResultPromise = std::promise<QueryResult>;
 class CharacterDatabaseConnection;
 class LoginDatabaseConnection;
 class WorldDatabaseConnection;
+class PlayerbotsDatabaseConnection;
 
 class PreparedStatementBase;
 
@@ -41,6 +42,9 @@ class PreparedStatement;
 using CharacterDatabasePreparedStatement = PreparedStatement<CharacterDatabaseConnection>;
 using LoginDatabasePreparedStatement = PreparedStatement<LoginDatabaseConnection>;
 using WorldDatabasePreparedStatement = PreparedStatement<WorldDatabaseConnection>;
+#ifdef PLAYERBOTS
+using PlayerbotsPreparedStatement = PreparedStatement<PlayerbotsDatabaseConnection>;
+#endif
 
 class PreparedResultSet;
 using PreparedQueryResult = std::shared_ptr<PreparedResultSet>;
@@ -70,6 +74,9 @@ using SQLTransaction = std::shared_ptr<Transaction<T>>;
 using CharacterDatabaseTransaction = SQLTransaction<CharacterDatabaseConnection>;
 using LoginDatabaseTransaction = SQLTransaction<LoginDatabaseConnection>;
 using WorldDatabaseTransaction = SQLTransaction<WorldDatabaseConnection>;
+#ifdef PLAYERBOTS
+using PlayerbotsDatabaseTransaction = SQLTransaction<PlayerbotsDatabaseConnection>;
+#endif
 
 class SQLQueryHolderBase;
 using QueryResultHolderFuture = std::future<void>;
@@ -81,6 +88,9 @@ class SQLQueryHolder;
 using CharacterDatabaseQueryHolder = SQLQueryHolder<CharacterDatabaseConnection>;
 using LoginDatabaseQueryHolder = SQLQueryHolder<LoginDatabaseConnection>;
 using WorldDatabaseQueryHolder = SQLQueryHolder<WorldDatabaseConnection>;
+#ifdef PLAYERBOTS
+using PlayerbotsDatabaseQueryHolder = SQLQueryHolder<PlayerbotsDatabaseConnection>;
+#endif
 
 class SQLQueryHolderCallback;
 

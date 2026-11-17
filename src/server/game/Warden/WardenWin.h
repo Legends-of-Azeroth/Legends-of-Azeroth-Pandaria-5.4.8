@@ -41,16 +41,16 @@ class WardenWin : public Warden
         WardenWin();
         ~WardenWin();
 
-        void Init(WorldSession* session, BigNumber* K);
-        void RequestHash();
-        void HandleHashResult(ByteBuffer &buff);
-        void RequestData(WardenRequestContext* context = NULL);
-        void HandleData(ByteBuffer &buff);
+        void Init(WorldSession* session, BigNumber* K) override;
+        void RequestHash() override;
+        void HandleHashResult(ByteBuffer &buff) override;
+        void RequestData(WardenRequestContext* context = nullptr) override;
+        void HandleData(ByteBuffer &buff) override;
 
         void Disable() override;
 
-        bool GetEndSceneAddress(int32& addr);
-        void DoCustomMemCheck(uint32 addr, uint32 len, uint64 guid = 0);
+        bool GetEndSceneAddress(int32& addr) override;
+        void DoCustomMemCheck(uint32 addr, uint32 len, ObjectGuid guid = ObjectGuid::Empty);
         void HandleEndSceneResult(ByteBuffer& buff, WardenCheck* check);
         void ContinueCheck();
 

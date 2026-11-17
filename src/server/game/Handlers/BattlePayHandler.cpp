@@ -21,7 +21,7 @@
 #include "Player.h"
 #include "ServiceBoost.h"
 
-void WorldSession::HandleBattlePayGetProductList(WorldPacket& /*recvData*/)
+void WorldSession::HandleBattlePayGetProductList(WorldPackets::BattlePay::BattlePayGetProductList& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BATTLE_PAY_GET_PRODUCT_LIST");
 
@@ -44,36 +44,33 @@ void WorldSession::HandleBattlePayGetProductList(WorldPacket& /*recvData*/)
     sBattlePayMgr->SendPointsBalance(this);
 }
 
-void WorldSession::HandleBattlePayStartPurchase(WorldPacket& recvData)
+void WorldSession::HandleBattlePayStartPurchase(WorldPackets::BattlePay::BattlePayStartPurchase& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BATTLE_PAY_START_PURCHASE");
 
-    uint32 productID = recvData.read<uint32>();
-    uint32 clientToken = recvData.read<uint32>();
-
-    ObjectGuid guid;
-    recvData.ReadGuidMask(guid, 2, 3, 5, 1, 4, 7, 0, 6);
-    recvData.ReadGuidBytes(guid, 5, 3, 7, 1, 4, 0, 6, 2);
+    uint32 productID = packet.ProductId;
+    uint32 clientToken = packet.ClientToken;
+    ObjectGuid guid = packet.Guid;
 
     uint32 purchaseId = irand(1, 999999); // temp solution
 
     sBattlePayMgr->AddQuenedPurchaseResponse(new PurchaseInfo(this, guid, purchaseId, productID, BATTLE_PAY_PURCHASE_STATUS_READY, BATTLE_PAY_RESULT_OK, clientToken, 0, false), 500, true);
 }
 
-void WorldSession::HandleBattlePayGetPurchaseList(WorldPacket& /*recvData*/)
+void WorldSession::HandleBattlePayGetPurchaseList(WorldPackets::BattlePay::BattlePayGetPurchaseList& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BATTLE_PAY_GET_PURCHASE_LIST");
 
     sBattlePayMgr->SendBattlePayPurchaseList(this);
 }
 
-void WorldSession::HandleBattlePayConfirmPurchaseResponse(WorldPacket& recvData)
+void WorldSession::HandleBattlePayConfirmPurchaseResponse(WorldPackets::BattlePay::BattlePayConfirmPurchaseResponse& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BATTLE_PAY_CONFIRM_PURCHASE_RESPONSE");
 
-    uint64 currentPrice = recvData.read<uint64>(); // TODO: use it!
-    uint32 serverToken = recvData.read<uint32>();
-    bool confirm = recvData.read<bool>();
+    uint64 currentPrice = packet.CurrentPrice; // TODO: use it!
+    uint32 serverToken = packet.ServerToken;
+    bool confirm = packet.Confirm;
 
     PurchaseInfo* purchase = sBattlePayMgr->GetPurchaseInfo();
     if (confirm && serverToken == purchase->ServerToken)
@@ -82,53 +79,42 @@ void WorldSession::HandleBattlePayConfirmPurchaseResponse(WorldPacket& recvData)
         sBattlePayMgr->SendBattlePayPurchaseUpdate(new PurchaseInfo(this, purchase->SelectedPlayer, purchase->PurchaseId, purchase->ProductId, BATTLE_PAY_PURCHASE_STATUS_ALLOWED_TO_BUY, BATTLE_PAY_RESULT_DECLINED, purchase->ClientToken, 0, false));
 }
 
-void WorldSession::HandleBattlePayCharBoost(WorldPacket& recvData)
+void WorldSession::HandleBattlePayCharBoost(WorldPackets::BattlePay::BattlePayCharBoost& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BATTLE_PAY_CHAR_BOOST");
 
     if (!HasBoost())
     {
         TC_LOG_ERROR("network", "WorldSession::HandleBattleCharBoost called, but player has not allowed boost.");
-        recvData.rfinish();
         return;
     }
 
-    ObjectGuid guid, guid2;
+    ObjectGuid guid = packet.Guid;
 
-    recvData.read_skip<uint32>();
-    recvData.ReadGuidMask(guid2, 1);
-    recvData.ReadGuidMask(guid, 0);
-    recvData.ReadGuidMask(guid2, 5, 4);
-    recvData.ReadGuidMask(guid, 3);
-    recvData.ReadGuidMask(guid2, 6, 0);
-    recvData.ReadGuidMask(guid, 5);
-    recvData.ReadGuidMask(guid2, 3, 7);
-    recvData.ReadGuidMask(guid, 1);
-    recvData.ReadGuidMask(guid2, 2);
-    recvData.ReadGuidMask(guid, 2);
-    bool hasCharInfo = !recvData.ReadBit();
-    recvData.ReadGuidMask(guid, 7, 4, 6);
-
-    recvData.ReadGuidBytes(guid, 2);
-    recvData.ReadGuidBytes(guid2, 0);
-    recvData.ReadGuidBytes(guid, 0, 7);
-    recvData.ReadGuidBytes(guid2, 7);
-    recvData.ReadGuidBytes(guid, 3);
-    recvData.ReadGuidBytes(guid2, 6, 4, 5);
-    recvData.ReadGuidBytes(guid, 1, 6, 4);
-    recvData.ReadGuidBytes(guid2, 1, 2, 3);
-    recvData.ReadGuidBytes(guid, 5);
-
-    if (hasCharInfo)
+    if (packet.HasCharInfo)
     {
-        uint32 charInfo = recvData.read<uint32>();
+        uint32 charInfo = packet.CharInfo;
 
         sBattlePayMgr->SendBattlePayDistributionUpdate(this, BATTLE_PAY_SERVICE_BOOST, CHARACTER_BOOST_CHOOSED);
         GetBoost()->SetBoostedCharInfo(guid, CHARACTER_BOOST_ITEMS, (charInfo & CHARACTER_BOOST_SPEC_MASK), (charInfo & CHARACTER_BOOST_FACTION_ALLIANCE));
 
         WorldPacket data(SMSG_CHARACTER_UPGRADE_STARTED, 8);
-        data.WriteGuidMask(guid, 6, 2, 5, 4, 7, 0, 3, 1);
-        data.WriteGuidBytes(guid, 4, 1, 6, 0, 7, 5, 2, 3);
+        data.WriteBit(guid[6]);
+        data.WriteBit(guid[2]);
+        data.WriteBit(guid[5]);
+        data.WriteBit(guid[4]);
+        data.WriteBit(guid[7]);
+        data.WriteBit(guid[0]);
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[1]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[3]);
         SendPacket(&data);
     }
 }

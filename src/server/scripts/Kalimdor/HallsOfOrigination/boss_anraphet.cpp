@@ -84,7 +84,7 @@ class boss_anraphet : public CreatureScript
                 //me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
 
             void Reset() override
             {
@@ -95,12 +95,12 @@ class boss_anraphet : public CreatureScript
 
                 DespawnCreatures(NPC_ALPHA_BEAM);
                 DespawnCreatures(NPC_OMEGA_STANCE);
-                targetGUID = 0;
+                targetGUID = ObjectGuid::Empty;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (instance)
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);

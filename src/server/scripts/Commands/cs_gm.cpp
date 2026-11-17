@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -31,6 +31,7 @@ EndScriptData */
 #include "World.h"
 #include "Player.h"
 #include "Opcodes.h"
+#include "Realm.h"
 
 class gm_commandscript : public CommandScript
 {
@@ -41,16 +42,16 @@ public:
     {
         static std::vector<ChatCommand> gmCommandTable =
         {
-            { "chat",       SEC_MODERATOR,  false,  &HandleGMChatCommand,       },
-            { "fly",        SEC_GAMEMASTER,  false,  &HandleGMFlyCommand,        },
-            { "ingame",     SEC_PLAYER,     true,   &HandleGMListIngameCommand, },
-            { "list",       SEC_PLAYER,     true,   &HandleGMListFullCommand,   },
-            { "visible",    SEC_GAMEMASTER,  false,  &HandleGMVisibleCommand,    },
-            { "",           SEC_GAMEMASTER,  false,  &HandleGMCommand,           },
+            { "chat",       &HandleGMChatCommand,       rbac::RBAC_PERM_COMMAND_GM_CHAT,   Trinity::ChatCommands::Console::No },
+            { "fly",        &HandleGMFlyCommand,        rbac::RBAC_PERM_COMMAND_GM_FLY,    Trinity::ChatCommands::Console::No },
+            { "ingame",     &HandleGMListIngameCommand, rbac::RBAC_PERM_COMMAND_GM_INGAME, Trinity::ChatCommands::Console::Yes },
+            { "list",       &HandleGMListFullCommand,   rbac::RBAC_PERM_COMMAND_GM_LIST,   Trinity::ChatCommands::Console::Yes },
+            { "visible",    &HandleGMVisibleCommand,    rbac::RBAC_PERM_COMMAND_GM_VISIBLE, Trinity::ChatCommands::Console::No },
+            { "",           &HandleGMCommand,           rbac::RBAC_PERM_COMMAND_GM,        Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "gm",         SEC_GAMEMASTER,  false,  gmCommandTable              },
+            { "gm",         gmCommandTable,              rbac::RBAC_PERM_COMMAND_GM,        Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }
@@ -140,7 +141,7 @@ public:
         bool first = true;
 
         std::shared_lock<std::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
-        HashMapHolder<Player>::MapType const&m = sObjectAccessor->GetPlayers();
+        HashMapHolder<Player>::MapType const&m = ObjectAccessor::GetPlayers();
         for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
         {
             AccountTypes itr_sec = itr->second->GetSession()->GetSecurity();
@@ -174,7 +175,7 @@ public:
         ///- Get the accounts with GM Level >0
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_GM_ACCOUNTS);
         stmt->setUInt8(0, uint8(SEC_MODERATOR));
-        stmt->setInt32(1, int32(realmID));
+        stmt->setInt32(1, int32(realm.Id.Realm));
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
         if (result)

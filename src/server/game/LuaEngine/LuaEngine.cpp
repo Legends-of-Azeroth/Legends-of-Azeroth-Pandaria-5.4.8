@@ -1,15 +1,28 @@
 /*
-* Copyright (C) 2010 - 2013 Eluna Lua Engine <http://emudevs.com/>
-* This program is free software licensed under GPL version 3
-* Please see the included DOCS/LICENSE.TXT for more information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "LuaEngine.h"
+#include "LuaFunctions.h"
 #include "Config.h"
-// #include "HookMgr.h"
+#include "HookMgr.h"
 
 #if PLATFORM == PLATFORM_UNIX
 #include <dirent.h>
+#include <sys/stat.h>
 #endif
 
 template<typename T> const char* GetTName() { return NULL; }
@@ -32,9 +45,6 @@ template<> const char* GetTName<Map>() { return "Map"; }
 template<> const char* GetTName<Corpse>() { return "Corpse"; }
 template<> const char* GetTName<Weather>() { return "Weather"; }
 template<> const char* GetTName<AuctionHouseObject>() { return "AuctionHouse"; }
-
-extern void RegisterFunctions(lua_State* L);
-extern void AddElunaScripts();
 
 void StartEluna(bool restart)
 {
@@ -117,7 +127,7 @@ void StartEluna(bool restart)
         strcpy(filename, itr->c_str());
         if (luaL_loadfile(sEluna->L, filename) != 0)
         {
-            TC_LOG_INFO("server.loading", "[Eluna]: Error loading file `%s`.", itr->c_str());
+            TC_LOG_INFO("server.loading", "[Eluna]: Error loading file `{}`.", itr->c_str());
             sEluna->report(sEluna->L);
         }
         else
@@ -125,7 +135,7 @@ void StartEluna(bool restart)
             int err = lua_pcall(sEluna->L, 0, 0, 0);
             if (err != 0 && err == LUA_ERRRUN)
             {
-                TC_LOG_INFO("server.loading", "server.loading", "[Eluna]: Error loading file `%s`.", itr->c_str());
+                TC_LOG_INFO("server.loading", "server.loading", "[Eluna]: Error loading file `{}`.", itr->c_str());
                 sEluna->report(sEluna->L);
             }
         }
@@ -137,31 +147,26 @@ void StartEluna(bool restart)
     {
         //! Iterate over every supported source type (creature and gameobject)
         //! Not entirely sure how this will affect units in non-loaded grids.
+        sMapMgr->DoForAllMaps([](Map* map)
         {
-            //HashMapHolder<Creature>::ReadGuard g(HashMapHolder<Creature>::GetLock());
-            HashMapHolder<Creature>::MapType& m = HashMapHolder<Creature>::GetContainer();
-            for (HashMapHolder<Creature>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
+            for (auto itr : map->GetCreatureBySpawnIdStore())
             {
-                if (itr->second->IsInWorld()) // must check?
-                     if(sEluna->CreatureEventBindings->GetBindMap(itr->second->GetEntry())) // update all AI or just Eluna?
-                        itr->second->AIM_Initialize();
+                if (itr.second->IsInWorld())
+                    if(sEluna->CreatureEventBindings->GetBindMap(itr.second->GetEntry())) // update all AI or just Eluna?
+                        itr.second->AIM_Initialize();
             }
-        }
 
-        {
-            //HashMapHolder<GameObject>::ReadGuard g(HashMapHolder<GameObject>::GetLock());
-            HashMapHolder<GameObject>::MapType& m = HashMapHolder<GameObject>::GetContainer();
-            for (HashMapHolder<GameObject>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
+            for (auto itr : map->GetGameObjectBySpawnIdStore())
             {
-                if (itr->second->IsInWorld()) // must check?
-                     if(sEluna->GameObjectEventBindings->GetBindMap(itr->second->GetEntry())) // update all AI or just Eluna?
-                        itr->second->AIM_Initialize();
+                if (itr.second->IsInWorld())
+                    if(sEluna->GameObjectEventBindings->GetBindMap(itr.second->GetEntry())) // update all AI or just Eluna?
+                        itr.second->AIM_Initialize();
             }
-        }
+        });
     }
     
     
-    TC_LOG_INFO("server.loading", "[Eluna]: Loaded %u Lua scripts..", count);
+    TC_LOG_INFO("server.loading", "[Eluna]: Loaded {} Lua scripts..", count);
     TC_LOG_INFO("server.loading", "");
 }
 
@@ -218,7 +223,7 @@ void Eluna::LoadDirectory(const char* Dirname, LoadedScripts* lscr)
             ext[i++] = '\0';
             if (!_stricmp(ext, "aul."))
             {
-                //TC_LOG_DEBUG("server.loading", "[Eluna]: Load File: %s", fname.c_str());
+                //TC_LOG_DEBUG("server.loading", "[Eluna]: Load File: {}", fname.c_str());
                 lscr->insert(fname);
             }
         }
@@ -247,7 +252,7 @@ void Eluna::LoadDirectory(const char* Dirname, LoadedScripts* lscr)
         if (stat(_path, &attributes) == -1)
         {
             error = true;
-            TC_LOG_ERROR("server.loading", "[Eluna]: Error opening `%s`", _path);
+            TC_LOG_ERROR("server.loading", "[Eluna]: Error opening `{}`", _path);
         }
         else
             error = false;

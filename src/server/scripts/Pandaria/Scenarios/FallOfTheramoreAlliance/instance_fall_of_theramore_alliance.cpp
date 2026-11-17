@@ -32,8 +32,8 @@ class instance_fall_of_theramore_alliance : public InstanceMapScript
             instance_fall_of_theramore_alliance_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             uint32 m_auiEncounter[CHAPTERS];
-            std::list<uint64> beachPhaseGUIDs, ruinsPhaseGUIDs;
-            uint64 jainaGUID;
+            std::list<ObjectGuid> beachPhaseGUIDs, ruinsPhaseGUIDs;
+            ObjectGuid jainaGUID;
             uint32 wCaptainsSlain, wBarrelsExploded, wCaptainsSlain1, wTrashSlain1, wWyvernSlain, wGashnulSlain, wStolenStandards, wGateCrusherSlain, chapterOne, chapterTwo, chapterThree, chapterFour, chapterFive, chapterSix;
 
             void Initialize() override
@@ -52,7 +52,7 @@ class instance_fall_of_theramore_alliance : public InstanceMapScript
                 wGashnulSlain     = 0;
                 wStolenStandards  = 0;
                 wGateCrusherSlain = 0;
-                jainaGUID         = 0;
+                jainaGUID = ObjectGuid::Empty;
 
                 chapterOne        = 0;
                 chapterTwo        = 0;
@@ -177,7 +177,7 @@ class instance_fall_of_theramore_alliance : public InstanceMapScript
             }
 
             // Thx blizzard :/
-            void HandleActivateSpawnRegion(std::vector<uint32> guardsEntry, std::list<uint64> guardGUIDs)
+            void HandleActivateSpawnRegion(std::vector<uint32> guardsEntry, std::list<ObjectGuid> guardGUIDs)
             {
                 for (auto&& guardItr : guardGUIDs)
                 {
@@ -314,12 +314,12 @@ class instance_fall_of_theramore_alliance : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const override
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 if (type == NPC_JAINA_PROUDMOORE)
                     return jainaGUID;
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool IsWipe(float range, Unit* source) override

@@ -68,10 +68,10 @@ class boss_mennu_the_betrayer : public CreatureScript
                     instance->SetData(DATA_MENNU_THE_BETRAYER, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(TALK_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_STONESKIN_TOTEM, urand(18 * IN_MILLISECONDS, 26 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_EARTHGRAB_TOTEM, urand(19 * IN_MILLISECONDS, 26.2 * IN_MILLISECONDS));
@@ -86,7 +86,7 @@ class boss_mennu_the_betrayer : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
 

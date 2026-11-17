@@ -136,7 +136,7 @@ class boss_malkorok : public CreatureScript
             EventMap berserkerEvents;
             uint32 ArcingSmashCount;
             uint32 phase;
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             uint32 energyGainTick;
             uint32 breathCount;
             bool hasIntroDone;
@@ -155,12 +155,12 @@ class boss_malkorok : public CreatureScript
                 me->SetPower(POWER_ENERGY, 0);
                 DoCast(me, SPELL_ZERO_POWER);
                 phase = 1;
-                targetGUID = 0;
+                targetGUID = ObjectGuid::Empty;
                 energyGainTick = 0;
                 breathCount = 0;
                 me->SetAutoattackOverrideSpell(0, 0);
 
-                if (Creature* AncientMiasma = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_ANCIENT_MIASMA) : 0))
+                if (Creature* AncientMiasma = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_ANCIENT_MIASMA) : ObjectGuid::Empty))
                     AncientMiasma->AI()->DoAction(ACTION_ACTIVATE_MIASMA);
 
                 summons.DespawnAll();
@@ -183,9 +183,9 @@ class boss_malkorok : public CreatureScript
                     instance->SetBossState(DATA_MALKOROK, FAIL);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 me->SetReactState(REACT_AGGRESSIVE);
                 Talk(TALK_AGGRO);
@@ -269,7 +269,7 @@ class boss_malkorok : public CreatureScript
 
                         Miasma(false);
 
-                        if (Creature* AncientMiasma = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_ANCIENT_MIASMA) : 0))
+                        if (Creature* AncientMiasma = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_ANCIENT_MIASMA) : ObjectGuid::Empty))
                             AncientMiasma->AI()->DoAction(ACTION_ACTIVATE_MIASMA);
                         break;
                 }
@@ -277,7 +277,7 @@ class boss_malkorok : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/) override { }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();
@@ -297,7 +297,7 @@ class boss_malkorok : public CreatureScript
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ZEN);
                     instance->DoRemoveBloodLustDebuffSpellOnPlayers();
 
-                    if (Creature* AncientMiasma = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_ANCIENT_MIASMA)))
+                    if (Creature* AncientMiasma = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_ANCIENT_MIASMA)))
                     {
                         AncientMiasma->RemoveAurasDueToSpell(SPELL_ESSENCE_OF_YSHAARJ);
                         AncientMiasma->RemoveAllAreasTrigger();
@@ -331,7 +331,7 @@ class boss_malkorok : public CreatureScript
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ZEN);
                     instance->DoRemoveBloodLustDebuffSpellOnPlayers();
 
-                    if (Creature* AncientMiasma = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_ANCIENT_MIASMA)))
+                    if (Creature* AncientMiasma = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_ANCIENT_MIASMA)))
                     {
                         AncientMiasma->RemoveAurasDueToSpell(SPELL_ESSENCE_OF_YSHAARJ);
                         AncientMiasma->RemoveAllAreasTrigger();
@@ -479,7 +479,7 @@ class boss_malkorok : public CreatureScript
 
                     Miasma(true);
 
-                    if (Creature* AncientMiasma = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_ANCIENT_MIASMA) : 0))
+                    if (Creature* AncientMiasma = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_ANCIENT_MIASMA) : ObjectGuid::Empty))
                         AncientMiasma->AI()->DoAction(ACTION_EXPEL_MIASMA);
 
                     Talk(TALK_BLOOD_RAGE_ANN);
@@ -499,7 +499,7 @@ class boss_malkorok : public CreatureScript
                         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ANCIENT_MIASMA);
                         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ANCIENT_MIASMA_EFF);
 
-                        if (Creature* AncientMiasma = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_ANCIENT_MIASMA) : 0))
+                        if (Creature* AncientMiasma = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_ANCIENT_MIASMA) : ObjectGuid::Empty))
                             AncientMiasma->RemoveAurasDueToSpell(SPELL_ESSENCE_OF_YSHAARJ);
                     }
                     else
@@ -509,7 +509,7 @@ class boss_malkorok : public CreatureScript
 
                         if (IsHeroic())
                         {
-                            if (Creature* AncientMiasma = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_ANCIENT_MIASMA) : 0))
+                            if (Creature* AncientMiasma = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_ANCIENT_MIASMA) : ObjectGuid::Empty))
                                 AncientMiasma->CastSpell(AncientMiasma, SPELL_ESSENCE_OF_YSHAARJ, true);
                         }
                     }
@@ -704,7 +704,7 @@ struct npc_malkorok_controller : public ScriptedAI
             {
                 smashTrigger->CastSpell(smashTrigger, SPELL_ARCING_SMASH, false);
                 
-                if (Creature* malkorok = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_MALKOROK) : 0))
+                if (Creature* malkorok = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_MALKOROK) : ObjectGuid::Empty))
                 {
                     malkorok->PlayOneShotAnimKitId(4308);
                     malkorok->PrepareChanneledCast(smashTrigger->GetOrientation(), SPELL_ARCING_SMASH_VISUAL_CAST);
@@ -875,7 +875,7 @@ class spell_malkorok_arcing_smash_controll : public SpellScript
     void HandleHit(SpellEffIndex effIndex)
     {
         if (Creature* caster = GetCaster()->ToCreature())
-            if (Creature* controller = ObjectAccessor::GetCreature(*caster, caster->GetInstanceScript() ? caster->GetInstanceScript()->GetData64(NPC_MALKOROK_CONTROLLER) : 0))
+            if (Creature* controller = ObjectAccessor::GetCreature(*caster, caster->GetInstanceScript() ? caster->GetInstanceScript()->GetGuidData(NPC_MALKOROK_CONTROLLER) : ObjectGuid::Empty))
                 controller->AI()->DoAction(ACTION_INIT_ARCING_SEQ);
     }
 
@@ -1013,7 +1013,7 @@ class spell_malkorok_ancient_miasma_heal_absorb : public AuraScript
             {
                 int32 bp = absorb > owner->GetMaxHealth() ? owner->GetMaxHealth() : (int32)absorb;
 
-                if (Creature* controller = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetData64(NPC_MALKOROK_CONTROLLER) : 0))
+                if (Creature* controller = ObjectAccessor::GetCreature(*owner, owner->GetInstanceScript() ? owner->GetInstanceScript()->GetGuidData(NPC_MALKOROK_CONTROLLER) : ObjectGuid::Empty))
                     controller->CastCustomSpell(owner, SPELL_ANCIENT_BARRIER, &bp, NULL, NULL, true);
             }
         }

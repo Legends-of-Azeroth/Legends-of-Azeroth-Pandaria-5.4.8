@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -184,7 +184,7 @@ bool BattlegroundSA::ResetObjs()
 
         if (!sg)
         {
-            TC_LOG_ERROR("bg.battleground", "SOTA: Can't find GY entry %u", BG_SA_GYEntries[i]);
+            TC_LOG_ERROR("bg.battleground", "SOTA: Can't find GY entry {}", BG_SA_GYEntries[i]);
             return false;
         }
 
@@ -197,7 +197,7 @@ bool BattlegroundSA::ResetObjs()
         {
             GraveyardStatus[i] = ((Attackers == TEAM_HORDE)? TEAM_ALLIANCE : TEAM_HORDE);
             if (!AddSpiritGuide(i + BG_SA_MAXNPC, sg->x, sg->y, sg->z, BG_SA_GYOrientation[i], ((Attackers == TEAM_HORDE)? ALLIANCE : HORDE)))
-                TC_LOG_ERROR("bg.battleground", "SOTA: couldn't spawn GY: %u", i);
+                TC_LOG_ERROR("bg.battleground", "SOTA: couldn't spawn GY: {}", i);
         }
     }
 
@@ -568,7 +568,7 @@ void BattlegroundSA::AddPlayer(Player* player)
     PlayerScores[player->GetGUID()] = sc;
 }
 
-void BattlegroundSA::RemovePlayer(Player* player, uint64 guid, uint32 team)
+void BattlegroundSA::RemovePlayer(Player* player, ObjectGuid guid, uint32 team)
 {
     if (player)
     {
@@ -577,7 +577,7 @@ void BattlegroundSA::RemovePlayer(Player* player, uint64 guid, uint32 team)
     Battleground::RemovePlayer(player, guid, team);
 }
 
-void BattlegroundSA::HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/)
+void BattlegroundSA::HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/, bool /*Entered*/)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)
@@ -905,14 +905,14 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
     if (GraveyardStatus[i] == Attackers)
         return;
 
-    uint64 spiritGuideGUID = BgCreatures[BG_SA_MAXNPC + i];
+    ObjectGuid spiritGuideGUID = BgCreatures[BG_SA_MAXNPC + i];
 
     DelCreature(BG_SA_MAXNPC + i);
     GraveyardStatus[i] = Source->GetBGTeamId();
     WorldSafeLocsEntry const* sg = sWorldSafeLocsStore.LookupEntry(BG_SA_GYEntries[i]);
     if (!sg)
     {
-        TC_LOG_ERROR("bg.battleground", "BattlegroundSA::CaptureGraveyard: non-existant GY entry: %u", BG_SA_GYEntries[i]);
+        TC_LOG_ERROR("bg.battleground", "BattlegroundSA::CaptureGraveyard: non-existant GY entry: {}", BG_SA_GYEntries[i]);
         return;
     }
 
@@ -1003,7 +1003,7 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
 
     // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
     WorldSafeLocsEntry const* grave = nullptr;
-    std::vector<uint64> guids = m_ReviveQueue[spiritGuideGUID];
+    std::vector<ObjectGuid> guids = m_ReviveQueue[spiritGuideGUID];
     for (auto&& guid : guids)
     {
         Player* player = ObjectAccessor::FindPlayer(guid);

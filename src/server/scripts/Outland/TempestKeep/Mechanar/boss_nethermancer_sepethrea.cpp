@@ -25,6 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "mechanar.h"
+#include "Random.h"
 
 enum Says
 {
@@ -66,9 +67,9 @@ class boss_nethermancer_sepethrea : public CreatureScript
         {
             boss_nethermancer_sepethreaAI(Creature* creature) : BossAI(creature, DATA_NETHERMANCER_SEPRETHREA) { }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_FROST_ATTACK, urand(7000, 10000));
                 events.ScheduleEvent(EVENT_ARCANE_BLAST, urand(12000, 18000));
                 events.ScheduleEvent(EVENT_DRAGONS_BREATH, urand(18000, 22000));
@@ -172,7 +173,7 @@ class npc_ragin_flames : public CreatureScript
                     me->SetSpeed(MOVE_RUN, DUNGEON_MODE(0.5f, 0.7f));
                 }
 
-                void EnterCombat(Unit* /*who*/) override
+                void JustEngagedWith(Unit* /*who*/) override
                 {
                 }
 
@@ -206,7 +207,7 @@ class npc_ragin_flames : public CreatureScript
                     if (inferno_Timer <= diff)
                     {
                         DoCastVictim(SPELL_INFERNO);
-                        me->TauntApply(me->GetVictim());
+                        me->GetThreatManager().TauntUpdate();
                         inferno_Timer = 10000;
                     } else inferno_Timer -= diff;
 

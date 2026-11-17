@@ -53,7 +53,7 @@ struct brewmoon_yaungol_typeAI : public ScriptedAI
         onBloat = false;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         nonCombatEvents.Reset();
         me->SetHomePosition(*me);
@@ -99,9 +99,9 @@ class npc_den_mother_moof : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                if (Creature* kieu = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_ASSISTANT_KIEU) : 0))
+                if (Creature* kieu = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_ASSISTANT_KIEU) : ObjectGuid::Empty))
                     kieu->AI()->Talk(TALK_SPECIAL_3);
 
                 events.ScheduleEvent(EVENT_WHIRLWIND, 6 * IN_MILLISECONDS);
@@ -206,7 +206,7 @@ class npc_li_te : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_WATER_SHELL, 20 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_WATER_BOLT, urand(3 * IN_MILLISECONDS, 6 * IN_MILLISECONDS));
@@ -326,7 +326,7 @@ class npc_karsar_bloodletter : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_BLOODLETTING, urand(3 * IN_MILLISECONDS, 4 * IN_MILLISECONDS));
             }
@@ -400,7 +400,7 @@ class npc_disturbed_saurok : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_GASH, urand(4 * IN_MILLISECONDS, 4.5 * IN_MILLISECONDS));
             }
@@ -468,7 +468,7 @@ class npc_brewmoon_water_spirit : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_WATER_BOLT, urand(4 * IN_MILLISECONDS, 4.5 * IN_MILLISECONDS));
             }
@@ -633,7 +633,7 @@ class npc_assistant_tart : public CreatureScript
                         }
                         break;
                     case ACTION_BREWMOON_FESTIVAL:
-                        if (Creature* m_boat = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_TARTS_BOAT) : 0))
+                        if (Creature* m_boat = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_TARTS_BOAT) : ObjectGuid::Empty))
                             m_boat->AI()->DoAction(ACTION_INTRO);
 
                         Talk(TALK_SPECIAL_1);
@@ -682,7 +682,7 @@ class npc_tarts_boat : public CreatureScript
                     return;
 
                 if (pointId == 0)
-                    if (Creature* tart = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_ASSISTANT_TART) : 0))
+                    if (Creature* tart = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_ASSISTANT_TART) : ObjectGuid::Empty))
                         tart->AI()->Talk(TALK_SPECIAL_2);
             }
 
@@ -692,10 +692,10 @@ class npc_tarts_boat : public CreatureScript
                 {
                     case ACTION_INTRO:
                     {
-                        if (Creature* m_tart = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_ASSISTANT_TART) : 0))
+                        if (Creature* m_tart = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_ASSISTANT_TART) : ObjectGuid::Empty))
                             m_tart->CastSpell(me, VEHICLE_SPELL_RIDE_HARDCODED, false);
 
-                        if (Creature* m_globule = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_PURE_WATER_GLOBE) : 0))
+                        if (Creature* m_globule = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_PURE_WATER_GLOBE) : ObjectGuid::Empty))
                         {
                             Movement::MoveSplineInit init(me);
                             init.MoveTo(m_globule->GetPositionX() - frand(5.0f, 6.0f), m_globule->GetPositionY(), 475.452f);
@@ -707,7 +707,7 @@ class npc_tarts_boat : public CreatureScript
                         break;
                     }
                     case ACTION_BREWMOON_FESTIVAL:
-                        if (Creature* m_boat = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_TARTS_BOAT) : 0))
+                        if (Creature* m_boat = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_TARTS_BOAT) : ObjectGuid::Empty))
                             m_boat->AI()->DoAction(ACTION_INTRO);
                         break;
                 }
@@ -721,7 +721,7 @@ class npc_tarts_boat : public CreatureScript
                 {
                     if (eventId == EVENT_WATER_GLOBULE)
                     {
-                        if (Creature* m_globule = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_PURE_WATER_GLOBE) : 0))
+                        if (Creature* m_globule = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_PURE_WATER_GLOBE) : ObjectGuid::Empty))
                             m_globule->RemoveAurasDueToSpell(SPELL_SPAWN_WATER_GLOBE);
 
                         me->GetMotionMaster()->MovePoint(0, me->GetHomePosition());
@@ -774,7 +774,7 @@ class npc_assistant_kieu : public CreatureScript
 
                 if (pointId == 0)
                 {
-                    if (Creature* m_sack = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_SACK_OF_GRAIN) : 0))
+                    if (Creature* m_sack = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SACK_OF_GRAIN) : ObjectGuid::Empty))
                         m_sack->CastSpell(me, VEHICLE_SPELL_RIDE_HARDCODED, false);
                 }
             }
@@ -819,7 +819,7 @@ class npc_assistant_kieu : public CreatureScript
                             nonCombatEvents.ScheduleEvent(EVENT_PATH_TALK, urand(5 * IN_MILLISECONDS, 10 * IN_MILLISECONDS));
                             break;
                         case EVENT_BREWMOON_PREPARE:
-                            if (Creature* m_sack = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_SACK_OF_GRAIN) : 0))
+                            if (Creature* m_sack = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_SACK_OF_GRAIN) : ObjectGuid::Empty))
                                 me->GetMotionMaster()->MovePoint(0, *m_sack);
 
                             Talk(TALK_SPECIAL_5);
@@ -932,12 +932,12 @@ class npc_brewmaster_boof : public CreatureScript
                             Talk(TALK_SPECIAL_4);
                             nonCombatEvents.ScheduleEvent(EVENT_DEFENDERS_1, 5 * IN_MILLISECONDS);
 
-                            if (Creature* Hsieh = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_COMMANDER_HSIEH) : 0))
+                            if (Creature* Hsieh = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_COMMANDER_HSIEH) : ObjectGuid::Empty))
                                 Hsieh->AI()->Talk(TALK_INTRO);
                             break;
                         case EVENT_DEFENDERS_1:
                             Talk(TALK_SPECIAL_5);
-                            if (Creature* Nian = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_MISTWEAVER_NIAN) : 0))
+                            if (Creature* Nian = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_MISTWEAVER_NIAN) : ObjectGuid::Empty))
                                 Nian->AI()->Talk(TALK_INTRO);
 
                             nonCombatEvents.ScheduleEvent(EVENT_DEFENDERS_2, 7.5 * IN_MILLISECONDS);
@@ -986,7 +986,7 @@ class npc_bataari_yaungol : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_CLEAVE, urand(4 * IN_MILLISECONDS, 6 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_HEROIC_LEAP, urand(8 * IN_MILLISECONDS, 14.5 * IN_MILLISECONDS));
@@ -1150,7 +1150,7 @@ class npc_bataari_flamecaller : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_FIREBALL, urand(4 * IN_MILLISECONDS, 6 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_FLAME_SHELL, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
@@ -1267,7 +1267,7 @@ class npc_bataari_outrunner : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_QUICKEN, urand(5 * IN_MILLISECONDS, 8 * IN_MILLISECONDS));
             }
@@ -1381,7 +1381,7 @@ class npc_bataari_war_yeti : public CreatureScript
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_YETI_SMASH, urand(9 * IN_MILLISECONDS, 12.5 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_GROUND_SLAM, urand(15 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
@@ -1526,7 +1526,7 @@ class npc_warbringer_qobi : public CreatureScript
                 init.Launch();
                 nonCombatEvents.ScheduleEvent(EVENT_PATH_END, me->GetSplineDuration());
 
-                if (Creature* Hsieh = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_COMMANDER_HSIEH) : 0))
+                if (Creature* Hsieh = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_COMMANDER_HSIEH) : ObjectGuid::Empty))
                     Hsieh->AI()->Talk(TALK_SPECIAL_1);
             }
 
@@ -1539,7 +1539,7 @@ class npc_warbringer_qobi : public CreatureScript
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_THROW_OIL, urand(10.5 * IN_MILLISECONDS, 14 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_FIRELINE, urand(15 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
@@ -1666,7 +1666,7 @@ class npc_brewmoon_fireline : public CreatureScript
                 instance = me->GetInstanceScript();
                 DoCast(me, SPELL_FIRELINES);
 
-                if (Creature* m_Qobi = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_WARBRINGER_QOBI) : 0))
+                if (Creature* m_Qobi = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_WARBRINGER_QOBI) : ObjectGuid::Empty))
                     step = m_Qobi->AI()->GetData(TYPE_FLAMELINE);
 
                 if (step < 33)
@@ -1685,7 +1685,7 @@ class npc_brewmoon_fireline : public CreatureScript
                         me->CastSpell(x, y, me->GetPositionZ(), SPELL_FIRELINE_SUMM, true);
                         step += 4;
 
-                        if (Creature* m_Qobi = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(NPC_WARBRINGER_QOBI) : 0))
+                        if (Creature* m_Qobi = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(NPC_WARBRINGER_QOBI) : ObjectGuid::Empty))
                             m_Qobi->ToCreature()->AI()->SetData(TYPE_FLAMELINE, step);
                     }
                     break;
@@ -1795,7 +1795,7 @@ class AreaTrigger_at_brewmoon_festival : public AreaTriggerScript
         {
             if (InstanceScript* instance = player->GetInstanceScript())
             {
-                if (Creature* m_aTart = ObjectAccessor::GetCreature(*player, instance->GetData64(NPC_ASSISTANT_TART)))
+                if (Creature* m_aTart = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_ASSISTANT_TART)))
                     m_aTart->AI()->DoAction(ACTION_INTRO);
 
                 instance->DoCastSpellOnPlayers(SPELL_WATER_WALKING);

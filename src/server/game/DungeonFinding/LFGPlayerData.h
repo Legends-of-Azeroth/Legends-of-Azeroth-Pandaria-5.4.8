@@ -26,8 +26,8 @@ namespace lfg
 struct PlayerQueueData
 {
     LfgDungeonSet Dungeons;
-    uint64 OriginalGroup = 0;
-    uint64 LfgGroup = 0;
+    ObjectGuid OriginalGroup = ObjectGuid::Empty;
+    ObjectGuid LfgGroup = ObjectGuid::Empty;
     time_t JoinTime = 0;
     uint32 ClientQueueId = 0;
     LfgState State = LFG_STATE_NONE;
@@ -49,7 +49,7 @@ class LfgPlayerData : public LfgDataOwner<PlayerQueueData>
         // General
         void SetLockedDungeons(LfgLockMap const& lock);
         void SetTeam(uint8 team);
-        void SetGroup(uint32 queueId, uint64 group);
+        void SetGroup(uint32 queueId, ObjectGuid group);
 
         // Queue
         void SetRoles(uint32 queuId, LfgRoles roles);
@@ -58,7 +58,7 @@ class LfgPlayerData : public LfgDataOwner<PlayerQueueData>
         // General
         LfgLockMap const& GetLockedDungeons() const;
         uint8 GetTeam() const;
-        uint64 GetGroup(uint32 queueId) const;
+        ObjectGuid GetGroup(uint32 queueId) const;
         void SetJoinTime(uint32 queueId, time_t time);
         uint32 GetRandomDungeon(uint32 queueId) const;
         void SetRandomDungeon(uint32 queueId, uint32 dungeon);
@@ -75,7 +75,7 @@ class LfgPlayerData : public LfgDataOwner<PlayerQueueData>
         void IncrementBootCounter();
         void MarkLastBootTime();
 
-        void AddQueue(uint32 queueId, uint64 originalGroup);
+        void AddQueue(uint32 queueId, ObjectGuid originalGroup);
         void ReformQueue(uint32 oldQueueId, uint32 newQueueId);
 
     private:

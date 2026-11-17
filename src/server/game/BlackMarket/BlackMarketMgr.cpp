@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -29,6 +29,7 @@
 #include "Item.h"
 #include "Language.h"
 #include "Log.h"
+#include "Random.h"
 #include <vector>
 
 BlackMarketMgr::~BlackMarketMgr()
@@ -125,7 +126,7 @@ void BlackMarketMgr::LoadTemplates()
         } while (result->NextRow());
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u BlackMarket templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} BlackMarket templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void BlackMarketMgr::LoadAuctions()
@@ -169,7 +170,7 @@ void BlackMarketMgr::LoadAuctions()
         CharacterDatabase.CommitTransaction(trans);
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u BlackMarket Auctions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} BlackMarket Auctions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void BlackMarketMgr::Update()
@@ -178,18 +179,23 @@ void BlackMarketMgr::Update()
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-    // Delete expired auctions
-    for (auto&& itr : _auctions)
+    // Delete expired auctions (safe iterator erase)
+    for (auto it = _auctions.begin(); it != _auctions.end(); )
     {
-        BlackMarketAuction* auction = itr.second;
+        BlackMarketAuction* auction = it->second;
         if (auction->IsExpired())
         {
             if (auction->GetCurrentBidder())
                 SendAuctionWon(auction, trans);
 
             auction->DeleteFromDB(trans);
-            _auctions.erase(itr.first);
+
+            // erase returns iterator to next element
+            it = _auctions.erase(it);
+            continue;
         }
+
+        ++it;
     }
 
     // Add New Auctions
@@ -306,7 +312,7 @@ void BlackMarketMgr::BuildBlackMarketRequestItemsResult(WorldPacket& data, uint3
     data.append(auctionData);
     data.PutBits(count_pos, count, 18);
 
-    TC_LOG_DEBUG("network", ">> Sent %u Black Market Auctions", count);
+    TC_LOG_DEBUG("network", ">> Sent {} Black Market Auctions", count);
 }
 
 void BlackMarketMgr::UpdateAuction(BlackMarketAuction* auction, uint64 newPrice, uint64 requiredIncrement, Player* newBidder)
@@ -322,7 +328,7 @@ void BlackMarketMgr::UpdateAuction(BlackMarketAuction* auction, uint64 newPrice,
         SendAuctionOutbidded(auction, newBidder, trans);
 
     auction->SetCurrentBid(currentBid);
-    auction->SetCurrentBidder(newBidder->GetGUIDLow());
+    auction->SetCurrentBidder(newBidder->GetGUID().GetCounter());
     auction->SetMinIncrement(minIncrement);
     auction->SetNumBids(auction->GetNumBids() + 1);
 
@@ -337,7 +343,7 @@ BlackMarketAuctionTemplate* BlackMarketMgr::GetTemplate(uint32 templateId) const
         if (itr.second->Id == templateId)
             return itr.second;
 
-    TC_LOG_DEBUG("blackMarket", "BlackMarketMgr::GetTemplate: [%u] not found!", templateId);
+    TC_LOG_DEBUG("blackMarket", "BlackMarketMgr::GetTemplate: [{}] not found!", templateId);
     return nullptr;
 }
 
@@ -347,7 +353,7 @@ BlackMarketAuction* BlackMarketMgr::GetAuction(uint32 auctionId) const
         if (itr.second->GetAuctionId() == auctionId)
             return itr.second;
 
-    TC_LOG_DEBUG("blackMarket", "BlackMarketMgr::GetAuction: [%u] not found!", auctionId);
+    TC_LOG_DEBUG("blackMarket", "BlackMarketMgr::GetAuction: [{}] not found!", auctionId);
     return nullptr;
 }
 
@@ -358,11 +364,11 @@ std::string BlackMarketAuction::BuildAuctionMailSubject(BMMailAuctionAnswers res
     return strm.str();
 }
 
-std::string BlackMarketAuction::BuildAuctionMailBody(uint32 lowGuid)
+std::string BlackMarketAuction::BuildAuctionMailBody(ObjectGuid::LowType lowGuid)
 {
     std::ostringstream strm;
     strm.width(16);
-    strm << std::right << std::hex << MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER); // HIGHGUID_PLAYER always present, even for empty guids
+    strm << std::right << std::hex << ObjectGuid(HighGuid::Player, lowGuid); // HighGuid::Player always present, even for empty guids
     strm << std::dec << ':' << GetCurrentBid() << ':' << 0;
     strm << ':' << 0 << ':' << 0;
     return strm.str();
@@ -370,8 +376,8 @@ std::string BlackMarketAuction::BuildAuctionMailBody(uint32 lowGuid)
 
 void BlackMarketMgr::SendAuctionOutbidded(BlackMarketAuction* auction, Player* newBidder, CharacterDatabaseTransaction trans)
 {
-    uint64 bidder_guid = MAKE_NEW_GUID(auction->GetCurrentBidder(), 0, HIGHGUID_PLAYER);
-    Player* bidder = ObjectAccessor::FindPlayerInOrOutOfWorld(bidder_guid);
+    ObjectGuid bidder_guid(HighGuid::Player, auction->GetCurrentBidder());
+    Player* bidder = ObjectAccessor::FindConnectedPlayer(bidder_guid);
     uint32 oldBidder_accId = sObjectMgr->GetPlayerAccountIdByGUID(bidder_guid);
 
     // old bidder exist
@@ -394,8 +400,8 @@ void BlackMarketMgr::SendAuctionOutbidded(BlackMarketAuction* auction, Player* n
 
 void BlackMarketMgr::SendAuctionWon(BlackMarketAuction* auction, CharacterDatabaseTransaction trans)
 {
-    uint64 bidder_guid = MAKE_NEW_GUID(auction->GetCurrentBidder(), 0, HIGHGUID_PLAYER);
-    Player* bidder = ObjectAccessor::FindPlayerInOrOutOfWorld(bidder_guid);
+    ObjectGuid bidder_guid(HighGuid::Player, auction->GetCurrentBidder());
+    Player* bidder = ObjectAccessor::FindConnectedPlayer(bidder_guid);
 
     if (bidder)
     {

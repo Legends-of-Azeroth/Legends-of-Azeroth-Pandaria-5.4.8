@@ -34,13 +34,13 @@ class instance_the_stonecore : public InstanceMapScript
 
             uint32 uiTeamInInstance;
             uint32 archaeologyQuestAura;
-            uint64 uiCorborusGUID;
-            uint64 uiSlabhideGUID;
-            uint64 uiOzrukGUID;
-            uint64 uiAzulGUID;
-            uint64 ManstormGUID;
+            ObjectGuid uiCorborusGUID;
+            ObjectGuid uiSlabhideGUID;
+            ObjectGuid uiOzrukGUID;
+            ObjectGuid uiAzulGUID;
+            ObjectGuid ManstormGUID;
 
-            uint64 RockdoorGUID;
+            ObjectGuid RockdoorGUID;
 
             uint32 HasManastormEventDone;
             uint32 m_auiEncounter[MAX_ENCOUNTERS];
@@ -51,12 +51,12 @@ class instance_the_stonecore : public InstanceMapScript
                 LoadDoorData(doorData);
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
                 archaeologyQuestAura  = 0;
-                uiCorborusGUID        = 0;
-                uiSlabhideGUID        = 0;
-                uiOzrukGUID           = 0;
-                uiAzulGUID            = 0;
-                ManstormGUID          = 0;
-                RockdoorGUID          = 0;
+                uiCorborusGUID = ObjectGuid::Empty;
+                uiSlabhideGUID = ObjectGuid::Empty;
+                uiOzrukGUID = ObjectGuid::Empty;
+                uiAzulGUID = ObjectGuid::Empty;
+                ManstormGUID = ObjectGuid::Empty;
+                RockdoorGUID = ObjectGuid::Empty;
                 HasManastormEventDone = 0;
             }
 
@@ -118,14 +118,14 @@ class instance_the_stonecore : public InstanceMapScript
 
                         HasManastormEventDone = 1;
 
-                        if (Creature* Corborus = instance->GetCreature(GetData64(DATA_CORBORUS)))
+                        if (Creature* Corborus = instance->GetCreature(GetGuidData(DATA_CORBORUS)))
                         {
                             Corborus->GetMotionMaster()->MoveCharge(ManaStormPathEvent[3].GetPositionX(), ManaStormPathEvent[3].GetPositionY(), ManaStormPathEvent[3].GetPositionZ(), 38.0f, EVENT_CHARGE);
 
-                            if (GameObject* breakWall = ObjectAccessor::GetGameObject(*Corborus, GetData64(GO_ROCKDOOR_BREAK)))
+                            if (GameObject* breakWall = ObjectAccessor::GetGameObject(*Corborus, GetGuidData(GO_ROCKDOOR_BREAK)))
                                 breakWall->UseDoorOrButton();
 
-                            if (Creature* Milhouse = instance->GetCreature(GetData64(NPC_MILLHOUSE_MANASTORM)))
+                            if (Creature* Milhouse = instance->GetCreature(GetGuidData(NPC_MILLHOUSE_MANASTORM)))
                                 Milhouse->GetMotionMaster()->MoveJump(ManastormJumpEvent, 30.0f, 15.0f, EVENT_JUMP);
                         }
                         break;
@@ -140,7 +140,7 @@ class instance_the_stonecore : public InstanceMapScript
                 return true;
             }
 
-            uint64 GetData64(uint32 data) const override
+            ObjectGuid GetGuidData(uint32 data) const override
             {
                 switch (data)
                 {
@@ -157,7 +157,7 @@ class instance_the_stonecore : public InstanceMapScript
                     case NPC_MILLHOUSE_MANASTORM:
                         return ManstormGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData() override

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -349,14 +349,14 @@ class boss_ragnaros_firelands : public CreatureScript
                 memset(bFloor, false, sizeof(bFloor));
                 uiDreadFlameTimer = 40000;
 
-                me->SetAnimationTier(UnitAnimationTier::Fly);
+                me->SetAnimTier(AnimTier::Fly);
                 me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 50);
                 me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 50);
                 me->SetReactState(REACT_DEFENSIVE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 me->LowerPlayerDamageReq(me->GetMaxHealth());
 
-                if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_RAGNAROS_FLOOR)))
+                if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_RAGNAROS_FLOOR)))
                     go->SetDestructibleState(GO_DESTRUCTIBLE_INTACT);
 
                 me->GetMap()->SetWorldState(WORLDSTATE_RANGAR_OS, 1); // controlled by spell
@@ -378,7 +378,7 @@ class boss_ragnaros_firelands : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(DATA_RAGNAROS, who->ToPlayer()))
                 {
@@ -502,7 +502,7 @@ class boss_ragnaros_firelands : public CreatureScript
             {
                 if (spell->Id == SPELL_DRAW_OUT_FIRELORD_1)
                 {
-                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_RAGNAROS_FLOOR)))
+                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_RAGNAROS_FLOOR)))
                         go->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
 
                     summons.DespawnEntry(NPC_MAGMA);
@@ -586,7 +586,7 @@ class boss_ragnaros_firelands : public CreatureScript
 
                     uint8 side = urand(0, 2);
 
-                    if (Creature* pStalker = me->SummonCreature(NPC_SPLITTING_BLOW, sulfurasPos[side], TEMPSUMMON_TIMED_DESPAWN, 20000))
+                    if (Creature* pStalker = me->SummonCreature(NPC_SPLITTING_BLOW, sulfurasPos[side], TEMPSUMMON_TIMED_DESPAWN, 20000ms))
                     {
                         me->SetFacingToObject(pStalker);
                         if (side == 2)
@@ -632,7 +632,7 @@ class boss_ragnaros_firelands : public CreatureScript
 
                     uint8 side = urand(0, 2);
 
-                    if (Creature* pStalker = me->SummonCreature(NPC_SPLITTING_BLOW, sulfurasPos[side], TEMPSUMMON_TIMED_DESPAWN, 20000))
+                    if (Creature* pStalker = me->SummonCreature(NPC_SPLITTING_BLOW, sulfurasPos[side], TEMPSUMMON_TIMED_DESPAWN, 20000ms))
                     {
                         me->SetFacingToObject(pStalker);
                         if (side == 2)
@@ -882,18 +882,18 @@ class boss_ragnaros_firelands : public CreatureScript
                             break;
                         case EVENT_EVENT_3:
                             
-                            //me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_INSTANTLY_APPEAR_MODEL);
+                            //me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_INSTANTLY_APPEAR_MODEL);
                             if (Creature* pMalfurion = me->FindNearestCreature(NPC_MALFURION_STORMRAGE, 100.0f))
                                 pMalfurion->AI()->Talk(SAY_MALFURION_EVENT_1);
 
                             events.ScheduleEvent(EVENT_EVENT_4, 7000);
                             break;
                         case EVENT_EVENT_4:
-                            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_RAGNAROS_FLOOR)))
+                            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_RAGNAROS_FLOOR)))
                                 go->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
                             me->SetDisableGravity(false);
                             me->SetCanFly(false);
-                            me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); // not sure (UNIT_FIELD_BYTES_1)
+                            me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0); // not sure (UNIT_FIELD_BYTES_1)
                             me->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
                             Talk(SAY_HEROIC_3);
                             me->SetReactState(REACT_AGGRESSIVE);
@@ -904,7 +904,7 @@ class boss_ragnaros_firelands : public CreatureScript
                         case EVENT_EVENT_5:
                             DoCast(me, SPELL_SUPERHEATED, true);
                             events.ScheduleEvent(EVENT_DREADFLAME, 15000);
-                            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_RAGNAROS_FLOOR)))
+                            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_RAGNAROS_FLOOR)))
                                 go->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
                             break;
                         case EVENT_DREADFLAME:
@@ -1025,9 +1025,9 @@ class boss_ragnaros_firelands : public CreatureScript
                 instance->SetBossState(DATA_RAGNAROS, DONE);
 
                 if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
-                    instance->DoRespawnGameObject(instance->GetData64(DATA_RAGNAROS_CACHE_10), DAY);
+                    instance->DoRespawnGameObject(instance->GetGuidData(DATA_RAGNAROS_CACHE_10), DAY);
                 else if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
-                    instance->DoRespawnGameObject(instance->GetData64(DATA_RAGNAROS_CACHE_25), DAY);
+                    instance->DoRespawnGameObject(instance->GetGuidData(DATA_RAGNAROS_CACHE_25), DAY);
 
                 events.ScheduleEvent(EVENT_DESPAWN, 3000);
             }
@@ -1055,7 +1055,7 @@ class npc_ragnaros_firelands_sulfuras_smash : public CreatureScript
 
             void Reset() override
             {
-                if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RAGNAROS)))
+                if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGNAROS)))
                 {    
                     if (me->GetEntry() == NPC_SULFURAS_SMASH_1)
                     {
@@ -1076,12 +1076,12 @@ class npc_ragnaros_firelands_sulfuras_smash : public CreatureScript
                 {
                     Position startPos[3];
                     Position endPos[3];
-                    me->GetNearPosition(startPos[0], 1.0f, -(M_PI / 2.0f));
-                    me->GetNearPosition(startPos[1], 1.0f, -(M_PI / 2.0f));
-                    me->GetNearPosition(startPos[2], 1.0f, 0.0f);
-                    me->GetNearPosition(endPos[0], 100.0f, -(M_PI / 2.0f));
-                    me->GetNearPosition(endPos[1], 100.0f, 0.0f);
-                    me->GetNearPosition(endPos[2], 100.0f, (M_PI / 2.0f));
+                    startPos[0] = me->GetNearPosition(1.0f, -(M_PI / 2.0f));
+                    startPos[1] = me->GetNearPosition(1.0f, -(M_PI / 2.0f));
+                    startPos[2] = me->GetNearPosition(1.0f, 0.0f);
+                    endPos[0] = me->GetNearPosition(100.0f, -(M_PI / 2.0f));
+                    endPos[1] = me->GetNearPosition(100.0f, 0.0f);
+                    endPos[2] = me->GetNearPosition(100.0f, (M_PI / 2.0f));
 
                     for (uint8 i = 0; i < 3; ++i)
                         SendLavaWave(startPos[i], endPos[i]);
@@ -1096,11 +1096,11 @@ class npc_ragnaros_firelands_sulfuras_smash : public CreatureScript
 
             void SendLavaWave(Position startpos, Position endpos)
             {
-                if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RAGNAROS)))
-                    if (Creature* pLavaWave = pRagnaros->SummonCreature(NPC_LAVA_WAVE, startpos, TEMPSUMMON_TIMED_DESPAWN, 15000))
+                if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGNAROS)))
+                    if (Creature* pLavaWave = pRagnaros->SummonCreature(NPC_LAVA_WAVE, startpos, TEMPSUMMON_TIMED_DESPAWN, 15000ms))
                     {
                         pLavaWave->CastSpell(pLavaWave, SPELL_LAVA_WAVE_AURA, true);
-                        if (Creature* pStalker = me->SummonCreature(NPC_PLATFORM_STALKER, endpos, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                        if (Creature* pStalker = me->SummonCreature(NPC_PLATFORM_STALKER, endpos, TEMPSUMMON_TIMED_DESPAWN, 30000ms))
                         {
                             pStalker->SetDisableGravity(true);
                             pStalker->SetCanFly(true);
@@ -1129,10 +1129,10 @@ class npc_ragnaros_firelands_lava_wave : public CreatureScript
                 SetCombatMovement(false);
                 bDest = false;
                 bDespawn = false;
-                destGUID = 0;
+                destGUID = ObjectGuid::Empty;
             }
 
-            void SetGUID(uint64 guid, int32 /*type*/) override
+            void SetGUID(ObjectGuid guid, int32 /*type*/) override
             {
                 bDest = true;
                 destGUID = guid;
@@ -1165,7 +1165,7 @@ class npc_ragnaros_firelands_lava_wave : public CreatureScript
             EventMap events;
             bool bDest;
             bool bDespawn;
-            uint64 destGUID;
+            ObjectGuid destGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -1191,7 +1191,7 @@ class npc_ragnaros_firelands_magma_trap : public CreatureScript
                 DoCast(me, SPELL_MAGMA_TRAP_DUMMY);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_CHECK_PLAYER, 500);
             }
@@ -1432,7 +1432,7 @@ class npc_ragnaros_firelands_molten_elemental : public CreatureScript
                     me->SetDisplayId(me->GetNativeDisplayId());
                     me->SetReactState(REACT_AGGRESSIVE);
 
-                    if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RAGNAROS)))
+                    if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGNAROS)))
                         if (Unit* target = pRagnaros->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             AttackStart(target);
                 }
@@ -1482,7 +1482,7 @@ class npc_ragnaros_firelands_lava_scion : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_CONTINUE, 2000);
                 events.ScheduleEvent(EVENT_BLAZING_HEAT, urand(7000, 13000));
@@ -1514,7 +1514,7 @@ class npc_ragnaros_firelands_lava_scion : public CreatureScript
                             std::list<Creature*> lavascions;
                             GetCreatureListWithEntryInGrid(lavascions, me, NPC_LAVA_SCION, 500.0f);
 
-                            std::vector<uint64> guids;
+                            std::vector<ObjectGuid> guids;
 
                             if (!lavascions.empty())
                             {
@@ -1542,7 +1542,7 @@ class npc_ragnaros_firelands_lava_scion : public CreatureScript
             {
                 public:
                     
-                    BlazingHeatSelector(std::vector<uint64> _guids) : tankGUIDs(_guids) { }
+                    BlazingHeatSelector(std::vector<ObjectGuid> _guids) : tankGUIDs(_guids) { }
 
                     bool operator()(Unit const* target) const
                     {
@@ -1550,7 +1550,7 @@ class npc_ragnaros_firelands_lava_scion : public CreatureScript
                             return false;
 
                         if (!tankGUIDs.empty())
-                            for (std::vector<uint64>::const_iterator itr = tankGUIDs.begin(); itr != tankGUIDs.end(); ++itr)
+                            for (std::vector<ObjectGuid>::const_iterator itr = tankGUIDs.begin(); itr != tankGUIDs.end(); ++itr)
                                 if (target->GetGUID() == (*itr))
                                     return false;
 
@@ -1558,7 +1558,7 @@ class npc_ragnaros_firelands_lava_scion : public CreatureScript
                     }
 
             private:
-                std::vector<uint64> tankGUIDs;
+                std::vector<ObjectGuid> tankGUIDs;
             };
         };
 
@@ -1642,12 +1642,12 @@ class npc_ragnaros_firelands_living_meteor : public CreatureScript
                 else if (caster->GetEntry() == NPC_LAVA_WAVE && spell->Id == SPELL_LAVALOGGED)
                 {
                     if (instance)
-                        if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RAGNAROS)))
+                        if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGNAROS)))
                             pRagnaros->AI()->DoAction(ACTION_LAVALOGGED);
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_LIVING_METEOR_DMG_REDUCTION, true);
                 DoCast(me, SPELL_LIVING_METEOR_AURA_1, true);
@@ -1695,7 +1695,7 @@ class npc_ragnaros_firelands_living_meteor : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_FIXATE:
-                            if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RAGNAROS)))
+                            if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGNAROS)))
                             {
                                 Unit* target = NULL;
                                 target = pRagnaros->AI()->SelectTarget(SELECT_TARGET_RANDOM, 2, 0.0f, true);
@@ -1944,7 +1944,7 @@ class npc_ragnaros_firelands_hamuul_runetotem : public CreatureScript
                         {
                             uint32 i = urand(0, 275);
                             me->CastSpell(floorPos[i].GetPositionX(), floorPos[i].GetPositionY(), floorPos[i].GetPositionZ(), SPELL_SUMMON_ENTRAPPING_ROOTS, true);
-                            if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RAGNAROS)))
+                            if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGNAROS)))
                                 pRagnaros->AI()->DoAction(ACTION_EMPOWER_SULFURAS);
                             events.ScheduleEvent(EVENT_ENTRAPPING_ROOTS, 55000);
                             break;
@@ -2006,7 +2006,7 @@ class npc_ragnaros_firelands_dreadflame_spawn : public CreatureScript
                             uint32 i = GetNextDreadflame();
                             bFloor[i] = true;
                             //me->CastSpell(floorPos[i].GetPositionX(), floorPos[i].GetPositionY(), floorPos[i].GetPositionZ(), SPELL_DREADFLAME_SUMMON, true);
-                            if (Creature* pDreadflame = me->SummonCreature(NPC_DREADFLAME, floorPos[i], TEMPSUMMON_TIMED_DESPAWN, 600000))
+                            if (Creature* pDreadflame = me->SummonCreature(NPC_DREADFLAME, floorPos[i], TEMPSUMMON_TIMED_DESPAWN, 600000ms))
                                 pDreadflame->AI()->SetData(DATA_DREADFLAME_ID, i + 1);    
                             events.ScheduleEvent(EVENT_DREADFLAME_UPDATE, 5000);
                             break;
@@ -2035,8 +2035,7 @@ class npc_ragnaros_firelands_dreadflame_spawn : public CreatureScript
 
             uint32 GetNextDreadflame()
             {
-                Position myPos;
-                me->GetPosition(&myPos);
+                Position myPos = me->GetPosition();
                 float f_dist = myPos.GetExactDist(&floorPos[0]);
                 uint32 iFound = 0;
                 for (uint32 i = 0; i < MAX_FLOOR_POS; ++i)

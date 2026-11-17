@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -35,7 +35,7 @@ namespace Vignette
             delete itr.second;
     }
 
-    Entity* Manager::CreateAndAddVignette(VignetteEntry const* vignetteEntry, uint32 const mapId, Type const vignetteType, G3D::Vector3 const position, uint64 const sourceGuid)
+    Entity* Manager::CreateAndAddVignette(VignetteEntry const* vignetteEntry, Map* map, uint32 const mapId, Type const vignetteType, G3D::Vector3 const position, ObjectGuid const sourceGuid)
     {
         // Check for duplicated vignettes
         for (auto&& vignette : m_Vignettes)
@@ -46,7 +46,7 @@ namespace Vignette
         }
 
         Entity* vignette = new Entity(vignetteEntry, mapId);
-        vignette->Create(vignetteType, position, sourceGuid);
+        vignette->Create(map, vignetteType, position, sourceGuid);
 
         m_Vignettes.insert(std::make_pair(vignette->GetGuid(), vignette));
         m_AddedVignette.insert(vignette->GetGuid());
@@ -100,22 +100,64 @@ namespace Vignette
         data.WriteBits(m_UpdatedVignette.size(), 24);
         for (auto&& vignetteGuid : m_UpdatedVignette)
         {
-            data.WriteGuidMask(vignetteGuid, 4, 7, 3, 2, 6, 0, 5, 1);
-            playersUpdateBuffer.WriteGuidBytes(vignetteGuid, 6, 2, 5, 0, 3, 4, 1, 7);
+            data.WriteBit(vignetteGuid[4]);
+            data.WriteBit(vignetteGuid[7]);
+            data.WriteBit(vignetteGuid[3]);
+            data.WriteBit(vignetteGuid[2]);
+            data.WriteBit(vignetteGuid[6]);
+            data.WriteBit(vignetteGuid[0]);
+            data.WriteBit(vignetteGuid[5]);
+            data.WriteBit(vignetteGuid[1]);
+            playersUpdateBuffer.WriteByteSeq(vignetteGuid[6]);
+            playersUpdateBuffer.WriteByteSeq(vignetteGuid[2]);
+            playersUpdateBuffer.WriteByteSeq(vignetteGuid[5]);
+            playersUpdateBuffer.WriteByteSeq(vignetteGuid[0]);
+            playersUpdateBuffer.WriteByteSeq(vignetteGuid[3]);
+            playersUpdateBuffer.WriteByteSeq(vignetteGuid[4]);
+            playersUpdateBuffer.WriteByteSeq(vignetteGuid[1]);
+            playersUpdateBuffer.WriteByteSeq(vignetteGuid[7]);
         }
 
         for (auto&& vignetteGuid : m_RemovedVignette)
         {
-            data.WriteGuidMask(vignetteGuid, 5, 4, 1, 7, 0, 6, 2, 3);
-            playersRemoveBuffer.WriteGuidBytes(vignetteGuid, 4, 0, 6, 7, 5, 3, 1, 2);
+            data.WriteBit(vignetteGuid[5]);
+            data.WriteBit(vignetteGuid[4]);
+            data.WriteBit(vignetteGuid[1]);
+            data.WriteBit(vignetteGuid[7]);
+            data.WriteBit(vignetteGuid[0]);
+            data.WriteBit(vignetteGuid[6]);
+            data.WriteBit(vignetteGuid[2]);
+            data.WriteBit(vignetteGuid[3]);
+            playersRemoveBuffer.WriteByteSeq(vignetteGuid[4]);
+            playersRemoveBuffer.WriteByteSeq(vignetteGuid[0]);
+            playersRemoveBuffer.WriteByteSeq(vignetteGuid[6]);
+            playersRemoveBuffer.WriteByteSeq(vignetteGuid[7]);
+            playersRemoveBuffer.WriteByteSeq(vignetteGuid[5]);
+            playersRemoveBuffer.WriteByteSeq(vignetteGuid[3]);
+            playersRemoveBuffer.WriteByteSeq(vignetteGuid[1]);
+            playersRemoveBuffer.WriteByteSeq(vignetteGuid[2]);
         }
         m_RemovedVignette.clear();
 
         data.WriteBits(m_AddedVignette.size(), 24);
         for (auto&& vignetteGuid : m_AddedVignette)
         {
-            data.WriteGuidMask(vignetteGuid, 1, 4, 3, 6, 2, 0, 7, 5);
-            playersAddBuffer.WriteGuidBytes(vignetteGuid, 7, 1, 0, 6, 2, 3, 4, 5);
+            data.WriteBit(vignetteGuid[1]);
+            data.WriteBit(vignetteGuid[4]);
+            data.WriteBit(vignetteGuid[3]);
+            data.WriteBit(vignetteGuid[6]);
+            data.WriteBit(vignetteGuid[2]);
+            data.WriteBit(vignetteGuid[0]);
+            data.WriteBit(vignetteGuid[7]);
+            data.WriteBit(vignetteGuid[5]);
+            playersAddBuffer.WriteByteSeq(vignetteGuid[7]);
+            playersAddBuffer.WriteByteSeq(vignetteGuid[1]);
+            playersAddBuffer.WriteByteSeq(vignetteGuid[0]);
+            playersAddBuffer.WriteByteSeq(vignetteGuid[6]);
+            playersAddBuffer.WriteByteSeq(vignetteGuid[2]);
+            playersAddBuffer.WriteByteSeq(vignetteGuid[3]);
+            playersAddBuffer.WriteByteSeq(vignetteGuid[4]);
+            playersAddBuffer.WriteByteSeq(vignetteGuid[5]);
         }
 
         size_t addedVignetteCountPos = data.bitwpos();
@@ -132,14 +174,26 @@ namespace Vignette
             auto vignette = findResult->second;
             ObjectGuid objectGUID = vignette->GetGuid();
 
-            data.WriteGuidMask(objectGUID, 5, 3, 7, 4, 2, 0, 6, 1);
-            objectAddBuffer.WriteGuidBytes(objectGUID, 2, 5);
+            data.WriteBit(objectGUID[5]);
+            data.WriteBit(objectGUID[3]);
+            data.WriteBit(objectGUID[7]);
+            data.WriteBit(objectGUID[4]);
+            data.WriteBit(objectGUID[2]);
+            data.WriteBit(objectGUID[0]);
+            data.WriteBit(objectGUID[6]);
+            data.WriteBit(objectGUID[1]);
+            objectAddBuffer.WriteByteSeq(objectGUID[2]);
+            objectAddBuffer.WriteByteSeq(objectGUID[5]);
             objectAddBuffer << float(vignette->GetPosition().z);
             objectAddBuffer << uint32(vignette->GetVignetteEntry()->Id);
             objectAddBuffer << float(vignette->GetPosition().y);
-            objectAddBuffer.WriteGuidBytes(objectGUID, 1);
+            objectAddBuffer.WriteByteSeq(objectGUID[1]);
             objectAddBuffer << float(vignette->GetPosition().x);
-            objectAddBuffer.WriteGuidBytes(objectGUID, 6, 7, 4, 3, 0);
+            objectAddBuffer.WriteByteSeq(objectGUID[6]);
+            objectAddBuffer.WriteByteSeq(objectGUID[7]);
+            objectAddBuffer.WriteByteSeq(objectGUID[4]);
+            objectAddBuffer.WriteByteSeq(objectGUID[3]);
+            objectAddBuffer.WriteByteSeq(objectGUID[0]);
         }
         m_AddedVignette.clear();
 
@@ -157,14 +211,26 @@ namespace Vignette
             auto vignette = findResult->second;
             ObjectGuid objectGUID = vignette->GetGuid();
 
-            data.WriteGuidMask(objectGUID, 3, 5, 2, 6, 4, 0, 1, 7);
-            objectUpdateBuffer.WriteGuidBytes(objectGUID, 5, 2);
+            data.WriteBit(objectGUID[3]);
+data.WriteBit(objectGUID[5]);
+data.WriteBit(objectGUID[2]);
+data.WriteBit(objectGUID[6]);
+data.WriteBit(objectGUID[4]);
+data.WriteBit(objectGUID[0]);
+data.WriteBit(objectGUID[1]);
+data.WriteBit(objectGUID[7]);
+            objectUpdateBuffer.WriteByteSeq(objectGUID[5]);
+objectUpdateBuffer.WriteByteSeq(objectGUID[2]);
             objectUpdateBuffer << float(vignette->GetPosition().z);
             objectUpdateBuffer << float(vignette->GetPosition().x);
-            objectUpdateBuffer.WriteGuidBytes(objectGUID, 1, 4, 6, 0);
+            objectUpdateBuffer.WriteByteSeq(objectGUID[1]);
+objectUpdateBuffer.WriteByteSeq(objectGUID[4]);
+objectUpdateBuffer.WriteByteSeq(objectGUID[6]);
+objectUpdateBuffer.WriteByteSeq(objectGUID[0]);
             objectUpdateBuffer << uint32(vignette->GetVignetteEntry()->Id);
             objectUpdateBuffer << float(vignette->GetPosition().y);
-            objectUpdateBuffer.WriteGuidBytes(objectGUID, 3, 7);
+            objectUpdateBuffer.WriteByteSeq(objectGUID[3]);
+objectUpdateBuffer.WriteByteSeq(objectGUID[7]);
         }
         m_UpdatedVignette.clear();
 
@@ -194,15 +260,16 @@ namespace Vignette
             auto vignette = itr.second;
 
             // Update the position of the vignette if vignette is linked to a creature
-            if (IS_UNIT_GUID(vignette->GeSourceGuid()))
+            if (vignette->GeSourceGuid().IsUnit())
             {
                 // TaskMgr::Default()->ScheduleInvocation([=]
                 // {
                 //     if (Creature* sourceCreature = sObjectAccessor->FindCreature(vignette->GeSourceGuid()))
                 //         vignette->UpdatePosition(G3D::Vector3(sourceCreature->GetPositionX(), sourceCreature->GetPositionY(), sourceCreature->GetPositionZ()));
                 // });
-                if (Creature* sourceCreature = sObjectAccessor->FindCreature(vignette->GeSourceGuid()))
-                    vignette->UpdatePosition(G3D::Vector3(sourceCreature->GetPositionX(), sourceCreature->GetPositionY(), sourceCreature->GetPositionZ()));                
+                if (Map* map = sMapMgr->FindBaseMap(vignette->m_Map))
+                    if (Creature* sourceCreature = map->GetCreature(vignette->GeSourceGuid()))
+                        vignette->UpdatePosition(G3D::Vector3(sourceCreature->GetPositionX(), sourceCreature->GetPositionY(), sourceCreature->GetPositionZ()));
             }
 
             if (vignette->NeedClientUpdate())
@@ -235,7 +302,7 @@ namespace Vignette
             type = GetTrackingVignetteTypeFromWorldObject(target);
         }
 
-        CreateAndAddVignette(vignetteEntry, target->GetMapId(), type, G3D::Vector3(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ()), target->GetGUID());
+        CreateAndAddVignette(vignetteEntry, target->GetMap(), target->GetMapId(), type, G3D::Vector3(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ()), target->GetGUID());
     }
 
     template <class T>
