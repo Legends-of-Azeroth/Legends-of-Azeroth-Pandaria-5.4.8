@@ -332,7 +332,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 ScriptedAI::AttackStart(victim);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 float x, y, z, o;
                 me->GetRespawnPosition(x, y, z, &o);
@@ -382,7 +382,8 @@ class boss_deathbringer_saurfang : public CreatureScript
                     _JustDied();
                     _EnterEvadeMode();
                     me->setDeathState(JUST_DIED);
-                    auto clearCombat = [this]() { me->DeleteThreatList(); me->CombatStop(true); };
+                    auto clearCombat = [this]() { me->GetThreatManager().RemoveMeFromThreatLists();
+ me->GetThreatManager().ClearAllThreat(); me->CombatStop(true); };
                     me->m_Events.Schedule( 1000, clearCombat);
                     me->m_Events.Schedule( 5000, clearCombat);
                     me->m_Events.Schedule(10000, clearCombat);
@@ -417,7 +418,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     (target = SelectTarget(SELECT_TARGET_RANDOM, 0,   0.0f, true)))   // If all fails - screw it, just pick a random target
                 {
                     summon->AI()->AttackStart(target);
-                    summon->AddThreat(target, 5000);
+                    summon->GetThreatManager().AddThreat(target, 5000);
                 }
 
                 summon->AI()->DoCast(summon, SPELL_BLOOD_LINK_BEAST, true);
@@ -1028,7 +1029,7 @@ private:
     }
     Creature* TeleportIn(uint32 entry, float x, float y, float z, float o, uint32 spell = 0, uint32 duration = 0) const
     {
-        Creature* creature = me->SummonCreature(entry, x, y, z, o, duration ? TEMPSUMMON_TIMED_DESPAWN : TEMPSUMMON_MANUAL_DESPAWN, duration);
+        Creature* creature = me->SummonCreature(entry, x, y, z, o, duration ? TEMPSUMMON_TIMED_DESPAWN : TEMPSUMMON_MANUAL_DESPAWN, Milliseconds(duration));
         if (creature && spell)
             creature->CastSpell(creature, spell, true);
         return creature;
@@ -1413,7 +1414,7 @@ private:
     }
     Creature* TeleportIn(uint32 entry, float x, float y, float z, float o, uint32 spell = 0, uint32 duration = 0) const
     {
-        Creature* creature = me->SummonCreature(entry, x, y, z, o, duration ? TEMPSUMMON_TIMED_DESPAWN : TEMPSUMMON_MANUAL_DESPAWN, duration);
+        Creature* creature = me->SummonCreature(entry, x, y, z, o, duration ? TEMPSUMMON_TIMED_DESPAWN : TEMPSUMMON_MANUAL_DESPAWN, Milliseconds(duration));
         if (creature && spell)
             creature->CastSpell(creature, spell, true);
         return creature;

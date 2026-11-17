@@ -88,8 +88,8 @@ class boss_commander_kolurg : public CreatureScript
                     instance->SetData(DATA_COMMANDER, NOT_STARTED);
 
                 DespawnCreatures(NPC_ALLIANCE_CLERIC, 250);
-                me->SummonCreature(NPC_ALLIANCE_CLERIC, 419.047668f, 189.318436f, -35.019547f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                me->SummonCreature(NPC_ALLIANCE_CLERIC, 431.265961f, 183.628845f, -35.019547f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                me->SummonCreature(NPC_ALLIANCE_CLERIC, 419.047668f, 189.318436f, -35.019547f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
+                me->SummonCreature(NPC_ALLIANCE_CLERIC, 431.265961f, 183.628845f, -35.019547f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
             }
 
             void DespawnCreatures(uint32 entry, float distance)

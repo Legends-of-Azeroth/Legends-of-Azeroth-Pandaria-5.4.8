@@ -29,12 +29,12 @@ ByteBuffer::ByteBuffer(MessageBuffer&& buffer) : _rpos(0), _wpos(0), _bitpos(Ini
 }
 
 ByteBufferPositionException::ByteBufferPositionException(size_t pos, size_t size, size_t valueSize)
-        : ByteBufferException(Trinity::StringFormat("Attempted to get value with size: %u in ByteBuffer (pos: %u size: %u)", valueSize, pos, size))
+        : ByteBufferException(Trinity::StringFormat("Attempted to get value with size: {} in ByteBuffer (pos: {} size: {})", valueSize, pos, size))
 {
 }
 
 ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* type, char const* value)
-        : ByteBufferException(Trinity::StringFormat("Invalid %s value (%s) found in ByteBuffer", type, value))
+        : ByteBufferException(Trinity::StringFormat("Invalid {} value ({}) found in ByteBuffer", type, value))
 {
 }
 
@@ -102,8 +102,8 @@ std::string ByteBuffer::ReadString(uint32 length, bool requireValidUtf8 /*= true
 
 void ByteBuffer::append(uint8 const* src, size_t cnt)
 {
-    ASSERT(src, "Attempted to put a NULL-pointer in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", _wpos, size());
-    ASSERT(cnt, "Attempted to put a zero-sized value in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", _wpos, size());
+    ASSERT(src, "Attempted to put a NULL-pointer in ByteBuffer (pos: " "{}" " size: " "{}" ")", _wpos, size());
+    ASSERT(cnt, "Attempted to put a zero-sized value in ByteBuffer (pos: " "{}" " size: " "{}" ")", _wpos, size());
     ASSERT((size() + cnt) < 100000000);
 
     FlushBits();
@@ -136,16 +136,16 @@ void ByteBuffer::AppendPackedTime(time_t time)
 
 void ByteBuffer::put(size_t pos, uint8 const* src, size_t cnt)
 {
-    ASSERT(pos + cnt <= size(), "Attempted to put value with size: " SZFMTD " in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", cnt, pos, size());
-    ASSERT(src, "Attempted to put a NULL-pointer in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", pos, size());
-    ASSERT(cnt, "Attempted to put a zero-sized value in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", pos, size());
+    ASSERT(pos + cnt <= size(), "Attempted to put value with size: " "{}" " in ByteBuffer (pos: " "{}" " size: " "{}" ")", cnt, pos, size());
+    ASSERT(src, "Attempted to put a NULL-pointer in ByteBuffer (pos: " "{}" " size: " "{}" ")", pos, size());
+    ASSERT(cnt, "Attempted to put a zero-sized value in ByteBuffer (pos: " "{}" " size: " "{}" ")", pos, size());
 
     std::memcpy(&_storage[pos], src, cnt);
 }
 
 void ByteBuffer::PutBits(std::size_t pos, std::size_t value, uint32 bitCount)
 {
-    ASSERT(pos + bitCount <= size() * 8, "Attempted to put %u bits in ByteBuffer (bitpos: " SZFMTD " size: " SZFMTD ")", bitCount, pos, size());
+    ASSERT(pos + bitCount <= size() * 8, "Attempted to put %u bits in ByteBuffer (bitpos: " "{}" " size: " "{}" ")", bitCount, pos, size());
     ASSERT(bitCount, "Attempted to put a zero bits in ByteBuffer");
 
     for (uint32 i = 0; i < bitCount; ++i)
@@ -170,7 +170,7 @@ void ByteBuffer::print_storage() const
         o << read<uint8>(i) << " - ";
     o << ' ';
 
-    TC_LOG_TRACE("network", "%s", o.str().c_str());
+    TC_LOG_TRACE("network", "{}", o.str().c_str());
 }
 
 void ByteBuffer::textlike() const
@@ -187,7 +187,7 @@ void ByteBuffer::textlike() const
         o << buf;
     }
     o << ' ';
-    TC_LOG_TRACE("network", "%s", o.str().c_str());
+    TC_LOG_TRACE("network", "{}", o.str().c_str());
 }
 
 void ByteBuffer::hexlike() const
@@ -219,5 +219,5 @@ void ByteBuffer::hexlike() const
         o << buf;
     }
     o << ' ';
-    TC_LOG_TRACE("network", "%s", o.str().c_str());
+    TC_LOG_TRACE("network", "{}", o.str().c_str());
 }

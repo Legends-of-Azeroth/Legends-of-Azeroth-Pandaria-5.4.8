@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -143,7 +143,7 @@ public:
                 Unit* owner = Unit::GetUnit(*me, victimGUID);
                 if (owner && owner->IsAlive())
                 {
-                    me->AddThreat(owner, 999999);
+                    me->GetThreatManager().AddThreat(owner, 999999);
                     AttackStart(owner);
                 } else if (owner && owner->isDead())
                 {
@@ -228,6 +228,7 @@ public:
             Berserk_Timer = 600000;
             InnerDemons_Timer = 30000;
             me->SetCanDualWield(true);
+            me->SetIsCombatDisallowed(true);
             DealDamage = true;
             DemonForm = false;
             IsFinalForm = false;
@@ -258,7 +259,7 @@ public:
                 if (i == 0) {nx += 10; ny -= 5; o=2.5f;}
                 if (i == 1) {nx -= 8; ny -= 7; o=0.9f;}
                 if (i == 2) {nx -= 3; ny += 9; o=5.0f;}
-                Creature* binder = me->SummonCreature(NPC_SPELLBINDER, nx, ny, z, o, TEMPSUMMON_DEAD_DESPAWN, 0);
+                Creature* binder = me->SummonCreature(NPC_SPELLBINDER, nx, ny, z, o, TEMPSUMMON_DEAD_DESPAWN, 0ms);
                 if (binder)
                     SpellBinderGUID[i] = binder->GetGUID();
             }
@@ -318,12 +319,15 @@ public:
                 // and reseting equipment
                 me->LoadEquipment();
 
+                // Leotheras is now allowed to enter combat
+                me->SetIsCombatDisallowed(false);
+
                 if (instance && instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
                 {
                     Unit* victim = NULL;
                     victim = Unit::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER));
                     if (victim)
-                        me->getThreatManager().addThreat(victim, 1);
+                        me->GetThreatManager().AddThreat(victim, 1);
                     StartEvent();
                 }
             }
@@ -516,11 +520,11 @@ public:
                 //Summon Inner Demon
                 if (InnerDemons_Timer <= diff)
                 {
-                    ThreatContainer::StorageType const & ThreatList = me->getThreatManager().getThreatList();
+                    auto ThreatList = me->GetThreatManager().GetUnsortedThreatList();
                     std::vector<Unit*> TargetList;
-                    for (ThreatContainer::StorageType::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
+                    for (ThreatReference const* ref : ThreatList)
                     {
-                        Unit* tempTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                        Unit* tempTarget = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                         if (tempTarget && tempTarget->GetTypeId() == TYPEID_PLAYER && tempTarget->GetGUID() != me->GetVictim()->GetGUID() && TargetList.size()<5)
                             TargetList.push_back(tempTarget);
                     }
@@ -529,7 +533,7 @@ public:
                     {
                         if ((*itr) && (*itr)->IsAlive())
                         {
-                            Creature* demon = me->SummonCreature(INNER_DEMON_ID, (*itr)->GetPositionX()+10, (*itr)->GetPositionY()+10, (*itr)->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                            Creature* demon = me->SummonCreature(INNER_DEMON_ID, (*itr)->GetPositionX()+10, (*itr)->GetPositionY()+10, (*itr)->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000ms);
                             if (demon)
                             {
                                 demon->AI()->AttackStart((*itr));
@@ -576,7 +580,7 @@ public:
                 CastConsumingMadness();
                 DespawnDemon();
                 Creature* Copy = NULL;
-                Copy = DoSpawnCreature(DEMON_FORM, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 6000);
+                Copy = DoSpawnCreature(DEMON_FORM, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 6000ms);
                 if (Copy)
                  {
                      Demon = Copy->GetGUID();

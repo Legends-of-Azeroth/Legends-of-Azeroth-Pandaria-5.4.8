@@ -599,7 +599,7 @@ namespace LuaGlobalFunctions
             }
             else
             {
-                TempSummon* creature = map->SummonCreature(entry, pos, NULL, durorresptime);
+                TempSummon* creature = map->SummonCreature(entry, pos, NULL, Milliseconds(durorresptime));
                 if (!creature)
                     return 0;
 

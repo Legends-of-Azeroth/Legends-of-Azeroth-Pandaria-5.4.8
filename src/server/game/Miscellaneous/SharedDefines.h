@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -4003,7 +4003,10 @@ enum EventId
     /// Special charge event which is used for charge spells that have explicit targets
     /// and had a path already generated - using it in PointMovementGenerator will not
     /// create a new spline and launch it
-    EVENT_CHARGE_PREPATH    = 1005
+    EVENT_CHARGE_PREPATH    = 1005,
+
+    /// Used for facing changes (MotionMaster::MoveFace)
+    EVENT_FACE              = 1006
 };
 
 enum ResponseCodes
@@ -4470,7 +4473,7 @@ enum DiminishingLevels
     DIMINISHING_LEVEL_TAUNT_IMMUNE  = 4
 };
 
-enum class GameError
+enum class GameError : uint32
 {
     ERR_INV_FULL                                               = 0,
     ERR_BANK_FULL                                              = 1,

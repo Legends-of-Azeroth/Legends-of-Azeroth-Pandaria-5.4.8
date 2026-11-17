@@ -39,17 +39,17 @@ public:
     {
         static std::vector<ChatCommand> teleCommandTable =
         {
-            { "add",    SEC_ADMINISTRATOR,  false,  &HandleTeleAddCommand,      },
-            { "del",    SEC_ADMINISTRATOR,  true,   &HandleTeleDelCommand,      },
-            { "name",   SEC_ADMINISTRATOR,  true,   &HandleTeleNameCommand,     },
-            { "group",  SEC_ADMINISTRATOR,  false,  &HandleTeleGroupCommand,    },
-            { "",       SEC_GAMEMASTER,  false,  &HandleTeleCommand,         },
-            
+            { "add",    &HandleTeleAddCommand,      rbac::RBAC_PERM_COMMAND_TELE_ADD,  Trinity::ChatCommands::Console::No },
+            { "del",    &HandleTeleDelCommand,      rbac::RBAC_PERM_COMMAND_TELE_DEL,  Trinity::ChatCommands::Console::Yes },
+            { "name",   &HandleTeleNameCommand,     rbac::RBAC_PERM_COMMAND_TELE_NAME, Trinity::ChatCommands::Console::Yes },
+            { "group",  &HandleTeleGroupCommand,    rbac::RBAC_PERM_COMMAND_TELE_GROUP, Trinity::ChatCommands::Console::No },
+            { "",       &HandleTeleCommand,         rbac::RBAC_PERM_COMMAND_TELE,      Trinity::ChatCommands::Console::No },
+
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "tele",   SEC_GAMEMASTER,  false,  teleCommandTable            },
-            
+            { "tele",   teleCommandTable,            rbac::RBAC_PERM_COMMAND_TELE,      Trinity::ChatCommands::Console::No },
+
         };
         return commandTable;
     }

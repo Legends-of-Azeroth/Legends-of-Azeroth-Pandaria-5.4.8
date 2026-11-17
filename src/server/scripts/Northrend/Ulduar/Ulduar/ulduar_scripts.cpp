@@ -1650,7 +1650,7 @@ class npc_clockwork_mechanic : public CreatureScript
                 events.ScheduleEvent(EVENT_ICE_TURRET, 1000);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (me->GetVehicle())
                     ScriptedAI::EnterEvadeMode();

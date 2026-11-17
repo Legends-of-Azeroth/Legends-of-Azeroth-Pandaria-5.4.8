@@ -48,8 +48,6 @@ struct TC_GAME_API Position
     float m_positionX;
     float m_positionY;
     float m_positionZ;
-// Better to limit access to m_orientation field, but this will be hard to achieve with many scripts using array initialization for this structure
-private:
     float m_orientation;
 public:
 

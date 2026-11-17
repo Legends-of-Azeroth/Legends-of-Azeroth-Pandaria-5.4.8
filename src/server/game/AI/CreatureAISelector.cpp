@@ -1,19 +1,19 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "Creature.h"
 #include "CreatureAISelector.h"
@@ -79,7 +79,7 @@ namespace FactorySelector
             RMT const& l = ai_registry.GetRegisteredItems();
             for (RMT::const_iterator iter = l.begin(); iter != l.end(); ++iter)
             {
-                const CreatureAICreator* factory = iter->second;
+                const CreatureAICreator* factory = iter->second.get();
                 const SelectableAI* p = dynamic_cast<const SelectableAI*>(factory);
                 ASSERT(p);
                 int val = p->Permit(creature);
@@ -94,13 +94,13 @@ namespace FactorySelector
         // select NullCreatureAI if not another cases
         ainame = (ai_factory == NULL) ? "NullCreatureAI" : ai_factory->key();
 
-        TC_LOG_DEBUG("scripts", "Creature %s (Entry: %u GUID: %u DB GUID: %u) is using AI type: %s.", creature->GetName().c_str(), creature->GetEntry(), creature->GetGUID().GetCounter(), creature->GetDBTableGUIDLow(), ainame.c_str());
+        TC_LOG_DEBUG("scripts", "Creature {} (Entry: {} GUID: {} DB GUID: {}) is using AI type: {}.", creature->GetName().c_str(), creature->GetEntry(), creature->GetGUID().GetCounter(), creature->GetDBTableGUIDLow(), ainame.c_str());
         return (ai_factory == NULL ? new NullCreatureAI(creature) : ai_factory->Create(creature));
     }
 
     MovementGenerator* selectMovementGenerator(Creature* creature)
     {
-        MovementGeneratorRegistry& mv_registry(*MovementGeneratorRepository::instance());
+        MovementGeneratorRegistry& mv_registry(*MovementGeneratorRegistry::instance());
         ASSERT(creature->GetCreatureTemplate());
         const MovementGeneratorCreator* mv_factory = mv_registry.GetRegistryItem(creature->GetDefaultMovementType());
 
@@ -141,8 +141,11 @@ namespace FactorySelector
 
         std::string ainame = (ai_factory == NULL || go->GetScriptId()) ? "NullGameObjectAI" : ai_factory->key();
 
-        TC_LOG_DEBUG("scripts", "GameObject %u used AI is %s.", go->GetGUID().GetCounter(), ainame.c_str());
+        TC_LOG_DEBUG("scripts", "GameObject {} used AI is {}.", go->GetGUID().GetCounter(), ainame.c_str());
 
-        return (ai_factory == NULL ? new NullGameObjectAI(go) : ai_factory->Create(go));
+        if (ai_factory == NULL)
+            ai_factory = ai_registry.GetRegistryItem("NullGameObjectAI");
+
+        return (ai_factory == NULL ? NULL : ai_factory->Create(go));
     }
 }

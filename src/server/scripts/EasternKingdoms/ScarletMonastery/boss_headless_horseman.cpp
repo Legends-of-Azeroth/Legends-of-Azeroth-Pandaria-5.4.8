@@ -200,7 +200,7 @@ struct boss_headless_horseman : public ScriptedAI
                     sLFGMgr->FinishDungeon(players.begin()->GetSource()->GetGroup()->GetGUID(), 285, map);
         }
         DoCast(me, SPELL_BURNING, true);
-        me->SummonCreature(NPC_SIR_THOMAS, 1118.27f, 617.449f, 1.2174f, 4.42471f, TEMPSUMMON_TIMED_DESPAWN, 60*IN_MILLISECONDS);
+        me->SummonCreature(NPC_SIR_THOMAS, 1118.27f, 617.449f, 1.2174f, 4.42471f, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(60*IN_MILLISECONDS));
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override

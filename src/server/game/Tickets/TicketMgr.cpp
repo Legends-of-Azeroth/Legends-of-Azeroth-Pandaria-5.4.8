@@ -91,7 +91,7 @@ void TicketMgr::LoadGmTickets()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u GM tickets in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} GM tickets in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void TicketMgr::LoadBugTickets()
@@ -132,7 +132,7 @@ void TicketMgr::LoadBugTickets()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u ticket bugs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} ticket bugs in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void TicketMgr::AddTicket(GmTicket* ticket)

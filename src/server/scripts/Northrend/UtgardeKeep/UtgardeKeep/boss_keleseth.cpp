@@ -229,12 +229,12 @@ class boss_keleseth : public CreatureScript
                         Talk(SAY_SKELETONS);
                         for (uint8 i = 0; i < 5; ++i)
                         {
-                            Skeleton = me->SummonCreature(NPC_SKELETON, SkeletonSpawnPoint[i][0], SkeletonSpawnPoint[i][1] , SKELETONSPAWN_Z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
+                            Skeleton = me->SummonCreature(NPC_SKELETON, SkeletonSpawnPoint[i][0], SkeletonSpawnPoint[i][1] , SKELETONSPAWN_Z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000ms);
                             if (Skeleton)
                             {
                                 Skeleton->SetWalk(false);
                                 Skeleton->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY() , me->GetPositionZ());
-                                Skeleton->AddThreat(me->GetVictim(), 0.0f);
+                                Skeleton->GetThreatManager().AddThreat(me->GetVictim(), 0.0f);
                                 DoZoneInCombat(Skeleton);
                             }
                         }
@@ -248,7 +248,7 @@ class boss_keleseth : public CreatureScript
                         if (target->IsAlive())
                         {
                             //DoCast(target, SPELL_FROST_TOMB_SUMMON, true);
-                            if (Creature* pChains = me->SummonCreature(NPC_FROSTTOMB, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000))
+                            if (Creature* pChains = me->SummonCreature(NPC_FROSTTOMB, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000ms))
                             {
                                 CAST_AI(npc_frost_tomb::npc_frost_tombAI, pChains->AI())->SetPrisoner(target);
                                 pChains->CastSpell(target, SPELL_FROST_TOMB, true);

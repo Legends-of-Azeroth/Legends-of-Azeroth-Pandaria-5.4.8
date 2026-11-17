@@ -59,9 +59,9 @@ class npc_emily : public CreatureScript
 public:
     npc_emily() : CreatureScript("npc_emily") { }
 
-    struct npc_emilyAI : public npc_escortAI
+    struct npc_emilyAI : public EscortAI
     {
-        npc_emilyAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_emilyAI(Creature* creature) : EscortAI(creature) { }
 
         void JustSummoned(Creature* summoned) override
         {
@@ -71,7 +71,7 @@ public:
                 summoned->AI()->AttackStart(me->GetVictim());
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -87,7 +87,7 @@ public:
                     if (Unit::GetCreature(*me, _mrfloppyGUID))
                     {
                         Talk(SAY_WORGHAGGRO1);
-                        me->SummonCreature(NPC_HUNGRY_WORG, me->GetPositionX()+5, me->GetPositionY()+2, me->GetPositionZ()+1, 3.229f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
+                        me->SummonCreature(NPC_HUNGRY_WORG, me->GetPositionX()+5, me->GetPositionY()+2, me->GetPositionZ()+1, 3.229f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000ms);
                     }
                     break;
                 case 11:
@@ -98,7 +98,7 @@ public:
                     if (Creature* Mrfloppy = Unit::GetCreature(*me, _mrfloppyGUID))
                         Mrfloppy->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                     Talk(SAY_WORGRAGGRO3);
-                    if (Creature* RWORG = me->SummonCreature(NPC_RAVENOUS_WORG, me->GetPositionX()+10, me->GetPositionY()+8, me->GetPositionZ()+2, 3.229f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
+                    if (Creature* RWORG = me->SummonCreature(NPC_RAVENOUS_WORG, me->GetPositionX()+10, me->GetPositionY()+8, me->GetPositionZ()+2, 3.229f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000ms))
                     {
                         RWORG->SetFaction(35);
                         _RavenousworgGUID = RWORG->GetGUID();
@@ -196,8 +196,8 @@ public:
             if (Creature* Mrfloppy = GetClosestCreatureWithEntry(creature, NPC_MRFLOPPY, 180.0f))
                 Mrfloppy->GetMotionMaster()->MoveFollow(creature, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_emily::npc_emilyAI, (creature->AI())))
-                pEscortAI->Start(true, false, player->GetGUID());
+            if (EscortAI* pEscortAI = CAST_AI(npc_emily::npc_emilyAI, (creature->AI())))
+                pEscortAI->Start(true, player->GetGUID());
         }
         return true;
     }
@@ -238,7 +238,7 @@ public:
             }
         }
 
-        void EnterEvadeMode() override { }
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 

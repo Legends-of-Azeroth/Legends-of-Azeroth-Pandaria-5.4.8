@@ -68,7 +68,7 @@ class molten_flame : public CreatureScript
             void InitializeAI() override
             {
                 float x, y, z;
-                me->GetNearPoint(me, x, y, z, 1, 100, float(M_PI * 2 * rand_norm()));
+                me->GetNearPoint(me, x, y, z, 100, float(M_PI * 2 * rand_norm()));
                 me->GetMotionMaster()->MovePoint(0, x, y, z);
                 me->SetVisible(false);
                 me->CastSpell(me,SPELL_MOLTEN_FLAME,true);
@@ -185,11 +185,10 @@ class boss_supremus : public CreatureScript
                 uint32 health = 0;
                 Unit* target = nullptr;
 
-                ThreatContainer::StorageType const& threatlist = me->getThreatManager().getThreatList();
-                ThreatContainer::StorageType::const_iterator i = threatlist.begin();
-                for (i = threatlist.begin(); i!= threatlist.end(); ++i)
+                auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+                for (ThreatReference const* ref : threatlist)
                 {
-                    Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
+                    Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                     if (unit && me->IsWithinMeleeRange(unit))
                     {
                         if (unit->GetHealth() > health)
@@ -232,7 +231,7 @@ class boss_supremus : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                             {
                                 DoResetThreat();
-                                me->AddThreat(target, 5000000.0f);
+                                me->GetThreatManager().AddThreat(target, 5000000.0f);
                                 Talk(EMOTE_NEW_TARGET);
                             }
                             events.ScheduleEvent(EVENT_SWITCH_TARGET, 10000, 0, PHASE_CHASE);
@@ -244,7 +243,7 @@ class boss_supremus : public CreatureScript
                             if (target)
                             {
                                 //DoCast(target, SPELL_VOLCANIC_SUMMON);//movement bugged
-                                me->SummonCreature(CREATURE_VOLCANO,target->GetPositionX(),target->GetPositionY(),target->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,30000);
+                                me->SummonCreature(CREATURE_VOLCANO,target->GetPositionX(),target->GetPositionY(),target->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,30000ms);
                                 Talk(EMOTE_GROUND_CRACK);
                                 events.DelayEvents(1500, GCD_CAST);
                             }

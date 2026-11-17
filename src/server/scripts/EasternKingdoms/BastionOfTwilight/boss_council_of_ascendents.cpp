@@ -458,7 +458,7 @@ class boss_feludius : public CreatureScript
                                 }
                             }
                             for (std::set<uint8>::const_iterator itr = rPos.begin(); itr != rPos.end(); ++itr)
-                                me->SummonCreature(NPC_WATER_BOMB2, randomPos[(*itr)], TEMPSUMMON_TIMED_DESPAWN, 20000);
+                                me->SummonCreature(NPC_WATER_BOMB2, randomPos[(*itr)], TEMPSUMMON_TIMED_DESPAWN, 20000ms);
                             DoCast(me, SPELL_WATER_BOMB);
                             events.ScheduleEvent(EVENT_WATER_BOMB, urand(32000, 35000));
                             events.ScheduleEvent(EVENT_GLACIATE, 15000);
@@ -1234,7 +1234,7 @@ class boss_elementium_monstrosity : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 summons.DespawnAll();
                 if (Creature* _feludius = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FELUDIUS)))
@@ -1284,7 +1284,7 @@ class boss_elementium_monstrosity : public CreatureScript
                                     target->GetPositionX(),
                                     target->GetPositionY(),
                                     target->GetPositionZ(),
-                                    0.0f, TEMPSUMMON_TIMED_DESPAWN, 6000);
+                                    0.0f, TEMPSUMMON_TIMED_DESPAWN, 6000ms);
                             }
                             events.ScheduleEvent(EVENT_LAVA_SEED, urand(20000, 24000));
                             break;
@@ -1406,7 +1406,7 @@ class npc_ignacious_inferno_leap : public CreatureScript
             {
                 if (!me->FindNearestCreature(NPC_INFERNO_RUSH, 5.0f))
                     if (Creature* pIgnacious = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_IGNACIOUS)))
-                        pIgnacious->SummonCreature(NPC_INFERNO_RUSH, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 20000);
+                        pIgnacious->SummonCreature(NPC_INFERNO_RUSH, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 20000ms);
             }
 
             void MovementInform(uint32 type, uint32 pointId) override

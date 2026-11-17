@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -25,6 +25,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "Player.h"
+#include "RBAC.h"
 #include "Pet.h"
 #include "WorldSession.h"
 #include "Opcodes.h"
@@ -76,6 +77,11 @@ InstanceScript::InstanceScript(Map* map) : instance(map), completedEncounters(0)
     beginningTime = 0;
 
     scenarioGuid = ObjectGuid(HighGuid::Scenario, instance->GetInstanceId(), scenarioId);
+}
+
+bool InstanceScript::_SkipCheckRequiredBosses(Player const* player) const
+{
+    return player && player->GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_INSTANCE_REQUIRED_BOSSES);
 }
 
 void InstanceScript::SaveToDB()
@@ -142,7 +148,7 @@ void InstanceScript::LoadMinionData(std::vector<MinionData> const& data)
         if (minion.bossId < bosses.size())
             minions.insert(std::make_pair(minion.entry, MinionInfo(&bosses[minion.bossId])));
 
-    TC_LOG_DEBUG("scripts", "InstanceScript::LoadMinionData: " UI64FMTD " minions loaded.", uint64(minions.size()));
+    TC_LOG_DEBUG("scripts", "InstanceScript::LoadMinionData: " "{}" " minions loaded.", uint64(minions.size()));
 }
 
 void InstanceScript::LoadDoorData(std::vector<DoorData> const& data)
@@ -151,7 +157,7 @@ void InstanceScript::LoadDoorData(std::vector<DoorData> const& data)
         if (door.bossId < bosses.size())
             doors.insert(std::make_pair(door.entry, DoorInfo(&bosses[door.bossId], door.type, BoundaryType(door.boundary))));
 
-    TC_LOG_DEBUG("scripts", "InstanceScript::LoadDoorData: " UI64FMTD " doors loaded.", uint64(doors.size()));
+    TC_LOG_DEBUG("scripts", "InstanceScript::LoadDoorData: " "{}" " doors loaded.", uint64(doors.size()));
 }
 
 void InstanceScript::LoadScenarioInfo(std::vector<ScenarioBosses> const& scenarios, uint32 condition)
@@ -278,7 +284,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
         if (bossInfo->state == TO_BE_DECIDED) // loading
         {
             bossInfo->state = state;
-            //TC_LOG_ERROR("misc", "Inialize boss %u state as %u.", id, (uint32)state);
+            //TC_LOG_ERROR("misc", "Inialize boss {} state as {}.", id, (uint32)state);
             return false;
         }
         else
@@ -421,7 +427,7 @@ void InstanceScript::DoUseDoorOrButton(ObjectGuid uiGuid, uint32 uiWithRestoreTi
                 go->ResetDoorOrButton();
         }
         else
-            TC_LOG_ERROR("misc", "SD2: Script call DoUseDoorOrButton, but gameobject entry %u is type %u.", go->GetEntry(), go->GetGoType());
+            TC_LOG_ERROR("misc", "SD2: Script call DoUseDoorOrButton, but gameobject entry {} is type {}.", go->GetEntry(), go->GetGoType());
     }
 }
 
@@ -493,7 +499,7 @@ void InstanceScript::DoCompleteAchievement(uint32 achievement)
 
     if (!pAE)
     {
-        TC_LOG_DEBUG("scripts", "DoCompleteAchievement called for not existing achievement %u", achievement);
+        TC_LOG_DEBUG("scripts", "DoCompleteAchievement called for not existing achievement {}", achievement);
         return;
     }
 
@@ -733,7 +739,7 @@ void InstanceScript::DoFinishLFGDungeon(uint32 dungeonId)
 
 bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint32 /*miscvalue1*/ /*= 0*/)
 {
-    TC_LOG_ERROR("misc", "Achievement system call InstanceScript::CheckAchievementCriteriaMeet but instance script for map %u not have implementation for achievement criteria %u",
+    TC_LOG_ERROR("misc", "Achievement system call InstanceScript::CheckAchievementCriteriaMeet but instance script for map {} not have implementation for achievement criteria {}",
         instance->GetId(), criteria_id);
     return false;
 }
@@ -812,7 +818,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
             if (encounter->lastEncounterDungeon)
             {
                 dungeonId = encounter->lastEncounterDungeon;
-                TC_LOG_DEBUG("lfg", "UpdateEncounterState: Instance %s (instanceId %u) completed encounter %s. Credit Dungeon: %u", instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->encounterName[DEFAULT_LOCALE], dungeonId);
+                TC_LOG_DEBUG("lfg", "UpdateEncounterState: Instance {} (instanceId {}) completed encounter {}. Credit Dungeon: {}", instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->encounterName[DEFAULT_LOCALE], dungeonId);
                 break;
             }
         }

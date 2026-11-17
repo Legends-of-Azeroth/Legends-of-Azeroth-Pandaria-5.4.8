@@ -149,7 +149,7 @@ class boss_flameweaver_koegler : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _DespawnAtEvade();
 
@@ -465,7 +465,7 @@ class spell_dragon_breath_sc : public SpellScriptLoader
             void HandleAfterCast()
             {
                 if (Unit* caster = GetCaster())
-                    caster->SummonCreature(NPC_DRAGON_BREATH_TARGET, DragonBreathMover, TEMPSUMMON_TIMED_DESPAWN, 10 * IN_MILLISECONDS);
+                    caster->SummonCreature(NPC_DRAGON_BREATH_TARGET, DragonBreathMover, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(10 * IN_MILLISECONDS));
             }
 
             void Register() override

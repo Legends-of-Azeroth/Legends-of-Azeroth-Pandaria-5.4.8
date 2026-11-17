@@ -253,7 +253,7 @@ class boss_temple_guardian_anhuur : public CreatureScript
                     beacons = 0;
                     phase++;
                     for (uint32 i = 0; i < 21; ++i)
-                        me->SummonCreature(NPC_PIT_SNAKE,SpawnPosition[i],TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                        me->SummonCreature(NPC_PIT_SNAKE,SpawnPosition[i],TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
                     
                     if (GameObject* go = me->FindNearestGameObject(GO_BEACON_LEFT, 100.0f))
                         go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);

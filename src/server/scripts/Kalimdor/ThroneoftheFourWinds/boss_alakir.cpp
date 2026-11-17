@@ -408,7 +408,7 @@ class boss_alakir : public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 Reset();
@@ -729,7 +729,7 @@ class boss_alakir : public CreatureScript
                 {
                     WorldPackets::Misc::OverrideLight overrideLight;
                     overrideLight.AreaLightID = lightId;
-                    overrideLight.OverrideLightID = GetDefaultMapLight(instance->instance->GetId());
+                    overrideLight.OverrideLightID = sDBCManager.GetDefaultMapLight(instance->instance->GetId());
                     overrideLight.TransitionMilliseconds = static_cast<uint32>(fadeInTime);
                     overrideLight.Write();
 

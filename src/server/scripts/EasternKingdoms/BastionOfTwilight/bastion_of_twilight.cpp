@@ -2040,9 +2040,9 @@ class npc_bt_instance_portal: public CreatureScript
     public:
         npc_bt_instance_portal() : CreatureScript("npc_bt_instance_portal") { }
 
-        struct npc_bt_instance_portal_AI : public CreatureAI
+        struct npc_bt_instance_portal_AI : public ScriptedAI
         {
-            npc_bt_instance_portal_AI(Creature* creature) : CreatureAI(creature) { }
+            npc_bt_instance_portal_AI(Creature* creature) : ScriptedAI(creature) { }
 
             void OnSpellClick(Unit* clicker, bool& /*result*/) override
             {

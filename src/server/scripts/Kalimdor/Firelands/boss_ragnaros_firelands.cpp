@@ -586,7 +586,7 @@ class boss_ragnaros_firelands : public CreatureScript
 
                     uint8 side = urand(0, 2);
 
-                    if (Creature* pStalker = me->SummonCreature(NPC_SPLITTING_BLOW, sulfurasPos[side], TEMPSUMMON_TIMED_DESPAWN, 20000))
+                    if (Creature* pStalker = me->SummonCreature(NPC_SPLITTING_BLOW, sulfurasPos[side], TEMPSUMMON_TIMED_DESPAWN, 20000ms))
                     {
                         me->SetFacingToObject(pStalker);
                         if (side == 2)
@@ -632,7 +632,7 @@ class boss_ragnaros_firelands : public CreatureScript
 
                     uint8 side = urand(0, 2);
 
-                    if (Creature* pStalker = me->SummonCreature(NPC_SPLITTING_BLOW, sulfurasPos[side], TEMPSUMMON_TIMED_DESPAWN, 20000))
+                    if (Creature* pStalker = me->SummonCreature(NPC_SPLITTING_BLOW, sulfurasPos[side], TEMPSUMMON_TIMED_DESPAWN, 20000ms))
                     {
                         me->SetFacingToObject(pStalker);
                         if (side == 2)
@@ -1097,10 +1097,10 @@ class npc_ragnaros_firelands_sulfuras_smash : public CreatureScript
             void SendLavaWave(Position startpos, Position endpos)
             {
                 if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGNAROS)))
-                    if (Creature* pLavaWave = pRagnaros->SummonCreature(NPC_LAVA_WAVE, startpos, TEMPSUMMON_TIMED_DESPAWN, 15000))
+                    if (Creature* pLavaWave = pRagnaros->SummonCreature(NPC_LAVA_WAVE, startpos, TEMPSUMMON_TIMED_DESPAWN, 15000ms))
                     {
                         pLavaWave->CastSpell(pLavaWave, SPELL_LAVA_WAVE_AURA, true);
-                        if (Creature* pStalker = me->SummonCreature(NPC_PLATFORM_STALKER, endpos, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                        if (Creature* pStalker = me->SummonCreature(NPC_PLATFORM_STALKER, endpos, TEMPSUMMON_TIMED_DESPAWN, 30000ms))
                         {
                             pStalker->SetDisableGravity(true);
                             pStalker->SetCanFly(true);
@@ -2006,7 +2006,7 @@ class npc_ragnaros_firelands_dreadflame_spawn : public CreatureScript
                             uint32 i = GetNextDreadflame();
                             bFloor[i] = true;
                             //me->CastSpell(floorPos[i].GetPositionX(), floorPos[i].GetPositionY(), floorPos[i].GetPositionZ(), SPELL_DREADFLAME_SUMMON, true);
-                            if (Creature* pDreadflame = me->SummonCreature(NPC_DREADFLAME, floorPos[i], TEMPSUMMON_TIMED_DESPAWN, 600000))
+                            if (Creature* pDreadflame = me->SummonCreature(NPC_DREADFLAME, floorPos[i], TEMPSUMMON_TIMED_DESPAWN, 600000ms))
                                 pDreadflame->AI()->SetData(DATA_DREADFLAME_ID, i + 1);    
                             events.ScheduleEvent(EVENT_DREADFLAME_UPDATE, 5000);
                             break;

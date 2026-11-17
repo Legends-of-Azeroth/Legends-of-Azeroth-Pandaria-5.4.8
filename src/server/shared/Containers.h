@@ -22,6 +22,7 @@
 #include "MapUtils.h"
 #include <list>
 #include <random>
+#include <unordered_map>
 #include "Util.h"
 #include "Random.h"
 
@@ -129,6 +130,7 @@ namespace Trinity
 
             return SelectRandomWeightedContainerElement(container, weights);
         }
+
     }
     //! namespace Containers
 }

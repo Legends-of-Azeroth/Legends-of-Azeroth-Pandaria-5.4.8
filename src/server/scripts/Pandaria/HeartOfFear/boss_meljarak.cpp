@@ -245,7 +245,7 @@ class boss_wind_lord_meljarak : public CreatureScript
                 Reset();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();

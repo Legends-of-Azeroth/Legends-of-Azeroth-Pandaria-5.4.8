@@ -177,15 +177,15 @@ class boss_shade_of_aran : public CreatureScript
             void FlameWreathEffect()
             {
                 std::vector<Unit*> targets;
-                std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
+                auto t_list = me->GetThreatManager().GetUnsortedThreatList();
 
-                if (t_list.empty())
+                if (me->GetThreatManager().IsThreatListEmpty())
                     return;
 
                 // store the threat list in a different container
-                for (auto&& itr : t_list)
+                for (auto&& ref : t_list)
                 {
-                    Unit* target = Unit::GetUnit(*me, itr->getUnitGuid());
+                    Unit* target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                     // only on alive players
                     if (target && target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
                         targets.push_back(target);
@@ -394,7 +394,7 @@ class boss_shade_of_aran : public CreatureScript
                         case SUPER_BLIZZARD:
                             Talk(SAY_BLIZZARD);
 
-                            if (Creature* spawn = me->SummonCreature(CREATURE_ARAN_BLIZZARD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 25000))
+                            if (Creature* spawn = me->SummonCreature(CREATURE_ARAN_BLIZZARD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 25000ms))
                             {
                                 spawn->SetFaction(me->GetFaction());
                                 spawn->CastSpell(spawn, SPELL_CIRCULAR_BLIZZARD, false);
@@ -411,7 +411,7 @@ class boss_shade_of_aran : public CreatureScript
 
                     for (uint32 i = 0; i < 4; ++i)
                     {
-                        if (Creature* unit = me->SummonCreature(CREATURE_WATER_ELEMENTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 90000))
+                        if (Creature* unit = me->SummonCreature(CREATURE_WATER_ELEMENTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 90000ms))
                         {
                             unit->Attack(me->GetVictim(), true);
                             unit->SetFaction(me->GetFaction());
@@ -425,7 +425,7 @@ class boss_shade_of_aran : public CreatureScript
                 {
                     for (uint32 i = 0; i < 5; ++i)
                     {
-                        if (Creature* unit = me->SummonCreature(CREATURE_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+                        if (Creature* unit = me->SummonCreature(CREATURE_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000ms))
                         {
                             unit->Attack(me->GetVictim(), true);
                             unit->SetFaction(me->GetFaction());

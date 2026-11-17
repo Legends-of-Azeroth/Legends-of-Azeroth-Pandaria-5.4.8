@@ -117,7 +117,7 @@ class boss_houndmaster_braun : public CreatureScript
                 HandleDoors(true);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -39,8 +39,8 @@ struct BattlePetAbilityEntry
     uint32 Cooldown;                                        // 3 - cooldown in turns
     uint32 VisualId;                                        // 4 - visual id (BattlePetVisual.db2)
     uint32 Flags;                                           // 5 - flags (see BattlePetAbilityFlags enum)
-    DbcStr Name;                                            // 6 - name text
-    DbcStr Description;                                     // 7 - description text};
+    char const* Name;                                       // 6 - name text
+    char const* Description;                                // 7 - description text};
 };
 
 struct BattlePetAbilityStateEntry
@@ -103,8 +103,8 @@ struct BattlePetSpeciesEntry
     uint32 FamilyId;                                        // 4 - battle pet family id
     //int32 Unk1;                                           // 5
     uint32 Flags;                                           // 6 - flags (see BattlePetSpeciesFlags enum)
-    DbcStr Description;                                     // 7 - description text, contains method to obtain and cost
-    DbcStr Flavor;                                          // 8 - flavor text
+    char const* Description;                                     // 7 - description text, contains method to obtain and cost
+    char const* Flavor;                                          // 8 - flavor text
 };
 
 struct BattlePetSpeciesStateEntry
@@ -128,7 +128,7 @@ struct BattlePetStateEntry
 {
     uint32 StateId;                                         // 0 - battle pet state id
     //uint32 Unk1;                                          // 1 - only states 21 and 34 (linked states?)
-    DbcStr Name;                                            // 2 - name text
+    char const* Name;                                       // 2 - name text
     uint32 Flags;                                           // 3 - flags
 };
 
@@ -144,8 +144,8 @@ struct BroadcastTextEntry
 {
     uint32   ID;                                             // 0
     //uint32   Unk0;                                         // 1
-    DbcStr   Text_0;                                         // 2
-    DbcStr   Text_1;                                         // 3
+    char const*   Text_0;                                    // 2
+    char const*   Text_1;                                    // 3
     //uint32   Unk1;                                         // 4
     //uint32   Unk2;                                         // 5
     //uint32   Unk3;                                         // 6
@@ -171,7 +171,7 @@ struct ItemEntry
 
 struct ItemCurrencyCostEntry
 {
-    //uint32  Id;
+    uint32  ID;
     uint32  ItemId;
 };
 
@@ -217,11 +217,11 @@ struct ItemSparseEntry
     int32      SpellCategory[MAX_ITEM_PROTO_SPELLS];         // 89 - 89
     int32      SpellCategoryCooldown[MAX_ITEM_PROTO_SPELLS]; // 94 - 98
     uint32     Bonding;                                      // 99
-    DbcStr     Name;                                         // 100
-    DbcStr     Name2;                                        // 101
-    DbcStr     Name3;                                        // 102
-    DbcStr     Name4;                                        // 103
-    DbcStr     Description;                                  // 104
+    char const*     Name;                                    // 100
+    char const*     Name2;                                   // 101
+    char const*     Name3;                                   // 102
+    char const*     Name4;                                   // 103
+    char const*     Description;                             // 104
     uint32     PageText;                                     // 105
     uint32     LanguageID;                                   // 106
     uint32     PageMaterial;                                 // 107
@@ -254,15 +254,15 @@ struct ItemSparseEntry
 
 struct ItemExtendedCostEntry
 {
-    uint32      ID;                                         // 0 extended-cost entry id
-    //uint32    reqhonorpoints;                             // 1 required honor points
-    //uint32    reqarenapoints;                             // 2 required arena points
-    uint32      RequiredArenaSlot;                          // 3 arena slot restrictions (min slot value)
-    uint32      RequiredItem[MAX_ITEM_EXT_COST_ITEMS];      // 4-8 required item id
-    uint32      RequiredItemCount[MAX_ITEM_EXT_COST_ITEMS]; // 9-13 required count of 1st item
-    uint32      RequiredPersonalArenaRating;                // 14 required personal arena rating
-    //uint32    ItemPurchaseGroup;                          // 15
-    uint32      RequiredCurrency[MAX_ITEM_EXT_COST_CURRENCIES];// 16-20 required curency id
+    uint32      ID;                                              // 0 extended-cost entry id
+    uint32      RequiredHonorPoints;                             // 1 required honor points
+    uint32      RequiredArenaPoints;                             // 2 required arena points
+    uint32      RequiredArenaSlot;                               // 3 arena slot restrictions (min slot value)
+    uint32      RequiredItem[MAX_ITEM_EXT_COST_ITEMS];           // 4-8 required item id
+    uint32      RequiredItemCount[MAX_ITEM_EXT_COST_ITEMS];      // 9-13 required count of 1st item
+    uint32      RequiredPersonalArenaRating;                     // 14 required personal arena rating
+    uint32      ItemPurchaseGroup;                               // 15
+    uint32      RequiredCurrency[MAX_ITEM_EXT_COST_CURRENCIES];  // 16-20 required curency id
     uint32      RequiredCurrencyCount[MAX_ITEM_EXT_COST_CURRENCIES];// 21-25 required curency count
     uint32      RequiredFactionId;
     uint32      RequiredFactionStanding;
@@ -331,8 +331,8 @@ struct RulesetItemUpgradeEntry
 struct SceneScriptEntry
 {
     uint32 ID;                                             // 0         m_ID
-    DbcStr Name;                                           // 1         m_name
-    DbcStr Script;                                         // 2         m_script
+    char const* Name;                                      // 1         m_name
+    char const* Script;                                    // 2         m_script
     uint32 PrevScriptPartID;                               // 3         m_prevScriptPartID - Prev Script Part Id From Chain
     uint32 NextScriptPartID;                               // 4         m_nextScriptPartID - Next Script Part Id From Chain
 };
@@ -341,7 +341,7 @@ struct SceneScriptEntry
 struct SceneScriptPackageEntry
 {
     uint32 ID;
-    DbcStr Name;
+    char const* Name;
 };
 
 #define MAX_SPELL_REAGENTS 8
@@ -358,7 +358,7 @@ struct SpellReagentsEntry
 struct VignetteEntry
 {
     uint32 Id;                                                      // 0
-    DbcStr Name;                                                    // 1
+    char const* Name;                                               // 1
     uint32 QuestFeedbackEffectId;                                   // 2
     uint32 Flags;                                                   // 3
     float  X;                                                       // 4

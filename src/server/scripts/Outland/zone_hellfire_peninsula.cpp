@@ -90,7 +90,8 @@ public:
                 me->SetFaction(FACTION_FRIENDLY);
                 me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);   // UNIT_NPC_FLAGS
                 me->RemoveAllAuras();
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
                 Talk(SAY_FREE);
                 return;
@@ -141,12 +142,12 @@ public:
 // public:
 //     npc_ancestral_wolf() : CreatureScript("npc_ancestral_wolf") { }
 
-//     struct npc_ancestral_wolfAI : public npc_escortAI
+//     struct npc_ancestral_wolfAI : public EscortAI
 //     {
-//         npc_ancestral_wolfAI(Creature* creature) : npc_escortAI(creature)
+//         npc_ancestral_wolfAI(Creature* creature) : EscortAI(creature)
 //         {
 //             if (creature->GetOwner() && creature->GetOwner()->GetTypeId() == TYPEID_PLAYER)
-//                 Start(false, false, creature->GetOwner()->GetGUID());
+//                 Start(false, creature->GetOwner()->GetGUID());
 //             else
 //                 TC_LOG_ERROR("scripts", "TRINITY: npc_ancestral_wolf can not obtain owner or owner is not a player.");
 
@@ -160,9 +161,9 @@ public:
 //         }
 
 //         // Override Evade Mode event, recast buff that was removed by standard handler
-//         void EnterEvadeMode() override
+//         void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
 //         {
-//             npc_escortAI::EnterEvadeMode();
+//             EscortAI::EnterEvadeMode();
 //             DoCast(me, SPELL_ANCESTRAL_WOLF_BUFF, true);
 //         }
 
@@ -172,7 +173,7 @@ public:
 //                 if (Creature* temp = who->ToCreature())
 //                     ryga = temp;
 
-//             npc_escortAI::MoveInLineOfSight(who);
+//             EscortAI::MoveInLineOfSight(who);
 //         }
 
 //         void WaypointReached(uint32 waypointId) override
@@ -263,9 +264,9 @@ class npc_wounded_blood_elf : public CreatureScript
 public:
     npc_wounded_blood_elf() : CreatureScript("npc_wounded_blood_elf") { }
 
-    struct npc_wounded_blood_elfAI : public npc_escortAI
+    struct npc_wounded_blood_elfAI : public EscortAI
     {
-        npc_wounded_blood_elfAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_wounded_blood_elfAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override { }
 
@@ -280,7 +281,7 @@ public:
             summoned->AI()->AttackStart(me);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -294,8 +295,8 @@ public:
                 case 9:
                     Talk(SAY_ELF_SUMMON1, player);
                     // Spawn two Haal'eshi Talonguard
-                    DoSpawnCreature(NPC_HAALESHI_TALONGUARD, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                    DoSpawnCreature(NPC_HAALESHI_TALONGUARD, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    DoSpawnCreature(NPC_HAALESHI_TALONGUARD, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000ms);
+                    DoSpawnCreature(NPC_HAALESHI_TALONGUARD, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000ms);
                     break;
                 case 13:
                     Talk(SAY_ELF_RESTING, player);
@@ -303,8 +304,8 @@ public:
                 case 14:
                     Talk(SAY_ELF_SUMMON2, player);
                     // Spawn two Haal'eshi Windwalker
-                    DoSpawnCreature(NPC_HAALESHI_WINDWALKER, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                    DoSpawnCreature(NPC_HAALESHI_WINDWALKER, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    DoSpawnCreature(NPC_HAALESHI_WINDWALKER, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000ms);
+                    DoSpawnCreature(NPC_HAALESHI_WINDWALKER, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000ms);
                     break;
                 case 27:
                     Talk(SAY_ELF_COMPLETE, player);
@@ -319,8 +320,8 @@ public:
     {
         if (quest->GetQuestId() == QUEST_ROAD_TO_FALCON_WATCH)
         {
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_wounded_blood_elf::npc_wounded_blood_elfAI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
+            if (EscortAI* pEscortAI = CAST_AI(npc_wounded_blood_elf::npc_wounded_blood_elfAI, creature->AI()))
+                pEscortAI->Start(true, player->GetGUID());
 
             // Change faction so mobs attack
             creature->SetFaction(FACTION_FALCON_WATCH_QUEST);
@@ -950,7 +951,8 @@ enum Aledis
 //                 _events.Reset();
 //                 me->RestoreFaction();
 //                 me->RemoveAllAuras();
-//                 me->DeleteThreatList();
+//                 me->GetThreatManager().RemoveMeFromThreatLists();
+//                  me->GetThreatManager().ClearAllThreat();
 //                 me->CombatStop(true);
 //                 //me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
 //                 //me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);

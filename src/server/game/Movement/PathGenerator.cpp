@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -39,7 +39,7 @@ PathGenerator::PathGenerator(WorldObject const* owner) :
 {
     memset(_pathPolyRefs, 0, sizeof(_pathPolyRefs));
 
-    TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::PathGenerator for %u \n", _source->GetGUID().GetCounter());
+    TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::PathGenerator for {} \n", _source->GetGUID().GetCounter());
 
     uint32 mapId = _source->GetMapId();
     if (DisableMgr::IsPathfindingEnabled(mapId))
@@ -54,7 +54,7 @@ PathGenerator::PathGenerator(WorldObject const* owner) :
 
 PathGenerator::~PathGenerator()
 {
-    TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::~PathGenerator() for %u \n", _source->GetGUID().GetCounter());
+    TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::~PathGenerator() for {} \n", _source->GetGUID().GetCounter());
     delete visualizePathWaypointGUIDs;
     delete visualizeNavmeshWaypointGUIDs;
 }
@@ -78,7 +78,7 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
 
     _forceDestination = forceDest;
 
-    TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::CalculatePath() for %u \n", _source->GetGUID().GetCounter());
+    TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::CalculatePath() for {} \n", _source->GetGUID().GetCounter());
 
     bool skip = false;
 
@@ -238,7 +238,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
     bool endFarFromPoly = distToEndPoly > 7.0f;    
     if (startFarFromPoly || endFarFromPoly)
     {
-        TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: farFromPoly distToStartPoly=%.3f distToEndPoly=%.3f\n", distToStartPoly, distToEndPoly);
+        TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: farFromPoly distToStartPoly={} distToEndPoly={}\n", distToStartPoly, distToEndPoly);
 
         bool buildShotrcut = false;
 
@@ -326,7 +326,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
             // here to catch few bugs
             if (_pathPolyRefs[pathStartIndex] == INVALID_POLYREF)
             {
-                TC_LOG_ERROR("maps.mmaps", "Invalid poly ref in BuildPolyPath. _polyLength: %u, pathStartIndex: %u,"
+                TC_LOG_ERROR("maps.mmaps", "Invalid poly ref in BuildPolyPath. _polyLength: {}, pathStartIndex: {},"
                                      " startPos: %s, endPos: %s, mapid: %u",
                                      _polyLength, pathStartIndex, startPos.toString().c_str(), endPos.toString().c_str(),
                                      _source->GetMapId());
@@ -404,7 +404,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         dtStatus dtResult;
         if (_useRaycast)
         {
-            TC_LOG_ERROR("maps.mmaps", "PathGenerator::BuildPolyPath() called with _useRaycast with a previous path for unit %u", _source->GetGUID().GetCounter());
+            TC_LOG_ERROR("maps.mmaps", "PathGenerator::BuildPolyPath() called with _useRaycast with a previous path for unit {}", _source->GetGUID().GetCounter());
             BuildShortcut();
             _type = PATHFIND_NOPATH;
             return;
@@ -427,10 +427,10 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
             // this is probably an error state, but we'll leave it
             // and hopefully recover on the next Update
             // we still need to copy our preffix
-            TC_LOG_ERROR("maps.mmaps", "%u's Path Build failed: 0 length path", _source->GetGUID().GetCounter());
+            TC_LOG_ERROR("maps.mmaps", "{}'s Path Build failed: 0 length path", _source->GetGUID().GetCounter());
         }
 
-        TC_LOG_DEBUG("maps.mmaps", "++  m_polyLength=%u prefixPolyLength=%u suffixPolyLength=%u", _polyLength, prefixPolyLength, suffixPolyLength);
+        TC_LOG_DEBUG("maps.mmaps", "++  m_polyLength={} prefixPolyLength={} suffixPolyLength={}", _polyLength, prefixPolyLength, suffixPolyLength);
 
         // new path = prefix + suffix - overlap
         _polyLength = prefixPolyLength + suffixPolyLength - 1;
@@ -532,7 +532,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         if (!_polyLength || dtStatusFailed(dtResult))
         {
             // only happens if we passed bad data to findPath(), or navmesh is messed up
-            TC_LOG_ERROR("maps", "%u's Path Build failed: 0 length path", _source->GetGUID().GetCounter());
+            TC_LOG_ERROR("maps", "{}'s Path Build failed: 0 length path", _source->GetGUID().GetCounter());
             BuildShortcut();
             _type = PATHFIND_NOPATH;
             return;
@@ -559,7 +559,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
     if (_useRaycast)
     {
         // _straightLine uses raycast and it currently doesn't support building a point path, only a 2-point path with start and hitpoint/end is returned
-        TC_LOG_ERROR("maps.mmaps", "PathGenerator::BuildPointPath() called with _useRaycast for unit %u", _source->GetGUID().GetCounter());
+        TC_LOG_ERROR("maps.mmaps", "PathGenerator::BuildPointPath() called with _useRaycast for unit {}", _source->GetGUID().GetCounter());
         BuildShortcut();
         _type = PATHFIND_NOPATH;
         return;
@@ -601,14 +601,14 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         // only happens if pass bad data to findStraightPath or navmesh is broken
         // single point paths can be generated here
         /// @todo check the exact cases
-        TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::BuildPointPath FAILED! path sized %d returned\n", pointCount);
+        TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::BuildPointPath FAILED! path sized {} returned\n", pointCount);
         BuildShortcut();
         _type = PathType(_type | PATHFIND_NOPATH);
         return;
     }
     else if (pointCount >= _pointPathLimit) // _useRaycast assumes the path is already of a valid length todo
     {
-        TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::BuildPointPath FAILED! path sized %d returned, lower than limit set to %d\n", pointCount, _pointPathLimit);
+        TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::BuildPointPath FAILED! path sized {} returned, lower than limit set to {}\n", pointCount, _pointPathLimit);
         BuildShortcut();
         _type = PathType(_type | PATHFIND_SHORT);
         return;
@@ -642,7 +642,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         _type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
     }
 
-    TC_LOG_DEBUG("maps", "++ PathGenerator::BuildPointPath path type %d size %d poly-size %d\n", _type, pointCount, _polyLength);
+    TC_LOG_DEBUG("maps", "++ PathGenerator::BuildPointPath path type {} size {} poly-size {}\n", _type, pointCount, _polyLength);
 }
 
 void PathGenerator::NormalizePath()
@@ -964,7 +964,7 @@ dtStatus PathGenerator::FindSmoothPath(float const* startPos, float const* endPo
         npolys = FixupCorridor(polys, npolys, MAX_PATH_LENGTH, visited, nvisited);
 
         if (dtStatusFailed(_navMeshQuery->getPolyHeight(polys[0], result, &result[1])))
-            TC_LOG_DEBUG("maps.mmaps", "Cannot find height at position X: %f Y: %f Z: %f for %u", result[2], result[0], result[1], _source->GetGUID().GetCounter());
+            TC_LOG_DEBUG("maps.mmaps", "Cannot find height at position X: {} Y: {} Z: {} for {}", result[2], result[0], result[1], _source->GetGUID().GetCounter());
         result[1] += 0.5f;
         dtVcopy(iterPos, result);
 
@@ -1299,4 +1299,57 @@ void PathGenerator::AddFarFromPolyFlags(bool startFarFromPoly, bool endFarFromPo
         _type = PathType(_type | PATHFIND_FARFROMPOLY_START);
     if (endFarFromPoly)
         _type = PathType(_type | PATHFIND_FARFROMPOLY_END);
+}
+
+[[nodiscard]] inline float getSlopeAngle(float startX, float startY, float startZ, float destX, float destY, float destZ)
+{
+    float floorDist = std::sqrt(pow(startY - destY, 2.0f) + pow(startX - destX, 2.0f));
+    return atan(std::abs(destZ - startZ) / std::abs(floorDist));
+}
+
+[[nodiscard]] inline float getSlopeAngleAbs(float startX, float startY, float startZ, float destX, float destY, float destZ)
+{
+    return std::abs(getSlopeAngle(startX, startY, startZ, destX, destY, destZ));
+}
+
+/**
+ * @brief Return the height of a slope that can be climbed based on source height
+ * This method is meant for short distances or linear paths
+ *
+ * @param x start x coord
+ * @param y start y coord
+ * @param z start z coord
+ * @param destX destination x coord
+ * @param destY destination y coord
+ * @param destZ destination z coord
+ * @param sourceHeight height of the source
+ * @return float the maximum height that a source can climb based on slope angle
+ */
+float PathGenerator::GetRequiredHeightToClimb(float x, float y, float z, float destX, float destY, float destZ, float sourceHeight)
+{
+    float slopeAngle = getSlopeAngleAbs(x, y, z, destX, destY, destZ);
+    float slopeAngleDegree = (slopeAngle * 180.0f / M_PI);
+    float climbableHeight = sourceHeight - (sourceHeight * (slopeAngleDegree / 100));
+    return climbableHeight;
+}
+
+/**
+ * @brief Check if a slope can be climbed based on source height
+ * This method is meant for short distances or linear paths
+ *
+ * @param x start x coord
+ * @param y start y coord
+ * @param z start z coord
+ * @param destX destination x coord
+ * @param destY destination y coord
+ * @param destZ destination z coord
+ * @param sourceHeight height of the source
+ * @return bool check if you can climb the path
+ */
+bool PathGenerator::IsWalkableClimb(float x, float y, float z, float destX, float destY, float destZ, float sourceHeight)
+{
+    float diffHeight = std::abs(destZ - z);
+    float reqHeight = GetRequiredHeightToClimb(x, y, z, destX, destY, destZ, sourceHeight);
+    // check walkable slopes, based on unit height
+    return diffHeight <= reqHeight;
 }

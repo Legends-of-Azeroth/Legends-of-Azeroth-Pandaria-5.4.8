@@ -22,6 +22,7 @@
 #include "CalendarMgr.h"
 #include "Chat.h"
 #include "Common.h"
+#include "CharacterHandler.h"
 #include "DatabaseEnv.h"
 #include "GitRevision.h"
 #include "Group.h"
@@ -32,6 +33,7 @@
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "RBAC.h"
 #include "Opcodes.h"
 #include "Pet.h"
 #include "PlayerDump.h"
@@ -44,7 +46,6 @@
 #include "SystemConfig.h"
 #include "UpdateMask.h"
 #include "Util.h"
-#include "QueryHolder.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -54,18 +55,6 @@
 #ifdef ELUNA
 #include "HookMgr.h"
 #endif
-class LoginQueryHolder : public CharacterDatabaseQueryHolder
-{
-private:
-    uint32 m_accountId;
-    ObjectGuid m_guid;
-public:
-    LoginQueryHolder(uint32 accountId, ObjectGuid guid)
-        : m_accountId(accountId), m_guid(guid) { }
-    ObjectGuid GetGuid() const { return m_guid; }
-    uint32 GetAccountId() const { return m_accountId; }
-    bool Initialize();
-};
 
 bool LoginQueryHolder::Initialize()
 {
@@ -315,7 +304,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
         {
             ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>((*result)[0].GetUInt32());
 
-            TC_LOG_INFO("network", "Loading char guid %u from account %u.", guid.GetCounter(), GetAccountId());
+            TC_LOG_INFO("network", "Loading char guid {} from account {}.", guid.GetCounter(), GetAccountId());
 
             Player::BuildEnumData(result, &dataBuffer, &bitBuffer, GetBoost()->IsBoosting(guid.GetCounter()));
 
@@ -373,29 +362,17 @@ void WorldSession::HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters&
     _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleCharEnum, this, std::placeholders::_1)));
 }
 
-void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
+void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharacter& packet)
 {
-    uint8 hairStyle, face, facialHair, hairColor, race_, class_, skin, gender, outfitId;
+    WorldPacket data(SMSG_CREATE_CHAR, 1);                  // returned with diff.values in all cases
 
-    recvData >> outfitId >> hairStyle >> class_ >> skin;
-    recvData >> face >> race_ >> facialHair >> gender >> hairColor;
-
-    uint32 nameLength = recvData.ReadBits(6);
-    uint8 unk = recvData.ReadBit();
-    std::string name = recvData.ReadString(nameLength);
-
-    if (unk)
-        recvData.read_skip<uint32>();
-
-    WorldPacket data(SMSG_CHAR_CREATE, 1);                  // returned with diff.values in all cases
-
-    if (GetSecurity() == SEC_PLAYER)
+    if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_TEAMMASK))
     {
         if (uint32 mask = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED))
         {
             bool disabled = false;
 
-            uint32 team = Player::TeamForRace(race_);
+            uint32 team = Player::TeamForRace(packet.Race);
             switch (team)
             {
             case ALLIANCE:
@@ -415,21 +392,21 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
         }
     }
 
-    ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(class_);
+    ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(packet.Class);
     if (!classEntry)
     {
         data << uint8(CHAR_CREATE_FAILED);
         SendPacket(&data);
-        TC_LOG_ERROR("network", "Class (%u) not found in DBC while creating new char for account (ID: %u): wrong DBC files or cheater?", class_, GetAccountId());
+        TC_LOG_ERROR("network", "Class ({}) not found in DBC while creating new char for account (ID: {}): wrong DBC files or cheater?", packet.Class, GetAccountId());
         return;
     }
 
-    ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(race_);
+    ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(packet.Race);
     if (!raceEntry)
     {
         data << uint8(CHAR_CREATE_FAILED);
         SendPacket(&data);
-        TC_LOG_ERROR("network", "Race (%u) not found in DBC while creating new char for account (ID: %u): wrong DBC files or cheater?", race_, GetAccountId());
+        TC_LOG_ERROR("network", "Race ({}) not found in DBC while creating new char for account (ID: {}): wrong DBC files or cheater?", packet.Race, GetAccountId());
         return;
     }
     /*
@@ -437,7 +414,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     if (raceEntry->expansion > Expansion())
     {
     data << uint8(CHAR_CREATE_EXPANSION);
-    TC_LOG_ERROR("network", "Expansion %u account:[%d] tried to Create character with expansion %u race (%u)", Expansion(), GetAccountId(), raceEntry->expansion, race_);
+    TC_LOG_ERROR("network", "Expansion {} account:[{}] tried to Create character with expansion {} race ({})", Expansion(), GetAccountId(), raceEntry->expansion, packet.Race);
     SendPacket(&data);
     return;
     }
@@ -446,23 +423,26 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     if (classEntry->expansion > Expansion())
     {
     data << uint8(CHAR_CREATE_EXPANSION_CLASS);
-    TC_LOG_ERROR("network", "Expansion %u account:[%d] tried to Create character with expansion %u class (%u)", Expansion(), GetAccountId(), classEntry->expansion, class_);
+    TC_LOG_ERROR("network", "Expansion {} account:[{}] tried to Create character with expansion {} class ({})", Expansion(), GetAccountId(), classEntry->expansion, packet.Class);
     SendPacket(&data);
     return;
     }*/
 
-    if (GetSecurity() == SEC_PLAYER)
+    if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RACEMASK))
     {
         uint32 raceMaskDisabled = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK);
-        if ((1 << (race_ - 1)) & raceMaskDisabled)
+        if ((1 << (packet.Race - 1)) & raceMaskDisabled)
         {
             data << uint8(CHAR_CREATE_DISABLED);
             SendPacket(&data);
             return;
         }
+    }
 
+    if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_CLASSMASK))
+    {
         uint32 classMaskDisabled = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK);
-        if ((1 << (class_ - 1)) & classMaskDisabled)
+        if ((1 << (packet.Class - 1)) & classMaskDisabled)
         {
             data << uint8(CHAR_CREATE_DISABLED);
             SendPacket(&data);
@@ -471,16 +451,16 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     }
 
     // prevent character creating with invalid name
-    if (!normalizePlayerName(name))
+    if (!normalizePlayerName(packet.Name))
     {
         data << uint8(CHAR_NAME_NO_NAME);
         SendPacket(&data);
-        TC_LOG_ERROR("network", "Account:[%d] but tried to Create character with empty [name] ", GetAccountId());
+        TC_LOG_ERROR("network", "Account:[{}] but tried to Create character with empty [name] ", GetAccountId());
         return;
     }
 
     // check name limitations
-    uint8 res = ObjectMgr::CheckPlayerName(name, true);
+    uint8 res = ObjectMgr::CheckPlayerName(packet.Name, true);
     if (res != CHAR_NAME_SUCCESS)
     {
         data << uint8(res);
@@ -488,14 +468,14 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (GetSecurity() == SEC_PLAYER && sObjectMgr->IsReservedName(name))
+    if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RESERVEDNAME) && sObjectMgr->IsReservedName(packet.Name))
     {
         data << uint8(CHAR_NAME_RESERVED);
         SendPacket(&data);
         return;
     }
 
-    if (class_ == CLASS_DEATH_KNIGHT && GetSecurity() == SEC_PLAYER)
+    if (packet.Class == CLASS_DEATH_KNIGHT && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEATH_KNIGHT))
     {
         // speedup check for heroic class disabled case
         uint32 heroic_free_slots = sWorld->getIntConfig(CONFIG_HEROIC_CHARACTERS_PER_REALM);
@@ -517,16 +497,16 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     }
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
-    stmt->setString(0, name);
+    stmt->setString(0, packet.Name);
 
-    CharacterCreateInfo* createInfo = new CharacterCreateInfo(name, race_, class_, gender, skin, face, hairStyle, hairColor, facialHair, outfitId, recvData);
+    CharacterCreateInfo* createInfo = new CharacterCreateInfo(packet.Name, packet.Race, packet.Class, packet.Gender, packet.Skin, packet.Face, packet.HairStyle, packet.HairColor, packet.FacialHair, packet.OutfitId, packet.Data);
     _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt)
         .WithChainingPreparedCallback([this, createInfo](QueryCallback& queryCallback, PreparedQueryResult result)
     {
         
         if (result)
         {
-            WorldPacket data(SMSG_CHAR_CREATE, 1);
+            WorldPacket data(SMSG_CREATE_CHAR, 1);
             data << uint8(CHAR_CREATE_NAME_IN_USE);
             SendPacket(&data);
             delete createInfo;
@@ -554,7 +534,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
         if (acctCharCount >= sWorld->getIntConfig(CONFIG_CHARACTERS_PER_ACCOUNT))
         {
-            WorldPacket data(SMSG_CHAR_CREATE, 1);
+            WorldPacket data(SMSG_CREATE_CHAR, 1);
             data << uint8(CHAR_CREATE_ACCOUNT_LIMIT);
             SendPacket(&data);
             delete createInfo;
@@ -576,7 +556,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
             if (createInfo->CharCount >= sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM))
             {
-                WorldPacket data(SMSG_CHAR_CREATE, 1);
+                WorldPacket data(SMSG_CREATE_CHAR, 1);
                 data << uint8(CHAR_CREATE_SERVER_LIMIT);
                 SendPacket(&data);
                 delete createInfo;
@@ -584,7 +564,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
             }
         }
 
-        bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ACCOUNTS) || GetSecurity() > SEC_PLAYER;
+        bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || HasPermission(rbac::RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
         uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
 
 
@@ -594,9 +574,9 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
             bool haveSameRace = false;
             uint32 heroicReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER);
             bool hasHeroicReqLevel = (heroicReqLevel == 0);
-            bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ACCOUNTS) || GetSecurity() > SEC_PLAYER;
+            bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || HasPermission(rbac::RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
             uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
-            bool checkHeroicReqs = createInfo->Class == CLASS_DEATH_KNIGHT;
+            bool checkHeroicReqs = createInfo->Class == CLASS_DEATH_KNIGHT && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEATH_KNIGHT);
 
             if (result)
             {
@@ -616,7 +596,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
                         if (freeHeroicSlots == 0)
                         {
-                            WorldPacket data(SMSG_CHAR_CREATE, 1);
+                            WorldPacket data(SMSG_CREATE_CHAR, 1);
                             data << uint8(CHAR_CREATE_UNIQUE_CLASS_LIMIT);
                             SendPacket(&data);
                             delete createInfo;
@@ -642,7 +622,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
                     if (accTeam != team)
                     {
-                        WorldPacket data(SMSG_CHAR_CREATE, 1);
+                        WorldPacket data(SMSG_CREATE_CHAR, 1);
                         data << uint8(CHAR_CREATE_PVP_TEAMS_VIOLATION);
                         SendPacket(&data);
                         delete createInfo;
@@ -673,7 +653,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
                             if (freeHeroicSlots == 0)
                             {
-                                WorldPacket data(SMSG_CHAR_CREATE, 1);
+                                WorldPacket data(SMSG_CREATE_CHAR, 1);
                                 data << uint8(CHAR_CREATE_UNIQUE_CLASS_LIMIT);
                                 SendPacket(&data);
                                 delete createInfo;
@@ -693,7 +673,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
             if (checkHeroicReqs && !hasHeroicReqLevel)
             {
-                WorldPacket data(SMSG_CHAR_CREATE, 1);
+                WorldPacket data(SMSG_CREATE_CHAR, 1);
                 data << uint8(CHAR_CREATE_LEVEL_REQUIREMENT);
                 SendPacket(&data);
                 delete createInfo;
@@ -704,7 +684,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
             {
                 uint8 unk;
                 createInfo->Data >> unk;
-                TC_LOG_DEBUG("network", "Character creation %s (account %u) has unhandled tail data: [%u]", createInfo->Name.c_str(), GetAccountId(), unk);
+                TC_LOG_DEBUG("network", "Character creation {} (account {}) has unhandled tail data: [{}]", createInfo->Name.c_str(), GetAccountId(), unk);
             }
 
             Player newChar(this);
@@ -714,7 +694,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
                 // Player not create (race/class/etc problem?)
                 newChar.CleanupsBeforeDelete();
 
-                WorldPacket data(SMSG_CHAR_CREATE, 1);
+                WorldPacket data(SMSG_CREATE_CHAR, 1);
                 data << uint8(CHAR_CREATE_ERROR);
                 SendPacket(&data);
                 delete createInfo;
@@ -747,12 +727,12 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
             LoginDatabase.CommitTransaction(trans);
 
-            WorldPacket data(SMSG_CHAR_CREATE, 1);
+            WorldPacket data(SMSG_CREATE_CHAR, 1);
             data << uint8(CHAR_CREATE_SUCCESS);
             SendPacket(&data);
 
             std::string IP_str = GetRemoteAddress();
-            TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), createInfo->Name.c_str(), newChar.GetGUID().GetCounter());
+            TC_LOG_INFO("entities.player.character", "Account: {} (IP: {}) Create Character:[{}] (GUID: {})", GetAccountId(), IP_str.c_str(), createInfo->Name.c_str(), newChar.GetGUID().GetCounter());
             sScriptMgr->OnPlayerCreate(&newChar);
             sWorld->AddCharacterNameData(newChar.GetGUID(), newChar.GetName(), newChar.GetGender(), newChar.GetRace(), newChar.GetClass(), newChar.GetLevel());
 
@@ -779,29 +759,11 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 }
 
 
-void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
+void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::CharDelete& packet)
 {
-    ObjectGuid guid;
+    ObjectGuid guid = packet.Guid;
 
-    guid[1] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[5]);
-
-    TC_LOG_DEBUG("network", "Character (Guid: %u) deleted", guid.GetCounter());
+    TC_LOG_DEBUG("network", "Character (Guid: {}) deleted", guid.GetCounter());
 
     // can't delete loaded character
     if (ObjectAccessor::FindPlayer(guid))
@@ -814,7 +776,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
     // is guild leader
     if (sGuildMgr->GetGuildByLeader(guid))
     {
-        WorldPacket data(SMSG_CHAR_DELETE, 1);
+        WorldPacket data(SMSG_DELETE_CHAR, 1);
         data << uint8(CHAR_DELETE_FAILED_GUILD_LEADER);
         SendPacket(&data);
         return;
@@ -836,28 +798,28 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
         return;
 
     std::string hwid;
-    if (QueryResult result = LoginDatabase.PQuery("SELECT project_hwid FROM account WHERE id = '%u'", GetAccountId()))
+    if (QueryResult result = LoginDatabase.PQuery("SELECT project_hwid FROM account WHERE id = '{}'", GetAccountId()))
     {
         Field* fields = result->Fetch();
         hwid = fields[0].GetString();
     }
 
     std::string IP_str = GetRemoteAddress();
-    TC_LOG_INFO("entities.player.character", "Account: %d, IP: %s deleted character: %s, GUID: %u, Level: %u HWID: %s", accountId, IP_str.c_str(), name.c_str(), guid.GetCounter(), level, hwid.c_str());
+    TC_LOG_INFO("entities.player.character", "Account: {}, IP: {} deleted character: {}, GUID: {}, Level: {} HWID: {}", accountId, IP_str.c_str(), name.c_str(), guid.GetCounter(), level, hwid.c_str());
     sScriptMgr->OnPlayerDelete(guid);
 
     if (sLog->ShouldLog("entities.player.dump", LOG_LEVEL_INFO)) // optimize GetPlayerDump call
     {
         std::string dump;
         if (PlayerDumpWriter().GetDump(guid.GetCounter(), dump))
-            sLog->outCharDump(dump.c_str(), accountId, guid.GetCounter(), name.c_str());
+            sLog->OutCharDump(dump.c_str(), accountId, guid.GetCounter(), name.c_str());
     }
 
     //sGuildFinderMgr->RemoveAllMembershipRequestsFromPlayer(guid);
     sCalendarMgr->RemoveAllPlayerEventsAndInvites(guid);
     Player::DeleteFromDB(guid, accountId);
 
-    WorldPacket data(SMSG_CHAR_DELETE, 1);
+    WorldPacket data(SMSG_DELETE_CHAR, 1);
     data << uint8(CHAR_DELETE_SUCCESS);
     SendPacket(&data);
 }
@@ -866,7 +828,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin&
 {
     if (PlayerLoading() || GetPlayer() != nullptr)
     {
-        TC_LOG_ERROR("network", "Player tries to login again, AccountId = %d", GetAccountId());
+        TC_LOG_ERROR("network", "Player tries to login again, AccountId = {}", GetAccountId());
         return;
     }
 
@@ -874,11 +836,11 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin&
 
     TC_LOG_DEBUG("network", "WORLD: Recvd Player Logon Message");
 
-    TC_LOG_DEBUG("network", "Character (Guid: %u) logging in", packet.Guid.GetCounter());
+    TC_LOG_DEBUG("network", "Character (Guid: {}) logging in", packet.Guid.GetCounter());
 
     if (!IsLegitCharacterForAccount(packet.Guid))
     {
-        TC_LOG_ERROR("network", "Account (%u) can't login with that character (%u).", GetAccountId(), packet.Guid.GetCounter());
+        TC_LOG_ERROR("network", "Account ({}) can't login with that character ({}).", GetAccountId(), packet.Guid.GetCounter());
         KickPlayer();
         return;
     }
@@ -896,11 +858,9 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin&
     });    
 }
 
-void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleLoadScreenOpcode(WorldPackets::Character::LoadingScreenNotify& packet)
 {
     TC_LOG_INFO("general", "WORLD: Recvd CMSG_LOAD_SCREEN");
-    uint32 mapID = recvPacket.read<uint32>();
-    bool loading = recvPacket.ReadBit();
 }
 
 void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
@@ -1037,7 +997,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     {
         data << uint32(hotfix[i].Timestamp);
         data << uint32(hotfix[i].Entry);
-        data << uint32(hotfix[i].Type);
+        data << uint32(hotfix[i].TableHash);
     }
 
     SendPacket(&data);
@@ -1072,7 +1032,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     }
 
     ObjectAccessor::AddObject(pCurrChar);
-    //TC_LOG_DEBUG("Player %s added to Map.", pCurrChar->GetName().c_str());
+    //TC_LOG_DEBUG("Player {} added to Map.", pCurrChar->GetName().c_str());
 
     if (pCurrChar->GetGuildId() != 0)
     {
@@ -1197,14 +1157,14 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
         SendNotification(LANG_GM_ON);
 
     std::string hwid;
-    if (QueryResult result = LoginDatabase.PQuery("SELECT project_hwid FROM account WHERE id = '%u'", GetAccountId()))
+    if (QueryResult result = LoginDatabase.PQuery("SELECT project_hwid FROM account WHERE id = '{}'", GetAccountId()))
     {
         Field* fields = result->Fetch();
         hwid = fields[0].GetString();
     }
 
     std::string IP_str = GetRemoteAddress();
-    TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Login Character:[%s] (GUID: %u) Level: %d HWID: %s",
+    TC_LOG_INFO("entities.player.character", "Account: {} (IP: {}) Login Character:[{}] (GUID: {}) Level: {} HWID: {}",
         GetAccountId(), IP_str.c_str(), pCurrChar->GetName().c_str(), pCurrChar->GetGUID().GetCounter(), pCurrChar->GetLevel(), hwid.c_str());
 
     if (!pCurrChar->IsStandState() && !pCurrChar->HasUnitState(UNIT_STATE_STUNNED))
@@ -1240,26 +1200,18 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
 
 }
 
-void WorldSession::HandleSetFactionAtWar(WorldPacket& recvData)
+void WorldSession::HandleSetFactionAtWar(WorldPackets::Character::SetFactionAtWar& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_FACTION_ATWAR");
 
-    uint8 FactionIndexID;
-
-    recvData >> FactionIndexID;
-
-    GetPlayer()->GetReputationMgr().SetAtWar(FactionIndexID);
+    GetPlayer()->GetReputationMgr().SetAtWar(packet.FactionIndex);
 }
 
-void WorldSession::HandleSetFactionNotAtWar(WorldPacket& recvData)
+void WorldSession::HandleSetFactionNotAtWar(WorldPackets::Character::SetFactionNotAtWar& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_FACTION_NOTATWAR");
 
-    uint8 FactionIndexID;
-
-    recvData >> FactionIndexID;
-
-    GetPlayer()->GetReputationMgr().SetNotAtWar(FactionIndexID);
+    GetPlayer()->GetReputationMgr().SetNotAtWar(packet.FactionIndex);
 }
 
 //I think this function is never used :/ I dunno, but i guess this opcode not exists
@@ -1269,10 +1221,9 @@ void WorldSession::HandleSetFactionCheat(WorldPacket & /*recvData*/)
     GetPlayer()->GetReputationMgr().SendStates();
 }
 
-void WorldSession::HandleTutorialFlag(WorldPacket& recvData)
+void WorldSession::HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packet)
 {
-    uint32 data;
-    recvData >> data;
+    uint32 data = packet.TutorialBit;
 
     uint8 index = uint8(data / 32);
     if (index >= MAX_ACCOUNT_TUTORIAL_VALUES)
@@ -1285,37 +1236,32 @@ void WorldSession::HandleTutorialFlag(WorldPacket& recvData)
     SetTutorialInt(index, flag);
 }
 
-void WorldSession::HandleTutorialClear(WorldPacket& /*recvData*/)
+void WorldSession::HandleTutorialClear(WorldPackets::Misc::TutorialClear& packet)
 {
     for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
         SetTutorialInt(i, 0xFFFFFFFF);
 }
 
-void WorldSession::HandleTutorialReset(WorldPacket& /*recvData*/)
+void WorldSession::HandleTutorialReset(WorldPackets::Misc::TutorialReset& packet)
 {
     for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
         SetTutorialInt(i, 0x00000000);
 }
 
-void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetWatchedFactionOpcode(WorldPackets::Character::SetWatchedFaction& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_WATCHED_FACTION");
-    uint32 fact;
-    recvData >> fact;
-    GetPlayer()->SetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fact);
+    GetPlayer()->SetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, packet.FactionIndex);
 }
 
-void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetFactionInactiveOpcode(WorldPackets::Character::SetFactionInactive& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_FACTION_INACTIVE");
-    uint32 FactionIndex;
-    uint8 Status;
-    recvData >> FactionIndex >> Status;
 
-    _player->GetReputationMgr().SetInactive(FactionIndex, Status);
+    _player->GetReputationMgr().SetInactive(packet.Index, packet.State);
 }
 
-void WorldSession::HandleRequestForcedReactionsOpcode(WorldPacket& recvData)
+void WorldSession::HandleRequestForcedReactionsOpcode(WorldPackets::Character::RequestForcedReactions& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_REQUEST_FORCED_REACTIONS");
 
@@ -1382,29 +1328,10 @@ void WorldSession::SendRenameResult(uint8 result, ObjectGuid guid, std::string n
     SendPacket(&data);
 }
 
-void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
+void WorldSession::HandleCharRenameOpcode(WorldPackets::Character::CharacterRenameRequest& packet)
 {
-    ObjectGuid guid;
-
-    guid[6] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    uint32 nameLen = recvData.ReadBits(6);            // Name size
-    guid[1] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[5]);
-    std::string newName = recvData.ReadString(nameLen);  // New Name
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[0]);
+    ObjectGuid guid = packet.Guid;
+    std::string newName = packet.Name;
 
     // prevent character rename to invalid name
     if (!normalizePlayerName(newName))
@@ -1421,7 +1348,7 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
     }
 
     // check name limitations
-    if (GetSecurity() == SEC_PLAYER && sObjectMgr->IsReservedName(newName))
+    if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RESERVEDNAME) && sObjectMgr->IsReservedName(newName))
     {
         SendRenameResult(CHAR_NAME_RESERVED);
         return;
@@ -1477,7 +1404,7 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
     stmt->setUInt32(0, guid.GetCounter());
     CharacterDatabase.Execute(stmt);
 
-    TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Character:[%s] (guid:%u) Changed name to: %s", GetAccountId(), GetRemoteAddress().c_str(), oldName.c_str(), guidLow, newName.c_str());
+    TC_LOG_INFO("entities.player.character", "Account: {} (IP: {}) Character:[{}] (guid:{}) Changed name to: {}", GetAccountId(), GetRemoteAddress().c_str(), oldName.c_str(), guidLow, newName.c_str());
 
     sWorld->UpdateCharacterNameData(guid, newName);
 
@@ -1486,35 +1413,12 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
     sServiceMgr->ExecutedServices(guidLow, SERVICE_TYPE_RENAME, Format("Old Name: %s", oldName.c_str()), Format("New Name: %s", newName.c_str()));
 }
 
-void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
+void WorldSession::HandleSetPlayerDeclinedNames(WorldPackets::Character::SetPlayerDeclinedNames& packet)
 {
-    ObjectGuid guid;
+    ObjectGuid guid = packet.Guid;
     DeclinedName declinedname;
-    uint32 nameLength[MAX_DECLINED_NAME_CASES];
-
-    guid[0] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-
     for (uint32 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-        nameLength[i] = recvData.ReadBits(7);
-
-    for (uint32 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-        declinedname.name[i] = recvData.ReadString(nameLength[i]);
-
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[5]);
+        declinedname.name[i] = packet.DeclinedNames[i];
 
     // not accept declined names for unsupported languages
     std::string name;
@@ -1623,12 +1527,14 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
 }
 
 
-void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
+void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance& packet)
 {
     TC_LOG_DEBUG("network", "CMSG_ALTER_APPEARANCE");
 
-    uint32 Hair, Color, FacialHair, SkinColor;
-    recvData >> SkinColor >> Color >> Hair >> FacialHair;
+    uint32 Hair = packet.Hair;
+    uint32 Color = packet.Color;
+    uint32 FacialHair = packet.FacialHair;
+    uint32 SkinColor = packet.SkinColor;
 
     BarberShopStyleEntry const* bs_hair = sBarberShopStyleStore.LookupEntry(Hair);
 
@@ -1695,7 +1601,7 @@ void WorldSession::HandleRemoveGlyph(WorldPacket& recvData)
 
     if (slot >= MAX_GLYPH_SLOT_INDEX)
     {
-        TC_LOG_DEBUG("network", "Client sent wrong glyph slot number in opcode CMSG_REMOVE_GLYPH %u", slot);
+        TC_LOG_DEBUG("network", "Client sent wrong glyph slot number in opcode CMSG_REMOVE_GLYPH {}", slot);
         return;
     }
 
@@ -1709,36 +1615,21 @@ void WorldSession::HandleRemoveGlyph(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleCharCustomize(WorldPacket& recvData)
+void WorldSession::HandleCharCustomize(WorldPackets::Character::CharCustomize& packet)
 {
-    ObjectGuid guid;
-    uint8 gender, skin, face, hairStyle, hairColor, facialHair;
-
-    recvData >> hairStyle >> gender >> skin >> facialHair >> face >> hairColor;
-    guid[2] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    uint32 namelen = recvData.ReadBits(6);               // Name size
-    guid[4] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    recvData.ReadByteSeq(guid[4]);
-    std::string newName = recvData.ReadString(namelen);  // New Name
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[7]);
+    ObjectGuid guid = packet.Guid;
+    uint8 gender = packet.Gender;
+    uint8 skin = packet.Skin;
+    uint8 face = packet.Face;
+    uint8 hairStyle = packet.HairStyle;
+    uint8 hairColor = packet.HairColor;
+    uint8 facialHair = packet.FacialHair;
+    std::string newName = packet.Name;
 
     if (!IsLegitCharacterForAccount(guid))
     {
-        TC_LOG_ERROR("network", "Account %u, IP: %s tried to customise character %u, but it does not belong to their account!",
+        TC_LOG_ERROR("network", "Account {}, IP: {} tried to customise character {}, but it does not belong to their account!",
             GetAccountId(), GetRemoteAddress().c_str(), guid.GetCounter());
-        recvData.rfinish();
         KickPlayer();
         return;
     }
@@ -1785,7 +1676,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     }
 
     // check name limitations
-    if (GetSecurity() == SEC_PLAYER && sObjectMgr->IsReservedName(newName))
+    if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RESERVEDNAME) && sObjectMgr->IsReservedName(newName))
     {
         WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1);
         data << uint8(CHAR_NAME_RESERVED);
@@ -1814,7 +1705,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     if (result)
     {
         oldName = result->Fetch()[0].GetString();
-        TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s), Character[%s] (guid:%u) Customized to: %s", GetAccountId(), GetRemoteAddress().c_str(), oldName.c_str(), guid.GetCounter(), newName.c_str());
+        TC_LOG_INFO("entities.player.character", "Account: {} (IP: {}), Character[{}] (guid:{}) Customized to: {}", GetAccountId(), GetRemoteAddress().c_str(), oldName.c_str(), guid.GetCounter(), newName.c_str());
 
         if (oldName != newName)
             usedAtLoginFlags = AtLoginFlags(usedAtLoginFlags | AT_LOGIN_RENAME);
@@ -1874,62 +1765,22 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     sServiceMgr->ExecutedServices(guid, SERVICE_TYPE_CUSTOMIZE, Format("Old Name: %s", oldName.c_str()), Format("New Name: %s", newName.c_str()));
 }
 
-void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
+void WorldSession::HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipmentSet& packet)
 {
-    TC_LOG_DEBUG("network", "CMSG_EQUIPMENT_SET_SAVE");
+    TC_LOG_DEBUG("network", "CMSG_SAVE_EQUIPMENT_SET");
 
-    ObjectGuid setGuid;
-    ObjectGuid itemGuid[EQUIPMENT_SLOT_END];
-    uint32 index;
+    uint32 index = packet.Index;
     EquipmentSet eqSet;
-    uint8 iconNameLen, setNameLen;
-
-    recvData >> index;
 
     if (index >= MAX_EQUIPMENT_SET_INDEX)                    // client set slots amount
         return;
 
     for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
-        itemGuid[i][5] = recvData.ReadBit();
-        itemGuid[i][0] = recvData.ReadBit();
-        itemGuid[i][1] = recvData.ReadBit();
-        itemGuid[i][4] = recvData.ReadBit();
-        itemGuid[i][6] = recvData.ReadBit();
-        itemGuid[i][3] = recvData.ReadBit();
-        itemGuid[i][7] = recvData.ReadBit();
-        itemGuid[i][2] = recvData.ReadBit();
-    }
-
-    setGuid[7] = recvData.ReadBit();
-    setGuid[1] = recvData.ReadBit();
-    setGuid[5] = recvData.ReadBit();
-    setGuid[2] = recvData.ReadBit();
-    setGuid[3] = recvData.ReadBit();
-    setGuid[0] = recvData.ReadBit();
-
-    setNameLen = recvData.ReadBits(8);
-    setGuid[6] = recvData.ReadBit();
-    iconNameLen = recvData.ReadBits(9);
-
-    setGuid[4] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(setGuid[4]);
-    recvData.ReadByteSeq(setGuid[0]);
-
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-    {
-        recvData.ReadByteSeq(itemGuid[i][1]);
-        recvData.ReadByteSeq(itemGuid[i][0]);
-        recvData.ReadByteSeq(itemGuid[i][7]);
-        recvData.ReadByteSeq(itemGuid[i][3]);
-        recvData.ReadByteSeq(itemGuid[i][6]);
-        recvData.ReadByteSeq(itemGuid[i][2]);
-        recvData.ReadByteSeq(itemGuid[i][4]);
-        recvData.ReadByteSeq(itemGuid[i][5]);
+        ObjectGuid itemGuid = packet.ItemGuids[i];
 
         // equipment manager sends "1" (as raw GUID) for slots set to "ignore" (don't touch slot at equip set)
-        if (itemGuid[i] == 1)
+        if (itemGuid == 1)
         {
             // ignored slots saved as bit mask because we have no free special values for Items[i]
             eqSet.IgnoreMask |= 1 << i;
@@ -1938,115 +1789,50 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
 
         Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
 
-        if (!item && itemGuid[i])                               // cheating check 1
+        if (!item && itemGuid)                               // cheating check 1
             return;
 
-        if (item && item->GetGUID() != itemGuid[i])             // cheating check 2
+        if (item && item->GetGUID() != itemGuid)             // cheating check 2
             return;
 
-        eqSet.Items[i] = itemGuid[i].GetCounter();
+        eqSet.Items[i] = itemGuid.GetCounter();
     }
 
-    std::string iconName = recvData.ReadString(iconNameLen);
-
-    recvData.ReadByteSeq(setGuid[7]);
-    recvData.ReadByteSeq(setGuid[2]);
-
-    std::string name = recvData.ReadString(setNameLen);
-
-    recvData.ReadByteSeq(setGuid[6]);
-    recvData.ReadByteSeq(setGuid[1]);
-    recvData.ReadByteSeq(setGuid[5]);
-    recvData.ReadByteSeq(setGuid[3]);
-
-    eqSet.Guid = setGuid;
-    eqSet.Name = name;
-    eqSet.IconName = iconName;
+    eqSet.Guid = packet.SetGuid;
+    eqSet.Name = packet.Name;
+    eqSet.IconName = packet.IconName;
     eqSet.state = EQUIPMENT_SET_NEW;
 
     _player->SetEquipmentSet(index, eqSet);
 }
 
-void WorldSession::HandleEquipmentSetDelete(WorldPacket &recvData)
+void WorldSession::HandleEquipmentSetDelete(WorldPackets::EquipmentSet::DeleteEquipmentSet& packet)
 {
-    TC_LOG_DEBUG("network", "CMSG_EQUIPMENT_SET_DELETE");
+    TC_LOG_DEBUG("network", "CMSG_DELETE_EQUIPMENT_SET");
 
-    ObjectGuid setGuid;
-
-    setGuid[4] = recvData.ReadBit();
-    setGuid[2] = recvData.ReadBit();
-    setGuid[6] = recvData.ReadBit();
-    setGuid[0] = recvData.ReadBit();
-    setGuid[5] = recvData.ReadBit();
-    setGuid[1] = recvData.ReadBit();
-    setGuid[7] = recvData.ReadBit();
-    setGuid[3] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(setGuid[2]);
-    recvData.ReadByteSeq(setGuid[0]);
-    recvData.ReadByteSeq(setGuid[1]);
-    recvData.ReadByteSeq(setGuid[6]);
-    recvData.ReadByteSeq(setGuid[3]);
-    recvData.ReadByteSeq(setGuid[4]);
-    recvData.ReadByteSeq(setGuid[5]);
-    recvData.ReadByteSeq(setGuid[7]);
+    ObjectGuid setGuid = packet.SetGuid;
 
     _player->DeleteEquipmentSet(setGuid);
 }
 
-void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
+void WorldSession::HandleEquipmentSetUse(WorldPackets::EquipmentSet::UseEquipmentSet& packet)
 {
-    TC_LOG_DEBUG("network", "CMSG_EQUIPMENT_SET_USE");
-
-    uint8 srcbag[EQUIPMENT_SLOT_END];
-    uint8 srcslot[EQUIPMENT_SLOT_END];
-
-    ObjectGuid itemGuid[EQUIPMENT_SLOT_END];
+    TC_LOG_DEBUG("network", "CMSG_USE_EQUIPMENT_SET");
 
     EquipmentSlots startSlot = _player->IsInCombat() ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_START;
 
-    for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
-        recvData >> srcslot[i] >> srcbag[i];
-
     for (uint32 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
     {
-        itemGuid[i][3] = recvData.ReadBit();
-        itemGuid[i][1] = recvData.ReadBit();
-        itemGuid[i][7] = recvData.ReadBit();
-        itemGuid[i][4] = recvData.ReadBit();
-        itemGuid[i][5] = recvData.ReadBit();
-        itemGuid[i][6] = recvData.ReadBit();
-        itemGuid[i][0] = recvData.ReadBit();
-        itemGuid[i][2] = recvData.ReadBit();
-    }
-
-    uint8 InvItemCounter = recvData.ReadBits(2);
-
-    for (uint8 i = 0; i < InvItemCounter; i++)
-    {
-        recvData.ReadBit(); // Container Slot
-        recvData.ReadBit(); // Slot
-    }
-
-    for (uint32 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
-    {
-        recvData.ReadByteSeq(itemGuid[i][4]);
-        recvData.ReadByteSeq(itemGuid[i][7]);
-        recvData.ReadByteSeq(itemGuid[i][0]);
-        recvData.ReadByteSeq(itemGuid[i][3]);
-        recvData.ReadByteSeq(itemGuid[i][2]);
-        recvData.ReadByteSeq(itemGuid[i][5]);
-        recvData.ReadByteSeq(itemGuid[i][1]);
-        recvData.ReadByteSeq(itemGuid[i][6]);
+        ObjectGuid itemGuid = packet.ItemGuids[i];
 
         if (i < uint32(startSlot))
             continue;
 
         // check if item slot is set to "ignored" (raw value == 1), must not be unequipped then
-        if (itemGuid[i] == 1)
+        if (itemGuid == 1)
             continue;
 
-        Item* item = _player->GetItemByGuid(itemGuid[i]);
+        Item* item = _player->GetItemByGuid(itemGuid);
 
         uint16 dstpos = i | (INVENTORY_SLOT_BAG_0 << 8);
 
@@ -2075,65 +1861,28 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
         _player->SwapItem(item->GetPos(), dstpos);
     }
 
-    for (uint8 i = 0; i < InvItemCounter; i++)
-    {
-        recvData.read_skip<uint8>();
-        recvData.read_skip<uint8>();
-    }
-
     uint8 Reason = 0;
     WorldPacket data(SMSG_USE_EQUIPMENT_SET_RESULT, 1);
     data << uint8(Reason);                                   // 4 - equipment swap failed - inventory is full
     SendPacket(&data);
 }
 
-void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
+void WorldSession::HandleCharFactionOrRaceChange(WorldPackets::Character::CharFactionOrRaceChange& packet)
 {
-    ObjectGuid guid;
-    uint8 gender, skin, face, hairStyle, hairColor, facialHair, race = 0;
-
-    recvData >> gender;
-    recvData >> race;
-    guid[3] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    bool hasSkinColor = recvData.ReadBit();
-    bool hasFace = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    uint32 nameLength = recvData.ReadBits(6);
-    bool hasFacialHair = recvData.ReadBit();
-    bool hasHairStyle = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    bool hasHairColor = recvData.ReadBit();
-    bool isFactionChange = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[0]);
-    std::string newName = recvData.ReadString(nameLength);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[7]);
-
-    if (hasHairColor)
-        recvData >> hairColor;
-    if (hasHairStyle)
-        recvData >> hairStyle;
-    if (hasSkinColor)
-        recvData >> skin;
-    if (hasFace)
-        recvData >> face;
-    if (hasFacialHair)
-        recvData >> facialHair;
+    ObjectGuid guid = packet.Guid;
+    uint8 gender = packet.Gender;
+    uint8 skin = packet.Skin;
+    uint8 face = packet.Face;
+    uint8 hairStyle = packet.HairStyle;
+    uint8 hairColor = packet.HairColor;
+    uint8 facialHair = packet.FacialHair;
+    uint8 race = packet.Race;
+    bool isFactionChange = packet.IsFactionChange;
+    std::string newName = packet.Name;
 
     if (!IsLegitCharacterForAccount(guid))
     {
-        TC_LOG_ERROR("network", "Account %u, IP: %s tried to factionchange character %u, but it does not belong to their account!",
+        TC_LOG_ERROR("network", "Account {}, IP: {} tried to factionchange character {}, but it does not belong to their account!",
             GetAccountId(), GetRemoteAddress().c_str(), guid.GetCounter());
         KickPlayer();
         return;
@@ -2238,7 +1987,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         return;
     }
 
-    if (GetSecurity() == SEC_PLAYER)
+    if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RACEMASK))
     {
         uint32 raceMaskDisabled = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK);
         if ((1 << (race - 1)) & raceMaskDisabled)
@@ -2269,7 +2018,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     }
 
     // check name limitations
-    if (GetSecurity() == SEC_PLAYER && sObjectMgr->IsReservedName(newName))
+    if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RESERVEDNAME) && sObjectMgr->IsReservedName(newName))
     {
         WorldPacket data(SMSG_CHAR_FACTION_CHANGE_RESULT, 1);
         data << uint8(CHAR_NAME_RESERVED);
@@ -2456,7 +2205,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                         guild->DeleteMember(guid);
             }
 
-            if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND))
+            if (!HasPermission(rbac::RBAC_PERM_TWO_SIDE_ADD_FRIEND))
             {
                 // Delete Friend List
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SOCIAL_BY_GUID);
@@ -2710,7 +2459,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 do
                 {
                     uint32 skillId = (*result)[0].GetUInt16();
-                    auto info = GetSkillRaceClassInfo(skillId, race, playerClass);
+                    auto info = sDBCManager.GetSkillRaceClassInfo(skillId, race, playerClass);
                     if (!info)
                     {
                         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_SKILL);
@@ -2742,69 +2491,40 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     sServiceMgr->ExecutedServices(guid, SERVICE_TYPE_CHANGE_RACE, Format("Old Race: %u Old Name: %s", uint32(oldRace), oldName.c_str()), Format("New Race: %u New Name: %s", uint32(race), newName.c_str()));
 }
 
-void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)
+void WorldSession::HandleRandomizeCharNameOpcode(WorldPackets::Character::RandomizeCharName& packet)
 {
-    uint8 gender, race;
-
-    recvData >> gender;
-    recvData >> race;
+    uint8 gender = packet.Gender;
+    uint8 race = packet.Race;
 
     if (!Player::IsValidRace(race))
     {
-        TC_LOG_ERROR("general", "Invalid race (%u) sent by accountId: %u", race, GetAccountId());
+        TC_LOG_ERROR("general", "Invalid race ({}) sent by accountId: {}", race, GetAccountId());
         return;
     }
 
     if (!Player::IsValidGender(gender))
     {
-        TC_LOG_ERROR("general", "Invalid gender (%u) sent by accountId: %u", gender, GetAccountId());
+        TC_LOG_ERROR("general", "Invalid gender ({}) sent by accountId: {}", gender, GetAccountId());
         return;
     }
 
-    std::string const* name = GetRandomCharacterName(race, gender);
-    WorldPacket data(SMSG_RANDOMIZE_CHAR_NAME, 1 + name->size());
+    std::string name = sDBCManager.GetRandomCharacterName(race, gender);
+    WorldPacket data(SMSG_RANDOMIZE_CHAR_NAME, 1 + name.size());
     data.WriteBit(true); // result
-    data.WriteBits(name->size(), 6);
+    data.WriteBits(name.size(), 6);
     data.FlushBits();
-    data.WriteString(*name);
+    data.WriteString(name);
     SendPacket(&data);
 }
 
-void WorldSession::HandleReorderCharacters(WorldPacket& recvData)
+void WorldSession::HandleReorderCharacters(WorldPackets::Character::ReorderCharacters& packet)
 {
-    uint32 charactersCount = recvData.ReadBits(9);
-
-    std::vector<ObjectGuid> guids(charactersCount);
-    uint8 position;
-
-    for (uint8 i = 0; i < charactersCount; ++i)
-    {
-        guids[i][4] = recvData.ReadBit();
-        guids[i][2] = recvData.ReadBit();
-        guids[i][7] = recvData.ReadBit();
-        guids[i][6] = recvData.ReadBit();
-        guids[i][0] = recvData.ReadBit();
-        guids[i][5] = recvData.ReadBit();
-        guids[i][3] = recvData.ReadBit();
-        guids[i][1] = recvData.ReadBit();
-    }
-
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-    for (uint8 i = 0; i < charactersCount; ++i)
+    for (size_t i = 0; i < packet.Guids.size(); ++i)
     {
-        recvData.ReadByteSeq(guids[i][1]);
-        recvData.ReadByteSeq(guids[i][2]);
-        recvData.ReadByteSeq(guids[i][7]);
-        recvData.ReadByteSeq(guids[i][5]);
-        recvData.ReadByteSeq(guids[i][4]);
-        recvData.ReadByteSeq(guids[i][0]);
-        recvData.ReadByteSeq(guids[i][3]);
-        recvData.ReadByteSeq(guids[i][6]);
-        recvData >> position;
-
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_LIST_SLOT);
-        stmt->setUInt8(0, position);
-        stmt->setUInt32(1, guids[i].GetCounter());
+        stmt->setUInt8(0, packet.Positions[i]);
+        stmt->setUInt32(1, packet.Guids[i].GetCounter());
         trans->Append(stmt);
     }
 

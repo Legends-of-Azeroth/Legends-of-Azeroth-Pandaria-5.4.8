@@ -47,7 +47,7 @@ void FollowerAI::AttackStart(Unit* who)
 
     if (me->Attack(who, true))
     {
-        me->AddThreat(who, 0.0f);
+        me->GetThreatManager().AddThreat(who, 0.0f);
         me->SetInCombatWith(who);
         who->SetInCombatWith(me);
 
@@ -91,7 +91,7 @@ bool FollowerAI::AssistPlayerInCombat(Unit* who)
         else
         {
             who->SetInCombatWith(me);
-            me->AddThreat(who, 0.0f);
+            me->GetThreatManager().AddThreat(who, 0.0f);
             return true;
         }
     }
@@ -122,7 +122,7 @@ void FollowerAI::MoveInLineOfSight(Unit* who)
                 else if (me->GetMap()->IsDungeon())
                 {
                     who->SetInCombatWith(me);
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                 }
             }
         }
@@ -169,10 +169,11 @@ void FollowerAI::JustAppeared()
     Reset();
 }
 
-void FollowerAI::EnterEvadeMode()
+void FollowerAI::EnterEvadeMode(EvadeReason why)
 {
     me->RemoveAllAuras();
-    me->DeleteThreatList();
+    me->GetThreatManager().RemoveMeFromThreatLists();
+    me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
     me->SetLootRecipient(NULL);
 
@@ -318,7 +319,7 @@ void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, const Qu
 
     me->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
-    TC_LOG_DEBUG("scripts", "FollowerAI start follow %s (GUID " UI64FMTD ")", player->GetName().c_str(), m_uiLeaderGUID.GetRawValue());
+    TC_LOG_DEBUG("scripts", "FollowerAI start follow {} (GUID " "{}" ")", player->GetName().c_str(), m_uiLeaderGUID.GetRawValue());
 }
 
 Player* FollowerAI::GetLeaderForFollower()

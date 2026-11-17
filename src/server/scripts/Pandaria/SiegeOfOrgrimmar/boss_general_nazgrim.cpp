@@ -302,7 +302,7 @@ class boss_general_nazgrim : public CreatureScript
                 summon->SetInCombatWithZone();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();

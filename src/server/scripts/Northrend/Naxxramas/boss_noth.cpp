@@ -104,7 +104,7 @@ public:
             me->SetReactState(REACT_AGGRESSIVE);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             DoZoneInCombat();
-            if (me->getThreatManager().isThreatListEmpty())
+            if (me->GetThreatManager().IsThreatListEmpty())
                 EnterEvadeMode();
             else
             {
@@ -141,7 +141,7 @@ public:
             {
                 uint32 pos = rand()%MAX_SUMMON_POS;
                 me->SummonCreature(entry, SummonPos[pos][0], SummonPos[pos][1], SummonPos[pos][2],
-                    SummonPos[pos][3], TEMPSUMMON_CORPSE_DESPAWN, 60000);
+                    SummonPos[pos][3], TEMPSUMMON_CORPSE_DESPAWN, 60000ms);
             }
         }
 

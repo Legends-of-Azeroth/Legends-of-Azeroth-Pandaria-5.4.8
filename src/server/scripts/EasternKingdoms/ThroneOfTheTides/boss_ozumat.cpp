@@ -347,14 +347,14 @@ class npc_neptulon : public CreatureScript
                         case EVENT_SUMMON_MINDLASHER:
                             if (Creature* pMindlasher = me->SummonCreature(NPC_VICIOUS_MINDLASHER, spawnPos[urand(0, 1)]))
                             {
-                                pMindlasher->AddThreat(me, 1.0f);
+                                pMindlasher->GetThreatManager().AddThreat(me, 1.0f);
                                 pMindlasher->AI()->AttackStart(me);
                             }
                             break;
                         case EVENT_SUMMON_BEHEMOTH:
                             if (Creature* pBehemoth = me->SummonCreature(NPC_UNYIELDING_BEHEMOTH, spawnPos[urand(0, 1)]))
                             {
-                                pBehemoth->AddThreat(me, 1.0f);
+                                pBehemoth->GetThreatManager().AddThreat(me, 1.0f);
                                 pBehemoth->AI()->AttackStart(me);
                             }
                             break;
@@ -378,7 +378,7 @@ class npc_neptulon : public CreatureScript
                             {
                                 if (Creature* pMurloc = me->SummonCreature(NPC_DEEP_MURLOC_INVADER, spawnPos[urand(0, 1)]))
                                 {
-                                    pMurloc->AddThreat(me, 1.0f);
+                                    pMurloc->GetThreatManager().AddThreat(me, 1.0f);
                                     pMurloc->AI()->AttackStart(me);
                                 }
                             }

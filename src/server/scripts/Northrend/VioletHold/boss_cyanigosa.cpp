@@ -36,9 +36,9 @@ enum Yells
     SAY_AGGRO                                   = 0,
     SAY_SLAY                                    = 1,
     SAY_DEATH                                   = 2,
-    SAY_DISRUPTION                              = 4, // unused
-    SAY_BREATH_ATTACK                           = 5, // unused
-    SAY_SPECIAL_ATTACK                          = 6, // unused
+    SAY_DISRUPTION                              = 4,
+    SAY_BREATH_ATTACK                           = 5,
+    SAY_SPECIAL_ATTACK                          = 6,
 };
 
 class boss_cyanigosa : public CreatureScript
@@ -48,44 +48,67 @@ class boss_cyanigosa : public CreatureScript
 
         struct boss_cyanigosaAI : public ScriptedAI
         {
-            boss_cyanigosaAI(Creature* creature) : ScriptedAI(creature)
+            boss_cyanigosaAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
-                instance = creature->GetInstanceScript();
+                _scheduler.SetValidator([this]
+                {
+                    return !me->HasUnitState(UNIT_STATE_CASTING);
+                });
             }
-
-            uint32 uiArcaneVacuumTimer;
-            uint32 uiBlizzardTimer;
-            uint32 uiManaDestructionTimer;
-            uint32 uiTailSweepTimer;
-            uint32 uiUncontrollableEnergyTimer;
-
-            InstanceScript* instance;
 
             void Reset() override
             {
-                uiArcaneVacuumTimer = 10000;
-                uiBlizzardTimer = 15000;
-                uiManaDestructionTimer = 30000;
-                uiTailSweepTimer = 5000;
-                uiUncontrollableEnergyTimer = 25000;
-                if (instance)
-                    instance->SetData(DATA_CYANIGOSA_EVENT, NOT_STARTED);
+                _scheduler.CancelAll();
+
+                if (_instance)
+                    _instance->SetData(DATA_CYANIGOSA_EVENT, NOT_STARTED);
             }
 
             void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 
-                if (instance)
-                    instance->SetData(DATA_CYANIGOSA_EVENT, IN_PROGRESS);
+                if (_instance)
+                    _instance->SetData(DATA_CYANIGOSA_EVENT, IN_PROGRESS);
+
+                _scheduler
+                    .Schedule(Seconds(10), [this](TaskContext context)
+                    {
+                        DoCastAOE(SPELL_ARCANE_VACUUM);
+                        context.Repeat(Seconds(10));
+                    })
+                    .Schedule(Seconds(15), [this](TaskContext context)
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45, true))
+                            DoCast(target, DUNGEON_MODE(SPELL_BLIZZARD, SPELL_BLIZZARD_H));
+                        context.Repeat(Seconds(15));
+                    })
+                    .Schedule(Seconds(20), [this](TaskContext context)
+                    {
+                        DoCast(me->GetVictim(), DUNGEON_MODE(SPELL_TAIL_SWEEP, SPELL_TAIL_SWEEP_H));
+                        context.Repeat(Seconds(20));
+                    })
+                    .Schedule(Seconds(25), [this](TaskContext context)
+                    {
+                        DoCast(me->GetVictim(), DUNGEON_MODE(SPELL_UNCONTROLLABLE_ENERGY, SPELL_UNCONTROLLABLE_ENERGY_H));
+                        context.Repeat(Seconds(25));
+                    });
+
+                if (IsHeroic())
+                    _scheduler.Schedule(Seconds(30), [this](TaskContext context)
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true))
+                            DoCast(target, SPELL_MANA_DESTRUCTION);
+                        context.Repeat(Seconds(30));
+                    });
             }
 
-            void SpellHitTarget (Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_ARCANE_VACUUM)
                 {
-                    if (target->ToPlayer())
-                        target->ToPlayer()->TeleportTo(me->GetMapId(),me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),0);
+                    if (Player* player = target->ToPlayer())
+                        player->TeleportTo(me->GetMapId(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
                 }
             }
 
@@ -93,71 +116,28 @@ class boss_cyanigosa : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (instance && instance->GetData(DATA_REMOVE_NPC) == 1)
+                if (_instance && _instance->GetData(DATA_REMOVE_NPC) == 1)
                 {
                     me->DespawnOrUnsummon();
-                    instance->SetData(DATA_REMOVE_NPC, 0);
+                    _instance->SetData(DATA_REMOVE_NPC, 0);
                 }
 
                 if (!UpdateVictim())
                     return;
 
-                if (uiArcaneVacuumTimer <= diff)
+                _scheduler.Update(diff, [this]
                 {
-                    if (!me->IsNonMeleeSpellCasted(false))
-                    {
-                        DoCast(SPELL_ARCANE_VACUUM);
-                        uiArcaneVacuumTimer = 30000;
-                    }
-                } else uiArcaneVacuumTimer -= diff;
-
-                if (uiBlizzardTimer <= diff)
-                {
-                    if (!me->IsNonMeleeSpellCasted(false))
-                    {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(target, SPELL_BLIZZARD);
-                        uiBlizzardTimer = 15000;
-                    }
-                } else uiBlizzardTimer -= diff;
-
-                if (uiTailSweepTimer <= diff)
-                {
-                    if (!me->IsNonMeleeSpellCasted(false))
-                    {
-                        DoCast(DUNGEON_MODE(SPELL_TAIL_SWEEP, SPELL_TAIL_SWEEP_H));
-                        uiTailSweepTimer = 5000;
-                    }
-                } else uiTailSweepTimer -= diff;
-
-                if (uiUncontrollableEnergyTimer <= diff)
-                {
-                    DoCastVictim(SPELL_UNCONTROLLABLE_ENERGY);
-                    uiUncontrollableEnergyTimer = 25000;
-                } else uiUncontrollableEnergyTimer -= diff;
-
-                if (IsHeroic())
-                {
-                    if (uiManaDestructionTimer <= diff)
-                    {
-                        if (!me->IsNonMeleeSpellCasted(false))
-                        {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                                DoCast(target, SPELL_MANA_DESTRUCTION);
-                            uiManaDestructionTimer = 30000;
-                        }
-                    } else uiManaDestructionTimer -= diff;
-                }
-
-                DoMeleeAttackIfReady();
+                    DoMeleeAttackIfReady();
+                });
             }
 
             void JustDied(Unit* /*killer*/) override
             {
+                _scheduler.CancelAll();
                 Talk(SAY_DEATH);
 
-                if (instance)
-                    instance->SetData(DATA_CYANIGOSA_EVENT, DONE);
+                if (_instance)
+                    _instance->SetData(DATA_CYANIGOSA_EVENT, DONE);
             }
 
             void KilledUnit(Unit* victim) override
@@ -167,6 +147,10 @@ class boss_cyanigosa : public CreatureScript
 
                 Talk(SAY_SLAY);
             }
+
+        private:
+            InstanceScript* _instance;
+            TaskScheduler _scheduler;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

@@ -129,7 +129,7 @@ class boss_taran_zhu : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)
@@ -163,7 +163,8 @@ class boss_taran_zhu : public CreatureScript
                         me->SetFaction(35);
                         me->RemoveAllAuras();
                         me->CombatStop(true);
-                        me->DeleteThreatList();
+                        me->GetThreatManager().RemoveMeFromThreatLists();
+                        me->GetThreatManager().ClearAllThreat();
                         me->SetReactState(REACT_PASSIVE);
                         Talk(TALK_DEATH);
                         events.Reset();

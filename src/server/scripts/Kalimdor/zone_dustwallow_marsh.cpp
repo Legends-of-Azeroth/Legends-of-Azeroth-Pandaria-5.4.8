@@ -503,17 +503,17 @@ public:
                  creature->SetFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
                  creature->SetStandState(UNIT_STAND_STATE_STAND);
                  creature->AI()->Talk(SAY_QUEST_ACCEPTED);
-                 pEscortAI->Start(false, false, player->GetGUID());
+                 pEscortAI->Start(false, player->GetGUID());
              }
          }
          return true;
     }
 
-    struct npc_stinkyAI : public npc_escortAI
+    struct npc_stinkyAI : public EscortAI
     {
-       npc_stinkyAI(Creature* creature) : npc_escortAI(creature) { }
+       npc_stinkyAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -580,7 +580,7 @@ public:
 
        void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (!UpdateVictim())
                 return;

@@ -59,3 +59,217 @@ WorldPacket const* WorldPackets::Quest::QuestUpdateComplete::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Quest::QuestGiverStatusQuery::Read()
+{
+    Guid[4] = _worldPacket.ReadBit();
+    Guid[3] = _worldPacket.ReadBit();
+    Guid[2] = _worldPacket.ReadBit();
+    Guid[1] = _worldPacket.ReadBit();
+    Guid[0] = _worldPacket.ReadBit();
+    Guid[5] = _worldPacket.ReadBit();
+    Guid[7] = _worldPacket.ReadBit();
+    Guid[6] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(Guid[5]);
+    _worldPacket.ReadByteSeq(Guid[7]);
+    _worldPacket.ReadByteSeq(Guid[4]);
+    _worldPacket.ReadByteSeq(Guid[0]);
+    _worldPacket.ReadByteSeq(Guid[2]);
+    _worldPacket.ReadByteSeq(Guid[1]);
+    _worldPacket.ReadByteSeq(Guid[6]);
+    _worldPacket.ReadByteSeq(Guid[3]);
+}
+
+void WorldPackets::Quest::QuestGiverHello::Read()
+{
+    Guid[5] = _worldPacket.ReadBit();
+    Guid[6] = _worldPacket.ReadBit();
+    Guid[7] = _worldPacket.ReadBit();
+    Guid[3] = _worldPacket.ReadBit();
+    Guid[4] = _worldPacket.ReadBit();
+    Guid[2] = _worldPacket.ReadBit();
+    Guid[1] = _worldPacket.ReadBit();
+    Guid[0] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(Guid[4]);
+    _worldPacket.ReadByteSeq(Guid[1]);
+    _worldPacket.ReadByteSeq(Guid[7]);
+    _worldPacket.ReadByteSeq(Guid[3]);
+    _worldPacket.ReadByteSeq(Guid[6]);
+    _worldPacket.ReadByteSeq(Guid[0]);
+    _worldPacket.ReadByteSeq(Guid[5]);
+    _worldPacket.ReadByteSeq(Guid[2]);
+}
+
+void WorldPackets::Quest::QuestGiverAcceptQuest::Read()
+{
+    QuestId = _worldPacket.read<uint32>();
+    Guid[6] = _worldPacket.ReadBit();
+    Guid[0] = _worldPacket.ReadBit();
+    StartCheat = _worldPacket.ReadBit();
+    Guid[2] = _worldPacket.ReadBit();
+    Guid[7] = _worldPacket.ReadBit();
+    Guid[5] = _worldPacket.ReadBit();
+    Guid[4] = _worldPacket.ReadBit();
+    Guid[3] = _worldPacket.ReadBit();
+    Guid[1] = _worldPacket.ReadBit();
+    _worldPacket.ReadByteSeq(Guid[5]);
+    _worldPacket.ReadByteSeq(Guid[4]);
+    _worldPacket.ReadByteSeq(Guid[0]);
+    _worldPacket.ReadByteSeq(Guid[1]);
+    _worldPacket.ReadByteSeq(Guid[6]);
+    _worldPacket.ReadByteSeq(Guid[2]);
+    _worldPacket.ReadByteSeq(Guid[3]);
+    _worldPacket.ReadByteSeq(Guid[7]);
+}
+
+void WorldPackets::Quest::QuestGiverQueryQuest::Read()
+{
+    _worldPacket >> QuestId;
+    Guid[2] = _worldPacket.ReadBit();
+    Guid[6] = _worldPacket.ReadBit();
+    Guid[5] = _worldPacket.ReadBit();
+    Guid[0] = _worldPacket.ReadBit();
+    Guid[4] = _worldPacket.ReadBit();
+    Guid[3] = _worldPacket.ReadBit();
+    Guid[1] = _worldPacket.ReadBit();
+    Guid[7] = _worldPacket.ReadBit();
+    _worldPacket.ReadBit(); // unused bit
+
+    _worldPacket.ReadByteSeq(Guid[2]);
+    _worldPacket.ReadByteSeq(Guid[0]);
+    _worldPacket.ReadByteSeq(Guid[4]);
+    _worldPacket.ReadByteSeq(Guid[7]);
+    _worldPacket.ReadByteSeq(Guid[5]);
+    _worldPacket.ReadByteSeq(Guid[1]);
+    _worldPacket.ReadByteSeq(Guid[3]);
+    _worldPacket.ReadByteSeq(Guid[6]);
+}
+
+void WorldPackets::Quest::QueryQuestInfo::Read()
+{
+    _worldPacket >> QuestId;
+    Guid[0] = _worldPacket.ReadBit();
+    Guid[5] = _worldPacket.ReadBit();
+    Guid[2] = _worldPacket.ReadBit();
+    Guid[7] = _worldPacket.ReadBit();
+    Guid[6] = _worldPacket.ReadBit();
+    Guid[4] = _worldPacket.ReadBit();
+    Guid[1] = _worldPacket.ReadBit();
+    Guid[3] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(Guid[4]);
+    _worldPacket.ReadByteSeq(Guid[1]);
+    _worldPacket.ReadByteSeq(Guid[7]);
+    _worldPacket.ReadByteSeq(Guid[5]);
+    _worldPacket.ReadByteSeq(Guid[2]);
+    _worldPacket.ReadByteSeq(Guid[3]);
+    _worldPacket.ReadByteSeq(Guid[6]);
+    _worldPacket.ReadByteSeq(Guid[0]);
+}
+
+void WorldPackets::Quest::QuestGiverChooseReward::Read()
+{
+    _worldPacket >> Reward;
+    _worldPacket >> QuestId;
+    Guid[2] = _worldPacket.ReadBit();
+    Guid[6] = _worldPacket.ReadBit();
+    Guid[0] = _worldPacket.ReadBit();
+    Guid[5] = _worldPacket.ReadBit();
+    Guid[1] = _worldPacket.ReadBit();
+    Guid[3] = _worldPacket.ReadBit();
+    Guid[7] = _worldPacket.ReadBit();
+    Guid[4] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(Guid[1]);
+    _worldPacket.ReadByteSeq(Guid[2]);
+    _worldPacket.ReadByteSeq(Guid[5]);
+    _worldPacket.ReadByteSeq(Guid[7]);
+    _worldPacket.ReadByteSeq(Guid[0]);
+    _worldPacket.ReadByteSeq(Guid[3]);
+    _worldPacket.ReadByteSeq(Guid[6]);
+    _worldPacket.ReadByteSeq(Guid[4]);
+}
+
+void WorldPackets::Quest::QuestGiverRequestReward::Read()
+{
+    _worldPacket >> QuestId;
+    Guid[6] = _worldPacket.ReadBit();
+    Guid[3] = _worldPacket.ReadBit();
+    Guid[1] = _worldPacket.ReadBit();
+    Guid[2] = _worldPacket.ReadBit();
+    Guid[4] = _worldPacket.ReadBit();
+    Guid[0] = _worldPacket.ReadBit();
+    Guid[5] = _worldPacket.ReadBit();
+    Guid[7] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(Guid[3]);
+    _worldPacket.ReadByteSeq(Guid[0]);
+    _worldPacket.ReadByteSeq(Guid[7]);
+    _worldPacket.ReadByteSeq(Guid[6]);
+    _worldPacket.ReadByteSeq(Guid[2]);
+    _worldPacket.ReadByteSeq(Guid[1]);
+    _worldPacket.ReadByteSeq(Guid[5]);
+    _worldPacket.ReadByteSeq(Guid[4]);
+}
+
+void WorldPackets::Quest::QuestLogRemoveQuest::Read()
+{
+    _worldPacket >> Slot;
+}
+
+void WorldPackets::Quest::QuestConfirmAccept::Read()
+{
+    _worldPacket >> QuestId;
+}
+
+void WorldPackets::Quest::QuestGiverCompleteQuest::Read()
+{
+    _worldPacket >> QuestId;
+    PlayerGuid[4] = _worldPacket.ReadBit();
+    PlayerGuid[2] = _worldPacket.ReadBit();
+    PlayerGuid[1] = _worldPacket.ReadBit();
+    PlayerGuid[5] = _worldPacket.ReadBit();
+    PlayerGuid[6] = _worldPacket.ReadBit();
+    PlayerGuid[7] = _worldPacket.ReadBit();
+    PlayerGuid[3] = _worldPacket.ReadBit();
+    AutoCompleteMode = _worldPacket.ReadBit();
+    PlayerGuid[0] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(PlayerGuid[0]);
+    _worldPacket.ReadByteSeq(PlayerGuid[2]);
+    _worldPacket.ReadByteSeq(PlayerGuid[1]);
+    _worldPacket.ReadByteSeq(PlayerGuid[4]);
+    _worldPacket.ReadByteSeq(PlayerGuid[3]);
+    _worldPacket.ReadByteSeq(PlayerGuid[6]);
+    _worldPacket.ReadByteSeq(PlayerGuid[7]);
+    _worldPacket.ReadByteSeq(PlayerGuid[5]);
+}
+
+void WorldPackets::Quest::PushQuestToParty::Read()
+{
+    QuestId = _worldPacket.read<uint32>();
+}
+
+void WorldPackets::Quest::QuestPushResult::Read()
+{
+    QuestId = _worldPacket.read<uint32>();
+    Msg = _worldPacket.read<uint8>();
+    Guid[5] = _worldPacket.ReadBit();
+    Guid[3] = _worldPacket.ReadBit();
+    Guid[0] = _worldPacket.ReadBit();
+    Guid[6] = _worldPacket.ReadBit();
+    Guid[1] = _worldPacket.ReadBit();
+    Guid[2] = _worldPacket.ReadBit();
+    Guid[7] = _worldPacket.ReadBit();
+    Guid[4] = _worldPacket.ReadBit();
+    _worldPacket.ReadByteSeq(Guid[1]);
+    _worldPacket.ReadByteSeq(Guid[2]);
+    _worldPacket.ReadByteSeq(Guid[0]);
+    _worldPacket.ReadByteSeq(Guid[5]);
+    _worldPacket.ReadByteSeq(Guid[6]);
+    _worldPacket.ReadByteSeq(Guid[4]);
+    _worldPacket.ReadByteSeq(Guid[7]);
+    _worldPacket.ReadByteSeq(Guid[3]);
+}

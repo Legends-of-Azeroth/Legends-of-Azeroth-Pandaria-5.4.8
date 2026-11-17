@@ -235,7 +235,7 @@ class instance_blackwing_descent : public InstanceMapScript
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const override
             {
-                if (player && player->IsGameMaster())
+                if (_SkipCheckRequiredBosses(player))
                     return true;
             
                 switch (bossId)

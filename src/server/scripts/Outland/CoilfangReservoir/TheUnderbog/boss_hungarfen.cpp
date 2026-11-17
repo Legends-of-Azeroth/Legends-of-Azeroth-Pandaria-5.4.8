@@ -87,9 +87,9 @@ class boss_hungarfen : public CreatureScript
                     {
                         case EVENT_MUSHROOM:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 80.0f, true))
-                                me->SummonCreature(17990, target->GetPositionX() + (rand() % 8), target->GetPositionY() + (rand() % 8), target->GetPositionZ(), float(rand() % 5), TEMPSUMMON_TIMED_DESPAWN, 22000);
+                                me->SummonCreature(17990, target->GetPositionX() + (rand() % 8), target->GetPositionY() + (rand() % 8), target->GetPositionZ(), float(rand() % 5), TEMPSUMMON_TIMED_DESPAWN, 22000ms);
                             else
-                                me->SummonCreature(17990, me->GetPositionX() + (rand() % 8), me->GetPositionY() + (rand() % 8), me->GetPositionZ(), float(rand() % 5), TEMPSUMMON_TIMED_DESPAWN, 22000);
+                                me->SummonCreature(17990, me->GetPositionX() + (rand() % 8), me->GetPositionY() + (rand() % 8), me->GetPositionZ(), float(rand() % 5), TEMPSUMMON_TIMED_DESPAWN, 22000ms);
 
                             events.ScheduleEvent(EVENT_MUSHROOM, 10 * IN_MILLISECONDS);
                             break;

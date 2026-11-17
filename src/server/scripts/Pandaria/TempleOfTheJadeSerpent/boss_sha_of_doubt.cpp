@@ -169,7 +169,7 @@ class boss_sha_of_doubt : public CreatureScript
                 });
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)

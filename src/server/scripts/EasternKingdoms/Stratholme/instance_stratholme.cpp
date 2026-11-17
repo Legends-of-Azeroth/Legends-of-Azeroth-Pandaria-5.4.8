@@ -273,7 +273,7 @@ class instance_stratholme : public InstanceMapScript
                                 if (Creature* ysidaTrigger = instance->GetCreature(ysidaTriggerGUID))
                                 {
                                     Position ysidaPos = ysidaTrigger->GetPosition();
-                                    ysidaTrigger->SummonCreature(NPC_YSIDA, ysidaPos, TEMPSUMMON_TIMED_DESPAWN, 1800000);
+                                    ysidaTrigger->SummonCreature(NPC_YSIDA, ysidaPos, TEMPSUMMON_TIMED_DESPAWN, 1800000ms);
                                 }
                                 events.CancelEvent(EVENT_BARON_RUN);
                                 break;
@@ -449,13 +449,13 @@ class instance_stratholme : public InstanceMapScript
                         case EVENT_BARON_RUN:
                             if (GetData(TYPE_BARON_RUN) != DONE)
                                 SetData(TYPE_BARON_RUN, FAIL);
-                            TC_LOG_DEBUG("scripts", "Instance Stratholme: Baron run event reached end. Event has state %u.", GetData(TYPE_BARON_RUN));
+                            TC_LOG_DEBUG("scripts", "Instance Stratholme: Baron run event reached end. Event has state {}.", GetData(TYPE_BARON_RUN));
                             break;
                         case EVENT_SLAUGHTER_SQUARE:
                             if (Creature* baron = instance->GetCreature(baronGUID))
                             {
                                 for (uint8 i = 0; i < 4; ++i)
-                                    baron->SummonCreature(NPC_BLACK_GUARD, 4032.84f, -3390.24f, 119.73f, 4.71f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1800000);
+                                    baron->SummonCreature(NPC_BLACK_GUARD, 4032.84f, -3390.24f, 119.73f, 4.71f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1800000ms);
 
                                 HandleGameObject(ziggurat4GUID, true);
                                 HandleGameObject(ziggurat5GUID, true);

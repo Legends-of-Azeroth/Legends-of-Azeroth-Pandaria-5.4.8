@@ -141,7 +141,7 @@ public:
                         DoCastVictim(SPELL_CONFLAGRATION);
                         if (me->GetVictim() && me->GetVictim()->HasAura(SPELL_CONFLAGRATION))
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
-                                me->TauntApply(target);
+                                me->GetThreatManager().TauntUpdate();
                         events.ScheduleEvent(EVENT_CONFLAGRATION, 30000);
                         break;
                 }

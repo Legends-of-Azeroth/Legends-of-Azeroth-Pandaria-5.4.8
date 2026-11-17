@@ -219,8 +219,8 @@ class go_totem_of_ruumbo : public GameObjectScript
         {
             if (quest->GetQuestId() == QUEST_DANCE_FOR_RUUMBO)
             {
-                player->SummonCreature(NPC_FERLI, fulborogsLeavePos[2], TEMPSUMMON_MANUAL_DESPAWN, 60 * IN_MILLISECONDS);
-                player->SummonCreature(NPC_DRIZLE, fulborogsLeavePos[3], TEMPSUMMON_MANUAL_DESPAWN, 60 * IN_MILLISECONDS);
+                player->SummonCreature(NPC_FERLI, fulborogsLeavePos[2], TEMPSUMMON_MANUAL_DESPAWN, Milliseconds(60 * IN_MILLISECONDS));
+                player->SummonCreature(NPC_DRIZLE, fulborogsLeavePos[3], TEMPSUMMON_MANUAL_DESPAWN, Milliseconds(60 * IN_MILLISECONDS));
             }
 
             return true;

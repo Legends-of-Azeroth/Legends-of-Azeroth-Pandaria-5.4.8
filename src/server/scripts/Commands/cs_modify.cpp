@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -41,41 +41,41 @@ public:
     {
         static std::vector<ChatCommand> modifyspeedCommandTable =
         {
-            { "all",        SEC_GAMEMASTER, false,  &HandleModifyASpeedCommand,     },
-            { "backwalk",   SEC_GAMEMASTER, false,  &HandleModifyBWalkCommand,      },
-            { "fly",        SEC_GAMEMASTER, false,  &HandleModifyFlyCommand,        },
-            { "walk",       SEC_GAMEMASTER, false,  &HandleModifySpeedCommand,      },
-            { "swim",       SEC_GAMEMASTER, false,  &HandleModifySwimCommand,       },
-            { "",           SEC_GAMEMASTER, false,  &HandleModifyASpeedCommand,     },
+            { "all",        &HandleModifyASpeedCommand,     rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_ALL,     Trinity::ChatCommands::Console::No },
+            { "backwalk",   &HandleModifyBWalkCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_BACKWALK, Trinity::ChatCommands::Console::No },
+            { "fly",        &HandleModifyFlyCommand,        rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_FLY,     Trinity::ChatCommands::Console::No },
+            { "walk",       &HandleModifySpeedCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_WALK,    Trinity::ChatCommands::Console::No },
+            { "swim",       &HandleModifySwimCommand,       rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_SWIM,    Trinity::ChatCommands::Console::No },
+            { "",           &HandleModifyASpeedCommand,     rbac::RBAC_PERM_COMMAND_MODIFY_SPEED,         Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> modifyCommandTable =
         {
-            { "bit",        SEC_GAMEMASTER, false,  &HandleModifyBitCommand,        },
-            { "drunk",      SEC_GAMEMASTER, false,  &HandleModifyDrunkCommand,      },
-            { "energy",     SEC_GAMEMASTER, false,  &HandleModifyEnergyCommand,     },
-            { "faction",    SEC_GAMEMASTER, false,  &HandleModifyFactionCommand,    },
-            { "gender",     SEC_GAMEMASTER, false,  &HandleModifyGenderCommand,     },
-            { "honor",      SEC_GAMEMASTER, false,  &HandleModifyHonorCommand,      },
-            { "hp",         SEC_GAMEMASTER, false,  &HandleModifyHPCommand,         },
-            { "mana",       SEC_GAMEMASTER, false,  &HandleModifyManaCommand,       },
-            { "money",      SEC_GAMEMASTER, false,  &HandleModifyMoneyCommand,      },
-            { "mount",      SEC_GAMEMASTER, false,  &HandleModifyMountCommand,      },
-            { "phase",      SEC_GAMEMASTER, false,  &HandleModifyPhaseCommand,      },
-            { "phaseid",    SEC_GAMEMASTER, false,  &HandleModifyPhaseIDCommand,    },
-            { "rage",       SEC_GAMEMASTER, false,  &HandleModifyRageCommand,       },
-            { "reputation", SEC_GAMEMASTER, false,  &HandleModifyRepCommand,        },
-            { "runicpower", SEC_GAMEMASTER, false,  &HandleModifyRunicPowerCommand, },
-            { "scale",      SEC_GAMEMASTER, false,  &HandleModifyScaleCommand,      },
-            { "speed",      SEC_GAMEMASTER, false,  modifyspeedCommandTable         },
-            { "spell",      SEC_GAMEMASTER, false,  &HandleModifySpellCommand,      },
-            { "standstate", SEC_GAMEMASTER, false,  &HandleModifyStandStateCommand, },
-            { "currency",   SEC_GAMEMASTER, false,  &HandleModifyCurrencyCommand,   },
+            { "bit",        &HandleModifyBitCommand,        rbac::RBAC_PERM_COMMAND_MODIFY_BIT,        Trinity::ChatCommands::Console::No },
+            { "drunk",      &HandleModifyDrunkCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_DRUNK,      Trinity::ChatCommands::Console::No },
+            { "energy",     &HandleModifyEnergyCommand,     rbac::RBAC_PERM_COMMAND_MODIFY_ENERGY,     Trinity::ChatCommands::Console::No },
+            { "faction",    &HandleModifyFactionCommand,    rbac::RBAC_PERM_COMMAND_MODIFY_FACTION,    Trinity::ChatCommands::Console::No },
+            { "gender",     &HandleModifyGenderCommand,     rbac::RBAC_PERM_COMMAND_MODIFY_GENDER,     Trinity::ChatCommands::Console::No },
+            { "honor",      &HandleModifyHonorCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_HONOR,      Trinity::ChatCommands::Console::No },
+            { "hp",         &HandleModifyHPCommand,         rbac::RBAC_PERM_COMMAND_MODIFY_HP,         Trinity::ChatCommands::Console::No },
+            { "mana",       &HandleModifyManaCommand,       rbac::RBAC_PERM_COMMAND_MODIFY_MANA,       Trinity::ChatCommands::Console::No },
+            { "money",      &HandleModifyMoneyCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_MONEY,      Trinity::ChatCommands::Console::No },
+            { "mount",      &HandleModifyMountCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_MOUNT,      Trinity::ChatCommands::Console::No },
+            { "phase",      &HandleModifyPhaseCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_PHASE,      Trinity::ChatCommands::Console::No },
+            { "phaseid", &HandleModifyPhaseIDCommand, rbac::RBAC_PERM_COMMAND_MODIFY_PHASEID, Trinity::ChatCommands::Console::No },
+            { "rage",       &HandleModifyRageCommand,       rbac::RBAC_PERM_COMMAND_MODIFY_RAGE,       Trinity::ChatCommands::Console::No },
+            { "reputation", &HandleModifyRepCommand,        rbac::RBAC_PERM_COMMAND_MODIFY_REPUTATION, Trinity::ChatCommands::Console::No },
+            { "runicpower", &HandleModifyRunicPowerCommand, rbac::RBAC_PERM_COMMAND_MODIFY_RUNICPOWER, Trinity::ChatCommands::Console::No },
+            { "scale",      &HandleModifyScaleCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_SCALE,      Trinity::ChatCommands::Console::No },
+            { "speed",      modifyspeedCommandTable,         rbac::RBAC_PERM_COMMAND_MODIFY_SPEED,      Trinity::ChatCommands::Console::No },
+            { "spell",      &HandleModifySpellCommand,      rbac::RBAC_PERM_COMMAND_MODIFY_SPELL,      Trinity::ChatCommands::Console::No },
+            { "standstate", &HandleModifyStandStateCommand, rbac::RBAC_PERM_COMMAND_MODIFY_STANDSTATE, Trinity::ChatCommands::Console::No },
+            { "currency",   &HandleModifyCurrencyCommand,   rbac::RBAC_PERM_COMMAND_MODIFY_CURRENCY,   Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "morph",      SEC_GAMEMASTER, false,  &HandleModifyMorphCommand,      },
-            { "demorph",    SEC_GAMEMASTER, false,  &HandleDeMorphCommand,          },
-            { "modify",     SEC_GAMEMASTER, false,  modifyCommandTable              },
+            { "morph",      &HandleModifyMorphCommand,      rbac::RBAC_PERM_COMMAND_MORPH,      Trinity::ChatCommands::Console::No },
+            { "demorph",    &HandleDeMorphCommand,          rbac::RBAC_PERM_COMMAND_DEMORPH,    Trinity::ChatCommands::Console::No },
+            { "modify",     modifyCommandTable,              rbac::RBAC_PERM_COMMAND_MODIFY,     Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }
@@ -207,7 +207,7 @@ public:
         target->SetMaxPower(POWER_ENERGY, energym);
         target->SetPower(POWER_ENERGY, energy);
 
-        TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_CURRENT_ENERGY), target->GetMaxPower(POWER_ENERGY));
+        TC_LOG_DEBUG("misc", "Current energy: {}", target->GetMaxPower(POWER_ENERGY));
 
         return true;
     }
@@ -997,7 +997,7 @@ data.WriteByteSeq(guid[4]);
         {
             int64 newmoney = int64(targetMoney) + moneyToAdd;
 
-            TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_CURRENT_MONEY), uint32(targetMoney), int32(moneyToAdd), uint32(newmoney));
+            TC_LOG_DEBUG("misc", "Current money: {}, add: {}, new money: {}", uint32(targetMoney), int32(moneyToAdd), uint32(newmoney));
             if (newmoney <= 0)
             {
                 handler->PSendSysMessage(LANG_YOU_TAKE_ALL_MONEY, handler->GetNameLink(target).c_str());
@@ -1033,7 +1033,7 @@ data.WriteByteSeq(guid[4]);
             target->ModifyMoney(moneyToAdd);
         }
 
-        TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_NEW_MONEY), uint32(targetMoney), int32(moneyToAdd), uint32(target->GetMoney()));
+        TC_LOG_DEBUG("misc", "New money: {}, add: {}, result: {}", uint32(targetMoney), int32(moneyToAdd), uint32(target->GetMoney()));
 
         return true;
     }

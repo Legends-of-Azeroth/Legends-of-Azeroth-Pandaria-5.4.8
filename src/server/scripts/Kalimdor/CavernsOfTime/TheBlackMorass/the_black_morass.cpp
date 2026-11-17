@@ -317,9 +317,9 @@ public:
 
             Position pos = me->GetFirstCollisionPosition(10.0f, (float)rand_norm() * M_PI * 2);
 
-            if (Unit* Summon = DoSummon(creature_entry, pos, 30000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT))
+            if (Unit* Summon = DoSummon(creature_entry, pos, 30000ms, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT))
                 if (Unit* temp = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_MEDIVH) : ObjectGuid::Empty))
-                    Summon->AddThreat(temp, 0.0f);
+                    Summon->GetThreatManager().AddThreat(temp, 0.0f);
         }
 
         void DoSelectSummon()
@@ -330,7 +330,7 @@ public:
             uint32 entry = 0;
 
             entry = PortalWaves[mWaveId].PortalMob[mRiftWaveCount];
-            TC_LOG_DEBUG("scripts", "npc_time_rift: summoning wave Creature (Wave %u, Entry %u).", mRiftWaveCount, entry);
+            TC_LOG_DEBUG("scripts", "npc_time_rift: summoning wave Creature (Wave {}, Entry {}).", mRiftWaveCount, entry);
 
             ++mRiftWaveCount;
 

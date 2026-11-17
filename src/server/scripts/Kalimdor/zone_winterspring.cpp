@@ -299,7 +299,7 @@ public:
             creature->SetFaction(FACTION_ESCORT_A_NEUTRAL_PASSIVE);
 
             if (npc_ranshallaAI* escortAI = dynamic_cast<npc_ranshallaAI*>(creature->AI()))
-                escortAI->Start(false, false, player->GetGUID(), quest);
+                escortAI->Start(false, player->GetGUID(), quest);
 
             return true;
         }
@@ -311,9 +311,9 @@ public:
         return new npc_ranshallaAI(creature);
     }
 
-    struct npc_ranshallaAI : public npc_escortAI, private DialogueHelper
+    struct npc_ranshallaAI : public EscortAI, private DialogueHelper
     {
-        npc_ranshallaAI(Creature* creature) : npc_escortAI(creature),
+        npc_ranshallaAI(Creature* creature) : EscortAI(creature),
             DialogueHelper(introDialogue)
         {
             Reset();
@@ -371,12 +371,12 @@ public:
         void DoSummonPriestess()
         {
             // Summon 2 Elune priestess and make each of them move to a different spot
-            if (Creature* priestess = me->SummonCreature(NPC_PRIESTESS_ELUNE, wingThicketLocations[0].m_positionX, wingThicketLocations[0].m_positionY, wingThicketLocations[0].m_positionZ, wingThicketLocations[0].GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0))
+            if (Creature* priestess = me->SummonCreature(NPC_PRIESTESS_ELUNE, wingThicketLocations[0].m_positionX, wingThicketLocations[0].m_positionY, wingThicketLocations[0].m_positionZ, wingThicketLocations[0].GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0ms))
             {
                 priestess->GetMotionMaster()->MovePoint(0, wingThicketLocations[3].m_positionX, wingThicketLocations[3].m_positionY, wingThicketLocations[3].m_positionZ);
                 _firstPriestessGUID = priestess->GetGUID();
             }
-            if (Creature* priestess = me->SummonCreature(NPC_PRIESTESS_ELUNE, wingThicketLocations[1].m_positionX, wingThicketLocations[1].m_positionY, wingThicketLocations[1].m_positionZ, wingThicketLocations[1].GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0))
+            if (Creature* priestess = me->SummonCreature(NPC_PRIESTESS_ELUNE, wingThicketLocations[1].m_positionX, wingThicketLocations[1].m_positionY, wingThicketLocations[1].m_positionZ, wingThicketLocations[1].GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0ms))
             {
                 // Left priestess should have a distinct move point because she is the one who starts the dialogue at point reach
                 priestess->GetMotionMaster()->MovePoint(1, wingThicketLocations[4].m_positionX, wingThicketLocations[4].m_positionY, wingThicketLocations[4].m_positionZ);
@@ -393,9 +393,9 @@ public:
             StartNextDialogueText(SAY_PRIESTESS_ALTAR_3);
         }
 
-        void WaypointReached(uint32 pointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
-            switch (pointId)
+            switch (waypointId)
             {
                 case 3:
                     Talk(SAY_ENTER_OWL_THICKET);
@@ -474,7 +474,7 @@ public:
                     break;
                 case SAY_PRIESTESS_ALTAR_13:
                     // summon the Guardian of Elune
-                    if (Creature* guard = me->SummonCreature(NPC_GUARDIAN_ELUNE, wingThicketLocations[2].m_positionX, wingThicketLocations[2].m_positionY, wingThicketLocations[2].m_positionZ, wingThicketLocations[2].GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0))
+                    if (Creature* guard = me->SummonCreature(NPC_GUARDIAN_ELUNE, wingThicketLocations[2].m_positionX, wingThicketLocations[2].m_positionY, wingThicketLocations[2].m_positionZ, wingThicketLocations[2].GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0ms))
                     {
                         guard->GetMotionMaster()->MovePoint(0, wingThicketLocations[5].m_positionX, wingThicketLocations[5].m_positionY, wingThicketLocations[5].m_positionZ);
                         _guardEluneGUID = guard->GetGUID();
@@ -482,7 +482,7 @@ public:
                     // summon the Voice of Elune
                     if (GameObject* altar = me->GetMap()->GetGameObject(_altarGUID))
                     {
-                        if (Creature* voice = me->SummonCreature(NPC_VOICE_ELUNE, altar->GetPositionX(), altar->GetPositionY(), altar->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                        if (Creature* voice = me->SummonCreature(NPC_VOICE_ELUNE, altar->GetPositionX(), altar->GetPositionY(), altar->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30000ms))
                             _voiceEluneGUID = voice->GetGUID();
                     }
                     break;
@@ -580,7 +580,7 @@ public:
             if (events.ExecuteEvent() == EVENT_RESUME)
                 StartNextDialogueText(SAY_PRIESTESS_ALTAR_3);
 
-            npc_escortAI::UpdateEscortAI(diff);
+            EscortAI::UpdateEscortAI(diff);
         }
     private:
         EventMap events;

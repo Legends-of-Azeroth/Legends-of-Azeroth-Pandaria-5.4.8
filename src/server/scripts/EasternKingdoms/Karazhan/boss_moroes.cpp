@@ -190,7 +190,7 @@ class boss_moroes : public CreatureScript
                     uint8 i = 0;
                     for (auto&& entry : addList)
                     {
-                        creature = me->SummonCreature(entry, Locations[i][0], Locations[i][1], POS_Z, Locations[i][2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                        creature = me->SummonCreature(entry, Locations[i][0], Locations[i][1], POS_Z, Locations[i][2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000ms);
                         if (creature)
                         {
                             AddGUID[i] = creature->GetGUID();
@@ -203,7 +203,7 @@ class boss_moroes : public CreatureScript
                 {
                     for (uint8 i = 0; i < 4; ++i)
                     {
-                        if (Creature* creature = me->SummonCreature(AddId[i], Locations[i][0], Locations[i][1], POS_Z, Locations[i][2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
+                        if (Creature* creature = me->SummonCreature(AddId[i], Locations[i][0], Locations[i][1], POS_Z, Locations[i][2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000ms))
                             AddGUID[i] = creature->GetGUID();
                     }
                 }

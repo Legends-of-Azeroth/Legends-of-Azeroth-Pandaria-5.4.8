@@ -365,7 +365,7 @@ class boss_alysrazor : public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_DO_A_BARREL_LAVA_SPEW, 1);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->CombatStop(true);
                 if (me->isMoving())
@@ -468,7 +468,7 @@ class boss_alysrazor : public CreatureScript
                     events.ScheduleEvent(EVENT_FIRESTORM, 80000);
                     events.ScheduleEvent(EVENT_VORTEX, 235000);
                     for (uint8 i = 0; i < 8; ++i)
-                        me->SummonCreature(NPC_MOLTEN_FEATHER, featherPos[i], TEMPSUMMON_TIMED_DESPAWN, 35000);
+                        me->SummonCreature(NPC_MOLTEN_FEATHER, featherPos[i], TEMPSUMMON_TIMED_DESPAWN, 35000ms);
                 }
                 else
                 {
@@ -596,7 +596,7 @@ class boss_alysrazor : public CreatureScript
                             pos.m_positionX = pos.m_positionX + offset;
                             pos.m_positionY = pos.m_positionY + offset;
                             //DoCast(me, SPELL_BLAZING_POWER_SUM, true);
-                            me->SummonCreature(NPC_BLAZING_POWER, pos, TEMPSUMMON_TIMED_DESPAWN, 5000);
+                            me->SummonCreature(NPC_BLAZING_POWER, pos, TEMPSUMMON_TIMED_DESPAWN, 5000ms);
                             bSpawnCloud = !bSpawnCloud;
                             events.ScheduleEvent(EVENT_BLAZING_POWER, urand(2000, 4000));
                             break;
@@ -608,7 +608,7 @@ class boss_alysrazor : public CreatureScript
                             pos.m_positionX = pos.m_positionX + offset;
                             pos.m_positionY = pos.m_positionY + offset;
                             //DoCast(me, SPELL_INCINDIARY_CLOUD_SUM, true);
-                            me->SummonCreature(NPC_INCINDIARY_CLOUD, pos, TEMPSUMMON_TIMED_DESPAWN, 5000);
+                            me->SummonCreature(NPC_INCINDIARY_CLOUD, pos, TEMPSUMMON_TIMED_DESPAWN, 5000ms);
                             bSpawnCloud = !bSpawnCloud;
                             events.ScheduleEvent(EVENT_INCINDIARY_CLOUD, urand(2000, 4000));
                             break;
@@ -692,7 +692,7 @@ class boss_alysrazor : public CreatureScript
                             events.ScheduleEvent(EVENT_REMOVE_WINGS, 500);
                             //DoCast(me, SPELL_MOLTING_2, true);
                             for (uint8 i = 0; i < 8; ++i)
-                                me->SummonCreature(NPC_MOLTEN_FEATHER, featherPos[i], TEMPSUMMON_TIMED_DESPAWN, 35000);
+                                me->SummonCreature(NPC_MOLTEN_FEATHER, featherPos[i], TEMPSUMMON_TIMED_DESPAWN, 35000ms);
                             events.ScheduleEvent(EVENT_INITIATE, urand(1000, 15000));
                             events.RescheduleEvent(EVENT_BLAZING_POWER, urand(2000, 5000));
                             events.RescheduleEvent(EVENT_INCINDIARY_CLOUD, urand(3000, 5000));

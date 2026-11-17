@@ -18,13 +18,14 @@
 /* ScriptData
 SDName: Eversong_Woods
 SD%Complete: 100
-SDComment: Quest support: 8488, 8490
+SDComment: Quest support: 8487, 8488, 8490
 SDCategory: Eversong Woods
 EndScriptData */
 
 /* ContentData
 npc_apprentice_mirveda
 npc_infused_crystal
+go_tainted_soil
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -32,6 +33,7 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "Player.h"
+#include "GameObjectAI.h"
 
 enum UnexpectedResults
 {
@@ -113,9 +115,9 @@ public:
 
             if (Summon)
             {
-                me->SummonCreature(NPC_GHARZUL,    8749.505f, -7132.595f, 35.31983f, 3.816502f, TEMPSUMMON_CORPSE_DESPAWN, 4000);
-                me->SummonCreature(NPC_ANGERSHADE, 8755.38f, -7131.521f, 35.30957f, 3.816502f,  TEMPSUMMON_CORPSE_DESPAWN, 4000);
-                me->SummonCreature(NPC_ANGERSHADE, 8753.199f, -7125.975f, 35.31986f, 3.816502f, TEMPSUMMON_CORPSE_DESPAWN, 4000);
+                me->SummonCreature(NPC_GHARZUL,    8749.505f, -7132.595f, 35.31983f, 3.816502f, TEMPSUMMON_CORPSE_DESPAWN, 4000ms);
+                me->SummonCreature(NPC_ANGERSHADE, 8755.38f, -7131.521f, 35.30957f, 3.816502f,  TEMPSUMMON_CORPSE_DESPAWN, 4000ms);
+                me->SummonCreature(NPC_ANGERSHADE, 8753.199f, -7125.975f, 35.31986f, 3.816502f, TEMPSUMMON_CORPSE_DESPAWN, 4000ms);
                 Summon = false;
             }
         }
@@ -233,9 +235,9 @@ public:
                 uint32 ran1 = rand()%8;
                 uint32 ran2 = rand()%8;
                 uint32 ran3 = rand()%8;
-                me->SummonCreature(NPC_ENRAGED_WRAITH, SpawnLocations[ran1].x, SpawnLocations[ran1].y, SpawnLocations[ran1].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
-                me->SummonCreature(NPC_ENRAGED_WRAITH, SpawnLocations[ran2].x, SpawnLocations[ran2].y, SpawnLocations[ran2].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
-                me->SummonCreature(NPC_ENRAGED_WRAITH, SpawnLocations[ran3].x, SpawnLocations[ran3].y, SpawnLocations[ran3].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+                me->SummonCreature(NPC_ENRAGED_WRAITH, SpawnLocations[ran1].x, SpawnLocations[ran1].y, SpawnLocations[ran1].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000ms);
+                me->SummonCreature(NPC_ENRAGED_WRAITH, SpawnLocations[ran2].x, SpawnLocations[ran2].y, SpawnLocations[ran2].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000ms);
+                me->SummonCreature(NPC_ENRAGED_WRAITH, SpawnLocations[ran3].x, SpawnLocations[ran3].y, SpawnLocations[ran3].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000ms);
                 WaveTimer = 30000;
             } else WaveTimer -= diff;
         }
@@ -261,9 +263,54 @@ class spell_lorthemar_mass_charm : public SpellScript
     }
 };
 
+// Quest 8487: Corrupted Soil
+enum TaintedSoil
+{
+    GO_TAINTED_SOIL_SAMPLE  = 180921,
+    GO_TAINTED_SOIL_TRAP    = 181583
+};
+
+class go_tainted_soil : public GameObjectScript
+{
+public:
+    go_tainted_soil() : GameObjectScript("go_tainted_soil") { }
+
+    struct go_tainted_soilAI : public GameObjectAI
+    {
+        go_tainted_soilAI(GameObject* go) : GameObjectAI(go) { }
+
+        void Reset() override
+        {
+            if (GameObject* trap = me->FindNearestGameObject(GO_TAINTED_SOIL_TRAP, 1.0f))
+                if (!trap->isSpawned())
+                    trap->Respawn();
+        }
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new go_tainted_soilAI(go);
+    }
+
+    void OnLootStateChanged(GameObject* go, uint32 state, Unit* /*unit*/) override
+    {
+        if (state == GO_JUST_DEACTIVATED)
+        {
+            if (GameObject* trap = go->FindNearestGameObject(GO_TAINTED_SOIL_TRAP, 1.0f))
+            {
+                trap->SetRespawnTime(go->GetRespawnDelay());
+                trap->SaveRespawnTime();
+                trap->SendObjectDeSpawnAnim(trap->GetGUID());
+                trap->UpdateObjectVisibility();
+            }
+        }
+    }
+};
+
 void AddSC_eversong_woods()
 {
     new npc_apprentice_mirveda();
     new npc_infused_crystal();
     new spell_script<spell_lorthemar_mass_charm>("spell_lorthemar_mass_charm");
+    new go_tainted_soil();
 }

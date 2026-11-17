@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,8 @@
 #define SC_SYSTEM_H
 
 #include "ScriptMgr.h"
+#include <utility>
+#include <vector>
 
 #define TEXT_SOURCE_RANGE -1000000                          //the amount of entries each text source has available
 
@@ -58,6 +60,9 @@ struct ScriptPointMove
 
 typedef std::vector<ScriptPointMove> ScriptPointVector;
 
+struct SplineChainLink;
+class Creature;
+
 class SystemMgr
 {
 
@@ -67,11 +72,16 @@ class SystemMgr
 
     public:
         typedef std::unordered_map<uint32, ScriptPointVector> PointMoveMap;
+        typedef std::pair<uint32, uint16> ChainKeyType; // creature entry + chain ID
 
         static SystemMgr* instance();
 
         //Database
         void LoadScriptWaypoints();
+        void LoadScriptSplineChains();
+
+        std::vector<SplineChainLink> const* GetSplineChain(uint32 entry, uint16 chainId) const;
+        std::vector<SplineChainLink> const* GetSplineChain(Creature const* who, uint16 id) const;
 
         ScriptPointVector const& GetPointMoveList(uint32 creatureEntry) const
         {
@@ -85,6 +95,7 @@ class SystemMgr
 
     protected:
         PointMoveMap    m_mPointMoveMap;                    //coordinates for waypoints
+        std::unordered_map<ChainKeyType, std::vector<SplineChainLink>> m_mSplineChainsMap; // spline chains
 
     private:
         static ScriptPointVector const _empty;

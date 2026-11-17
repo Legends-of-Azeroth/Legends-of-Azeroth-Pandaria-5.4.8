@@ -266,11 +266,11 @@ public:
             if (entry == RIFT_BOSS)
                 entry = RandRiftBoss();
 
-            TC_LOG_DEBUG("scripts", "Instance The Black Morass: Summoning rift boss entry %u.", entry);
+            TC_LOG_DEBUG("scripts", "Instance The Black Morass: Summoning rift boss entry {}.", entry);
 
             Position pos = me->GetFirstCollisionPosition(10.0f, (float)rand_norm() * M_PI * 2);
 
-            if (Creature* summon = me->SummonCreature(entry, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000))
+            if (Creature* summon = me->SummonCreature(entry, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000ms))
                 return summon;
 
             TC_LOG_DEBUG("scripts", "Instance The Black Morass: What just happened there? No boss, no loot, no fun...");
@@ -286,13 +286,13 @@ public:
                 if (tmp >= _currentRiftId)
                     ++tmp;
 
-                TC_LOG_DEBUG("scripts", "Instance The Black Morass: Creating Time Rift at locationId %i (old locationId was %u).", tmp, _currentRiftId);
+                TC_LOG_DEBUG("scripts", "Instance The Black Morass: Creating Time Rift at locationId {} (old locationId was {}).", tmp, _currentRiftId);
 
                 _currentRiftId = tmp;
 
                 Creature* temp = medivh->SummonCreature(NPC_TIME_RIFT,
                     PortalLocation[tmp][0], PortalLocation[tmp][1], PortalLocation[tmp][2], PortalLocation[tmp][3],
-                    TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    TEMPSUMMON_CORPSE_DESPAWN, 0ms);
                 if (temp)
                 {
                     temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -301,10 +301,10 @@ public:
                     if (Creature* boss = SummonedPortalBoss(temp))
                     {
                         if (boss->GetEntry() == NPC_AEONUS)
-                            boss->AddThreat(medivh, 0.0f);
+                            boss->GetThreatManager().AddThreat(medivh, 0.0f);
                         else
                         {
-                            boss->AddThreat(temp, 0.0f);
+                            boss->GetThreatManager().AddThreat(temp, 0.0f);
                             temp->CastSpell(boss, SPELL_RIFT_CHANNEL, false);
                         }
                     }

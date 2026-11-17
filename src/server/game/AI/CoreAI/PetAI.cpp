@@ -64,7 +64,9 @@ PetAI::PetAI(Creature* c) : CreatureAI(c), i_tracker(TIME_INTERVAL_LOOK)
             break;
     }
 
-    if (!me->IsPet())
+    // Only guardians of a player assist; a guardian summoned by a creature keeps the aggressive state from
+    // Guardian::InitStats and takes on its owner's attacker (TrinityCore's PetAI does not override it).
+    if (!me->IsPet() && me->GetOwner() && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
         me->SetReactState(REACT_ASSIST);
 
     // this is for warlock greenfire questline.
@@ -100,11 +102,11 @@ void PetAI::_stopAttack()
 {
     if (!me->IsAlive())
     {
-        TC_LOG_DEBUG("misc", "Creature stoped attacking cuz his dead [guid=%u]", me->GetGUID().GetCounter());
+        TC_LOG_DEBUG("misc", "Creature stoped attacking cuz his dead [guid={}]", me->GetGUID().GetCounter());
         me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveIdle();
         me->CombatStop();
-        me->getHostileRefManager().deleteReferences();
+        me->GetThreatManager().RemoveMeFromThreatLists();
 
         return;
     }
@@ -202,7 +204,7 @@ void PetAI::UpdateAI(uint32 diff)
 
         if (_needToStop())
         {
-            TC_LOG_DEBUG("misc", "Pet AI stopped attacking [guid=%u]", me->GetGUID().GetCounter());
+            TC_LOG_DEBUG("misc", "Pet AI stopped attacking [guid={}]", me->GetGUID().GetCounter());
             _stopAttack();
             return;
         }

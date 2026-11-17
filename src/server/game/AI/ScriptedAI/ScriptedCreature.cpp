@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -179,14 +179,14 @@ void ScriptedAI::DoPlaySoundToSet(WorldObject* source, uint32 soundId)
 
     if (!sSoundEntriesStore.LookupEntry(soundId))
     {
-        TC_LOG_ERROR("scripts", "Invalid soundId %u used in DoPlaySoundToSet (Source: TypeId %u, GUID %u)", soundId, source->GetTypeId(), source->GetGUID().GetCounter());
+        TC_LOG_ERROR("scripts", "Invalid soundId {} used in DoPlaySoundToSet (Source: TypeId {}, GUID {})", soundId, source->GetTypeId(), source->GetGUID().GetCounter());
         return;
     }
 
     source->PlayDirectSound(soundId);
 }
 
-Creature* ScriptedAI::DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, uint32 despawntime)
+Creature* ScriptedAI::DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, Milliseconds despawntime)
 {
     return me->SummonCreature(entry, me->GetPositionX() + offsetX, me->GetPositionY() + offsetY, me->GetPositionZ() + offsetZ, angle, TempSummonType(type), despawntime);
 }
@@ -274,17 +274,17 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
 
 void ScriptedAI::DoResetThreat()
 {
-    if (!me->CanHaveThreatList() || me->getThreatManager().isThreatListEmpty())
+    if (!me->CanHaveThreatList() || me->GetThreatManager().IsThreatListEmpty())
     {
-        TC_LOG_ERROR("scripts", "DoResetThreat called for creature that either cannot have threat list or has empty threat list (me entry = %d)", me->GetEntry());
+        TC_LOG_ERROR("scripts", "DoResetThreat called for creature that either cannot have threat list or has empty threat list (me entry = {})", me->GetEntry());
         return;
     }
 
-    ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
+    auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
 
-    for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+    for (ThreatReference const* ref : threatlist)
     {
-        Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+        Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
         if (unit && DoGetThreat(unit))
             DoModifyThreatPercent(unit, -100);
     }
@@ -294,14 +294,90 @@ float ScriptedAI::DoGetThreat(Unit* unit)
 {
     if (!unit)
         return 0.0f;
-    return me->getThreatManager().getThreat(unit);
+    return me->GetThreatManager().GetThreat(unit);
 }
 
 void ScriptedAI::DoModifyThreatPercent(Unit* unit, int32 pct)
 {
     if (!unit)
         return;
-    me->getThreatManager().modifyThreatPercent(unit, pct);
+    me->GetThreatManager().ModifyThreatByPercent(unit, pct);
+}
+
+void ScriptedAI::AddThreat(Unit* victim, float amount, Unit* who)
+{
+    if (!victim)
+        return;
+    if (!who)
+        who = me;
+    if (!who->CanHaveThreatList())
+        return;
+    who->GetThreatManager().AddThreat(victim, amount);
+}
+
+void ScriptedAI::ModifyThreatByPercent(Unit* victim, int32 pct, Unit* who)
+{
+    if (!victim)
+        return;
+    if (!who)
+        who = me;
+    who->GetThreatManager().ModifyThreatByPercent(victim, pct);
+}
+
+void ScriptedAI::ResetThreat(Unit* victim, Unit* who)
+{
+    if (!victim)
+        return;
+    if (!who)
+        who = me;
+    who->GetThreatManager().ModifyThreatByPercent(victim, -100);
+}
+
+void ScriptedAI::ResetThreatList(Unit* who)
+{
+    if (!who)
+        who = me;
+    who->GetThreatManager().ResetAllThreat();
+}
+
+float ScriptedAI::GetThreat(Unit* victim, Unit* who)
+{
+    if (!victim)
+        return 0.0f;
+    if (!who)
+        who = me;
+    return who->GetThreatManager().GetThreat(victim);
+}
+
+void ScriptedAI::ForceCombatStop(Creature* who, bool reset)
+{
+    if (!who || !who->IsInCombat())
+        return;
+
+    who->CombatStop(true);
+    who->GetMotionMaster()->Clear(false);
+
+    if (reset)
+    {
+        who->LoadCreaturesAddon();
+        who->SetLootRecipient(nullptr);
+        who->ResetPlayerDamageReq();
+    }
+}
+
+void ScriptedAI::ForceCombatStopForCreatureEntry(uint32 entry, float maxSearchRange, bool samePhase, bool reset)
+{
+    std::list<Creature*> creatures;
+    GetCreatureListWithEntryInGrid(creatures, me, entry, maxSearchRange);
+
+    for (Creature* creature : creatures)
+        ForceCombatStop(creature, reset);
+}
+
+void ScriptedAI::ForceCombatStopForCreatureEntry(std::vector<uint32> creatureEntries, float maxSearchRange, bool samePhase, bool reset)
+{
+    for (uint32 const entry : creatureEntries)
+        ForceCombatStopForCreatureEntry(entry, maxSearchRange, samePhase, reset);
 }
 
 void ScriptedAI::DoTeleportTo(float x, float y, float z, uint32 time)
@@ -324,7 +400,7 @@ void ScriptedAI::DoTeleportPlayer(Unit* unit, float x, float y, float z, float o
     if (Player* player = unit->ToPlayer())
         player->TeleportTo(unit->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);
     else
-        TC_LOG_ERROR("scripts", "Creature " UI64FMTD " (Entry: %u) Tried to teleport non-player unit (Type: %u GUID: " UI64FMTD ") to x: %f y:%f z: %f o: %f. Aborted.",
+        TC_LOG_ERROR("scripts", "Creature " "{}" " (Entry: {}) Tried to teleport non-player unit (Type: {} GUID: " "{}" ") to x: {} y:{} z: {} o: {}. Aborted.",
             me->GetGUID().GetRawValue(), me->GetEntry(), unit->GetTypeId(), unit->GetGUID().GetRawValue(), x, y, z, o);
 }
 
@@ -560,7 +636,7 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff, const float dist
                 return false;
             break;
         default: // For most of creatures that certain area is their home area.
-            TC_LOG_INFO("misc", "TSCR: EnterEvadeIfOutOfCombatArea used for creature entry %u, but does not have any definition. Using the default one.", me->GetEntry());
+            TC_LOG_INFO("misc", "TSCR: EnterEvadeIfOutOfCombatArea used for creature entry {}, but does not have any definition. Using the default one.", me->GetEntry());
             uint32 homeAreaId = me->GetMap()->GetAreaId(me->GetPhaseMask(), me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY(), me->GetHomePosition().GetPositionZ());
             if (me->GetAreaId() == homeAreaId && me->GetDistance(me->GetHomePosition()) <= distance)
                 return false;
@@ -641,9 +717,9 @@ void BossAI::TeleportCheaters()
     float x, y, z;
     me->GetPosition(x, y, z);
 
-    ThreatContainer::StorageType threatList = me->getThreatManager().getThreatList();
-    for (ThreatContainer::StorageType::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
-        if (Unit* target = (*itr)->getTarget())
+    auto threatList = me->GetThreatManager().GetUnsortedThreatList();
+    for (ThreatReference const* ref : threatList)
+        if (Unit* target = ref->GetVictim())
             if (target->GetTypeId() == TYPEID_PLAYER && !CheckBoundary(target))
                 target->NearTeleportTo(x, y, z, 0);
 }

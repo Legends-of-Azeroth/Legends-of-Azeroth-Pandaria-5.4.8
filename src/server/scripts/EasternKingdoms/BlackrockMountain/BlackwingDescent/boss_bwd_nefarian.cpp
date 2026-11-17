@@ -356,7 +356,7 @@ class boss_bd_nefarian : public CreatureScript
 
                 SummonList.clear();
             }
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 Reset();
@@ -857,7 +857,7 @@ class boss_bd_onyxia : public CreatureScript
                 events.ScheduleEvent(EVENT_TAIL_LASH, urand(4000, 6000));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->DespawnOrUnsummon(1000);
             }
@@ -1550,7 +1550,7 @@ class spell_onyxia_lightning_discharge : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_onyxia_lightning_discharge_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_onyxia_lightning_discharge_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_TARGET_ANY);
             }
 
             class AngleCheck

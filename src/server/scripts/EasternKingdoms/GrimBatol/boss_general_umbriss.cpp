@@ -189,7 +189,7 @@ class boss_general_umbriss : public CreatureScript
                                     target->GetPositionX(),
                                     target->GetPositionY(),
                                     target->GetPositionZ(),
-                                    0.0f, TEMPSUMMON_TIMED_DESPAWN, 6000))
+                                    0.0f, TEMPSUMMON_TIMED_DESPAWN, 6000ms))
                                     DoCast(stalker, SPELL_GROUND_SIEGE);
                             }
                             events.ScheduleEvent(EVENT_GROUND_SIEGE, 18000);
@@ -202,7 +202,7 @@ class boss_general_umbriss : public CreatureScript
                                     target->GetPositionX(),
                                     target->GetPositionY(),
                                     target->GetPositionZ(),
-                                    0.0f, TEMPSUMMON_TIMED_DESPAWN, 6000))
+                                    0.0f, TEMPSUMMON_TIMED_DESPAWN, 6000ms))
                                     DoCast(_blitz, SPELL_BLITZ);
                             }
                             events.ScheduleEvent(EVENT_BLITZ, 23000);

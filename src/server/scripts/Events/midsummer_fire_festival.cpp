@@ -301,9 +301,9 @@ enum MidsummerFestivalTorchTossing
 };
 
 // 25535
-struct npc_torch_tossing_target_bunny: public CreatureAI
+struct npc_torch_tossing_target_bunny: public ScriptedAI
 {
-    npc_torch_tossing_target_bunny(Creature* creature) : CreatureAI(creature) { }
+    npc_torch_tossing_target_bunny(Creature* creature) : ScriptedAI(creature) { }
 
     void SpellHit(Unit* caster, SpellInfo const* spell) override
     {
@@ -335,9 +335,9 @@ struct npc_torch_tossing_target_bunny: public CreatureAI
 };
 
 // 25536
-struct npc_torch_tossing_target_bunny_controller : public CreatureAI
+struct npc_torch_tossing_target_bunny_controller : public ScriptedAI
 {
-    npc_torch_tossing_target_bunny_controller(Creature* creature) : CreatureAI(creature) { }
+    npc_torch_tossing_target_bunny_controller(Creature* creature) : ScriptedAI(creature) { }
 
     void Reset() override
     {

@@ -441,7 +441,7 @@ class npc_raging_gnoul : public CreatureScript
                             {
                                 DoResetThreat();
                                 me->AI()->AttackStart(pLider);
-                                me->AddThreat(pLider, 100.0f);
+                                me->GetThreatManager().AddThreat(pLider, 100.0f);
                                 me->GetMotionMaster()->Clear();
                                 me->GetMotionMaster()->MoveChase(pLider);
                             }
@@ -460,7 +460,7 @@ class npc_raging_gnoul : public CreatureScript
                         if (!Jumped && me->IsWithinDistInMap(target, 30.0f) && !me->IsWithinDistInMap(target, 5.0f))
                         {
                             Jumped = true;
-                            me->AddThreat(target, 200.0f);
+                            me->GetThreatManager().AddThreat(target, 200.0f);
                             AttackStart(target);
                             DoCast(target, SPELL_GNOUL_JUMP);
                         }
@@ -546,7 +546,7 @@ class npc_risen_witch_doctor : public CreatureScript
                             {
                                 DoResetThreat();
                                 me->AI()->AttackStart(pLider);
-                                me->AddThreat(pLider, 100.0f);
+                                me->GetThreatManager().AddThreat(pLider, 100.0f);
                                 me->GetMotionMaster()->Clear();
                                 me->GetMotionMaster()->MoveChase(pLider);
                             }
@@ -642,7 +642,7 @@ class npc_abon : public CreatureScript
                         {
                             DoResetThreat();
                             me->AI()->AttackStart(pLider);
-                            me->AddThreat(pLider, 100.0f);
+                            me->GetThreatManager().AddThreat(pLider, 100.0f);
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MoveChase(pLider);
                         }

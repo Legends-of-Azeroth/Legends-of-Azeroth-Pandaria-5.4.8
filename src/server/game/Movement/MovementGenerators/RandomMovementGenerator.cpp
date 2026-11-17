@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -123,30 +123,32 @@ void RandomMovementGenerator<Creature>::_setRandomLocation(Creature* creature)
 
     //Call for creature group update
     if (creature->GetFormation() && creature->GetFormation()->GetLeader() == creature)
-        creature->GetFormation()->LeaderMoveTo(destX, destY, destZ);
+        creature->GetFormation()->LeaderStartedMoving();
 }
 
 template<>
-void RandomMovementGenerator<Creature>::DoInitialize(Creature* creature)
+bool RandomMovementGenerator<Creature>::DoInitialize(Creature* creature)
 {
     if (!creature->IsAlive())
-        return;
+        return true;
 
     if (!wander_distance)
         wander_distance = creature->GetWanderDistance();
 
     creature->AddUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
     _setRandomLocation(creature);
+    return true;
 }
 
 template<>
-void RandomMovementGenerator<Creature>::DoReset(Creature* creature)
+bool RandomMovementGenerator<Creature>::DoReset(Creature* creature)
 {
     DoInitialize(creature);
+    return true;
 }
 
 template<>
-void RandomMovementGenerator<Creature>::DoFinalize(Creature* creature)
+void RandomMovementGenerator<Creature>::DoFinalize(Creature* creature, bool, bool)
 {
     creature->ClearUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
     creature->SetWalk(false);
@@ -172,8 +174,9 @@ bool RandomMovementGenerator<Creature>::DoUpdate(Creature* creature, const uint3
 }
 
 template<>
-bool RandomMovementGenerator<Creature>::GetResetPos(Creature* creature, float& x, float& y, float& z)
+bool RandomMovementGenerator<Creature>::GetResetPosition(Unit* owner, float& x, float& y, float& z)
 {
+    Creature* creature = owner->ToCreature();
     float radius;
     creature->GetRespawnPosition(x, y, z, NULL, &radius);
 

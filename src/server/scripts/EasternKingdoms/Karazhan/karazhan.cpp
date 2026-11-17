@@ -163,26 +163,26 @@ class npc_barnes : public CreatureScript
                 case GOSSIP_ACTION_INFO_DEF + 3:
                     player->CLOSE_GOSSIP_MENU();
                     barnesAI->m_uiEventId = EVENT_OZ;
-                    TC_LOG_DEBUG("scripts", "TSCR: player (%s) manually set Opera event to EVENT_OZ", player->GetGUID().ToString().c_str());
+                    TC_LOG_DEBUG("scripts", "TSCR: player ({}) manually set Opera event to EVENT_OZ", player->GetGUID().ToString().c_str());
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 4:
                     player->CLOSE_GOSSIP_MENU();
                     barnesAI->m_uiEventId = EVENT_HOOD;
-                    TC_LOG_DEBUG("scripts", "TSCR: player (%s) manually set Opera event to EVENT_HOOD", player->GetGUID().ToString().c_str());
+                    TC_LOG_DEBUG("scripts", "TSCR: player ({}) manually set Opera event to EVENT_HOOD", player->GetGUID().ToString().c_str());
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 5:
                     player->CLOSE_GOSSIP_MENU();
                     barnesAI->m_uiEventId = EVENT_RAJ;
-                    TC_LOG_DEBUG("scripts", "TSCR: player (%s) manually set Opera event to EVENT_RAJ", player->GetGUID().ToString().c_str());
+                    TC_LOG_DEBUG("scripts", "TSCR: player ({}) manually set Opera event to EVENT_RAJ", player->GetGUID().ToString().c_str());
                     break;
             }
 
             return true;
         }
 
-        struct npc_barnesAI : public npc_escortAI
+        struct npc_barnesAI : public EscortAI
         {
-            npc_barnesAI(Creature* creature) : npc_escortAI(creature)
+            npc_barnesAI(Creature* creature) : EscortAI(creature)
             {
                 RaidWiped = false;
                 m_uiEventId = 0;
@@ -226,17 +226,17 @@ class npc_barnes : public CreatureScript
                 if (m_uiEventId == EVENT_OZ)
                     instance->SetData(DATA_OPERA_OZ_DEATHCOUNT, IN_PROGRESS);
 
-                Start(false, false);
+                Start(false);
             }
 
             void JustEngagedWith(Unit* /*who*/) override { }
 
-            void WaypointReached(uint32 i) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
                 if (!instance)
                     return;
 
-                switch (i)
+                switch (waypointId)
                 {
                     case 0:
                         DoCast(me, SPELL_TUXEDO, false);
@@ -246,7 +246,7 @@ class npc_barnes : public CreatureScript
                         TalkCount = 0;
                         SetEscortPaused(true);
 
-                        if (Creature* spotlight = me->SummonCreature(NPC_SPOTLIGHT, me->GetPosition(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
+                        if (Creature* spotlight = me->SummonCreature(NPC_SPOTLIGHT, me->GetPosition(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000ms))
                         {
                             spotlight->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             spotlight->CastSpell(spotlight, SPELL_SPOTLIGHT, false);
@@ -296,7 +296,7 @@ class npc_barnes : public CreatureScript
 
             void PrepareEncounter()
             {
-                TC_LOG_DEBUG("scripts", "TSCR: Barnes Opera Event - Introduction complete - preparing encounter %d", m_uiEventId);
+                TC_LOG_DEBUG("scripts", "TSCR: Barnes Opera Event - Introduction complete - preparing encounter {}", m_uiEventId);
                 uint8 index = 0;
                 uint8 count = 0;
 
@@ -321,7 +321,7 @@ class npc_barnes : public CreatureScript
                     uint32 entry = ((uint32)Spawns[index][0]);
                     float PosX = Spawns[index][1];
 
-                    if (Creature* creature = me->SummonCreature(entry, PosX, SPAWN_Y, SPAWN_Z, SPAWN_O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
+                    if (Creature* creature = me->SummonCreature(entry, PosX, SPAWN_Y, SPAWN_Z, SPAWN_O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, Milliseconds(HOUR*2*IN_MILLISECONDS)))
                     {
                         // In case database has bad flags
                         creature->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
@@ -334,7 +334,7 @@ class npc_barnes : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (HasEscortState(STATE_ESCORT_PAUSED))
                 {
@@ -538,7 +538,7 @@ class npc_image_of_medivh : public CreatureScript
             {
                 Step = 1;
                 EventStarted = true;
-                Creature* arcanagos = me->SummonCreature(NPC_ARCANAGOS, ArcanagosPos[0], ArcanagosPos[1], ArcanagosPos[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
+                Creature* arcanagos = me->SummonCreature(NPC_ARCANAGOS, ArcanagosPos[0], ArcanagosPos[1], ArcanagosPos[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000ms);
                 if (!arcanagos)
                     return;
                 ArcanagosGUID = arcanagos->GetGUID();

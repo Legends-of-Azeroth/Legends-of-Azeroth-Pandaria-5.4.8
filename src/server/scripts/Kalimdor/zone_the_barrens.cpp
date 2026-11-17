@@ -120,7 +120,7 @@ public:
             creature->AI()->Talk(SAY_GIL_START, player);
 
             if (npc_giltharesAI* pEscortAI = CAST_AI(npc_gilthares::npc_giltharesAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID(), quest);
+                pEscortAI->Start(false, player->GetGUID(), quest);
         }
         return true;
     }
@@ -130,13 +130,13 @@ public:
         return new npc_giltharesAI(creature);
     }
 
-    struct npc_giltharesAI : public npc_escortAI
+    struct npc_giltharesAI : public EscortAI
     {
-        npc_giltharesAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_giltharesAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -227,7 +227,8 @@ public:
         void DoFriend()
         {
             me->RemoveAllAuras();
-            me->DeleteThreatList();
+            me->GetThreatManager().RemoveMeFromThreatLists();
+            me->GetThreatManager().ClearAllThreat();
             me->CombatStop(true);
 
             me->StopMoving();
@@ -420,7 +421,7 @@ public:
 
                         for (uint8 i = 0; i < 6; ++i)
                         {
-                            Creature* creature = me->SummonCreature(NPC_AFFRAY_CHALLENGER, AffrayChallengerLoc[i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                            Creature* creature = me->SummonCreature(NPC_AFFRAY_CHALLENGER, AffrayChallengerLoc[i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000ms);
                             if (!creature)
                                 continue;
                             creature->SetFaction(35);
@@ -472,7 +473,7 @@ public:
                         }
                         else if (Wave >= 6 && !EventBigWill)
                         {
-                            if (Creature* creature = me->SummonCreature(NPC_BIG_WILL, -1722, -4341, 6.12f, 6.26f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 480000))
+                            if (Creature* creature = me->SummonCreature(NPC_BIG_WILL, -1722, -4341, 6.12f, 6.26f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 480000ms))
                             {
                                 BigWill = creature->GetGUID();
                                 //creature->GetMotionMaster()->MovePoint(0, -1693, -4343, 4.32f);
@@ -526,9 +527,9 @@ class npc_wizzlecrank_shredder : public CreatureScript
 public:
     npc_wizzlecrank_shredder() : CreatureScript("npc_wizzlecrank_shredder") { }
 
-    struct npc_wizzlecrank_shredderAI : public npc_escortAI
+    struct npc_wizzlecrank_shredderAI : public EscortAI
     {
-        npc_wizzlecrank_shredderAI(Creature* creature) : npc_escortAI(creature)
+        npc_wizzlecrank_shredderAI(Creature* creature) : EscortAI(creature)
         {
             IsPostEvent = false;
             PostEventTimer = 1000;
@@ -552,7 +553,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             switch (waypointId)
             {
@@ -563,10 +564,10 @@ public:
                     SetRun(false);
                     break;
                 case 17:
-                    if (Creature* temp = me->SummonCreature(NPC_MERCENARY, 1128.489f, -3037.611f, 92.701f, 1.472f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000))
+                    if (Creature* temp = me->SummonCreature(NPC_MERCENARY, 1128.489f, -3037.611f, 92.701f, 1.472f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000ms))
                     {
                         temp->AI()->Talk(SAY_MERCENARY);
-                        me->SummonCreature(NPC_MERCENARY, 1160.172f, -2980.168f, 97.313f, 3.690f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        me->SummonCreature(NPC_MERCENARY, 1160.172f, -2980.168f, 97.313f, 3.690f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000ms);
                     }
                     break;
                 case 24:
@@ -626,7 +627,7 @@ public:
                                 if (Player* player = GetPlayerForEscort())
                                 {
                                     player->GroupEventHappens(QUEST_ESCAPE, me);
-                                    me->SummonCreature(NPC_PILOT_WIZZ, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 180000);
+                                    me->SummonCreature(NPC_PILOT_WIZZ, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 180000ms);
                                 }
                                 break;
                         }
@@ -650,8 +651,8 @@ public:
         if (quest->GetQuestId() == QUEST_ESCAPE)
         {
             creature->SetFaction(FACTION_RATCHET);
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_wizzlecrank_shredder::npc_wizzlecrank_shredderAI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
+            if (EscortAI* pEscortAI = CAST_AI(npc_wizzlecrank_shredder::npc_wizzlecrank_shredderAI, creature->AI()))
+                pEscortAI->Start(true, player->GetGUID());
         }
         return true;
     }
@@ -820,9 +821,9 @@ enum BackInTheFightType
 };
 
 // Wounded Defender 38805
-struct npc_barrent_wounded_defender : public CreatureAI
+struct npc_barrent_wounded_defender : public ScriptedAI
 {
-    npc_barrent_wounded_defender(Creature* creature) : CreatureAI(creature) { }
+    npc_barrent_wounded_defender(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
     ObjectGuid questReceiverGUID;

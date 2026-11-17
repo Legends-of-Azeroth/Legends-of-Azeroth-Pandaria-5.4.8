@@ -209,7 +209,7 @@ class boss_siamat : public CreatureScript
                                 uint8 dist = urand(5, 30);
                                 float angle = frand(0, M_PI);
                                 float x, y;
-                                me->GetNearPoint2D(x, y, (float)dist, angle);
+                                me->GetNearPoint2D(nullptr, x, y, (float)dist, angle);
                                 me->CastSpell(x, y, FLOR_COORD_Z, StaticShock[uiStaticShockId], false);
                                 ++uiStaticShockId;
 
@@ -225,7 +225,7 @@ class boss_siamat : public CreatureScript
                                 uint8 dist = urand(5, 30);
                                 float angle = frand(0, M_PI);
                                 float x, y;
-                                me->GetNearPoint2D(x, y, (float)dist, angle);
+                                me->GetNearPoint2D(nullptr, x, y, (float)dist, angle);
                                 me->CastSpell(x, y, FLOR_COORD_Z, SPELL_CALL_OF_SKY, false);
                                 events.ScheduleEvent(EVENT_CALL_OF_SKY, urand(15000, 35000));
                             }
@@ -570,7 +570,7 @@ class spell_wailing_winds : public SpellScriptLoader
                 else
                 {
                     float dist = frand(10.0f, 30.0f);
-                    target->GetNearPoint2D(x, y, dist, angle);
+                    target->GetNearPoint2D(nullptr, x, y, dist, angle);
                     target->GetMotionMaster()->MoveJump(x, y, FLOR_COORD_Z, SpeedXY, SpeedZ);
                 }
             }

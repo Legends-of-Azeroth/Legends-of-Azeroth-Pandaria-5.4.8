@@ -358,7 +358,7 @@ class boss_shade_of_akama : public CreatureScript
                 if (guid)
                 {
                     if (Sorcerers.empty())
-                        TC_LOG_ERROR("misc", "SD2 ERROR: Shade of Akama - attempt to remove guid " UI64FMTD " from Sorcerers list but list is already empty", guid.GetRawValue());
+                        TC_LOG_ERROR("misc", "SD2 ERROR: Shade of Akama - attempt to remove guid " "{}" " from Sorcerers list but list is already empty", guid.GetRawValue());
                     else
                         Sorcerers.remove(guid);
                 }
@@ -372,7 +372,7 @@ class boss_shade_of_akama : public CreatureScript
                 // max of 6 sorcerers can be summoned
                 if ((rand() % 3 == 0) && (DeathCount > 0) && (SorcererCount < 7))
                 {
-                    Creature* sorcerer = me->SummonCreature(NPC_ASHTONGUE_SORCERER, X, Y, Z_SPAWN, 0, TEMPSUMMON_DEAD_DESPAWN, 0);
+                    Creature* sorcerer = me->SummonCreature(NPC_ASHTONGUE_SORCERER, X, Y, Z_SPAWN, 0, TEMPSUMMON_DEAD_DESPAWN, 0ms);
                     if (sorcerer)
                     {
                         CAST_AI(npc_ashtongue_sorcerer::npc_ashtongue_sorcererAI, sorcerer->AI())->ShadeGUID = me->GetGUID();
@@ -393,7 +393,7 @@ class boss_shade_of_akama : public CreatureScript
 
                     for (uint8 i = 0; i < 3; ++i)
                     {
-                        Creature* spawn = me->SummonCreature(spawnEntries[i], X, Y, Z_SPAWN, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                        Creature* spawn = me->SummonCreature(spawnEntries[i], X, Y, Z_SPAWN, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000ms);
                         if (spawn)
                         {
                             spawn->SetWalk(false);
@@ -417,7 +417,7 @@ class boss_shade_of_akama : public CreatureScript
                     {
                         CAST_AI(npc_ashtongue_channeler::npc_ashtongue_channelerAI, (*itr)->AI())->ShadeGUID = me->GetGUID();
                         Channelers.push_back((*itr)->GetGUID());
-                        TC_LOG_DEBUG("misc", "TSCR: Shade of Akama Grid Search found channeler " UI64FMTD ". Adding to list", (*itr)->GetGUID().GetRawValue());
+                        TC_LOG_DEBUG("misc", "TSCR: Shade of Akama Grid Search found channeler " "{}" ". Adding to list", (*itr)->GetGUID().GetRawValue());
                     }
                 }
                 else
@@ -448,7 +448,7 @@ class boss_shade_of_akama : public CreatureScript
                 if (IsBanished)
                 {
                     // Akama is set in the threatlist so when we reset, we make sure that he is not included in our check
-                    if (me->getThreatManager().getThreatList().size() < 2)
+                    if (me->GetThreatManager().GetThreatListSize() < 2)
                     {
                         EnterEvadeMode();
                         return;
@@ -457,7 +457,7 @@ class boss_shade_of_akama : public CreatureScript
                     if (DefenderTimer <= diff)
                     {
                         uint32 ran = rand() % 2;
-                        Creature* defender = me->SummonCreature(NPC_ASHTONGUE_DEFENDER, SpawnLocations[ran].x, SpawnLocations[ran].y, Z_SPAWN, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000);
+                        Creature* defender = me->SummonCreature(NPC_ASHTONGUE_DEFENDER, SpawnLocations[ran].x, SpawnLocations[ran].y, Z_SPAWN, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000ms);
                         if (defender)
                         {
                             defender->SetWalk(false);
@@ -500,8 +500,8 @@ class boss_shade_of_akama : public CreatureScript
                                 Akama->GetMotionMaster()->MoveIdle();
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 // Crazy amount of threat
-                                me->AddThreat(Akama, 10000000.0f);
-                                Akama->AddThreat(me, 10000000.0f);
+                                me->GetThreatManager().AddThreat(Akama, 10000000.0f);
+                                Akama->GetThreatManager().AddThreat(me, 10000000.0f);
                                 me->Attack(Akama, true);
                                 Akama->Attack(me, true);
                             }
@@ -530,7 +530,8 @@ class boss_shade_of_akama : public CreatureScript
                         {
                             HasKilledAkamaAndReseting = true;
                             me->RemoveAllAuras();
-                            me->DeleteThreatList();
+                            me->GetThreatManager().RemoveMeFromThreatLists();
+                            me->GetThreatManager().ClearAllThreat();
                             me->CombatStop();
                             //me->SetFullHealth();
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -692,13 +693,13 @@ class npc_akama_shade : public CreatureScript
                     CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, shade->AI())->SetSelectableChannelers();
                     CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, shade->AI())->StartCombat = true;
                     me->CombatStart(shade);
-                    shade->AddThreat(me, 1000000.0f);
-                    //shade->AddThreat(me, 1000000.0f);
+                    shade->GetThreatManager().AddThreat(me, 1000000.0f);
+                    //shade->GetThreatManager().AddThreat(me, 1000000.0f);
                     //me->CombatStart(shade);
                     shade->HandleEmoteStateCommand(EMOTE_STATE_NONE);
                     shade->SetTarget(me->GetGUID());
                     if (player)
-                        shade->AddThreat(player, 1.0f);
+                        shade->GetThreatManager().AddThreat(player, 1.0f);
                     DoZoneInCombat(shade);
                     EventBegun = true;
                 }
@@ -804,7 +805,7 @@ class npc_akama_shade : public CreatureScript
                             }
                             if (Shade && Shade->IsAlive())
                             {
-                                if (Shade->getThreatManager().getThreatList().size() < 2)
+                                if (Shade->GetThreatManager().GetThreatListSize() < 2)
                                     Shade->AI()->EnterEvadeMode();
                             }
                         }
@@ -822,7 +823,7 @@ class npc_akama_shade : public CreatureScript
                             float y = BrokenCoords[BrokenSummonIndex].y + (1*5);
                             float z = BrokenCoords[BrokenSummonIndex].z;
                             float o = BrokenCoords[BrokenSummonIndex].o;
-                            Creature* broken = me->SummonCreature(NPC_ASHTONGUE_BROKEN, x, y, z, o, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000);
+                            Creature* broken = me->SummonCreature(NPC_ASHTONGUE_BROKEN, x, y, z, o, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000ms);
                             if (broken)
                             {
                                 float wx = BrokenWP[BrokenSummonIndex].x + (i*5);

@@ -1,7 +1,18 @@
 /*
-* Copyright (C) 2010 - 2013 Eluna Lua Engine <http://emudevs.com/>
-* This program is free software licensed under GPL version 3
-* Please see the included DOCS/LICENSE.TXT for more information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "LuaEngine.h"
@@ -116,7 +127,7 @@ void StartEluna(bool restart)
         strcpy(filename, itr->c_str());
         if (luaL_loadfile(sEluna->L, filename) != 0)
         {
-            TC_LOG_INFO("server.loading", "[Eluna]: Error loading file `%s`.", itr->c_str());
+            TC_LOG_INFO("server.loading", "[Eluna]: Error loading file `{}`.", itr->c_str());
             sEluna->report(sEluna->L);
         }
         else
@@ -124,7 +135,7 @@ void StartEluna(bool restart)
             int err = lua_pcall(sEluna->L, 0, 0, 0);
             if (err != 0 && err == LUA_ERRRUN)
             {
-                TC_LOG_INFO("server.loading", "server.loading", "[Eluna]: Error loading file `%s`.", itr->c_str());
+                TC_LOG_INFO("server.loading", "server.loading", "[Eluna]: Error loading file `{}`.", itr->c_str());
                 sEluna->report(sEluna->L);
             }
         }
@@ -155,7 +166,7 @@ void StartEluna(bool restart)
     }
     
     
-    TC_LOG_INFO("server.loading", "[Eluna]: Loaded %u Lua scripts..", count);
+    TC_LOG_INFO("server.loading", "[Eluna]: Loaded {} Lua scripts..", count);
     TC_LOG_INFO("server.loading", "");
 }
 
@@ -212,7 +223,7 @@ void Eluna::LoadDirectory(const char* Dirname, LoadedScripts* lscr)
             ext[i++] = '\0';
             if (!_stricmp(ext, "aul."))
             {
-                //TC_LOG_DEBUG("server.loading", "[Eluna]: Load File: %s", fname.c_str());
+                //TC_LOG_DEBUG("server.loading", "[Eluna]: Load File: {}", fname.c_str());
                 lscr->insert(fname);
             }
         }
@@ -241,7 +252,7 @@ void Eluna::LoadDirectory(const char* Dirname, LoadedScripts* lscr)
         if (stat(_path, &attributes) == -1)
         {
             error = true;
-            TC_LOG_ERROR("server.loading", "[Eluna]: Error opening `%s`", _path);
+            TC_LOG_ERROR("server.loading", "[Eluna]: Error opening `{}`", _path);
         }
         else
             error = false;

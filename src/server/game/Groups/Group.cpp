@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
 #include "Common.h"
 #include "Opcodes.h"
 #include "WorldPacket.h"
+#include "PartyPackets.h"
 #include "WorldSession.h"
 #include "Player.h"
 #include "World.h"
@@ -213,13 +214,13 @@ void Group::LoadGroupFromDB(Field* fields)
     m_slot = GroupSlot(fields[18].GetUInt8());
     if (m_slot >= GroupSlot::Max)
     {
-        TC_LOG_ERROR("shitlog", "Group::LoadGroupFromDB invalid group slot (%u) for group %u", fields[13].GetUInt8(), m_dbStoreId);
+        TC_LOG_ERROR("shitlog", "Group::LoadGroupFromDB invalid group slot ({}) for group {}", fields[13].GetUInt8(), m_dbStoreId);
         m_slot = GroupSlot::Original;
     }
     if (m_slot == GroupSlot::Original && isLFGGroup())
-        TC_LOG_ERROR("shitlog", "Group::LoadGroupFromDB group is original group but it is lfg group %u", m_dbStoreId);
+        TC_LOG_ERROR("shitlog", "Group::LoadGroupFromDB group is original group but it is lfg group {}", m_dbStoreId);
     if (m_slot == GroupSlot::Instance && !isLFGGroup()) // Only lfg groups are stored to db
-        TC_LOG_ERROR("shitlog", "Group::LoadGroupFromDB group is instance group but it is not lfg group %u", m_dbStoreId);
+        TC_LOG_ERROR("shitlog", "Group::LoadGroupFromDB group is instance group but it is not lfg group {}", m_dbStoreId);
 }
 
 void Group::LoadMemberFromDB(ObjectGuid::LowType guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles)
@@ -253,7 +254,7 @@ void Group::LoadMemberFromDB(ObjectGuid::LowType guidLow, uint8 memberFlags, uin
 void Group::SaveRolesToDB()
 {
     for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
-        CharacterDatabase.PExecute("UPDATE group_member SET roles='%u' WHERE guid='%u' AND memberGuid='%u'", itr->roles, m_dbStoreId, itr->guid.GetCounter());
+        CharacterDatabase.PExecute("UPDATE group_member SET roles='{}' WHERE guid='{}' AND memberGuid='{}'", itr->roles, m_dbStoreId, itr->guid.GetCounter());
 }
 
 void Group::ChangeFlagEveryoneAssistant(bool apply)
@@ -444,7 +445,7 @@ bool Group::AddMember(Player* player)
 
     if (player->GetGroup(m_slot))
     {
-        TC_LOG_ERROR("shitlog", "Group::AddMember player %s already in group of this type (%u)", player->GetSession()->GetPlayerInfo().c_str(), uint32(m_slot));
+        TC_LOG_ERROR("shitlog", "Group::AddMember player {} already in group of this type ({})", player->GetSession()->GetPlayerInfo().c_str(), uint32(m_slot));
         return false;
     }
 
@@ -579,7 +580,7 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
     // remove member and change leader (if need) only if strong more 2 members _before_ member remove (BG/BF allow 1 member group)
     if (GetMembersCount() > ((isBGGroup() || isLFGGroup() || isBFGroup()) ? 1u : 2u))
     {
-        Player* player = ObjectAccessor::FindPlayer(guid);
+        Player* player = ObjectAccessor::FindConnectedPlayer(guid);
         if (player)
         {
             // Don't homebind if player was removed from the original group but still has instance group
@@ -778,7 +779,7 @@ void Group::Disband(bool hideDestroy /* = false */)
     {
         sGroupMgr->UnbindGroupFromPlayer(citr->guid, this);
 
-        player = ObjectAccessor::FindPlayer(citr->guid);
+        player = ObjectAccessor::FindConnectedPlayer(citr->guid);
         if (!player)
             continue;
 
@@ -895,7 +896,7 @@ static void BuildStartLootRollPacket(WorldPacket& data, uint32 countDown, uint32
 
 void Group::SendLootStartRoll(uint32 countDown, uint32 mapid, Roll const& roll)
 {
-    WorldPacket data(SMSG_LOOT_START_ROLL);
+    WorldPacket data(SMSG_START_LOOT_ROLL);
 
     BuildStartLootRollPacket(data, countDown, mapid, roll, true);
 
@@ -910,7 +911,7 @@ void Group::SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* pl
     if (!player)
         return;
 
-    WorldPacket data(SMSG_LOOT_START_ROLL);
+    WorldPacket data(SMSG_START_LOOT_ROLL);
     BuildStartLootRollPacket(data, countDown, mapId, roll, canNeed);
     player->GetSession()->SendPacket(&data);
 }
@@ -1246,7 +1247,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         item = sObjectMgr->GetItemTemplate(i->itemid);
         if (!item)
         {
-            //TC_LOG_DEBUG("misc", "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
+            //TC_LOG_DEBUG("misc", "Group::GroupLoot: missing item prototype for item with id: {}", i->itemid);
             continue;
         }
 
@@ -1332,7 +1333,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         item = sObjectMgr->GetItemTemplate(i->itemid);
         if (!item)
         {
-            //TC_LOG_DEBUG("misc", "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
+            //TC_LOG_DEBUG("misc", "Group::GroupLoot: missing item prototype for item with id: {}", i->itemid);
             continue;
         }
 
@@ -1878,100 +1879,18 @@ void Group::SetTargetIcon(uint8 symbol, ObjectGuid whoGuid, ObjectGuid targetGui
     BroadcastPacket(&data, true);
 }
 
-void Group::SendTargetIconList(WorldSession* session)
+void Group::SendTargetIconList(WorldSession* session, int8 partyIndex)
 {
     if (!session)
         return;
 
-    /*uint8 Index = 0;
-    WorldPacket data(SMSG_RAID_TARGET_UPDATE_ALL, (1 + TARGETICONCOUNT * 9));
-    data.WriteBits(0, 25);
+    WorldPackets::Party::SendRaidTargetUpdateAll updateAll;
+    updateAll.PartyIndex = partyIndex;
+    for (uint8 i = 0; i < TARGETICONCOUNT; i++)
+        if (m_targetIcons[i] != ObjectGuid::Empty)
+            updateAll.TargetIcons.insert(std::pair<uint8, ObjectGuid>(i, m_targetIcons[i]));
 
-    for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
-    {
-        if (m_targetIcons[i] == 0)
-            continue;
-
-        ObjectGuid guid = m_targetIcons[i];
-
-        data.WriteBit(guid[2]);
-        data.WriteBit(guid[1]);
-        data.WriteBit(guid[3]);
-        data.WriteBit(guid[7]);
-        data.WriteBit(guid[6]);
-        data.WriteBit(guid[4]);
-        data.WriteBit(guid[0]);
-        data.WriteBit(guid[5]);
-
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guid[3]);
-        data << uint8(i);
-        data.WriteByteSeq(guid[2]);
-    }
-
-    data << uint8(Index);
-
-    session->SendPacket(&data);*/
-
-    //-- SMSG_RAID_TARGET_UPDATE_ALL : packed wrong so we use workaround
-    ObjectGuid whoGuid = GetLeaderGUID();
-
-    for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
-    {
-        if (m_targetIcons[i] == 0)
-            continue;
-
-        ObjectGuid targetGuid = m_targetIcons[i];
-
-        WorldPacket data(SMSG_RAID_TARGET_UPDATE_SINGLE, 8 + 1 + 8 + 1);
-
-        data.WriteBit(whoGuid[6]);
-        data.WriteBit(targetGuid[4]);
-        data.WriteBit(whoGuid[0]);
-        data.WriteBit(whoGuid[7]);
-        data.WriteBit(targetGuid[6]);
-        data.WriteBit(whoGuid[5]);
-        data.WriteBit(whoGuid[3]);
-        data.WriteBit(whoGuid[4]);
-        data.WriteBit(targetGuid[7]);
-        data.WriteBit(targetGuid[2]);
-        data.WriteBit(targetGuid[5]);
-        data.WriteBit(targetGuid[1]);
-        data.WriteBit(whoGuid[2]);
-        data.WriteBit(whoGuid[1]);
-        data.WriteBit(targetGuid[0]);
-        data.WriteBit(targetGuid[3]);
-
-        data.WriteByteSeq(targetGuid[1]);
-
-        data << uint8(0);
-
-        data.WriteByteSeq(whoGuid[0]);
-        data.WriteByteSeq(whoGuid[5]);
-        data.WriteByteSeq(whoGuid[3]);
-        data.WriteByteSeq(targetGuid[7]);
-        data.WriteByteSeq(targetGuid[6]);
-        data.WriteByteSeq(whoGuid[1]);
-        data.WriteByteSeq(targetGuid[2]);
-        data.WriteByteSeq(targetGuid[4]);
-        data.WriteByteSeq(targetGuid[0]);
-        data.WriteByteSeq(targetGuid[3]);
-        data.WriteByteSeq(targetGuid[5]);
-        data.WriteByteSeq(whoGuid[6]);
-
-        data << uint8(i);
-
-        data.WriteByteSeq(whoGuid[4]);
-        data.WriteByteSeq(whoGuid[2]);
-        data.WriteByteSeq(whoGuid[7]);
-
-        BroadcastPacket(&data, true);
-    }
+    session->SendPacket(updateAll.Write());
 }
 
 void Group::SendUpdate()
@@ -1984,7 +1903,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot const* slot)
 {
     ASSERT(slot);
 
-    Player* player = ObjectAccessor::FindPlayer(playerGUID);
+    Player* player = ObjectAccessor::FindConnectedPlayer(playerGUID);
 
     if (!player)
         return;
@@ -2216,7 +2135,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID)
 
 void Group::SendGroupRemoved(ObjectGuid playerGUID)
 {
-    Player* player = ObjectAccessor::FindPlayer(playerGUID);
+    Player* player = ObjectAccessor::FindConnectedPlayer(playerGUID);
 
     if (!player)
         return;
@@ -2598,7 +2517,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
     if (!reference)
         return ERR_BATTLEGROUND_JOIN_FAILED;
 
-    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bgOrTemplate->GetMapId(), reference->GetLevel());
+    PvPDifficultyEntry const* bracketEntry = sDBCManager.GetBattlegroundBracketByLevel(bgOrTemplate->GetMapId(), reference->GetLevel());
     if (!bracketEntry)
         return ERR_BATTLEGROUND_JOIN_FAILED;
 
@@ -2618,7 +2537,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         if (member->GetTeam() != team)
             return ERR_BATTLEGROUND_JOIN_TIMED_OUT;
         // not in the same battleground level braket, don't let join
-        PvPDifficultyEntry const* memberBracketEntry = GetBattlegroundBracketByLevel(bracketEntry->mapId, member->GetLevel());
+        PvPDifficultyEntry const* memberBracketEntry = sDBCManager.GetBattlegroundBracketByLevel(bracketEntry->MapID, member->GetLevel());
         if (memberBracketEntry != bracketEntry)
             return ERR_BATTLEGROUND_JOIN_RANGE_INDEX;
         // don't let join if someone from the group is already in that bg queue
@@ -2840,7 +2759,7 @@ InstanceGroupBind* Group::GetBoundInstance(MapEntry const* mapEntry)
 InstanceGroupBind* Group::GetBoundInstance(Difficulty difficulty, uint32 mapId)
 {
     // some instances only have one difficulty
-    GetDownscaledMapDifficultyData(mapId, difficulty);
+    sDBCManager.GetDownscaledMapDifficultyData(mapId, difficulty);
 
     BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapId);
     if (itr != m_boundInstances[difficulty].end())
@@ -2897,7 +2816,7 @@ InstanceGroupBind* Group::BindToInstance(InstanceSave* save, bool permanent, boo
     bind.save = save;
     bind.perm = permanent;
     if (!load)
-        TC_LOG_DEBUG("maps", "Group::BindToInstance: Group (guid: %u, storage id: %u) is now bound to map %d, instance %d, difficulty %d",
+        TC_LOG_DEBUG("maps", "Group::BindToInstance: Group (guid: {}, storage id: {}) is now bound to map {}, instance {}, difficulty {}",
         GetGUID().GetCounter(), m_dbStoreId, save->GetMapId(), save->GetInstanceId(), save->GetDifficulty());
 
     return &bind;
@@ -2940,7 +2859,7 @@ void Group::BroadcastGroupUpdate(void)
         {
             pp->ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2);
             pp->ForceValuesUpdateAtIndex(UNIT_FIELD_FACTION_TEMPLATE);
-            TC_LOG_DEBUG("misc", "-- Forced group value update for '%s'", pp->GetName().c_str());
+            TC_LOG_DEBUG("misc", "-- Forced group value update for '{}'", pp->GetName().c_str());
         }
     }
 }
@@ -3542,7 +3461,7 @@ bool Group::IsGuildGroup(uint32 guildId, Player* refPlayer, float* outXpMultipli
         WorldLocation corpseLocation = player->GetCorpseLocation();
         if (player->GetGuildId() == guildId && // If player is in the same guild
             ((player->FindMap() && player->GetMap()->GetId() == mapId && player->GetMap()->GetInstanceId() == InstanceId) || // If player is in the same map
-            (player->HasCorpse() && corpseLocation.GetMapId() == mapId && player->GetCorpse()->GetMap()->GetInstanceId() == InstanceId))) // Or their corpse is in the same map
+            (player->HasCorpse() && corpseLocation.GetMapId() == mapId && player->GetCorpse() && player->GetCorpse()->GetMap()->GetInstanceId() == InstanceId))) // Or their corpse is in the same map null when it lies on another map)
             ++count;
     }
 
@@ -3725,7 +3644,7 @@ char const* Group::GetPlayerName(ObjectGuid guid) const
         if (member.guid == guid)
             return member.name.c_str();
 
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
         return player->GetName().c_str();
 
     return "<offline>";
@@ -3744,9 +3663,7 @@ std::string Group::FormatLeader()
 char const* Group::GetMapName(uint32 id)
 {
     if (MapEntry const* map = sMapStore.LookupEntry(id))
-        for (uint8 locale = 0; locale < TOTAL_LOCALES; ++locale)
-            if (map->name[locale] && *map->name[locale])
-                return map->name[locale];
+        return map->name;
 
     return "<unknown>";
 }

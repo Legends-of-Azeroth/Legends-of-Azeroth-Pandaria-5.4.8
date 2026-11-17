@@ -257,7 +257,7 @@ class boss_dark_animus : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (atEvade)
                     return;
@@ -450,14 +450,15 @@ class npc_anima_orb : public CreatureScript
                 me->DisappearAndDie();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (atEvade)
                     return;
 
                 atEvade = true;
 
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
 
                 summons.DespawnAll();
@@ -699,7 +700,7 @@ struct golemsBaseAI : public ScriptedAI
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (atEvade)
             return;
@@ -712,7 +713,8 @@ struct golemsBaseAI : public ScriptedAI
         if (!me->IsAlive())
             me->Respawn();
 
-        me->DeleteThreatList();
+        me->GetThreatManager().RemoveMeFromThreatLists();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
 
         uint32 corpseDelay = me->GetCorpseDelay();
@@ -1563,7 +1565,7 @@ class spell_threat_proc_eff : public SpellScript
     {
         if (Unit* caster = GetCaster())
             if (Unit* target = GetHitUnit())
-                target->AddThreat(caster, 1000000.0f);
+                target->GetThreatManager().AddThreat(caster, 1000000.0f);
     }
 
     void Register() override

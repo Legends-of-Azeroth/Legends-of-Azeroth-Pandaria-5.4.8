@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -109,7 +109,7 @@ void WardenCheckMgr::LoadWardenChecks(bool reload)
         // Check if action value is in range (0-3, see WardenActions enum)
         if (action >= MAX_WARDEN_ACTION)
         {
-            TC_LOG_INFO("server.loading", "Warden check action out of range (ID: %u, action: %u)", id, uint32(action));
+            TC_LOG_INFO("server.loading", "Warden check action out of range (ID: {}, action: {})", id, uint32(action));
             continue;
         }
 
@@ -193,7 +193,7 @@ void WardenCheckMgr::LoadWardenChecks(bool reload)
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u warden checks.", count);
+    TC_LOG_INFO("server.loading", ">> Loaded {} warden checks.", count);
 }
 
 WardenCheck* WardenCheckMgr::GetWardenDataById(uint16 Id)

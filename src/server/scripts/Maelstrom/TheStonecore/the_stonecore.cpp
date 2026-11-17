@@ -362,9 +362,9 @@ class npc_stonecore_instance_portal: public CreatureScript
     public:
         npc_stonecore_instance_portal() : CreatureScript("npc_stonecore_instance_portal") { }
 
-        struct npc_stonecore_instance_portal_AI : public CreatureAI
+        struct npc_stonecore_instance_portal_AI : public ScriptedAI
         {
-           npc_stonecore_instance_portal_AI(Creature* creature) : CreatureAI(creature) { }
+           npc_stonecore_instance_portal_AI(Creature* creature) : ScriptedAI(creature) { }
 
             void OnSpellClick(Unit* clicker, bool& /*result*/) override
             {

@@ -118,13 +118,13 @@ enum YellId
     DEATH        = 6,                                       // Used on death
 };
 
-struct hyjalAI : public npc_escortAI
+struct hyjalAI : public EscortAI
 {
     hyjalAI(Creature* creature);
 
     void Reset() override;                                           // Generically used to reset our variables. Do *not* call in EnterEvadeMode as this may make problems if the raid is still in combat
 
-    void EnterEvadeMode() override;                                  // Send creature back to spawn location and evade.
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override;                                  // Send creature back to spawn location and evade.
 
     void JustEngagedWith(Unit* /*who*/) override;                                  // Used to reset cooldowns for our spells and to inform the raid that we're under attack
 
@@ -145,7 +145,7 @@ struct hyjalAI : public npc_escortAI
     void SummonedCreatureDespawn(Creature* summoned) override;
     void HideNearPos(float x, float y);
     void RespawnNearPos(float x, float y);
-    void WaypointReached(uint32 waypointId) override;
+    void MovementInform(uint32 type, uint32 waypointId) override;
     void DoOverrun(uint32 faction, const uint32 diff);
     void MoveInLineOfSight(Unit* who) override;
 

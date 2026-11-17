@@ -79,7 +79,7 @@ void GuildFinderMgr::LoadGuildSettings()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u guild finder guild-related settings in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} guild finder guild-related settings in {} ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GuildFinderMgr::LoadMembershipRequests()
@@ -123,7 +123,7 @@ void GuildFinderMgr::LoadMembershipRequests()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u guild finder membership requests in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} guild finder membership requests in {} ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GuildFinderMgr::AddMembershipRequest(uint32 guildGuid, MembershipRequest const& request)

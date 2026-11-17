@@ -398,7 +398,8 @@ class boss_lei_shi : public CreatureScript
                     EnterEvadeMode();
 
                     me->CombatStop();
-                    me->DeleteThreatList();
+                    me->GetThreatManager().RemoveMeFromThreatLists();
+                    me->GetThreatManager().ClearAllThreat();
                     me->SetFaction(35);
                     me->CastSpell(me, SPELL_LEI_SHI_TRANSFORM, true);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -440,7 +441,7 @@ class boss_lei_shi : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (instance)
                 {

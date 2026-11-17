@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -154,6 +154,10 @@ enum PaladinSpells
     SPELL_PALADIN_GLYPH_OF_THE_MOUNTED_KING      = 57958,
     SPELL_PALADIN_BLESSING_OF_KINGS              = 20217,
     PALADIN_SPELL_GLYPH_OF_CONTEMPLATION         = 121183,
+    SPELL_PALADIN_EYE_FOR_AN_EYE                 = 25988,
+    SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE          = 25997,
+    SPELL_PALADIN_HEALING_FEEDBACK               = 37705,
+    SPELL_PALADIN_HEALING_FOCUS                  = 37706,
 
     SPELL_DRUID_CONSECRATION_DAMAGE              = 110705,
 
@@ -2660,6 +2664,124 @@ class spell_pal_glyph_of_contemplation : public SpellScriptLoader
         }
 };
 
+// 85256 / 138165 - Templar's Verdict
+class spell_pal_templar_s_verdict : public SpellScript
+{
+    PrepareSpellScript(spell_pal_templar_s_verdict);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_PURPOSE);
+    }
+
+    bool Load() override
+    {
+        if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+            return false;
+        if (GetCaster()->ToPlayer()->GetClass() != CLASS_PALADIN)
+            return false;
+        return true;
+    }
+
+    void ChangeDamage(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        int32 damage = GetHitDamage();
+
+        if (caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE))
+            damage *= 7.5;
+        else
+        {
+            switch (caster->GetPower(POWER_HOLY_POWER))
+            {
+            case 0:
+                damage = damage;
+                break;
+            case 1:
+                damage *= 3;
+                break;
+            case 2:
+                damage *= 7.5;
+                break;
+            }
+        }
+
+        SetHitDamage(damage);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pal_templar_s_verdict::ChangeDamage, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+    }
+};
+
+// 25988 - Eye for an Eye
+class spell_pal_eye_for_an_eye : public SpellScriptLoader
+{
+public:
+    spell_pal_eye_for_an_eye() : SpellScriptLoader("spell_pal_eye_for_an_eye") { }
+
+    class spell_pal_eye_for_an_eye_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pal_eye_for_an_eye_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return sSpellMgr->GetSpellInfo(SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE);
+        }
+
+        void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            int32 damage = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
+            GetTarget()->CastCustomSpell(SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetProcTarget(), true, NULL, aurEff);
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_pal_eye_for_an_eye_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_pal_eye_for_an_eye_AuraScript();
+    }
+};
+
+// 37705 - Healing Feedback
+class spell_pal_healing_feedback : public SpellScriptLoader
+{
+public:
+    spell_pal_healing_feedback() : SpellScriptLoader("spell_pal_healing_feedback") { }
+
+    class spell_pal_healing_feedback_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pal_healing_feedback_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return sSpellMgr->GetSpellInfo(SPELL_PALADIN_HEALING_FOCUS);
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+        {
+            PreventDefaultAction();
+            GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_HEALING_FOCUS, true, NULL, aurEff);
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_pal_healing_feedback_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_pal_healing_feedback_AuraScript();
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_glyph_of_devotian_aura();
@@ -2747,4 +2869,7 @@ void AddSC_paladin_spell_scripts()
     new aura_script<spell_pal_hand_of_sacrifice>("spell_pal_hand_of_sacrifice");
     new aura_script<spell_pal_glyph_of_bladed_judgement>("spell_pal_glyph_of_bladed_judgement");
     new spell_pal_glyph_of_contemplation();
+    new spell_script<spell_pal_templar_s_verdict>("spell_pal_templar_s_verdict");
+    new spell_pal_eye_for_an_eye();
+    new spell_pal_healing_feedback();
 }

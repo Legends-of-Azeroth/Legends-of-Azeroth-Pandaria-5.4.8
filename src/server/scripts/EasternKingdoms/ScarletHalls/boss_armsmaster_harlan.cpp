@@ -104,7 +104,7 @@ class boss_armsmaster_harlan : public CreatureScript
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
 
@@ -213,7 +213,7 @@ class boss_armsmaster_harlan : public CreatureScript
                             if (Unit* vict = me->GetVictim())
                                 targetGuid = vict->GetGUID();
 
-                            me->getThreatManager().resetAllAggro();
+                            me->GetThreatManager().ResetAllThreat();
                             me->AttackStop();
                             me->SetReactState(REACT_PASSIVE);
                             break;
@@ -314,7 +314,7 @@ class spell_heavy_armor : public AuraScript
 
     void Register() override
     {
-        OnEffectRemove += AuraEffectRemoveFn(spell_heavy_armor::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_heavy_armor::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
     }
 };
 

@@ -84,6 +84,7 @@ namespace VMAP
             uint32 numLoadedTiles() const { return uint32(iLoadedTiles.size()); }
             void getModelInstances(ModelInstance* &models, uint32 &count);
 
+            bool GetObjectHitPos(const G3D::Vector3& pPos1, const G3D::Vector3& pPos2, G3D::Vector3& pResultHitPos, float pModifyDist) const;
         private:
             StaticMapTree(StaticMapTree const& right) = delete;
             StaticMapTree& operator=(StaticMapTree const& right) = delete;

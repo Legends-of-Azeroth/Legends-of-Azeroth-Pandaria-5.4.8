@@ -435,7 +435,7 @@ class boss_horridon : public CreatureScript
                 });
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();
@@ -980,7 +980,7 @@ struct horridon_tribeAI : public ScriptedAI
             horridon->AI()->JustSummoned(summon);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (!me->GetDBTableGUIDLow())
             return;
@@ -1101,7 +1101,7 @@ class npc_war_god_jalak : public CreatureScript
                     if (!playerList.empty() && playerList.front())
                     {
                         Player *pFirst = playerList.front();
-                        me->AddThreat(pFirst, 100000.0f);
+                        me->GetThreatManager().AddThreat(pFirst, 100000.0f);
                         ScriptedAI::AttackStart(pFirst);
                     }
                 }
@@ -1445,13 +1445,13 @@ struct npc_horridon_trashs : public horridon_tribeAI
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankSpecTargetSelector()))
                     {
                         DoResetThreat();
-                        me->AddThreat(target, 100000.0f);
+                        me->GetThreatManager().AddThreat(target, 100000.0f);
                         ScriptedAI::AttackStart(target);
                     }
                     else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
                     {
                         DoResetThreat();
-                        me->AddThreat(target, 100000.0f);
+                        me->GetThreatManager().AddThreat(target, 100000.0f);
                         ScriptedAI::AttackStart(target);
                     }
                 
@@ -1857,7 +1857,7 @@ class npc_amani_shi_warbear : public CreatureScript
             EventMap events;
             InstanceScript* instance;
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (Creature* passenger = ObjectAccessor::GetCreature(*me, m_shamanGuid))
                     passenger->DespawnOrUnsummon();
@@ -2000,8 +2000,11 @@ class go_horridon_orb_of_control : public GameObjectScript
         {
             go_horridon_orb_of_control_AI(GameObject *go) : GameObjectAI(go) { }
 
-            bool OnGossipHello(Player* player) override
+            bool OnGossipHello(Player* player, bool isUse) override
             {
+                if (!isUse)
+                    return true;
+
                 if (uint32 spellId = GetControlSpellByOrb(me->GetEntry()))
                 {
                     player->CastSpell(player, spellId, true);

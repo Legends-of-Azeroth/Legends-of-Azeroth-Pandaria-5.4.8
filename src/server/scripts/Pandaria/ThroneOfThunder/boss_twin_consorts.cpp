@@ -662,7 +662,7 @@ class boss_suen : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (atEvade)
                     return;
@@ -1013,7 +1013,7 @@ class boss_lulin : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (atEvade)
                     return;

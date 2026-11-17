@@ -44,11 +44,11 @@ class npc_injured_goblin : public CreatureScript
 public:
     npc_injured_goblin() : CreatureScript("npc_injured_goblin") { }
 
-    struct npc_injured_goblinAI : public npc_escortAI
+    struct npc_injured_goblinAI : public EscortAI
     {
-        npc_injured_goblinAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_injured_goblinAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -78,7 +78,7 @@ public:
 
        void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
             if (!UpdateVictim())
                 return;
             DoMeleeAttackIfReady();
@@ -90,7 +90,7 @@ public:
             {
                 player->CLOSE_GOSSIP_MENU();
                 me->SetFaction(113);
-                npc_escortAI::Start(true, true, player->GetGUID());
+                EscortAI::SetRun(true); Start(true, player->GetGUID());
             }
             return true;
         }
@@ -322,24 +322,27 @@ class npc_icefang : public CreatureScript
 public:
     npc_icefang() : CreatureScript("npc_icefang") { }
 
-    struct npc_icefangAI : public npc_escortAI
+    struct npc_icefangAI : public EscortAI
     {
-        npc_icefangAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_icefangAI(Creature* creature) : EscortAI(creature) { }
 
         void AttackStart(Unit* /*who*/) override { }
         void JustEngagedWith(Unit* /*who*/) override { }
-        void EnterEvadeMode() override { }
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
             {
                 if (apply)
-                    Start(false, true, who->GetGUID());
+                {
+                    SetRun(true);
+                    Start(false, who->GetGUID());
+                }
             }
         }
 
-        void WaypointReached(uint32 /*waypointId*/) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
         }
 
@@ -353,7 +356,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (!UpdateVictim())
                 return;
@@ -376,10 +379,10 @@ class npc_hyldsmeet_protodrake : public CreatureScript
     public:
         npc_hyldsmeet_protodrake() : CreatureScript("npc_hyldsmeet_protodrake") { }
 
-        class npc_hyldsmeet_protodrakeAI : public CreatureAI
+        class npc_hyldsmeet_protodrakeAI : public ScriptedAI
         {
             public:
-                npc_hyldsmeet_protodrakeAI(Creature* creature) : CreatureAI(creature), _accessoryRespawnTimer(0), _vehicleKit(creature->GetVehicleKit()) { }
+                npc_hyldsmeet_protodrakeAI(Creature* creature) : ScriptedAI(creature), _accessoryRespawnTimer(0), _vehicleKit(creature->GetVehicleKit()) { }
 
                 void PassengerBoarded(Unit* who, int8 /*seat*/, bool apply) override
                 {
@@ -432,7 +435,7 @@ struct npc_dead_irongiant : public ScriptedAI
             if (!urand(0, 2))
             {
                 for (uint8 i = 0; i < 3; ++i)
-                    if (Creature* temp = me->SummonCreature(ENTRY_AMBUSHER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60 * IN_MILLISECONDS))
+                    if (Creature* temp = me->SummonCreature(ENTRY_AMBUSHER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, Milliseconds(60 * IN_MILLISECONDS)))
                         temp->AI()->AttackStart(caster);
             }
             else

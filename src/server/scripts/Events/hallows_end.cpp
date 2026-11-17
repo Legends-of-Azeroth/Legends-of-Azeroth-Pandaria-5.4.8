@@ -477,11 +477,21 @@ struct npc_headless_horseman_fire : public ScriptedAI
 
     uint32 RangoFire[3];
     uint32 id = 0;
-    uint32 RateFire;
-    uint32 IncreaseFireTimer;
+    uint32 RateFire = 0;
+    uint32 IncreaseFireTimer = 0;
     bool Fire;
     bool Immuned;
-    uint8 curRangoFire;
+    uint8 curRangoFire = 0;
+
+    // Only the fires summoned by an event keeper (npc_hallowend) take part in the event;
+    // the DB-spawned fires of the fire training quests have no keeper.
+    Creature* GetEventKeeper() const
+    {
+        if (TempSummon const* summon = me->ToTempSummon())
+            if (Unit* summoner = summon->GetSummoner())
+                return summoner->ToCreature();
+        return nullptr;
+    }
 
     void SetData(uint32 type, uint32 data) override
     {
@@ -530,7 +540,7 @@ struct npc_headless_horseman_fire : public ScriptedAI
            FireNodsList.sort(Trinity::ObjectDistanceOrderPred(me));
 
             for (auto* nodeFire : FireNodsList)
-                if (!PostionEventoHallowends[nodeFire && nodeFire->AI()->GetData(0)].AlreadyFired)
+                if (nodeFire->IsSummon() && !PostionEventoHallowends[nodeFire->AI()->GetData(0)].AlreadyFired)
                     return nodeFire;
        }
        return nullptr;
@@ -551,21 +561,23 @@ struct npc_headless_horseman_fire : public ScriptedAI
                 curRangoFire--;
                 me->AddAura(RangoFire[curRangoFire], me);
             }
-            else 
+            else
             {
-                if (me->IsSummon())
-                    if (Unit* eventKeeper =  me->ToTempSummon()->GetSummoner())
-                        eventKeeper->ToCreature()->AI()->SetData(HALLOWEND_FIRE_REMOVE, id);
+                if (Creature* eventKeeper = GetEventKeeper())
+                    eventKeeper->AI()->SetData(HALLOWEND_FIRE_REMOVE, id);
                 Fire = false;
             }
             return;
         }
         if (spell->Id == SPELL_HEADLESS_HORSEMAN_START_FIRE)
         {
+            if (!me->IsSummon())
+                return;
+
             me->AddAura(RangoFire[0], me);
             if (id >= 242)
             {
-                TC_LOG_ERROR("scripts", "npc_headless_horseman_fire::SpellHit Shit happend! id: %u", id);
+                TC_LOG_ERROR("scripts", "npc_headless_horseman_fire::SpellHit Shit happend! id: {}", id);
                 return;
             }
             PostionEventoHallowends[id].AlreadyFired = true;
@@ -579,9 +591,9 @@ struct npc_headless_horseman_fire : public ScriptedAI
             if (me->HasAura(RangoFire[0]) && !Fire)
             {
                 if (!RateFire)
-                    if (Unit * Owner = me->ToTempSummon()->GetSummoner())
-                        RateFire = Owner->ToCreature()->AI()->GetData(0);
-                    else 
+                    if (Creature* eventKeeper = GetEventKeeper())
+                        RateFire = eventKeeper->AI()->GetData(0);
+                    else
                         return;
                 if (!RateFire)
                     return;
@@ -744,9 +756,12 @@ struct npc_shade_of_the_horseman : public ScriptedAI
     {
         std::list<Creature*> FireNodsList;
         FireNodsList.clear();
-        if (Unit * Owner = me->ToTempSummon()->GetSummoner())
-            CountFire = Owner->ToCreature()->AI()->GetData(0);
+        if (TempSummon const* summon = me->ToTempSummon())
+            if (Unit* Owner = summon->GetSummoner())
+                CountFire = Owner->ToCreature()->AI()->GetData(0);
         GetCreatureListWithEntryInGrid(FireNodsList, me, NPC_HEADLESS_HORSEMAN_FIRE_DND, 150.0f);
+        // In Goldshire the fire training quest's fires are in range too
+        FireNodsList.remove_if([](Creature const* fire) { return !fire->IsSummon(); });
         uint32 CountFireer = 0;
         if (!FireNodsList.empty())
         {
@@ -827,7 +842,7 @@ struct npc_start_stink_bombs_away : public ScriptedAI
 
         player->CastSpell(player, stinkBombsAwaySummonBroom[team]);
         Creature* broom = GetClosestCreatureWithEntry(me, stinkBombsAwayBroom[team], 50.0f, true);
-        Creature* starter = broom->SummonCreature(me->GetEntry(), me->GetPosition(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 420000);
+        Creature* starter = broom->SummonCreature(me->GetEntry(), me->GetPosition(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 420000ms);
         ObjectGuid guid = player->GetGUID();
         if (broom && starter && guid)
         {
@@ -1282,7 +1297,7 @@ class at_the_collectors_agent : public AreaTriggerScript
                             sanath->HandleEmoteStateCommand(EMOTE_ONESHOT_NONE);
 
                             Position pos = trigger->ID == 6924 ? Position({ 1579.189f, 61.371f, 62.5377f, 6.26843f }) : Position({ -8496.792f, 758.109f, 72.758f, 2.210720f });
-                            if (Creature* uvoid = sanath->SummonCreature(54114, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, MINUTE * 2 * IN_MILLISECONDS))
+                            if (Creature* uvoid = sanath->SummonCreature(54114, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, Milliseconds(MINUTE * 2 * IN_MILLISECONDS)))
                                 if (Player* player = ObjectAccessor::GetPlayer(*sanath, guid))
                                     uvoid->Attack(player, true);
 

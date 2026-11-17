@@ -69,15 +69,15 @@ class npc_torek : public CreatureScript
         {
         }
 
-        struct npc_torekAI : public npc_escortAI
+        struct npc_torekAI : public EscortAI
         {
-            npc_torekAI(Creature* creature) : npc_escortAI(creature) { }
+            npc_torekAI(Creature* creature) : EscortAI(creature) { }
 
             uint32 Rend_Timer;
             uint32 Thunderclap_Timer;
             bool Completed;
 
-            void WaypointReached(uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
                 if (Player* player = GetPlayerForEscort())
                 {
@@ -91,9 +91,9 @@ class npc_torek : public CreatureScript
                             break;
                         case 19:
                             /// @todo verify location and creatures amount.
-                            me->SummonCreature(ENTRY_DURIEL, 1776.73f, -2049.06f, 109.83f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                            me->SummonCreature(ENTRY_SILVERWING_SENTINEL, 1774.64f, -2049.41f, 109.83f, 1.40f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                            me->SummonCreature(ENTRY_SILVERWING_WARRIOR, 1778.73f, -2049.50f, 109.83f, 1.67f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                            me->SummonCreature(ENTRY_DURIEL, 1776.73f, -2049.06f, 109.83f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
+                            me->SummonCreature(ENTRY_SILVERWING_SENTINEL, 1774.64f, -2049.41f, 109.83f, 1.40f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
+                            me->SummonCreature(ENTRY_SILVERWING_WARRIOR, 1778.73f, -2049.50f, 109.83f, 1.67f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
                             break;
                         case 20:
                             Talk(SAY_WIN, player);
@@ -125,7 +125,7 @@ class npc_torek : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;
@@ -157,8 +157,11 @@ class npc_torek : public CreatureScript
                 creature->AI()->Talk(SAY_READY, player);
                 creature->SetFaction(113);
 
-                if (npc_escortAI* pEscortAI = CAST_AI(npc_torekAI, creature->AI()))
-                    pEscortAI->Start(true, true, player->GetGUID());
+                if (EscortAI* pEscortAI = CAST_AI(npc_torekAI, creature->AI()))
+                {
+                    pEscortAI->SetRun(true);
+                    pEscortAI->Start(true, player->GetGUID());
+                }
             }
 
             return true;
@@ -195,11 +198,11 @@ class npc_ruul_snowhoof : public CreatureScript
     public:
         npc_ruul_snowhoof() : CreatureScript("npc_ruul_snowhoof") { }
 
-        struct npc_ruul_snowhoofAI : public npc_escortAI
+        struct npc_ruul_snowhoofAI : public EscortAI
         {
-            npc_ruul_snowhoofAI(Creature* creature) : npc_escortAI(creature) { }
+            npc_ruul_snowhoofAI(Creature* creature) : EscortAI(creature) { }
 
-            void WaypointReached(uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
                 Player* player = GetPlayerForEscort();
                 if (!player)
@@ -213,14 +216,14 @@ class npc_ruul_snowhoof : public CreatureScript
                             Cage->SetGoState(GO_STATE_ACTIVE);
                         break;
                     case 13:
-                        me->SummonCreature(NPC_THISTLEFUR_TOTEMIC, RuulSnowhoofSummonsCoord[0], TEMPSUMMON_DEAD_DESPAWN, 60000);
-                        me->SummonCreature(NPC_THISTLEFUR_URSA, RuulSnowhoofSummonsCoord[1], TEMPSUMMON_DEAD_DESPAWN, 60000);
-                        me->SummonCreature(NPC_THISTLEFUR_PATHFINDER, RuulSnowhoofSummonsCoord[2], TEMPSUMMON_DEAD_DESPAWN, 60000);
+                        me->SummonCreature(NPC_THISTLEFUR_TOTEMIC, RuulSnowhoofSummonsCoord[0], TEMPSUMMON_DEAD_DESPAWN, 60000ms);
+                        me->SummonCreature(NPC_THISTLEFUR_URSA, RuulSnowhoofSummonsCoord[1], TEMPSUMMON_DEAD_DESPAWN, 60000ms);
+                        me->SummonCreature(NPC_THISTLEFUR_PATHFINDER, RuulSnowhoofSummonsCoord[2], TEMPSUMMON_DEAD_DESPAWN, 60000ms);
                         break;
                     case 19:
-                        me->SummonCreature(NPC_THISTLEFUR_TOTEMIC, RuulSnowhoofSummonsCoord[3], TEMPSUMMON_DEAD_DESPAWN, 60000);
-                        me->SummonCreature(NPC_THISTLEFUR_URSA, RuulSnowhoofSummonsCoord[4], TEMPSUMMON_DEAD_DESPAWN, 60000);
-                        me->SummonCreature(NPC_THISTLEFUR_PATHFINDER, RuulSnowhoofSummonsCoord[5], TEMPSUMMON_DEAD_DESPAWN, 60000);
+                        me->SummonCreature(NPC_THISTLEFUR_TOTEMIC, RuulSnowhoofSummonsCoord[3], TEMPSUMMON_DEAD_DESPAWN, 60000ms);
+                        me->SummonCreature(NPC_THISTLEFUR_URSA, RuulSnowhoofSummonsCoord[4], TEMPSUMMON_DEAD_DESPAWN, 60000ms);
+                        me->SummonCreature(NPC_THISTLEFUR_PATHFINDER, RuulSnowhoofSummonsCoord[5], TEMPSUMMON_DEAD_DESPAWN, 60000ms);
                         break;
                     case 21:
                         player->GroupEventHappens(QUEST_FREEDOM_TO_RUUL, me);
@@ -243,7 +246,7 @@ class npc_ruul_snowhoof : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
             }
         };
 
@@ -258,8 +261,8 @@ class npc_ruul_snowhoof : public CreatureScript
             {
                 creature->SetFaction(113);
 
-                if (npc_escortAI* pEscortAI = CAST_AI(npc_ruul_snowhoofAI, (creature->AI())))
-                    pEscortAI->Start(true, false, player->GetGUID());
+                if (EscortAI* pEscortAI = CAST_AI(npc_ruul_snowhoofAI, (creature->AI())))
+                    pEscortAI->Start(true, player->GetGUID());
             }
 
             return true;
@@ -316,9 +319,9 @@ class npc_muglash : public CreatureScript
     public:
         npc_muglash() : CreatureScript("npc_muglash") { }
 
-        struct npc_muglashAI : public npc_escortAI
+        struct npc_muglashAI : public EscortAI
         {
-            npc_muglashAI(Creature* creature) : npc_escortAI(creature) { }
+            npc_muglashAI(Creature* creature) : EscortAI(creature) { }
 
             uint8 WaveId;
             uint32 EventTimer;
@@ -329,7 +332,7 @@ class npc_muglash : public CreatureScript
                 summoned->AI()->AttackStart(me);
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
                 if (Player* player = GetPlayerForEscort())
                 {
@@ -391,17 +394,17 @@ class npc_muglash : public CreatureScript
                 switch (WaveId)
                 {
                     case 1:
-                        me->SummonCreature(NPC_WRATH_RIDER,     FirstNagaCoord[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-                        me->SummonCreature(NPC_WRATH_SORCERESS, FirstNagaCoord[1], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-                        me->SummonCreature(NPC_WRATH_RAZORTAIL, FirstNagaCoord[2], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                        me->SummonCreature(NPC_WRATH_RIDER,     FirstNagaCoord[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms);
+                        me->SummonCreature(NPC_WRATH_SORCERESS, FirstNagaCoord[1], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms);
+                        me->SummonCreature(NPC_WRATH_RAZORTAIL, FirstNagaCoord[2], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms);
                         break;
                     case 2:
-                        me->SummonCreature(NPC_WRATH_PRIESTESS, SecondNagaCoord[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-                        me->SummonCreature(NPC_WRATH_MYRMIDON,  SecondNagaCoord[1], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-                        me->SummonCreature(NPC_WRATH_SEAWITCH,  SecondNagaCoord[2], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                        me->SummonCreature(NPC_WRATH_PRIESTESS, SecondNagaCoord[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms);
+                        me->SummonCreature(NPC_WRATH_MYRMIDON,  SecondNagaCoord[1], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms);
+                        me->SummonCreature(NPC_WRATH_SEAWITCH,  SecondNagaCoord[2], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms);
                         break;
                     case 3:
-                        me->SummonCreature(NPC_VORSHA, VorshaCoord, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                        me->SummonCreature(NPC_VORSHA, VorshaCoord, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms);
                         break;
                     case 4:
                         SetEscortPaused(false);
@@ -412,7 +415,7 @@ class npc_muglash : public CreatureScript
 
             void UpdateAI(uint32 uiDiff) override
             {
-                npc_escortAI::UpdateAI(uiDiff);
+                EscortAI::UpdateAI(uiDiff);
 
                 if (!me->GetVictim())
                 {
@@ -447,7 +450,7 @@ class npc_muglash : public CreatureScript
                     creature->AI()->Talk(SAY_MUG_START1);
                     creature->SetFaction(113);
 
-                    pEscortAI->Start(true, false, player->GetGUID());
+                    pEscortAI->Start(true, player->GetGUID());
                 }
             }
             return true;

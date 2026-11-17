@@ -394,7 +394,8 @@ class boss_norushen : public CreatureScript
                     case ACTION_FINISHED_EVENT:
                         events.Reset();
                         scheduler.CancelAll();
-                        me->DeleteThreatList();
+                        me->GetThreatManager().RemoveMeFromThreatLists();
+                        me->GetThreatManager().ClearAllThreat();
                         me->CombatStop(true);
 
                         if (instance)
@@ -416,14 +417,15 @@ class boss_norushen : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 Talk(SAY_NORUSHEN_WIPE);
 
                 me->RemoveAllAuras();
 
                 Reset();
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
 
                 me->GetMotionMaster()->MovementExpired();
@@ -717,13 +719,14 @@ class boss_amalgam_of_corruption : public CreatureScript
 
             void KilledUnit(Unit* victim) override { }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->RemoveAllAuras();
                 me->RemoveAllAreasTrigger();
 
                 berserkerEvents.Reset();
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
                 summons.DespawnAll();
 
@@ -746,7 +749,8 @@ class boss_amalgam_of_corruption : public CreatureScript
 
                     if (Creature* quarantinMeasure = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_QUARANTINE_MEASURES)))
                     {
-                        quarantinMeasure->DeleteThreatList();
+                        quarantinMeasure->GetThreatManager().RemoveMeFromThreatLists();
+                        quarantinMeasure->GetThreatManager().ClearAllThreat();
                         quarantinMeasure->CombatStop(true);
                     }
 
@@ -786,7 +790,8 @@ class boss_amalgam_of_corruption : public CreatureScript
 
                     if (Creature* quarantinMeasure = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_QUARANTINE_MEASURES)))
                     {
-                        quarantinMeasure->DeleteThreatList();
+                        quarantinMeasure->GetThreatManager().RemoveMeFromThreatLists();
+                        quarantinMeasure->GetThreatManager().ClearAllThreat();
                         quarantinMeasure->CombatStop(true);
                     }
 
@@ -1015,14 +1020,15 @@ struct npc_manifestation_of_corruption : public ScriptedAI
         return targetGUID;
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         // fake death, vanish etc.
         if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
             if (target->IsAlive())
                 return;
 
-        me->DeleteThreatList();
+        me->GetThreatManager().RemoveMeFromThreatLists();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
     }
 
@@ -1129,14 +1135,15 @@ struct npc_essence_of_corruption : public ScriptedAI
         return targetGUID;
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         // fake death, vanish etc.
         if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
             if (target->IsAlive())
                 return;
 
-        me->DeleteThreatList();
+        me->GetThreatManager().RemoveMeFromThreatLists();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
     }
 
@@ -1242,7 +1249,7 @@ struct npc_greater_corruption : public ScriptedAI
         events.ScheduleEvent(EVENT_BOTTOMLESS_PIT, 20000);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         // fake death, vanish etc.
         if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
@@ -1251,7 +1258,8 @@ struct npc_greater_corruption : public ScriptedAI
 
         Reset();
         me->RemoveAllAreasTrigger();
-        me->DeleteThreatList();
+        me->GetThreatManager().RemoveMeFromThreatLists();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
     }
 
@@ -1390,7 +1398,7 @@ struct npc_titanic_corruption : public ScriptedAI
         events.ScheduleEvent(EVENT_TITANIC_SMASH, 7000);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         // fake death, vanish etc.
         if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
@@ -1398,7 +1406,8 @@ struct npc_titanic_corruption : public ScriptedAI
                 return;
 
         Reset();
-        me->DeleteThreatList();
+        me->GetThreatManager().RemoveMeFromThreatLists();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
     }
 
@@ -2224,8 +2233,8 @@ class spell_norushen_lingering_corruption : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if([=](WorldObject* target) { return target->GetEntry() != NPC_SUN_TENDERHEART_GC && target->GetEntry() != NPC_LEVEN_DAWNBLADE_GC && target->GetEntry() != NPC_ROOK_STONETOE_GC 
-            || GetCaster() && GetCaster()->ToCreature() && target && target->ToPlayer() && GetCaster()->ToCreature()->AI()->GetGUID() != target->ToPlayer()->GetGUID(); });
+        targets.remove_if([=](WorldObject* target) { return !target || (target->GetEntry() != NPC_SUN_TENDERHEART_GC && target->GetEntry() != NPC_LEVEN_DAWNBLADE_GC && target->GetEntry() != NPC_ROOK_STONETOE_GC
+            || GetCaster() && GetCaster()->ToCreature() && target->ToPlayer() && GetCaster()->ToCreature()->AI()->GetGUID() != target->ToPlayer()->GetGUID()); });
 
         if (targets.size() > 1)
             Trinity::Containers::RandomResizeList(targets, 1);

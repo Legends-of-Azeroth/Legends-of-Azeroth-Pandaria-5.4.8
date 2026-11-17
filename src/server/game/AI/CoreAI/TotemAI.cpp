@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -34,7 +34,7 @@ int TotemAI::Permissible(Creature const* creature)
     return PERMIT_BASE_NO;
 }
 
-TotemAI::TotemAI(Creature* c) : CreatureAI(c)
+TotemAI::TotemAI(Creature* c) : NullCreatureAI(c)
 {
     ASSERT(c->IsTotem());
     me->SetReactState(REACT_DEFENSIVE);
@@ -42,7 +42,7 @@ TotemAI::TotemAI(Creature* c) : CreatureAI(c)
 
 void TotemAI::MoveInLineOfSight(Unit* /*who*/) { }
 
-void TotemAI::EnterEvadeMode()
+void TotemAI::EnterEvadeMode(EvadeReason why)
 {
     me->CombatStop(true);
 }

@@ -70,10 +70,10 @@ class example_escort : public CreatureScript
         {
         }
 
-        struct example_escortAI : public npc_escortAI
+        struct example_escortAI : public EscortAI
         {
             // CreatureAI functions
-            example_escortAI(Creature* creature) : npc_escortAI(creature) { }
+            example_escortAI(Creature* creature) : EscortAI(creature) { }
 
             uint32 m_uiDeathCoilTimer;
             uint32 m_uiChatTimer;
@@ -84,7 +84,7 @@ class example_escort : public CreatureScript
             }
 
             // Pure Virtual Functions (Have to be implemented)
-            void WaypointReached(uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
                 switch (waypointId)
                 {
@@ -93,7 +93,7 @@ class example_escort : public CreatureScript
                         break;
                     case 3:
                         Talk(SAY_WP_2);
-                        me->SummonCreature(NPC_FELBOAR, me->GetPositionX()+5.0f, me->GetPositionY()+7.0f, me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
+                        me->SummonCreature(NPC_FELBOAR, me->GetPositionX()+5.0f, me->GetPositionY()+7.0f, me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000ms);
                         break;
                     case 4:
                         if (Player* player = GetPlayerForEscort())
@@ -143,8 +143,8 @@ class example_escort : public CreatureScript
 
             void UpdateAI(uint32 uiDiff) override
             {
-                //Must update npc_escortAI
-                npc_escortAI::UpdateAI(uiDiff);
+                //Must update EscortAI
+                EscortAI::UpdateAI(uiDiff);
 
                 //Combat check
                 if (me->GetVictim())
@@ -207,7 +207,7 @@ class example_escort : public CreatureScript
         bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
         {
             player->PlayerTalkClass->ClearMenus();
-            npc_escortAI* pEscortAI = CAST_AI(example_escort::example_escortAI, creature->AI());
+            EscortAI* pEscortAI = CAST_AI(example_escort::example_escortAI, creature->AI());
 
             switch (action)
             {
@@ -215,19 +215,25 @@ class example_escort : public CreatureScript
                     player->CLOSE_GOSSIP_MENU();
 
                     if (pEscortAI)
-                        pEscortAI->Start(true, true, player->GetGUID());
+                    {
+                        pEscortAI->SetRun(true);
+                        pEscortAI->Start(true, player->GetGUID());
+                    }
                     break;
                 case GOSSIP_ACTION_INFO_DEF+2:
                     player->CLOSE_GOSSIP_MENU();
 
                     if (pEscortAI)
-                        pEscortAI->Start(false, false, player->GetGUID());
+                        pEscortAI->Start(false, player->GetGUID());
                     break;
                 case GOSSIP_ACTION_INFO_DEF+3:
                     player->CLOSE_GOSSIP_MENU();
 
                     if (pEscortAI)
-                        pEscortAI->Start(false, true, player->GetGUID());
+                    {
+                        pEscortAI->SetRun(true);
+                        pEscortAI->Start(false, player->GetGUID());
+                    }
                     break;
                 default:
                     return false;                                   // nothing defined      -> trinity core handling

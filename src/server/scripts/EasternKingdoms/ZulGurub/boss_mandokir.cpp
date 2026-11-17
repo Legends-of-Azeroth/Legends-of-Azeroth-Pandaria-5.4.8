@@ -368,7 +368,7 @@ class npc_chained_spirit : public CreatureScript
                     Position pos;
                     if (Player* target = ObjectAccessor::GetPlayer(*me, _revivePlayerGUID))
                     {
-                        target->GetNearPoint(me, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, 5.0f, target->GetAngle(me));
+                        target->GetNearPoint(me, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 5.0f, target->GetAngle(me));
                         me->GetMotionMaster()->MovePoint(POINT_START_REVIVE, pos);
                     }
                 }
@@ -535,7 +535,7 @@ class DevastatingSlamTargetSelector
 
         bool operator() (WorldObject* target)
         {
-            if (target == _victim && _me->getThreatManager().getThreatList().size() > 1)
+            if (target == _victim && _me->GetThreatManager().GetThreatListSize() > 1)
                 return true;
 
             if (target->GetTypeId() != TYPEID_PLAYER)
@@ -662,9 +662,10 @@ class spell_mandokir_ohgan_orders_trigger : public SpellScriptLoader
                     // HACK: research better way
                     caster->ClearUnitState(UNIT_STATE_CASTING);
                     caster->GetMotionMaster()->Clear();
-                    caster->DeleteThreatList();
-                    caster->AddThreat(target, 50000000.0f);
-                    caster->TauntApply(target);
+                    caster->GetThreatManager().RemoveMeFromThreatLists();
+                    caster->GetThreatManager().ClearAllThreat();
+                    caster->GetThreatManager().AddThreat(target, 50000000.0f);
+                    caster->GetThreatManager().TauntUpdate();
                 }
             }
 

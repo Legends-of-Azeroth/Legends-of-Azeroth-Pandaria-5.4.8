@@ -165,9 +165,9 @@ class boss_anub_arak : public CreatureScript
                         {
                             for (uint8 i = 0; i < 2; ++i)
                             {
-                                if (Creature* Guardian = me->SummonCreature(NPC_GUARDIAN,SpawnPointGuardian[i],TEMPSUMMON_CORPSE_DESPAWN,0))
+                                if (Creature* Guardian = me->SummonCreature(NPC_GUARDIAN,SpawnPointGuardian[i],TEMPSUMMON_CORPSE_DESPAWN,0ms))
                                 {
-                                    Guardian->AddThreat(me->GetVictim(), 0.0f);
+                                    Guardian->GetThreatManager().AddThreat(me->GetVictim(), 0.0f);
                                     DoZoneInCombat(Guardian);
                                 }
                             }
@@ -182,9 +182,9 @@ class boss_anub_arak : public CreatureScript
                                 {
                                     for (uint8 i = 0; i < 2; ++i)
                                     {
-                                        if (Creature* Venomancer = me->SummonCreature(NPC_VENOMANCER,SpawnPoint[i],TEMPSUMMON_CORPSE_DESPAWN,0))
+                                        if (Creature* Venomancer = me->SummonCreature(NPC_VENOMANCER,SpawnPoint[i],TEMPSUMMON_CORPSE_DESPAWN,0ms))
                                         {
-                                            Venomancer->AddThreat(me->GetVictim(), 0.0f);
+                                            Venomancer->GetThreatManager().AddThreat(me->GetVictim(), 0.0f);
                                             DoZoneInCombat(Venomancer);
                                         }
                                     }
@@ -201,9 +201,9 @@ class boss_anub_arak : public CreatureScript
                                 {
                                     for (uint8 i = 0; i < 2; ++i)
                                     {
-                                        if (Creature* Datter = me->SummonCreature(NPC_DATTER,SpawnPoint[i],TEMPSUMMON_CORPSE_DESPAWN,0))
+                                        if (Creature* Datter = me->SummonCreature(NPC_DATTER,SpawnPoint[i],TEMPSUMMON_CORPSE_DESPAWN,0ms))
                                         {
-                                            Datter->AddThreat(me->GetVictim(), 0.0f);
+                                            Datter->GetThreatManager().AddThreat(me->GetVictim(), 0.0f);
                                             DoZoneInCombat(Datter);
                                         }
                                     }

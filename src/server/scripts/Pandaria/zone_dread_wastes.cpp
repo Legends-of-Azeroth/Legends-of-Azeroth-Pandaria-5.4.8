@@ -2408,7 +2408,7 @@ class spell_zet_uk_sha_eruption_periodic_summon : public SpellScriptLoader
 
                 float dist = (float)aurEff->GetTickNumber() * 6.0f; // radius of damage spell * 2
                 Position pos = caster->GetNearPosition(dist, 0.0f);
-                if (Creature* summon = caster->SummonCreature(NPC_SHA_ERUPTION_FIRE, pos, TEMPSUMMON_TIMED_DESPAWN, 20000)) // Summon spell target type NYI (138)
+                if (Creature* summon = caster->SummonCreature(NPC_SHA_ERUPTION_FIRE, pos, TEMPSUMMON_TIMED_DESPAWN, 20000ms)) // Summon spell target type NYI (138)
                     summon->CastSpell(summon, SPELL_SHA_ERUPTION_DAMAGE, true);
             }
 
@@ -2463,7 +2463,7 @@ class go_full_crab_pot : public GameObjectScript
                 player->TeleportTo(player->GetMapId(), -9207.99f, -1560.32f, 65.46f, 0.82f);*/
                 player->KilledMonsterCredit(64006);
                 Position pos = go->GetPosition();
-                if (auto crabTrap = player->SummonCreature(64009, pos, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                if (auto crabTrap = player->SummonCreature(64009, pos, TEMPSUMMON_TIMED_DESPAWN, 10000ms))
                 {
                     crabTrap->CastSpell(crabTrap, 124959, true);
                     pos.m_positionZ = pos.m_positionZ + 20;
@@ -2839,7 +2839,7 @@ class npc_kilruk_wind_reaver : public CreatureScript
             {
                 player->SetPhaseMask(3, true);
 
-                if (Creature* Kilruk_reaver = player->SummonCreature(NPC_KILRUK_QUEST, *creature, TEMPSUMMON_TIMED_DESPAWN, 300 * IN_MILLISECONDS))
+                if (Creature* Kilruk_reaver = player->SummonCreature(NPC_KILRUK_QUEST, *creature, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(300 * IN_MILLISECONDS)))
                     Kilruk_reaver->SetPhaseMask(2, true);
             }
 
@@ -3264,13 +3264,13 @@ class AreaTrigger_q31087 : public AreaTriggerScript
                 return true;
 
             for (uint32 i = 0; i < 3; i++)
-                player->SummonCreature(65486, eventPos[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                player->SummonCreature(65486, eventPos[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms);
 
             player->m_Events.Schedule(10000, [=]()
             {
-                if (Creature* korik = player->SummonCreature(65475, eventPos[3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 66000))
+                if (Creature* korik = player->SummonCreature(65475, eventPos[3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 66000ms))
                     korik->HandleEmoteStateCommand(EMOTE_STATE_STRANGULATE);
-                if (Creature* adjunct = player->SummonCreature(65478, eventPos[4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 66000))
+                if (Creature* adjunct = player->SummonCreature(65478, eventPos[4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 66000ms))
                     adjunct->AI()->Talk(0);
             });
 

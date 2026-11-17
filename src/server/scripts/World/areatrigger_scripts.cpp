@@ -163,7 +163,7 @@ class AreaTrigger_at_scent_larkorwi : public AreaTriggerScript
             if (!player->isDead() && player->GetQuestStatus(QUEST_SCENT_OF_LARKORWI) == QUEST_STATUS_INCOMPLETE)
             {
                 if (!player->FindNearestCreature(NPC_LARKORWI_MATE, 15))
-                    player->SummonCreature(NPC_LARKORWI_MATE, player->GetPositionX()+5, player->GetPositionY(), player->GetPositionZ(), 3.3f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000);
+                    player->SummonCreature(NPC_LARKORWI_MATE, player->GetPositionX()+5, player->GetPositionY(), player->GetPositionZ(), 3.3f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000ms);
             }
 
             return false;
@@ -294,7 +294,7 @@ class AreaTrigger_at_nats_landing : public AreaTriggerScript
             {
                 if (!player->FindNearestCreature(NPC_LURKING_SHARK, 20.0f))
                 {
-                    if (Creature* shark = player->SummonCreature(NPC_LURKING_SHARK, -4246.243f, -3922.356f, -7.488f, 5.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000))
+                    if (Creature* shark = player->SummonCreature(NPC_LURKING_SHARK, -4246.243f, -3922.356f, -7.488f, 5.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000ms))
                         shark->AI()->AttackStart(player);
 
                     return false;
@@ -418,7 +418,7 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
                     break;
             }
 
-            player->SummonCreature(NPC_SPOTLIGHT, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5000);
+            player->SummonCreature(NPC_SPOTLIGHT, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5000ms);
             player->AddAura(SPELL_A52_NEURALYZER, player);
             _triggerTimes[trigger->ID] = sWorld->GetGameTime();
             return false;
@@ -468,7 +468,7 @@ public:
         if (stormforgedEradictor)
             return false;
 
-        stormforgedMonitor = player->SummonCreature(NPC_STORMFORGED_MONITOR, stormforgedMonitorPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+        stormforgedMonitor = player->SummonCreature(NPC_STORMFORGED_MONITOR, stormforgedMonitorPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms);
         if (stormforgedMonitor)
         {
             stormforgedMonitorGUID = stormforgedMonitor->GetGUID();
@@ -478,7 +478,7 @@ public:
             stormforgedMonitor->GetMotionMaster()->MovePath(NPC_STORMFORGED_MONITOR * 100, false);
         }
 
-        stormforgedEradictor = player->SummonCreature(NPC_STORMFORGED_ERADICTOR, stormforgedEradictorPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+        stormforgedEradictor = player->SummonCreature(NPC_STORMFORGED_ERADICTOR, stormforgedEradictorPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms);
         if (stormforgedEradictor)
         {
             stormforgedEradictorGUID = stormforgedEradictor->GetGUID();

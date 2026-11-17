@@ -542,7 +542,7 @@ struct npc_milau : public ScriptedAI
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         me->CombatStop();
         me->GetMotionMaster()->MoveTargetedHome();
@@ -660,7 +660,7 @@ struct npc_aetha_tornado : public ScriptedAI
         init.Launch();
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 };
 
 // Thundermaw 58456
@@ -959,7 +959,7 @@ struct npc_dagou : public customCreatureAI
         summons.Summon(summon);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         summons.DespawnAll();
     }

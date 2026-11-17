@@ -38,36 +38,36 @@ public:
     {
         static std::vector<ChatCommand> ahbotItemsAmountCommandTable =
         {
-            { "gray",           SEC_GAMEMASTER,   true,  &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_GRAY>,     "" },
-            { "white",          SEC_GAMEMASTER,  true,  &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_WHITE>,    "" },
-            { "green",          SEC_GAMEMASTER,  true,  &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_GREEN>,    "" },
-            { "blue",           SEC_GAMEMASTER,   true,  &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_BLUE>,     "" },
-            { "purple",         SEC_GAMEMASTER, true,  &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_PURPLE>,   "" },
-            { "orange",         SEC_GAMEMASTER, true,  &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_ORANGE>,   "" },
-            { "yellow",         SEC_GAMEMASTER, true,  &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_YELLOW>,   "" },
-            { "",               SEC_GAMEMASTER,        true,  &HandleAHBotItemsAmountCommand,                                  "" },
+            { "gray",           &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_GRAY>,   rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_GRAY,   Trinity::ChatCommands::Console::Yes, "" },
+            { "white",          &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_WHITE>,  rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_WHITE,  Trinity::ChatCommands::Console::Yes, "" },
+            { "green",          &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_GREEN>,  rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_GREEN,  Trinity::ChatCommands::Console::Yes, "" },
+            { "blue",           &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_BLUE>,   rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_BLUE,   Trinity::ChatCommands::Console::Yes, "" },
+            { "purple",         &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_PURPLE>, rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_PURPLE, Trinity::ChatCommands::Console::Yes, "" },
+            { "orange",         &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_ORANGE>, rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_ORANGE, Trinity::ChatCommands::Console::Yes, "" },
+            { "yellow",         &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_YELLOW>, rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_YELLOW, Trinity::ChatCommands::Console::Yes, "" },
+            { "",               &HandleAHBotItemsAmountCommand,                                  rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS,      Trinity::ChatCommands::Console::Yes, "" },
         };
 
         static std::vector<ChatCommand> ahbotItemsRatioCommandTable =
         {
-            { "alliance",       SEC_GAMEMASTER, true,  &HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_ALLIANCE>,    "" },
-            { "horde",          SEC_GAMEMASTER,    true,  &HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_HORDE>,       "" },
-            { "neutral",        SEC_GAMEMASTER,  true,  &HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_NEUTRAL>,     "" },
-            { "",               SEC_GAMEMASTER,          true,  &HandleAHBotItemsRatioCommand,                                 "" },
+            { "alliance",       &HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_ALLIANCE>,    rbac::RBAC_PERM_COMMAND_AHBOT_RATIO_ALLIANCE, Trinity::ChatCommands::Console::Yes, "" },
+            { "horde",          &HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_HORDE>,       rbac::RBAC_PERM_COMMAND_AHBOT_RATIO_HORDE,    Trinity::ChatCommands::Console::Yes, "" },
+            { "neutral",        &HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_NEUTRAL>,     rbac::RBAC_PERM_COMMAND_AHBOT_RATIO_NEUTRAL,  Trinity::ChatCommands::Console::Yes, "" },
+            { "",               &HandleAHBotItemsRatioCommand,                                 rbac::RBAC_PERM_COMMAND_AHBOT_RATIO,          Trinity::ChatCommands::Console::Yes, "" },
         };
 
         static std::vector<ChatCommand> ahbotCommandTable =
         {
-            { "items",          SEC_GAMEMASTER,    true,   nullptr,                       "", ahbotItemsAmountCommandTable },
-            { "ratio",          SEC_GAMEMASTER,    true,   nullptr,                       "", ahbotItemsRatioCommandTable },
-            { "rebuild",        SEC_GAMEMASTER,  true,   &HandleAHBotRebuildCommand, "" },
-            { "reload",         SEC_GAMEMASTER,   true,   &HandleAHBotReloadCommand,  "" },
-            { "status",         SEC_GAMEMASTER,   true,   &HandleAHBotStatusCommand,  "" },
+            { "items",          ahbotItemsAmountCommandTable,   rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS, Trinity::ChatCommands::Console::Yes, "" },
+            { "ratio",          ahbotItemsRatioCommandTable,    rbac::RBAC_PERM_COMMAND_AHBOT_RATIO, Trinity::ChatCommands::Console::Yes, "" },
+            { "rebuild",        &HandleAHBotRebuildCommand,     rbac::RBAC_PERM_COMMAND_AHBOT_REBUILD, Trinity::ChatCommands::Console::Yes, "" },
+            { "reload",         &HandleAHBotReloadCommand,      rbac::RBAC_PERM_COMMAND_AHBOT_RELOAD,  Trinity::ChatCommands::Console::Yes, "" },
+            { "status",         &HandleAHBotStatusCommand,      rbac::RBAC_PERM_COMMAND_AHBOT_STATUS,  Trinity::ChatCommands::Console::Yes, "" },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "ahbot",          SEC_GAMEMASTER,  false, nullptr,    "", ahbotCommandTable },
+            { "ahbot", ahbotCommandTable, rbac::RBAC_PERM_COMMAND_AHBOT, Trinity::ChatCommands::Console::No },
         };
 
         return commandTable;

@@ -262,7 +262,7 @@ struct npc_timeless_turtles : public ScriptedAI
         events.Reset();
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (me->GetEntry() == RARE_CHELON)
         {
@@ -2540,7 +2540,7 @@ struct npc_cranegnasher : public ScriptedAI
             });
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         scheduler.CancelAll();
         ScriptedAI::EnterEvadeMode();
@@ -3881,7 +3881,7 @@ struct npc_dread_ship_vazuvius : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (me->getThreatManager().getThreatList().empty())
+        if (me->GetThreatManager().IsThreatListEmpty())
             return;
 
         events.Update(diff);
@@ -3927,9 +3927,11 @@ private:
     std::list<ObjectGuid> playersAura;
     Unit* GetTarget()
     {
-        std::list<HostileReference*> threatList = me->getThreatManager().getThreatList();
-        HostileReference* ref = Trinity::Containers::SelectRandomContainerElement(threatList);
-        Unit* target = Unit::GetUnit(*me, ref->getUnitGuid());
+        std::vector<ThreatReference const*> threatList;
+        for (ThreatReference const* threat : me->GetThreatManager().GetUnsortedThreatList())
+            threatList.push_back(threat);
+        ThreatReference const* ref = Trinity::Containers::SelectRandomContainerElement(threatList);
+        Unit* target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
         return target;
     }
     void DespawnSummons()
@@ -4001,9 +4003,9 @@ struct npc_evermaw : public ScriptedAI
         scheduler
             .Schedule(Seconds(1), [this](TaskContext context)
         {
-            for (auto&& itr : me->getThreatManager().getThreatList())
+            for (auto&& ref : me->GetThreatManager().GetUnsortedThreatList())
             {
-                if (Unit* target = ObjectAccessor::GetUnit(*me, itr->getUnitGuid()))
+                if (Unit* target = ObjectAccessor::GetUnit(*me, ref->GetVictim()->GetGUID()))
                 {
                     if (target->IsAlive() && me->GetExactDist2d(target) < 100.0f)
                     {
@@ -4030,7 +4032,7 @@ struct npc_evermaw : public ScriptedAI
         });
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         me->CombatStop();
         scheduler.CancelAll(); // not evade to home pos
@@ -4270,8 +4272,8 @@ class spell_timeless_isle_crane_wings : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_timeless_isle_crane_wings_AuraScript::OnApply, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_timeless_isle_crane_wings_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_timeless_isle_crane_wings_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_timeless_isle_crane_wings_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -4323,7 +4325,7 @@ class spell_timeless_isle_burning_fury : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_timeless_isle_burning_fury_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_timeless_isle_burning_fury_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 

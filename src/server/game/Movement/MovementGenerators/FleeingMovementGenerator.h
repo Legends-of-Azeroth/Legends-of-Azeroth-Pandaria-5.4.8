@@ -26,12 +26,13 @@ class FleeingMovementGenerator : public MovementGeneratorMedium< T, FleeingMovem
     public:
         FleeingMovementGenerator(ObjectGuid fright) : i_frightGUID(fright), i_nextCheckTime(0) { }
 
-        void DoInitialize(T*);
-        void DoFinalize(T*);
-        void DoReset(T*);
+        bool DoInitialize(T*);
+        void DoFinalize(T*, bool, bool);
+        bool DoReset(T*);
         bool DoUpdate(T*, uint32);
+        void DoDeactivate(T*) { }
 
-        MovementGeneratorType GetMovementGeneratorType() { return FLEEING_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const { return FLEEING_MOTION_TYPE; }
 
     private:
         void _setTargetLocation(T*);
@@ -48,9 +49,9 @@ class TimedFleeingMovementGenerator : public FleeingMovementGenerator<Creature>
             FleeingMovementGenerator<Creature>(fright),
             i_totalFleeTime(time) { }
 
-        MovementGeneratorType GetMovementGeneratorType() { return TIMED_FLEEING_MOTION_TYPE; }
-        bool Update(Unit*, uint32);
-        void Finalize(Unit*);
+        MovementGeneratorType GetMovementGeneratorType() const { return TIMED_FLEEING_MOTION_TYPE; }
+        bool Update(Unit*, uint32) override;
+        void Finalize(Unit*, bool, bool) override;
 
     private:
         TimeTracker i_totalFleeTime;

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -83,7 +83,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void JustEngagedWith(Unit* enemy) override;
 
         // Called for reaction at stopping attack at no attackers or targets
-        void EnterEvadeMode() override;
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override;
 
         // Called when the creature is killed
         void JustDied(Unit* killer) override;
@@ -244,6 +244,7 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         uint32 mDespawnTime;
         uint32 mDespawnState;
+        bool mAppearedOnce = false;   // JustAppeared ran since the AI was created
         void UpdateDespawn(const uint32 diff);
         uint32 mEscortInvokerCheckTimer;
 
@@ -276,7 +277,7 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
         SmartScript* GetScript() { return &mScript; }
         static int Permissible(const GameObject* g);
 
-        bool OnGossipHello(Player* player) override;
+        bool OnGossipHello(Player* player, bool isUse) override;
         bool OnReportUse(Player* player) override;
         bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override;
         bool OnGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) override;

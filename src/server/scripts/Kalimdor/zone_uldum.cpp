@@ -785,7 +785,7 @@ class spell_dormus_rage : public SpellScriptLoader
                     return;
 
                 caster->GetMap()->LoadGrid(dormusSummonPos.GetPositionX(), dormusSummonPos.GetPositionY());
-                caster->SummonCreature(NPC_DORMUS, dormusSummonPos, TEMPSUMMON_TIMED_DESPAWN, 1200000);
+                caster->SummonCreature(NPC_DORMUS, dormusSummonPos, TEMPSUMMON_TIMED_DESPAWN, 1200000ms);
                 caster->CastSpell(caster, SPELL_SANDSTORM_TELEPORT, true);
             }
 

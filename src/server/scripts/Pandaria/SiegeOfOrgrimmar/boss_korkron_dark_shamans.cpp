@@ -221,7 +221,7 @@ class boss_earthbreaker_haromm : public CreatureScript
                 berserkerEvents.ScheduleEvent(EVENT_BERSERK, 9 * MINUTE * IN_MILLISECONDS);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (atEvade)
                     return;
@@ -603,8 +603,7 @@ class boss_wavebinder_kardris : public CreatureScript
 
                 me->SetReactState(REACT_AGGRESSIVE);
 
-                if (instance)
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
                 me->ExitVehicle();
 
@@ -640,7 +639,7 @@ class boss_wavebinder_kardris : public CreatureScript
                 return 0;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (atEvade)
                     return;
@@ -650,7 +649,8 @@ class boss_wavebinder_kardris : public CreatureScript
 
                 ScriptedAI::EnterEvadeMode();
 
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->ResetPlayerDamageReq();
 
                 if (instance)
@@ -834,7 +834,7 @@ struct npc_dark_shamans_wolf : public ScriptedAI
         events.ScheduleEvent(EVENT_SWIPE, 6.5 * IN_MILLISECONDS);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
 

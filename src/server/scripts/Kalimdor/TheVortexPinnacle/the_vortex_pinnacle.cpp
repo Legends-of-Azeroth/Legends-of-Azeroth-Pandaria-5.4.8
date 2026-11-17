@@ -825,7 +825,7 @@ class npc_howling_gale : public CreatureScript
                 HasDeactivate = false;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 bCombat = false;
                 HasDeactivate = false;
@@ -1234,9 +1234,9 @@ class npc_fall_catcher_5 : public CreatureScript
     public:
         npc_fall_catcher_5() : CreatureScript("npc_fall_catcher_5") { }
 
-        struct npc_fall_catcher_5AI : public CreatureAI
+        struct npc_fall_catcher_5AI : public ScriptedAI
         {
-            npc_fall_catcher_5AI(Creature* creature) : CreatureAI(creature) { }
+            npc_fall_catcher_5AI(Creature* creature) : ScriptedAI(creature) { }
 
             void IsSummonedBy(Unit* summoner) override
             {

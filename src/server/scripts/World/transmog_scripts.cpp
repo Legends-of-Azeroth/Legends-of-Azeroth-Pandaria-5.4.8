@@ -38,6 +38,36 @@ Cant transmogrify rediculus items // Foereaper: would be fun to stab people with
 #define sT  sTransmogrification
 #define GTS session->GetTrinityString // dropped translation support, no one using?
 
+enum TransmogGossip
+{
+    GOSSIP_MENU_TRANSMOGRIFIER      = 900200,   // gossip_menu_option: texts of the transmogrifier
+    GOSSIP_OPTION_TRANSMOG_CONFIRM  = 0         // box text: the confirmation before an item is used as the new appearance
+};
+
+// The box text of a gossip_menu_option row in the language of the player: the lookup GossipMenu::AddMenuItem does for a menu
+// item that comes from the database. The transmogrifier puts the item and its cost behind the text, so it cannot add the row
+// as it is.
+static std::string GetGossipBoxText(WorldSession* session, uint32 menuId, uint32 optionId)
+{
+    GossipMenuItemsMapBounds bounds = sObjectMgr->GetGossipMenuItemsMapBounds(menuId);
+    for (auto itr = bounds.first; itr != bounds.second; ++itr)
+    {
+        if (itr->second.OptionID != optionId)
+            continue;
+
+        LocaleConstant locale = session->GetSessionDbLocaleIndex();
+        if (BroadcastText const* broadcastText = sObjectMgr->GetBroadcastText(itr->second.BoxBroadcastTextID))
+            return broadcastText->GetText(locale);
+
+        std::string text = itr->second.BoxText;
+        if (locale != DEFAULT_LOCALE)
+            if (GossipMenuItemsLocale const* menuLocale = sObjectMgr->GetGossipMenuItemsLocale(menuId, optionId))
+                ObjectMgr::GetLocaleString(menuLocale->BoxText, locale, text);
+        return text;
+    }
+    return std::string();
+}
+
 class npc_transmogrifier : public CreatureScript
 {
 public:
@@ -179,7 +209,7 @@ public:
                     return true;
                 }
                 // action = presetID
-                CharacterDatabase.PExecute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = %u AND PresetID = %u", player->GetGUID().GetCounter(), action);
+                CharacterDatabase.PExecute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = {} AND PresetID = {}", player->GetGUID().GetCounter(), action);
                 sT->presetById[player->GetGUID()][action].clear();
                 sT->presetById[player->GetGUID()].erase(action);
                 sT->presetByName[player->GetGUID()].erase(action);
@@ -310,7 +340,7 @@ public:
                     sT->presetById[player->GetGUID()][presetID][it->first] = it->second;
                 }
                 sT->presetByName[player->GetGUID()][presetID] = name; // Make sure code doesnt mess up SQL!
-                CharacterDatabase.PExecute("REPLACE INTO `custom_transmogrification_sets` (`Owner`, `PresetID`, `SetName`, `SetData`) VALUES (%u, %u, \"%s\", \"%s\")", player->GetGUID().GetCounter(), uint32(presetID), name.c_str(), ss.str().c_str());
+                CharacterDatabase.PExecute("REPLACE INTO `custom_transmogrification_sets` (`Owner`, `PresetID`, `SetName`, `SetData`) VALUES ({}, {}, \"{}\", \"{}\")", player->GetGUID().GetCounter(), uint32(presetID), name.c_str(), ss.str().c_str());
                 if (cost)
                     player->ModifyMoney(-cost);
                 break;
@@ -336,6 +366,7 @@ public:
             ss << std::endl;
             if (sT->GetRequireToken())
                 ss << std::endl << std::endl << sT->GetTokenAmount() << " x " << sT->GetItemLink(sT->GetTokenEntry(), session);
+            std::string const confirm = GetGossipBoxText(session, GOSSIP_MENU_TRANSMOGRIFIER, GOSSIP_OPTION_TRANSMOG_CONFIRM) + "\n\n";
 
             for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
             {
@@ -349,7 +380,7 @@ public:
                 if (sT->GetFakeEntry(oldItem->GetGUID()) == newItem->GetEntry())
                     continue;
                 ++limit;
-                player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, sT->GetItemIcon(newItem->GetEntry(), 30, 30, -18, 0) + sT->GetItemLink(newItem, session), slot, newItem->GetGUID().GetCounter(), "Using this item for transmogrify will bind it to you and make it non-refundable and non-tradeable.\nDo you wish to continue?\n\n" + sT->GetItemIcon(newItem->GetEntry(), 40, 40, -15, -10) + sT->GetItemLink(newItem, session) + ss.str(), price, false);
+                AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, sT->GetItemIcon(newItem->GetEntry(), 30, 30, -18, 0) + sT->GetItemLink(newItem, session), slot, newItem->GetGUID().GetCounter(), confirm + sT->GetItemIcon(newItem->GetEntry(), 40, 40, -15, -10) + sT->GetItemLink(newItem, session) + ss.str(), price, false);
             }
 
             for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
@@ -369,7 +400,7 @@ public:
                     if (sT->GetFakeEntry(oldItem->GetGUID()) == newItem->GetEntry())
                         continue;
                     ++limit;
-                    player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, sT->GetItemIcon(newItem->GetEntry(), 30, 30, -18, 0) + sT->GetItemLink(newItem, session), slot, newItem->GetGUID().GetCounter(), "是否幻化成这个造型，这会使这个物品变成绑定状态并不享受售卖退还服务。下面将显示物品和需要的金币数量！\n\n是否仍然继续？\n\n" + sT->GetItemIcon(newItem->GetEntry(), 40, 40, -15, -10) + sT->GetItemLink(newItem, session) + ss.str(), price, false);
+                    AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, sT->GetItemIcon(newItem->GetEntry(), 30, 30, -18, 0) + sT->GetItemLink(newItem, session), slot, newItem->GetGUID().GetCounter(), confirm + sT->GetItemIcon(newItem->GetEntry(), 40, 40, -15, -10) + sT->GetItemLink(newItem, session) + ss.str(), price, false);
                 }
             }
         }
@@ -402,7 +433,7 @@ public:
     {
         ObjectGuid playerGUID = player->GetGUID();
         sT->entryMap.erase(playerGUID);
-        QueryResult result = CharacterDatabase.PQuery("SELECT GUID, FakeEntry FROM custom_transmogrification WHERE Owner = %u", player->GetGUID().GetCounter());
+        QueryResult result = CharacterDatabase.PQuery("SELECT GUID, FakeEntry FROM custom_transmogrification WHERE Owner = {}", player->GetGUID().GetCounter());
         if (result)
         {
             do
@@ -417,7 +448,7 @@ public:
                 else
                 {
                     //sLog->outError(LOG_FILTER_SQL, "Item entry (Entry: %u, itemGUID: %u, playerGUID: %u) does not exist, ignoring.", fakeEntry, GUID_LOPART(itemGUID), player->GetGUIDLow());
-                    // CharacterDatabase.PExecute("DELETE FROM custom_transmogrification WHERE FakeEntry = %u", fakeEntry);
+                    // CharacterDatabase.PExecute("DELETE FROM custom_transmogrification WHERE FakeEntry = {}", fakeEntry);
                 }
             } while (result->NextRow());
 

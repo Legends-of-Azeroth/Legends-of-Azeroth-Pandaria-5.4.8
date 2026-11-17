@@ -195,7 +195,7 @@ class boss_volazj : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 DoCastAOE(SPELL_CLEAR_ALL_INSANITY, true);
                 me->RemoveAllAuras();
@@ -425,7 +425,7 @@ class npc_twisted_visage : public CreatureScript
                 spellTimer = urand(2000, 7000);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->DespawnOrUnsummon();
             }

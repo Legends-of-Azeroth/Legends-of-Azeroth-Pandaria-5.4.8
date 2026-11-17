@@ -45,6 +45,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_UPD_FAILEDLOGINS, "UPDATE account SET failed_logins = failed_logins + 1 WHERE username = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_SEL_FAILEDLOGINS, "SELECT id, failed_logins FROM account WHERE username = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_SEL_ACCOUNT_ID_BY_NAME, "SELECT id FROM account WHERE username = ?", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_SEL_ACCOUNT_ID_BY_LIKENAME, "SELECT id FROM account WHERE username LIKE CONCAT('%%', ?, '%%')", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_SEL_ACCOUNT_LIST_BY_NAME, "SELECT id, username FROM account WHERE username = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME, "SELECT a.id, a.sessionkey, a.last_ip, a.locked, a.lock_country, a.expansion, a.mutetime, a.locale, a.recruiter, a.os, a.flags, aa.gmlevel, ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, r.id, abo.id, am.muted_by, am.mute_reason, am.public_channels_only, m.mute_timer FROM account a LEFT JOIN account r ON a.id = r.recruiter LEFT JOIN account_access aa ON a.id = aa.id AND aa.RealmID IN (-1, ?) LEFT JOIN account_banned ab ON a.id = ab.id AND ab.active = 1 LEFT JOIN account_boost abo ON a.id=abo.id AND abo.realmid IN (-1, ?) LEFT JOIN mute_active m ON m.realmid = ? AND m.account = a.id LEFT JOIN account_muted am ON m.mute_id = am.id AND m.realmid = am.realmid WHERE a.username = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_SEL_ACCOUNT_LIST_BY_EMAIL, "SELECT id, username FROM account WHERE email = ?", CONNECTION_SYNCH);
@@ -143,6 +144,9 @@ void LoginDatabaseConnection::DoPrepareStatements()
 
     PrepareStatement(LOGIN_INS_ARENA_GAMES, "INSERT INTO arena_games (`gameid`, `teamid`, `guid`, `changeType`, `ratingChange`, `teamRating`, `damageDone`, `deaths`, `healingDone`, `damageTaken`, `healingTaken`, `killingBlows`, `damageAbsorbed`, `timeControlled`, `aurasDispelled`, `aurasStolen`, `highLatencyTimes`, `spellsPrecast`, `mapId`, `start`, `end`, `class`, `season`, `type`, `realmid`, `matchMakerRating`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 
+    PrepareStatement(LOGIN_SEL_RBAC_ACCOUNT_PERMISSIONS, "SELECT permissionId, granted FROM rbac_account_permissions WHERE accountId = ? AND (realmId = ? OR realmId = -1) ORDER BY permissionId, realmId", CONNECTION_BOTH);
+    PrepareStatement(LOGIN_INS_RBAC_ACCOUNT_PERMISSION, "INSERT INTO rbac_account_permissions (accountId, permissionId, granted, realmId) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE granted = VALUES(granted)", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_DEL_RBAC_ACCOUNT_PERMISSION, "DELETE FROM rbac_account_permissions WHERE accountId = ? AND permissionId = ? AND (realmId = ? OR realmId = -1)", CONNECTION_ASYNC);
 }
 
 LoginDatabaseConnection::LoginDatabaseConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags) : MySQLConnection(connInfo, connectionFlags)

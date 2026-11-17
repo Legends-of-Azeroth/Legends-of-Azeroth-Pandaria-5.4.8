@@ -51,7 +51,7 @@ public:
         void JustDied(Unit* killer) override
         {
             if (killer->GetTypeId() == TYPEID_PLAYER)
-                me->SummonCreature(11064, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 60000);
+                me->SummonCreature(11064, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 60000ms);
         }
     };
 

@@ -104,7 +104,7 @@ class boss_altairus : public CreatureScript
                 instance->SetBossState(DATA_ALTAIRUS, IN_PROGRESS);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();

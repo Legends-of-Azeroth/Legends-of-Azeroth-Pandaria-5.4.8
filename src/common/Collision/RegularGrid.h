@@ -126,24 +126,28 @@ public:
     }
 
     template<typename RayCallback>
-    void intersectRay(const G3D::Ray& ray, RayCallback& intersectCallback, float max_dist)
+    void intersectRay(const G3D::Ray& ray, RayCallback& intersectCallback, float max_dist, bool stopAtFirstHit)
     {
-        intersectRay(ray, intersectCallback, max_dist, ray.origin() + ray.direction() * max_dist);
+        intersectRay(ray, intersectCallback, max_dist, ray.origin() + ray.direction() * max_dist, stopAtFirstHit);
     }
 
     template<typename RayCallback>
-    void intersectRay(const G3D::Ray& ray, RayCallback& intersectCallback, float& max_dist, const G3D::Vector3& end)
+    void intersectRay(const G3D::Ray& ray, RayCallback& intersectCallback, float& max_dist, const G3D::Vector3& end, bool stopAtFirstHit)
     {
         Cell cell = Cell::ComputeCell(ray.origin().x, ray.origin().y);
         if (!cell.isValid())
+        {
             return;
+        }
 
         Cell last_cell = Cell::ComputeCell(end.x, end.y);
 
         if (cell == last_cell)
         {
             if (Node* node = nodes[cell.x][cell.y])
-                node->intersectRay(ray, intersectCallback, max_dist);
+            {
+                node->intersectRay(ray, intersectCallback, max_dist, stopAtFirstHit);
+            }
             return;
         }
 
@@ -156,26 +160,26 @@ public:
         if (kx_inv >= 0)
         {
             stepX = 1;
-            float x_border = (cell.x+1) * voxel;
+            float x_border = (cell.x + 1) * voxel;
             tMaxX = (x_border - bx) * kx_inv;
         }
         else
         {
             stepX = -1;
-            float x_border = (cell.x-1) * voxel;
+            float x_border = (cell.x - 1) * voxel;
             tMaxX = (x_border - bx) * kx_inv;
         }
 
         if (ky_inv >= 0)
         {
             stepY = 1;
-            float y_border = (cell.y+1) * voxel;
+            float y_border = (cell.y + 1) * voxel;
             tMaxY = (y_border - by) * ky_inv;
         }
         else
         {
             stepY = -1;
-            float y_border = (cell.y-1) * voxel;
+            float y_border = (cell.y - 1) * voxel;
             tMaxY = (y_border - by) * ky_inv;
         }
 
@@ -189,10 +193,12 @@ public:
             if (Node* node = nodes[cell.x][cell.y])
             {
                 //float enterdist = max_dist;
-                node->intersectRay(ray, intersectCallback, max_dist);
+                node->intersectRay(ray, intersectCallback, max_dist, stopAtFirstHit);
             }
             if (cell == last_cell)
+            {
                 break;
+            }
             if (tMaxX < tMaxY)
             {
                 tMaxX += tDeltaX;
@@ -225,7 +231,7 @@ public:
         if (!cell.isValid())
             return;
         if (Node* node = nodes[cell.x][cell.y])
-            node->intersectRay(ray, intersectCallback, max_dist);
+            node->intersectRay(ray, intersectCallback, max_dist, false);
     }
 };
 

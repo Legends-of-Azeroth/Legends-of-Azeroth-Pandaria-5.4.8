@@ -38,17 +38,17 @@ public:
     {
         static std::vector<ChatCommand> wpCommandTable =
         {
-            { "add",    SEC_ADMINISTRATOR,  false,  &HandleWpAddCommand,    },
-            { "event",  SEC_ADMINISTRATOR,  false,  &HandleWpEventCommand,  },
-            { "load",   SEC_ADMINISTRATOR,  false,  &HandleWpLoadCommand,   },
-            { "modify", SEC_ADMINISTRATOR,  false,  &HandleWpModifyCommand, },
-            { "unload", SEC_ADMINISTRATOR,  false,  &HandleWpUnLoadCommand, },
-            { "reload", SEC_ADMINISTRATOR,  false,  &HandleWpReloadCommand, },
-            { "show",   SEC_ADMINISTRATOR,  false,  &HandleWpShowCommand,   },
+            { "add",    &HandleWpAddCommand,    rbac::RBAC_PERM_COMMAND_WP_ADD,    Trinity::ChatCommands::Console::No },
+            { "event",  &HandleWpEventCommand,  rbac::RBAC_PERM_COMMAND_WP_EVENT,  Trinity::ChatCommands::Console::No },
+            { "load",   &HandleWpLoadCommand,   rbac::RBAC_PERM_COMMAND_WP_LOAD,   Trinity::ChatCommands::Console::No },
+            { "modify", &HandleWpModifyCommand, rbac::RBAC_PERM_COMMAND_WP_MODIFY, Trinity::ChatCommands::Console::No },
+            { "unload", &HandleWpUnLoadCommand, rbac::RBAC_PERM_COMMAND_WP_UNLOAD, Trinity::ChatCommands::Console::No },
+            { "reload", &HandleWpReloadCommand, rbac::RBAC_PERM_COMMAND_WP_RELOAD, Trinity::ChatCommands::Console::No },
+            { "show",   &HandleWpShowCommand,   rbac::RBAC_PERM_COMMAND_WP_SHOW,   Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "wp",     SEC_ADMINISTRATOR,  false,  wpCommandTable          },
+            { "wp",     wpCommandTable,          rbac::RBAC_PERM_COMMAND_WP,        Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }
@@ -530,7 +530,7 @@ public:
                 }
                 else if (arg_str_2 == "dataint")
                 {
-                    WorldDatabase.PExecute("UPDATE waypoint_scripts SET %s='%u' WHERE guid='%u'", arg_2, atoi(arg_3), id); // Query can't be a prepared statement
+                    WorldDatabase.PExecute("UPDATE waypoint_scripts SET {}='{}' WHERE guid='{}'", arg_2, atoi(arg_3), id); // Query can't be a prepared statement
 
                     handler->PSendSysMessage("|cff00ff00Waypoint script: |r|cff00ffff%u|r|cff00ff00 dataint updated.|r", id);
                     return true;
@@ -539,7 +539,7 @@ public:
                 {
                     std::string arg_str_3 = arg_3;
                     WorldDatabase.EscapeString(arg_str_3);
-                    WorldDatabase.PExecute("UPDATE waypoint_scripts SET %s='%s' WHERE guid='%u'", arg_2, arg_str_3.c_str(), id); // Query can't be a prepared statement
+                    WorldDatabase.PExecute("UPDATE waypoint_scripts SET {}='{}' WHERE guid='{}'", arg_2, arg_str_3.c_str(), id); // Query can't be a prepared statement
                 }
             }
             handler->PSendSysMessage("%s%s|r|cff00ffff%u:|r|cff00ff00 %s %s|r", "|cff00ff00", "Waypoint script:", id, arg_2, "updated.");
@@ -736,14 +736,14 @@ public:
         if (text == 0)
         {
             // show_str check for present in list of correct values, no sql injection possible
-            WorldDatabase.PExecute("UPDATE waypoint_data SET %s=NULL WHERE id='%u' AND point='%u'", show_str, pathid, point); // Query can't be a prepared statement
+            WorldDatabase.PExecute("UPDATE waypoint_data SET {}=NULL WHERE id='{}' AND point='{}'", show_str, pathid, point); // Query can't be a prepared statement
         }
         else
         {
             // show_str check for present in list of correct values, no sql injection possible
             std::string text2 = text;
             WorldDatabase.EscapeString(text2);
-            WorldDatabase.PExecute("UPDATE waypoint_data SET %s='%s' WHERE id='%u' AND point='%u'", show_str, text2.c_str(), pathid, point); // Query can't be a prepared statement
+            WorldDatabase.PExecute("UPDATE waypoint_data SET {}='{}' WHERE id='{}' AND point='{}'", show_str, text2.c_str(), pathid, point); // Query can't be a prepared statement
         }
 
         handler->PSendSysMessage(LANG_WAYPOINT_CHANGED_NO, show_str);

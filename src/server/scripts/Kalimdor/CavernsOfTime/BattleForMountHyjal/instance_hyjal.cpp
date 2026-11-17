@@ -167,7 +167,7 @@ public:
                             Creature* creature = instance->GetCreature(Azgalor);
                             if (creature)
                             {
-                                Creature* unit = creature->SummonCreature(NPC_WORLD_TRIGGER_TINY, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000);
+                                Creature* unit = creature->SummonCreature(NPC_WORLD_TRIGGER_TINY, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000ms);
 
                                 Map* map = creature->GetMap();
                                 if (map->IsDungeon() && unit)
@@ -239,7 +239,7 @@ public:
                     break;
             }
 
-             TC_LOG_DEBUG("scripts", "Instance Hyjal: Instance data updated for event %u (Data=%u)", type, data);
+             TC_LOG_DEBUG("scripts", "Instance Hyjal: Instance data updated for event {} (Data={})", type, data);
 
             if (data == DONE)
             {

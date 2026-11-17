@@ -269,7 +269,7 @@ class boss_eadric : public CreatureScript
                 _events.ScheduleEvent(EVENT_VENGEANCE, urand(12000, 15000));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
             }
@@ -575,7 +575,7 @@ class boss_paletress : public CreatureScript
                 _events.ScheduleEvent(EVENT_HOLYSMITE, urand(3000, 6000));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
             }
@@ -806,9 +806,9 @@ class npc_argent_soldier : public CreatureScript
     public:
         npc_argent_soldier() : CreatureScript("npc_argent_soldier") { }
 
-        struct npc_argent_soldierAI : public npc_escortAI
+        struct npc_argent_soldierAI : public EscortAI
         {
-            npc_argent_soldierAI(Creature* creature) : npc_escortAI(creature)
+            npc_argent_soldierAI(Creature* creature) : EscortAI(creature)
             {
                 _instance = creature->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
@@ -847,9 +847,9 @@ class npc_argent_soldier : public CreatureScript
                 }
             }
 
-            void WaypointReached(uint32 point) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                if (point == 0)
+                if (waypointId == 0)
                 {
                     switch (_waypoint)
                     {
@@ -917,7 +917,7 @@ class npc_argent_soldier : public CreatureScript
                         break;
                 }
 
-                Start(false, true, ObjectGuid::Empty);
+                SetRun(true); Start(false, ObjectGuid::Empty);
                 _waypoint = type;
             }
 
@@ -938,7 +938,7 @@ class npc_argent_soldier : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;
@@ -1066,7 +1066,6 @@ class spell_paletress_summon_memory : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_paletress_summon_memory::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         OnEffectHitTarget += SpellEffectFn(spell_paletress_summon_memory::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };

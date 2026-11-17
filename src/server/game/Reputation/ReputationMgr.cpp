@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -61,7 +61,7 @@ bool ReputationMgr::IsAtWar(uint32 faction_id) const
 
     if (!factionEntry)
     {
-        TC_LOG_ERROR("misc", "ReputationMgr::IsAtWar: Can't get AtWar flag of %s for unknown faction (faction id) #%u.", _player->GetName().c_str(), faction_id);
+        TC_LOG_ERROR("misc", "ReputationMgr::IsAtWar: Can't get AtWar flag of {} for unknown faction (faction id) #{}.", _player->GetName().c_str(), faction_id);
         return 0;
     }
 
@@ -84,7 +84,7 @@ int32 ReputationMgr::GetReputation(uint32 faction_id) const
 
     if (!factionEntry)
     {
-        TC_LOG_ERROR("misc", "ReputationMgr::GetReputation: Can't get reputation of %s for unknown faction (faction id) #%u.", _player->GetName().c_str(), faction_id);
+        TC_LOG_ERROR("misc", "ReputationMgr::GetReputation: Can't get reputation of {} for unknown faction (faction id) #{}.", _player->GetName().c_str(), faction_id);
         return 0;
     }
 
@@ -339,12 +339,12 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, float standi
     {
         float spillOverRepOut = standing;
         // check for sub-factions that receive spillover
-        SimpleFactionsList const* flist = GetFactionTeamList(factionEntry->ID);
+        SimpleFactionsList const* flist = sDBCManager.GetFactionTeamList(factionEntry->ID);
         // if has no sub-factions, check for factions with same parent
-        if (!flist && factionEntry->team && factionEntry->spilloverRateOut != 0.0f)
+        if (!flist && factionEntry->ParentFactionID && factionEntry->spilloverRateOut != 0.0f)
         {
             spillOverRepOut *= factionEntry->spilloverRateOut;
-            if (FactionEntry const* parent = sFactionStore.LookupEntry(factionEntry->team))
+            if (FactionEntry const* parent = sFactionStore.LookupEntry(factionEntry->ParentFactionID))
             {
                 FactionStateList::iterator parentState = _factions.find(parent->reputationListID);
                 // some team factions have own reputation standing, in this case do not spill to other sub-factions
@@ -354,7 +354,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, float standi
                 }
                 else    // spill to "sister" factions
                 {
-                    flist = GetFactionTeamList(factionEntry->team);
+                    flist = sDBCManager.GetFactionTeamList(factionEntry->ParentFactionID);
                 }
             }
         }
@@ -556,7 +556,7 @@ void ReputationMgr::LoadFromDB(PreparedQueryResult result)
     // Set initial reputations (so everything is nifty before DB data load)
     Initialize();
 
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT faction, standing, flags FROM character_reputation WHERE guid = '%u'", GetGUIDLow());
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT faction, standing, flags FROM character_reputation WHERE guid = '{}'", GetGUIDLow());
 
     if (result)
     {

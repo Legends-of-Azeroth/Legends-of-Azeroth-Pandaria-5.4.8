@@ -25,12 +25,15 @@ cmake_policy(SET CMP0043 NEW) # Ignore COMPILE_DEFINITIONS_<Config> properties
 cmake_policy(SET CMP0054 NEW) # Only interpret if() arguments as variables or keywords when unquoted - prevents intepreting if(SOME_STRING_VARIABLE MATCHES "MSVC") as if(SOME_STRING_VARIABLE MATCHES "1")
 cmake_policy(SET CMP0067 NEW) # Honor language standard in try_compile() source-file signature
 cmake_policy(SET CMP0074 NEW) # find_package() uses <PackageName>_ROOT variables
+if(POLICY CMP0167)
+    cmake_policy(SET CMP0167 OLD)
+endif()
 
 if(POLICY CMP0144)
   cmake_policy(SET CMP0144 NEW) # find_package() uses upper-case <PACKAGENAME>_ROOT variables
 endif()
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Set RPATH-handing (CMake parameters)
@@ -86,3 +89,8 @@ add_subdirectory(dep)
 
 # add core sources
 add_subdirectory(src)
+
+if (USE_MODULES)
+	# add core modules
+	add_subdirectory(modules)
+endif()

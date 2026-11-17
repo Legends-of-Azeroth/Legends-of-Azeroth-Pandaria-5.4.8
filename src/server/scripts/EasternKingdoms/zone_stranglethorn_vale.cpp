@@ -78,7 +78,8 @@ public:
                 {
                     me->HandleEmoteStateCommand(EMOTE_STATE_STUN);
                     me->CombatStop();                   //stop combat
-                    me->DeleteThreatList();             //unsure of this
+                    me->GetThreatManager().RemoveMeFromThreatLists();
+                    me->GetThreatManager().ClearAllThreat();             //unsure of this
                     me->SetFaction(83);                 //horde generic
 
                     bReset = true;
@@ -110,7 +111,8 @@ public:
                         if (player->GetTeam() == HORDE)
                         {
                             me->CombatStop();
-                            me->DeleteThreatList();
+                            me->GetThreatManager().RemoveMeFromThreatLists();
+                            me->GetThreatManager().ClearAllThreat();
                         }
                     }
                 }

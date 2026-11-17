@@ -140,7 +140,7 @@ class boss_slabhide : public CreatureScript
                         case 1:
                             events.ScheduleEvent(EVENT_GROUND, 10000);
 
-                            if (TempSummon* Bunny = me->SummonCreature(NPC_GENERAL_BUNNY_JMF, 1272.27f, 1212.80f, 247.15f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 30 * IN_MILLISECONDS))
+                            if (TempSummon* Bunny = me->SummonCreature(NPC_GENERAL_BUNNY_JMF, 1272.27f, 1212.80f, 247.15f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(30 * IN_MILLISECONDS)))
                                 Bunny->CastSpell(Bunny, SPELL_STALACTITE_CALL, false); // not sure about that, but if encounter not AT GROUND, then stalactite makes spawn under encounter
                             break;
                         case 2:
@@ -252,7 +252,7 @@ class boss_slabhide : public CreatureScript
                     for (uint32 i = 0; i < sCount; ++i)
                     {
                         uint32 pPos = urand(0, 4);
-                        me->SummonCreature(NPC_STALACTITE_TRASH, StalactitePreEventPos[pPos].GetPositionX() + frand(-10.0f, 10.0f), StalactitePreEventPos[pPos].GetPositionY() + frand(-7.0f, 7.0f), StalactitePreEventPos[pPos].GetPositionZ() + 2.0f, StalactitePreEventPos[pPos].GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 20 * IN_MILLISECONDS);
+                        me->SummonCreature(NPC_STALACTITE_TRASH, StalactitePreEventPos[pPos].GetPositionX() + frand(-10.0f, 10.0f), StalactitePreEventPos[pPos].GetPositionY() + frand(-7.0f, 7.0f), StalactitePreEventPos[pPos].GetPositionZ() + 2.0f, StalactitePreEventPos[pPos].GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(20 * IN_MILLISECONDS));
                     }
                 }
 

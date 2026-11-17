@@ -182,10 +182,11 @@ public:
         {
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
         {
             me->RemoveAllAuras();
-            me->DeleteThreatList();
+            me->GetThreatManager().RemoveMeFromThreatLists();
+            me->GetThreatManager().ClearAllThreat();
             me->CombatStop(true);
             me->LoadCreaturesAddon();
             if (me->IsAlive())

@@ -242,7 +242,7 @@ class boss_drahga_shadowburner : public CreatureScript
                                 target->GetPositionX(),
                                 target->GetPositionY(),
                                 target->GetPositionZ(),
-                                0.0f, TEMPSUMMON_TIMED_DESPAWN, 6000);
+                                0.0f, TEMPSUMMON_TIMED_DESPAWN, 6000ms);
                                 Talk(SAY_ADDS);
                             }
                             events.ScheduleEvent(EVENT_INVOCATION_OF_FLAME, 20000);
@@ -347,7 +347,7 @@ class npc_drahga_valiona : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (me->GetVehicleKit())
                     me->GetVehicleKit()->RemoveAllPassengers();

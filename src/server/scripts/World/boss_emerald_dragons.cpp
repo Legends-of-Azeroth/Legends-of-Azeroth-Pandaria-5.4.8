@@ -364,7 +364,7 @@ class boss_lethon : public CreatureScript
                 if (spell->Id == SPELL_DRAW_SPIRIT && target->GetTypeId() == TYPEID_PLAYER)
                 {
                     Position targetPos = target->GetPosition();
-                    me->SummonCreature(NPC_SPIRIT_SHADE, targetPos, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 50000);
+                    me->SummonCreature(NPC_SPIRIT_SHADE, targetPos, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 50000ms);
                 }
             }
 
@@ -754,7 +754,7 @@ class spell_mark_of_nature : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mark_of_nature_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mark_of_nature_SpellScript::FilterTargets, EFFECT_0, TARGET_DEST_CASTER);
                 OnEffectHitTarget += SpellEffectFn(spell_mark_of_nature_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
         };

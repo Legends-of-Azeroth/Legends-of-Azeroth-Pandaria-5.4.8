@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -40,19 +40,19 @@ public:
     {
         static std::vector<ChatCommand> listCommandTable =
         {
-            { "creature",   SEC_ADMINISTRATOR,  true,   &HandleListCreatureCommand, },
-            { "item",       SEC_ADMINISTRATOR,  true,   &HandleListItemCommand,     },
-            { "object",     SEC_ADMINISTRATOR,  true,   &HandleListObjectCommand,   },
-            { "auras",      SEC_ADMINISTRATOR,  false,  &HandleListAurasCommand,    },
-            { "mail",       SEC_ADMINISTRATOR,  true,   &HandleListMailCommand,     },
-            { "scenes",     SEC_ADMINISTRATOR,  false,  &HandleListScenesCommand,   },
-            { "aggro",      SEC_ADMINISTRATOR,  false,  &HandleListAggroCommand,    },
-            { "hostiles",   SEC_ADMINISTRATOR,  false,  &HandleListHostilesCommand, },
-            { "threat",     SEC_ADMINISTRATOR,  false,  &HandleListThreatCommand,   },
+            { "creature",   &HandleListCreatureCommand, rbac::RBAC_PERM_COMMAND_LIST_CREATURE, Trinity::ChatCommands::Console::Yes },
+            { "item",       &HandleListItemCommand,     rbac::RBAC_PERM_COMMAND_LIST_ITEM,     Trinity::ChatCommands::Console::Yes },
+            { "object",     &HandleListObjectCommand,   rbac::RBAC_PERM_COMMAND_LIST_OBJECT,   Trinity::ChatCommands::Console::Yes },
+            { "auras",      &HandleListAurasCommand,    rbac::RBAC_PERM_COMMAND_LIST_AURAS,    Trinity::ChatCommands::Console::No },
+            { "mail",       &HandleListMailCommand,     rbac::RBAC_PERM_COMMAND_LIST_MAIL,     Trinity::ChatCommands::Console::Yes },
+            { "scenes",     &HandleListScenesCommand,   rbac::RBAC_PERM_COMMAND_LIST_SCENES,   Trinity::ChatCommands::Console::No },
+            { "aggro", &HandleListAggroCommand, rbac::RBAC_PERM_COMMAND_LIST_AGGRO, Trinity::ChatCommands::Console::No },
+            { "hostiles", &HandleListHostilesCommand, rbac::RBAC_PERM_COMMAND_LIST_HOSTILES, Trinity::ChatCommands::Console::No },
+            { "threat", &HandleListThreatCommand, rbac::RBAC_PERM_COMMAND_LIST_THREAT, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "list",       SEC_ADMINISTRATOR,  true,   listCommandTable            },
+            { "list", listCommandTable, rbac::RBAC_PERM_COMMAND_LIST, Trinity::ChatCommands::Console::Yes },
         };
         return commandTable;
     }
@@ -92,18 +92,18 @@ public:
         QueryResult result;
 
         uint32 creatureCount = 0;
-        result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM creature WHERE id='%u'", creatureId);
+        result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM creature WHERE id='{}'", creatureId);
         if (result)
             creatureCount = (*result)[0].GetUInt64();
 
         if (handler->GetSession())
         {
             Player* player = handler->GetSession()->GetPlayer();
-            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, (POW(position_x - '%f', 2) + POW(position_y - '%f', 2) + POW(position_z - '%f', 2)) AS order_ FROM creature WHERE id = '%u' ORDER BY order_ ASC LIMIT %u",
+            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, (POW(position_x - '{}', 2) + POW(position_y - '{}', 2) + POW(position_z - '{}', 2)) AS order_ FROM creature WHERE id = '{}' ORDER BY order_ ASC LIMIT {}",
                 player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), creatureId, count);
         }
         else
-            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map FROM creature WHERE id = '%u' LIMIT %u",
+            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map FROM creature WHERE id = '{}' LIMIT {}",
                 creatureId, count);
 
         if (result)
@@ -118,7 +118,7 @@ public:
                 uint16 mapId    = fields[4].GetUInt16();
 
                 if (handler->GetSession())
-                    handler->PSendSysMessage(LANG_CREATURE_LIST_CHAT, guid, guid, cInfo->Name.c_str(), x, y, z, mapId);
+                    handler->PSendSysMessage(LANG_CREATURE_LIST_CHAT, guid, creatureId, guid, cInfo->Name.c_str(), x, y, z, mapId);
                 else
                     handler->PSendSysMessage(LANG_CREATURE_LIST_CONSOLE, guid, cInfo->Name.c_str(), x, y, z, mapId);
             }
@@ -381,18 +381,18 @@ public:
         QueryResult result;
 
         uint32 objectCount = 0;
-        result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM gameobject WHERE id='%u'", gameObjectId);
+        result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM gameobject WHERE id='{}'", gameObjectId);
         if (result)
             objectCount = (*result)[0].GetUInt64();
 
         if (handler->GetSession())
         {
             Player* player = handler->GetSession()->GetPlayer();
-            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, id, (POW(position_x - '%f', 2) + POW(position_y - '%f', 2) + POW(position_z - '%f', 2)) AS order_ FROM gameobject WHERE id = '%u' ORDER BY order_ ASC LIMIT %u",
+            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, id, (POW(position_x - '{}', 2) + POW(position_y - '{}', 2) + POW(position_z - '{}', 2)) AS order_ FROM gameobject WHERE id = '{}' ORDER BY order_ ASC LIMIT {}",
                 player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), gameObjectId, count);
         }
         else
-            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, id FROM gameobject WHERE id = '%u' LIMIT %u",
+            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, id FROM gameobject WHERE id = '{}' LIMIT {}",
                 gameObjectId, count);
 
         if (result)
@@ -437,11 +437,11 @@ public:
         handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, auras.size());
         for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
         {
-            bool talent = GetTalentSpellCost(itr->second->GetBase()->GetId()) > 0;
+            bool talent = sDBCManager.GetTalentSpellCost(itr->second->GetBase()->GetId()) > 0;
 
             AuraApplication const* aurApp = itr->second;
             Aura const* aura = aurApp->GetBase();
-            char const* name = aura->GetSpellInfo()->SpellName[handler->GetSessionDbcLocale()];
+            char const* name = aura->GetSpellInfo()->SpellName;
 
             std::ostringstream ss_name;
             ss_name << "|cffffffff|Hspell:" << aura->GetId() << "|h[" << name << "]|h|r";
@@ -526,7 +526,7 @@ public:
                     if (hasItem == 1)
                     {
                         QueryResult result2;
-                        result2 = CharacterDatabase.PQuery("SELECT item_guid FROM mail_items WHERE mail_id = '%u'", messageId);
+                        result2 = CharacterDatabase.PQuery("SELECT item_guid FROM mail_items WHERE mail_id = '{}'", messageId);
                         if (result2)
                         {
                             do
@@ -543,7 +543,7 @@ public:
                                         uint32 item_entry       = fields[0].GetUInt32();
                                         uint32 item_count       = fields[1].GetUInt32();
                                         QueryResult result4;
-                                        result4 = WorldDatabase.PQuery("SELECT name, quality FROM item_template WHERE entry = '%u'", item_entry);
+                                        result4 = WorldDatabase.PQuery("SELECT name, quality FROM item_template WHERE entry = '{}'", item_entry);
                                         Field* fields1          = result4->Fetch();
                                         std::string item_name   = fields1[0].GetString();
                                         int item_quality        = fields1[1].GetUInt8();
@@ -638,7 +638,7 @@ public:
                         if (guid != dbGuid)
                             guid = dbGuid;
                     }
-                    float threat = attacker->getThreatManager().getThreat(unit, false);
+                    float threat = attacker->GetThreatManager().GetThreat(unit, false);
                     handler->PSendSysMessage("guid: |cffffffff%u|r - id: |cffffffff%u|r - |cffffffff%s|r (%.2f)", guid, attacker->GetEntry(), attacker->GetName().c_str(), threat);
                 }
                 ++attackersCount;
@@ -674,9 +674,9 @@ public:
                 handler->PSendSysMessage("Listing hostiles towards creature |cffffffff%s|r (guid: |cffffffff%u|r id: |cffffffff%u|r)", unit->GetName().c_str(), unitGuid, unit->GetEntry());
 
             uint32 hostilesCount = 0;
-            for (RefManager<Unit, ThreatManager>::iterator itr = unit->getHostileRefManager().begin(); itr != unit->getHostileRefManager().end(); ++itr)
+            for (auto const& threatEntry : unit->GetThreatManager().GetThreatenedByMeList())
             {
-                Unit* hostile = itr->GetSource()->GetOwner();
+                Unit* hostile = threatEntry.second->GetOwner();
                 uint32 guid = hostile->GetGUID().GetCounter();
                 if (hostile->GetTypeId() == TYPEID_PLAYER)
                     handler->PSendSysMessage("guid: |cffffffff%u|r - player - |cffffffff%s|r", guid, hostile->GetName().c_str());
@@ -688,7 +688,7 @@ public:
                         if (guid != dbGuid)
                             guid = dbGuid;
                     }
-                    float threat = hostile->getThreatManager().getThreat(unit, false);
+                    float threat = hostile->GetThreatManager().GetThreat(unit, false);
                     handler->PSendSysMessage("guid: |cffffffff%u|r - id: |cffffffff%u|r - |cffffffff%s|r (%.2f)", guid, hostile->GetEntry(), hostile->GetName().c_str(), threat);
                 }
                 ++hostilesCount;
@@ -725,23 +725,24 @@ public:
 
             for (uint8 listType = 0; listType < 2; ++listType)
             {
-                ThreatContainer::StorageType const* list = listType ? &unit->getThreatManager().getOfflineThreatList() : &unit->getThreatManager().getThreatList();
                 char const* color = listType ? "|cff808080" : "";
                 char const* summary = listType ? "%u offline hostiles" : "%u online hostiles";
 
                 uint32 hostilesCount = 0;
-                for (HostileReference* ref : *list)
+                for (ThreatReference const* ref : unit->GetThreatManager().GetUnsortedThreatList())
                 {
-                    Unit* hostile = ref->getTarget();
-                    if (!hostile)
-                    {
-                        handler->PSendSysMessage("|cff404040guid: %u - player (%.2f)|r", ref->getUnitGuid().GetCounter(), ref->getThreat());
+                    if (!listType && !ref->IsOnline())
                         continue;
-                    }
+                    if (listType && ref->IsOnline())
+                        continue;
+
+                    Unit* hostile = ref->GetVictim();
+                    if (!hostile)
+                        continue;
 
                     uint32 guid = hostile->GetGUID().GetCounter();
                     if (hostile->GetTypeId() == TYPEID_PLAYER)
-                        handler->PSendSysMessage("%sguid: |cffffffff%u|r%s - player - |cffffffff%s|r%s (%.2f)|r", color, guid, color, hostile->GetName().c_str(), color, ref->getThreat());
+                        handler->PSendSysMessage("%sguid: |cffffffff%u|r%s - player - |cffffffff%s|r%s (%.2f)|r", color, guid, color, hostile->GetName().c_str(), color, ref->GetThreat());
                     else
                     {
                         if (Creature* creature = hostile->ToCreature())
@@ -750,7 +751,7 @@ public:
                             if (guid != dbGuid)
                                 guid = dbGuid;
                         }
-                        handler->PSendSysMessage("%sguid: |cffffffff%u|r%s - id: |cffffffff%u|r%s - |cffffffff%s|r%s (%.2f)|r", color, guid, color, hostile->GetEntry(), color, hostile->GetName().c_str(), color, ref->getThreat());
+                        handler->PSendSysMessage("%sguid: |cffffffff%u|r%s - id: |cffffffff%u|r%s - |cffffffff%s|r%s (%.2f)|r", color, guid, color, hostile->GetEntry(), color, hostile->GetName().c_str(), color, ref->GetThreat());
                     }
                     ++hostilesCount;
                 }

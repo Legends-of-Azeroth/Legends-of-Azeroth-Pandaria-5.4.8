@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -323,11 +323,11 @@ namespace VMAP
             WorldModel* worldmodel = new WorldModel();
             if (!worldmodel->readFile(basepath + filename + ".vmo"))
             {
-                VMAP_ERROR_LOG("misc", "VMapManager2: could not load '%s%s.vmo'", basepath.c_str(), filename.c_str());
+                VMAP_ERROR_LOG("misc", "VMapManager2: could not load '{}{}.vmo'", basepath.c_str(), filename.c_str());
                 delete worldmodel;
                 return nullptr;
             }
-            VMAP_DEBUG_LOG("maps", "VMapManager2: loading file '%s%s'", basepath.c_str(), filename.c_str());
+            VMAP_DEBUG_LOG("maps", "VMapManager2: loading file '{}{}'", basepath.c_str(), filename.c_str());
 
             worldmodel->Flags = flags;
 
@@ -346,12 +346,12 @@ namespace VMAP
         ModelFileMap::iterator model = iLoadedModelFiles.find(filename);
         if (model == iLoadedModelFiles.end())
         {
-            VMAP_ERROR_LOG("misc", "VMapManager2: trying to unload non-loaded file '%s'", filename.c_str());
+            VMAP_ERROR_LOG("misc", "VMapManager2: trying to unload non-loaded file '{}'", filename.c_str());
             return;
         }
         if (model->second.decRefCount() == 0)
         {
-            VMAP_DEBUG_LOG("maps", "VMapManager2: unloading file '%s'", filename.c_str());
+            VMAP_DEBUG_LOG("maps", "VMapManager2: unloading file '{}'", filename.c_str());
             delete model->second.getModel();
             iLoadedModelFiles.erase(model);
         }
@@ -367,4 +367,35 @@ namespace VMAP
         instanceMapTree = iInstanceMapTrees;
     }
 
+    /**
+    get the hit position and return true if we hit something
+    otherwise the result pos will be the dest pos
+    */
+    bool VMapManager2::GetObjectHitPos(unsigned int mapId, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float modifyDist)
+    {
+#if defined(ENABLE_VMAP_CHECKS)
+        if (isLineOfSightCalcEnabled() && !IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_LOS))
+#endif
+        {
+            InstanceTreeMap::const_iterator instanceTree = GetMapTree(mapId);
+            if (instanceTree != iInstanceMapTrees.end())
+            {
+                Vector3 pos1 = convertPositionToInternalRep(x1, y1, z1);
+                Vector3 pos2 = convertPositionToInternalRep(x2, y2, z2);
+                Vector3 resultPos;
+                bool result = instanceTree->second->GetObjectHitPos(pos1, pos2, resultPos, modifyDist);
+                resultPos = convertPositionToInternalRep(resultPos.x, resultPos.y, resultPos.z);
+                rx = resultPos.x;
+                ry = resultPos.y;
+                rz = resultPos.z;
+                return result;
+            }
+        }
+
+        rx = x2;
+        ry = y2;
+        rz = z2;
+
+        return false;
+    }
 } // namespace VMAP

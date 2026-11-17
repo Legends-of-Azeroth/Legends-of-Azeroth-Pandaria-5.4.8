@@ -227,7 +227,7 @@ class boss_wase_mari : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)
@@ -593,11 +593,11 @@ class spell_wise_hydrolance_pulse : public SpellScriptLoader
                 switch (tickCnt)
                 {
                     case 0:
-                        owner->GetNearPoint2D(x, y, 0.0f, owner->GetOrientation());
+                        owner->GetNearPoint2D(nullptr, x, y, 0.0f, owner->GetOrientation());
                         owner->CastSpell(x, y, z, SPELL_HYDROLANCE_PULSE, false);
                         break;
                     default:
-                        owner->GetNearPoint2D(x, y, tickCnt * 2, owner->GetOrientation());
+                        owner->GetNearPoint2D(nullptr, x, y, tickCnt * 2, owner->GetOrientation());
                         owner->CastSpell(x, y, z, SPELL_HYDROLANCE_PULSE, false);
                         break;
                 }

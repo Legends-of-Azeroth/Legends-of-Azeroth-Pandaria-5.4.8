@@ -339,13 +339,13 @@ class npc_kayra_longmane : public CreatureScript
 public:
     npc_kayra_longmane() : CreatureScript("npc_kayra_longmane") { }
 
-    struct npc_kayra_longmaneAI : public npc_escortAI
+    struct npc_kayra_longmaneAI : public EscortAI
     {
-        npc_kayra_longmaneAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_kayra_longmaneAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -355,8 +355,8 @@ public:
             {
                 case 4:
                     Talk(SAY_AMBUSH1, player);
-                    DoSpawnCreature(NPC_SLAVEBINDER, -10.0f, -5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                    DoSpawnCreature(NPC_SLAVEBINDER, -8.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                    DoSpawnCreature(NPC_SLAVEBINDER, -10.0f, -5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000ms);
+                    DoSpawnCreature(NPC_SLAVEBINDER, -8.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000ms);
                     break;
                 case 5:
                     Talk(SAY_PROGRESS, player);
@@ -364,8 +364,8 @@ public:
                     break;
                 case 16:
                     Talk(SAY_AMBUSH2, player);
-                    DoSpawnCreature(NPC_SLAVEBINDER, -10.0f, -5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                    DoSpawnCreature(NPC_SLAVEBINDER, -8.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                    DoSpawnCreature(NPC_SLAVEBINDER, -10.0f, -5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000ms);
+                    DoSpawnCreature(NPC_SLAVEBINDER, -8.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000ms);
                     break;
                 case 17:
                     SetRun(false);
@@ -384,8 +384,8 @@ public:
         {
             creature->AI()->Talk(SAY_START, player);
 
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_kayra_longmane::npc_kayra_longmaneAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID());
+            if (EscortAI* pEscortAI = CAST_AI(npc_kayra_longmane::npc_kayra_longmaneAI, creature->AI()))
+                pEscortAI->Start(false, player->GetGUID());
         }
         return true;
     }

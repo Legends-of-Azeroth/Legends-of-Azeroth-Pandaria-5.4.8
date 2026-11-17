@@ -63,28 +63,28 @@ void BattlePetMgr::LoadFromDb(PreparedQueryResult result)
         auto battlePetSpeciesEntry = sBattlePetSpeciesStore.LookupEntry(speciesId);
         if (!battlePetSpeciesEntry)
         {
-            TC_LOG_ERROR("sql.sql", "Species %u defined in `account_battle_pet` for Battle Pet " UI64FMTD "  does not exist, skipped!",
+            TC_LOG_ERROR("sql.sql", "Species {} defined in `account_battle_pet` for Battle Pet " "{}" "  does not exist, skipped!",
                 speciesId, id);
             continue;
         }
 
         if (sBattlePetBreedSet.find(breedId) == sBattlePetBreedSet.end() && breedId != 0)
         {
-            TC_LOG_ERROR("sql.sql", "Breed %u defined in `account_battle_pet` for Battle Pet %lu does not exist, skipped.", breedId, (uint64)id);
+            TC_LOG_ERROR("sql.sql", "Breed {} defined in `account_battle_pet` for Battle Pet {} does not exist, skipped.", breedId, (uint64)id);
             continue;
         }
 
         // highest quality client supports, currently players can not obtain legendary pets on retail
         if (quality > ITEM_QUALITY_LEGENDARY)
         {
-            TC_LOG_ERROR("sql.sql", "Quality %u defined in `account_battle_pet` for Battle Pet %lu is invalid, skipped.", quality, (uint64)id);
+            TC_LOG_ERROR("sql.sql", "Quality {} defined in `account_battle_pet` for Battle Pet {} is invalid, skipped.", quality, (uint64)id);
             continue;
         }
 
         // client supports up to level 255 (uint8)
         if (level > BATTLE_PET_MAX_LEVEL)
         {
-            TC_LOG_ERROR("sql.sql", "Level %u defined in `account_battle_pet` for Battle Pet %lu is invalid, skipped.", quality, (uint64)id);
+            TC_LOG_ERROR("sql.sql", "Level {} defined in `account_battle_pet` for Battle Pet {} is invalid, skipped.", quality, (uint64)id);
             continue;
         }
 
@@ -191,9 +191,10 @@ void BattlePetMgr::LoadSlotsFromDb(PreparedQueryResult result)
 
     Field* fields = result->Fetch();
 
-    ObjectGuid slot1(HighGuid::BattlePet, fields[0].GetUInt32());
-    ObjectGuid slot2(HighGuid::BattlePet, fields[1].GetUInt32());
-    ObjectGuid slot3(HighGuid::BattlePet, fields[2].GetUInt32());
+    // the slots hold the plain battle pet id, as the client sends it and SaveSlotsToDb stores it
+    ObjectGuid slot1(fields[0].GetUInt64());
+    ObjectGuid slot2(fields[1].GetUInt64());
+    ObjectGuid slot3(fields[2].GetUInt64());
     m_loadoutFlags = fields[3].GetUInt8();
 
     // update flag and spell state for new alt characters
@@ -218,7 +219,7 @@ void BattlePetMgr::LoadSlotsFromDb(PreparedQueryResult result)
 
     for (std::set<uint8>::const_iterator citr = slotErrors.begin(); citr != slotErrors.end(); citr++)
     {
-        TC_LOG_ERROR("sql.sql", "Battle Pet slot %u in `account_battle_pet_slots` for account %u is invalid!",
+        TC_LOG_ERROR("sql.sql", "Battle Pet slot {} in `account_battle_pet_slots` for account {} is invalid!",
             *citr, m_owner->GetSession()->GetAccountId());
     }
 
@@ -226,9 +227,9 @@ void BattlePetMgr::LoadSlotsFromDb(PreparedQueryResult result)
     if (hasError)
         m_loadoutSave = true;
 
-    SetLoadoutSlot(BATTLE_PET_LOADOUT_SLOT_1, hasError ? ObjectGuid::Empty : slot1);
-    SetLoadoutSlot(BATTLE_PET_LOADOUT_SLOT_2, hasError ? ObjectGuid::Empty : slot2);
-    SetLoadoutSlot(BATTLE_PET_LOADOUT_SLOT_3, hasError ? ObjectGuid::Empty : slot3);
+    SetLoadoutSlot(BATTLE_PET_LOADOUT_SLOT_1, slotErrors.count(BATTLE_PET_LOADOUT_SLOT_1) ? ObjectGuid::Empty : slot1);
+    SetLoadoutSlot(BATTLE_PET_LOADOUT_SLOT_2, slotErrors.count(BATTLE_PET_LOADOUT_SLOT_2) ? ObjectGuid::Empty : slot2);
+    SetLoadoutSlot(BATTLE_PET_LOADOUT_SLOT_3, slotErrors.count(BATTLE_PET_LOADOUT_SLOT_3) ? ObjectGuid::Empty : slot3);
 }
 
 void BattlePetMgr::SaveSlotsToDb(CharacterDatabaseTransaction trans)
@@ -305,7 +306,7 @@ void BattlePetMgr::ResummonLastBattlePet()
     if (!battlePet)
     {
 
-        TC_LOG_ERROR("shitlog", "BattlePetMgr::ResummonLastBattlePet !summon, player: %s (%u), battle pet: " UI64FMTD "",
+        TC_LOG_ERROR("shitlog", "BattlePetMgr::ResummonLastBattlePet !summon, player: {} ({}), battle pet: " "{}" "",
             m_owner->GetName().c_str(), m_owner->GetGUID().GetCounter(), battlePetId.GetRawValue());
         return;
     }
@@ -316,7 +317,7 @@ void BattlePetMgr::ResummonLastBattlePet()
     TempSummon* summon = GetCurrentSummon();
     if (!summon)
     {
-        TC_LOG_ERROR("shitlog", "BattlePetMgr::ResummonLastBattlePet !summon, player: %s (%u), battle pet: " UI64FMTD ", spell: %u",
+        TC_LOG_ERROR("shitlog", "BattlePetMgr::ResummonLastBattlePet !summon, player: {} ({}), battle pet: " "{}" ", spell: {}",
             m_owner->GetName().c_str(), m_owner->GetGUID().GetCounter(), battlePetId.GetRawValue(), spell);
     }
 
@@ -485,7 +486,7 @@ void BattlePetMgr::CageBattlePet(ObjectGuid guid)
     BattlePet* battlePet = GetBattlePet(guid);
     if (!battlePet)
     {
-        TC_LOG_DEBUG("network", "WorldSession::CageBattlePet - Player %u tryed to cage battle pet companion " UI64FMTD " which it doesn't own!",
+        TC_LOG_DEBUG("network", "WorldSession::CageBattlePet - Player {} tryed to cage battle pet companion " "{}" " which it doesn't own!",
             m_owner->GetGUID().GetCounter(), (uint64)guid);
         return;
     }

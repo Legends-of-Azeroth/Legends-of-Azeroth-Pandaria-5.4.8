@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -471,7 +471,7 @@ class spell_common_inherit_masters_threat_list : public SpellScript
         targets.remove_if([this](WorldObject* obj)
         {
             if (Unit* target = obj->ToUnit())
-                if (target->IsInCombat() && target->CanHaveThreatList() && target->getThreatManager().getThreat(master) > 0)
+                if (target->IsInCombat() && target->CanHaveThreatList() && target->GetThreatManager().GetThreat(master) > 0)
                     return false;
 
             return true;
@@ -480,8 +480,8 @@ class spell_common_inherit_masters_threat_list : public SpellScript
 
     void HandleHit()
     {
-        float threat = GetHitUnit()->getThreatManager().getThreat(master);
-        GetHitUnit()->getThreatManager().addThreat(GetCaster(), threat);
+        float threat = GetHitUnit()->GetThreatManager().GetThreat(master);
+        GetHitUnit()->GetThreatManager().AddThreat(GetCaster(), threat);
     }
 
     void Register() override
@@ -616,12 +616,12 @@ class spell_common_unlearn_talent : public SpellScript
         TalentEntry const* talent = sTalentStore.LookupEntry(GetSpell()->m_glyphIndex);
         if (player && talent)
         {
-            switch (talent->SpellId)
+            switch (talent->SpellID)
             {
                 case 137619: // Marked for Death
-                    if (Unit* target = ObjectAccessor::GetUnit(*player, player->GetComboTarget()))
+                    if (player->GetComboTarget())
                     {
-                        target->RemoveAurasDueToSpell(talent->SpellId);
+                        player->GetComboTarget()->RemoveAurasDueToSpell(talent->SpellID);
                         player->ClearComboPoints();
                     }
                     break;

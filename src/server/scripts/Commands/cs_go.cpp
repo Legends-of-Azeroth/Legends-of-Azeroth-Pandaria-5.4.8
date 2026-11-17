@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -39,21 +39,21 @@ public:
     {
         static std::vector<ChatCommand> goCommandTable =
         {
-            { "creature",   SEC_GAMEMASTER,  false,  &HandleGoCreatureCommand,   },
-            { "graveyard",  SEC_GAMEMASTER,  false,  &HandleGoGraveyardCommand,  },
-            { "grid",       SEC_GAMEMASTER,  false,  &HandleGoGridCommand,       },
-            { "object",     SEC_GAMEMASTER,  false,  &HandleGoObjectCommand,     },
-            { "taxinode",   SEC_GAMEMASTER,  false,  &HandleGoTaxinodeCommand,   },
-            { "trigger",    SEC_GAMEMASTER,  false,  &HandleGoTriggerCommand,    },
-            { "zonexy",     SEC_GAMEMASTER,  false,  &HandleGoZoneXYCommand,     },
-            { "xyz",        SEC_GAMEMASTER,  false,  &HandleGoXYZCommand,        },
-            { "ticket",     SEC_GAMEMASTER,  false,  &HandleGoTicketCommand,     },
-            { "",           SEC_GAMEMASTER,  false,  &HandleGoXYZCommand,        },
+            { "creature", &HandleGoCreatureCommand, rbac::RBAC_PERM_COMMAND_GO_CREATURE, Trinity::ChatCommands::Console::No },
+            { "graveyard", &HandleGoGraveyardCommand, rbac::RBAC_PERM_COMMAND_GO_GRAVEYARD, Trinity::ChatCommands::Console::No },
+            { "grid", &HandleGoGridCommand, rbac::RBAC_PERM_COMMAND_GO_GRID, Trinity::ChatCommands::Console::No },
+            { "object", &HandleGoObjectCommand, rbac::RBAC_PERM_COMMAND_GO_OBJECT, Trinity::ChatCommands::Console::No },
+            { "taxinode", &HandleGoTaxinodeCommand, rbac::RBAC_PERM_COMMAND_GO_TAXINODE, Trinity::ChatCommands::Console::No },
+            { "trigger", &HandleGoTriggerCommand, rbac::RBAC_PERM_COMMAND_GO_TRIGGER, Trinity::ChatCommands::Console::No },
+            { "zonexy", &HandleGoZoneXYCommand, rbac::RBAC_PERM_COMMAND_GO_ZONEXY, Trinity::ChatCommands::Console::No },
+            { "xyz", &HandleGoXYZCommand, rbac::RBAC_PERM_COMMAND_GO_XYZ, Trinity::ChatCommands::Console::No },
+            { "ticket", &HandleGoTicketCommand, rbac::RBAC_PERM_COMMAND_GO_TICKET, Trinity::ChatCommands::Console::No },
+            { "",           &HandleGoXYZCommand,        rbac::RBAC_PERM_COMMAND_GO,        Trinity::ChatCommands::Console::No },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "go",         SEC_GAMEMASTER,  false,  goCommandTable              },
+            { "go",         goCommandTable,              rbac::RBAC_PERM_COMMAND_GO,        Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }
@@ -116,7 +116,7 @@ public:
                 whereClause <<  "WHERE guid = '" << guid << '\'';
         }
 
-        QueryResult result = WorldDatabase.PQuery("SELECT position_x, position_y, position_z, orientation, map, guid, id FROM creature %s", whereClause.str().c_str());
+        QueryResult result = WorldDatabase.PQuery("SELECT position_x, position_y, position_z, orientation, map, guid, id FROM creature {}", whereClause.str().c_str());
         if (!result)
         {
             handler->SendSysMessage(LANG_COMMAND_GOCREATNOTFOUND);
@@ -449,7 +449,7 @@ public:
             return false;
         }
 
-        Zone2MapCoordinates(x, y, zoneEntry->ID);
+        sDBCManager.Zone2MapCoordinates(x, y, zoneEntry->ID);
 
         if (!MapManager::IsValidMapCoord(zoneEntry->mapid, x, y))
         {

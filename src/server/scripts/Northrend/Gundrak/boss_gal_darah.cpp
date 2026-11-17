@@ -108,7 +108,7 @@ class boss_gal_darah : public CreatureScript
 
             void JustSummoned(Creature* summon) override
             {
-                summon->AddThreat(me, 1.0f); // To prevent them from entering evade mode via UpdateVictim()
+                summon->GetThreatManager().AddThreat(me, 1.0f); // To prevent them from entering evade mode via UpdateVictim()
                 summon->SetReactState(REACT_PASSIVE);
                 summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
                 summon->DespawnOrUnsummon(1500);

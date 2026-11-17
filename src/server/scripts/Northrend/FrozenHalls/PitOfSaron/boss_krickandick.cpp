@@ -179,7 +179,7 @@ class boss_ick : public CreatureScript
                 instance->SetBossState(DATA_ICK, IN_PROGRESS);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->GetMotionMaster()->Clear();
                 ScriptedAI::EnterEvadeMode();
@@ -205,7 +205,7 @@ class boss_ick : public CreatureScript
             void _ResetThreat(Unit* target)
             {
                 DoModifyThreatPercent(target, -100);
-                me->AddThreat(target, _tempThreat);
+                me->GetThreatManager().AddThreat(target, _tempThreat);
             }
 
             void UpdateAI(uint32 diff) override
@@ -213,7 +213,7 @@ class boss_ick : public CreatureScript
                 if (!me->IsInCombat())
                     return;
 
-                if (!me->GetVictim() && me->getThreatManager().isThreatListEmpty())
+                if (!me->GetVictim() && me->GetThreatManager().IsThreatListEmpty())
                 {
                     EnterEvadeMode();
                     return;
@@ -657,9 +657,9 @@ class spell_krick_pursuit : public SpellScriptLoader
                 if (Unit* target = GetHitUnit())
                 {
                     ickAI->Talk(SAY_ICK_CHASE_1, target);
-                    CAST_AI(boss_ick::boss_ickAI, ickAI)->SetTempThreat(caster->getThreatManager().getThreat(target));
-                    caster->AddThreat(target, float(GetEffectValue()));
-                    target->AddThreat(caster, float(GetEffectValue()));
+                    CAST_AI(boss_ick::boss_ickAI, ickAI)->SetTempThreat(caster->GetThreatManager().GetThreat(target));
+                    caster->GetThreatManager().AddThreat(target, float(GetEffectValue()));
+                    target->GetThreatManager().AddThreat(caster, float(GetEffectValue()));
                 }
             }
 

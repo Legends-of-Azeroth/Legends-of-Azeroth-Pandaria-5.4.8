@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -37,7 +37,7 @@ uint32 ScenarioMgr::GetScenarioIdForMap(uint32 map)
     for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
     {
         if (auto dungeon = sLFGDungeonStore.LookupEntry(i))
-            if (dungeon->map == map)
+            if (dungeon->MapID == map)
                 return dungeon->scenario;
     }
     return 0;
@@ -261,17 +261,17 @@ void ScenarioMgr::LoadScenarioPOI()
         int32 PlayerConditionID = fields[9].GetInt32();
 
         if (!sCriteriaTreeStore.LookupEntry(CriteriaTreeID))
-            TC_LOG_ERROR("sql.sql", "`scenario_poi` CriteriaTreeID (%u) Idx1 (%u) does not correspond to a valid criteria tree", CriteriaTreeID, Idx1);
+            TC_LOG_ERROR("sql.sql", "`scenario_poi` CriteriaTreeID ({}) Idx1 ({}) does not correspond to a valid criteria tree", CriteriaTreeID, Idx1);
 
         if (CriteriaTreeID < int32(POIs.size()) && Idx1 < int32(POIs[CriteriaTreeID].size()))
             _scenarioPOIStore[CriteriaTreeID].emplace_back(BlobIndex, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID, POIs[CriteriaTreeID][Idx1]);
         else
-            TC_LOG_ERROR("server.loading", "Table scenario_poi references unknown scenario poi points for criteria tree id %i POI id %i", CriteriaTreeID, BlobIndex);
+            TC_LOG_ERROR("server.loading", "Table scenario_poi references unknown scenario poi points for criteria tree id {} POI id {}", CriteriaTreeID, BlobIndex);
 
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u scenario POI definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} scenario POI definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 ScenarioPOIVector const* ScenarioMgr::GetScenarioPOIs(int32 criteriaTreeID) const

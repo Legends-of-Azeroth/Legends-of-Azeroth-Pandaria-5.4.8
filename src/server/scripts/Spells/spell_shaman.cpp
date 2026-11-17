@@ -1416,7 +1416,7 @@ class spell_sha_conductivity : public AuraScript
             if (aura->GetMaxDuration() < 40 * IN_MILLISECONDS)
             {
                 int32 add = eff->GetAmplitude() * 2;
-                int32 maxDuration = std::min(aura->GetMaxDuration() + add, 40 * IN_MILLISECONDS);
+                int32 maxDuration = static_cast<int32>(std::min((uint32)aura->GetMaxDuration() + add, 40 * IN_MILLISECONDS));
                 aura->SetMaxDuration(maxDuration);
                 aura->SetDuration(aura->GetDuration() + add);
             }
@@ -1536,7 +1536,7 @@ class spell_sha_natures_guardian : public AuraScript
         PreventDefaultAction();
         GetUnitOwner()->CastCustomSpell(SPELL_SHA_NATURES_GUARDIAN, SPELLVALUE_BASE_POINT0, eff->GetAmount(), GetUnitOwner(), true);
         if (eventInfo.GetActor() && eventInfo.GetActor()->CanHaveThreatList())
-            eventInfo.GetActor()->getThreatManager().modifyThreatPercent(GetUnitOwner(), -10.f); // No idea
+            eventInfo.GetActor()->GetThreatManager().ModifyThreatByPercent(GetUnitOwner(), -10.f); // No idea
         m_caster->AddSpellCooldown(SPELL_SHA_NATURES_GUARDIAN, Seconds(30));
     }
 
@@ -1875,7 +1875,7 @@ class spell_sha_windfury_weapon : public AuraScript
         SpellInfo const* windfurySpellInfo = sSpellMgr->GetSpellInfo(8232);
         if (!windfurySpellInfo)
         {
-            TC_LOG_ERROR("server", "spell_sha_windfurry_weapon::HandleProc Windfury (%u) spell not found", spellId);
+            TC_LOG_ERROR("server", "spell_sha_windfurry_weapon::HandleProc Windfury ({}) spell not found", spellId);
             return;
         }
 
@@ -2449,7 +2449,7 @@ struct npc_sha_spirit_wolf : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         scheduler.CancelAll();
 
@@ -2782,7 +2782,7 @@ struct npc_sha_spiritwalker_champion : public PassiveAI
         me->SetPower(POWER_MANA, me->GetMaxPower(POWER_MANA));
     }
 
-    void EnterEvadeMode() override 
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override 
     {
         Unit* owner = me->GetCharmerOrOwner();
         if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
@@ -2934,8 +2934,8 @@ struct npc_sha_earth_elemental : public ScriptedAI
             ctx.Repeat(Milliseconds(5000));
 
             if (Unit* target = me->GetVictim())
-                if (target->getThreatManager().getCurrentVictim())
-                    if (Unit* tank = target->getThreatManager().getCurrentVictim()->getTarget())
+                if (target->GetThreatManager().GetCurrentVictim())
+                    if (Unit* tank = target->GetThreatManager().GetCurrentVictim())
                         if (tank->GetTypeId() == TYPEID_PLAYER && tank->ToPlayer()->GetRoleForGroup() == ROLES_TANK)
                             return;
 

@@ -86,8 +86,9 @@ class boss_renataki : public CreatureScript
 
                 me->SetCanDualWield(true);
                 const CreatureTemplate* cinfo = me->GetCreatureTemplate();
-                me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, cinfo->mindmg);
-                me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, cinfo->maxdmg);
+                float basedmg = sObjectMgr->GetCreatureBaseStats(me->GetLevel(), cinfo->unit_class)->GenerateBaseDamage(cinfo);
+                me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, basedmg);
+                me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, basedmg * 1.5f);
                 me->UpdateDamagePhysical(OFF_ATTACK);
 
                 frenzied = false;

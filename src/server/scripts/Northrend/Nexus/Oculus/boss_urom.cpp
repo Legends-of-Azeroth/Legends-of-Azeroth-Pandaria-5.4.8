@@ -147,7 +147,7 @@ class boss_urom : public CreatureScript
                 StartAttack();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 me->CastSpell(me, SPELL_EVOCATE);
@@ -353,7 +353,8 @@ class boss_urom : public CreatureScript
             {
                 me->RemoveAllAuras();
                 me->CombatStop(false);
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
             }
 
             void SpellHit(Unit* /*caster*/, const SpellInfo* spellInfo) override

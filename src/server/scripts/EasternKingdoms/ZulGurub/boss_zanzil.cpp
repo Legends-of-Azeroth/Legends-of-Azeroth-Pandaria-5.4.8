@@ -287,7 +287,7 @@ class spell_zanzil_pursuit : public SpellScriptLoader
                 if (GetCaster()->GetEntry() == NPC_ZANZIL_BERSERKER)
                 {
                     static_cast<npc_zanzil_berserker::npc_zanzil_berserkerAI*>(GetCaster()->GetAI())->DoResetThreat();
-                    GetCaster()->AddThreat(GetHitUnit(), 5000000.0f);
+                    GetCaster()->GetThreatManager().AddThreat(GetHitUnit(), 5000000.0f);
                     GetCaster()->GetAI()->AttackStart(GetHitUnit());
                 }
             }

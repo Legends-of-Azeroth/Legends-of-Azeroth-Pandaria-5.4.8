@@ -676,7 +676,7 @@ class boss_spoils_of_pandaria : public CreatureScript
                 return 0;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 DoCast(me, SPELL_GB_11010_ARMAGEDDON_CLASS_DEFENSE_SYSTEME);
 
@@ -1010,7 +1010,7 @@ struct spoils_baseAI : public ScriptedAI
     {
         if (victim && (!me->IsWithinLOS(victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ()) || victim->GetPositionZ() > -274.5f))
         {
-            me->getThreatManager().doAddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
+            me->GetThreatManager().AddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
 
             // try select near target and attack him if possible
             if (Player* target = me->FindNearestPlayer(30.0f))
@@ -1853,7 +1853,7 @@ struct npc_spoils_ancient_brewmaster_spirit : public ScriptedAI
     {
         if (victim && (!me->IsWithinLOS(victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ()) || victim->GetPositionZ() > -274.5f))
         {
-            me->getThreatManager().doAddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
+            me->GetThreatManager().AddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
 
             // try select near target and attack him if possible
             if (Player* target = me->FindNearestPlayer(30.0f))
@@ -1886,7 +1886,7 @@ struct npc_spoils_ancient_brewmaster_spirit : public ScriptedAI
     void JustDied(Unit* /*killer*/) override
     {
         me->RemoveAllAreasTrigger();
-        me->SummonCreature(invPandarensType.find(me->GetEntry())->second[0], *me, TEMPSUMMON_TIMED_DESPAWN, 3 * MINUTE * IN_MILLISECONDS);
+        me->SummonCreature(invPandarensType.find(me->GetEntry())->second[0], *me, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(3 * MINUTE * IN_MILLISECONDS));
         me->DisappearAndDie();
     }
 
@@ -1987,7 +1987,7 @@ struct npc_spoils_wise_mistweaver_spirit : public ScriptedAI
     {
         if (victim && (!me->IsWithinLOS(victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ()) || victim->GetPositionZ() > -274.5f))
         {
-            me->getThreatManager().doAddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
+            me->GetThreatManager().AddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
 
             // try select near target and attack him if possible
             if (Player* target = me->FindNearestPlayer(30.0f))
@@ -2020,7 +2020,7 @@ struct npc_spoils_wise_mistweaver_spirit : public ScriptedAI
     void JustDied(Unit* /*killer*/) override
     {
         me->RemoveAllAreasTrigger();
-        me->SummonCreature(invPandarensType.find(me->GetEntry())->second[0], *me, TEMPSUMMON_TIMED_DESPAWN, 3 * MINUTE * IN_MILLISECONDS);
+        me->SummonCreature(invPandarensType.find(me->GetEntry())->second[0], *me, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(3 * MINUTE * IN_MILLISECONDS));
         me->DisappearAndDie();
     }
 
@@ -2085,7 +2085,7 @@ struct npc_spoils_nameless_windwalker_spirit : public ScriptedAI
     {
         if (victim && (!me->IsWithinLOS(victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ()) || victim->GetPositionZ() > -274.5f))
         {
-            me->getThreatManager().doAddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
+            me->GetThreatManager().AddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
 
             // try select near target and attack him if possible
             if (Player* target = me->FindNearestPlayer(30.0f))
@@ -2117,7 +2117,7 @@ struct npc_spoils_nameless_windwalker_spirit : public ScriptedAI
     void JustDied(Unit* /*killer*/) override
     {
         me->RemoveAllAreasTrigger();
-        me->SummonCreature(invPandarensType.find(me->GetEntry())->second[0], *me, TEMPSUMMON_TIMED_DESPAWN, 3 * MINUTE * IN_MILLISECONDS);
+        me->SummonCreature(invPandarensType.find(me->GetEntry())->second[0], *me, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(3 * MINUTE * IN_MILLISECONDS));
         me->DisappearAndDie();
     }
 
@@ -2312,7 +2312,7 @@ struct npc_spoils_zarthik_swarmer : public ScriptedAI
     {
         if (victim && (!me->IsWithinLOS(victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ()) || victim->GetPositionZ() > -274.5f))
         {
-            me->getThreatManager().doAddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
+            me->GetThreatManager().AddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
 
             // try select near target and attack him if possible
             if (Player* target = me->FindNearestPlayer(30.0f))

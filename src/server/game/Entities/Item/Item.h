@@ -225,7 +225,7 @@ bool ItemCanGoIntoBag(ItemTemplate const* proto, ItemTemplate const* pBagProto);
 class Item : public Object
 {
     public:
-        static Item* CreateItem(uint32 itemEntry, uint32 count, Player const* player = NULL);
+        static Item* CreateItem(uint32 item, uint32 count, Player const* player = nullptr, bool temp = false);
         Item* CloneItem(uint32 count, Player const* player = NULL) const;
 
         Item();
@@ -405,6 +405,7 @@ class Item : public Object
     protected:
         void AddToUpdate() override;
         void RemoveFromUpdate() override;
+        Map* m_updateMap = nullptr;
 
     private:
         std::string m_text;

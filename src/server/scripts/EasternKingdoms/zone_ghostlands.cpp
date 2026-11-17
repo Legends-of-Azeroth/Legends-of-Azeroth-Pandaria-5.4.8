@@ -101,11 +101,11 @@ class npc_ranger_lilatha : public CreatureScript
 public:
     npc_ranger_lilatha() : CreatureScript("npc_ranger_lilatha") { }
 
-    struct npc_ranger_lilathaAI : public npc_escortAI
+    struct npc_ranger_lilathaAI : public EscortAI
     {
-        npc_ranger_lilathaAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_ranger_lilathaAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -129,8 +129,8 @@ public:
                 case 18:
                     {
                         Talk(SAY_PROGRESS3, player);
-                        Creature* Summ1 = me->SummonCreature(16342, 7627.083984f, -7532.538086f, 152.128616f, 1.082733f, TEMPSUMMON_DEAD_DESPAWN, 0);
-                        Creature* Summ2 = me->SummonCreature(16343, 7620.432129f, -7532.550293f, 152.454865f, 0.827478f, TEMPSUMMON_DEAD_DESPAWN, 0);
+                        Creature* Summ1 = me->SummonCreature(16342, 7627.083984f, -7532.538086f, 152.128616f, 1.082733f, TEMPSUMMON_DEAD_DESPAWN, 0ms);
+                        Creature* Summ2 = me->SummonCreature(16343, 7620.432129f, -7532.550293f, 152.454865f, 0.827478f, TEMPSUMMON_DEAD_DESPAWN, 0ms);
                         if (Summ1 && Summ2)
                         {
                             Summ1->Attack(me, true);
@@ -175,8 +175,8 @@ public:
         {
             creature->SetFaction(113);
 
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_ranger_lilatha::npc_ranger_lilathaAI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
+            if (EscortAI* pEscortAI = CAST_AI(npc_ranger_lilatha::npc_ranger_lilathaAI, creature->AI()))
+                pEscortAI->Start(true, player->GetGUID());
         }
         return true;
     }

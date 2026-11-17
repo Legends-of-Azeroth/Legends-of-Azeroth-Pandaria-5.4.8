@@ -21,11 +21,13 @@
 #include "Common.h"
 #include "Map.h"
 #include "ModelIgnoreFlags.h"
+#include "MovementInfo.h"
 #include "ObjectDefines.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "Position.h"
 #include "UpdateMask.h"
+#include "Duration.h"
 #include <G3D/Quat.h>
 
 #include <set>
@@ -308,92 +310,6 @@ class TC_GAME_API Object
 
 };
 
-struct MovementInfo
-{
-    // common
-    uint64 guid;
-    uint32 flags;
-    uint16 flags2;
-    Position pos;
-    uint32 time;
-
-    // transport
-    struct TransportInfo
-    {
-        void Reset()
-        {
-            guid.Clear();
-            pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
-            seat = -1;
-            time = 0;
-            time2 = 0;
-            time3 = 0;
-        }
-
-        ObjectGuid guid;
-        Position pos;
-        int8 seat;
-        uint32 time;
-        uint32 time2;
-        uint32 time3;
-    } transport;
-
-    // swimming/flying
-    float pitch;
-
-    // jumping
-    struct JumpInfo
-    {
-        void Reset()
-        {
-            fallTime = 0;
-            zspeed = sinAngle = cosAngle = xyspeed = 0.0f;
-        }
-
-        uint32 fallTime;
-
-        float zspeed, sinAngle, cosAngle, xyspeed;
-
-    } jump;
-
-    // spline
-    float splineElevation;
-
-    MovementInfo() :
-        guid(0), flags(0), flags2(0), time(0), pitch(0.0f), splineElevation(0.0f)
-    {
-        pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
-        transport.Reset();
-        jump.Reset();
-    }
-
-    uint32 GetMovementFlags() const { return flags; }
-    void SetMovementFlags(uint32 flag) { flags = flag; }
-    void AddMovementFlag(uint32 flag) { flags |= flag; }
-    void RemoveMovementFlag(uint32 flag) { flags &= ~flag; }
-    bool HasMovementFlag(uint32 flag) const { return flags & flag; }
-
-    uint16 GetExtraMovementFlags() const { return flags2; }
-    void SetExtraMovementFlags(uint16 flag) { flags2 = flag; }
-    void AddExtraMovementFlag(uint16 flag) { flags2 |= flag; }
-    void RemoveExtraMovementFlag(uint16 flag) { flags2 &= ~flag; }
-    bool HasExtraMovementFlag(uint16 flag) const { return flags2 & flag; }
-
-    void SetFallTime(uint32 ft) { jump.fallTime = ft; }
-
-    void ResetTransport()
-    {
-        transport.Reset();
-    }
-
-    void ResetJump()
-    {
-        jump.Reset();
-    }
-
-    void OutDebug();
-};
-
 template <class T_VALUES, class T_FLAGS, class FLAG_TYPE, size_t ARRAY_SIZE>
 class FlaggedValuesArray32
 {
@@ -492,8 +408,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
-        void GetNearPoint2D(float &x, float &y, float distance, float absAngle) const;
-        void GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float searcher_size, float distance2d, float absAngle) const;
+        void GetNearPoint2D(WorldObject const* searcher, float &x, float &y, float distance2d, float absAngle) const;
+        void GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float distance2d, float absAngle) const;
         void GetClosePoint(float &x, float &y, float &z, float size, float distance2d = 0, float angle = 0) const;
         void MovePosition(Position &pos, float dist, float angle);
         Position GetNearPosition(float dist, float angle);
@@ -611,7 +527,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         float GetGridActivationRange() const;
         float GetVisibilityRange() const;
         float GetSightRange(WorldObject const* target = NULL) const;
-        bool CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth = false, bool distanceCheck = false) const;
+        bool CanSeeOrDetect(WorldObject const* obj, bool implicitDetect = false, bool distanceCheck = false, bool checkAlert = false) const;
 
         void SetExplicitSeerGuid(uint64 guid) { m_explicitSeerGuid = guid; }
 
@@ -636,8 +552,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void SetZoneScript();
         ZoneScript* GetZoneScript() const { return m_zoneScript; }
 
-        TempSummon* SummonCreature(uint32 id, Position const &pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, uint32 vehId = 0, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
-        TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
+        TempSummon* SummonCreature(uint32 id, Position const &pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, Milliseconds despawntime = 0ms, uint32 vehId = 0, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
+        TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, Milliseconds despawntime = 0ms, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, G3D::Quat const& rotation, uint32 respawnTime, GOSummonType summonType = GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
 
         Creature* SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = NULL);
@@ -719,7 +635,10 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         virtual float GetStationaryO() const { return GetOrientation(); }
 
         float GetFloorZ() const;
+        [[nodiscard]] float GetMinHeightInWater() const;
         virtual float GetCollisionHeight() const { return 0.0f; }
+        [[nodiscard]] virtual float GetCollisionWidth() const { return GetObjectSize(); }
+        [[nodiscard]] virtual float GetCollisionRadius() const { return GetObjectSize() / 2; }
 
         float GetMapWaterOrGroundLevel(float x, float y, float z, float* ground = nullptr) const;
         float GetMapHeight(float x, float y, float z, bool vmap = true, float distanceToSearch = 50.0f) const; // DEFAULT_HEIGHT_SEARCH in map.h
@@ -798,9 +717,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         virtual bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true) const;
 
-        bool CanDetect(WorldObject const* obj, bool ignoreStealth) const;
+        bool CanDetect(WorldObject const* obj, bool ignoreStealth, bool checkAlert = false) const;
         bool CanDetectInvisibilityOf(WorldObject const* obj) const;
-        bool CanDetectStealthOf(WorldObject const* obj) const;
+        bool CanDetectStealthOf(WorldObject const* obj, bool checkAlert = false) const;
 
         uint64 m_explicitSeerGuid;
         TimeTrackerSmall m_stealthVisibilityUpdateTimer;

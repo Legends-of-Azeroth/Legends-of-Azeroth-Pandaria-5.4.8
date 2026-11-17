@@ -18,16 +18,16 @@
 #ifndef SF_UNIT_H
 #define SF_UNIT_H
 
+#include "AbstractFollower.h"
 #include "DBCStructure.h"
 #include "EventProcessor.h"
-#include "FollowerReference.h"
-#include "FollowerRefManager.h"
-#include "HostileRefManager.h"
+#include "FunctionProcessor.h"
 #include "MotionMaster.h"
 #include "Object.h"
 #include "SpellAuraDefines.h"
 #include "SpellDefines.h"
 #include "ThreatManager.h"
+#include "CombatManager.h"
 #include "MoveSplineInit.h"
 #include "SpellMgr.h"
 #include "TimeValue.h"
@@ -208,6 +208,8 @@ class Vehicle;
 class TransportBase;
 class SpellCastTargets;
 class SpellHistory;
+
+class GameClient;
 
 namespace Movement
 {
@@ -1103,6 +1105,7 @@ public:
 
     void AddToWorld() override;
     void RemoveFromWorld() override;
+    void AddDelayedEvent(uint64 timeOffset, std::function<void()>&& function);
 
     void CleanupBeforeRemoveFromMap(bool finalCleanup);
     void CleanupsBeforeDelete(bool finalCleanup = true) override;                        // used in ~Creature/~Player (or before mass creature delete to remove cross-references to already deleted units)
@@ -1149,6 +1152,7 @@ public:
         m_canDualWield = value;
     }
     float GetCombatReach() const override { return m_floatValues [UNIT_FIELD_COMBAT_REACH]; }
+    float GetMeleeRange(Unit const* target) const;
     float GetMeleeReach() const;
     bool IsWithinCombatRange(const Unit* obj, float dist2compare) const;
     bool IsWithinMeleeRange(const Unit* obj, float dist = NOMINAL_MELEE_RANGE) const;
@@ -1349,6 +1353,55 @@ public:
     ReputationRank GetReactionTo(Unit const* target) const;
     ReputationRank static GetFactionReactionTo(FactionTemplateEntry const* factionTemplateEntry, Unit const* target);
 
+    // Spell Aura helpers
+    [[nodiscard]] bool HasGhostAura()               const { return HasAuraType(SPELL_AURA_GHOST); };
+    [[nodiscard]] bool HasMountedAura()             const { return HasAuraType(SPELL_AURA_MOUNTED); };
+    [[nodiscard]] bool HasWaterWalkAura()           const { return HasAuraType(SPELL_AURA_WATER_WALK); };
+    [[nodiscard]] bool HasFeatherFallAura()         const { return HasAuraType(SPELL_AURA_FEATHER_FALL); };
+    [[nodiscard]] bool HasHoverAura()               const { return HasAuraType(SPELL_AURA_HOVER); };
+    [[nodiscard]] bool HasFlyAura()                 const { return HasAuraType(SPELL_AURA_FLY); };
+    [[nodiscard]] bool HasSpiritOfRedemptionAura()  const { return HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION); };
+    [[nodiscard]] bool HasPreventsFleeingAura()     const { return HasAuraType(SPELL_AURA_PREVENTS_FLEEING); };
+    //[[nodiscard]] bool HasPreventDurabilityLossAura()  const { return HasAuraType(SPELL_AURA_PREVENT_DURABILITY_LOSS); };
+    [[nodiscard]] bool HasPreventResurectionAura()  const { return HasAuraType(SPELL_AURA_PREVENT_RESURRECTION); };
+    [[nodiscard]] bool HasTransformAura()           const { return HasAuraType(SPELL_AURA_TRANSFORM); };
+    [[nodiscard]] bool HasInterruptRegenAura()      const { return HasAuraType(SPELL_AURA_INTERRUPT_REGEN); };
+    [[nodiscard]] bool HasNoPVPCreditAura()         const { return HasAuraType(SPELL_AURA_NO_PVP_CREDIT); };
+    [[nodiscard]] bool HasWaterBreathingAura()      const { return HasAuraType(SPELL_AURA_WATER_BREATHING); };
+    [[nodiscard]] bool HasIgnoreHitDirectionAura()  const { return HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION); };
+    [[nodiscard]] bool HasSpellMagnetAura()         const { return HasAuraType(SPELL_AURA_SPELL_MAGNET); };
+    [[nodiscard]] bool HasOpenStableAura()          const { return HasAuraType(SPELL_AURA_OPEN_STABLE); };
+    [[nodiscard]] bool HasCloneCasterAura()         const { return HasAuraType(SPELL_AURA_CLONE_CASTER); };
+    [[nodiscard]] bool HasReflectSpellsAura()       const { return HasAuraType(SPELL_AURA_REFLECT_SPELLS); };
+    [[nodiscard]] bool HasDetectAmoreAura()         const { return HasAuraType(SPELL_AURA_DETECT_AMORE); };
+    [[nodiscard]] bool HasAllowOnlyAbilityAura()    const { return HasAuraType(SPELL_AURA_ALLOW_ONLY_ABILITY); };
+    [[nodiscard]] bool HasPeriodicDummyAura()       const { return HasAuraType(SPELL_AURA_PERIODIC_DUMMY); };
+    [[nodiscard]] bool HasControlVehicleAura()      const { return HasAuraType(SPELL_AURA_CONTROL_VEHICLE); };
+    [[nodiscard]] bool HasAOECharmAura()            const { return HasAuraType(SPELL_AURA_AOE_CHARM); };
+    [[nodiscard]] bool HasDetectSpellsAura()        const { return HasAuraType(SPELL_AURA_DEFLECT_SPELLS); };
+    [[nodiscard]] bool HasPacifySilenceAura()       const { return HasAuraType(SPELL_AURA_MOD_PACIFY_SILENCE); }
+    [[nodiscard]] bool HasSilenceAura()             const { return HasAuraType(SPELL_AURA_MOD_SILENCE); }
+    [[nodiscard]] bool HasShapeshiftAura()          const { return HasAuraType(SPELL_AURA_MOD_SHAPESHIFT); }
+    [[nodiscard]] bool HasDecreaseSpeedAura()       const { return HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED); }
+    [[nodiscard]] bool HasPacifyAura()              const { return HasAuraType(SPELL_AURA_MOD_PACIFY); }
+    [[nodiscard]] bool HasIgnoreTargetResistAura()  const { return HasAuraType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST); }
+    [[nodiscard]] bool HasIncreaseMountedSpeedAura() const { return HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED); }
+    [[nodiscard]] bool HasIncreaseMountedFlightSpeedAura() const { return HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED); }
+    [[nodiscard]] bool HasThreatAura()              const { return HasAuraType(SPELL_AURA_MOD_THREAT); }
+    [[nodiscard]] bool HasAttackerSpellCritChanceAura() const { return HasAuraType(SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE); }
+    [[nodiscard]] bool HasUnattackableAura()        const { return HasAuraType(SPELL_AURA_MOD_UNATTACKABLE); }
+    [[nodiscard]] bool HasHealthRegenInCombatAura() const { return HasAuraType(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT); }
+    [[nodiscard]] bool HasRegenDuringCombatAura()   const { return HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT); }
+    [[nodiscard]] bool HasFearAura()                const { return HasAuraType(SPELL_AURA_MOD_FEAR); }
+    [[nodiscard]] bool HasConfuseAura()             const { return HasAuraType(SPELL_AURA_MOD_CONFUSE); }
+    [[nodiscard]] bool HasRootAura()                const { return HasAuraType(SPELL_AURA_MOD_ROOT); }
+    [[nodiscard]] bool HasStunAura()                const { return HasAuraType(SPELL_AURA_MOD_STUN); }
+    [[nodiscard]] bool HasTauntAura()               const { return HasAuraType(SPELL_AURA_MOD_TAUNT); }
+    [[nodiscard]] bool HasStealthAura()             const { return HasAuraType(SPELL_AURA_MOD_STEALTH); }
+    [[nodiscard]] bool HasStealthDetectAura()       const { return HasAuraType(SPELL_AURA_MOD_STEALTH_DETECT); }
+    [[nodiscard]] bool HasInvisibilityAura()        const { return HasAuraType(SPELL_AURA_MOD_INVISIBILITY); }
+    [[nodiscard]] bool HasInvisibilityDetectAura()  const { return HasAuraType(SPELL_AURA_MOD_INVISIBILITY_DETECT); }
+
     bool IsHostileTo(Unit const* unit) const;
     bool IsHostileToPlayers() const;
     bool IsFriendlyTo(Unit const* unit) const;
@@ -1366,6 +1419,8 @@ public:
     
     bool IsPvP() const { return HasPvpFlag(UNIT_BYTE2_FLAG_PVP); }
     void SetPvP(bool state);
+    [[nodiscard]] bool IsFFAPvP() const { return HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP); }
+    [[nodiscard]] bool IsInSanctuary() const { return HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY); }
 
     UnitPetFlag GetPetFlags() const { return UnitPetFlag(GetByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS)); }
     bool HasPetFlag(UnitPetFlag flags) const { return HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, flags); }
@@ -1541,6 +1596,10 @@ public:
         return HasUnitState(UNIT_STATE_IN_FLIGHT);
     }
 
+    bool IsImmuneToAll() const { return IsImmuneToPC() && IsImmuneToNPC(); }
+    bool IsImmuneToPC() const { return HasUnitFlag(UNIT_FLAG_IMMUNE_TO_PC); }
+    bool IsImmuneToNPC() const { return HasUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC); }
+
     bool IsInCombat() const
     {
         return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
@@ -1561,14 +1620,6 @@ public:
     bool HasBreakableByDamageAuraType(AuraType type, uint32 excludeAura = 0) const;
     bool HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel = NULL) const;
 
-    bool HasStealthAura() const
-    {
-        return HasAuraType(SPELL_AURA_MOD_STEALTH);
-    }
-    bool HasInvisibilityAura() const
-    {
-        return HasAuraType(SPELL_AURA_MOD_INVISIBILITY);
-    }
     bool isFeared() const
     {
         return HasAuraType(SPELL_AURA_MOD_FEAR) || HasAuraType(SPELL_AURA_MOD_FEAR_2);
@@ -1651,7 +1702,7 @@ public:
     void SendSpellDamageImmune(Unit* target, uint32 spellId);
 
     void NearTeleportTo(float x, float y, float z, float orientation, bool casting = false);
-    void SendTeleportPacket(Position& pos);
+    void SendTeleportPacket(Position& pos, bool teleportingTransport = false);
     void BuildTeleportUpdateData(WorldPacket* data);
     virtual bool UpdatePosition(float x, float y, float z, float ang, bool teleport = false);
     // returns true if unit's position really changed
@@ -1669,14 +1720,17 @@ public:
 
     void SendSetPlayHoverAnim(bool PlayHoverAnim);
 
+    [[nodiscard]] float GetHoverHeight() const { return IsHovering() ? GetFloatValue(UNIT_FIELD_HOVER_HEIGHT) : 0.0f; }
     bool IsGravityDisabled() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY); }
     bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING); }
-    bool IsHovering() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_HOVER); }    
+    bool IsHovering() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_HOVER); }
+    bool isSwimming() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_SWIMMING); }
     bool SetWalk(bool enable);
     bool SetDisableGravity(bool disable, bool packetOnly = false);
     bool SetFall(bool enable);
     bool SetSwim(bool enable);
     bool SetCanFly(bool enable);
+    bool SetAlwaysAllowPitching(bool enable);
     bool SetWaterWalking(bool enable, bool packetOnly = false);
     bool SetFeatherFall(bool enable, bool packetOnly = false);
     bool SetHover(bool enable, bool packetOnly = false);
@@ -1686,10 +1740,10 @@ public:
     void SetFacingTo(float ori);
     void SetFacingToObject(WorldObject* object);
 
-    void SendChangeCurrentVictimOpcode(HostileReference* pHostileReference);
+    void SendChangeCurrentVictimOpcode(Unit* victim, std::vector<std::pair<Unit*, float>> const& threats);
     void SendClearThreatListOpcode();
-    void SendRemoveFromThreatListOpcode(HostileReference* pHostileReference);
-    void SendThreatListUpdate();
+    void SendRemoveFromThreatListOpcode(Unit* victim);
+    void SendThreatListUpdate(std::vector<std::pair<Unit*, float>> const& threats);
 
     void SendClearTarget();
 
@@ -1778,6 +1832,8 @@ public:
     void UpdateCharmAI();
     //Player* GetMoverSource() const;
     Player* m_movedPlayer;
+
+    GameClient* _gameClientMovingMe;
     SharedVisionList const& GetSharedVisionList()
     {
         return m_sharedVision;
@@ -2003,6 +2059,7 @@ public:
     // delayed+channeled spells are always accounted as casted
     // we can skip channeled or delayed checks using flags
     bool IsNonMeleeSpellCasted(bool withDelayed, bool skipChanneled = false, bool skipAutorepeat = false, bool isAutoshoot = false, bool skipInstant = true) const;
+    bool IsMovementPreventedByCasting() const;
 
     // set withDelayed to true to interrupt delayed spells too
     // delayed+channeled spells are always interrupted
@@ -2108,27 +2165,19 @@ public:
     uint32 m_lastSanctuaryTime;
 
     // Threat related methods
-    bool CanHaveThreatList() const;
-    void AddThreat(Unit* victim, float fThreat, SpellSchoolMask schoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* threatSpell = NULL);
-    float ApplyTotalThreatModifier(float fThreat, SpellSchoolMask schoolMask = SPELL_SCHOOL_MASK_NORMAL);
-    void DeleteThreatList();
-    void TauntApply(Unit* victim);
-    void TauntFadeOut(Unit* taunter);
-    ThreatManager& getThreatManager()
-    {
-        return m_ThreatManager;
-    }
-    void addHatedBy(HostileReference* pHostileReference)
-    {
-        m_HostileRefManager.insertFirst(pHostileReference);
-    };
-    void removeHatedBy(HostileReference* /*pHostileReference*/)
-    { /* nothing to do yet */
-    }
-    HostileRefManager& getHostileRefManager()
-    {
-        return m_HostileRefManager;
-    }
+    bool CanHaveThreatList() const { return m_ThreatManager.CanHaveThreatList(); }
+    bool IsThreatenedBy(Unit const* who) const { return who && m_ThreatManager.IsThreatenedBy(who, true); }
+    bool IsInCombatWith(Unit const* who) const { return who && m_CombatManager.IsInCombatWith(who); }
+    bool IsEngagedBy(Unit const* who) const { return CanHaveThreatList() ? IsThreatenedBy(who) : IsInCombatWith(who); }
+    ThreatManager& GetThreatManager() { return m_ThreatManager; }
+    ThreatManager const& GetThreatManager() const { return m_ThreatManager; }
+    CombatManager& GetCombatManager() { return m_CombatManager; }
+    CombatManager const& GetCombatManager() const { return m_CombatManager; }
+
+    // returns if the unit can't enter combat
+    bool IsCombatDisallowed() const { return _isCombatDisallowed; }
+    // enables / disables combat interaction of this unit
+    void SetIsCombatDisallowed(bool apply) { _isCombatDisallowed = apply; }
 
     VisibleAuraMap const* GetVisibleAuras()
     {
@@ -2267,13 +2316,8 @@ public:
     void  ModSpellCastTime(SpellInfo const* spellProto, int32& castTime, Spell* spell = NULL);
     float CalculateLevelPenalty(SpellInfo const* spellProto) const;
 
-    void addFollower(FollowerReference* pRef)
-    {
-        m_FollowingRefManager.insertFirst(pRef);
-    }
-    void removeFollower(FollowerReference* /*pRef*/)
-    { /* nothing to do yet */
-    }
+    void FollowerAdded(AbstractFollower* follower) { _followers.insert(follower); }
+    void FollowerRemoved(AbstractFollower* follower) { _followers.erase(follower); }
     static Unit* GetUnit(WorldObject& object, ObjectGuid guid);
     static Player* GetPlayer(WorldObject& object, ObjectGuid guid);
     static Creature* GetCreature(WorldObject& object, ObjectGuid guid);
@@ -2475,6 +2519,12 @@ public:
     // Movement info
     Movement::MoveSpline* movespline;
 
+    // real time client control status of this unit (possess effects, vehicles and similar). For example, if this unit is a player temporarily under fear, it will return false.
+    bool IsMovedByClient() const { return GetGameClientMovingMe() != nullptr; }
+    bool IsMovedByServer() const { return !IsMovedByClient(); }
+    GameClient* GetGameClientMovingMe() const { return _gameClientMovingMe; }
+    void SetGameClientMovingMe(GameClient* gameClientMovingMe) { _gameClientMovingMe = gameClientMovingMe; }
+
     virtual void Talk(std::string const& text, ChatMsg msgType, Language language, float textRange, WorldObject const* target);
     virtual void Say(std::string const& text, Language language, WorldObject const* target = nullptr);
     virtual void Yell(std::string const& text, Language language, WorldObject const* target = nullptr);
@@ -2616,6 +2666,8 @@ protected:
     uint32 m_regenTimer;
 
     ThreatManager m_ThreatManager;
+    CombatManager m_CombatManager;
+    bool _isCombatDisallowed = false;
 
     Vehicle* m_vehicle;
     std::shared_ptr<Vehicle> m_vehicleKit;
@@ -2669,10 +2721,8 @@ private:
     TimeTrackerSmall m_splineSyncTimer;
 
     Diminishing m_Diminishing;
-    // Manage all Units that are threatened by us
-    HostileRefManager m_HostileRefManager;
 
-    FollowerRefManager m_FollowingRefManager;
+    std::set<AbstractFollower*> _followers;
 
     GuidSet m_comboPointHolders;
     uint32 m_comboPointResetTimer = 0;
@@ -2699,6 +2749,7 @@ private:
 
     // used to track total damage each player has made to the unit
     std::map<uint64, uint32> _playerTotalDamage;
+    FunctionProcessor _functionsDelayed;
 };
 
 namespace Trinity

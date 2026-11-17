@@ -1540,7 +1540,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = nullptr) const override
             {
-                if (player && player->IsGameMaster())
+                if (_SkipCheckRequiredBosses(player))
                     return true;
 
                 switch (bossId)
@@ -1934,7 +1934,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         }
                         break;
                     case EVENT_TELEPORT_TO_FROSMOURNE: // Harvest Soul (normal mode)
-                        if (Creature* terenas = instance->SummonCreature(NPC_TERENAS_MENETHIL_FROSTMOURNE, TerenasSpawn, nullptr, 63000))
+                        if (Creature* terenas = instance->SummonCreature(NPC_TERENAS_MENETHIL_FROSTMOURNE, TerenasSpawn, nullptr, Milliseconds(63000)))
                         {
                             terenas->AI()->DoAction(ACTION_FROSTMOURNE_INTRO);
                             std::list<Creature*> triggers;
@@ -1946,10 +1946,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 visual->CastSpell(visual, SPELL_FROSTMOURNE_TELEPORT_VISUAL, true);
                             }
 
-                            if (Creature* warden = instance->SummonCreature(NPC_SPIRIT_WARDEN, SpiritWardenSpawn, nullptr, 63000))
+                            if (Creature* warden = instance->SummonCreature(NPC_SPIRIT_WARDEN, SpiritWardenSpawn, nullptr, Milliseconds(63000)))
                             {
                                 terenas->AI()->AttackStart(warden);
-                                warden->AddThreat(terenas, 300000.0f);
+                                warden->GetThreatManager().AddThreat(terenas, 300000.0f);
                             }
                         }
                         break;

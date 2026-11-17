@@ -115,7 +115,7 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> 
     {
         T* obj = new T;
         uint32 guid = *i_guid;
-        //TC_LOG_INFO("misc", "DEBUG: LoadHelper from table: %s for (guid: %u) Loading", table, guid);
+        //TC_LOG_INFO("misc", "DEBUG: LoadHelper from table: {} for (guid: {}) Loading", table, guid);
         if (!obj->LoadFromDB(guid, map))
         {
             delete obj;
@@ -183,7 +183,7 @@ void ObjectGridLoader::LoadN(void)
             }
         }
     }
-    TC_LOG_DEBUG("maps", "%u GameObjects, %u Creatures, and %u Corpses/Bones loaded for grid %u on map %u", i_gameObjects, i_creatures, i_corpses, i_grid.GetGridId(), i_map->GetId());
+    TC_LOG_DEBUG("maps", "{} GameObjects, {} Creatures, and {} Corpses/Bones loaded for grid {} on map {}", i_gameObjects, i_creatures, i_corpses, i_grid.GetGridId(), i_map->GetId());
 }
 
 template<class T>
@@ -199,6 +199,11 @@ void ObjectGridUnloader::Visit(GridRefManager<T> &m)
         //So we need this even after cleaner (maybe we can remove cleaner)
         //Example: Flame Leviathan Turret 33139 is summoned when a creature is deleted
         /// @todo Check if that script has the correct logic. Do we really need to summons something before deleting?
+        // The loader registers objects with custom visibility on the map, and this is the one path that destroys
+        // them without Map::RemoveFromMap: the freed pointer would stay in the set until the next visibility scan.
+        if (obj->HasCustomVisibility())
+            if (Map* map = obj->FindMap())
+                map->RemoveCustomVisibilityObject(obj, obj->GetCustomVisibilityZoneID());
         obj->CleanupsBeforeDelete();
         ///- object will get delinked from the manager when deleted
         delete obj;
@@ -214,7 +219,8 @@ void ObjectGridStoper::Visit(CreatureMapType &m)
         if (iter->GetSource()->IsInCombat())
         {
             iter->GetSource()->CombatStop();
-            iter->GetSource()->DeleteThreatList();
+            iter->GetSource()->GetThreatManager().RemoveMeFromThreatLists();
+            iter->GetSource()->GetThreatManager().ClearAllThreat();
             iter->GetSource()->AI()->EnterEvadeMode();
         }
     }

@@ -345,8 +345,8 @@ public:
         if (quest->GetQuestId() == QUEST_A_CRY_FOR_SAY_HELP)
         {
             creature->SetFaction(113);
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_escortAI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
+            if (EscortAI* pEscortAI = CAST_AI(EscortAI, creature->AI()))
+                pEscortAI->Start(true, player->GetGUID());
         }
         return true;
     }
@@ -356,11 +356,11 @@ public:
         return new npc_magwinAI(creature);
     }
 
-    struct npc_magwinAI : public npc_escortAI
+    struct npc_magwinAI : public EscortAI
     {
-        npc_magwinAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_magwinAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             if (Player* player = GetPlayerForEscort())
             {
@@ -454,7 +454,7 @@ public:
         {
             Step = 0;
             EventStarted = true;
-            if (Creature* Spark = me->SummonCreature(NPC_SPARK, SparkPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
+            if (Creature* Spark = me->SummonCreature(NPC_SPARK, SparkPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000ms))
             {
                 SparkGUID = Spark->GetGUID();
                 Spark->setActive(true);
@@ -677,7 +677,7 @@ class npc_stillpine_capitive : public CreatureScript
                     cage->SetGoState(GO_STATE_READY);
                 }
                 _events.Reset();
-                _player = NULL;
+                _playerGUID.Clear();
                 _movementComplete = false;
             }
 
@@ -686,7 +686,7 @@ class npc_stillpine_capitive : public CreatureScript
                 if (owner)
                 {
                     Talk(CAPITIVE_SAY, owner);
-                    _player = owner;
+                    _playerGUID = owner->GetGUID();
                 }
                 Position pos = me->GetNearPosition(3.0f, 0.0f);
                 me->GetMotionMaster()->MovePoint(POINT_INIT, pos);
@@ -697,7 +697,7 @@ class npc_stillpine_capitive : public CreatureScript
                 if (type != POINT_MOTION_TYPE || id != POINT_INIT)
                     return;
 
-                if (_player)
+                if (Player* _player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                     _player->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
 
                 _movementComplete = true;
@@ -716,7 +716,7 @@ class npc_stillpine_capitive : public CreatureScript
             }
 
         private:
-            Player* _player;
+            ObjectGuid _playerGUID;
             EventMap _events;
             bool _movementComplete;
         };

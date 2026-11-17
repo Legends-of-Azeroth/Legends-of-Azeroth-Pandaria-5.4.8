@@ -159,7 +159,7 @@ class boss_kalecgos : public CreatureScript
                 isBanished = false;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 justReset = true;
                 me->SetVisible(false);
@@ -191,7 +191,8 @@ class boss_kalecgos : public CreatureScript
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
                         me->InterruptNonMeleeSpells(true);
                         me->RemoveAllAuras();
-                        me->DeleteThreatList();
+                        me->GetThreatManager().RemoveMeFromThreatLists();
+                        me->GetThreatManager().ClearAllThreat();
                         me->CombatStop();
                         ++talkSequence;
                     }
@@ -587,11 +588,11 @@ class boss_sathrovarr : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 isStarted = true;
-                if (Creature* kalec = me->SummonCreature(NPC_KALEC, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
+                if (Creature* kalec = me->SummonCreature(NPC_KALEC, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0ms))
                 {
                     kalecGUID = kalec->GetGUID();
                     me->CombatStart(kalec);
-                    me->AddThreat(kalec, 100.0f);
+                    me->GetThreatManager().AddThreat(kalec, 100.0f);
                     kalec->setActive(true);
                 }
                 Talk(SAY_SATH_AGGRO);
@@ -724,11 +725,11 @@ class boss_sathrovarr : public CreatureScript
 
                 if (resetThreat <= diff)
                 {
-                    for (auto&& itr : me->getThreatManager().getThreatList())
+                    for (auto&& ref : me->GetThreatManager().GetUnsortedThreatList())
                     {
-                        if (Unit* unit = Unit::GetUnit(*me, itr->getUnitGuid()))
+                        if (Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID()))
                             if (unit->GetPositionZ() > me->GetPositionZ()+5)
-                                me->getThreatManager().modifyThreatPercent(unit,-100);
+                                me->GetThreatManager().ModifyThreatByPercent(unit,-100);
                     }
                     resetThreat = 1000;
                 } else resetThreat -= diff;

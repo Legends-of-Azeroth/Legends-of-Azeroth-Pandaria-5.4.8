@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -22,15 +22,23 @@
 
 #include "Hacks/boost_1_73_process_windows_nopch.h"
 
+#if __has_include(<boost/process/v1/args.hpp>)
+#define BOOST_PROCESS_V1_HEADER(header) <boost/process/v1/header>
+#define BOOST_PROCESS_VERSION 1
+#else
+#define BOOST_PROCESS_V1_HEADER(header) <boost/process/header>
+#endif
+#include BOOST_PROCESS_V1_HEADER(args.hpp)
+#include BOOST_PROCESS_V1_HEADER(child.hpp)
+#include BOOST_PROCESS_V1_HEADER(env.hpp)
+#include BOOST_PROCESS_V1_HEADER(error.hpp)
+#include BOOST_PROCESS_V1_HEADER(exe.hpp)
+#include BOOST_PROCESS_V1_HEADER(io.hpp)
+#include BOOST_PROCESS_V1_HEADER(pipe.hpp)
+#include BOOST_PROCESS_V1_HEADER(search_path.hpp)
+
 #include <boost/algorithm/string/join.hpp>
 #include <boost/iostreams/copy.hpp>
-#include <boost/process/args.hpp>
-#include <boost/process/child.hpp>
-#include <boost/process/env.hpp>
-#include <boost/process/exe.hpp>
-#include <boost/process/io.hpp>
-#include <boost/process/pipe.hpp>
-#include <boost/process/search_path.hpp>
 
 using namespace boost::process;
 using namespace boost::iostreams;
@@ -87,7 +95,7 @@ static int CreateChildProcess(T waiter, std::string const& executable,
 
     if (!secure)
     {
-        TC_LOG_TRACE(logger, "Starting process \"%s\" with arguments: \"%s\".",
+        TC_LOG_TRACE(logger, "Starting process \"{}\" with arguments: \"{}\".",
                 executable.c_str(), boost::algorithm::join(argsVector, " ").c_str());
     }
 
@@ -129,12 +137,12 @@ static int CreateChildProcess(T waiter, std::string const& executable,
 
     auto outInfo = MakeTCLogSink([&](std::string_view msg)
     {
-        TC_LOG_INFO(logger, STRING_VIEW_FMT, STRING_VIEW_FMT_ARG(msg));
+        TC_LOG_INFO(logger, "{}", msg);
     });
 
     auto outError = MakeTCLogSink([&](std::string_view msg)
     {
-        TC_LOG_ERROR(logger, STRING_VIEW_FMT, STRING_VIEW_FMT_ARG(msg));
+        TC_LOG_ERROR(logger, "{}", msg);
     });
 
     copy(outStream, outInfo);
@@ -146,7 +154,7 @@ static int CreateChildProcess(T waiter, std::string const& executable,
 
     if (!secure)
     {
-        TC_LOG_TRACE(logger, ">> Process \"%s\" finished with return value %i.",
+        TC_LOG_TRACE(logger, ">> Process \"{}\" finished with return value {}.",
                 executable.c_str(), result);
     }
 

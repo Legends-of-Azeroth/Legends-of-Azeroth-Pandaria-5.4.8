@@ -194,7 +194,7 @@ class boss_ultraxion: public CreatureScript
                 me->GetMap()->SetWorldState(WORLDSTATE_MINUTES_TO_MIDNIGHT, 1);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 phase = 0;

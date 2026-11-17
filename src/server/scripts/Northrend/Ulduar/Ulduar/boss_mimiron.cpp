@@ -419,7 +419,8 @@ class boss_mimiron : public CreatureScript
                 me->RemoveAllAuras();
                 me->AttackStop();
                 me->SetFaction(35);
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
 
                 if (_gotHardMode)
@@ -622,7 +623,7 @@ class boss_mimiron : public CreatureScript
                                     me->SetUInt32Value(UNIT_FIELD_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                                     if (instance)
                                     {
-                                        if (Creature* AerialUnit = me->SummonCreature(NPC_AERIAL_COMMAND_UNIT, 2744.65f, 2569.46f, 380.0f, 3.14159f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10*IN_MILLISECONDS))
+                                        if (Creature* AerialUnit = me->SummonCreature(NPC_AERIAL_COMMAND_UNIT, 2744.65f, 2569.46f, 380.0f, 3.14159f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(10*IN_MILLISECONDS)))
                                         {
                                             AerialUnit->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                             AerialUnit->SetVisible(true);
@@ -657,7 +658,7 @@ class boss_mimiron : public CreatureScript
                                 case PHASE_VX001_ACTIVATION:
                                     if (instance)
                                     {
-                                        if (Creature* VX_001 = me->SummonCreature(NPC_VX_001, 2744.65f, 2569.46f, 364.397f, 3.14159f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10*IN_MILLISECONDS))
+                                        if (Creature* VX_001 = me->SummonCreature(NPC_VX_001, 2744.65f, 2569.46f, 364.397f, 3.14159f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(10*IN_MILLISECONDS)))
                                         {
                                             instance->SetData(DATA_MIMIRON_ELEVATOR, GO_STATE_ACTIVE_ALTERNATIVE);
                                             VX_001->SetVisible(true);
@@ -1535,7 +1536,7 @@ class boss_vx_001 : public CreatureScript
                 switch (spell->Id)
                 {
                     case SPELL_FROSTBOMB:
-                        me->SummonCreature(NPC_FROST_BOMB, *target, TEMPSUMMON_TIMED_DESPAWN, 11*IN_MILLISECONDS);
+                        me->SummonCreature(NPC_FROST_BOMB, *target, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(11*IN_MILLISECONDS));
                         break;
                     default:
                         break;
@@ -1567,7 +1568,7 @@ class boss_vx_001 : public CreatureScript
                     {
                         case EVENT_RAPID_BURST:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                                if (Creature* BurstTarget = me->SummonCreature(NPC_BURST_TARGET, *target, TEMPSUMMON_TIMED_DESPAWN, 3.1*IN_MILLISECONDS))
+                                if (Creature* BurstTarget = me->SummonCreature(NPC_BURST_TARGET, *target, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(uint32(3.1*IN_MILLISECONDS))))
                                 {
                                     DoCast(BurstTarget, SPELL_RAPID_BURST);
                                     me->SetFacingToObject(target);
@@ -1611,7 +1612,7 @@ class boss_vx_001 : public CreatureScript
                         case EVENT_ROCKET_STRIKE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                             {
-                                if (Creature* pTemp = me->SummonCreature(NPC_MIMIRON_FOCUS, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10*IN_MILLISECONDS))
+                                if (Creature* pTemp = me->SummonCreature(NPC_MIMIRON_FOCUS, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(10*IN_MILLISECONDS)))
                                 {
                                     pTemp->SetReactState(REACT_PASSIVE);
                                     pTemp->SetDisplayFromModel(1);
@@ -1627,7 +1628,7 @@ class boss_vx_001 : public CreatureScript
                             if (_phase == PHASE_VX001_ASSEMBLED__GLOBAL_4)
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 {
-                                    if (Creature* pTemp = me->SummonCreature(NPC_MIMIRON_FOCUS, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10*IN_MILLISECONDS))
+                                    if (Creature* pTemp = me->SummonCreature(NPC_MIMIRON_FOCUS, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(10*IN_MILLISECONDS)))
                                     {
                                         pTemp->SetReactState(REACT_PASSIVE);
                                         pTemp->SetDisplayFromModel(1);
@@ -2264,7 +2265,7 @@ class npc_mimiron_bomb_bot : public CreatureScript
                     if (Unit* target = me->FindNearestPlayer(100.0f))
                     {
                         AttackStart(target);
-                        me->AddThreat(target, 100000000.0f);
+                        me->GetThreatManager().AddThreat(target, 100000000.0f);
                         me->GetMotionMaster()->MoveFollow(target, 0.01f, 0.0f);
                     }
                 });
@@ -2544,7 +2545,7 @@ class npc_mimiron_db_target : public CreatureScript
             }
 
             void JustEngagedWith(Unit* /*who*/) override { }
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
             void UpdateAI(uint32 /*diff*/) override { }
         };
 

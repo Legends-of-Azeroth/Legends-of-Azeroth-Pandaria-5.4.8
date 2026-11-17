@@ -192,7 +192,7 @@ class boss_palehoof : public CreatureScript
             //            {
             //                me->SetInCombatWith(i_pl);
             //                i_pl->SetInCombatWith(me);
-            //                me->AddThreat(i_pl, 1.0f);
+            //                me->GetThreatManager().AddThreat(i_pl, 1.0f);
             //            }
             //    }
             //}
@@ -219,7 +219,7 @@ class boss_palehoof : public CreatureScript
 
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
                     DoStartMovement(who);
@@ -431,7 +431,7 @@ class npc_ravenous_furbolg : public CreatureScript
 
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
                     DoStartMovement(who);
@@ -545,7 +545,7 @@ class npc_frenzied_worgen : public CreatureScript
 
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
                     DoStartMovement(who);
@@ -667,7 +667,7 @@ class npc_ferocious_rhino : public CreatureScript
 
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
                     DoStartMovement(who);
@@ -771,7 +771,7 @@ class npc_massive_jormungar : public CreatureScript
                         DoCast(me, DUNGEON_MODE(SPELL_ACID_SPLATTER, SPELL_ACID_SPLATTER_H)); //for 2 seconds only?
                         uiAcidSplatterTimer = 25 * IN_MILLISECONDS + rand() % 5 * IN_MILLISECONDS;
                         for (uint8 i = 0; i < 6; ++i)
-                            DoSpawnCreature(NPC_JORMUNGAR_WORM, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+                            DoSpawnCreature(NPC_JORMUNGAR_WORM, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000ms);
                     }
                 } else uiAcidSplatterTimer -= diff;
 
@@ -798,7 +798,7 @@ class npc_massive_jormungar : public CreatureScript
 
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    me->GetThreatManager().AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
                     DoStartMovement(who);
@@ -870,7 +870,7 @@ class npc_palehoof_orb : public CreatureScript
                         {
                             me->SetInCombatWith(i_pl);
                             i_pl->SetInCombatWith(me);
-                            me->AddThreat(i_pl, 1.0f);
+                            me->GetThreatManager().AddThreat(i_pl, 1.0f);
                         }
                 }
             }*/

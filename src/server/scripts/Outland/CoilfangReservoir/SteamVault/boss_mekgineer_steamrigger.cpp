@@ -121,14 +121,14 @@ class boss_mekgineer_steamrigger : public CreatureScript
             {
                 Talk(SAY_MECHANICS);
 
-                DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, 5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
-                DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, -5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
-                DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, -5, -5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
+                DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, 5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000ms);
+                DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, -5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000ms);
+                DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, -5, -5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000ms);
 
                 if (rand()%2)
-                    DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, 5, -7, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
+                    DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, 5, -7, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000ms);
                 if (rand()%2)
-                    DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, 7, -5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
+                    DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, 7, -5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000ms);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override

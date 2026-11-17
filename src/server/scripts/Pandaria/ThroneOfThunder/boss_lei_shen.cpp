@@ -340,7 +340,7 @@ class boss_lei_shen : public CreatureScript
                 phaseId = PHASE_DEFAULT;
             }
     
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();

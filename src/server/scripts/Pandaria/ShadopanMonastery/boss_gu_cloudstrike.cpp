@@ -164,7 +164,7 @@ class boss_gu_cloudstrike : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)

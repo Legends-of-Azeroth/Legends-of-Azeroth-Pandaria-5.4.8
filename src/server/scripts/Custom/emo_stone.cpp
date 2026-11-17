@@ -24,7 +24,7 @@ public:
 				if (!player->FindNearestCreature(128, 100.0f, true))
 				{
 					player->CLOSE_GOSSIP_MENU();
-					player->SummonCreature(128, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), -1.52f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+					player->SummonCreature(128, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), -1.52f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000ms);
 				}
 				else
 					player->CLOSE_GOSSIP_MENU();

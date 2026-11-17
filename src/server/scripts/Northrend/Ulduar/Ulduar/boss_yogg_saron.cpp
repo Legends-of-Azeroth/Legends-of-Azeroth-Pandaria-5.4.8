@@ -563,7 +563,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                     me->SetInCombatWithZone();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
 
@@ -1013,7 +1013,7 @@ class boss_sara : public CreatureScript
                             pos.m_positionX = YoggSaronSpawnPos.GetPositionX() + radius * cosf(angle);
                             pos.m_positionY = YoggSaronSpawnPos.GetPositionY() + radius * sinf(angle);
                             pos.m_positionZ = me->GetMap()->GetHeight(me->GetPhaseMask(), pos.GetPositionX(), pos.GetPositionY(), YoggSaronSpawnPos.GetPositionZ() + 5.0f);
-                            me->SummonCreature(NPC_DEATH_RAY, pos, TEMPSUMMON_TIMED_DESPAWN, 20000);
+                            me->SummonCreature(NPC_DEATH_RAY, pos, TEMPSUMMON_TIMED_DESPAWN, 20000ms);
                         }
                         break;
                     case NPC_DEATH_RAY:
@@ -1718,9 +1718,9 @@ class npc_crusher_tentacle : public CreatureScript
                         {
                             if (newVictim != me->GetVictim())
                             {
-                                float threat = me->getThreatManager().getThreat(me->GetVictim());
-                                me->getThreatManager().modifyThreatPercent(me->GetVictim(), -100);
-                                me->AddThreat(newVictim, threat);
+                                float threat = me->GetThreatManager().GetThreat(me->GetVictim());
+                                me->GetThreatManager().ModifyThreatByPercent(me->GetVictim(), -100);
+                                me->GetThreatManager().AddThreat(newVictim, threat);
                                 AttackStartNoMove(newVictim);
                             }
                         }
@@ -3570,7 +3570,7 @@ class spell_yogg_saron_hate_to_zero : public SpellScriptLoader
             {
                 if (Unit* target = GetHitUnit())
                     if (target->CanHaveThreatList())
-                        target->getThreatManager().modifyThreatPercent(GetCaster(), -100);
+                        target->GetThreatManager().ModifyThreatByPercent(GetCaster(), -100);
             }
 
             void Register() override

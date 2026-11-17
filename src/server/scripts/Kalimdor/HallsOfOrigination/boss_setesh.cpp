@@ -194,7 +194,7 @@ class boss_setesh : public CreatureScript
                                 me->GetPositionZ(),
                                 me->GetOrientation(),
                                 IsHeroic()? TEMPSUMMON_DEAD_DESPAWN: TEMPSUMMON_TIMED_DESPAWN,
-                                IsHeroic()? 0: 35000);
+                                Milliseconds(IsHeroic()? 0: 35000));
                             events.ScheduleEvent(EVENT_SUMMON_CHAOS_PORTAL, urand(40000, 45000));
                             break;
                         case EVENT_MOVE:

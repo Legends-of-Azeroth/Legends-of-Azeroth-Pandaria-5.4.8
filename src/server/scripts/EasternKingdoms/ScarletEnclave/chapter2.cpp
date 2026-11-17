@@ -197,15 +197,15 @@ public:
         {
             creature->SetStandState(UNIT_STAND_STATE_STAND);
 
-            if (npc_escortAI* escortAI = CAST_AI(npc_koltira_deathweaver::npc_koltira_deathweaverAI, creature->AI()))
-                escortAI->Start(false, false, player->GetGUID());
+            if (EscortAI* escortAI = CAST_AI(npc_koltira_deathweaver::npc_koltira_deathweaverAI, creature->AI()))
+                escortAI->Start(false, player->GetGUID());
         }
         return true;
     }
 
-    struct npc_koltira_deathweaverAI : public npc_escortAI
+    struct npc_koltira_deathweaverAI : public EscortAI
     {
-        npc_koltira_deathweaverAI(Creature* creature) : npc_escortAI(creature)
+        npc_koltira_deathweaverAI(Creature* creature) : EscortAI(creature)
         {
             me->SetReactState(REACT_DEFENSIVE);
         }
@@ -224,7 +224,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             switch (waypointId)
             {
@@ -272,12 +272,12 @@ public:
         void SummonAcolyte(uint32 uiAmount)
         {
             for (uint32 i = 0; i < uiAmount; ++i)
-                me->SummonCreature(NPC_CRIMSON_ACOLYTE, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                me->SummonCreature(NPC_CRIMSON_ACOLYTE, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000ms);
         }
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (HasEscortState(STATE_ESCORT_PAUSED))
             {
@@ -302,7 +302,7 @@ public:
                             break;
                         case 3:
                             Talk(SAY_BREAKOUT6);
-                            me->SummonCreature(NPC_HIGH_INQUISITOR_VALROTH, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+                            me->SummonCreature(NPC_HIGH_INQUISITOR_VALROTH, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000ms);
                             waveTimer = 1000;
                             break;
                         case 4:

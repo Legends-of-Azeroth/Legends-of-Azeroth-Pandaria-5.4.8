@@ -21,6 +21,7 @@
 #include "MySQLConnection.h"
 #include "PreparedStatement.h"
 #include "Timer.h"
+#include <errmsg.h>
 #include <mysqld_error.h>
 #include <sstream>
 #include <thread>
@@ -28,6 +29,30 @@
 std::mutex TransactionTask::_deadlockLock;
 
 #define DEADLOCK_MAX_RETRY_TIME_MS 60000
+
+namespace
+{
+    // Errors a retry can get past: the deadlock itself and the transient ones (a lock wait that timed out, a refused,
+    // failed, lost or timed out connection, a host that could not be reached). Anything else (a duplicate key for
+    // instance) fails the same way every time.
+    bool IsRetryableError(int error)
+    {
+        switch (error)
+        {
+            case ER_LOCK_DEADLOCK:
+            case ER_LOCK_WAIT_TIMEOUT:
+            case ER_CON_COUNT_ERROR:
+            case CR_SERVER_GONE_ERROR:
+            case CR_SERVER_LOST:
+            case CR_SERVER_LOST_EXTENDED:
+            case CR_CONNECTION_ERROR:
+            case CR_CONN_HOST_ERROR:
+                return true;
+            default:
+                return false;
+        }
+    }
+}
 
 //- Append a raw ad-hoc query to the transaction
 void TransactionBase::Append(char const* sql)
@@ -74,13 +99,22 @@ bool TransactionTask::Execute(MySQLConnection* conn, std::shared_ptr<Transaction
 
         for (uint32 loopDuration = 0, startMSTime = getMSTime(); loopDuration <= DEADLOCK_MAX_RETRY_TIME_MS; loopDuration = GetMSTimeDiffToNow(startMSTime))
         {
-            if (!TryExecute(conn, trans))
+            int retryError = TryExecute(conn, trans);
+            if (!retryError)
                 return true;
 
-            TC_LOG_WARN("sql.sql", "Deadlocked SQL Transaction, retrying. Loop timer: %u ms, Thread Id: %s", loopDuration, threadId.c_str());
+            // an error that repeating cannot fix (a duplicate key for instance): give up
+            if (!IsRetryableError(retryError))
+            {
+                TC_LOG_ERROR("sql.sql", "Deadlocked SQL Transaction failed with error {} on retry, giving up. Thread Id: {}", retryError, threadId.c_str());
+                trans->Cleanup();
+                return false;
+            }
+
+            TC_LOG_WARN("sql.sql", "Deadlocked SQL Transaction, retrying. Loop timer: {} ms, Thread Id: {}", loopDuration, threadId.c_str());
         }
 
-        TC_LOG_ERROR("sql.sql", "Fatal deadlocked SQL Transaction, it will not be retried anymore. Thread Id: %s", threadId.c_str());
+        TC_LOG_ERROR("sql.sql", "Fatal deadlocked SQL Transaction, it will not be retried anymore. Thread Id: {}", threadId.c_str());
     }
 
     // Clean up now.

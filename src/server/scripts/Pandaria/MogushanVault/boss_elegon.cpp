@@ -341,7 +341,7 @@ class boss_elegon : public CreatureScript
                 events.ScheduleEvent(EVENT_ENRAGE_HARD, 570000); // 9min30
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();
@@ -660,7 +660,7 @@ class boss_elegon : public CreatureScript
 
                                     me->AI()->AttackStart(pItr);
                                     me->SetInCombatWith(pItr);
-                                    me->getThreatManager().addThreat(pItr, 100.0f);
+                                    me->GetThreatManager().AddThreat(pItr, 100.0f);
                                     canGrasp = false;
                                     break;
                                 }
@@ -1315,7 +1315,7 @@ class npc_cosmic_spark : public CreatureScript
                     plrList.resize(1);
                     if (Unit* target = plrList.front())
                     {
-                        me->AddThreat(target, 150.0f);
+                        me->GetThreatManager().AddThreat(target, 150.0f);
                         AttackStart(target);
                     }
                 }

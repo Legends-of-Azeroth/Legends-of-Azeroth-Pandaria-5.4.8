@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -26,6 +26,7 @@
 #include "Util.h"
 #include "AccountMgr.h"
 #include "WorldSession.h"
+#include "RBAC.h"
 
 PlayerSocial::PlayerSocial(): m_playerGUID()
 { }
@@ -209,7 +210,7 @@ void SocialMgr::GetFriendInfo(Player* player, ObjectGuid friendGUID, FriendInfo&
     friendInfo.Level = 0;
     friendInfo.Class = 0;
 
-    Player* target = ObjectAccessor::FindPlayer(friendGUID);
+    Player* target = ObjectAccessor::FindConnectedPlayer(friendGUID);
     if (!target)
         return;
 
@@ -220,11 +221,11 @@ void SocialMgr::GetFriendInfo(Player* player, ObjectGuid friendGUID, FriendInfo&
     // PLAYER see his team only and PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
     // MODERATOR, GAME MASTER, ADMINISTRATOR can see all
 
-    if (player->GetSession()->GetSecurity() == SEC_PLAYER && target->GetSession()->GetSecurity() > AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST)))
+    if (!player->GetSession()->HasPermission(rbac::RBAC_PERM_WHO_SEE_ALL_SEC_LEVELS) && target->GetSession()->GetSecurity() > AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST)))
         return;
 
     // player can see member of other team only if CONFIG_ALLOW_TWO_SIDE_WHO_LIST
-    if (target->GetTeam() != player->GetTeam() && player->GetSession()->GetSecurity() == SEC_PLAYER)
+    if (target->GetTeam() != player->GetTeam() && !player->GetSession()->HasPermission(rbac::RBAC_PERM_TWO_SIDE_WHO_LIST))
         return;
 
     if (target->IsVisibleGloballyFor(player))
@@ -301,10 +302,10 @@ void SocialMgr::BroadcastToFriendListers(Player* player, WorldPacket* packet)
                 continue;
 
             WorldSession* session = target->GetSession();
-            if (player->GetSession()->GetSecurity() > gmSecLevel)
+            if (!session->HasPermission(rbac::RBAC_PERM_WHO_SEE_ALL_SEC_LEVELS) && player->GetSession()->GetSecurity() > gmSecLevel)
                 continue;
 
-            if (target->GetTeam() != player->GetTeam() && !session->GetSecurity() == SEC_PLAYER)
+            if (target->GetTeam() != player->GetTeam() && !session->HasPermission(rbac::RBAC_PERM_TWO_SIDE_WHO_LIST))
                 continue;
 
             if (player->IsVisibleGloballyFor(target))

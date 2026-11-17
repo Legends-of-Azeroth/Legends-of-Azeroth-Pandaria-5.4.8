@@ -57,7 +57,7 @@ public:
             float x, y, z;
             me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, 0.1f);
 
-            if (Unit* summon = me->SummonCreature(NPC_RAGECLAW, x, y, z, 0, TEMPSUMMON_DEAD_DESPAWN, 1000))
+            if (Unit* summon = me->SummonCreature(NPC_RAGECLAW, x, y, z, 0, TEMPSUMMON_DEAD_DESPAWN, 1000ms))
             {
                 _rageclawGUID = summon->GetGUID();
                 LockRageclaw();

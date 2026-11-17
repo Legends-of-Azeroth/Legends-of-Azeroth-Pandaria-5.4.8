@@ -19,7 +19,8 @@
 #include "ScriptedCreature.h"
 #include "siege_of_orgrimmar.h"
 #include "PlayerAI.h"
-#include "TargetedMovementGenerator.h"
+#include "ChaseMovementGenerator.h"
+#include "FollowMovementGenerator.h"
 
 // Todo: find berserk info.
 
@@ -340,8 +341,13 @@ class TouchYshaarjAI : public PlayerAI
                 MovementGeneratorType mgType = me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_ACTIVE);
                 if (mgType == FOLLOW_MOTION_TYPE || mgType == CHASE_MOTION_TYPE)
                 {
-                    TargetedMovementGeneratorBase* movementGenerator = dynamic_cast<TargetedMovementGeneratorBase*>(me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_ACTIVE));
-                    if (movementGenerator && !(movementGenerator->GetTarget() && movementGenerator->GetTarget()->IsAlive()))
+                    MovementGenerator* movementGenerator = me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_ACTIVE);
+                    Unit* movementTarget = nullptr;
+                    if (ChaseMovementGenerator* chase = dynamic_cast<ChaseMovementGenerator*>(movementGenerator))
+                        movementTarget = chase->GetTarget();
+                    else if (FollowMovementGenerator* follow = dynamic_cast<FollowMovementGenerator*>(movementGenerator))
+                        movementTarget = follow->GetTarget();
+                    if (movementGenerator && !(movementTarget && movementTarget->IsAlive()))
                     {
                         // Delete targeted movement generator if there is no target anymore or the target is dead
                         if (me->GetMotionMaster()->top() == me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_CONTROLLED))
@@ -530,7 +536,7 @@ class boss_garrosh_hellscream : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();
@@ -3591,8 +3597,11 @@ class sat_garrosh_desecrated_weapon : public IAreaTriggerAura
 {
     bool CheckTriggering(WorldObject* triggering) override
     {
+        if (!triggering)
+            return false;
+
         if (Creature* garrosh = ObjectAccessor::GetCreature(*triggering, triggering->GetInstanceScript() ? triggering->GetInstanceScript()->GetGuidData(DATA_GARROSH_HELLSCREAM) : ObjectGuid::Empty))
-            return triggering && triggering->ToPlayer() && triggering->ToPlayer()->IsAlive() && !triggering->ToPlayer()->HasAura(SPELL_TOUCH_OH_YSHAARJ) && !triggering->ToPlayer()->HasAura(SPELL_TOUCH_OF_YSHAARJ_PLAYER_EFF) && !triggering->ToPlayer()->HasAura(SPELL_EMPOWERED_TOUCH_OF_YSHAARJ) && !triggering->ToPlayer()->HasAura(SPELL_EMP_TOUCH_OF_YSHAARJ_PLAYER_EFF) && !triggering->ToPlayer()->HasAura(SPELL_ENTER_REALM_OF_GARROSH) && !garrosh->AI()->GetData(TYPE_GARROSH_REALM); // prevent hit from AT if already in transition.
+            return triggering->ToPlayer() && triggering->ToPlayer()->IsAlive() && !triggering->ToPlayer()->HasAura(SPELL_TOUCH_OH_YSHAARJ) && !triggering->ToPlayer()->HasAura(SPELL_TOUCH_OF_YSHAARJ_PLAYER_EFF) && !triggering->ToPlayer()->HasAura(SPELL_EMPOWERED_TOUCH_OF_YSHAARJ) && !triggering->ToPlayer()->HasAura(SPELL_EMP_TOUCH_OF_YSHAARJ_PLAYER_EFF) && !triggering->ToPlayer()->HasAura(SPELL_ENTER_REALM_OF_GARROSH) && !garrosh->AI()->GetData(TYPE_GARROSH_REALM); // prevent hit from AT if already in transition.
 
         return false;
     }

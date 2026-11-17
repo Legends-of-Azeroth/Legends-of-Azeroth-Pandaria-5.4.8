@@ -360,7 +360,7 @@ class boss_jin_qin_xi : public CreatureScript
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 summons.DespawnAll();
 
@@ -993,7 +993,7 @@ class npc_woe_add_generic : public CreatureScript
                                 if (Player* itr = Trinity::Containers::SelectRandomContainerElement(PlayerOnTerracota))
                                 {
                                     me->AI()->AttackStart(itr);
-                                    me->getThreatManager().addThreat(itr, 10000.0f);
+                                    me->GetThreatManager().AddThreat(itr, 10000.0f);
 
                                     me->CastSpell(itr, SPELL_FOCALISED_ASSAULT, true);
                                     me->GetMotionMaster()->MoveChase(itr);
@@ -1005,7 +1005,7 @@ class npc_woe_add_generic : public CreatureScript
                                 if (Player* itr = me->FindNearestPlayer(VISIBLE_RANGE))
                                 {
                                     me->AI()->AttackStart(itr);
-                                    me->getThreatManager().addThreat(itr, 10000.0f);
+                                    me->GetThreatManager().AddThreat(itr, 10000.0f);
 
                                     me->CastSpell(itr, SPELL_FOCALISED_ASSAULT, true);
                                     me->GetMotionMaster()->MoveChase(itr);
@@ -1022,14 +1022,14 @@ class npc_woe_add_generic : public CreatureScript
                                 if (Player* itr = Trinity::Containers::SelectRandomContainerElement(PlayerOnTerracota))
                                 {
                                     me->AI()->AttackStart(itr);
-                                    me->getThreatManager().addThreat(itr, 300.0f);
+                                    me->GetThreatManager().AddThreat(itr, 300.0f);
                                 }
                             }
                             else 
                                 if (Player* itr = me->FindNearestPlayer(VISIBLE_RANGE))
                                 {
                                     me->AI()->AttackStart(itr);
-                                    me->getThreatManager().addThreat(itr, 300.0f);
+                                    me->GetThreatManager().AddThreat(itr, 300.0f);
                                 }
 
                             break;
@@ -1048,13 +1048,13 @@ class npc_woe_add_generic : public CreatureScript
                                 if (Player* itr = PlayerOnTerracota.back())
                                 {
                                     me->AI()->AttackStart(itr);
-                                    me->getThreatManager().addThreat(itr, 10000.0f);
+                                    me->GetThreatManager().AddThreat(itr, 10000.0f);
                                 }
                             }
                             else if (Player* itr = me->FindNearestPlayer(VISIBLE_RANGE))
                             {
                                 me->AI()->AttackStart(itr);
-                                me->getThreatManager().addThreat(itr, 10000.0f);
+                                me->GetThreatManager().AddThreat(itr, 10000.0f);
                             }
                             break;
                         }
@@ -1272,14 +1272,14 @@ class npc_woe_titan_spark : public CreatureScript
                         if (target->IsAlive())
                         {
                             me->RemoveChanneledCast(targetGuid);
-                            me->getThreatManager().addThreat(target, 3000.0f);
+                            me->GetThreatManager().AddThreat(target, 3000.0f);
                         }
                         // If our main target not alive - too select new.
                         else if (Unit* newTarget = ObjectAccessor::GetUnit(*me, GetTargetGUID()))
                         {
                             targetGuid = newTarget->GetGUID();
                             me->RemoveChanneledCast(targetGuid);
-                            me->getThreatManager().addThreat(target, 3000.0f);
+                            me->GetThreatManager().AddThreat(target, 3000.0f);
                         }
                     }
                     // If not found - select new
@@ -1287,7 +1287,7 @@ class npc_woe_titan_spark : public CreatureScript
                     {
                         targetGuid = target->GetGUID();
                         me->RemoveChanneledCast(targetGuid);
-                        me->getThreatManager().addThreat(target, 3000.0f);
+                        me->GetThreatManager().AddThreat(target, 3000.0f);
                     }
 
                     canExplode = true;
@@ -1616,7 +1616,7 @@ class spell_terracota_spawn : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuracript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_terracota_spawn_AuraScript();
         }
@@ -1801,7 +1801,7 @@ class spell_titan_gas final : public SpellScriptLoader
 
             void Register() override final
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_titan_gas_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_titan_gas_SpellScript::FilterTargets, EFFECT_0, TARGET_DEST_DB);
             }
         };
 

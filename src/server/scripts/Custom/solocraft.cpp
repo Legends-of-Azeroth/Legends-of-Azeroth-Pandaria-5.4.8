@@ -441,10 +441,10 @@ class solocraft_system_announce : public PlayerScript
 
         void OnLogout(Player* player) override
         {
-            QueryResult result = CharacterDatabase.PQuery("SELECT `GUID` FROM `custom_solocraft_character_stats` WHERE GUID = %u", player->GetGUID());
+            QueryResult result = CharacterDatabase.PQuery("SELECT `GUID` FROM `custom_solocraft_character_stats` WHERE GUID = {}", player->GetGUID().GetCounter());
             if (result)
             {
-                CharacterDatabase.PExecute("DELETE FROM custom_solocraft_character_stats WHERE GUID = %u", player->GetGUID());
+                CharacterDatabase.PExecute("DELETE FROM custom_solocraft_character_stats WHERE GUID = {}", player->GetGUID().GetCounter());
             }
         }
 
@@ -477,7 +477,7 @@ public:
             int dunLevel = CalculateDungeonLevel(map, player);
             int numInGroup = GetNumInGroup(player);
             uint32 classBalance = GetClassBalance(player);
-            TC_LOG_DEBUG("solocraft", "solocraft player guid = %u, difficulty=%f, dunLevel=%d, numInGroup=%d, classBalance=%lu", player->GetGUID().GetCounter(), difficulty, dunLevel, numInGroup, classBalance);
+            TC_LOG_DEBUG("solocraft", "solocraft player guid = {}, difficulty={}, dunLevel={}, numInGroup={}, classBalance={}", player->GetGUID().GetCounter(), difficulty, dunLevel, numInGroup, classBalance);
             ApplyBuffs(player, map, difficulty, dunLevel, numInGroup, classBalance);
         }
     }
@@ -603,7 +603,7 @@ protected:
                     }
                 }
 
-                QueryResult result = CharacterDatabase.PQuery("SELECT `guid`, `Difficulty`, `GroupSize`, `SpellPower`, `Stats` FROM `custom_solocraft_character_stats` WHERE `guid` = %lu", player->GetGUID().GetCounter());
+                QueryResult result = CharacterDatabase.PQuery("SELECT `guid`, `Difficulty`, `GroupSize`, `SpellPower`, `Stats` FROM `custom_solocraft_character_stats` WHERE `guid` = {}", player->GetGUID().GetCounter());
 
                 for (int32 i = STAT_STRENGTH; i < MAX_STATS; ++i)
                 {
@@ -657,7 +657,7 @@ protected:
                     // |cffFF0000[SoloCraft]|r |cffFF8000 %s entered %s - |cffFF0000BE ADVISED - You have been debuffed by offset: %0.2f with a Class Balance Weight: %i. |cffFF8000A group member already inside has the dungeon's full buff offset. No Spellpower buff will be applied to spell casters. ALL group members must exit the dungeon and re-enter to receive a balanced offset.
                 }
 
-                CharacterDatabase.PExecute("REPLACE INTO `custom_solocraft_character_stats` (`guid`, `Difficulty`, `GroupSize`, `SpellPower`, `Stats`) VALUES (%lu, %f, %u, %i, %f)", player->GetGUID().GetCounter(), difficulty, numInGroup, SpellPowerBonus, solocraftConfig.SoloCraftStatsMult);
+                CharacterDatabase.PExecute("REPLACE INTO `custom_solocraft_character_stats` (`guid`, `Difficulty`, `GroupSize`, `SpellPower`, `Stats`) VALUES ({}, {}, {}, {}, {})", player->GetGUID().GetCounter(), difficulty, numInGroup, SpellPowerBonus, solocraftConfig.SoloCraftStatsMult);
             }
             else
             {
@@ -684,7 +684,7 @@ protected:
             {
                 if (itr->guid != player->GetGUID())
                 {
-                    QueryResult result = CharacterDatabase.PQuery("SELECT `guid`, `Difficulty`, `GroupSize` FROM `custom_solocraft_character_stats` WHERE `guid` = %lu", itr->guid);
+                    QueryResult result = CharacterDatabase.PQuery("SELECT `guid`, `Difficulty`, `GroupSize` FROM `custom_solocraft_character_stats` WHERE `guid` = {}", itr->guid);
 
                     if (result)
                     {
@@ -702,7 +702,7 @@ protected:
 
     void ClearBuffs(Player* player, Map* map)
     {
-        QueryResult result = CharacterDatabase.PQuery("SELECT `guid`, `Difficulty`, `GroupSize`, `SpellPower`, `Stats` FROM `custom_solocraft_character_stats` WHERE `guid` = %lu", player->GetGUID().GetCounter());
+        QueryResult result = CharacterDatabase.PQuery("SELECT `guid`, `Difficulty`, `GroupSize`, `SpellPower`, `Stats` FROM `custom_solocraft_character_stats` WHERE `guid` = {}", player->GetGUID().GetCounter());
 
         if (result)
         {
@@ -727,7 +727,7 @@ protected:
                 player->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
             }
 
-            CharacterDatabase.PExecute("DELETE FROM `custom_solocraft_character_stats` WHERE `guid` = %lu", player->GetGUID().GetCounter());
+            CharacterDatabase.PExecute("DELETE FROM `custom_solocraft_character_stats` WHERE `guid` = {}", player->GetGUID().GetCounter());
         }
     }
 };

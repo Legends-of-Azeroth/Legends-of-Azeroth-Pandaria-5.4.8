@@ -40,37 +40,37 @@ public:
     {
         static std::vector<ChatCommand> accountSetSecTable =
         {
-            { "email",          SEC_ADMINISTRATOR,      true,  &HandleAccountSetEmailCommand        },
-        };      
+            { "email",          &HandleAccountSetEmailCommand, rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_EMAIL, Trinity::ChatCommands::Console::Yes },
+        };
         static std::vector<ChatCommand> accountLockCommandTable =
         {
-            { "country",        SEC_ADMINISTRATOR,      true,   &HandleAccountLockCountryCommand    },
-            { "ip",             SEC_ADMINISTRATOR,      true,   &HandleAccountLockIpCommand         },
+            { "country",        &HandleAccountLockCountryCommand, rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_COUNTRY, Trinity::ChatCommands::Console::Yes },
+            { "ip",             &HandleAccountLockIpCommand,      rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_IP,      Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> accountSetCommandTable =
         {
-            { "addon",          SEC_ADMINISTRATOR,      true,  &HandleAccountSetAddonCommand,       },
-            { "sec",            SEC_ADMINISTRATOR,      true,  accountSetSecTable                   },
-            { "gmlevel",        SEC_GAMEMASTER,         true,  &HandleAccountSetGmLevelCommand,     },
-            { "password",       SEC_ADMINISTRATOR,      true,  &HandleAccountSetPasswordCommand,    },
+            { "addon",          &HandleAccountSetAddonCommand,    rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_ADDON,    Trinity::ChatCommands::Console::Yes },
+            { "sec", accountSetSecTable, rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC, Trinity::ChatCommands::Console::Yes },
+            { "gmlevel", &HandleAccountSetGmLevelCommand, rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_GMLEVEL, Trinity::ChatCommands::Console::Yes },
+            { "password",       &HandleAccountSetPasswordCommand, rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD, Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> accountCommandTable =
         {
-            { "addon",          SEC_ADMINISTRATOR,      false, &HandleAccountAddonCommand,          },
-            { "create",         SEC_ADMINISTRATOR,      true,  &HandleAccountCreateCommand,         },
-            { "delete",         SEC_ADMINISTRATOR,      true,  &HandleAccountDeleteCommand,         },
-            { "email",          SEC_ADMINISTRATOR,      false, &HandleAccountEmailCommand,          },
-            { "onlinelist",     SEC_ADMINISTRATOR,      true,  &HandleAccountOnlineListCommand,     },
-            { "lock",           SEC_ADMINISTRATOR,      false, accountLockCommandTable              },
-            { "set",            SEC_ADMINISTRATOR,      true,  accountSetCommandTable               },
-            { "password",       SEC_ADMINISTRATOR,      false, &HandleAccountPasswordCommand,       },
-            { "boost",          SEC_ADMINISTRATOR,      true,  &HandleAccountBoostCommand,          },
-            { "",               SEC_ADMINISTRATOR,      false, &HandleAccountCommand,               },
+            { "addon",          &HandleAccountAddonCommand,      rbac::RBAC_PERM_COMMAND_ACCOUNT_ADDON,      Trinity::ChatCommands::Console::No },
+            { "create",         &HandleAccountCreateCommand,     rbac::RBAC_PERM_COMMAND_ACCOUNT_CREATE,     Trinity::ChatCommands::Console::Yes },
+            { "delete",         &HandleAccountDeleteCommand,     rbac::RBAC_PERM_COMMAND_ACCOUNT_DELETE,     Trinity::ChatCommands::Console::Yes },
+            { "email",          &HandleAccountEmailCommand,      rbac::RBAC_PERM_COMMAND_ACCOUNT_EMAIL,      Trinity::ChatCommands::Console::No },
+            { "onlinelist", &HandleAccountOnlineListCommand, rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINELIST, Trinity::ChatCommands::Console::Yes },
+            { "lock",           accountLockCommandTable,         rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK,       Trinity::ChatCommands::Console::No },
+            { "set",            accountSetCommandTable,          rbac::RBAC_PERM_COMMAND_ACCOUNT_SET,        Trinity::ChatCommands::Console::Yes },
+            { "password",       &HandleAccountPasswordCommand,   rbac::RBAC_PERM_COMMAND_ACCOUNT_PASSWORD,   Trinity::ChatCommands::Console::No },
+            { "boost", &HandleAccountBoostCommand, rbac::RBAC_PERM_COMMAND_ACCOUNT_BOOST, Trinity::ChatCommands::Console::Yes },
+            { "",               &HandleAccountCommand,           rbac::RBAC_PERM_COMMAND_ACCOUNT,            Trinity::ChatCommands::Console::No },
         };
-        static std::vector<ChatCommand> commandTable = 
+        static std::vector<ChatCommand> commandTable =
         {
-            { "account",        SEC_ADMINISTRATOR,      true,  accountCommandTable                  },
+            { "account",        accountCommandTable,             rbac::RBAC_PERM_COMMAND_ACCOUNT,            Trinity::ChatCommands::Console::Yes },
         };
         return commandTable;
     }
@@ -132,7 +132,7 @@ public:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName);
                 if (handler->GetSession())
                 {
-                    TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Character:[%s] (GUID: %u) created Account %s (Email: '%s')",
+                    TC_LOG_INFO("entities.player.character", "Account: {} (IP: {}) Character:[{}] (GUID: {}) created Account {} (Email: '{}')",
                         handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                         handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetCounter(),
                         accountName, email.c_str());
@@ -375,7 +375,7 @@ public:
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGEMAIL);
             handler->SetSentErrorMessage(true);
-            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change email, but the provided email [%s] is not equal to registration email [%s].",
+            TC_LOG_INFO("entities.player.character", "Account: {} (IP: {}) Character:[{}] (GUID: {}) Tried to change email, but the provided email [{}] is not equal to registration email [{}].",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                 handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetCounter(),
                 email, oldEmail);
@@ -386,7 +386,7 @@ public:
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
             handler->SetSentErrorMessage(true);
-            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change email, but the provided password is wrong.",
+            TC_LOG_INFO("entities.player.character", "Account: {} (IP: {}) Character:[{}] (GUID: {}) Tried to change email, but the provided password is wrong.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                 handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetCounter());
             return false;
@@ -403,7 +403,7 @@ public:
         {
             handler->SendSysMessage(LANG_NEW_EMAILS_NOT_MATCH);
             handler->SetSentErrorMessage(true);
-            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change email, but the provided password is wrong.",
+            TC_LOG_INFO("entities.player.character", "Account: {} (IP: {}) Character:[{}] (GUID: {}) Tried to change email, but the provided password is wrong.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                 handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetCounter());
             return false;
@@ -415,7 +415,7 @@ public:
         {
             case AccountOpResult::AOR_OK:
                 handler->SendSysMessage(LANG_COMMAND_EMAIL);
-                TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (GUID: %u) Changed Email from [%s] to [%s].",
+                TC_LOG_INFO("entities.player.character", "Account: {} (IP: {}) Character:[{}] (GUID: {}) Changed Email from [{}] to [{}].",
                     handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                     handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetCounter(),
                     oldEmail, email);
@@ -464,7 +464,7 @@ public:
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
             handler->SetSentErrorMessage(true);
-            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change password, but the provided old password is wrong.",
+            TC_LOG_INFO("entities.player.character", "Account: {} (IP: {}) Character:[{}] (GUID: {}) Tried to change password, but the provided old password is wrong.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                 handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetCounter());
             return false;
@@ -484,7 +484,7 @@ public:
         {
             case AccountOpResult::AOR_OK:
                 handler->SendSysMessage(LANG_COMMAND_PASSWORD);
-                TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (GUID: %u) Changed Password.",
+                TC_LOG_INFO("entities.player.character", "Account: {} (IP: {}) Character:[{}] (GUID: {}) Changed Password.",
                     handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                     handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetCounter());
                 break;
@@ -701,7 +701,8 @@ public:
             return false;
         }
 
-        sAccountMgr->UpdateAccountAccess(targetAccountId, uint8(gm), gmRealmID);
+        WorldSession* session = sWorld->FindSession(targetAccountId);
+        sAccountMgr->UpdateAccountAccess(session ? session->GetRBACData() : nullptr, targetAccountId, uint8(gm), gmRealmID);
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, targetAccountName.c_str(), gm);
         return true;
@@ -827,7 +828,7 @@ public:
         {
             case AccountOpResult::AOR_OK:
                 handler->SendSysMessage(LANG_COMMAND_EMAIL);
-                TC_LOG_INFO("entities.player.character", "ChangeEmail: Account %s [Id: %u] had it's email changed to %s.",
+                TC_LOG_INFO("entities.player.character", "ChangeEmail: Account {} [Id: {}] had it's email changed to {}.",
                     accountName.c_str(), targetAccountId, email);
                 break;
             case AccountOpResult::AOR_NAME_NOT_EXIST:

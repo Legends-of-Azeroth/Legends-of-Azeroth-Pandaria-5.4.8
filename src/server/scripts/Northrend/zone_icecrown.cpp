@@ -396,7 +396,7 @@ class npc_tournament_training_dummy : public CreatureScript
                 events.ScheduleEvent(EVENT_DUMMY_RECAST_DEFEND, 5000);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (!_EnterEvadeMode())
                     return;
@@ -927,7 +927,7 @@ class npc_frostbrood_skytalon : public CreatureScript
                     {
                         Position randomPosOnRadius;
                         randomPosOnRadius.m_positionZ = (me->GetPositionZ() + 40.0f);
-                        me->GetNearPoint2D(randomPosOnRadius.m_positionX, randomPosOnRadius.m_positionY, 40.0f, me->GetAngle(me));
+                        me->GetNearPoint2D(nullptr, randomPosOnRadius.m_positionX, randomPosOnRadius.m_positionY, 40.0f, me->GetAngle(me));
                         me->GetMotionMaster()->MovePoint(POINT_FLY_AWAY, randomPosOnRadius);
                     }
                 }

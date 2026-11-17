@@ -360,7 +360,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         EventProcessor m_Events;
         
         bool AIM_Initialize();
-
+        void AddDelayedEvent(uint64 timeOffset, std::function<void()>&& function);
     protected:
         void CreateModel();
         void UpdateModel();                                 // updates model in case displayId were changed
@@ -371,6 +371,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         bool        m_spawnedByDefault;
         time_t      m_cooldownTime;                         // used as internal reaction delay time store (not state change reaction).
         uint32      m_trapCooldownTime = 0;                 // higher resolution timer than time_t, used only for traps
+
+        GOState     m_prevGoState;                          // What state to set whenever resetting
 
         std::list<uint32> m_SkillupList;
 
@@ -409,6 +411,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         }
         GameObjectAI* m_AI;
         uint16 _animKitId;
+        FunctionProcessor _functions_delayed;
 };
 
 class ForcedGoDespawnDelayEvent : public BasicEvent

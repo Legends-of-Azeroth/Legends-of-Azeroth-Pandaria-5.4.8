@@ -83,6 +83,8 @@ void CombatAI::JustDied(Unit* killer)
 
 void CombatAI::JustEngagedWith(Unit* who)
 {
+    CreatureAI::JustEngagedWith(who);
+
     for (SpellVct::iterator i = spells.begin(); i != spells.end(); ++i)
     {
         if (AISpellInfo[*i].condition == AICOND_AGGRO)
@@ -134,6 +136,8 @@ void CasterAI::InitializeAI()
 
 void CasterAI::JustEngagedWith(Unit* who)
 {
+    CreatureAI::JustEngagedWith(who);
+
     if (spells.empty())
         return;
 
@@ -187,7 +191,7 @@ void CasterAI::UpdateAI(uint32 diff)
 ArcherAI::ArcherAI(Creature* c) : CreatureAI(c)
 {
     if (!me->m_spells[0])
-        TC_LOG_ERROR("misc", "ArcherAI set for creature (entry = %u) with spell1=0. AI will do nothing", me->GetEntry());
+        TC_LOG_ERROR("misc", "ArcherAI set for creature (entry = {}) with spell1=0. AI will do nothing", me->GetEntry());
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(me->m_spells[0]);
     m_minRange = spellInfo ? spellInfo->GetMinRange(false) : 0;
@@ -236,7 +240,7 @@ void ArcherAI::UpdateAI(uint32 /*diff*/)
 TurretAI::TurretAI(Creature* c) : CreatureAI(c)
 {
     if (!me->m_spells[0])
-        TC_LOG_ERROR("misc", "TurretAI set for creature (entry = %u) with spell1=0. AI will do nothing", me->GetEntry());
+        TC_LOG_ERROR("misc", "TurretAI set for creature (entry = {}) with spell1=0. AI will do nothing", me->GetEntry());
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(me->m_spells[0]);
     m_minRange = spellInfo ? spellInfo->GetMinRange(false) : 0;

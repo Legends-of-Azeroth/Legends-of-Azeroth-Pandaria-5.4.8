@@ -173,7 +173,7 @@ class boss_black_knight : public CreatureScript
                 DoZoneInCombat(summon, 200.0f);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->ClearUnitState(UNIT_STATE_STUNNED | UNIT_STATE_ROOT);
                 ScriptedAI::EnterEvadeMode();
@@ -471,7 +471,7 @@ class npc_risen_ghoul : public CreatureScript
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 40.0f, true))
                                 {
                                     DoResetThreat();
-                                    me->AddThreat(target, 1000.0f);
+                                    me->GetThreatManager().AddThreat(target, 1000.0f);
                                 }
                                 _events.ScheduleEvent(EVENT_CLAW, urand(4000, 8000));
                             }
@@ -482,7 +482,7 @@ class npc_risen_ghoul : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 1, 30.0f, true))
                             {
                                 DoResetThreat();
-                                me->AddThreat(target, 1000.0f);
+                                me->GetThreatManager().AddThreat(target, 1000.0f);
                                 DoCast(target, SPELL_LEAP);
                             }
                             _events.ScheduleEvent(EVENT_LEAP, urand(10000, 12000));
@@ -509,11 +509,11 @@ class npc_black_knight_skeletal_gryphon : public CreatureScript
     public:
         npc_black_knight_skeletal_gryphon() : CreatureScript("npc_black_knight_skeletal_gryphon") { }
 
-        struct npc_black_knight_skeletal_gryphonAI : public npc_escortAI
+        struct npc_black_knight_skeletal_gryphonAI : public EscortAI
         {
-            npc_black_knight_skeletal_gryphonAI(Creature* creature) : npc_escortAI(creature)
+            npc_black_knight_skeletal_gryphonAI(Creature* creature) : EscortAI(creature)
             {
-                Start(false, true, ObjectGuid::Empty, NULL);
+                SetRun(true); Start(false, ObjectGuid::Empty, NULL);
                 instance = creature->GetInstanceScript();
             }
 
@@ -524,9 +524,9 @@ class npc_black_knight_skeletal_gryphon : public CreatureScript
                 me->UpdateObjectVisibility();
             }
 
-            void WaypointReached(uint32 uiPointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                switch (uiPointId)
+                switch (waypointId)
                 {
                         case 1:
                             me->SetSpeed(MOVE_RUN , 2.0f);
@@ -576,7 +576,7 @@ class npc_black_knight_skeletal_gryphon : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;
@@ -595,20 +595,20 @@ class npc_gr : public CreatureScript
     public:
         npc_gr() : CreatureScript("npc_gr") { }
 
-        struct npc_grAI : public npc_escortAI
+        struct npc_grAI : public EscortAI
         {
 
-            npc_grAI(Creature* creature) : npc_escortAI(creature)
+            npc_grAI(Creature* creature) : EscortAI(creature)
             {
-                Start(false, true, ObjectGuid::Empty, NULL);
+                SetRun(true); Start(false, ObjectGuid::Empty, NULL);
                 instance = creature->GetInstanceScript();
             }
 
             InstanceScript* instance;
 
-            void WaypointReached(uint32 uiPointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
-                switch (uiPointId)
+                switch (waypointId)
                 {
                         case 1:
                             if (instance)
@@ -648,7 +648,7 @@ class npc_gr : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;
@@ -666,23 +666,24 @@ class npc_gr : public CreatureScript
     public:
         npc_black_knight_skeletal_gryphon() : CreatureScript("npc_black_knight_skeletal_gryphon") { }
 
-        struct npc_black_knight_skeletal_gryphonAI : public npc_escortAI
+        struct npc_black_knight_skeletal_gryphonAI : public EscortAI
         {
-            npc_black_knight_skeletal_gryphonAI(Creature* creature) : npc_escortAI(creature)
+            npc_black_knight_skeletal_gryphonAI(Creature* creature) : EscortAI(creature)
             {
-                Start(false, true, 0, NULL);
+                SetRun(true); Start(false, 0, NULL);
                 me->SetFlying(true);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
             }
 
-            void WaypointReached(uint32 waypointId) override { }
+            void MovementInform(uint32 type, uint32 waypointId) override {
+                EscortAI::MovementInform(type, waypointId); }
 
             void AttackStart(Unit* who) override { }
 
             void UpdateAI(uint32 diff) override
             {
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 if (!UpdateVictim())
                     return;

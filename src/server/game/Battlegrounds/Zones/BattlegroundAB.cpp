@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -379,7 +379,7 @@ void BattlegroundAB::_SendNodeUpdate(uint8 node)
 void BattlegroundAB::_NodeOccupied(uint8 node, Team team)
 {
     if (!AddSpiritGuide(node, BG_AB_SpiritGuidePos[node][0], BG_AB_SpiritGuidePos[node][1], BG_AB_SpiritGuidePos[node][2], BG_AB_SpiritGuidePos[node][3], team))
-        TC_LOG_ERROR("bg.battleground", "Failed to spawn spirit guide! point: %u, team: %u, ", node, team);
+        TC_LOG_ERROR("bg.battleground", "Failed to spawn spirit guide! point: {}, team: {}, ", node, team);
 
     if (node >= BG_AB_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
         return;

@@ -213,7 +213,7 @@ class boss_iron_juggernaut : public CreatureScript
                     summon->SetInCombatWithZone();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();
@@ -1132,7 +1132,7 @@ class spell_juggernaut_borer_drill_selector : public SpellScript
     {
         if (Unit* caster = GetCaster())
             if (Unit* target = GetHitUnit())
-                target->SummonCreature(NPC_BORER_DRILL, *caster, TEMPSUMMON_TIMED_DESPAWN, 13 * IN_MILLISECONDS);
+                target->SummonCreature(NPC_BORER_DRILL, *caster, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(13 * IN_MILLISECONDS));
     }
 
     void SelectTargets(std::list<WorldObject*>&targets)

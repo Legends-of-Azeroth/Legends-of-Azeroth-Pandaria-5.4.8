@@ -349,7 +349,7 @@ public:
                     // Shock Burst
                     // Randomly used in Phases 1 and 3 on Vashj's target, it's a Shock spell doing 8325-9675 nature damage and stunning the target for 5 seconds, during which she will not attack her target but switch to the next person on the aggro list.
                     DoCastVictim(SPELL_SHOCK_BLAST);
-                    me->TauntApply(me->GetVictim());
+                    me->GetThreatManager().TauntUpdate();
 
                     ShockBlastTimer = 1000+rand()%14000;       // random cooldown
                 } else ShockBlastTimer -= diff;
@@ -398,7 +398,7 @@ public:
                         DoTeleportTo(MIDDLE_X, MIDDLE_Y, MIDDLE_Z);
 
                         for (uint8 i = 0; i < 4; ++i)
-                            if (Creature* creature = me->SummonCreature(SHIED_GENERATOR_CHANNEL, ShieldGeneratorChannelPos[i][0],  ShieldGeneratorChannelPos[i][1],  ShieldGeneratorChannelPos[i][2],  ShieldGeneratorChannelPos[i][3], TEMPSUMMON_CORPSE_DESPAWN, 0))
+                            if (Creature* creature = me->SummonCreature(SHIED_GENERATOR_CHANNEL, ShieldGeneratorChannelPos[i][0],  ShieldGeneratorChannelPos[i][1],  ShieldGeneratorChannelPos[i][2],  ShieldGeneratorChannelPos[i][3], TEMPSUMMON_CORPSE_DESPAWN, 0ms))
                                 ShieldGeneratorChannel[i] = creature->GetGUID();
 
                         Talk(SAY_PHASE2);
@@ -410,7 +410,7 @@ public:
                     // SummonSporebatTimer
                     if (SummonSporebatTimer <= diff)
                     {
-                        if (Creature* sporebat = me->SummonCreature(TOXIC_SPOREBAT, SPOREBAT_X, SPOREBAT_Y, SPOREBAT_Z, SPOREBAT_O, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                        if (Creature* sporebat = me->SummonCreature(TOXIC_SPOREBAT, SPOREBAT_X, SPOREBAT_Y, SPOREBAT_Z, SPOREBAT_O, TEMPSUMMON_CORPSE_DESPAWN, 0ms))
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 sporebat->AI()->AttackStart(target);
 
@@ -433,10 +433,10 @@ public:
                 if (CheckTimer <= diff)
                 {
                     bool inMeleeRange = false;
-                    std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
-                    for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                    auto t_list = me->GetThreatManager().GetUnsortedThreatList();
+                    for (ThreatReference const* ref : t_list)
                     {
-                        Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                        Unit* target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                         if (target && target->IsWithinDistInMap(me, 5)) // if in melee range
                         {
                             inMeleeRange = true;
@@ -472,7 +472,7 @@ public:
                 // EnchantedElementalTimer
                 if (EnchantedElementalTimer <= diff)
                 {
-                    me->SummonCreature(ENCHANTED_ELEMENTAL, ElementPos[EnchantedElementalPos][0], ElementPos[EnchantedElementalPos][1], ElementPos[EnchantedElementalPos][2], ElementPos[EnchantedElementalPos][3], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    me->SummonCreature(ENCHANTED_ELEMENTAL, ElementPos[EnchantedElementalPos][0], ElementPos[EnchantedElementalPos][1], ElementPos[EnchantedElementalPos][2], ElementPos[EnchantedElementalPos][3], TEMPSUMMON_CORPSE_DESPAWN, 0ms);
 
                     if (EnchantedElementalPos == 7)
                         EnchantedElementalPos = 0;
@@ -486,7 +486,7 @@ public:
                 if (TaintedElementalTimer <= diff)
                 {
                     uint32 pos = rand()%8;
-                    me->SummonCreature(TAINTED_ELEMENTAL, ElementPos[pos][0], ElementPos[pos][1], ElementPos[pos][2], ElementPos[pos][3], TEMPSUMMON_DEAD_DESPAWN, 0);
+                    me->SummonCreature(TAINTED_ELEMENTAL, ElementPos[pos][0], ElementPos[pos][1], ElementPos[pos][2], ElementPos[pos][3], TEMPSUMMON_DEAD_DESPAWN, 0ms);
 
                     TaintedElementalTimer = 120000;
                 } else TaintedElementalTimer -= diff;
@@ -495,7 +495,7 @@ public:
                 if (CoilfangEliteTimer <= diff)
                 {
                     uint32 pos = rand()%3;
-                    Creature* coilfangElite = me->SummonCreature(COILFANG_ELITE, CoilfangElitePos[pos][0], CoilfangElitePos[pos][1], CoilfangElitePos[pos][2], CoilfangElitePos[pos][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    Creature* coilfangElite = me->SummonCreature(COILFANG_ELITE, CoilfangElitePos[pos][0], CoilfangElitePos[pos][1], CoilfangElitePos[pos][2], CoilfangElitePos[pos][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000ms);
                     if (coilfangElite)
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -510,7 +510,7 @@ public:
                 if (CoilfangStriderTimer <= diff)
                 {
                     uint32 pos = rand()%3;
-                    if (Creature* CoilfangStrider = me->SummonCreature(COILFANG_STRIDER, CoilfangStriderPos[pos][0], CoilfangStriderPos[pos][1], CoilfangStriderPos[pos][2], CoilfangStriderPos[pos][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+                    if (Creature* CoilfangStrider = me->SummonCreature(COILFANG_STRIDER, CoilfangStriderPos[pos][0], CoilfangStriderPos[pos][1], CoilfangStriderPos[pos][2], CoilfangStriderPos[pos][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000ms))
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             CoilfangStrider->AI()->AttackStart(target);
@@ -680,7 +680,7 @@ public:
 
         void JustEngagedWith(Unit* who) override
         {
-            me->AddThreat(who, 0.1f);
+            me->GetThreatManager().AddThreat(who, 0.1f);
         }
 
         void UpdateAI(uint32 diff) override
@@ -776,7 +776,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    if (Creature* trig = me->SummonCreature(TOXIC_SPORES_TRIGGER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                    if (Creature* trig = me->SummonCreature(TOXIC_SPORES_TRIGGER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30000ms))
                     {
                         trig->SetFaction(14);
                         trig->CastSpell(trig, SPELL_TOXIC_SPORES, true);

@@ -122,7 +122,7 @@ class boss_lilian_voss : public CreatureScript
                 me->Kill(me);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)
@@ -431,7 +431,7 @@ class npc_lilian_soul : public CreatureScript
                         case EVENT_FIXATE_ANGER:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                             {
-                                me->getThreatManager().addThreat(target, 10000.0f);
+                                me->GetThreatManager().AddThreat(target, 10000.0f);
                                 me->AddAura(SPELL_FIXATE_ANGER, target);
                             }
                             events.ScheduleEvent(EVENT_FIXATE_ANGER, 10000);
@@ -484,7 +484,7 @@ class spell_dark_blaze : public SpellScriptLoader
             void HandleOnCast()
             {
                 if (GetCaster())
-                    if (Creature* Trigger = GetCaster()->SummonCreature(NPC_DARK_BLAZE, GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), GetCaster()->GetPositionZ(), GetCaster()->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 30 * IN_MILLISECONDS))
+                    if (Creature* Trigger = GetCaster()->SummonCreature(NPC_DARK_BLAZE, GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), GetCaster()->GetPositionZ(), GetCaster()->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(30 * IN_MILLISECONDS)))
                         GetCaster()->AddAura(SPELL_DARK_BLAZE_DUMMY, Trigger);
             }
 

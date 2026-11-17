@@ -844,7 +844,7 @@ class boss_spirit_kings : public CreatureScript
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     me->AddAura(SPELL_INACTIVE, me);
                     me->SetReactState(REACT_PASSIVE);
-                    me->getThreatManager().resetAllAggro();
+                    me->GetThreatManager().ResetAllThreat();
                     me->CombatStop();
                     me->StopMoving();
                     me->GetMotionMaster()->Clear();
@@ -911,7 +911,7 @@ class boss_spirit_kings : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (!me->IsAlive())
                     return;

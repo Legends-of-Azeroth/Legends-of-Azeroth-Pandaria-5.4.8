@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -329,7 +329,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                 if (me->HasAura(SPELL_SHADOW_WARPED))
                     events.ScheduleEvent(EVENT_SHADOW_NOVA, 7000);
                 events.ScheduleEvent(EVENT_BERSERK, 6 * MINUTE * IN_MILLISECONDS);
-                proto->AddThreat(who, 10.0f);
+                proto->GetThreatManager().AddThreat(who, 10.0f);
                 proto->SetInCombatWith(who);
                 Talk(SAY_AGGRO);
                 DoZoneInCombat();
@@ -392,7 +392,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
-                if (Creature* Chogall = me->SummonCreature(NPC_CHOGALL_DLG, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 1, TEMPSUMMON_DEAD_DESPAWN, 0))
+                if (Creature* Chogall = me->SummonCreature(NPC_CHOGALL_DLG, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 1, TEMPSUMMON_DEAD_DESPAWN, 0ms))
                     Chogall->AI()->DoAction(ACTION_AT_HALFUS_END);
             }
 

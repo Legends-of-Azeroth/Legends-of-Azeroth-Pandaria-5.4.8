@@ -16,17 +16,18 @@
 */
 
 #include "MapInstanced.h"
-#include "ObjectMgr.h"
-#include "MapManager.h"
 #include "Battleground.h"
-#include "VMapFactory.h"
-#include "MMapFactory.h"
-#include "InstanceSaveMgr.h"
-#include "World.h"
+#include "DB2Stores.h"
 #include "Group.h"
+#include "InstanceSaveMgr.h"
+#include "MapManager.h"
+#include "MMapFactory.h"
+#include "VMapFactory.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "TransportMgr.h"
 #include "VMapManager2.h"
+#include "World.h"
 
 MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, DUNGEON_DIFFICULTY_NORMAL)
 {
@@ -195,20 +196,20 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     const MapEntry* entry = sMapStore.LookupEntry(GetId());
     if (!entry)
     {
-        TC_LOG_ERROR("maps", "CreateInstance: no entry for map %d", GetId());
+        TC_LOG_ERROR("maps", "CreateInstance: no entry for map {}", GetId());
         ASSERT(false);
     }
     const InstanceTemplate* iTemplate = sObjectMgr->GetInstanceTemplate(GetId());
     if (!iTemplate)
     {
-        TC_LOG_ERROR("maps", "CreateInstance: no instance template for map %d", GetId());
+        TC_LOG_ERROR("maps", "CreateInstance: no instance template for map {}", GetId());
         ASSERT(false);
     }
 
     // some instances only have one difficulty
-    GetDownscaledMapDifficultyData(GetId(), difficulty);
+    sDBCManager.GetDownscaledMapDifficultyData(GetId(), difficulty);
 
-    TC_LOG_DEBUG("maps", "MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %s", save?"":"new ", InstanceId, GetId(), difficulty?"heroic":"normal");
+    TC_LOG_DEBUG("maps", "MapInstanced::CreateInstance: {} map instance {} for {} created with difficulty {}", save?"":"new ", InstanceId, GetId(), difficulty?"heroic":"normal");
 
     InstanceMap* map = new InstanceMap(GetId(), GetGridExpiry(), InstanceId, difficulty, this);
     ASSERT(map->IsDungeon() || map->IsScenario());
@@ -231,14 +232,14 @@ BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battlegroun
     // load/create a map
     std::lock_guard<std::mutex> guard(Lock);
 
-    TC_LOG_DEBUG("maps", "MapInstanced::CreateBattleground: map bg %d for %d created.", InstanceId, GetId());
+    TC_LOG_DEBUG("maps", "MapInstanced::CreateBattleground: map bg {} for {} created.", InstanceId, GetId());
 
-    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), bg->GetMinLevel());
+    PvPDifficultyEntry const* bracketEntry = sDBCManager.GetBattlegroundBracketByLevel(bg->GetMapId(), bg->GetMinLevel());
 
     uint8 spawnMode;
 
     if (bracketEntry)
-        spawnMode = bracketEntry->difficulty;
+        spawnMode = bracketEntry->Difficulty;
     else
         spawnMode = REGULAR_DIFFICULTY;
 

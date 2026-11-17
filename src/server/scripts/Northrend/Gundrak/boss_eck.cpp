@@ -164,7 +164,7 @@ class npc_ruins_dweller : public CreatureScript
                     {
                         instance->SetData64(DATA_RUIN_DWELLER_DIED, me->GetGUID());  
                         if (instance->GetData(DATA_ALIVE_RUIN_DWELLERS) == 0)
-                            me->SummonCreature(NPC_ECK, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                            me->SummonCreature(NPC_ECK, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000ms);
                     }            
                 }
             }

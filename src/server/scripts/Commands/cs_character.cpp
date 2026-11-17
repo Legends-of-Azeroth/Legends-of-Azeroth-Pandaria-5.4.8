@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -41,40 +41,40 @@ public:
     {
         static std::vector<ChatCommand> pdumpCommandTable =
         {
-            { "load",           SEC_GAMEMASTER, true,   &HandlePDumpLoadCommand,                },
-            { "write",          SEC_GAMEMASTER, true,   &HandlePDumpWriteCommand,               },
-            
+            { "load",           &HandlePDumpLoadCommand,                rbac::RBAC_PERM_COMMAND_PDUMP_LOAD,   Trinity::ChatCommands::Console::Yes },
+            { "write",          &HandlePDumpWriteCommand,               rbac::RBAC_PERM_COMMAND_PDUMP_WRITE,  Trinity::ChatCommands::Console::Yes },
+
         };
         static std::vector<ChatCommand> characterDeletedCommandTable =
         {
-            { "delete",         SEC_GAMEMASTER, true,   &HandleCharacterDeletedDeleteCommand,   },
-            { "list",           SEC_GAMEMASTER, true,   &HandleCharacterDeletedListCommand,     },
-            { "restore",        SEC_GAMEMASTER, true,   &HandleCharacterDeletedRestoreCommand,  },
-            { "old",            SEC_GAMEMASTER, true,   &HandleCharacterDeletedOldCommand,      },
+            { "delete",         &HandleCharacterDeletedDeleteCommand,   rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_DELETE,   Trinity::ChatCommands::Console::Yes },
+            { "list",           &HandleCharacterDeletedListCommand,     rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_LIST,     Trinity::ChatCommands::Console::Yes },
+            { "restore",        &HandleCharacterDeletedRestoreCommand,  rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_RESTORE,  Trinity::ChatCommands::Console::Yes },
+            { "old",            &HandleCharacterDeletedOldCommand,      rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_OLD,      Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> characterCommandTable =
         {
-            { "antierror",      SEC_GAMEMASTER, true,   &HandleAntierrorCommand,                },
-            { "customize",      SEC_GAMEMASTER, true,   &HandleCharacterCustomizeCommand,       },
-            { "changefaction",  SEC_GAMEMASTER, true,   &HandleCharacterChangeFactionCommand,   },
-            { "changerace",     SEC_GAMEMASTER, true,   &HandleCharacterChangeRaceCommand,      },
-            { "deleted",        SEC_GAMEMASTER, true,   characterDeletedCommandTable            },
-            { "erase",          SEC_GAMEMASTER, true,   &HandleCharacterEraseCommand,           },
-            { "level",          SEC_GAMEMASTER, true,   &HandleCharacterLevelCommand,           },
-            { "rename",         SEC_GAMEMASTER, true,   &HandleCharacterRenameCommand,          },
-            { "reputation",     SEC_GAMEMASTER, true,   &HandleCharacterReputationCommand,      },
-            { "titles",         SEC_GAMEMASTER, true,   &HandleCharacterTitlesCommand,          },
-            { "changeclass",    SEC_GAMEMASTER, true,   &HandleCharacterChangeClassCommand      },
-            { "changeaccount",  SEC_GAMEMASTER, true,   &HandleChangeAccount,                   },
-            { "boost",          SEC_ADMINISTRATOR,  true,   &HandleCharacterBoostCommand            },
+            { "antierror", &HandleAntierrorCommand, rbac::RBAC_PERM_COMMAND_CHARACTER_ANTIERROR, Trinity::ChatCommands::Console::Yes },
+            { "customize",      &HandleCharacterCustomizeCommand,       rbac::RBAC_PERM_COMMAND_CHARACTER_CUSTOMIZE,       Trinity::ChatCommands::Console::Yes },
+            { "changefaction",  &HandleCharacterChangeFactionCommand,   rbac::RBAC_PERM_COMMAND_CHARACTER_CHANGEFACTION,   Trinity::ChatCommands::Console::Yes },
+            { "changerace", &HandleCharacterChangeRaceCommand, rbac::RBAC_PERM_COMMAND_CHARACTER_CHANGERACE, Trinity::ChatCommands::Console::Yes },
+            { "deleted", characterDeletedCommandTable, rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED, Trinity::ChatCommands::Console::Yes },
+            { "erase",          &HandleCharacterEraseCommand,           rbac::RBAC_PERM_COMMAND_CHARACTER_ERASE,           Trinity::ChatCommands::Console::Yes },
+            { "level",          &HandleCharacterLevelCommand,           rbac::RBAC_PERM_COMMAND_CHARACTER_LEVEL,           Trinity::ChatCommands::Console::Yes },
+            { "rename",         &HandleCharacterRenameCommand,          rbac::RBAC_PERM_COMMAND_CHARACTER_RENAME,          Trinity::ChatCommands::Console::Yes },
+            { "reputation",     &HandleCharacterReputationCommand,      rbac::RBAC_PERM_COMMAND_CHARACTER_REPUTATION,      Trinity::ChatCommands::Console::Yes },
+            { "titles",         &HandleCharacterTitlesCommand,          rbac::RBAC_PERM_COMMAND_CHARACTER_TITLES,          Trinity::ChatCommands::Console::Yes },
+            { "changeclass", &HandleCharacterChangeClassCommand, rbac::RBAC_PERM_COMMAND_CHARACTER_CHANGECLASS, Trinity::ChatCommands::Console::Yes },
+            { "changeaccount",  &HandleChangeAccount,                   rbac::RBAC_PERM_COMMAND_CHARACTER_CHANGEACCOUNT,   Trinity::ChatCommands::Console::Yes },
+            { "boost", &HandleCharacterBoostCommand, rbac::RBAC_PERM_COMMAND_CHARACTER_BOOST, Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "character",      SEC_GAMEMASTER, true,   characterCommandTable                   },
-            { "levelup",        SEC_GAMEMASTER, false,  &HandleLevelUpCommand,                  },
-            { "pdump",          SEC_GAMEMASTER, true,   pdumpCommandTable                       },
+            { "character", characterCommandTable, rbac::RBAC_PERM_COMMAND_CHARACTER, Trinity::ChatCommands::Console::Yes },
+            { "levelup",        &HandleLevelUpCommand,                  rbac::RBAC_PERM_COMMAND_LEVELUP,                  Trinity::ChatCommands::Console::No },
+            { "pdump", pdumpCommandTable, rbac::RBAC_PERM_COMMAND_PDUMP, Trinity::ChatCommands::Console::Yes },
         };
         return commandTable;
     }
@@ -292,7 +292,7 @@ public:
 
             if (titleInfo && target->HasTitle(titleInfo))
             {
-                std::string name = titleInfo->name[handler->GetSessionDbcLocale()];
+                std::string name = titleInfo->name;
                 if (name.empty())
                     continue;
 
@@ -408,10 +408,10 @@ public:
             if (WorldSession* session = handler->GetSession())
             {
                 if (Player* player = session->GetPlayer())
-                    sLog->outCommand(session->GetAccountId(), "GM %s (Account: %u) forced rename %s to player %s (Account: %u)", player->GetName().c_str(), session->GetAccountId(), newName.c_str(), playerOldName.c_str(), sObjectMgr->GetPlayerAccountIdByGUID(targetGuid));
+                    sLog->OutCommand(session->GetAccountId(), "GM {} (Account: {}) forced rename {} to player {} (Account: {})", player->GetName().c_str(), session->GetAccountId(), newName.c_str(), playerOldName.c_str(), sObjectMgr->GetPlayerAccountIdByGUID(targetGuid));
             }
             else
-                sLog->outCommand(0, "CONSOLE forced rename '%s' to '%s' (GUID: %u)", playerOldName.c_str(), newName.c_str(), targetGuid.GetCounter());
+                sLog->OutCommand(0, "CONSOLE forced rename '{}' to '{}' (GUID: {})", playerOldName.c_str(), newName.c_str(), targetGuid.GetCounter());
         }
         else
         {
@@ -581,7 +581,7 @@ public:
         {
             FactionState const& faction = itr->second;
             FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction.ID);
-            char const* factionName = factionEntry ? factionEntry->name[handler->GetSessionDbcLocale()] : "#Not found#";
+            char const* factionName = factionEntry ? factionEntry->name : "#Not found#";
             ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
             std::string rankName = handler->GetTrinityString(ReputationRankStrIndex(rank));
             std::ostringstream ss;
@@ -1063,7 +1063,7 @@ public:
             z = target->m_homebindZ;
             zone = target->m_homebindAreaId;
         }
-        else if (QueryResult result = CharacterDatabase.PQuery("SELECT mapId, posX, posY, posZ, zoneId FROM character_homebind WHERE guid = %u;", targetGuid.GetCounter()))
+        else if (QueryResult result = CharacterDatabase.PQuery("SELECT mapId, posX, posY, posZ, zoneId FROM character_homebind WHERE guid = {};", targetGuid.GetCounter()))
         {
             Field *fields = result->Fetch();
             map = fields[0].GetUInt32();
@@ -1095,7 +1095,7 @@ public:
             target->TeleportTo(map, x, y, z, 0);
         else
         {
-            CharacterDatabase.PExecute("UPDATE characters SET map = %u, position_x = %f, position_y = %f, position_z = %f, zone = %u, "
+            CharacterDatabase.PExecute("UPDATE characters SET map = {}, position_x = {}, position_y = {}, position_z = {}, zone = {}, "
                 "trans_x = 0, trans_y = 0,trans_z = 0, transguid = 0, taxi_path='', instance_id = 0 WHERE guid = %u",
                 map, x, y, z, zone, guid);
         }
@@ -1166,10 +1166,10 @@ public:
         uint32 guid = tarGuid.GetCounter();
 
         // Sale from trade platform, character ban is still active.
-        if (CharacterDatabase.PQuery("SELECT * FROM `character_banned` WHERE `guid` = %u AND `active` = 1", guid))
-            CharacterDatabase.PExecute("DELETE FROM character_account_data WHERE guid = %u", guid);
+        if (CharacterDatabase.PQuery("SELECT * FROM `character_banned` WHERE `guid` = {} AND `active` = 1", guid))
+            CharacterDatabase.PExecute("DELETE FROM character_account_data WHERE guid = {}", guid);
 
-        CharacterDatabase.PExecute("UPDATE `characters` SET `account` = %u WHERE `guid` = %u", destAcc.GetCounter(), guid);
+        CharacterDatabase.PExecute("UPDATE `characters` SET `account` = {} WHERE `guid` = {}", destAcc.GetCounter(), guid);
         sWorld->UpdateCharacterNameDataAccount(tarGuid, destAcc);
 
         std::ostringstream oldAcc;
@@ -1284,8 +1284,8 @@ public:
         if (!handler->extractPlayerTarget(tempArgs[0], &target, &targetGuid, &targetName))
             return false;
 
-        target = ObjectAccessor::FindPlayer(targetGuid);  // Update it because player may be out of world.
-        QueryResult result = CharacterDatabase.PQuery("SELECT class, race, account FROM characters WHERE guid = %u", targetGuid.GetCounter());
+        target = ObjectAccessor::FindConnectedPlayer(targetGuid);  // Update it because player may be out of world.
+        QueryResult result = CharacterDatabase.PQuery("SELECT class, race, account FROM characters WHERE guid = {}", targetGuid.GetCounter());
         if (!result)
         {
             handler->SetSentErrorMessage(true);
@@ -1332,17 +1332,17 @@ public:
             return false;
         }
 
-        result = CharacterDatabase.PQuery("SELECT id, data1 FROM character_service WHERE guid = %u AND service = %u AND execution_date IS NULL", guid, ISERVICE_RECLASS);
+        result = CharacterDatabase.PQuery("SELECT id, data1 FROM character_service WHERE guid = {} AND service = {} AND execution_date IS NULL", guid, ISERVICE_RECLASS);
         if (result)
         {
-            CharacterDatabase.PExecute("UPDATE character_service SET execution_date = UNIX_TIMESTAMP() WHERE id = %u", (*result)[0].GetUInt32());
+            CharacterDatabase.PExecute("UPDATE character_service SET execution_date = UNIX_TIMESTAMP() WHERE id = {}", (*result)[0].GetUInt32());
             oldClass = (*result)[1].GetUInt32();
         }
 
         sServiceMgr->RemoveOldSkillsFromDB(guid, newClass);
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-        trans->PAppend("UPDATE characters SET at_login = at_login | '%u' WHERE guid = '%u'", AT_LOGIN_CHANGE_FACTION, guid);
-        trans->PAppend("UPDATE characters SET class = %u WHERE guid = %u", newClass, guid);
+        trans->PAppend("UPDATE characters SET at_login = at_login | '{}' WHERE guid = '{}'", AT_LOGIN_CHANGE_FACTION, guid);
+        trans->PAppend("UPDATE characters SET class = {} WHERE guid = {}", newClass, guid);
         CharacterDatabase.CommitTransaction(trans);
         ServiceEntry s{ ISERVICE_RECLASS };
         s.Data1 = oldClass;

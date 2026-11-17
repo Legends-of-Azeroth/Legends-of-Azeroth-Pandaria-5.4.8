@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -35,92 +35,81 @@ public:
     {
         static std::vector<ChatCommand> commandTable =
         {
-            { "support",                SEC_ADMINISTRATOR,  true,
-            {
-                { "add",                SEC_ADMINISTRATOR,  false,
-                {
-                    { "spell",          SEC_ADMINISTRATOR,  true,   &HandleSupportAddSpellCommand,       },
-                    { "skill",          SEC_ADMINISTRATOR,  true,   &HandleSupportAddSkillCommand,       },
-                    { "item",           SEC_ADMINISTRATOR,  true,   &HandleSupportAddItemCommand,        },
-                    { "title",          SEC_ADMINISTRATOR,  true,   &HandleSupportAddTitleCommand,       },
-                    { "achievement",    SEC_ADMINISTRATOR,  false,
-                    {
-                        { "player",     SEC_ADMINISTRATOR,  true,   &HandleSupportAddAchPlrCommand,      },
-                        { "account",    SEC_ADMINISTRATOR,  true,   &HandleSupportAddAchPlrCommand,      },
-                        { "guild",      SEC_ADMINISTRATOR,  true,   &HandleSupportAddAchGuildCommand,    },
-                    } },
-                    { "quest",          SEC_ADMINISTRATOR,  false,
-                    {
-                        { "new",        SEC_ADMINISTRATOR,  true,   &HandleSupportAddQuestCommand,       },
-                        { "complete",   SEC_ADMINISTRATOR,  true,   &HandleSupportAddQuestCompCommand,   },
-                        { "reward",     SEC_ADMINISTRATOR,  true,   &HandleSupportAddQuestRewCommand,    },
-                    } },
-                } },
-                { "check",              SEC_ADMINISTRATOR,  false,
-                {
-                    { "spell",          SEC_ADMINISTRATOR,  true,   &HandleSupportCheckSpellCommand,     },
-                    { "skill",          SEC_ADMINISTRATOR,  true,   &HandleSupportCheckSkillCommand,     },
-                    { "item",           SEC_ADMINISTRATOR,  true,   &HandleSupportCheckItemCommand,      },
-                    { "itemacc",        SEC_ADMINISTRATOR,  true,   &HandleSupportCheckItemAccCommand,   },
-                    { "title",          SEC_ADMINISTRATOR,  true,   &HandleSupportCheckTitleCommand,     },
-                    { "achievement",    SEC_ADMINISTRATOR,  false,
-                    {
-                        { "player",     SEC_ADMINISTRATOR,  true,   &HandleSupportCheckAchPlrCommand,    },
-                        { "account",    SEC_ADMINISTRATOR,  true,   &HandleSupportCheckAchAccCommand,    },
-                        { "guild",      SEC_ADMINISTRATOR,  true,   &HandleSupportCheckAchGuildCommand,  },
-                    } },
-                    { "mail",           SEC_ADMINISTRATOR,  true,   &HandleSupportCheckMailCommand,      },
-                    { "mailacc",        SEC_ADMINISTRATOR,  true,   &HandleSupportCheckMailAccCommand,   },
-                    { "professions",    SEC_ADMINISTRATOR,  true,   &HandleSupportCheckProfCommand,      },
-                    { "aura",           SEC_ADMINISTRATOR,  true,   &HandleSupportCheckAuraCommand,      },
-                    { "auras",          SEC_ADMINISTRATOR,  true,   &HandleSupportCheckAurasCommand,     },
-                    { "boost",          SEC_ADMINISTRATOR,  true,   &HandleSupportCheckBoostCommand,     },
-                    { "services",       SEC_ADMINISTRATOR,  false,
-                    {
-                        { "active",     SEC_ADMINISTRATOR,  true,   &HandleSupportCheckServActCommand,   },
-                        { "executed",   SEC_ADMINISTRATOR,  true,   &HandleSupportCheckServExectCommand, },
-                    } },
-                    { "quest",          SEC_ADMINISTRATOR,  false,
-                    {
-                        { "status",     SEC_ADMINISTRATOR,  true,   &HandleSupportCheckQuestCommand,     },
-                        { "active",     SEC_ADMINISTRATOR,  true,   &HandleSupportCheckQuestActCommand,  },
-                        { "rewarded",   SEC_ADMINISTRATOR,  true,   &HandleSupportCheckQuestRewCommand,  },
-                    } },
-                    { "money",          SEC_ADMINISTRATOR,  true,   &HandleSupportCheckMoneyCommand,     },
-                    { "moneyacc",       SEC_ADMINISTRATOR,  true,   &HandleSupportCheckMoneyAccCommand,  },
-                    { "moneyguild",     SEC_ADMINISTRATOR,  true,   &HandleSupportCheckMoneyGuildCommand,},
-                    { "reputation",     SEC_ADMINISTRATOR,  true,   &HandleSupportCheckRepCommand,       },
-                    { "reputations",    SEC_ADMINISTRATOR,  true,   &HandleSupportCheckRepsCommand,      },
-                    { "pvprating",      SEC_ADMINISTRATOR,  true,   &HandleSupportCheckPVPCommand,       },
-                    { "currency",       SEC_ADMINISTRATOR,  true,   &HandleSupportCheckCurrencyCommand,  },
-                    { "currencies",     SEC_ADMINISTRATOR,  true,   &HandleSupportCheckCurrsCommand,     },
-                } },
-                { "remove",             SEC_ADMINISTRATOR,  false,
-                {
-                    { "spell",          SEC_ADMINISTRATOR,  true,   &HandleSupportRemoveSpellCommand,    },
-                    { "skill",          SEC_ADMINISTRATOR,  true,   &HandleSupportRemoveSkillCommand,    },
-                    { "item",           SEC_ADMINISTRATOR,  true,   &HandleSupportRemoveItemCommand,     },
-                    { "title",          SEC_ADMINISTRATOR,  true,   &HandleSupportRemoveTitleCommand,    },
-                    { "achievement",    SEC_ADMINISTRATOR,  false,
-                    {
-                        { "player",     SEC_ADMINISTRATOR,  true,   &HandleSupportRemAchPlrCommand,      },
-                        { "account",    SEC_ADMINISTRATOR,  true,   &HandleSupportRemAchAccCommand,      },
-                        { "guild",      SEC_ADMINISTRATOR,  true,   &HandleSupportRemAchGuildCommand,    },
-                    } },
-                    { "aura",           SEC_ADMINISTRATOR,  true,   &HandleSupportRemoveAuraCommand,     },
-                    { "quest",          SEC_ADMINISTRATOR,  true,   &HandleSupportRemoveQuestCommand,    },
-                    { "cache",          SEC_ADMINISTRATOR,  true,   &HandleSupportRemoveCacheCommand,    },
-                } },
+            { "support", {
+                { "add", {
+                    { "spell", &HandleSupportAddSpellCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_ADD_SPELL, Trinity::ChatCommands::Console::Yes },
+                    { "skill", &HandleSupportAddSkillCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_ADD_SKILL, Trinity::ChatCommands::Console::Yes },
+                    { "item", &HandleSupportAddItemCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_ADD_ITEM, Trinity::ChatCommands::Console::Yes },
+                    { "title", &HandleSupportAddTitleCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_ADD_TITLE, Trinity::ChatCommands::Console::Yes },
+                    { "achievement", {
+                        { "player", &HandleSupportAddAchPlrCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_ADD_ACHIEVEMENT_PLAYER, Trinity::ChatCommands::Console::Yes },
+                        { "account", &HandleSupportAddAchPlrCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_ADD_ACHIEVEMENT_ACCOUNT, Trinity::ChatCommands::Console::Yes },
+                        { "guild", &HandleSupportAddAchGuildCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_ADD_ACHIEVEMENT_GUILD, Trinity::ChatCommands::Console::Yes },
+                    }, rbac::RBAC_PERM_COMMAND_SUPPORT_ADD_ACHIEVEMENT, Trinity::ChatCommands::Console::No },
+                    { "quest", {
+                        { "new", &HandleSupportAddQuestCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_ADD_QUEST_NEW, Trinity::ChatCommands::Console::Yes },
+                        { "complete", &HandleSupportAddQuestCompCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_ADD_QUEST_COMPLETE, Trinity::ChatCommands::Console::Yes },
+                        { "reward", &HandleSupportAddQuestRewCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_ADD_QUEST_REWARD, Trinity::ChatCommands::Console::Yes },
+                    }, rbac::RBAC_PERM_COMMAND_SUPPORT_ADD_QUEST, Trinity::ChatCommands::Console::No },
+                }, rbac::RBAC_PERM_COMMAND_SUPPORT_ADD, Trinity::ChatCommands::Console::No },
+                { "check", {
+                    { "spell", &HandleSupportCheckSpellCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_SPELL, Trinity::ChatCommands::Console::Yes },
+                    { "skill", &HandleSupportCheckSkillCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_SKILL, Trinity::ChatCommands::Console::Yes },
+                    { "item", &HandleSupportCheckItemCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_ITEM, Trinity::ChatCommands::Console::Yes },
+                    { "itemacc", &HandleSupportCheckItemAccCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_ITEMACC, Trinity::ChatCommands::Console::Yes },
+                    { "title", &HandleSupportCheckTitleCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_TITLE, Trinity::ChatCommands::Console::Yes },
+                    { "achievement", {
+                        { "player", &HandleSupportCheckAchPlrCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_ACHIEVEMENT_PLAYER, Trinity::ChatCommands::Console::Yes },
+                        { "account", &HandleSupportCheckAchAccCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_ACHIEVEMENT_ACCOUNT, Trinity::ChatCommands::Console::Yes },
+                        { "guild", &HandleSupportCheckAchGuildCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_ACHIEVEMENT_GUILD, Trinity::ChatCommands::Console::Yes },
+                    }, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_ACHIEVEMENT, Trinity::ChatCommands::Console::No },
+                    { "mail", &HandleSupportCheckMailCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_MAIL, Trinity::ChatCommands::Console::Yes },
+                    { "mailacc", &HandleSupportCheckMailAccCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_MAILACC, Trinity::ChatCommands::Console::Yes },
+                    { "professions", &HandleSupportCheckProfCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_PROFESSIONS, Trinity::ChatCommands::Console::Yes },
+                    { "aura", &HandleSupportCheckAuraCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_AURA, Trinity::ChatCommands::Console::Yes },
+                    { "auras", &HandleSupportCheckAurasCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_AURAS, Trinity::ChatCommands::Console::Yes },
+                    { "boost", &HandleSupportCheckBoostCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_BOOST, Trinity::ChatCommands::Console::Yes },
+                    { "services", {
+                        { "active", &HandleSupportCheckServActCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_SERVICES_ACTIVE, Trinity::ChatCommands::Console::Yes },
+                        { "executed", &HandleSupportCheckServExectCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_SERVICES_EXECUTED, Trinity::ChatCommands::Console::Yes },
+                    }, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_SERVICES, Trinity::ChatCommands::Console::No },
+                    { "quest", {
+                        { "status", &HandleSupportCheckQuestCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_QUEST_STATUS, Trinity::ChatCommands::Console::Yes },
+                        { "active", &HandleSupportCheckQuestActCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_QUEST_ACTIVE, Trinity::ChatCommands::Console::Yes },
+                        { "rewarded", &HandleSupportCheckQuestRewCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_QUEST_REWARDED, Trinity::ChatCommands::Console::Yes },
+                    }, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_QUEST, Trinity::ChatCommands::Console::No },
+                    { "money", &HandleSupportCheckMoneyCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_MONEY, Trinity::ChatCommands::Console::Yes },
+                    { "moneyacc", &HandleSupportCheckMoneyAccCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_MONEYACC, Trinity::ChatCommands::Console::Yes },
+                    { "moneyguild", &HandleSupportCheckMoneyGuildCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_MONEYGUILD, Trinity::ChatCommands::Console::Yes },
+                    { "reputation", &HandleSupportCheckRepCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_REPUTATION, Trinity::ChatCommands::Console::Yes },
+                    { "reputations", &HandleSupportCheckRepsCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_REPUTATIONS, Trinity::ChatCommands::Console::Yes },
+                    { "pvprating", &HandleSupportCheckPVPCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_PVPRATING, Trinity::ChatCommands::Console::Yes },
+                    { "currency", &HandleSupportCheckCurrencyCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_CURRENCY, Trinity::ChatCommands::Console::Yes },
+                    { "currencies", &HandleSupportCheckCurrsCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK_CURRENCIES, Trinity::ChatCommands::Console::Yes },
+                }, rbac::RBAC_PERM_COMMAND_SUPPORT_CHECK, Trinity::ChatCommands::Console::No },
+                { "remove", {
+                    { "spell", &HandleSupportRemoveSpellCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_REMOVE_SPELL, Trinity::ChatCommands::Console::Yes },
+                    { "skill", &HandleSupportRemoveSkillCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_REMOVE_SKILL, Trinity::ChatCommands::Console::Yes },
+                    { "item", &HandleSupportRemoveItemCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_REMOVE_ITEM, Trinity::ChatCommands::Console::Yes },
+                    { "title", &HandleSupportRemoveTitleCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_REMOVE_TITLE, Trinity::ChatCommands::Console::Yes },
+                    { "achievement", {
+                        { "player", &HandleSupportRemAchPlrCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_REMOVE_ACHIEVEMENT_PLAYER, Trinity::ChatCommands::Console::Yes },
+                        { "account", &HandleSupportRemAchAccCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_REMOVE_ACHIEVEMENT_ACCOUNT, Trinity::ChatCommands::Console::Yes },
+                        { "guild", &HandleSupportRemAchGuildCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_REMOVE_ACHIEVEMENT_GUILD, Trinity::ChatCommands::Console::Yes },
+                    }, rbac::RBAC_PERM_COMMAND_SUPPORT_REMOVE_ACHIEVEMENT, Trinity::ChatCommands::Console::No },
+                    { "aura", &HandleSupportRemoveAuraCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_REMOVE_AURA, Trinity::ChatCommands::Console::Yes },
+                    { "quest", &HandleSupportRemoveQuestCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_REMOVE_QUEST, Trinity::ChatCommands::Console::Yes },
+                    { "cache", &HandleSupportRemoveCacheCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_REMOVE_CACHE, Trinity::ChatCommands::Console::Yes },
+                }, rbac::RBAC_PERM_COMMAND_SUPPORT_REMOVE, Trinity::ChatCommands::Console::No },
 
-                { "change",             SEC_ADMINISTRATOR,  false,
-                {
-                    { "money",          SEC_ADMINISTRATOR,  true,   &HandleSupportChangeMoneyCommand,    },
-                    { "reputation",     SEC_ADMINISTRATOR,  true,   &HandleSupportChangeRepCommand,      },
-                    { "pvprating",      SEC_ADMINISTRATOR,  true,   &HandleSupportChangePVPCommand,      },
-                    { "pvpmmrrating",   SEC_ADMINISTRATOR,  true,   &HandleSupportChangePVPMMRCommand,   },
-                    { "currency",       SEC_ADMINISTRATOR,  true,   &HandleSupportChangeCurrencyCommand, },
-                } },
-            } },
+                { "change", {
+                    { "money", &HandleSupportChangeMoneyCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHANGE_MONEY, Trinity::ChatCommands::Console::Yes },
+                    { "reputation", &HandleSupportChangeRepCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHANGE_REPUTATION, Trinity::ChatCommands::Console::Yes },
+                    { "pvprating", &HandleSupportChangePVPCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHANGE_PVPRATING, Trinity::ChatCommands::Console::Yes },
+                    { "pvpmmrrating", &HandleSupportChangePVPMMRCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHANGE_PVPMMRRATING, Trinity::ChatCommands::Console::Yes },
+                    { "currency", &HandleSupportChangeCurrencyCommand, rbac::RBAC_PERM_COMMAND_SUPPORT_CHANGE_CURRENCY, Trinity::ChatCommands::Console::Yes },
+                }, rbac::RBAC_PERM_COMMAND_SUPPORT_CHANGE, Trinity::ChatCommands::Console::No },
+            }, rbac::RBAC_PERM_COMMAND_SUPPORT, Trinity::ChatCommands::Console::Yes },
         };
         return commandTable;
     }
@@ -404,13 +393,13 @@ public:
 
                 if (auto skill = sSkillLineStore.LookupEntry(skillId))
                 {
-                    if (!player->HasSkill(skill->id))
+                    if (!player->HasSkill(skill->ID))
                     {
-                        player->SetSkill(skill->id, player->GetSkillStep(skill->id), skillValue, skillValue);
-                        handler->PSendSysMessage("Skill %u (value: %u) added to player %s (guid: %u).", skill->id, skillValue, handler->GetNameLink(player).c_str(), guid.GetCounter());
+                        player->SetSkill(skill->ID, player->GetSkillStep(skill->ID), skillValue, skillValue);
+                        handler->PSendSysMessage("Skill %u (value: %u) added to player %s (guid: %u).", skill->ID, skillValue, handler->GetNameLink(player).c_str(), guid.GetCounter());
                     }
                     else
-                        handler->PSendSysMessage("Player %s (guid: %u) already has skill %u.", handler->GetNameLink(player).c_str(),guid.GetCounter(), skill->id);
+                        handler->PSendSysMessage("Player %s (guid: %u) already has skill %u.", handler->GetNameLink(player).c_str(),guid.GetCounter(), skill->ID);
                 }
                 else
                     handler->PSendSysMessage("Error. Skill %u not found.", skillId);
@@ -442,20 +431,20 @@ public:
                 {
                     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SKILL_BOOST);
                     stmt->setUInt32(0, guid.GetCounter());
-                    stmt->setUInt32(1, skill->id);
+                    stmt->setUInt32(1, skill->ID);
                     if (!CharacterDatabase.Query(stmt))
                     {
                         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SKILLS);
                         stmt->setUInt32(0, guid.GetCounter());
-                        stmt->setUInt32(1, skill->id);
+                        stmt->setUInt32(1, skill->ID);
                         stmt->setUInt32(2, skillValue);
                         stmt->setUInt32(3, skillValue);
                         trans->Append(stmt);
 
-                        handler->PSendSysMessage("Skill %u (value: %u) added to player %s (guid: %u).", skill->id, skillValue, name.c_str(), guid.GetCounter());
+                        handler->PSendSysMessage("Skill %u (value: %u) added to player %s (guid: %u).", skill->ID, skillValue, name.c_str(), guid.GetCounter());
                     }
                     else
-                        handler->PSendSysMessage("Player %s (guid: %u) already has skill %u.", name.c_str(), guid.GetCounter(), skill->id);
+                        handler->PSendSysMessage("Player %s (guid: %u) already has skill %u.", name.c_str(), guid.GetCounter(), skill->ID);
                 }
                 else
                     handler->PSendSysMessage("Error. Skill %u not found.", skillId);
@@ -490,10 +479,10 @@ public:
             {
                 if (auto skill = sSkillLineStore.LookupEntry(atoi(skillId)))
                 {
-                    if (player->HasSkill(skill->id))
-                        handler->PSendSysMessage("Player %s (guid: %u) has skill %u.", handler->GetNameLink(player).c_str(), guid.GetCounter(), skill->id);
+                    if (player->HasSkill(skill->ID))
+                        handler->PSendSysMessage("Player %s (guid: %u) has skill %u.", handler->GetNameLink(player).c_str(), guid.GetCounter(), skill->ID);
                     else
-                        handler->PSendSysMessage("Player %s (guid: %u) hasn't skill %u.", handler->GetNameLink(player).c_str(), guid.GetCounter(), skill->id);
+                        handler->PSendSysMessage("Player %s (guid: %u) hasn't skill %u.", handler->GetNameLink(player).c_str(), guid.GetCounter(), skill->ID);
                 }
                 else
                     handler->PSendSysMessage("Error. Skill %u not found.", atoi(skillId));
@@ -507,11 +496,11 @@ public:
                 {
                     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SKILL_BOOST);
                     stmt->setUInt32(0, guid.GetCounter());
-                    stmt->setUInt32(1, skill->id);
+                    stmt->setUInt32(1, skill->ID);
                     if (CharacterDatabase.Query(stmt))
-                        handler->PSendSysMessage("Player %s (guid: %u) has skill %u.", name.c_str(), guid.GetCounter(), skill->id);
+                        handler->PSendSysMessage("Player %s (guid: %u) has skill %u.", name.c_str(), guid.GetCounter(), skill->ID);
                     else
-                        handler->PSendSysMessage("Player %s (guid: %u) hasn't skill %u.", name.c_str(), guid.GetCounter(), skill->id);
+                        handler->PSendSysMessage("Player %s (guid: %u) hasn't skill %u.", name.c_str(), guid.GetCounter(), skill->ID);
                 }
                 else
                     handler->PSendSysMessage("Error. Skill %u not found.", atoi(skillId));
@@ -545,13 +534,13 @@ public:
             {
                 if (auto skill = sSkillLineStore.LookupEntry(atoi(skillId)))
                 {
-                    if (player->HasSkill(skill->id))
+                    if (player->HasSkill(skill->ID))
                     {
-                        player->SetSkill(skill->id, 0, 0, 0);
-                        handler->PSendSysMessage("Skill %u removed from player %s (guid: %u).", skill->id, handler->GetNameLink(player).c_str(), guid.GetCounter());
+                        player->SetSkill(skill->ID, 0, 0, 0);
+                        handler->PSendSysMessage("Skill %u removed from player %s (guid: %u).", skill->ID, handler->GetNameLink(player).c_str(), guid.GetCounter());
                     }
                     else
-                        handler->PSendSysMessage("Player %s (guid %u) did not has skill %u.", handler->GetNameLink(player).c_str(), guid.GetCounter(), skill->id);
+                        handler->PSendSysMessage("Player %s (guid %u) did not has skill %u.", handler->GetNameLink(player).c_str(), guid.GetCounter(), skill->ID);
                 }
                 else
                     handler->PSendSysMessage("Error. Skill %u not found.", atoi(skillId));
@@ -567,18 +556,18 @@ public:
                 {
                     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SKILL_BOOST);
                     stmt->setUInt32(0, guid.GetCounter());
-                    stmt->setUInt32(1, skill->id);
+                    stmt->setUInt32(1, skill->ID);
                     if (CharacterDatabase.Query(stmt))
                     {
                         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SKILL_BY_SKILL);
                         stmt->setUInt32(0, guid.GetCounter());
-                        stmt->setUInt32(1, skill->id);
+                        stmt->setUInt32(1, skill->ID);
                         trans->Append(stmt);
 
-                        handler->PSendSysMessage("Skill %u added removed from player %s (guid: %u).", skill->id, name.c_str(), guid.GetCounter());
+                        handler->PSendSysMessage("Skill %u added removed from player %s (guid: %u).", skill->ID, name.c_str(), guid.GetCounter());
                     }
                     else
-                        handler->PSendSysMessage("Player %s (guid %u) did not know skill %u.", name.c_str(), guid.GetCounter(), skill->id);
+                        handler->PSendSysMessage("Player %s (guid %u) did not know skill %u.", name.c_str(), guid.GetCounter(), skill->ID);
                 }
                 else
                     handler->PSendSysMessage("Error. Skill %u not found.", atoi(skillId));
@@ -677,25 +666,25 @@ public:
                 if (auto item = sObjectMgr->GetItemTemplate(atoi(itemId)))
                 {
                     // check bank and inventory
-                    QueryResult result = CharacterDatabase.PQuery("SELECT sum(count) FROM item_instance WHERE itemEntry = %u AND owner_guid = %u", item->ItemId, guid.GetCounter());
+                    QueryResult result = CharacterDatabase.PQuery("SELECT sum(count) FROM item_instance WHERE itemEntry = {} AND owner_guid = {}", item->ItemId, guid.GetCounter());
                     if (result && (*result)[0].GetUInt32())
                         handler->PSendSysMessage("Player %s (guid: %u) has item %s (%u, count: %u) in inventory or bank.", name.c_str(), guid.GetCounter(), item->Name1.c_str(), item->ItemId, (*result)[0].GetUInt32());
                     else
                         handler->PSendSysMessage("Player %s (guid: %u) hasn't item %s (%u) in inventory.", name.c_str(), guid.GetCounter(), item->Name1.c_str(), item->ItemId);
                     // check mail
-                    if (QueryResult resultMail = CharacterDatabase.PQuery("SELECT item_guid FROM mail_items WHERE receiver = %u", guid.GetCounter()))
+                    if (QueryResult resultMail = CharacterDatabase.PQuery("SELECT item_guid FROM mail_items WHERE receiver = {}", guid.GetCounter()))
                     {
                         do
                         {
                             Field* fields = resultMail->Fetch();
                             uint32 itemGuid = fields[0].GetUInt32();
-                            if (QueryResult resultItem = CharacterDatabase.PQuery("SELECT itemEntry, count FROM item_instance WHERE guid = %u", itemGuid))
+                            if (QueryResult resultItem = CharacterDatabase.PQuery("SELECT itemEntry, count FROM item_instance WHERE guid = {}", itemGuid))
                                 if ((*resultItem)[0].GetUInt32() == item->ItemId)
                                     handler->PSendSysMessage("Player %s (guid: %u) has item %s (%u, guid: %u, count %u) in mail.", name.c_str(), guid.GetCounter(), item->Name1.c_str(), item->ItemId, itemGuid, (*resultItem)[1].GetUInt32());
                         } while (resultMail->NextRow());
                     }
                     // check void storage
-                    if (QueryResult resultVoid = CharacterDatabase.PQuery("SELECT slot FROM character_void_storage WHERE itemEntry = %u AND playerGuid = %u", guid.GetCounter()))
+                    if (QueryResult resultVoid = CharacterDatabase.PQuery("SELECT slot FROM character_void_storage WHERE itemEntry = {} AND playerGuid = {}", item->ItemId, guid.GetCounter()))
                         handler->PSendSysMessage("Player %s (guid: %u) has item %s (%u, slot: %u) in void storage.", name.c_str(), guid.GetCounter(), item->Name1.c_str(), item->ItemId, (*resultVoid)[0].GetUInt32());
                 }
                 else
@@ -731,7 +720,7 @@ public:
         }
 
         std::vector<ObjectGuid> playersList;
-        if (QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM characters WHERE account = %u", accountId))
+        if (QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM characters WHERE account = {}", accountId))
         {
             do
             {
@@ -788,25 +777,25 @@ public:
                     if (auto item = sObjectMgr->GetItemTemplate(atoi(itemId)))
                     {
                         // check bank and inventory
-                        QueryResult result = CharacterDatabase.PQuery("SELECT sum(count) FROM item_instance WHERE itemEntry = %u AND owner_guid = %u", item->ItemId, guid.GetCounter());
+                        QueryResult result = CharacterDatabase.PQuery("SELECT sum(count) FROM item_instance WHERE itemEntry = {} AND owner_guid = {}", item->ItemId, guid.GetCounter());
                         if (result && (*result)[0].GetUInt32())
                             handler->PSendSysMessage("Player %s (guid: %u) has item %s (%u, count: %u) in inventory or bank.", name.c_str(), guid.GetCounter(), item->Name1.c_str(), item->ItemId, (*result)[0].GetUInt32());
                         else
                             handler->PSendSysMessage("Player %s (guid: %u) hasn't item %s (%u) in inventory.", name.c_str(), guid.GetCounter(), item->Name1.c_str(), item->ItemId);
                         // check mail
-                        if (QueryResult resultMail = CharacterDatabase.PQuery("SELECT item_guid FROM mail_items WHERE receiver = %u", guid.GetCounter()))
+                        if (QueryResult resultMail = CharacterDatabase.PQuery("SELECT item_guid FROM mail_items WHERE receiver = {}", guid.GetCounter()))
                         {
                             do
                             {
                                 Field* fields = resultMail->Fetch();
                                 uint32 itemGuid = fields[0].GetUInt32();
-                                if (QueryResult resultItem = CharacterDatabase.PQuery("SELECT itemEntry, count FROM item_instance WHERE guid = %u", itemGuid))
+                                if (QueryResult resultItem = CharacterDatabase.PQuery("SELECT itemEntry, count FROM item_instance WHERE guid = {}", itemGuid))
                                     if ((*resultItem)[0].GetUInt32() == item->ItemId)
                                         handler->PSendSysMessage("Player %s (guid: %u) has item %s (%u, guid: %u, count %u) in mail.", name.c_str(), guid.GetCounter(), item->Name1.c_str(), item->ItemId, itemGuid, (*resultItem)[1].GetUInt32());
                             } while (resultMail->NextRow());
                         }
                         // check void storage
-                        if (QueryResult resultVoid = CharacterDatabase.PQuery("SELECT slot FROM character_void_storage WHERE itemEntry = %u AND playerGuid = %u", guid.GetCounter()))
+                        if (QueryResult resultVoid = CharacterDatabase.PQuery("SELECT slot FROM character_void_storage WHERE itemEntry = {} AND playerGuid = {}", item->ItemId, guid.GetCounter()))
                             handler->PSendSysMessage("Player %s (guid: %u) has item %s (%u, slot: %u) in void storage.", name.c_str(), guid.GetCounter(), item->Name1.c_str(), item->ItemId, (*resultVoid)[0].GetUInt32());
                     }
                     else
@@ -882,35 +871,35 @@ public:
                 if (auto item = sObjectMgr->GetItemTemplate(atoi(itemId)))
                 {
                     // check bank and inventory
-                    if (QueryResult result = CharacterDatabase.PQuery("SELECT guid, sum(count) FROM item_instance WHERE itemEntry = %u AND owner_guid = %u", item->ItemId, guid.GetCounter()))
+                    if (QueryResult result = CharacterDatabase.PQuery("SELECT guid, sum(count) FROM item_instance WHERE itemEntry = {} AND owner_guid = {}", item->ItemId, guid.GetCounter()))
                     {
-                        CharacterDatabase.PExecute("DELETE FROM item_instance WHERE guid = %u", (*result)[0].GetUInt32());
+                        CharacterDatabase.PExecute("DELETE FROM item_instance WHERE guid = {}", (*result)[0].GetUInt32());
                         handler->PSendSysMessage("Item %d (%s, count %u) removed from player %s (guid: %u), source - inventory.", item->ItemId, item->Name1.c_str(), (*result)[1].GetUInt32(), name.c_str(), guid.GetCounter());
                     }
                     else
                         handler->PSendSysMessage("Player %s (guid: %u) hasn't item %s (%u).", name.c_str(), guid.GetCounter(), item->Name1.c_str(), item->ItemId);
                     // check mail
-                    if (QueryResult resultMail = CharacterDatabase.PQuery("SELECT item_guid FROM mail_items WHERE receiver = %u", guid.GetCounter()))
+                    if (QueryResult resultMail = CharacterDatabase.PQuery("SELECT item_guid FROM mail_items WHERE receiver = {}", guid.GetCounter()))
                     {
                         do
                         {
                             Field* fields = resultMail->Fetch();
                             uint32 itemGuid = fields[0].GetUInt32();
-                            if (QueryResult resultItem = CharacterDatabase.PQuery("SELECT itemEntry, count FROM item_instance WHERE guid = %u", itemGuid))
+                            if (QueryResult resultItem = CharacterDatabase.PQuery("SELECT itemEntry, count FROM item_instance WHERE guid = {}", itemGuid))
                             {
                                 if ((*resultItem)[0].GetUInt32() == item->ItemId)
                                 {
-                                    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid = %u AND receiver = %u", itemGuid, guid.GetCounter());
-                                    CharacterDatabase.PExecute("DELETE FROM item_instance WHERE guid = %u", itemGuid);
+                                    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid = {} AND receiver = {}", itemGuid, guid.GetCounter());
+                                    CharacterDatabase.PExecute("DELETE FROM item_instance WHERE guid = {}", itemGuid);
                                     handler->PSendSysMessage("Item %s (%u, guid %u) removed from player %s (guid: %u), source - mail.", item->Name1.c_str(), item->ItemId, itemGuid, name.c_str(), guid.GetCounter());
                                 }
                             }
                         } while (resultMail->NextRow());
                     }
                     // check void storage
-                    if (QueryResult resultVoid = CharacterDatabase.PQuery("SELECT slot FROM character_void_storage WHERE itemEntry = %u AND playerGuid = %u", guid.GetCounter()))
+                    if (QueryResult resultVoid = CharacterDatabase.PQuery("SELECT slot FROM character_void_storage WHERE itemEntry = {} AND playerGuid = {}", item->ItemId, guid.GetCounter()))
                     {
-                        CharacterDatabase.PExecute("DELETE FROM character_void_storage WHERE itemEntry = %u AND guid = %u AND slot = %u", item->ItemId, guid.GetCounter(), (*resultVoid)[0].GetUInt32());
+                        CharacterDatabase.PExecute("DELETE FROM character_void_storage WHERE itemEntry = {} AND guid = {} AND slot = {}", item->ItemId, guid.GetCounter(), (*resultVoid)[0].GetUInt32());
                         handler->PSendSysMessage("Item %s, (%u, slot %u) removed from player %s (guid: %u), source - void storage.", item->Name1.c_str(), item->ItemId, (*resultVoid)[0].GetUInt32(), name.c_str(), guid.GetCounter());
                     }
                 }
@@ -931,7 +920,7 @@ public:
         uint32 fieldIndexOffset = title->bit_index / 32;
         uint32 flag = 1 << (title->bit_index % 32);
 
-        if (QueryResult result = CharacterDatabase.PQuery("SELECT knownTitles FROM characters WHERE guid = %u", guid.GetCounter()))
+        if (QueryResult result = CharacterDatabase.PQuery("SELECT knownTitles FROM characters WHERE guid = {}", guid.GetCounter()))
         {
             Tokenizer tok{ (*result)[0].GetString(), ' ' };
             if (tok.size() != 8)
@@ -946,7 +935,7 @@ public:
         uint32 fieldIndexOffset = title->bit_index / 32;
         uint32 flag = 1 << (title->bit_index % 32);
 
-        if (QueryResult result = CharacterDatabase.PQuery("SELECT knownTitles FROM characters WHERE guid = %u", guid.GetCounter()))
+        if (QueryResult result = CharacterDatabase.PQuery("SELECT knownTitles FROM characters WHERE guid = {}", guid.GetCounter()))
         {
             Tokenizer tok{ (*result)[0].GetString(), ' ' };
             if (tok.size() != 8)
@@ -970,7 +959,7 @@ public:
                 else
                     titles += "\"";
             }
-            CharacterDatabase.PExecute("UPDATE characters SET knownTitles = %s, chosenTitle = 0 WHERE guid = %u", titles.c_str(), guid.GetCounter());
+            CharacterDatabase.PExecute("UPDATE characters SET knownTitles = {}, chosenTitle = 0 WHERE guid = {}", titles.c_str(), guid.GetCounter());
             return true;
         }
         return false;
@@ -1198,7 +1187,7 @@ public:
             {
                 if (auto ach = sAchievementStore.LookupEntry(atoi(achievId)))
                 {
-                    if (!CharacterDatabase.PQuery("SELECT * FROM character_achievement WHERE guid = %u AND achievement = %u", guid.GetCounter(), ach->ID))
+                    if (!CharacterDatabase.PQuery("SELECT * FROM character_achievement WHERE guid = {} AND achievement = {}", guid.GetCounter(), ach->ID))
                     {
                         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACHIEVEMENT);
                         stmt->setUInt32(0, guid.GetCounter());
@@ -1259,7 +1248,7 @@ public:
             {
                 if (auto ach = sAchievementStore.LookupEntry(atoi(achievId)))
                 {
-                    if (CharacterDatabase.PQuery("SELECT * FROM character_achievement WHERE guid = %u AND achievement = %u", guid.GetCounter(), ach->ID))
+                    if (CharacterDatabase.PQuery("SELECT * FROM character_achievement WHERE guid = {} AND achievement = {}", guid.GetCounter(), ach->ID))
                         handler->PSendSysMessage("Player %s (guid: %u) has achievement %u.", name.c_str(), guid.GetCounter(), ach->ID);
                     else
                         handler->PSendSysMessage("Player %s (guid: %u) hasn't achievement %u.", name.c_str(), guid.GetCounter(), ach->ID);
@@ -1316,7 +1305,7 @@ public:
             {
                 if (auto ach = sAchievementStore.LookupEntry(atoi(achievId)))
                 {
-                    if (CharacterDatabase.PQuery("SELECT * FROM character_achievement WHERE guid = %u AND achievement = %u", guid.GetCounter(), ach->ID))
+                    if (CharacterDatabase.PQuery("SELECT * FROM character_achievement WHERE guid = {} AND achievement = {}", guid.GetCounter(), ach->ID))
                     {
                         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
                         stmt->setUInt32(0, ach->ID);
@@ -1377,13 +1366,13 @@ public:
         else
         {
             CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-            QueryResult accountCheck = CharacterDatabase.PQuery("SELECT account FROM characters WHERE name = %s", name.c_str());
+            QueryResult accountCheck = CharacterDatabase.PQuery("SELECT account FROM characters WHERE name = {}", name.c_str());
             uint32 account = (*accountCheck)[0].GetUInt32();
             for (auto&& achievId : achievTok)
             {
                 if (auto ach = sAchievementStore.LookupEntry(atoi(achievId)))
                 {
-                    if (!CharacterDatabase.PQuery("SELECT * FROM account_achievement WHERE account = %u AND achievement = %u", account, ach->ID))
+                    if (!CharacterDatabase.PQuery("SELECT * FROM account_achievement WHERE account = {} AND achievement = {}", account, ach->ID))
                     {
                         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_ACCOUNT_ACHIEVEMENT);
                         stmt->setUInt32(0, account);
@@ -1441,13 +1430,13 @@ public:
         }
         else
         {
-            QueryResult accountCheck = CharacterDatabase.PQuery("SELECT account FROM characters WHERE name = %s", name.c_str());
+            QueryResult accountCheck = CharacterDatabase.PQuery("SELECT account FROM characters WHERE name = {}", name.c_str());
             uint32 account = (*accountCheck)[0].GetUInt32();
             for (auto&& achievId : achievTok)
             {
                 if (auto ach = sAchievementStore.LookupEntry(atoi(achievId)))
                 {
-                    if (CharacterDatabase.PQuery("SELECT * FROM account_achievement WHERE account = %u AND achievement = %u", account, ach->ID))
+                    if (CharacterDatabase.PQuery("SELECT * FROM account_achievement WHERE account = {} AND achievement = {}", account, ach->ID))
                         handler->PSendSysMessage("Player %s (guid: %u) has achievement %u on account.", name.c_str(), guid.GetCounter(), ach->ID);
                     else
                         handler->PSendSysMessage("Player %s (guid: %u) hasn't achievement %u on account.", name.c_str(), guid.GetCounter(), ach->ID);
@@ -1504,7 +1493,7 @@ public:
             {
                 if (auto ach = sAchievementStore.LookupEntry(atoi(achievId)))
                 {
-                    if (CharacterDatabase.PQuery("SELECT * FROM character_achievement WHERE guid = %u AND achievement = %u", guid.GetCounter(), ach->ID))
+                    if (CharacterDatabase.PQuery("SELECT * FROM character_achievement WHERE guid = {} AND achievement = {}", guid.GetCounter(), ach->ID))
                     {
                         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
                         stmt->setUInt32(0, ach->ID);
@@ -1577,7 +1566,7 @@ public:
             {
                 if (auto ach = sAchievementStore.LookupEntry(atoi(achievId)))
                 {
-                    if (!CharacterDatabase.PQuery("SELECT * FROM guild_achievement WHERE guildId = %u AND achievement = %u", guild->GetId(), ach->ID))
+                    if (!CharacterDatabase.PQuery("SELECT * FROM guild_achievement WHERE guildId = {} AND achievement = {}", guild->GetId(), ach->ID))
                     {
                         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GUILD_ACHIEVEMENT);
                         stmt->setUInt32(0, guild->GetId());
@@ -1730,7 +1719,7 @@ public:
 
                 if (auto spell = sSpellMgr->GetSpellInfo(spellId))
                 {
-                    if (CharacterDatabase.PQuery("SELECT * FROM character_aura WHERE spell = %u AND guid = %u", spell->Id, guid.GetCounter()))
+                    if (CharacterDatabase.PQuery("SELECT * FROM character_aura WHERE spell = {} AND guid = {}", spell->Id, guid.GetCounter()))
                         handler->PSendSysMessage("Player %s (guid: %u) has spell %u.", name.c_str(), guid.GetCounter(), spell->Id);
                     else
                         handler->PSendSysMessage("Player %s (guid: %u) hasn't spell %u.", name.c_str(), guid.GetCounter(), spell->Id);
@@ -1774,7 +1763,7 @@ public:
         }
         else
         {
-            if (QueryResult result = CharacterDatabase.PQuery("SELECT spell, slot FROM character_aura WHERE guid = %u",guid.GetCounter()))
+            if (QueryResult result = CharacterDatabase.PQuery("SELECT spell, slot FROM character_aura WHERE guid = {}",guid.GetCounter()))
             {
                 handler->PSendSysMessage("Player's %s (guid: %u) auras:", name.c_str(), guid.GetCounter());
                 do
@@ -1851,10 +1840,10 @@ public:
 
                 if (auto spell = sSpellMgr->GetSpellInfo(spellId))
                 {
-                    if (QueryResult result = CharacterDatabase.PQuery("SELECT slot FROM character_aura WHERE spell = %u AND guid = %u", spell->Id, guid.GetCounter()))
+                    if (QueryResult result = CharacterDatabase.PQuery("SELECT slot FROM character_aura WHERE spell = {} AND guid = {}", spell->Id, guid.GetCounter()))
                     {
-                        CharacterDatabase.PExecute("DELETE FROM character_aura WHERE spell = %u AND guid = %u", spell->Id, guid.GetCounter());
-                        CharacterDatabase.PExecute("DELETE FROM character_aura_effect WHERE slot = %u AND guid = %u", (*result)[0].GetUInt32(), guid.GetCounter());
+                        CharacterDatabase.PExecute("DELETE FROM character_aura WHERE spell = {} AND guid = {}", spell->Id, guid.GetCounter());
+                        CharacterDatabase.PExecute("DELETE FROM character_aura_effect WHERE slot = {} AND guid = {}", (*result)[0].GetUInt32(), guid.GetCounter());
                         handler->PSendSysMessage("Aura %u removed from player %s (guid: %u).", spell->Id, name.c_str(), guid.GetCounter());
                     }
                     else
@@ -1946,13 +1935,13 @@ public:
     }
     static bool HasQuestRewardedInDb(ObjectGuid guid, uint32 questId)
     {
-        if (CharacterDatabase.PQuery("SELECT * FROM character_queststatus_rewarded WHERE guid = %u AND quest = %u", guid.GetCounter(), questId))
+        if (CharacterDatabase.PQuery("SELECT * FROM character_queststatus_rewarded WHERE guid = {} AND quest = {}", guid.GetCounter(), questId))
             return true;
-        if (CharacterDatabase.PQuery("SELECT * FROM character_queststatus_daily WHERE guid = %u AND quest = %u", guid.GetCounter(), questId))
+        if (CharacterDatabase.PQuery("SELECT * FROM character_queststatus_daily WHERE guid = {} AND quest = {}", guid.GetCounter(), questId))
             return true;
-        if (CharacterDatabase.PQuery("SELECT * FROM character_queststatus_monthly WHERE guid = %u AND quest = %u", guid.GetCounter(), questId))
+        if (CharacterDatabase.PQuery("SELECT * FROM character_queststatus_monthly WHERE guid = {} AND quest = {}", guid.GetCounter(), questId))
             return true;
-        if (CharacterDatabase.PQuery("SELECT * FROM character_queststatus_weekly WHERE guid = %u AND quest = %u", guid.GetCounter(), questId))
+        if (CharacterDatabase.PQuery("SELECT * FROM character_queststatus_weekly WHERE guid = {} AND quest = {}", guid.GetCounter(), questId))
             return true;
         return false;
     }
@@ -2019,7 +2008,7 @@ public:
                 {
                     if (!HasQuestRewardedInDb(guid, quest->GetQuestId()))
                     {
-                        CharacterDatabase.PQuery("INSERT INTO character_queststatus (guid, quest, status, explored, timer) VALUES (%u, %u, 3, 0, %u)", guid.GetCounter(), quest->GetQuestId(), time(nullptr));
+                        CharacterDatabase.PQuery("INSERT INTO character_queststatus (guid, quest, status, explored, timer) VALUES ({}, {}, 3, 0, {})", guid.GetCounter(), quest->GetQuestId(), time(nullptr));
                         handler->PSendSysMessage("Quest %u added to player %s (guid: %u).", quest->GetQuestId(), name.c_str(), guid.GetCounter());
                     }
                     else
@@ -2090,9 +2079,9 @@ public:
 
                 if (auto quest = sObjectMgr->GetQuestTemplate(questId))
                 {
-                    if (CharacterDatabase.PQuery("SELECT * FROM character_queststatus WHERE guid = %u AND quest = %u", guid.GetCounter(), questId))
+                    if (CharacterDatabase.PQuery("SELECT * FROM character_queststatus WHERE guid = {} AND quest = {}", guid.GetCounter(), questId))
                     {
-                        CharacterDatabase.PQuery("UPDATE character_queststatus SET status = 1 WHERE guid = %u AND quest = %u", guid.GetCounter(), quest->GetQuestId());
+                        CharacterDatabase.PQuery("UPDATE character_queststatus SET status = 1 WHERE guid = {} AND quest = {}", guid.GetCounter(), quest->GetQuestId());
                         std::string items;
                         for (auto const& obj : quest->Objectives)
                         {
@@ -2106,7 +2095,7 @@ public:
                             if (obj.Type == QUEST_OBJECTIVE_MONEY) // haha
                                 continue;
 
-                            CharacterDatabase.PQuery("INSERT INTO character_queststatus_objective (guid, objectiveId, amount) VALUES (%u, %u, %u)", guid.GetCounter(), obj.ID, obj.Amount);
+                            CharacterDatabase.PQuery("INSERT INTO character_queststatus_objective (guid, objectiveId, amount) VALUES ({}, {}, {})", guid.GetCounter(), obj.ID, obj.Amount);
                         }
                         items.erase(items.end() - 1); // remove last ","
                         std::string text = " \"Support\" \"Items for quest" + std::to_string(quest->GetQuestId()) + ".\" ";
@@ -2240,13 +2229,13 @@ public:
 
                 if (auto quest = sObjectMgr->GetQuestTemplate(questId))
                 {
-                    if (CharacterDatabase.PQuery("SELECT status FROM character_queststatus_monthly WHERE guid = %u AND quest = %u", guid.GetCounter(), questId))
+                    if (CharacterDatabase.PQuery("SELECT status FROM character_queststatus_monthly WHERE guid = {} AND quest = {}", guid.GetCounter(), questId))
                         handler->PSendSysMessage("Monthly quest %u completed by player %s (guid: %u).", quest->GetQuestId(), name.c_str(), guid.GetCounter());
-                    else if (CharacterDatabase.PQuery("SELECT status FROM character_queststatus_weekly WHERE guid = %u AND quest = %u", guid.GetCounter(), questId))
+                    else if (CharacterDatabase.PQuery("SELECT status FROM character_queststatus_weekly WHERE guid = {} AND quest = {}", guid.GetCounter(), questId))
                         handler->PSendSysMessage("Weekly quest %u completed by player %s (guid: %u).", quest->GetQuestId(), name.c_str(), guid.GetCounter());
-                    else if (CharacterDatabase.PQuery("SELECT status FROM character_queststatus_daily WHERE guid = %u AND quest = %u", guid.GetCounter(), questId))
+                    else if (CharacterDatabase.PQuery("SELECT status FROM character_queststatus_daily WHERE guid = {} AND quest = {}", guid.GetCounter(), questId))
                         handler->PSendSysMessage("Daily quest %u completed by player %s (guid: %u).", quest->GetQuestId(), name.c_str(), guid.GetCounter());
-                    else if (QueryResult result = CharacterDatabase.PQuery("SELECT status FROM character_queststatus WHERE guid = %u AND quest = %u", guid.GetCounter(), questId))
+                    else if (QueryResult result = CharacterDatabase.PQuery("SELECT status FROM character_queststatus WHERE guid = {} AND quest = {}", guid.GetCounter(), questId))
                     {
                         if ((*result)[0].GetUInt32() == QUEST_STATUS_REWARDED)
                             handler->PSendSysMessage("Quest %u rewarded for player %s (guid: %u).", quest->GetQuestId(), name.c_str(), guid.GetCounter());
@@ -2326,15 +2315,15 @@ public:
                     if (quest->IsRepeatable())
                     {
                         if (quest->IsMonthly())
-                            CharacterDatabase.PExecute("DELETE FROM character_queststatus_monthly WHERE guid = %u AND quest = %u", guid.GetCounter(), questId);
+                            CharacterDatabase.PExecute("DELETE FROM character_queststatus_monthly WHERE guid = {} AND quest = {}", guid.GetCounter(), questId);
                         if (quest->IsWeekly())
-                            CharacterDatabase.PExecute("DELETE FROM character_queststatus_weekly WHERE guid = %u AND quest = %u", guid.GetCounter(), questId);
+                            CharacterDatabase.PExecute("DELETE FROM character_queststatus_weekly WHERE guid = {} AND quest = {}", guid.GetCounter(), questId);
                         if (quest->IsDaily())
-                            CharacterDatabase.PExecute("DELETE FROM character_queststatus_daily WHERE guid = %u AND quest = %u", guid.GetCounter(), questId);
+                            CharacterDatabase.PExecute("DELETE FROM character_queststatus_daily WHERE guid = {} AND quest = {}", guid.GetCounter(), questId);
                     }
-                    else if (CharacterDatabase.PQuery("SELECT * FROM character_queststatus_rewarded WHERE guid = %u AND quest = %u", guid.GetCounter(), questId))
+                    else if (CharacterDatabase.PQuery("SELECT * FROM character_queststatus_rewarded WHERE guid = {} AND quest = {}", guid.GetCounter(), questId))
                     {
-                        CharacterDatabase.PExecute("DELETE FROM character_queststatus_rewarded WHERE guid = %u AND quest = %u", guid.GetCounter(), questId);
+                        CharacterDatabase.PExecute("DELETE FROM character_queststatus_rewarded WHERE guid = {} AND quest = {}", guid.GetCounter(), questId);
                         handler->PSendSysMessage("Quest %u completed for player %s (guid: %u).", quest->GetQuestId(), name.c_str(), guid.GetCounter());
                     }
                     else
@@ -2384,7 +2373,7 @@ public:
             player->SaveToDB();
 
         handler->PSendSysMessage("Player's %s (guid %u) active quest list:", name.c_str(), guid.GetCounter());
-        if (QueryResult result = CharacterDatabase.PQuery("SELECT quest, status FROM character_queststatus WHERE guid = %u", guid.GetCounter()))
+        if (QueryResult result = CharacterDatabase.PQuery("SELECT quest, status FROM character_queststatus WHERE guid = {}", guid.GetCounter()))
         {
             uint32 questId = (*result)[0].GetUInt32();
             uint32 status = (*result)[1].GetUInt32();
@@ -2418,7 +2407,7 @@ public:
             player->SaveToDB();
 
         handler->PSendSysMessage("Player's %s (guid %u) rewarded quest list:", name.c_str(), guid.GetCounter());
-        if (QueryResult result = CharacterDatabase.PQuery("SELECT quest FROM character_queststatus_rewarded WHERE guid = %u", guid.GetCounter()))
+        if (QueryResult result = CharacterDatabase.PQuery("SELECT quest FROM character_queststatus_rewarded WHERE guid = {}", guid.GetCounter()))
         {
             uint32 questId = (*result)[0].GetUInt32();
             if (auto quest = sObjectMgr->GetQuestTemplate(questId))
@@ -2455,8 +2444,8 @@ public:
         }
         else
         {
-            if (QueryResult charResult = CharacterDatabase.PQuery("SELECT account FROM characters WHERE guid = %u", guid.GetCounter()))
-                if (QueryResult boostResult = LoginDatabase.PQuery("SELECT * FROM account_boost WHERE id = %u", (*charResult)[0].GetUInt32()))
+            if (QueryResult charResult = CharacterDatabase.PQuery("SELECT account FROM characters WHERE guid = {}", guid.GetCounter()))
+                if (QueryResult boostResult = LoginDatabase.PQuery("SELECT * FROM account_boost WHERE id = {}", (*charResult)[0].GetUInt32()))
                     handler->PSendSysMessage("Player %s (guid: %u) has active boost.", name.c_str(), guid.GetCounter());
         }
         return true;
@@ -2499,12 +2488,12 @@ public:
         else
         {
             bool activeBoost = false;
-            if (QueryResult charResult = CharacterDatabase.PQuery("SELECT account FROM characters WHERE guid = %u", guid.GetCounter()))
-                if (QueryResult boostResult = LoginDatabase.PQuery("SELECT * FROM account_boost WHERE id = %u", (*charResult)[0].GetUInt32()))
+            if (QueryResult charResult = CharacterDatabase.PQuery("SELECT account FROM characters WHERE guid = {}", guid.GetCounter()))
+                if (QueryResult boostResult = LoginDatabase.PQuery("SELECT * FROM account_boost WHERE id = {}", (*charResult)[0].GetUInt32()))
                     activeBoost = true;
 
             uint32 atLoginFlags = 0;
-            if (QueryResult charResult = CharacterDatabase.PQuery("SELECT at_login FROM characters WHERE guid = %u", guid.GetCounter()))
+            if (QueryResult charResult = CharacterDatabase.PQuery("SELECT at_login FROM characters WHERE guid = {}", guid.GetCounter()))
                 atLoginFlags = (*charResult)[0].GetUInt32();
 
             if (!atLoginFlags)
@@ -2541,7 +2530,7 @@ public:
         if (!handler->extractPlayerTarget((char*)tok[0], &player, &guid, &name))
             return false;
 
-        if (QueryResult charResult = CharacterDatabase.PQuery("SELECT type, old_data, new_data, execute_date FROM executed_services WHERE guid = %u", guid.GetCounter()))
+        if (QueryResult charResult = CharacterDatabase.PQuery("SELECT type, old_data, new_data, execute_date FROM executed_services WHERE guid = {}", guid.GetCounter()))
         {
             do
             {
@@ -2598,7 +2587,7 @@ public:
         }
         else
         {
-            if (QueryResult mailResult = CharacterDatabase.PQuery("SELECT id, sender, subject, has_items, money FROM mail WHERE receiver = %u", guid.GetCounter()))
+            if (QueryResult mailResult = CharacterDatabase.PQuery("SELECT id, sender, subject, has_items, money FROM mail WHERE receiver = {}", guid.GetCounter()))
             {
                 handler->PSendSysMessage("Player's %s (guid: %u) mail:", name.c_str(), guid.GetCounter());
                 do
@@ -2614,13 +2603,13 @@ public:
                     if (has_items)
                     {
                         handler->SendSysMessage("Items:");
-                        if (QueryResult mailItemsResult = CharacterDatabase.PQuery("SELECT item_guid FROM mail_items WHERE mail_id = %u", id))
+                        if (QueryResult mailItemsResult = CharacterDatabase.PQuery("SELECT item_guid FROM mail_items WHERE mail_id = {}", id))
                         {
                             do
                             {
                                 Field* fields = mailItemsResult->Fetch();
                                 uint32 itemGuid = fields[0].GetUInt32();
-                                if (QueryResult itemResult = CharacterDatabase.PQuery("SELECT itemEntry FROM item_instance WHERE guid = %u", itemGuid))
+                                if (QueryResult itemResult = CharacterDatabase.PQuery("SELECT itemEntry FROM item_instance WHERE guid = {}", itemGuid))
                                     if (auto item = sObjectMgr->GetItemTemplate((*itemResult)[0].GetUInt32()))
                                         handler->PSendSysMessage("- %s - %u (guid: %u)", item->Name1.c_str(), item->ItemId, itemGuid);
                             } while (mailItemsResult->NextRow());
@@ -2660,7 +2649,7 @@ public:
         }
 
         std::vector<ObjectGuid> playersList;
-        if (QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM characters WHERE account = %u", accountId))
+        if (QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM characters WHERE account = {}", accountId))
         {
             do
             {
@@ -2699,7 +2688,7 @@ public:
             }
             else
             {
-                if (QueryResult mailResult = CharacterDatabase.PQuery("SELECT id, sender, subject, has_items, money FROM mail WHERE receiver = %u", guid.GetCounter()))
+                if (QueryResult mailResult = CharacterDatabase.PQuery("SELECT id, sender, subject, has_items, money FROM mail WHERE receiver = {}", guid.GetCounter()))
                 {
                     handler->PSendSysMessage("Player's %s (guid: %u) mail:", name.c_str(), guid.GetCounter());
                     do
@@ -2715,13 +2704,13 @@ public:
                         if (has_items)
                         {
                             handler->SendSysMessage("Items:");
-                            if (QueryResult mailItemsResult = CharacterDatabase.PQuery("SELECT item_guid FROM mail_items WHERE mail_id = %u", id))
+                            if (QueryResult mailItemsResult = CharacterDatabase.PQuery("SELECT item_guid FROM mail_items WHERE mail_id = {}", id))
                             {
                                 do
                                 {
                                     Field* fields = mailItemsResult->Fetch();
                                     uint32 itemGuid = fields[0].GetUInt32();
-                                    if (QueryResult itemResult = CharacterDatabase.PQuery("SELECT itemEntry FROM item_instance WHERE guid = %u", itemGuid))
+                                    if (QueryResult itemResult = CharacterDatabase.PQuery("SELECT itemEntry FROM item_instance WHERE guid = {}", itemGuid))
                                         if (auto item = sObjectMgr->GetItemTemplate((*itemResult)[0].GetUInt32()))
                                             handler->PSendSysMessage("- %s - %u (guid: %u)", item->Name1.c_str(), item->ItemId, itemGuid);
                                 } while (mailItemsResult->NextRow());
@@ -2759,13 +2748,13 @@ public:
             {
                 if (auto&& skill = sSkillLineStore.LookupEntry(i))
                 {
-                    std::string skillName = skill->name[LOCALE_enUS];
-                    std::string desc = skill->description[LOCALE_enUS];
-                    if ((skill->categoryId == 9 && !desc.empty()) || skill->categoryId == 11)
+                    std::string skillName = skill->DisplayName;
+                    std::string desc = skill->Description;
+                    if ((skill->CategoryID == 9 && !desc.empty()) || skill->CategoryID == 11)
                     {
-                        if (player->HasSkill(skill->id))
+                        if (player->HasSkill(skill->ID))
                         {
-                            handler->PSendSysMessage("%s - %u (value %u)", skillName.c_str(), skill->id, player->GetSkillValue(skill->id));
+                            handler->PSendSysMessage("%s - %u (value %u)", skillName.c_str(), skill->ID, player->GetSkillValue(skill->ID));
                             found = true;
                         }
                     }
@@ -2777,7 +2766,7 @@ public:
         }
         else
         {
-            if (QueryResult skillResult = CharacterDatabase.PQuery("SELECT skill, value FROM character_skills WHERE guid = %u", guid.GetCounter()))
+            if (QueryResult skillResult = CharacterDatabase.PQuery("SELECT skill, value FROM character_skills WHERE guid = {}", guid.GetCounter()))
             {
                 handler->PSendSysMessage("Player's %s (guid: %u) professions:", name.c_str(), guid.GetCounter());
                 do
@@ -2787,10 +2776,10 @@ public:
                     uint32 value = fields[1].GetUInt32();
                     if (auto&& skill = sSkillLineStore.LookupEntry(skillId))
                     {
-                        std::string skillName = skill->name[LOCALE_enUS];
-                        std::string desc = skill->description[LOCALE_enUS];
-                        if ((skill->categoryId == 9 && !desc.empty()) || skill->categoryId == 11)
-                            handler->PSendSysMessage("%s - %u (value %u)", skillName.c_str(), skill->id, value);
+                        std::string skillName = skill->DisplayName;
+                        std::string desc = skill->Description;
+                        if ((skill->CategoryID == 9 && !desc.empty()) || skill->CategoryID == 11)
+                            handler->PSendSysMessage("%s - %u (value %u)", skillName.c_str(), skill->ID, value);
                     }
                 } while (skillResult->NextRow());
             }
@@ -2819,10 +2808,10 @@ public:
             handler->PSendSysMessage("Player must be offline.");
         else
         {
-            if (QueryResult charResult = CharacterDatabase.PQuery("SELECT account FROM characters WHERE guid = %u", guid.GetCounter()))
-                LoginDatabase.PExecute("DELETE FROM account_data WHERE accountId = %u", (*charResult)[0].GetUInt32());
+            if (QueryResult charResult = CharacterDatabase.PQuery("SELECT account FROM characters WHERE guid = {}", guid.GetCounter()))
+                LoginDatabase.PExecute("DELETE FROM account_data WHERE accountId = {}", (*charResult)[0].GetUInt32());
 
-            LoginDatabase.PExecute("DELETE FROM character_account_data WHERE guid = %u", guid.GetCounter());
+            LoginDatabase.PExecute("DELETE FROM character_account_data WHERE guid = {}", guid.GetCounter());
 
             handler->PSendSysMessage("Cache for player %s (guid: %u) removed.", name.c_str(), guid.GetCounter());
         }
@@ -2909,10 +2898,10 @@ public:
 
                 if (auto rep = sFactionStore.LookupEntry(repId))
                 {
-                    if (CharacterDatabase.PQuery("SELECT faction FROM character_reputation WHERE guid = %u AND faction = %u", guid.GetCounter(), repId))
-                        CharacterDatabase.PExecute("UPDATE character_reputation SET standing = %u WHERE guid = %u AND faction = %u AND flags = flags | 1", repValue, guid.GetCounter(), repId);
+                    if (CharacterDatabase.PQuery("SELECT faction FROM character_reputation WHERE guid = {} AND faction = {}", guid.GetCounter(), repId))
+                        CharacterDatabase.PExecute("UPDATE character_reputation SET standing = {} WHERE guid = {} AND faction = {} AND flags = flags | 1", repValue, guid.GetCounter(), repId);
                     else
-                        CharacterDatabase.PExecute("INSERT IGNORE INTO character_reputation (guid, faction, standing, flags) VALUES (%u, %u, %u, 17)", guid.GetCounter(), repId, repValue);
+                        CharacterDatabase.PExecute("INSERT IGNORE INTO character_reputation (guid, faction, standing, flags) VALUES ({}, {}, {}, 17)", guid.GetCounter(), repId, repValue);
                     handler->PSendSysMessage("Reputation with faction %s (%u) changed to %u for player %s (%u).", rep->name[handler->GetSessionDbcLocale()], repId, repValue, handler->GetNameLink(player).c_str(), guid.GetCounter());
                 }
                 else
@@ -2962,7 +2951,7 @@ public:
             {
                 if (auto rep = sFactionStore.LookupEntry(atoi(repStr)))
                 {
-                    QueryResult result = CharacterDatabase.PQuery("SELECT faction FROM character_reputation WHERE guid = %u AND faction = %u", guid.GetCounter(), rep->ID);
+                    QueryResult result = CharacterDatabase.PQuery("SELECT faction FROM character_reputation WHERE guid = {} AND faction = {}", guid.GetCounter(), rep->ID);
                     int32 value = result && (*result)[0].GetUInt32();
                     handler->PSendSysMessage("Reputation with faction %s (%u) is %u for player %s (%u).", rep->name[handler->GetSessionDbcLocale()], rep->ID, value, name.c_str(), guid.GetCounter());
                 }
@@ -3008,7 +2997,7 @@ public:
         {
             handler->PSendSysMessage("Reputation for player %s (%u):", name.c_str(), guid.GetCounter());
 
-            QueryResult result = CharacterDatabase.PQuery("SELECT faction, standing FROM character_reputation WHERE guid = %u", guid.GetCounter());
+            QueryResult result = CharacterDatabase.PQuery("SELECT faction, standing FROM character_reputation WHERE guid = {}", guid.GetCounter());
             if (!result)
             {
                 handler->SendSysMessage("Something gone wrong.");
@@ -3060,11 +3049,11 @@ public:
         }
         else
         {
-            QueryResult result = CharacterDatabase.PQuery("SELECT money FROM characters WHERE guid = %u", guid.GetCounter());
+            QueryResult result = CharacterDatabase.PQuery("SELECT money FROM characters WHERE guid = {}", guid.GetCounter());
             uint64 money = result ? (*result)[0].GetUInt64() : 0;
             uint64 mailMoney = 0;
 
-            QueryResult mailResult = CharacterDatabase.PQuery("SELECT money FROM mail WHERE receiver = %u", guid.GetCounter());
+            QueryResult mailResult = CharacterDatabase.PQuery("SELECT money FROM mail WHERE receiver = {}", guid.GetCounter());
             if (mailResult)
             {
                 do
@@ -3105,7 +3094,7 @@ public:
         }
 
         std::vector<ObjectGuid> playersList;
-        if (QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM characters WHERE account = %u", accountId))
+        if (QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM characters WHERE account = {}", accountId))
         {
             do
             {
@@ -3132,11 +3121,11 @@ public:
             }
             else
             {
-                QueryResult result = CharacterDatabase.PQuery("SELECT money FROM characters WHERE guid = %u", guid.GetCounter());
+                QueryResult result = CharacterDatabase.PQuery("SELECT money FROM characters WHERE guid = {}", guid.GetCounter());
                 uint64 money = result ? (*result)[0].GetUInt64() : 0;
                 uint64 mailMoney = 0;
 
-                QueryResult mailResult = CharacterDatabase.PQuery("SELECT money FROM mail WHERE receiver = %u", guid.GetCounter());
+                QueryResult mailResult = CharacterDatabase.PQuery("SELECT money FROM mail WHERE receiver = {}", guid.GetCounter());
                 if (mailResult)
                 {
                     do
@@ -3197,7 +3186,7 @@ public:
         }
         else
         {
-            if (QueryResult result = CharacterDatabase.PQuery("SELECT money FROM characters WHERE guid = %u", guid.GetCounter()))
+            if (QueryResult result = CharacterDatabase.PQuery("SELECT money FROM characters WHERE guid = {}", guid.GetCounter()))
             {
                 int64 currentAmount = (*result)[0].GetUInt64();
                 if (money < 0 && (currentAmount - money) < 0)
@@ -3205,7 +3194,7 @@ public:
                 else
                     money = currentAmount + money;
 
-                CharacterDatabase.PExecute("UPDATE characters SET money = %u WHERE guid = %u", money, guid.GetCounter());
+                CharacterDatabase.PExecute("UPDATE characters SET money = {} WHERE guid = {}", money, guid.GetCounter());
                 handler->PSendSysMessage("Changed money for player %s (%u) on amount %ld.", name.c_str(), guid.GetCounter(), money);
             }
         }
@@ -3381,7 +3370,7 @@ public:
                 if (auto cur = sCurrencyTypesStore.LookupEntry(currencyId))
                 {
                     int32 precision = cur->Flags & CURRENCY_FLAG_HIGH_PRECISION ? CURRENCY_PRECISION : 1;
-                    if (QueryResult result = CharacterDatabase.PQuery("SELECT total_count FROM character_currency WHERE guid = %u AND currency = %u", guid.GetCounter(), currencyId))
+                    if (QueryResult result = CharacterDatabase.PQuery("SELECT total_count FROM character_currency WHERE guid = {} AND currency = {}", guid.GetCounter(), currencyId))
                     {
                         int32 amount = (*result)[0].GetUInt32();
                         currencyAmount *= precision;
@@ -3396,7 +3385,7 @@ public:
                         }
                         else
                             currencyAmount = amount + currencyAmount;
-                        CharacterDatabase.PExecute("UPDATE character_currency SET total_count = %u WHERE guid = %u AND currency = %u", currencyAmount, guid.GetCounter(), cur->ID);
+                        CharacterDatabase.PExecute("UPDATE character_currency SET total_count = {} WHERE guid = {} AND currency = {}", currencyAmount, guid.GetCounter(), cur->ID);
                     }
                     else
                     {
@@ -3405,7 +3394,7 @@ public:
                             handler->PSendSysMessage("You trying to add new currency for player with value 0. Are you sure?");
                             currencyAmount = 0;
                         }
-                        CharacterDatabase.PExecute("INSERT IGNORE INTO character_currency (guid, currency, total_count, week_count, season_count, flags) VALUES (%u, %u, %u, 0, 0, 0)", guid.GetCounter(), cur->ID, currencyAmount);
+                        CharacterDatabase.PExecute("INSERT IGNORE INTO character_currency (guid, currency, total_count, week_count, season_count, flags) VALUES ({}, {}, {}, 0, 0, 0)", guid.GetCounter(), cur->ID, currencyAmount);
                     }
                     handler->PSendSysMessage("Currency %s (%u) changed on %u for player %s (%u).", cur->Name[handler->GetSessionDbcLocale()], cur->ID, currencyAmountOut, name.c_str(), guid.GetCounter());
                 }
@@ -3457,7 +3446,7 @@ public:
             {
                 if (auto cur = sCurrencyTypesStore.LookupEntry(atoi(curStr)))
                 {
-                    if (QueryResult result = CharacterDatabase.PQuery("SELECT currency FROM character_currency WHERE guid = %u AND currency = %u", guid.GetCounter(), cur->ID))
+                    if (QueryResult result = CharacterDatabase.PQuery("SELECT currency FROM character_currency WHERE guid = {} AND currency = {}", guid.GetCounter(), cur->ID))
                     {
                         uint64 currencyAmount = (*result)[0].GetUInt32();
                         handler->PSendSysMessage("Player %s (%u) has currency %s (%u) - amount %lu.", name.c_str(), guid.GetCounter(), cur->Name[handler->GetSessionDbcLocale()], cur->ID, currencyAmount);
@@ -3499,7 +3488,7 @@ public:
         {
             for (uint32 i = 0; i < sCurrencyTypesStore.GetNumRows(); i++)
                 if (auto cur = sCurrencyTypesStore.LookupEntry(i))
-                    if (QueryResult result = CharacterDatabase.PQuery("SELECT currency FROM character_currency WHERE guid = %u AND currency = %u", guid.GetCounter(), cur->ID))
+                    if (QueryResult result = CharacterDatabase.PQuery("SELECT currency FROM character_currency WHERE guid = {} AND currency = {}", guid.GetCounter(), cur->ID))
                         handler->PSendSysMessage("%s (%u) - amount %u.", cur->Name[handler->GetSessionDbcLocale()], cur->ID, (*result)[0].GetUInt32());
         }
         return true;

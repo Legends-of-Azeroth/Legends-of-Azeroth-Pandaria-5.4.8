@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -15,26 +15,27 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "MapManager.h"
-#include "InstanceSaveMgr.h"
-#include "DatabaseEnv.h"
-#include "Log.h"
-#include "ObjectAccessor.h"
-#include "Transport.h"
-#include "GridDefines.h"
-#include "MapInstanced.h"
-#include "InstanceScript.h"
-#include "Config.h"
-#include "World.h"
 #include "CellImpl.h"
+#include "Config.h"
 #include "Corpse.h"
-#include "ObjectMgr.h"
-#include "Language.h"
-#include "WorldPacket.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "GridDefines.h"
 #include "Group.h"
-#include "Player.h"
-#include "WorldSession.h"
+#include "InstanceSaveMgr.h"
+#include "InstanceScript.h"
+#include "Language.h"
+#include "Log.h"
+#include "MapInstanced.h"
+#include "MapManager.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Opcodes.h"
+#include "Player.h"
+#include "Transport.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
 
 extern GridState* si_GridStates[];                          // debugging code, should be deleted some day
 
@@ -267,7 +268,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     Difficulty targetDifficulty = player->GetDifficulty(entry->IsRaid());
 
     //The player has a heroic mode and tries to enter into instance which has no a heroic mode
-    MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(entry->MapID, targetDifficulty);
+    MapDifficulty const* mapDiff = sDBCManager.GetDownscaledMapDifficultyData(entry->MapID, targetDifficulty);
     if (!mapDiff && mapid != 1112) // something wrong with this solo scenario
     {
         player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY_NOT_FOUND);
@@ -279,7 +280,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     if (player->IsGameMaster())
         return true;
 
-    char const* mapName = entry->name[sObjectMgr->GetDBCLocaleIndex()];
+    char const* mapName = entry->name;
 
     Group* group = player->GetGroup();
     if (entry->IsRaid() && entry->Expansion() >= EXPANSION_MISTS_OF_PANDARIA)
@@ -289,7 +290,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
         {
             /// @todo this is not a good place to send the message
             player->SendGameError(GameError::ERR_RAID_GROUP_ONLY);
-            TC_LOG_DEBUG("maps", "MAP: Player '%s' must be in a raid group to enter instance '%s'", player->GetName().c_str(), mapName);
+            TC_LOG_DEBUG("maps", "MAP: Player '{}' must be in a raid group to enter instance '{}'", player->GetName().c_str(), mapName);
             return false;
         }
     }
@@ -313,15 +314,15 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
             {
                 WorldPacket data(SMSG_CORPSE_NOT_IN_INSTANCE);
                 player->GetSession()->SendPacket(&data);
-                TC_LOG_DEBUG("maps", "MAP: Player '%s' does not have a corpse in instance '%s' and cannot enter.", player->GetName().c_str(), mapName);
+                TC_LOG_DEBUG("maps", "MAP: Player '{}' does not have a corpse in instance '{}' and cannot enter.", player->GetName().c_str(), mapName);
                 return false;
             }
-            TC_LOG_DEBUG("maps", "MAP: Player '%s' has corpse in instance '%s' and can enter.", player->GetName().c_str(), mapName);
+            TC_LOG_DEBUG("maps", "MAP: Player '{}' has corpse in instance '{}' and can enter.", player->GetName().c_str(), mapName);
             player->ResurrectPlayer(0.5f, false);
             player->SpawnCorpseBones();
         }
         else
-            TC_LOG_DEBUG("maps", "Map::CanPlayerEnter - player '%s' is dead but does not have a corpse!", player->GetName().c_str());
+            TC_LOG_DEBUG("maps", "Map::CanPlayerEnter - player '{}' is dead but does not have a corpse!", player->GetName().c_str());
     }
 
     //Get instance where player's group is bound & its map

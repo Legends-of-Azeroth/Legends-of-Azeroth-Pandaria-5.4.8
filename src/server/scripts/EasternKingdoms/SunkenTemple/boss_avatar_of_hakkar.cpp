@@ -89,7 +89,7 @@ class boss_avatar_of_hakkar : public CreatureScript
                 events.ScheduleEvent(EVENT_LASH, 8 * IN_MILLISECONDS);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 HandleRemoveCharmedPlayers();

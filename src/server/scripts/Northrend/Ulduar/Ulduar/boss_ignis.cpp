@@ -281,7 +281,7 @@ class boss_ignis : public CreatureScript
                         case EVENT_SCORCH_SPAWN:
                         {
                             Position pos = me->GetFirstCollisionPosition(me->GetObjectSize(), 0.0f);
-                            me->SummonCreature(NPC_GROUND_SCORCH, pos, TEMPSUMMON_TIMED_DESPAWN, 45000);
+                            me->SummonCreature(NPC_GROUND_SCORCH, pos, TEMPSUMMON_TIMED_DESPAWN, 45000ms);
                             break;
                         }
                         case EVENT_SCORCH_END:

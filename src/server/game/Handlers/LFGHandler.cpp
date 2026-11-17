@@ -23,11 +23,10 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-void WorldSession::HandleLfgJoinOpcode(WorldPacket& recvData)
+void WorldSession::HandleLfgJoinOpcode(WorldPackets::LFG::LFGJoin& packet)
 {
     if (!sLFGMgr->isOptionEnabled(lfg::LFG_OPTION_ENABLE_DUNGEON_FINDER | lfg::LFG_OPTION_ENABLE_RAID_BROWSER))
     {
-        recvData.rfinish();
         return;
     }
     Group* group = GetPlayer()->GetGroup();
@@ -36,7 +35,6 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& recvData)
         // Disallow joining LFG if there are more players in the group than the limit is for dungeons/raids
         if (group->GetMembersCount() > lfg::GetGroupSize(group->isRaidGroup()))
         {
-            recvData.rfinish();
             return;
         }
         if (group->isLFGGroup())
@@ -53,7 +51,6 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& recvData)
                         break;
                 default:
                     // Disallow in all other cases
-                    recvData.rfinish();
                     return;
             }
         }
@@ -62,76 +59,43 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& recvData)
             // Allow joining LFG only if the packet sender is the leader of the group
             if (GetPlayer()->GetGUID() != group->GetLeaderGUID())
             {
-                recvData.rfinish();
                 return;
             }
         }
     }
 
-    uint8 unk0 = recvData.read<uint8>();
-    for (int32 i = 0; i < 3; ++i)
-        recvData.read_skip<uint32>();
-    uint32 roles =  recvData.read<uint32>();
+    uint32 roles = packet.Roles;
 
-    uint32 numDungeons = recvData.ReadBits(22);
-    uint32 commentLen = recvData.ReadBits(8);
-    bool unk1 = recvData.ReadBit();
-
-    if (!numDungeons)
+    if (packet.Dungeons.empty())
     {
-        TC_LOG_DEBUG("network", "CMSG_LFG_JOIN %s no dungeons selected", GetPlayerInfo().c_str());
-        recvData.rfinish();
+        TC_LOG_DEBUG("network", "CMSG_LFG_JOIN {} no dungeons selected", GetPlayerInfo().c_str());
         return;
     }
 
     lfg::LfgDungeonSet newDungeons;
-    for (uint32 i = 0; i < numDungeons; ++i)
+    for (uint32 dungeon : packet.Dungeons)
     {
-        uint32 dungeon = recvData.read<uint32>();
         dungeon &= 0xFFFFFF;
         newDungeons.insert(dungeon);        // remove the type from the dungeon entry
     }
 
-    std::string comment = recvData.ReadString(commentLen);
+    std::string comment = packet.Comment;
 
-    TC_LOG_TRACE("network", "CMSG_LFG_JOIN %s roles: %u, Dungeons: %u, Comment: %s",
+    TC_LOG_TRACE("network", "CMSG_LFG_JOIN {} roles: {}, Dungeons: {}, Comment: {}",
         GetPlayerInfo().c_str(), roles, uint8(newDungeons.size()), comment.c_str());
 
     sLFGMgr->JoinLfg(GetPlayer(), lfg::LfgRoles(roles), newDungeons, comment);
 }
 
-void WorldSession::HandleLfgLeaveOpcode(WorldPacket& recvData)
+void WorldSession::HandleLfgLeaveOpcode(WorldPackets::LFG::LFGLeave& packet)
 {
-    ObjectGuid leaveGuid;
     Group* group = GetPlayer()->GetGroup();
     ObjectGuid guid = GetPlayer()->GetGUID();
     ObjectGuid gguid = group ? group->GetGUID() : guid;
-    uint32 queueId;
+    uint32 queueId = packet.QueueId;
+    ObjectGuid leaveGuid = packet.LeaveGuid;
 
-    recvData.read_skip<uint32>();                          // Always 8
-    recvData.read_skip<uint32>();                          // Join date
-    recvData.read_skip<uint32>();                          // Always 3
-    recvData >> queueId;
-
-    leaveGuid[1] = recvData.ReadBit();
-    leaveGuid[6] = recvData.ReadBit();
-    leaveGuid[0] = recvData.ReadBit();
-    leaveGuid[7] = recvData.ReadBit();
-    leaveGuid[2] = recvData.ReadBit();
-    leaveGuid[4] = recvData.ReadBit();
-    leaveGuid[3] = recvData.ReadBit();
-    leaveGuid[5] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(leaveGuid[4]);
-    recvData.ReadByteSeq(leaveGuid[5]);
-    recvData.ReadByteSeq(leaveGuid[2]);
-    recvData.ReadByteSeq(leaveGuid[6]);
-    recvData.ReadByteSeq(leaveGuid[1]);
-    recvData.ReadByteSeq(leaveGuid[3]);
-    recvData.ReadByteSeq(leaveGuid[7]);
-    recvData.ReadByteSeq(leaveGuid[0]);
-
-    TC_LOG_DEBUG("network", "CMSG_LFG_LEAVE %s in group: %u sent guid " UI64FMTD ".",
+    TC_LOG_DEBUG("network", "CMSG_LFG_LEAVE {} in group: {} sent guid " "{}" ".",
         GetPlayerInfo().c_str(), group ? 1 : 0, uint64(leaveGuid));
 
     // Probably uselss
@@ -144,102 +108,56 @@ void WorldSession::HandleLfgLeaveOpcode(WorldPacket& recvData)
         sLFGMgr->LeaveLfg(gguid, queueId);
 }
 
-void WorldSession::HandleLfgProposalResultOpcode(WorldPacket& recvData)
+void WorldSession::HandleLfgProposalResultOpcode(WorldPackets::LFG::DFProposalResponse& packet)
 {
-    uint32 proposalID;  // Proposal ID
-    uint32 queueId;
-    bool accept;
+    uint32 proposalID = packet.ProposalID;
+    bool accept = packet.Accepted;
 
-    ObjectGuid guid1;
-    ObjectGuid guid2;
-
-    recvData >> proposalID >> queueId;
-    recvData.read_skip<uint32>(); // unk flags (always 3)
-    recvData.read_skip<uint32>(); // join time
-
-    accept = recvData.ReadBit();
-
-    guid1[6] = recvData.ReadBit();
-    guid1[0] = recvData.ReadBit();
-    guid1[2] = recvData.ReadBit();
-    guid1[4] = recvData.ReadBit();
-    guid2[6] = recvData.ReadBit();
-    guid2[7] = recvData.ReadBit();
-    guid1[3] = recvData.ReadBit();
-    guid2[4] = recvData.ReadBit();
-    guid1[7] = recvData.ReadBit();
-    guid2[1] = recvData.ReadBit();
-    guid1[5] = recvData.ReadBit();
-    guid2[0] = recvData.ReadBit();
-    guid1[1] = recvData.ReadBit();
-    guid2[2] = recvData.ReadBit();
-    guid2[3] = recvData.ReadBit();
-    guid2[5] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid1[3]);
-    recvData.ReadByteSeq(guid1[6]);
-    recvData.ReadByteSeq(guid1[4]);
-    recvData.ReadByteSeq(guid1[1]);
-    recvData.ReadByteSeq(guid2[7]);
-    recvData.ReadByteSeq(guid2[0]);
-    recvData.ReadByteSeq(guid1[7]);
-    recvData.ReadByteSeq(guid2[6]);
-    recvData.ReadByteSeq(guid1[5]);
-    recvData.ReadByteSeq(guid2[3]);
-    recvData.ReadByteSeq(guid2[1]);
-    recvData.ReadByteSeq(guid2[5]);
-    recvData.ReadByteSeq(guid2[4]);
-    recvData.ReadByteSeq(guid1[0]);
-    recvData.ReadByteSeq(guid1[2]);
-    recvData.ReadByteSeq(guid2[2]);
-
-    TC_LOG_DEBUG("network", "CMSG_LFG_PROPOSAL_RESULT %s proposal: %u accept: %u",
+    TC_LOG_DEBUG("network", "CMSG_LFG_PROPOSAL_RESULT {} proposal: {} accept: {}",
         GetPlayerInfo().c_str(), proposalID, accept ? 1 : 0);
     sLFGMgr->UpdateProposal(proposalID, GetPlayer()->GetGUID(), accept);
 }
 
-void WorldSession::HandleLfgSetRolesOpcode(WorldPacket& recvData)
+void WorldSession::HandleLfgSetRolesOpcode(WorldPackets::LFG::DFSetRoles& packet)
 {
-    uint32 roles = recvData.read<uint32>();
-    recvData.read_skip<uint8>();
+    uint32 roles = packet.RolesDesired;
     ObjectGuid guid = GetPlayer()->GetGUID();
     Group* group = GetPlayer()->GetGroup();
     if (!group)
     {
-        TC_LOG_DEBUG("network", "CMSG_LFG_SET_ROLES %s Not in group",
+        TC_LOG_DEBUG("network", "CMSG_LFG_SET_ROLES {} Not in group",
             GetPlayerInfo().c_str());
         return;
     }
     ObjectGuid gguid = group->GetGUID();
-    TC_LOG_DEBUG("network", "CMSG_LFG_SET_ROLES: Group %u, Player %s, Roles: %u",
+    TC_LOG_DEBUG("network", "CMSG_LFG_SET_ROLES: Group {}, Player {}, Roles: {}",
         gguid.GetCounter(), GetPlayerInfo().c_str(), roles);
     sLFGMgr->UpdateRoleCheck(gguid, guid, roles);
 }
 
-void WorldSession::HandleLfgSetBootVoteOpcode(WorldPacket& recvData)
+void WorldSession::HandleLfgSetBootVoteOpcode(WorldPackets::LFG::DFBootPlayerVote& packet)
 {
-    bool agree = recvData.ReadBit();                       // Agree to kick player
+    bool agree = packet.Vote;                               // Agree to kick player
 
     ObjectGuid guid = GetPlayer()->GetGUID();
-    TC_LOG_DEBUG("network", "CMSG_LFG_SET_BOOT_VOTE %s agree: %u",
+    TC_LOG_DEBUG("network", "CMSG_LFG_SET_BOOT_VOTE {} agree: {}",
         GetPlayerInfo().c_str(), agree ? 1 : 0);
     sLFGMgr->UpdateBoot(guid, agree);
 }
 
-void WorldSession::HandleLfgTeleportOpcode(WorldPacket& recvData)
+void WorldSession::HandleLfgTeleportOpcode(WorldPackets::LFG::DFTeleport& packet)
 {
-    bool out = recvData.ReadBit();
+    bool out = packet.TeleportOut;
 
-    TC_LOG_DEBUG("network", "CMSG_LFG_TELEPORT %s out: %u",
+    TC_LOG_DEBUG("network", "CMSG_LFG_TELEPORT {} out: {}",
         GetPlayerInfo().c_str(), out ? 1 : 0);
     sLFGMgr->TeleportPlayer(GetPlayer(), out, true);
 }
 
-void WorldSession::HandleLfgGetLockInfoOpcode(WorldPacket& recvData)
+void WorldSession::HandleLfgGetLockInfoOpcode(WorldPackets::LFG::DFGetSystemInfo& packet)
 {
-    recvData.read_skip<uint8>();
-    bool forPlayer = recvData.ReadBit();
-    TC_LOG_DEBUG("network", "CMSG_LFG_LOCK_INFO_REQUEST %s for %s", GetPlayerInfo().c_str(), (forPlayer ? "player" : "party"));
+    bool forPlayer = packet.Player;
+    TC_LOG_DEBUG("network", "CMSG_LFG_LOCK_INFO_REQUEST {} for {}", GetPlayerInfo().c_str(), (forPlayer ? "player" : "party"));
 
     if (forPlayer)
         SendLfgPlayerLockInfo();
@@ -264,7 +182,7 @@ void WorldSession::SendLfgPlayerLockInfo()
     uint32 lsize = uint32(lockMap.size());
     bool hasPlayer = true;
 
-    TC_LOG_DEBUG("network", "SMSG_LFG_PLAYER_INFO %s", GetPlayerInfo().c_str());
+    TC_LOG_DEBUG("network", "SMSG_LFG_PLAYER_INFO {}", GetPlayerInfo().c_str());
     ByteBuffer lfgData;
     WorldPacket data(SMSG_LFG_PLAYER_INFO, 1 + rsize * (4 + 1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4) + 4 + lsize * (1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4));
 
@@ -518,7 +436,7 @@ void WorldSession::SendLfgPartyLockInfo()
     uint32 count = 0;
     bool hasPlayerInfo = true;
 
-    TC_LOG_DEBUG("network", "SMSG_LFG_PARTY_INFO %s", GetPlayerInfo().c_str());
+    TC_LOG_DEBUG("network", "SMSG_LFG_PARTY_INFO {}", GetPlayerInfo().c_str());
     WorldPacket data(SMSG_LFG_PARTY_INFO);
     ByteBuffer bytes;
 
@@ -580,7 +498,7 @@ void WorldSession::HandleLfrJoinOpcode(WorldPacket& recvData)
 {
     uint32 entry;                                          // Raid id to search
     recvData >> entry;
-    TC_LOG_DEBUG("network", "CMSG_LFG_LFR_JOIN %s dungeon entry: %u",
+    TC_LOG_DEBUG("network", "CMSG_LFG_LFR_JOIN {} dungeon entry: {}",
         GetPlayerInfo().c_str(), entry);
     //SendLfrUpdateListOpcode(entry);
 }
@@ -589,14 +507,14 @@ void WorldSession::HandleLfrLeaveOpcode(WorldPacket& recvData)
 {
     uint32 dungeonId;                                      // Raid id queue to leave
     recvData >> dungeonId;
-    TC_LOG_DEBUG("network", "CMSG_LFG_LFR_LEAVE %s dungeonId: %u",
+    TC_LOG_DEBUG("network", "CMSG_LFG_LFR_LEAVE {} dungeonId: {}",
         GetPlayerInfo().c_str(), dungeonId);
     //sLFGMgr->LeaveLfr(GetPlayer(), dungeonId);
 }
 
-void WorldSession::HandleLfgGetStatus(WorldPacket& /*recvData*/)
+void WorldSession::HandleLfgGetStatus(WorldPackets::LFG::DFGetJoinStatus& /*packet*/)
 {
-    TC_LOG_DEBUG("network", "CMSG_LFG_GET_STATUS %s", GetPlayerInfo().c_str());
+    TC_LOG_DEBUG("network", "CMSG_LFG_GET_STATUS {}", GetPlayerInfo().c_str());
 
     if (!GetPlayer()->IsUsingLfg())
         return;
@@ -638,7 +556,7 @@ void WorldSession::SendLfgUpdateStatus(lfg::LfgUpdateType updateType, lfg::Playe
             break;
     }
 
-    TC_LOG_DEBUG("network", "SMSG_LFG_UPDATE_STATUS %s updatetype: %u", GetPlayerInfo().c_str(), updateType);
+    TC_LOG_DEBUG("network", "SMSG_LFG_UPDATE_STATUS {} updatetype: {}", GetPlayerInfo().c_str(), updateType);
 
     WorldPacket data(SMSG_LFG_UPDATE_STATUS, 1 + 8 + 3 + 2 + 1 + comment.length() + 4 + 4 + 1 + 1 + 1 + 4 + queueData.Dungeons.size());
     data.WriteBits(comment.size(), 8);
@@ -700,7 +618,7 @@ void WorldSession::SendLfgUpdateStatus(lfg::LfgUpdateType updateType, lfg::Playe
 
 void WorldSession::SendLfgRoleChosen(ObjectGuid guid, uint8 roles)
 {
-    TC_LOG_DEBUG("network", "SMSG_LFG_ROLE_CHOSEN %s guid: %u roles: %u",
+    TC_LOG_DEBUG("network", "SMSG_LFG_ROLE_CHOSEN {} guid: {} roles: {}",
         GetPlayerInfo().c_str(), guid.GetCounter(), roles);
 
     ObjectGuid pGuid = guid;
@@ -737,7 +655,7 @@ void WorldSession::SendLfgRoleCheckUpdate(lfg::LfgRoleCheck const& roleCheck)
     else
         dungeons = roleCheck.dungeons;
 
-    TC_LOG_DEBUG("network", "SMSG_LFG_ROLE_CHECK_UPDATE %s", GetPlayerInfo().c_str());
+    TC_LOG_DEBUG("network", "SMSG_LFG_ROLE_CHECK_UPDATE {}", GetPlayerInfo().c_str());
 
     ByteBuffer groupData;
     ObjectGuid randomDungeonGuid = ObjectGuid::Empty;
@@ -847,7 +765,7 @@ void WorldSession::SendLfgJoinResult(uint32 queueId, lfg::LfgJoinResultData cons
     for (lfg::LfgLockPartyMap::const_iterator it = joinData.lockmap.begin(); it != joinData.lockmap.end(); ++it)
         size += 8 + 4 + uint32(it->second.size()) * (4 + 4 + 4 + 4);
 
-    TC_LOG_DEBUG("network", "SMSG_LFG_JOIN_RESULT %s checkResult: %u checkValue: %u",
+    TC_LOG_DEBUG("network", "SMSG_LFG_JOIN_RESULT {} checkResult: {} checkValue: {}",
         GetPlayerInfo().c_str(), joinData.result, joinData.state);
 
 
@@ -924,7 +842,7 @@ void WorldSession::SendLfgJoinResult(uint32 queueId, lfg::LfgJoinResultData cons
 
 void WorldSession::SendLfgQueueStatus(lfg::LfgQueueStatusData const& queueData)
 {
-    TC_LOG_DEBUG("network", "SMSG_LFG_QUEUE_STATUS %s dungeon: %u, waitTime: %d, "
+    TC_LOG_DEBUG("network", "SMSG_LFG_QUEUE_STATUS {} dungeon: {}, waitTime: {}, "
         "avgWaitTime: %d, waitTimeTanks: %d, waitTimeHealer: %d, waitTimeDps: %d, "
         "queuedTime: %u, tanks: %u, healers: %u, dps: %u",
         GetPlayerInfo().c_str(), queueData.dungeonId, queueData.waitTime, queueData.waitTimeAvg,
@@ -976,7 +894,7 @@ void WorldSession::SendLfgPlayerReward(lfg::LfgPlayerRewardData const& rewardDat
     if (!rewardData.rdungeonEntry || !rewardData.sdungeonEntry)
         return;
 
-    TC_LOG_DEBUG("network", "SMSG_LFG_PLAYER_REWARD %s rdungeonEntry: %u, sdungeonEntry: %u, done: %u",
+    TC_LOG_DEBUG("network", "SMSG_LFG_PLAYER_REWARD {} rdungeonEntry: {}, sdungeonEntry: {}, done: {}",
         GetPlayerInfo().c_str(), rewardData.rdungeonEntry, rewardData.sdungeonEntry, rewardData.done);
 
     uint8 itemNum = rewardData.quest ? (rewardData.quest->GetRewItemsCount() + rewardData.quest->GetRewCurrencyCount()) : 0;
@@ -1063,7 +981,7 @@ void WorldSession::SendLfgBootProposalUpdate(lfg::LfgPlayerBoot const& boot)
                 ++agreeNum;
         }
     }
-    TC_LOG_DEBUG("network", "SMSG_LFG_BOOT_PROPOSAL_UPDATE %s inProgress: %u - "
+    TC_LOG_DEBUG("network", "SMSG_LFG_BOOT_PROPOSAL_UPDATE {} inProgress: {} - "
         "didVote: %u - agree: %u - victim: %u votes: %u - agrees: %u - left: %u - "
         "needed: %u - reason %s",
         GetPlayerInfo().c_str(), uint8(boot.inProgress), uint8(playerVote != lfg::LFG_ANSWER_PENDING),
@@ -1117,7 +1035,7 @@ void WorldSession::SendLfgUpdateProposal(lfg::LfgProposal const& proposal)
     uint32 serverQueueId = proposal.players.find(guid)->second.queueId;
     auto& queueData = sLFGMgr->GetPlayerQueueData(_player->GetGUID(), serverQueueId);
 
-    TC_LOG_DEBUG("network", "SMSG_LFG_PROPOSAL_UPDATE %s state: %u",
+    TC_LOG_DEBUG("network", "SMSG_LFG_PROPOSAL_UPDATE {} state: {}",
         GetPlayerInfo().c_str(), proposal.state);
 
     // Send random dungeon for this player even if group is directly registered to proposal.dungeonId
@@ -1203,14 +1121,14 @@ void WorldSession::SendLfgUpdateProposal(lfg::LfgProposal const& proposal)
 
 void WorldSession::SendLfgDisabled()
 {
-    TC_LOG_DEBUG("network", "SMSG_LFG_DISABLED %s", GetPlayerInfo().c_str());
+    TC_LOG_DEBUG("network", "SMSG_LFG_DISABLED {}", GetPlayerInfo().c_str());
     WorldPacket data(SMSG_LFG_DISABLED, 0);
     SendPacket(&data);
 }
 
 void WorldSession::SendLfgOfferContinue(uint32 dungeonEntry)
 {
-    TC_LOG_DEBUG("network", "SMSG_LFG_OFFER_CONTINUE %s dungeon entry: %u",
+    TC_LOG_DEBUG("network", "SMSG_LFG_OFFER_CONTINUE {} dungeon entry: {}",
         GetPlayerInfo().c_str(), dungeonEntry);
     WorldPacket data(SMSG_LFG_OFFER_CONTINUE, 4);
     data << uint32(dungeonEntry);
@@ -1219,7 +1137,7 @@ void WorldSession::SendLfgOfferContinue(uint32 dungeonEntry)
 
 void WorldSession::SendLfgTeleportError(uint8 err)
 {
-    TC_LOG_DEBUG("network", "SMSG_LFG_TELEPORT_DENIED %s reason: %u",
+    TC_LOG_DEBUG("network", "SMSG_LFG_TELEPORT_DENIED {} reason: {}",
         GetPlayerInfo().c_str(), err);
     WorldPacket data(SMSG_LFG_TELEPORT_DENIED, 4);
     data.WriteBits(err, 4);     // Error
@@ -1227,10 +1145,10 @@ void WorldSession::SendLfgTeleportError(uint8 err)
     SendPacket(&data);
 }
 
-void WorldSession::HandleSetLfgBonusFactionId(WorldPacket& recvData)
+void WorldSession::HandleSetLfgBonusFactionId(WorldPackets::LFG::SetLfgBonusFactionId& packet)
 {
-    TC_LOG_DEBUG("network", "CMSG_SET_LFG_BONUS_FACTION_ID %s", GetPlayerInfo().c_str());
+    TC_LOG_DEBUG("network", "CMSG_SET_LFG_BONUS_FACTION_ID {}", GetPlayerInfo().c_str());
     
-    uint32 bonusFactionId = recvData.read<uint32>();
+    uint32 bonusFactionId = packet.BonusFactionId;
     GetPlayer()->SetUInt32Value(PLAYER_FIELD_LFG_BONUS_FACTION_ID, bonusFactionId);
 }

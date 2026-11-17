@@ -356,7 +356,7 @@ class boss_garajal : public CreatureScript
                 }
             }
      
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_SHARE);
@@ -518,7 +518,7 @@ class boss_garajal : public CreatureScript
 
                                 for (uint8 i = 0; i < mobCount; ++i)
                                 {
-                                    if (Creature* soulCutter = me->SummonCreature(NPC_SOUL_CUTTER, soulCutterPos[i], TEMPSUMMON_TIMED_DESPAWN, 30000))
+                                    if (Creature* soulCutter = me->SummonCreature(NPC_SOUL_CUTTER, soulCutterPos[i], TEMPSUMMON_TIMED_DESPAWN, 30000ms))
                                     {
                                         if (IsHeroic() && i == 0)
                                             soulCutter->CastSpell(soulCutter, SPELL_COSMETIC_RED_AURA, true);
@@ -526,11 +526,11 @@ class boss_garajal : public CreatureScript
                                         soulCutter->SetPhaseMask(i == 0 ? 4 : 6, true);
                                         soulCutter->AI()->AttackStart(target);
                                         soulCutter->SetInCombatWith(target);
-                                        soulCutter->getThreatManager().addThreat(target, 10000.0f);
+                                        soulCutter->GetThreatManager().AddThreat(target, 10000.0f);
                                     }
                                 }
 
-                                me->getThreatManager().addThreat(target, 0.0f);
+                                me->GetThreatManager().AddThreat(target, 0.0f);
                             }
 
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
@@ -1179,7 +1179,7 @@ class spell_garajal_voodoo_doll_fixate : public SpellScriptLoader
                     GetCaster()->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                     GetCaster()->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
 
-                    GetCaster()->getThreatManager().addThreat(GetOwner()->ToUnit(), 10000.0f);
+                    GetCaster()->GetThreatManager().AddThreat(GetOwner()->ToUnit(), 10000.0f);
                 }
             }
 

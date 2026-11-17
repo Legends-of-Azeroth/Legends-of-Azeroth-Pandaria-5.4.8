@@ -390,7 +390,7 @@ class boss_xt002 : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
 
                 _transferHealth = 0;
-                if (Creature* heart = me->SummonCreature(NPC_XT002_HEART, *me, TEMPSUMMON_MANUAL_DESPAWN, 60*IN_MILLISECONDS))
+                if (Creature* heart = me->SummonCreature(NPC_XT002_HEART, *me, TEMPSUMMON_MANUAL_DESPAWN, Milliseconds(60*IN_MILLISECONDS)))
                 {
                     heart->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     heart->EnterVehicle(me, 1);
@@ -989,7 +989,7 @@ class BombTargetSelector
         bool operator()(WorldObject* object) const
         {
             if (Unit* target = object->ToUnit())
-                if (target == _victim && _me->getThreatManager().getThreatList().size() > 1)
+                if (target == _victim && _me->GetThreatManager().GetThreatListSize() > 1)
                     return true;
 
             return false;

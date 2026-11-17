@@ -446,7 +446,7 @@ class boss_galakras : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (hasEvade)
                     return;
@@ -972,7 +972,7 @@ struct npc_master_cannoneer_dagryn : public ScriptedAI
             galakras->AI()->SetData(TYPE_NORTH_TOWER_INFLUENCE_COUNT, 40);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
     }
@@ -1056,7 +1056,7 @@ struct npc_high_enforcer_thranok : public ScriptedAI
     {
         if (victim && victim->HasAura(SPELL_IN_A_TOWER))
         {
-            me->getThreatManager().doAddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
+            me->GetThreatManager().AddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
 
             // select faction leader
             if (Creature* target = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(me->GetInstanceScript()->GetData(DATA_GROUP_FACTION) ? NPC_LADY_SYLVANAS_WINDRUNNER : NPC_LADY_JAINA_PROUDMOORE) : ObjectGuid::Empty))
@@ -1163,7 +1163,7 @@ struct npc_lieutenant_krugruk : public ScriptedAI
             galakras->AI()->SetData(TYPE_SOUTH_TOWER_INFLUENCE_COUNT, 40);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
     }
@@ -1249,7 +1249,7 @@ struct npc_korgra_the_snake : public ScriptedAI
     {
         if (victim && victim->HasAura(SPELL_IN_A_TOWER))
         {
-            me->getThreatManager().doAddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
+            me->GetThreatManager().AddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
 
             // select faction leader
             if (Creature* target = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(me->GetInstanceScript()->GetData(DATA_GROUP_FACTION) ? NPC_LADY_SYLVANAS_WINDRUNNER : NPC_LADY_JAINA_PROUDMOORE) : ObjectGuid::Empty))
@@ -1339,7 +1339,7 @@ struct npc_galakras_dragonmaw_bonecrusher : public ScriptedAI
     {
         if (victim && victim->HasAura(SPELL_IN_A_TOWER))
         {
-            me->getThreatManager().doAddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
+            me->GetThreatManager().AddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
 
             // select faction leader
             if (Creature* target = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(me->GetInstanceScript()->GetData(DATA_GROUP_FACTION) ? NPC_LADY_SYLVANAS_WINDRUNNER : NPC_LADY_JAINA_PROUDMOORE) : ObjectGuid::Empty))
@@ -1464,7 +1464,7 @@ struct npc_galakras_dragonmaw_flagbearer : public ScriptedAI
     {
         if (victim && victim->HasAura(SPELL_IN_A_TOWER))
         {
-            me->getThreatManager().doAddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
+            me->GetThreatManager().AddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
 
             // select faction leader
             if (Creature* target = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(me->GetInstanceScript()->GetData(DATA_GROUP_FACTION) ? NPC_LADY_SYLVANAS_WINDRUNNER : NPC_LADY_JAINA_PROUDMOORE) : ObjectGuid::Empty))
@@ -1523,7 +1523,7 @@ struct npc_galakras_dragonmaw_tidal_shaman : public ScriptedAI
     {
         if (victim && victim->HasAura(SPELL_IN_A_TOWER))
         {
-            me->getThreatManager().doAddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
+            me->GetThreatManager().AddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
 
             // select faction leader
             if (Creature* target = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(me->GetInstanceScript()->GetData(DATA_GROUP_FACTION) ? NPC_LADY_SYLVANAS_WINDRUNNER : NPC_LADY_JAINA_PROUDMOORE) : ObjectGuid::Empty))
@@ -1700,7 +1700,7 @@ struct npc_galakras_healing_tide_totem : public ScriptedAI
         DoCast(me, SPELL_HEALING_TIDE_PROC);
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
     void JustDied(Unit* /*killer*/) override
     {
@@ -1719,7 +1719,7 @@ struct npc_galakras_dragonmaw_war_banner : public ScriptedAI
         me->SetDisplayFromModel(0);
         DoCast(me, SPELL_WAR_BANNER_AT);
     }
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
     void JustDied(Unit* /*killer*/) override
     {
@@ -1757,7 +1757,7 @@ struct npc_galakras_dragonmaw_grunt : public ScriptedAI
     {
         if (victim && victim->HasAura(SPELL_IN_A_TOWER) && !inTower)
         {
-            me->getThreatManager().doAddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
+            me->GetThreatManager().AddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
 
             // select faction leader
             if (Creature* target = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(me->GetInstanceScript()->GetData(DATA_GROUP_FACTION) ? NPC_LADY_SYLVANAS_WINDRUNNER : NPC_LADY_JAINA_PROUDMOORE) : ObjectGuid::Empty))
@@ -1944,7 +1944,7 @@ struct npc_galakras_dragonmaw_proto_drake : public ScriptedAI
     {
         if (victim && victim->HasAura(SPELL_IN_A_TOWER) && !InAir)
         {
-            me->getThreatManager().doAddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
+            me->GetThreatManager().AddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
 
             // select faction leader
             if (Creature* target = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(me->GetInstanceScript()->GetData(DATA_GROUP_FACTION) ? NPC_LADY_SYLVANAS_WINDRUNNER : NPC_LADY_JAINA_PROUDMOORE) : ObjectGuid::Empty))
@@ -2065,7 +2065,7 @@ struct npc_galakras_varian_wrynn : public ScriptedAI
         events.ScheduleEvent(EVENT_VARIAN_CLEAVE, 4 * IN_MILLISECONDS);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
     }
@@ -2150,7 +2150,7 @@ struct npc_galakras_sylvanas_windrunner : public ScriptedAI
         events.ScheduleEvent(EVENT_SYLVANAS_MULTI_SHOT, 9 * IN_MILLISECONDS);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
     }
@@ -2239,7 +2239,7 @@ struct npc_galakras_aethas_sunreaver : public ScriptedAI
             me->DespawnOrUnsummon();
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
     }
@@ -2340,7 +2340,7 @@ struct npc_galakras_vereesa_windrunner : public ScriptedAI
         events.ScheduleEvent(EVENT_SYLVANAS_MULTI_SHOT, 9 * IN_MILLISECONDS);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
     }
@@ -2470,7 +2470,7 @@ class npc_galakras_jaina_proudmoore : public CreatureScript
                 events.ScheduleEvent(EVENT_JAINA_WATER_ELEMENTAL, 16 * IN_MILLISECONDS);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
             }
@@ -2686,7 +2686,7 @@ class npc_galakras_lorthemar_theron : public CreatureScript
                     me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
             }
@@ -3016,7 +3016,7 @@ struct npc_galakras_anti_air_cannon : public ScriptedAI
         clicker->CastSpell(me, VEHICLE_SPELL_RIDE_HARDCODED, true);
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
     void SetData(uint32 type, uint32 data) override
     {
@@ -3046,7 +3046,7 @@ struct npc_galakras_dragonmaw_ebon_stalker : public ScriptedAI
     {
         if (victim && victim->HasAura(SPELL_IN_A_TOWER))
         {
-            me->getThreatManager().doAddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
+            me->GetThreatManager().AddThreat(victim, -10000.0f); // remove thread from this target to exclude new pull
 
             // select faction leader
             if (Creature* target = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(me->GetInstanceScript()->GetData(DATA_GROUP_FACTION) ? NPC_LADY_SYLVANAS_WINDRUNNER : NPC_LADY_JAINA_PROUDMOORE) : ObjectGuid::Empty))

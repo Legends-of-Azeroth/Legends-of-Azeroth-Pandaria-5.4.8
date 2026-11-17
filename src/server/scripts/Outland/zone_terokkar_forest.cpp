@@ -77,7 +77,7 @@ struct npc_unkor_the_ruthless : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override { }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
     }
@@ -88,7 +88,8 @@ struct npc_unkor_the_ruthless : public ScriptedAI
         me->SetFaction(FACTION_FRIENDLY);
         me->SetStandState(UNIT_STAND_STATE_SIT);
         me->RemoveAllAuras();
-        me->DeleteThreatList();
+        me->GetThreatManager().RemoveMeFromThreatLists();
+        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
         UnkorUnfriendly_Timer = 60000;
     }
@@ -211,12 +212,12 @@ public:
         return new npc_skywingAI(creature);
     }
 
-    struct npc_skywingAI : public npc_escortAI
+    struct npc_skywingAI : public EscortAI
     {
     public:
-        npc_skywingAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_skywingAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -241,14 +242,14 @@ public:
             Player* player = who->ToPlayer();
             if (player && player->GetQuestStatus(10898) == QUEST_STATUS_INCOMPLETE)
                 if (me->IsWithinDistInMap(who, 10.0f))
-                    Start(false, false, who->GetGUID());
+                    Start(false, who->GetGUID());
         }
 
         void Reset() override { }
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
 };
@@ -329,16 +330,16 @@ public:
             {
                 if (rand()%100 < 25)
                 {
-                    me->SummonCreature(QUEST_TARGET, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                    me->SummonCreature(QUEST_TARGET, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms);
                     player->KilledMonsterCredit(QUEST_TARGET, ObjectGuid::Empty);
                 }
                 else
-                    me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                    me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms);
 
                 if (rand()%100 < 75)
-                    me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                    me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms);
 
-                me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000ms);
             }
         }
     };
@@ -472,11 +473,11 @@ class npc_isla_starmane : public CreatureScript
 public:
     npc_isla_starmane() : CreatureScript("npc_isla_starmane") { }
 
-    struct npc_isla_starmaneAI : public npc_escortAI
+    struct npc_isla_starmaneAI : public EscortAI
     {
-        npc_isla_starmaneAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_isla_starmaneAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -536,7 +537,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_EFTW_H || quest->GetQuestId() == QUEST_EFTW_A)
         {
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+            CAST_AI(EscortAI, (creature->AI()))->Start(true, player->GetGUID());
             creature->SetFaction(113);
         }
         return true;
@@ -662,7 +663,7 @@ public:
         if (quest->GetQuestId() == QUEST_ESCAPING_THE_TOMB)
         {
             if (npc_akunoAI* pEscortAI = CAST_AI(npc_akuno::npc_akunoAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID());
+                pEscortAI->Start(false, player->GetGUID());
 
             if (player->GetTeamId() == TEAM_ALLIANCE)
                 creature->SetFaction(FACTION_ESCORT_A_NEUTRAL_PASSIVE);
@@ -677,11 +678,11 @@ public:
         return new npc_akunoAI(creature);
     }
 
-    struct npc_akunoAI : public npc_escortAI
+    struct npc_akunoAI : public EscortAI
     {
-        npc_akunoAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_akunoAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -690,8 +691,8 @@ public:
             switch (waypointId)
             {
                 case 3:
-                    me->SummonCreature(NPC_CABAL_SKRIMISHER, -2795.99f, 5420.33f, -34.53f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(NPC_CABAL_SKRIMISHER, -2793.55f, 5412.79f, -34.53f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(NPC_CABAL_SKRIMISHER, -2795.99f, 5420.33f, -34.53f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
+                    me->SummonCreature(NPC_CABAL_SKRIMISHER, -2793.55f, 5412.79f, -34.53f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
                     break;
                 case 11:
                     if (player->GetTypeId() == TYPEID_PLAYER)

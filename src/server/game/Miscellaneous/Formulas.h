@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -134,7 +134,7 @@ namespace Trinity
                     nBaseExp = 7194;
                     break;
                 default:
-                    TC_LOG_ERROR("misc", "BaseGain: Unsupported content level %u", content);
+                    TC_LOG_ERROR("misc", "BaseGain: Unsupported content level {}", content);
                     nBaseExp = 45;
                     break;
             }
@@ -174,7 +174,7 @@ namespace Trinity
                 gain = 0;
             else
             {
-                gain = BaseGain(player->GetLevel(), u->GetLevel(), GetContentLevelsForMapAndZone(u->GetMapId(), u->GetZoneId()));
+                gain = BaseGain(player->GetLevel(), u->GetLevel(), sDBCManager.GetContentLevelsForMapAndZone(u->GetMapId(), u->GetZoneId()));
 
                 if (gain != 0 && u->GetTypeId() == TYPEID_UNIT && ((Creature*)u)->isElite())
                 {

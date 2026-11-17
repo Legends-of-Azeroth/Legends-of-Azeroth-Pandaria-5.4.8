@@ -461,7 +461,7 @@ class boss_prince_keleseth_icc : public CreatureScript
             {
                 if (!_isEmpowered)
                 {
-                    me->AddThreat(attacker, float(damage));
+                    me->GetThreatManager().AddThreat(attacker, float(damage));
                     damage = 0;
                 }
             }
@@ -681,7 +681,7 @@ class boss_prince_taldaram_icc : public CreatureScript
             {
                 if (!_isEmpowered)
                 {
-                    me->AddThreat(attacker, float(damage));
+                    me->GetThreatManager().AddThreat(attacker, float(damage));
                     damage = 0;
                 }
             }
@@ -926,7 +926,7 @@ class boss_prince_valanar_icc : public CreatureScript
             {
                 if (!_isEmpowered)
                 {
-                    me->AddThreat(attacker, float(damage));
+                    me->GetThreatManager().AddThreat(attacker, float(damage));
                     damage = 0;
                 }
             }
@@ -1085,7 +1085,7 @@ class npc_blood_queen_lana_thel : public CreatureScript
                             _events.SetPhase(1);
                             _events.ScheduleEvent(EVENT_INTRO_1, 14000);
                             // summon a visual trigger
-                            if (Creature* summon = DoSummon(NPC_FLOATING_TRIGGER, triggerPos, 15000, TEMPSUMMON_TIMED_DESPAWN))
+                            if (Creature* summon = DoSummon(NPC_FLOATING_TRIGGER, triggerPos, 15000ms, TEMPSUMMON_TIMED_DESPAWN))
                             {
                                 summon->CastSpell(summon, SPELL_OOC_INVOCATION_VISUAL, true);
                                 summon->SetSpeed(MOVE_RUN, 0.15f, true); // todo: creature is swimming, check if this is blizzlike or not.
@@ -1369,8 +1369,9 @@ class npc_dark_nucleus : public CreatureScript
                 if (attacker == me)
                     return;
 
-                me->DeleteThreatList();
-                me->AddThreat(attacker, 500000000.0f);
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
+                me->GetThreatManager().AddThreat(attacker, 500000000.0f);
              }
 
             void UpdateAI(uint32 diff) override

@@ -112,7 +112,7 @@ class spell_ex_5581 : public SpellScriptLoader
 
             void HandleDummyLaunch(SpellEffIndex /*effIndex*/)
             {
-                TC_LOG_INFO("misc", "Spell %u with SPELL_EFFECT_DUMMY is just launched!", GetSpellInfo()->Id);
+                TC_LOG_INFO("misc", "Spell {} with SPELL_EFFECT_DUMMY is just launched!", GetSpellInfo()->Id);
             }
 
             void HandleDummyLaunchTarget(SpellEffIndex /*effIndex*/)
@@ -121,12 +121,12 @@ class spell_ex_5581 : public SpellScriptLoader
                 if (Unit* unitTarget = GetHitUnit())
                     targetGUID = unitTarget->GetGUID();
                 // we're handling SPELL_EFFECT_DUMMY in effIndex 0 here
-                TC_LOG_INFO("misc", "Spell %u with SPELL_EFFECT_DUMMY is just launched at it's target: " UI64FMTD "!", GetSpellInfo()->Id, targetGUID);
+                TC_LOG_INFO("misc", "Spell {} with SPELL_EFFECT_DUMMY is just launched at it's target: " "{}" "!", GetSpellInfo()->Id, targetGUID);
             }
 
             void HandleDummyHit(SpellEffIndex /*effIndex*/)
             {
-                TC_LOG_INFO("misc", "Spell %u with SPELL_EFFECT_DUMMY has hit!", GetSpellInfo()->Id);
+                TC_LOG_INFO("misc", "Spell {} with SPELL_EFFECT_DUMMY has hit!", GetSpellInfo()->Id);
             }
 
             void HandleDummyHitTarget(SpellEffIndex /*effIndex*/)
@@ -375,7 +375,7 @@ class spell_ex_absorb_aura : public SpellScriptLoader
 
             void HandleAfterEffectAbsorb(AuraEffect* /*aurEff*/, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
             {
-                TC_LOG_INFO("misc", "Our aura has absorbed %u damage!", absorbAmount);
+                TC_LOG_INFO("misc", "Our aura has absorbed {} damage!", absorbAmount);
             }
 
             // function registering

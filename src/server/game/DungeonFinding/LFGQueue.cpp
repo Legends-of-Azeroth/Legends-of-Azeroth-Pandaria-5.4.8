@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -97,7 +97,7 @@ void Queuer::OutDebug(std::ostringstream& ss, QueueManager const* manager, Queue
     }
     else
     {
-        if (ObjectAccessor::FindPlayer(GetGUID()))
+        if (ObjectAccessor::FindConnectedPlayer(GetGUID()))
             ss << sWorld->GetCharacterNameData(GetGUID())->m_name;
         else
             ss << "|cFFFF0000" << sWorld->GetCharacterNameData(GetGUID())->m_name << "<OFFLINE>|r";
@@ -430,7 +430,7 @@ void DungeonQueue::OutDebug(std::ostringstream& ss, bool client) const
         return;
 
     LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(m_dungeonID);
-    ss << "   --- DUNGEON QUEUE --- Dungeon: " << GetDungeonID() << " (" << (dungeon ? dungeon->name[DEFAULT_LOCALE] : "???") << ")" << (dungeon && dungeon->difficulty ? " (Heroic)" : "") << "\n";
+    ss << "   --- DUNGEON QUEUE --- Dungeon: " << GetDungeonID() << " (" << (dungeon ? dungeon->name : "???") << ")" << (dungeon && dungeon->DifficultyID ? " (Heroic)" : "") << "\n";
     for (auto&& bucket : m_buckets)
         bucket.OutDebug(ss, client);
 }
@@ -443,7 +443,7 @@ QueueManager::QueuerData::QueuerData(ObjectGuid guid, uint32 queueId, time_t joi
     if (guid.IsPlayer())
     {
         Players.insert(guid);
-        if (Player* player = ObjectAccessor::FindPlayer(guid))
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
             for (auto&& social : player->GetSocial()->GetSocialMap())
                 if (social.second.Flags & SOCIAL_FLAG_IGNORED)
                     Ignores.insert(social.first);
@@ -453,7 +453,7 @@ QueueManager::QueuerData::QueuerData(ObjectGuid guid, uint32 queueId, time_t joi
         for (auto&& member : sLFGMgr->GetPlayers(guid))
         {
             Players.insert(member);
-            if (Player* player = ObjectAccessor::FindPlayer(member))
+            if (Player* player = ObjectAccessor::FindConnectedPlayer(member))
                 for (auto&& social : player->GetSocial()->GetSocialMap())
                     if (social.second.Flags & SOCIAL_FLAG_IGNORED)
                         Ignores.insert(social.first);
@@ -474,7 +474,7 @@ QueueManager::QueueManager()
         if (!dungeon)
             continue;
 
-        MapEntry const* map = sMapStore.LookupEntry(dungeon->map);
+        MapEntry const* map = sMapStore.LookupEntry(dungeon->MapID);
 
         uint32 tank = dungeon->tankNeeded;
         uint32 heal = dungeon->healerNeeded;
@@ -790,7 +790,7 @@ void QueueManager::UpdateShortageData()
 
         bool raid = false;
         if (auto lfg_dungeon = sLFGDungeonStore.LookupEntry(randomDungeonId))
-            raid = lfg_dungeon->difficulty == RAID_DIFFICULTY_25MAN_LFR;
+            raid = lfg_dungeon->DifficultyID == RAID_DIFFICULTY_25MAN_LFR;
 
         // Queue exists for more than 90 seconds and we have "enough" people in queue
         uint32 total = tanksCount + healersCount + dpsCount;

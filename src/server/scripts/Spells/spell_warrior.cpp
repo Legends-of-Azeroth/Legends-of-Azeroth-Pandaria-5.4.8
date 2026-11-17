@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -727,8 +727,7 @@ class spell_warr_revenge_shield_slam : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_revenge_shield_slam_SpellScript::HandleCast, EFFECT_1, SPELL_EFFECT_ENERGIZE);
-                OnEffectHitTarget += SpellEffectFn(spell_warr_revenge_shield_slam_SpellScript::HandleCast, EFFECT_2, SPELL_EFFECT_ENERGIZE);
+                OnEffectHitTarget += SpellEffectFn(spell_warr_revenge_shield_slam_SpellScript::HandleCast, EFFECT_ALL, SPELL_EFFECT_ENERGIZE);
             }
         };
 

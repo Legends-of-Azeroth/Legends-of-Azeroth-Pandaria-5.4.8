@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include <array>
+#include "Optional.h"
 
 enum WeatherState : uint32;
 
@@ -27,6 +28,17 @@ namespace WorldPackets
 {
     namespace Misc
     {
+        class BinderConfirm final : public ServerPacket
+        {
+        public:
+            BinderConfirm() : ServerPacket(SMSG_BINDER_CONFIRM, 8) { }
+            BinderConfirm(ObjectGuid unit) : ServerPacket(SMSG_BINDER_CONFIRM, 8), Unit(unit) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+        };
+
         class TriggerCinematic final : public ServerPacket
         {
         public:
@@ -177,6 +189,18 @@ namespace WorldPackets
             uint32 Timer = 0;
         };
 
+        class BindPointUpdate final : public ServerPacket
+        {
+        public:
+            BindPointUpdate() : ServerPacket(SMSG_BIND_POINT_UPDATE, 20) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 BindMapID = 0;
+            Position BindPosition;
+            uint32 BindAreaID = 0;
+        };
+
         class Dismount final : public ServerPacket
         {
         public:
@@ -241,6 +265,256 @@ namespace WorldPackets
             int32 OverrideLightID = 0;
         };
 
+        class DisplayGameError final : public ServerPacket
+        {
+        public:
+            DisplayGameError(GameError error) : ServerPacket(SMSG_DISPLAY_GAME_ERROR, 4 + 1), Error(error) { }
+            DisplayGameError(GameError error, int32 arg) : ServerPacket(SMSG_DISPLAY_GAME_ERROR, 4 + 1 + 4), Error(error), Arg(arg) { }
+            DisplayGameError(GameError error, int32 arg1, int32 arg2) : ServerPacket(SMSG_DISPLAY_GAME_ERROR, 4 + 1 + 4 + 4), Error(error), Arg(arg1), Arg2(arg2) { }
+
+            WorldPacket const* Write() override;
+
+            GameError Error;
+            Optional<int32> Arg;
+            Optional<int32> Arg2;
+        };
+
+        class TutorialSetFlag final : public ClientPacket
+        {
+        public:
+            TutorialSetFlag(WorldPacket&& packet) : ClientPacket(CMSG_TUTORIAL_FLAG, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 TutorialBit = 0;
+        };
+
+        class TutorialClear final : public ClientPacket
+        {
+        public:
+            TutorialClear(WorldPacket&& packet) : ClientPacket(CMSG_TUTORIAL_CLEAR, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class TutorialReset final : public ClientPacket
+        {
+        public:
+            TutorialReset(WorldPacket&& packet) : ClientPacket(CMSG_TUTORIAL_RESET, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class QueryCountdownTimer final : public ClientPacket
+        {
+        public:
+            QueryCountdownTimer(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_COUNTDOWN_TIMER, std::move(packet)) { }
+
+            void Read() override;
+        };
+
+        class RequestHotfix final : public ClientPacket
+        {
+        public:
+            RequestHotfix(WorldPacket&& packet) : ClientPacket(CMSG_HOTFIX_REQUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Type = 0;
+            std::vector<uint32> Entries;
+        };
+
+        class LogoutRequest final : public ClientPacket
+        {
+        public:
+            LogoutRequest(WorldPacket&& packet) : ClientPacket(CMSG_LOGOUT_REQUEST, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class LogoutCancel final : public ClientPacket
+        {
+        public:
+            LogoutCancel(WorldPacket&& packet) : ClientPacket(CMSG_LOGOUT_CANCEL, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class RequestCemeteryList final : public ClientPacket
+        {
+        public:
+            RequestCemeteryList(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_CEMETERY_LIST, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class SetSelection final : public ClientPacket
+        {
+        public:
+            SetSelection(WorldPacket&& packet) : ClientPacket(CMSG_SET_SELECTION, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Guid;
+        };
+
+        class StandStateChange final : public ClientPacket
+        {
+        public:
+            StandStateChange(WorldPacket&& packet) : ClientPacket(CMSG_STANDSTATECHANGE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 AnimState = 0;
+        };
+
+        class SetActionButton final : public ClientPacket
+        {
+        public:
+            SetActionButton(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTION_BUTTON, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 SlotId = 0;
+            ObjectGuid ButtonStream;
+        };
+
+        class SetActionBarToggles final : public ClientPacket
+        {
+        public:
+            SetActionBarToggles(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTIONBAR_TOGGLES, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 ActionBar = 0;
+        };
+
+        class PlayedTimeClient final : public ClientPacket
+        {
+        public:
+            PlayedTimeClient(WorldPacket&& packet) : ClientPacket(CMSG_PLAYED_TIME, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Unk1 = 0;
+        };
+
+        class SetTitle final : public ClientPacket
+        {
+        public:
+            SetTitle(WorldPacket&& packet) : ClientPacket(CMSG_SET_TITLE, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 Title = 0;
+        };
+
+        class TimeSyncResponse final : public ClientPacket
+        {
+        public:
+            TimeSyncResponse(WorldPacket&& packet) : ClientPacket(CMSG_TIME_SYNC_RESP, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Counter = 0;
+            uint32 ClientTicks = 0;
+        };
+
+        class SetTaxiBenchmarkMode final : public ClientPacket
+        {
+        public:
+            SetTaxiBenchmarkMode(WorldPacket&& packet) : ClientPacket(CMSG_SET_TAXI_BENCHMARK_MODE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Mode = 0;
+        };
+
+        class GuildAchievementProgressQuery final : public ClientPacket
+        {
+        public:
+            GuildAchievementProgressQuery(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_ACHIEVEMENT_PROGRESS_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 AchievementId = 0;
+        };
+
+        class UITimeRequest final : public ClientPacket
+        {
+        public:
+            UITimeRequest(WorldPacket&& packet) : ClientPacket(CMSG_WORLD_STATE_UI_TIMER_UPDATE, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class ReadyForAccountDataTimes final : public ClientPacket
+        {
+        public:
+            ReadyForAccountDataTimes(WorldPacket&& packet) : ClientPacket(CMSG_READY_FOR_ACCOUNT_DATA_TIMES, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class ViolenceLevel final : public ClientPacket
+        {
+        public:
+            ViolenceLevel(WorldPacket&& packet) : ClientPacket(CMSG_VIOLENCE_LEVEL, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Level = 0;
+        };
+
+        class ObjectUpdateFailed final : public ClientPacket
+        {
+        public:
+            ObjectUpdateFailed(WorldPacket&& packet) : ClientPacket(CMSG_OBJECT_UPDATE_FAILED, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Guid;
+        };
+
+        class SelectFaction final : public ClientPacket
+        {
+        public:
+            SelectFaction(WorldPacket&& packet) : ClientPacket(CMSG_SELECT_FACTION, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Choice = 0;
+        };
+
+        class DiscardedTimeSyncAcks final : public ClientPacket
+        {
+        public:
+            DiscardedTimeSyncAcks(WorldPacket&& packet) : ClientPacket(CMSG_DISCARDED_TIME_SYNC_ACKS, std::move(packet)) { }
+
+            void Read() override;
+        };
+
+        class LogStreamingError final : public ClientPacket
+        {
+        public:
+            LogStreamingError(WorldPacket&& packet) : ClientPacket(CMSG_LOG_STREAMING_ERROR, std::move(packet)) { }
+
+            void Read() override;
+
+            std::string MissingData;
+        };
+
+        class ShowTradeSkill final : public ClientPacket
+        {
+        public:
+            ShowTradeSkill(WorldPacket&& packet) : ClientPacket(CMSG_SHOW_TRADE_SKILL, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 SpellId = 0;
+            uint32 SkillId = 0;
+            ObjectGuid Guid;
+        };
 
     }
 }

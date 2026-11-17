@@ -111,9 +111,9 @@ const Position wyvernDeepholmPath[8] =
 };
 
 // Aronus 45005
-struct npc_deepholm_wyvern : public CreatureAI
+struct npc_deepholm_wyvern : public ScriptedAI
 {
-    npc_deepholm_wyvern(Creature* creature) : CreatureAI(creature)
+    npc_deepholm_wyvern(Creature* creature) : ScriptedAI(creature)
     {
         me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     }
@@ -128,9 +128,9 @@ struct npc_deepholm_wyvern : public CreatureAI
 };
 
 // Wyvern 45024
-struct npc_deepholm_wyvern_ride : public CreatureAI
+struct npc_deepholm_wyvern_ride : public ScriptedAI
 {
-    npc_deepholm_wyvern_ride(Creature* creature) : CreatureAI(creature) { }
+    npc_deepholm_wyvern_ride(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
     ObjectGuid targetGUID;
@@ -226,9 +226,9 @@ struct npc_deepholm_wyvern_ride : public CreatureAI
 };
 
 // Aggra 45006
-struct npc_maelstorm_aggra : public CreatureAI
+struct npc_maelstorm_aggra : public ScriptedAI
 {
-    npc_maelstorm_aggra(Creature* creature) : CreatureAI(creature) { }
+    npc_maelstorm_aggra(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
     ObjectGuid summonerGUID;

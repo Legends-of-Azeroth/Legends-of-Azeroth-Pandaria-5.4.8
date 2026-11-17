@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -27,29 +27,11 @@
 #include "Player.h"
 #include "Opcodes.h"
 
-void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
+void WorldSession::HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet)
 {
-    ObjectGuid guid;
+    ObjectGuid guid = packet.TargetGUID;
 
-    guid[6] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[5]);
-
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_ATTACKSWING Message guidlow:%u guidhigh:%u", guid.GetCounter(), uint32(guid.GetHigh()));
+    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_ATTACKSWING Message guidlow:{} guidhigh:{}", guid.GetCounter(), uint32(guid.GetHigh()));
 
     Unit* pEnemy = ObjectAccessor::GetUnit(*_player, guid);
 
@@ -87,26 +69,23 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
     _player->Attack(pEnemy, true);
 }
 
-void WorldSession::HandleAttackStopOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleAttackStopOpcode(WorldPackets::Combat::AttackStop& /*packet*/)
 {
     GetPlayer()->AttackStop();
 }
 
-void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetSheathedOpcode(WorldPackets::Combat::SetSheathed& packet)
 {
-    uint32 sheathed;
-    bool hasData = false;
+    uint32 sheathed = packet.Sheathed;
+    bool hasData = packet.HasData;
 
-    recvData >> sheathed;
-    hasData = recvData.ReadBit();
-
-    //TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_SETSHEATHED Message guidlow:%u value1:%u", GetPlayer()->GetGUID().GetCounter(), sheathed);
+    //TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_SETSHEATHED Message guidlow:{} value1:{}", GetPlayer()->GetGUID().GetCounter(), sheathed);
 
     if (hasData)
     {
         if (sheathed >= MAX_SHEATH_STATE)
         {
-            TC_LOG_ERROR("network", "Unknown sheath state %u ??", sheathed);
+            TC_LOG_ERROR("network", "Unknown sheath state {} ??", sheathed);
             return;
         }
 
@@ -161,9 +140,7 @@ void WorldSession::SendAttackStop(Unit const* enemy)
     SendPacket(&data);
 }
 
-void WorldSession::HandleSetAdvancedCombatLogging(WorldPacket& recvData)
+void WorldSession::HandleSetAdvancedCombatLogging(WorldPackets::Combat::SetAdvancedCombatLogging& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_SET_ADVANCED_COMBAT_LOGGING");
-
-    recvData.read_skip<bool>();
 }

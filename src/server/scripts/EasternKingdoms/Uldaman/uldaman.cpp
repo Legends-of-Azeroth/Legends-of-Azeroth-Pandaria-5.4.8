@@ -87,7 +87,7 @@ class npc_jadespine_basilisk : public CreatureScript
                         target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
 
                     if (target)
-                        me->TauntApply(target);
+                        me->GetThreatManager().TauntUpdate();
 
                 } else uiCslumberTimer -= uiDiff;
 

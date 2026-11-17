@@ -292,9 +292,9 @@ class npc_vanessa_vancleef_vanessa_sitting : public CreatureScript
     public:
         npc_vanessa_vancleef_vanessa_sitting() : CreatureScript("npc_vanessa_vancleef_vanessa_sitting") { }
 
-        struct npc_vanessa_vancleef_vanessa_sittingAI : public CreatureAI
+        struct npc_vanessa_vancleef_vanessa_sittingAI : public ScriptedAI
         {
-            npc_vanessa_vancleef_vanessa_sittingAI(Creature* creature) : CreatureAI(creature)
+            npc_vanessa_vancleef_vanessa_sittingAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 me->setActive(true);
@@ -374,9 +374,9 @@ class npc_vanessa_vancleef_defias_enforcer : public CreatureScript
         public:
             npc_vanessa_vancleef_defias_enforcer() : CreatureScript("npc_vanessa_vancleef_defias_enforcer") { }
 
-            struct npc_vanessa_vancleef_defias_enforcerAI : public CreatureAI
+            struct npc_vanessa_vancleef_defias_enforcerAI : public ScriptedAI
             {
-                npc_vanessa_vancleef_defias_enforcerAI(Creature* creature) : CreatureAI(creature)
+                npc_vanessa_vancleef_defias_enforcerAI(Creature* creature) : ScriptedAI(creature)
                 {
                     me->setActive(true);
                 }

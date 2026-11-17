@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -247,7 +247,7 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
         index += BG_TEAMS_COUNT;
     if (ginfo->Team == HORDE)
         index++;
-    TC_LOG_DEBUG("bg.battleground", "Adding Group to BattlegroundQueue bgTypeId : %u, bracket_id : %u, index : %u", bgTypeId, bracketId, index);
+    TC_LOG_DEBUG("bg.battleground", "Adding Group to BattlegroundQueue bgTypeId : {}, bracket_id : {}, index : {}", bgTypeId, bracketId, index);
 
     uint32 lastOnlineTime = getMSTime();
 
@@ -309,8 +309,8 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
                 uint32 MinPlayers = bg->GetMinPlayersPerTeam();
                 uint32 qHorde = 0;
                 uint32 qAlliance = 0;
-                uint32 q_min_level = bracketEntry->minLevel;
-                uint32 q_max_level = bracketEntry->maxLevel;
+                uint32 q_min_level = bracketEntry->MinLevel;
+                uint32 q_max_level = bracketEntry->MaxLevel;
                 GroupsQueueType::const_iterator itr;
                 for (itr = m_QueuedGroups[bracketId][BG_QUEUE_NORMAL_ALLIANCE].begin(); itr != m_QueuedGroups[bracketId][BG_QUEUE_NORMAL_ALLIANCE].end(); ++itr)
                     if (!(*itr)->IsInvitedToBGInstanceGUID)
@@ -404,7 +404,7 @@ void BattlegroundQueue::RemovePlayer(ObjectGuid guid, bool decreaseInvitedCount,
         std::string playerName = "Unknown";
         if (Player* player = ObjectAccessor::FindPlayer(guid))
             playerName = player->GetName();
-        TC_LOG_ERROR("bg.battleground", "BattlegroundQueue: couldn't find player %s (%s)", playerName.c_str(), guid.ToString().c_str());
+        TC_LOG_ERROR("bg.battleground", "BattlegroundQueue: couldn't find player {} ({})", playerName.c_str(), guid.ToString().c_str());
         return;
     }
 
@@ -423,7 +423,7 @@ void BattlegroundQueue::RemovePlayer(ObjectGuid guid, bool decreaseInvitedCount,
 
     // https://us.battle.net/forums/en/wow/topic/13242714145
     if (leave && group->IsInvitedToBGInstanceGUID && (group->IsRated || group->IsRatedBG))
-        if (Player* player = ObjectAccessor::FindPlayer(guid))
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
             player->ApplyDeserter();
 
     uint32 index = (group->Team == HORDE) ? BG_QUEUE_PREMADE_HORDE : BG_QUEUE_PREMADE_ALLIANCE;
@@ -452,10 +452,10 @@ void BattlegroundQueue::RemovePlayer(ObjectGuid guid, bool decreaseInvitedCount,
     //player can't be in queue without group, but just in case
     if (bracket_id == -1)
     {
-        TC_LOG_ERROR("bg.battleground", "BattlegroundQueue: ERROR Cannot find groupinfo for %s", guid.ToString().c_str());
+        TC_LOG_ERROR("bg.battleground", "BattlegroundQueue: ERROR Cannot find groupinfo for {}", guid.ToString().c_str());
         return;
     }
-    TC_LOG_DEBUG("bg.battleground", "BattlegroundQueue: Removing player GUID %s, from bracket_id %u", guid.ToString().c_str(), (uint32)bracket_id);
+    TC_LOG_DEBUG("bg.battleground", "BattlegroundQueue: Removing player GUID {}, from bracket_id {}", guid.ToString().c_str(), (uint32)bracket_id);
 
     // ALL variables are correctly set
     // We can ignore leveling up in queue - it should not cause crash
@@ -478,7 +478,7 @@ void BattlegroundQueue::RemovePlayer(ObjectGuid guid, bool decreaseInvitedCount,
     // if player leaves queue and he is invited to rated arena match, then he have to lose
     if (group->IsInvitedToBGInstanceGUID && (group->IsRated || group->IsRatedBG) && decreaseInvitedCount)
     {
-        TC_LOG_DEBUG("bg.battleground", "UPDATING memberLost's personal arena rating for %s by opponents rating: %u", guid.ToString().c_str(), group->OpponentsTeamRating);
+        TC_LOG_DEBUG("bg.battleground", "UPDATING memberLost's personal arena rating for {} by opponents rating: {}", guid.ToString().c_str(), group->OpponentsTeamRating);
 
         if (Battleground* bg = sBattlegroundMgr->GetBattleground(group->IsInvitedToBGInstanceGUID, group->BgTypeId))
         {
@@ -606,7 +606,7 @@ bool BattlegroundQueue::InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg,
 
             uint32 queueSlot = player->GetBattlegroundQueueIndex(bgQueueTypeId);
 
-            TC_LOG_DEBUG("bg.battleground", "Battleground: invited player %s (%u) to BG instance %u queueindex %u bgtype %u",
+            TC_LOG_DEBUG("bg.battleground", "Battleground: invited player {} ({}) to BG instance {} queueindex {} bgtype {}",
                  player->GetName().c_str(), player->GetGUID().GetCounter(), bg->GetInstanceID(), queueSlot, bg->GetTypeID());
 
             // send status packet
@@ -914,14 +914,14 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
     Battleground* bgTemplate = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId);
     if (!bgTemplate)
     {
-        TC_LOG_ERROR("bg.battleground", "Battleground: Update: bg template not found for %u", bgTypeId);
+        TC_LOG_ERROR("bg.battleground", "Battleground: Update: bg template not found for {}", bgTypeId);
         return;
     }
 
-    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketById(bgTemplate->GetMapId(), bracket_id);
+    PvPDifficultyEntry const* bracketEntry = sDBCManager.GetBattlegroundBracketById(bgTemplate->GetMapId(), bracket_id);
     if (!bracketEntry)
     {
-        TC_LOG_ERROR("bg.battleground", "Battleground: Update: bg bracket entry not found for map %u bracket id %u", bgTemplate->GetMapId(), bracket_id);
+        TC_LOG_ERROR("bg.battleground", "Battleground: Update: bg bracket entry not found for map {} bracket id {}", bgTemplate->GetMapId(), bracket_id);
         return;
     }
 
@@ -953,7 +953,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
             Battleground* bg2 = sBattlegroundMgr->CreateNewBattleground(bgTypeId, bracketEntry, 0, false);
             if (!bg2)
             {
-                TC_LOG_ERROR("bg.battleground", "BattlegroundQueue::Update - Cannot create battleground: %u", bgTypeId);
+                TC_LOG_ERROR("bg.battleground", "BattlegroundQueue::Update - Cannot create battleground: {}", bgTypeId);
                 return;
             }
             // invite those selection pools
@@ -979,7 +979,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
             Battleground* bg2 = sBattlegroundMgr->CreateNewBattleground(bgTypeId, bracketEntry, arenaType, false);
             if (!bg2)
             {
-                TC_LOG_ERROR("bg.battleground", "BattlegroundQueue::Update - Cannot create battleground: %u", bgTypeId);
+                TC_LOG_ERROR("bg.battleground", "BattlegroundQueue::Update - Cannot create battleground: {}", bgTypeId);
                 return;
             }
 
@@ -1152,7 +1152,7 @@ bool SoloGroup::Create(GroupQueueInfo* ginfo)
 {
     for (auto&& it : ginfo->Players)
     {
-        Player* player = ObjectAccessor::FindPlayer(it.first);
+        Player* player = ObjectAccessor::FindConnectedPlayer(it.first);
         if (!player)
             return false;
 
@@ -1424,7 +1424,7 @@ struct TimeCounter
     {
         uint32 diff = getMSTimeDiff(StartTime, getMSTime());
         if (diff > sWorld->getIntConfig(CONFIG_MIN_LOG_UPDATE))
-            TC_LOG_INFO("diff", "Difftime %s: %u.", Message, diff);
+            TC_LOG_INFO("diff", "Difftime {}: {}.", Message, diff);
     }
 
     char const* Message;
@@ -1443,10 +1443,10 @@ void SoloQueue::DoMatchmaking(GroupQueueInfo* ginfo, uint32 extraDiff, bool stro
         return;
 
     Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AA);
-    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketById(bg->GetMapId(), bracketId);
+    PvPDifficultyEntry const* bracketEntry = sDBCManager.GetBattlegroundBracketById(bg->GetMapId(), bracketId);
     if (!bracketEntry)
     {
-        TC_LOG_ERROR("server", "SoloQueue::DoMatchmaking: bg bracket entry not found for map %u bracket id %u", bg->GetMapId(), bracketId);
+        TC_LOG_ERROR("server", "SoloQueue::DoMatchmaking: bg bracket entry not found for map {} bracket id {}", bg->GetMapId(), bracketId);
         return;
     }
 
@@ -1696,7 +1696,7 @@ void SoloQueue::DynamicUpdate()
                 bool heal = false;
                 for (auto&& it2 : (*it)->Players)
                 {
-                    if (Player* player = ObjectAccessor::FindPlayer(it2.first))
+                    if (Player* player = ObjectAccessor::FindConnectedPlayer(it2.first))
                     {
                         if (GetRole(player->GetSpecialization()) == SoloQueueRole::Healer)
                         {
@@ -1818,11 +1818,11 @@ BattlegroundBracketId SoloQueue::GetSoloQueueBracketId()
     if (!bg)
         return BG_BRACKET_ID_FIRST;
 
-    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), DEFAULT_MAX_LEVEL);
+    PvPDifficultyEntry const* bracketEntry = sDBCManager.GetBattlegroundBracketByLevel(bg->GetMapId(), DEFAULT_MAX_LEVEL);
     if (!bracketEntry)
         return BG_BRACKET_ID_FIRST;
 
-    return BattlegroundBracketId(bracketEntry->bracketId);
+    return BattlegroundBracketId(bracketEntry->RangeIndex);
 }
 
 /*********************************************************/
@@ -1890,7 +1890,7 @@ bool BGQueueRemoveEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
         BattlegroundQueue &bgQueue = sBattlegroundMgr->GetBattlegroundQueue(m_BgQueueTypeId);
         if (bgQueue.IsPlayerInvited(m_PlayerGuid, m_BgInstanceGUID, m_RemoveTime))
         {
-            TC_LOG_DEBUG("bg.battleground", "Battleground: removing player %u from bg queue for instance %u because of not pressing enter battle in time.", player->GetGUID().GetCounter(), m_BgInstanceGUID);
+            TC_LOG_DEBUG("bg.battleground", "Battleground: removing player {} from bg queue for instance {} because of not pressing enter battle in time.", player->GetGUID().GetCounter(), m_BgInstanceGUID);
 
             player->RemoveBattlegroundQueueId(m_BgQueueTypeId);
             bgQueue.RemovePlayer(m_PlayerGuid, true);

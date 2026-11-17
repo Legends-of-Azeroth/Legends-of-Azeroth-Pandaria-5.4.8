@@ -298,8 +298,9 @@ class boss_malchezaar : public CreatureScript
 
                 // damage
                 const CreatureTemplate* cinfo = me->GetCreatureTemplate();
-                me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
-                me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
+                float basedmg = sObjectMgr->GetCreatureBaseStats(me->GetLevel(), cinfo->unit_class)->GenerateBaseDamage(cinfo);
+                me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, basedmg);
+                me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, basedmg * 1.5f);
                 me->UpdateDamagePhysical(BASE_ATTACK);
             }
 
@@ -309,19 +310,25 @@ class boss_malchezaar : public CreatureScript
                 if (!info)
                     return;
 
-                std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
+                auto t_list = me->GetThreatManager().GetUnsortedThreatList();
                 std::vector<Unit *> targets;
 
-                if (!t_list.size())
+                if (!me->GetThreatManager().GetThreatListSize())
                     return;
 
                 // begin + 1, so we don't target the one with the highest threat
-                std::list<HostileReference *>::const_iterator itr = t_list.begin();
-                std::advance(itr, 1);
-                for (; itr != t_list.end(); ++itr) //store the threat list in a different container
-                    if (Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
+                bool skipFirst = true;
+                for (ThreatReference const* ref : t_list) //store the threat list in a different container
+                {
+                    if (skipFirst)
+                    {
+                        skipFirst = false;
+                        continue;
+                    }
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, ref->GetVictim()->GetGUID()))
                         if (target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
                             targets.push_back(target);
+                }
 
                 // cut down to size if we have more than 5 targets
                 while (targets.size() > 5)
@@ -362,7 +369,7 @@ class boss_malchezaar : public CreatureScript
                     pos.Relocate(point->x, point->y, INFERNAL_Z, frand(0.0f, float(M_PI * 2)));
                 }
 
-                if (Creature* Infernal = me->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000))
+                if (Creature* Infernal = me->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000ms))
                 {
                     Infernal->SetDisplayId(INFERNAL_MODEL_INVISIBLE);
                     Infernal->SetFaction(me->GetFaction());
@@ -416,15 +423,16 @@ class boss_malchezaar : public CreatureScript
 
                         // damage
                         const CreatureTemplate* cinfo = me->GetCreatureTemplate();
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2 * cinfo->mindmg);
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2 * cinfo->maxdmg);
+                        float basedmg = sObjectMgr->GetCreatureBaseStats(me->GetLevel(), cinfo->unit_class)->GenerateBaseDamage(cinfo);
+                        me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2 * basedmg);
+                        me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2 * basedmg * 1.5f);
                         me->UpdateDamagePhysical(BASE_ATTACK);
 
-                        me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, cinfo->mindmg);
-                        me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, cinfo->maxdmg);
+                        me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, basedmg);
+                        me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, basedmg * 1.5f);
                         // Sigh, updating only works on main attack, do it manually....
-                        me->SetFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, cinfo->mindmg);
-                        me->SetFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, cinfo->maxdmg);
+                        me->SetFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, basedmg);
+                        me->SetFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, basedmg * 1.5f);
 
                         me->SetAttackTime(OFF_ATTACK, (me->GetAttackTime(BASE_ATTACK) * 150) / 100);
                     }
@@ -447,7 +455,7 @@ class boss_malchezaar : public CreatureScript
                         Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                         for (uint8 i = 0; i < 2; ++i)
                         {
-                            if (Creature* axe = me->SummonCreature(MALCHEZARS_AXE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000))
+                            if (Creature* axe = me->SummonCreature(MALCHEZARS_AXE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000ms))
                             {
                                 axe->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 axe->SetFaction(me->GetFaction());
@@ -455,9 +463,9 @@ class boss_malchezaar : public CreatureScript
                                 if (target)
                                 {
                                     axe->AI()->AttackStart(target);
-                                    //axe->getThreatManager().tauntApply(target); // Taunt Apply and fade out does not work properly
+                                    //axe->GetThreatManager().tauntApply(target); // Taunt Apply and fade out does not work properly
                                     // So we'll use a hack to add a lot of threat to our target
-                                    axe->AddThreat(target, 10000000.0f);
+                                    axe->GetThreatManager().AddThreat(target, 10000000.0f);
                                 }
                             }
                         }
@@ -497,9 +505,9 @@ class boss_malchezaar : public CreatureScript
                                     if (axe->GetVictim())
                                         DoModifyThreatPercent(axe->GetVictim(), -100);
                                     if (target)
-                                        axe->AddThreat(target, 1000000.0f);
-                                    //axe->getThreatManager().tauntFadeOut(axe->GetVictim());
-                                    //axe->getThreatManager().tauntApply(target);
+                                        axe->GetThreatManager().AddThreat(target, 1000000.0f);
+                                    //axe->GetThreatManager().tauntFadeOut(axe->GetVictim());
+                                    //axe->GetThreatManager().tauntApply(target);
                                 }
                             }
                         }

@@ -107,7 +107,7 @@ class boss_rattlegore : public CreatureScript
                 RemoveSoulFlame();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)

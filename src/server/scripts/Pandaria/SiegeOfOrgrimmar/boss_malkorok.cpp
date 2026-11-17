@@ -277,7 +277,7 @@ class boss_malkorok : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/) override { }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 _EnterEvadeMode();
                 BossAI::EnterEvadeMode();

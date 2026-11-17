@@ -453,13 +453,13 @@ class npc_wrathion : public CreatureScript
                 case QUEST_SOUL_OF_THE_HORDE:
                     player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_SOUL_OF_THE_HORDE_SCENE_PLAY : SPELL_CALL_THE_PACKMASTER_SCENE_PLAY, true);
 
-                    if (Creature* tong = player->SummonCreature(NPC_TONG_THE_FIXER, TongSpawnPos, TEMPSUMMON_TIMED_DESPAWN, 2 * MINUTE * IN_MILLISECONDS))
+                    if (Creature* tong = player->SummonCreature(NPC_TONG_THE_FIXER, TongSpawnPos, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(2 * MINUTE * IN_MILLISECONDS)))
                         tong->SetPhaseMask(2, true);
                     break;
                 case QUEST_LEGEND_IN_THE_MAKING:
                     player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_LEGEND_IN_THE_MAKING_SCENE_H : SPELL_LEGEND_IN_THE_MAKING_SCENE_A, true);
 
-                    if (Creature* tong = player->SummonCreature(NPC_TONG_THE_FIXER, TongSpawnPos, TEMPSUMMON_TIMED_DESPAWN, 2 * MINUTE * IN_MILLISECONDS))
+                    if (Creature* tong = player->SummonCreature(NPC_TONG_THE_FIXER, TongSpawnPos, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(2 * MINUTE * IN_MILLISECONDS)))
                         tong->SetPhaseMask(2, true);
                     break;
                 case QUEST_MEASURE_OF_THE_LEADER_A:
@@ -493,7 +493,7 @@ class npc_wrathion : public CreatureScript
                     {
                         player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_LEGEND_IN_THE_MAKING_SCENE_H : SPELL_LEGEND_IN_THE_MAKING_SCENE_A, true);
 
-                        if (Creature* tong = player->SummonCreature(NPC_TONG_THE_FIXER, TongSpawnPos, TEMPSUMMON_TIMED_DESPAWN, 2 * MINUTE * IN_MILLISECONDS))
+                        if (Creature* tong = player->SummonCreature(NPC_TONG_THE_FIXER, TongSpawnPos, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(2 * MINUTE * IN_MILLISECONDS)))
                             tong->SetPhaseMask(2, true);
                     }
                     break;
@@ -1027,12 +1027,15 @@ struct npc_wrathion_suen_celestial : public ScriptedAI
 
     void IsSummonedBy(Unit* summoner) override
     {
+        if (!summoner)
+            return;
+
         delay = 0;
         me->SetPhaseMask(4, true);
         me->ToTempSummon()->SetPrivateObjectOwner(summoner->GetGUID());
         ownerGUID = summoner->GetGUID();
 
-        if (summoner && summoner->ToPlayer())
+        if (summoner->ToPlayer())
             summoner->ToPlayer()->KilledMonsterCredit(NPC_XUEN_CREDIT);
 
         scheduler
@@ -1238,12 +1241,15 @@ struct npc_wrathion_chiji_celestial : public ScriptedAI
 
     void IsSummonedBy(Unit* summoner) override
     {
+        if (!summoner)
+            return;
+
         delay = 0;
         me->SetPhaseMask(4, true);
         me->ToTempSummon()->SetPrivateObjectOwner(summoner->GetGUID());
         ownerGUID = summoner->GetGUID();
 
-        if (summoner && summoner->ToPlayer())
+        if (summoner->ToPlayer())
             summoner->ToPlayer()->KilledMonsterCredit(NPC_CHIJI_CREDIT);
 
         scheduler
@@ -1402,12 +1408,15 @@ struct npc_wrathion_niuzao_celestial : public ScriptedAI
 
     void IsSummonedBy(Unit* summoner) override
     {
+        if (!summoner)
+            return;
+
         delay = 0;
         me->SetPhaseMask(4, true);
         me->ToTempSummon()->SetPrivateObjectOwner(summoner->GetGUID());
         ownerGUID = summoner->GetGUID();
 
-        if (summoner && summoner->ToPlayer())
+        if (summoner->ToPlayer())
             summoner->ToPlayer()->KilledMonsterCredit(NPC_NIUZAO_CREDIT);
 
         scheduler
@@ -2109,7 +2118,7 @@ struct npc_willy_wilder : public ScriptedAI
         events.ScheduleEvent(EVENT_VIOLET_AND_BLUEBERRIES, urand(4 * IN_MILLISECONDS, 5 * IN_MILLISECONDS));
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
 

@@ -1033,7 +1033,7 @@ class npc_spine_of_deathwing_burning_tendons : public CreatureScript
                 return 0;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 return;
             }

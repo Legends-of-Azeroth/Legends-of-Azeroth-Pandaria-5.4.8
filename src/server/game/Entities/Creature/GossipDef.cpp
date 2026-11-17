@@ -294,7 +294,7 @@ void PlayerMenu::SendPointOfInterest(uint32 poiId) const
     PointOfInterest const* poi = sObjectMgr->GetPointOfInterest(poiId);
     if (!poi)
     {
-        TC_LOG_ERROR("sql.sql", "Request to send non-existing POI (Id: %u), ignored.", poiId);
+        TC_LOG_ERROR("sql.sql", "Request to send non-existing POI (Id: {}), ignored.", poiId);
         return;
     }
 
@@ -430,7 +430,7 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
 
     _session->SendPacket(&data);
 
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_QUEST_LIST NPC Guid=%u", npcGUID.GetCounter());
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_QUEST_LIST NPC Guid={}", npcGUID.GetCounter());
 }
 
 void PlayerMenu::SendQuestGiverStatus(QuestGiverStatus questStatus, ObjectGuid npcGUID) const
@@ -456,7 +456,7 @@ void PlayerMenu::SendQuestGiverStatus(QuestGiverStatus questStatus, ObjectGuid n
     data.WriteByteSeq(npcGUID[3]);
 
     _session->SendPacket(&data);
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC Guid=%u, status=%u", npcGUID.GetCounter(), questStatus);
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC Guid={}, status={}", npcGUID.GetCounter(), questStatus);
 }
 
 void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool activateAccept, bool startedByAreaTrigger) const
@@ -657,7 +657,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
 
     _session->SendPacket(&data);
 
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_QUEST_DETAILS NPCGuid=%u, questid=%u", npcGUID.GetCounter(), quest->GetQuestId());
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_QUEST_DETAILS NPCGuid={}, questid={}", npcGUID.GetCounter(), quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
@@ -842,7 +842,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 
     _session->SendPacket(&data);
 
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid=%u", quest->GetQuestId());
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid={}", quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGuid, bool enableNext) const
@@ -1018,7 +1018,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGui
 
     _session->SendPacket(&data);
 
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_OFFER_REWARD NPCGuid=%u, questid=%u", npcGuid.GetCounter(), quest->GetQuestId());
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_OFFER_REWARD NPCGuid={}, questid={}", npcGuid.GetCounter(), quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGuid, bool canComplete, bool closeOnCancel) const
@@ -1137,7 +1137,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGu
 
     _session->SendPacket(&data);
 
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPCGuid=%u, questid=%u", npcGuid.GetCounter(), quest->GetQuestId());
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPCGuid={}, questid={}", npcGuid.GetCounter(), quest->GetQuestId());
 }
 
 void PlayerMenu::AddQuestLevelToTitle(std::string &title, int32 level)

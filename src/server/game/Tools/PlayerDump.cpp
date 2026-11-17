@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "Common.h"
+#include "CharacterCache.h"
 #include "PlayerDump.h"
 #include "DatabaseEnv.h"
 #include "UpdateFields.h"
@@ -317,7 +318,7 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
         else                                                // not set case, get single guid string
             wherestr = GenerateWhereStr(fieldname, guid);
 
-        QueryResult result = CharacterDatabase.PQuery("SELECT * FROM %s WHERE %s", tableFrom, wherestr.c_str());
+        QueryResult result = CharacterDatabase.PQuery("SELECT * FROM {} WHERE {}", tableFrom, wherestr.c_str());
         if (!result)
             return true;
 
@@ -490,7 +491,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
     uint8 level = 1;
     DeclinedName* declinedName = NULL;
 
-    QueryResult result = CharacterDatabase.PQuery("SELECT spell FROM account_spell WHERE account = %u", account);
+    QueryResult result = CharacterDatabase.PQuery("SELECT spell FROM account_spell WHERE account = {}", account);
     if (result)
     {
         do
@@ -536,7 +537,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
         std::string tn = gettablename(line);
         if (tn.empty())
         {
-            TC_LOG_ERROR("misc", "LoadPlayerDump: Can't extract table name from line: '%s'!", line.c_str());
+            TC_LOG_ERROR("misc", "LoadPlayerDump: Can't extract table name from line: '{}'!", line.c_str());
             ROLLBACK(DUMP_FILE_BROKEN);
         }
 
@@ -553,7 +554,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
 
         if (i == DUMP_TABLE_COUNT)
         {
-            TC_LOG_ERROR("misc", "LoadPlayerDump: Unknown table: '%s'!", tn.c_str());
+            TC_LOG_ERROR("misc", "LoadPlayerDump: Unknown table: '{}'!", tn.c_str());
             ROLLBACK(DUMP_FILE_BROKEN);
         }
 
@@ -574,9 +575,14 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
                 level = uint8(atol(getnth(line, 8).c_str()));
 
                 for (auto&& spec : dbc::GetClassSpecializations(playerClass))
-                    if (auto spells = dbc::GetSpecializetionSpells(spec))
-                        for (auto&& spell : *spells)
-                            classSpells.insert(spell);
+                {
+                    std::vector<SpecializationSpellsEntry const*> const* specSpells = sDBCManager.GetSpecializationSpells(spec);
+                    for (size_t j = 0; j < specSpells->size(); ++j)
+                    {
+                        SpecializationSpellsEntry const* specSpell = specSpells->at(j);
+                        classSpells.insert(specSpell->SpellID);
+                    }
+                }
 
                 if (keepOriginalName)
                 {
@@ -764,7 +770,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
                 break;
             }
             default:
-                TC_LOG_ERROR("misc", "Unknown dump table type: %u", type);
+                TC_LOG_ERROR("misc", "Unknown dump table type: {}", type);
                 break;
         }
 
@@ -783,6 +789,8 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
         trans->Append(stmt);
     }
 
+    // in case of name conflict player has to rename at login anyway
+    sCharacterCache->AddCharacterCacheEntry(ObjectGuid(HighGuid::Player, guid), account, name, gender, race, playerClass, level);
     // in case of name conflict player has to rename at login anyway
     sWorld->AddCharacterNameData(ObjectGuid(HighGuid::Player, guid), name, gender, race, playerClass, level);
 

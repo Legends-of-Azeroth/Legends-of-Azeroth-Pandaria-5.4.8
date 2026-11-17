@@ -75,6 +75,7 @@ typedef std::unordered_map<uint32, EquipmentInfoContainerInternal> EquipmentInfo
 struct CreatureData
 {
     CreatureData() : dbData(true) { }
+    ObjectGuid::LowType spawnId;
     uint32 id;                                              // entry in creature_template
     uint16 mapId;
     uint32 phaseMask;
@@ -259,13 +260,16 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void DisappearAndDie();
 
-        bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data = NULL);
+        bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data = NULL, bool dynamic = false);
         bool LoadCreaturesAddon(bool reload = false);
         void SelectLevel(const CreatureTemplate* cinfo);
         void LoadEquipment(int8 id = 1, bool force = false);
 
         uint32 GetDBTableGUIDLow() const { return m_spawnId; }
         ObjectGuid::LowType GetSpawnId() const { return m_spawnId; }
+
+        void SetRespawnCompatibilityMode(bool mode = true) { m_respawnCompatibilityMode = mode; }
+        bool GetRespawnCompatibilityMode() const { return m_respawnCompatibilityMode; }
 
         void Update(uint32 time) override;         // overwrited Unit::Update
         void GetRespawnPosition(float &x, float &y, float &z, float* ori = NULL, float* dist =NULL) const;
@@ -283,7 +287,11 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool CanEnterWater() const override;
         bool CanFly()  const override { return GetMovementTemplate().IsFlightAllowed() || IsFlying(); }
         bool CanHover() const { return GetMovementTemplate().Ground == CreatureGroundMovementType::Hover || IsHovering(); } 
-
+        [[nodiscard]] bool HasSwimmingFlagOutOfCombat() const
+        {
+            return !_isMissingSwimmingFlagOutOfCombat;
+        }
+        void RefreshSwimmingFlag(bool recheck = false);
         // Used to dynamically change allowed path generator and movement flags behavior during scripts.
         // Can be used to allow ground-only creatures to temporarily fly, restrict flying creatures to the ground etc.
         void OverrideInhabitType(InhabitTypeValues inhabitType) {  } // todo remove in future 
@@ -308,6 +316,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint8 GetLevelForTarget(WorldObject const* target) const override; // overwrite Unit::getLevelForTarget for boss level support
 
         bool IsInEvadeMode() const { return HasUnitState(UNIT_STATE_EVADE); }
+        bool IsEvadingAttacks() const { return IsInEvadeMode() || CanNotReachTarget(); }
 
         bool AIM_Initialize(CreatureAI* ai = NULL);
         void Motion_Initialize();
@@ -493,6 +502,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         virtual uint8 GetPetAutoSpellSize() const { return MAX_SPELL_CHARM; }
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const;
 
+        void SetCannotReachTarget(bool cannotReach);
+        bool CanNotReachTarget() const { return m_cannotReachTarget; }
+
         void SetPosition(float x, float y, float z, float o);
         void SetPosition(const Position &pos) { SetPosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()); }
 
@@ -592,10 +604,14 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool m_AlreadyCallAssistance;
         bool m_AlreadySearchedAssistance;
+        bool m_cannotReachTarget;
+        uint32 m_cannotReachTimer;
+        
         bool m_regenHealth;
         bool m_regenMana = true;
         bool m_AI_locked;
         bool m_hasNormalLootMode = true;
+        bool _isMissingSwimmingFlagOutOfCombat;
 
         SpellSchoolMask m_meleeDamageSchoolMask;
         uint32 m_originalEntry;
@@ -628,6 +644,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         //Formation var
         CreatureGroup* m_formation;
         bool m_triggerJustAppeared;
+        bool m_respawnCompatibilityMode;
 
         Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
         CreatureTextRepeatGroup m_textRepeat;

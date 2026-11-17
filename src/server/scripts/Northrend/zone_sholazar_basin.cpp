@@ -61,9 +61,9 @@ class npc_injured_rainspeaker_oracle : public CreatureScript
 public:
     npc_injured_rainspeaker_oracle() : CreatureScript("npc_injured_rainspeaker_oracle") { }
 
-    struct npc_injured_rainspeaker_oracleAI : public npc_escortAI
+    struct npc_injured_rainspeaker_oracleAI : public EscortAI
     {
-        npc_injured_rainspeaker_oracleAI(Creature* creature) : npc_escortAI(creature) { c_guid = creature->GetGUID(); }
+        npc_injured_rainspeaker_oracleAI(Creature* creature) : EscortAI(creature) { c_guid = creature->GetGUID(); }
 
         ObjectGuid c_guid;
 
@@ -78,7 +78,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -146,8 +146,8 @@ public:
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
-            CAST_AI(npc_escortAI, (creature->AI()))->SetMaxPlayerDistance(35.0f);
+            CAST_AI(EscortAI, (creature->AI()))->Start(true, player->GetGUID());
+            CAST_AI(EscortAI, (creature->AI()))->SetMaxPlayerDistance(35.0f);
             creature->AI()->Talk(SAY_START_IRO);
 
             switch (player->GetTeam()){
@@ -363,13 +363,13 @@ class npc_engineer_helice : public CreatureScript
 public:
     npc_engineer_helice() : CreatureScript("npc_engineer_helice") { }
 
-    struct npc_engineer_heliceAI : public npc_escortAI
+    struct npc_engineer_heliceAI : public EscortAI
     {
-        npc_engineer_heliceAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_engineer_heliceAI(Creature* creature) : EscortAI(creature) { }
 
         uint32 m_uiChatTimer;
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             Player* player = GetPlayerForEscort();
 
@@ -424,7 +424,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (HasEscortState(STATE_ESCORT_ESCORTING))
             {
@@ -452,7 +452,7 @@ public:
                 creature->GetMotionMaster()->MoveJumpTo(0, 0.4f, 0.4f);
                 creature->SetFaction(113);
 
-                pEscortAI->Start(false, false, player->GetGUID());
+                pEscortAI->Start(false, player->GetGUID());
                 creature->AI()->Talk(SAY_WP_1);
             }
         }

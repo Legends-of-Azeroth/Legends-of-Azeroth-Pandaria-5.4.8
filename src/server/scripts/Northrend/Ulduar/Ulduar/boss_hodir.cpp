@@ -209,11 +209,12 @@ class boss_hodir : public CreatureScript
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 cacheReset = true;
                 instance->SetBossState(BOSS_HODIR, FAIL);
-                me->DeleteThreatList();
+                me->GetThreatManager().RemoveMeFromThreatLists();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
                 me->RemoveAllAuras();
                 me->GetMotionMaster()->MoveTargetedHome();
@@ -451,8 +452,8 @@ class boss_hodir : public CreatureScript
 
                 if (gettingColdInHereTimer <= diff && gettingColdInHere)
                 {
-                    for (auto&& itr : me->getThreatManager().getThreatList())
-                        if (Unit* target = ObjectAccessor::GetUnit(*me, itr->getUnitGuid()))
+                    for (auto&& ref : me->GetThreatManager().GetUnsortedThreatList())
+                        if (Unit* target = ObjectAccessor::GetUnit(*me, ref->GetVictim()->GetGUID()))
                             if (Aura* BitingColdAura = target->GetAura(SPELL_BITING_COLD_TRIGGERED))
                                 if ((target->GetTypeId() == TYPEID_PLAYER) && (BitingColdAura->GetStackAmount() > 2))
                                 {
@@ -547,7 +548,7 @@ class npc_flash_freeze : public CreatureScript
             }
 
             void AttackStart(Unit* victim) override { }
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
             void UpdateAI(uint32 diff) override
             {
@@ -607,7 +608,7 @@ class npc_ice_block : public CreatureScript
             }
 
             void AttackStart(Unit* /*victim*/) override { }
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
             void IsSummonedBy(Unit* summoner) override
             {

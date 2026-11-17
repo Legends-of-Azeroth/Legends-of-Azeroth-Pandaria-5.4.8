@@ -412,7 +412,7 @@ class npc_kiljaeden_controller : public CreatureScript
                             if (!summon->IsInCombat())
                                 summon->AI()->EnterEvadeMode();
                         });
-                        //summon->AddThreat(me->GetVictim(), 1.0f);
+                        //summon->GetThreatManager().AddThreat(me->GetVictim(), 1.0f);
                         break;
                 }
                 summons.Summon(summon);
@@ -435,9 +435,9 @@ class npc_kiljaeden_controller : public CreatureScript
                 if (!summonedDeceivers)
                 {
                     for (uint8 i = 0; i < 3; ++i)
-                        me->SummonCreature(NPC_HAND_OF_THE_DECEIVER, DeceiverLocations[i], TEMPSUMMON_DEAD_DESPAWN, 0);
+                        me->SummonCreature(NPC_HAND_OF_THE_DECEIVER, DeceiverLocations[i], TEMPSUMMON_DEAD_DESPAWN, 0ms);
 
-                    DoSpawnCreature(NPC_ANVEENA,  0, 0, 40, 0, TEMPSUMMON_DEAD_DESPAWN, 0);
+                    DoSpawnCreature(NPC_ANVEENA,  0, 0, 40, 0, TEMPSUMMON_DEAD_DESPAWN, 0ms);
                     DoCast(me, SPELL_ANVEENA_ENERGY_DRAIN);
                     summonedDeceivers = true;
                 }
@@ -446,7 +446,7 @@ class npc_kiljaeden_controller : public CreatureScript
                 {
                     me->RemoveAurasDueToSpell(SPELL_ANVEENA_ENERGY_DRAIN);
                     phase = PHASE_NORMAL;
-                    DoSpawnCreature(NPC_KILJAEDEN, 0, 0, 0, 3.85f, TEMPSUMMON_MANUAL_DESPAWN, 0);
+                    DoSpawnCreature(NPC_KILJAEDEN, 0, 0, 0, 3.85f, TEMPSUMMON_MANUAL_DESPAWN, 0ms);
                 }
             }
         };
@@ -589,7 +589,7 @@ class boss_kiljaeden : public CreatureScript
                 Talk(SAY_KJ_SLAY);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
                 summons.DespawnAll();
@@ -749,7 +749,7 @@ class boss_kiljaeden : public CreatureScript
                                     float sx, sy;
                                     sx = ShieldOrbLocations[0][0] + sin(ShieldOrbLocations[i][0]);
                                     sy = ShieldOrbLocations[0][1] + sin(ShieldOrbLocations[i][1]);
-                                    me->SummonCreature(NPC_SHIELD_ORB, sx, sy, SHIELD_ORB_Z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
+                                    me->SummonCreature(NPC_SHIELD_ORB, sx, sy, SHIELD_ORB_Z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000ms);
                                 }
                                 timer[TIMER_SUMMON_SHILEDORB] = urand(30000,60000); // 30-60seconds cooldown
                                 timer[TIMER_SOUL_FLAY] = 2000;
@@ -823,7 +823,7 @@ class boss_kiljaeden : public CreatureScript
                                 {
                                     float x, y, z;
                                     target->GetPosition(x, y, z);
-                                    me->SummonCreature(NPC_ARMAGEDDON_TARGET, x,y,z,0, TEMPSUMMON_TIMED_DESPAWN,15000);
+                                    me->SummonCreature(NPC_ARMAGEDDON_TARGET, x,y,z,0, TEMPSUMMON_TIMED_DESPAWN,15000ms);
                                 }
                                 timer[TIMER_ARMAGEDDON] = 2000; // No, I'm not kidding
                                 break;
@@ -941,7 +941,7 @@ class npc_hand_of_the_deceiver : public CreatureScript
                 {
                     instance->SetData(DATA_KILJAEDEN_EVENT, IN_PROGRESS);
                     //if (Creature* сontrol = Unit::GetCreature(*me, instance->GetGuidData(DATA_KILJAEDEN_CONTROLLER)))
-                    //    сontrol->AddThreat(who, 1.0f);
+                    //    сontrol->GetThreatManager().AddThreat(who, 1.0f);
                 }
                 me->InterruptNonMeleeSpells(true);
             }
@@ -979,14 +979,13 @@ class npc_hand_of_the_deceiver : public CreatureScript
                 // Felfire Portal - Creatres a portal, that spawns Volatile Felfire Fiends, which do suicide bombing.
                 if (felfirePortalTimer <= diff)
                 {
-                    if (Creature* portal = DoSpawnCreature(NPC_FELFIRE_PORTAL, 0, 0,0, 0, TEMPSUMMON_TIMED_DESPAWN, 20000))
+                    if (Creature* portal = DoSpawnCreature(NPC_FELFIRE_PORTAL, 0, 0,0, 0, TEMPSUMMON_TIMED_DESPAWN, 20000ms))
                     {
-                        std::list<HostileReference*>::iterator itr;
-                        for (auto&& itr : me->getThreatManager().getThreatList())
+                        for (auto&& ref : me->GetThreatManager().GetUnsortedThreatList())
                         {
-                            Unit* unit = Unit::GetUnit(*me, itr->getUnitGuid());
+                            Unit* unit = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                             if (unit)
-                                portal->AddThreat(unit, 1.0f);
+                                portal->GetThreatManager().AddThreat(unit, 1.0f);
                         }
                     }
                     felfirePortalTimer = 20000;
@@ -1036,8 +1035,8 @@ class npc_felfire_portal : public CreatureScript
 
                 if (spawnFiendTimer <= diff)
                 {
-                    if (Creature* pFiend = DoSpawnCreature(NPC_VOLATILE_FELFIRE_FIEND, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000))
-                        pFiend->AddThreat(SelectTarget(SELECT_TARGET_RANDOM,0), 100000.0f);
+                    if (Creature* pFiend = DoSpawnCreature(NPC_VOLATILE_FELFIRE_FIEND, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000ms))
+                        pFiend->GetThreatManager().AddThreat(SelectTarget(SELECT_TARGET_RANDOM,0), 100000.0f);
                     spawnFiendTimer = urand(4000,8000);
                 } else spawnFiendTimer -= diff;
             }
@@ -1082,7 +1081,7 @@ class npc_volatile_felfire_fiend : public CreatureScript
 
                 if (!lockedTarget)
                 {
-                    me->AddThreat(me->GetVictim(), 10000000.0f);
+                    me->GetThreatManager().AddThreat(me->GetVictim(), 10000000.0f);
                     lockedTarget = true;
                 }
 

@@ -34,18 +34,18 @@ public:
     {
         static std::vector<ChatCommand> groupCommandTable =
         {
-            { "leader",     SEC_ADMINISTRATOR,  false,  &HandleGroupLeaderCommand,  },
-            { "disband",    SEC_ADMINISTRATOR,  false,  &HandleGroupDisbandCommand, },
-            { "remove",     SEC_ADMINISTRATOR,  false,  &HandleGroupRemoveCommand,  },
-            { "join",       SEC_ADMINISTRATOR,  false,  &HandleGroupJoinCommand,    },
-            { "list",       SEC_ADMINISTRATOR,  false,  &HandleGroupListCommand,    },
-            { "summon",     SEC_ADMINISTRATOR,  false,  &HandleGroupSummonCommand,  },
-            { "",           SEC_ADMINISTRATOR,  false,  &HandleGroupCommand,        },
+            { "leader",     &HandleGroupLeaderCommand,  rbac::RBAC_PERM_COMMAND_GROUP_LEADER,  Trinity::ChatCommands::Console::No },
+            { "disband",    &HandleGroupDisbandCommand, rbac::RBAC_PERM_COMMAND_GROUP_DISBAND, Trinity::ChatCommands::Console::No },
+            { "remove",     &HandleGroupRemoveCommand,  rbac::RBAC_PERM_COMMAND_GROUP_REMOVE,  Trinity::ChatCommands::Console::No },
+            { "join",       &HandleGroupJoinCommand,    rbac::RBAC_PERM_COMMAND_GROUP_JOIN,    Trinity::ChatCommands::Console::No },
+            { "list",       &HandleGroupListCommand,    rbac::RBAC_PERM_COMMAND_GROUP_LIST,    Trinity::ChatCommands::Console::No },
+            { "summon",     &HandleGroupSummonCommand,  rbac::RBAC_PERM_COMMAND_GROUP_SUMMON,  Trinity::ChatCommands::Console::No },
+            { "",           &HandleGroupCommand,        rbac::RBAC_PERM_COMMAND_GROUP,         Trinity::ChatCommands::Console::No },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "group",      SEC_ADMINISTRATOR,  false,  groupCommandTable           },
+            { "group",      groupCommandTable,           rbac::RBAC_PERM_COMMAND_GROUP,         Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

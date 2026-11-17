@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -1246,12 +1246,11 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
     float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE);
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
 
-    /* difference in AP between current attack power and base value from DB */
+    /* per-creature/per-difficulty damage multiplier (from difficulty table, default 1.0)
+       combined with any runtime override (e.g. world events) */
     float dmg_multiplier = GetCreatureTemplate()->dmg_multiplier;
-
-    if (GetMap()->GetDifficulty() > REGULAR_DIFFICULTY || GetMap()->IsBattleground())
-        if (auto mod = sObjectMgr->SelectDifficultyInfo(GetMap(), GetEntry()))
-            dmg_multiplier = mod->DamageMod;
+    if (auto mod = sObjectMgr->SelectDifficultyInfo(GetMap(), GetEntry()))
+        dmg_multiplier *= mod->DamageMod;
 
     float att_pwr_change = GetTotalAttackPowerValue(attType);
 

@@ -515,27 +515,27 @@ class boss_theralion : public CreatureScript
                             }
                             
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                                me->SummonCreature(NPC_DAZZLING_DESTRUCTION_STALKER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, me->GetDistance(target) / 15 * 1000 + 7000);
+                                me->SummonCreature(NPC_DAZZLING_DESTRUCTION_STALKER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(uint32(me->GetDistance(target) / 15 * 1000 + 7000)));
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                                me->SummonCreature(NPC_DAZZLING_DESTRUCTION_STALKER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, me->GetDistance(target) / 15 * 1000 + 5000);
+                                me->SummonCreature(NPC_DAZZLING_DESTRUCTION_STALKER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(uint32(me->GetDistance(target) / 15 * 1000 + 5000)));
 
                             DoCast(me, SPELL_DAZZLING_DESTRUCTION);
                             events.ScheduleEvent(EVENT_DAZZLING_DESTRUCTION_2, 5000);
                             break;
                         case EVENT_DAZZLING_DESTRUCTION_2:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                                me->SummonCreature(NPC_DAZZLING_DESTRUCTION_STALKER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, me->GetDistance(target) / 15 * 1000 + 7000);
+                                me->SummonCreature(NPC_DAZZLING_DESTRUCTION_STALKER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(uint32(me->GetDistance(target) / 15 * 1000 + 7000)));
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                                me->SummonCreature(NPC_DAZZLING_DESTRUCTION_STALKER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, me->GetDistance(target) / 15 * 1000 + 5000);
+                                me->SummonCreature(NPC_DAZZLING_DESTRUCTION_STALKER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(uint32(me->GetDistance(target) / 15 * 1000 + 5000)));
 
                             DoCast(me, SPELL_DAZZLING_DESTRUCTION);
                             events.ScheduleEvent(EVENT_DAZZLING_DESTRUCTION_3, 5000);
                             break;
                         case EVENT_DAZZLING_DESTRUCTION_3:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                                me->SummonCreature(NPC_DAZZLING_DESTRUCTION_STALKER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, me->GetDistance(target) / 15 * 1000 + 7000);
+                                me->SummonCreature(NPC_DAZZLING_DESTRUCTION_STALKER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(uint32(me->GetDistance(target) / 15 * 1000 + 7000)));
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                                me->SummonCreature(NPC_DAZZLING_DESTRUCTION_STALKER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, me->GetDistance(target) / 15 * 1000 + 5000);
+                                me->SummonCreature(NPC_DAZZLING_DESTRUCTION_STALKER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(uint32(me->GetDistance(target) / 15 * 1000 + 5000)));
 
                             DoCast(me, SPELL_DAZZLING_DESTRUCTION);
                             events.ScheduleEvent(EVENT_THERALION_ON, 6000);
@@ -652,7 +652,7 @@ class boss_valiona : public CreatureScript
                 instance->SetData(DATA_HEALTH_VALIONA_THERALION, 0);
                 if (Creature* pTheralion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THERALION)))
                     killer->Kill(pTheralion);
-                if (Creature* Chogall = me->SummonCreature(NPC_CHOGALL_DLG, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 1, TEMPSUMMON_DEAD_DESPAWN, 0))
+                if (Creature* Chogall = me->SummonCreature(NPC_CHOGALL_DLG, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 1, TEMPSUMMON_DEAD_DESPAWN, 0ms))
                     Chogall->AI()->DoAction(ACTION_AT_VALIONA_THERALION_END);
             }
             
@@ -823,7 +823,7 @@ class boss_valiona : public CreatureScript
                                     target->GetPositionY(),
                                     target->GetPositionZ(),
                                     0.0f,
-                                    TEMPSUMMON_TIMED_DESPAWN, 8000))
+                                    TEMPSUMMON_TIMED_DESPAWN, 8000ms))
                                     DoCast(_stalker, SPELL_DEVOURING_FLAMES);
                             events.ScheduleEvent(EVENT_DEVOURING_FLAMES, urand(38000, 41000));
                             break;
@@ -873,9 +873,9 @@ class boss_valiona : public CreatureScript
                             if (_flamescount < 25)
                             {
                                 if (_currside == 1)
-                                    me->SummonCreature(NPC_TWILIGHT_FLAMES, valionatwilightflamePos[_currway][_flamescount], TEMPSUMMON_TIMED_DESPAWN, 15000);
+                                    me->SummonCreature(NPC_TWILIGHT_FLAMES, valionatwilightflamePos[_currway][_flamescount], TEMPSUMMON_TIMED_DESPAWN, 15000ms);
                                 else
-                                    me->SummonCreature(NPC_TWILIGHT_FLAMES, valionatwilightflamePos[_currway][24 - _flamescount], TEMPSUMMON_TIMED_DESPAWN, 15000);
+                                    me->SummonCreature(NPC_TWILIGHT_FLAMES, valionatwilightflamePos[_currway][24 - _flamescount], TEMPSUMMON_TIMED_DESPAWN, 15000ms);
                                 _flamescount++;
                                 events.ScheduleEvent(EVENT_TWILIGHT_FLAME_SPAWN, 200);
                             }

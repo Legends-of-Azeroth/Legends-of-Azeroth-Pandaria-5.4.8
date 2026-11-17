@@ -20,30 +20,13 @@
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Log.h"
+#include "ReferAFriendPackets.h"
 
-void WorldSession::HandleGrantLevel(WorldPacket& recvData)
+void WorldSession::HandleGrantLevel(WorldPackets::ReferAFriend::GrantLevel& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_GRANT_LEVEL");
 
-    ObjectGuid guid;
-
-    guid[2] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[0]);
+    ObjectGuid guid = packet.Guid;
 
     Player* target = ObjectAccessor::GetPlayer(*_player, guid);
 
@@ -99,29 +82,11 @@ void WorldSession::HandleGrantLevel(WorldPacket& recvData)
     target->GetSession()->SendPacket(&data2);
 }
 
-void WorldSession::HandleAcceptGrantLevel(WorldPacket& recvData)
+void WorldSession::HandleAcceptGrantLevel(WorldPackets::ReferAFriend::AcceptGrantLevel& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_ACCEPT_LEVEL_GRANT");
 
-    ObjectGuid guid;
-
-    guid[2] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[6]);
+    ObjectGuid guid = packet.Guid;
 
     Player* other = ObjectAccessor::GetPlayer(*_player, guid);
     if (!(other && other->GetSession()))

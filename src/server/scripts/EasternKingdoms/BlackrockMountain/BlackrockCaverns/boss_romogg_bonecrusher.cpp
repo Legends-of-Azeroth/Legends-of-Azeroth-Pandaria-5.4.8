@@ -108,7 +108,7 @@ class boss_romogg_bonecrusher : public CreatureScript
                     case NPC_ANGERED_EARTH:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
-                            summon->AddThreat(target, 10.0f);
+                            summon->GetThreatManager().AddThreat(target, 10.0f);
                             summon->Attack(target, true);
                             summon->GetMotionMaster()->MoveChase(target);
                         }
@@ -213,7 +213,7 @@ class boss_romogg_bonecrusher : public CreatureScript
                                 if (me->GetMap()->IsDungeon() && !players.isEmpty())
                                     for (auto&& ref : players)
                                         if (Player* player = ref.GetSource())
-                                            me->SummonCreature(NPC_ANGERED_EARTH, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                            me->SummonCreature(NPC_ANGERED_EARTH, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
                             }
                             events.ScheduleEvent(EVENT_QUAKE, urand(18000, 20000));
                             break;

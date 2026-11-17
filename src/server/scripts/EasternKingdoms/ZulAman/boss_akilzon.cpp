@@ -168,14 +168,14 @@ class boss_akilzon : public CreatureScript
                                 if (!Unit::GetUnit(*me, Eagles[i]))
                                 {
                                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                                        if (Creature* pEagle = me->SummonCreature(NPC_SOARING_EAGLE, target->GetPositionX() + irand(-10, 10), target->GetPositionY() + irand(-10, 10), target->GetPositionZ() + urand(10, 15), target->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0))
+                                        if (Creature* pEagle = me->SummonCreature(NPC_SOARING_EAGLE, target->GetPositionX() + irand(-10, 10), target->GetPositionY() + irand(-10, 10), target->GetPositionZ() + urand(10, 15), target->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0ms))
                                             Eagles[i] = pEagle->GetGUID();
                                 }
                             }
                             break;
                         case EVENT_SUMMON_KIDNAPPER:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_PLUCKED))
-                                if (Creature* pKidnapper = me->SummonCreature(NPC_AMANI_KIDNAPPER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + 3, target->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 5000))
+                                if (Creature* pKidnapper = me->SummonCreature(NPC_AMANI_KIDNAPPER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + 3, target->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 5000ms))
                                     target->CastSpell(pKidnapper, SPELL_PLUCKED, true);
                                 
                             break;

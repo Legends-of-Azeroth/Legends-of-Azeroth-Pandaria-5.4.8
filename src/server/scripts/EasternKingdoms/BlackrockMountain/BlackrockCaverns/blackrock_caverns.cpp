@@ -206,9 +206,9 @@ class blackrock_caverns_teleport: public CreatureScript
     public:
         blackrock_caverns_teleport() : CreatureScript("blackrock_caverns_teleport") { }
 
-        struct blackrock_caverns_teleport_AI : public CreatureAI
+        struct blackrock_caverns_teleport_AI : public ScriptedAI
         {
-           blackrock_caverns_teleport_AI(Creature* creature) : CreatureAI(creature) { }
+           blackrock_caverns_teleport_AI(Creature* creature) : ScriptedAI(creature) { }
 
             void OnSpellClick(Unit* clicker, bool& /*result*/) override
             {

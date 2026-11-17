@@ -433,7 +433,7 @@ class npc_blaze_of_the_heavens : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 instance->SetData64(DATA_BLAZE, 0);
 
@@ -664,7 +664,7 @@ class npc_harbinger_of_darkness : public CreatureScript
                     barim->AI()->JustSummoned(me);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 instance->SetData64(DATA_HARBINGER, 0);
 
@@ -868,7 +868,7 @@ class spell_repentance_pull_player : public SpellScriptLoader
                 if (caster->GetDistance2d(_x, _y) < 9.0f)
                     return;
 
-                caster->GetNearPoint2D(x, y, frand(5.0f, 9.0f), caster->GetAngle(_x, _y));
+                caster->GetNearPoint2D(nullptr, x, y, frand(5.0f, 9.0f), caster->GetAngle(_x, _y));
                 float z = caster->GetMap()->GetHeight(x, y, MAX_HEIGHT);
                 float speedZ = (float)(GetSpellInfo()->Effects[effIndex].CalcValue() / 10);
                 float speedXY = (float)(GetSpellInfo()->Effects[effIndex].MiscValue / 10);

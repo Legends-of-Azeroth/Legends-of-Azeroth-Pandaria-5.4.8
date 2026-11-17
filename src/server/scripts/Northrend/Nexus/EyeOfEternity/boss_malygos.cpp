@@ -455,7 +455,7 @@ public:
                     if (Creature* alexstraszaBunny = me->GetMap()->GetCreature(instance->GetGuidData(DATA_ALEXSTRASZA_BUNNY_GUID)))
                     {
                         pos.m_positionZ = alexstraszaBunny->GetPositionZ();
-                        alexstraszaBunny->GetNearPoint2D(pos.m_positionX, pos.m_positionY, 30.0f, alexstraszaBunny->GetAngle(me));
+                        alexstraszaBunny->GetNearPoint2D(nullptr, pos.m_positionX, pos.m_positionY, 30.0f, alexstraszaBunny->GetAngle(me));
                         me->GetMotionMaster()->MoveLand(POINT_LAND_P_ONE, pos);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                         me->SetReactState(REACT_AGGRESSIVE);
@@ -584,7 +584,7 @@ public:
                 instance->DoStartCriteria(CRITERIA_START_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
         {
             if (instance)
                 instance->SetBossState(DATA_MALYGOS_EVENT, FAIL);
@@ -855,7 +855,7 @@ public:
                                 Position randomPosOnRadius;
                                 // Hardcodded retail value, reason is Z getters can fail... (TO DO: Change to getter when height calculation works on 100%!)
                                 randomPosOnRadius.m_positionZ = 283.0521f;
-                                alexstraszaBunny->GetNearPoint2D(randomPosOnRadius.m_positionX, randomPosOnRadius.m_positionY, 120.0f, alexstraszaBunny->GetAngle(me));
+                                alexstraszaBunny->GetNearPoint2D(nullptr, randomPosOnRadius.m_positionX, randomPosOnRadius.m_positionY, 120.0f, alexstraszaBunny->GetAngle(me));
                                 me->GetMotionMaster()->MovePoint(POINT_FLY_OUT_OF_PLATFORM_P_TWO, randomPosOnRadius);
                                 _flyingOutOfPlatform = true;
                             }
@@ -1303,7 +1303,7 @@ public:
             VehicleAI::Reset();
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
         {
         }
 
@@ -1381,7 +1381,7 @@ class npc_nexus_lord : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
             }
 
@@ -1470,7 +1470,7 @@ class npc_scion_of_eternity : public CreatureScript
             {
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
             }
 
@@ -1725,7 +1725,7 @@ class spell_malygos_random_portal : public SpellScriptLoader
                 {
                     Position pos;
                     pos.m_positionZ = target->GetPositionZ();
-                    target->GetNearPoint2D(pos.m_positionX, pos.m_positionY, frand(29.1f, 30.0f), target->GetAngle(malygos));
+                    target->GetNearPoint2D(nullptr, pos.m_positionX, pos.m_positionY, frand(29.1f, 30.0f), target->GetAngle(malygos));
                     malygos->GetMotionMaster()->MovePoint(POINT_NEAR_RANDOM_PORTAL_P_NONE, pos);
                 }
             }
@@ -1883,10 +1883,10 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
             {
                 if (Creature* caster = GetCaster()->ToCreature())
                 {
-                    ThreatContainer::StorageType const& m_threatlist = caster->getThreatManager().getThreatList();
-                    for (ThreatContainer::StorageType::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+                    auto m_threatlist = caster->GetThreatManager().GetUnsortedThreatList();
+                    for (ThreatReference const* ref : m_threatlist)
                     {
-                        if (Unit* target = (*itr)->getTarget())
+                        if (Unit* target = ref->GetVictim())
                         {
                             Player* targetPlayer = target->ToPlayer();
                             if (!targetPlayer || targetPlayer->IsGameMaster())

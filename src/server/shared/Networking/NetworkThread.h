@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -122,7 +122,7 @@ protected:
     {
         TC_LOG_DEBUG("misc", "Network Thread Starting");
 
-        _updateTimer.expires_from_now(boost::posix_time::milliseconds(1));
+        _updateTimer.expires_after(1ms);
         _updateTimer.async_wait([this](boost::system::error_code const&) { Update(); });
         _ioContext.run();
 
@@ -136,7 +136,7 @@ protected:
         if (_stopped)
             return;
 
-        _updateTimer.expires_from_now(boost::posix_time::milliseconds(1));
+        _updateTimer.expires_after(1ms);
         _updateTimer.async_wait([this](boost::system::error_code const&) { Update(); });
 
         AddNewSockets();

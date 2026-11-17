@@ -224,7 +224,7 @@ public:
                 return;
             }
 
-            if (me->getThreatManager().getThreatList().empty()) // check if should evade
+            if (me->GetThreatManager().IsThreatListEmpty()) // check if should evade
             {
                 if (me->IsInCombat())
                     EnterEvadeMode();
@@ -345,7 +345,7 @@ public:
                     return;
                 } else PhaseTimer-=diff;
 
-                if (me->getThreatManager().getThreatList().empty()) // check if should evade
+                if (me->GetThreatManager().IsThreatListEmpty()) // check if should evade
                 {
                     EnterEvadeMode();
                     return;
@@ -359,7 +359,7 @@ public:
                     me->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     // spawn adds
                     for (uint8 i = 0; i < 9; ++i)
-                        if (Creature* summoned = me->SummonCreature(i < 6 ? NPC_COILFANG_AMBUSHER : NPC_COILFANG_GUARDIAN, AddPos[i][0], AddPos[i][1], AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                        if (Creature* summoned = me->SummonCreature(i < 6 ? NPC_COILFANG_AMBUSHER : NPC_COILFANG_GUARDIAN, AddPos[i][0], AddPos[i][1], AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms))
                             Summons.Summon(summoned);
                     Spawned = true;
                 }

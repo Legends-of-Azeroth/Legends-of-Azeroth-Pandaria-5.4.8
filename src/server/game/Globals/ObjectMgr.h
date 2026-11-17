@@ -22,6 +22,7 @@
 #include "Object.h"
 #include "Bag.h"
 #include "Creature.h"
+#include "DB2Stores.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
 #include "TemporarySummon.h"
@@ -46,6 +47,7 @@
 #include "Containers.h"
 #include "ItemSpec.h"
 #include <atomic>
+#include <mutex>
 #include "Hash.h"
 
 class AreaTrigger;
@@ -826,15 +828,6 @@ struct DungeonEncounter
 typedef std::list<DungeonEncounter const*> DungeonEncounterList;
 typedef std::unordered_map<uint32, DungeonEncounterList> DungeonEncounterContainer;
 
-struct HotfixInfo
-{
-    uint32 Type;
-    uint32 Timestamp;
-    uint32 Entry;
-};
-
-typedef std::vector<HotfixInfo> HotfixData;
-
 struct ResearchDigsiteInfo
 {
     uint32 digsiteId;
@@ -880,12 +873,6 @@ struct CreatureDifficultyInfo
     uint8 LevelMax;
     float DamageMod;
     float HealthMod;
-    float MinDamage;
-    float MaxDamage;
-    float MinRangeDamage;
-    float MaxRangeDamage;
-    uint32 AttackPower;
-    uint32 RangedAttackPower;
 };
 
 typedef std::unordered_map<uint32, ResearchProjectRequirements> ResearchProjectRequirementContainer;
@@ -1446,6 +1433,8 @@ class ObjectMgr
         uint32 GenerateMuteID();
         uint64 GenerateBattlePetId();
         uint64 GenerateVoidStorageItemId();
+        uint64 GenerateCreatureSpawnId();
+        uint64 GenerateGameObjectSpawnId();
 
         MailLevelReward const* GetMailLevelReward(uint32 level, uint32 raceMask)
         {
@@ -1735,8 +1724,6 @@ class ObjectMgr
         HotfixData const& GetHotfixData() const { return _hotfixData; }
         time_t GetHotfixDate(uint32 entry, uint32 type) const;
 
-        void LoadMissingKeyChains();
-
         void LoadResearchDigsiteInfo();
         void LoadArchaeologyFindInfo();
         void LoadResearchProjectRequirements();
@@ -1820,14 +1807,14 @@ class ObjectMgr
         std::atomic<uint32> _hiPetNumber{ 1 };
         std::atomic<uint64> _voidItemId{ 1 };
         std::atomic<uint32> _battlePetId{ 1 };
-
-        ObjectGuid::LowType _creatureSpawnId;
-        ObjectGuid::LowType _gameObjectSpawnId;
+        std::atomic<uint64> _creatureSpawnId { 1 };
+        std::atomic<uint64> _gameObjectSpawnId { 1 };
 
         // first free low guid for selected guid type
         template<HighGuid high>
         inline ObjectGuidGeneratorBase& GetGuidSequenceGenerator()
         {
+            std::lock_guard<std::mutex> guard(_guidGeneratorsLock);
             auto itr = _guidGenerators.find(high);
             if (itr == _guidGenerators.end())
                 itr = _guidGenerators.insert(std::make_pair(high, std::unique_ptr<ObjectGuidGenerator<high>>(new ObjectGuidGenerator<high>()))).first;
@@ -1836,6 +1823,7 @@ class ObjectMgr
         }
 
         std::map<HighGuid, std::unique_ptr<ObjectGuidGeneratorBase>> _guidGenerators;
+        std::mutex _guidGeneratorsLock;
 
         QuestMap _questTemplates;
         QuestObjectivesByIdContainer _questObjectives;

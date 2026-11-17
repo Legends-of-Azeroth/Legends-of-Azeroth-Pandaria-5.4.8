@@ -213,7 +213,7 @@ class boss_master_snowdrift : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 if (instance)
@@ -328,7 +328,8 @@ class boss_master_snowdrift : public CreatureScript
                         me->SetFaction(35);
                         me->RemoveAllAuras();
                         me->CombatStop(true);
-                        me->DeleteThreatList();
+                        me->GetThreatManager().RemoveMeFromThreatLists();
+                        me->GetThreatManager().ClearAllThreat();
                         me->SetReactState(REACT_PASSIVE);
                         me->SetStandState(UNIT_STAND_STATE_KNEEL);
                         events.Reset();
@@ -877,7 +878,8 @@ class npc_snowdrift_novice : public CreatureScript
                     me->SetFaction(35);
                     me->RemoveAllAuras();
                     me->CombatStop(true);
-                    me->DeleteThreatList();
+                    me->GetThreatManager().RemoveMeFromThreatLists();
+                    me->GetThreatManager().ClearAllThreat();
                     me->SetReactState(REACT_PASSIVE);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
@@ -890,8 +892,7 @@ class npc_snowdrift_novice : public CreatureScript
                        if (referee->IsAIEnabled)
                             referee->AI()->DoAction(3); // ACTION_NOVICE_DEFEAT
 
-                    if (instance)
-                        instance->SetData(DATA_DEFEATED_NOVICE, 1);
+                    instance->SetData(DATA_DEFEATED_NOVICE, 1);
                 }
             }
 
@@ -1076,7 +1077,8 @@ class npc_snowdrift_miniboss : public CreatureScript
                     me->SetFaction(35);
                     me->RemoveAllAuras();
                     me->CombatStop(true);
-                    me->DeleteThreatList();
+                    me->GetThreatManager().RemoveMeFromThreatLists();
+                    me->GetThreatManager().ClearAllThreat();
                     me->SetReactState(REACT_PASSIVE);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);

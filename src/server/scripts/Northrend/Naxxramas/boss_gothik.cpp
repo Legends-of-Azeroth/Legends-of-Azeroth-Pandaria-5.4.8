@@ -480,10 +480,10 @@ class boss_gothik : public CreatureScript
                                 else
                                     DoTeleportTo(PosGroundLiveSide);
 
-                                me->getThreatManager().resetAggro(NotOnSameSide(me));
+                                me->GetThreatManager().ResetAllThreat();
                                 if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
                                 {
-                                    me->getThreatManager().addThreat(target, 100.0f);
+                                    me->GetThreatManager().AddThreat(target, 100.0f);
                                     AttackStart(target);
                                 }
 
@@ -542,7 +542,7 @@ class npc_gothik_minion : public CreatureScript
                         CombatAI::JustDied(owner);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (!gateClose)
                 {

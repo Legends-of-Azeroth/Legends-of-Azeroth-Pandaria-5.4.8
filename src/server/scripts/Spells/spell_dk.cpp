@@ -133,6 +133,7 @@ enum DeathKnightSpells
     SPELL_SANCTUARY                             = 54661,
     SPELL_BLOOD_BURST                           = 81280,
     SPELL_BLOOD_GORGED                          = 81277,
+    SPELL_DK_BLOOD_GORGED_HEAL                  = 50454,
 
     SPELL_ROGUE_TRICKS_OF_THE_TRADE             = 57933,
 
@@ -248,7 +249,7 @@ class spell_dk_might_of_ursoc : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_dk_might_of_ursoc_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_dk_might_of_ursoc_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_2, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -853,8 +854,6 @@ class spell_dk_deaths_advance: public SpellScriptLoader
             {
                  DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_deaths_advance_AuraScript::CalculateEffect, EFFECT_0, SPELL_AURA_MOD_SPEED_NOT_STACK);
                  DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_deaths_advance_AuraScript::CalculateEffect, EFFECT_1, SPELL_AURA_MOD_MINIMUM_SPEED);
-                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_deaths_advance_AuraScript::CalculateEffect, EFFECT_1, SPELL_AURA_MOD_SPEED_NOT_STACK);
-                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_deaths_advance_AuraScript::CalculateEffect, EFFECT_0, SPELL_AURA_MOD_MINIMUM_SPEED);
             }
         };
 
@@ -1762,7 +1761,7 @@ class spell_dk_soul_reaper : public AuraScript
 
     void Register() override
     {
-        OnEffectRemove += AuraEffectApplyFn(spell_dk_soul_reaper::HandleRemove, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectApplyFn(spell_dk_soul_reaper::HandleRemove, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2330,7 +2329,7 @@ struct npc_ebon_gargoyle : ScriptedAI
         m_scheduler.Schedule(Milliseconds(1), std::bind(&npc_ebon_gargoyle::DoAttack, this, std::placeholders::_1));
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
     void JustDied(Unit*) override
     {
@@ -3152,7 +3151,7 @@ struct npc_dk_army_of_the_dead_ghoul : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (!_EnterEvadeMode())
             return;
@@ -3359,6 +3358,43 @@ class spell_dk_death_gate_eff : public SpellScript
     }
 };
 
+// 81277 - Blood Gorged
+class spell_dk_blood_gorged : public AuraScript
+{
+    PrepareAuraScript(spell_dk_blood_gorged);
+
+    Unit* _procTarget = nullptr;
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sSpellMgr->GetSpellInfo(SPELL_DK_BLOOD_GORGED_HEAL);
+    }
+
+    bool Load() override
+    {
+        _procTarget = nullptr;
+        return true;
+    }
+
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    {
+        _procTarget = GetTarget()->GetOwner();
+        return _procTarget;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        int32 heal = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), 150));
+        GetTarget()->CastCustomSpell(SPELL_DK_BLOOD_GORGED_HEAL, SPELLVALUE_BASE_POINT0, heal, _procTarget, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_dk_blood_gorged::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_dk_blood_gorged::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_script<spell_dk_gorefiends_grasp>("spell_dk_gorefiends_grasp");
@@ -3452,4 +3488,5 @@ void AddSC_deathknight_spell_scripts()
     new atrigger_script<sat_dk_anti_magic_zone>("sat_dk_anti_magic_zone");
     new spell_script<spell_dk_death_gate_eff>("spell_dk_death_gate_eff");
     new aura_script<aura_glyph_of_the_geist>("aura_glyph_of_the_geist");
+    new aura_script<spell_dk_blood_gorged>("spell_dk_blood_gorged");
 }

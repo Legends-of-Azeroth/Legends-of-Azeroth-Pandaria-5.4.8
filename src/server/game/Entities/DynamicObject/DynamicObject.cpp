@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -93,7 +93,7 @@ bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, SpellInfo 
     Relocate(pos);
     if (!IsPositionValid())
     {
-        TC_LOG_ERROR("misc", "DynamicObject (spell %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", spell->Id, GetPositionX(), GetPositionY());
+        TC_LOG_ERROR("misc", "DynamicObject (spell {}) not created. Suggested coordinates isn't valid (X: {} Y: {})", spell->Id, GetPositionX(), GetPositionY());
         return false;
     }
 

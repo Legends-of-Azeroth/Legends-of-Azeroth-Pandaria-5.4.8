@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -30,7 +30,9 @@
 #include "Implementation/LoginDatabase.h"
 #include "Implementation/CharacterDatabase.h"
 #include "Implementation/WorldDatabase.h"
-
+#ifdef PLAYERBOTS
+#include "Implementation/PlayerbotsDatabase.h"
+#endif
 #include "AppenderDB.h"
 #include "AsyncAcceptor.h"
 #include "Banner.h"
@@ -90,26 +92,26 @@ RealmNameMap realmNameStore;
 
 class FreezeDetector
 {
-    public:
+public:
     FreezeDetector(Trinity::Asio::IoContext& ioContext, uint32 maxCoreStuckTime)
         : _timer(ioContext), _worldLoopCounter(0), _lastChangeMsTime(getMSTime()), _maxCoreStuckTimeInMs(maxCoreStuckTime) { }
 
-        static void Start(std::shared_ptr<FreezeDetector> const& freezeDetector)
+    static void Start(std::shared_ptr<FreezeDetector> const& freezeDetector)
+    {
+        freezeDetector->_timer.expires_after(5s);
+        freezeDetector->_timer.async_wait([freezeDetectorRef = std::weak_ptr(freezeDetector)](boost::system::error_code const& error) mutable
         {
-            freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(5));
-            freezeDetector->_timer.async_wait([freezeDetectorRef = std::weak_ptr<FreezeDetector>(freezeDetector)](boost::system::error_code const& error)
-            {
-                return Handler(freezeDetectorRef, error);
-            });
-        }
+            Handler(std::move(freezeDetectorRef), error);
+        });
+    }
 
-        static void Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, boost::system::error_code const& error);
+    static void Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, boost::system::error_code const& error);
 
-    private:
-        Trinity::Asio::DeadlineTimer _timer;
-        uint32 _worldLoopCounter;
-        uint32 _lastChangeMsTime;
-        uint32 _maxCoreStuckTimeInMs;
+private:
+    Trinity::Asio::DeadlineTimer _timer;
+    uint32 _worldLoopCounter;
+    uint32 _lastChangeMsTime;
+    uint32 _maxCoreStuckTimeInMs;
 };
 
 void SignalHandler(boost::system::error_code const& error, int signalNumber);
@@ -159,13 +161,13 @@ extern int main(int argc, char** argv)
     Trinity::Banner::Show("worldserver-daemon",
         [](char const* text)
         {
-            TC_LOG_INFO("server.worldserver", "%s", text);
+            TC_LOG_INFO("server.worldserver", "{}", text);
         },
         []()
         {
-            TC_LOG_INFO("server.worldserver", "Using configuration file %s.", sConfigMgr->GetFilename().c_str());
-            TC_LOG_INFO("server.worldserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, OpenSSL_version(OPENSSL_VERSION));
-            TC_LOG_INFO("server.worldserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+            TC_LOG_INFO("server.worldserver", "Using configuration file {}.", sConfigMgr->GetFilename().c_str());
+            TC_LOG_INFO("server.worldserver", "Using SSL version: {} (library: {})", OPENSSL_VERSION_TEXT, OpenSSL_version(OPENSSL_VERSION));
+            TC_LOG_INFO("server.worldserver", "Using Boost version: {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
         }
     );
 
@@ -183,10 +185,10 @@ extern int main(int argc, char** argv)
     if (!pidFile.empty())
     {
         if (uint32 pid = CreatePIDFile(pidFile))
-            TC_LOG_INFO("server.worldserver", "Daemon PID: %u\n", pid);
+            TC_LOG_INFO("server.worldserver", "Daemon PID: {}\n", pid);
         else
         {
-            TC_LOG_ERROR("server.worldserver", "Cannot create PID file %s.\n", pidFile.c_str());
+            TC_LOG_ERROR("server.worldserver", "Cannot create PID file {}.\n", pidFile.c_str());
             return 1;
         }
     }
@@ -220,7 +222,7 @@ extern int main(int argc, char** argv)
     std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
 
     // set server offline (not connectable)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
 
     LoadRealmInfo(*ioContext);
 
@@ -289,7 +291,7 @@ extern int main(int argc, char** argv)
     });
 
     // Set server online (allow connecting now)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~{}, population = 0 WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
     realm.PopulationLevel = 0.0f;
     realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_OFFLINE));
 
@@ -299,7 +301,7 @@ extern int main(int argc, char** argv)
     {
         freezeDetector = std::make_shared<FreezeDetector>(*ioContext, coreStuckTime * 1000);
         FreezeDetector::Start(freezeDetector);
-        TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", coreStuckTime);
+        TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread ({} seconds max stuck time)...", coreStuckTime);
     }
 
     sScriptMgr->OnStartup();
@@ -327,7 +329,7 @@ extern int main(int argc, char** argv)
     sScriptMgr->OnShutdown();
 
     // set server offline
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
 
     TC_LOG_INFO("server.worldserver", "Halting process...");
 
@@ -357,7 +359,7 @@ void ShutdownCLIThread(std::thread* cliThread)
             if (!formatReturnCode)
                 errorBuffer = "Unknown error";
 
-            TC_LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code %u, detail: %s", uint32(errorCode), errorBuffer);
+            TC_LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code {}, detail: {}", uint32(errorCode), errorBuffer);
 
             if (!formatReturnCode)
                 LocalFree((LPSTR)errorBuffer);
@@ -415,7 +417,9 @@ void WorldUpdateLoop()
     LoginDatabase.WarnAboutSyncQueries(true);
     CharacterDatabase.WarnAboutSyncQueries(true);
     WorldDatabase.WarnAboutSyncQueries(true);
-
+#ifdef PLAYERBOTS    
+    PlayerbotsDatabase.WarnAboutSyncQueries(true);
+#endif
     sWorld->OnStartup();
 
     ///- While we have not World::m_stopEvent, update the world
@@ -429,7 +433,7 @@ void WorldUpdateLoop()
         {
             uint32 sleepTime = minUpdateDiff - diff;
             if (sleepTime >= halfMaxCoreStuckTime)
-                TC_LOG_ERROR("server.worldserver", "WorldUpdateLoop() waiting for %u ms with MaxCoreStuckTime set to %u ms", sleepTime, maxCoreStuckTime);
+                TC_LOG_ERROR("server.worldserver", "WorldUpdateLoop() waiting for {} ms with MaxCoreStuckTime set to {} ms", sleepTime, maxCoreStuckTime);
             // sleep until enough time passes that we can update all timers
             std::this_thread::sleep_for(Milliseconds(sleepTime));
             continue;
@@ -450,6 +454,9 @@ void WorldUpdateLoop()
     LoginDatabase.WarnAboutSyncQueries(false);
     CharacterDatabase.WarnAboutSyncQueries(false);
     WorldDatabase.WarnAboutSyncQueries(false);
+#ifdef PLAYERBOTS    
+    PlayerbotsDatabase.WarnAboutSyncQueries(false);
+#endif    
 }
 
 void SignalHandler(boost::system::error_code const& error, int /*signalNumber*/)
@@ -478,15 +485,15 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
                 uint32 msTimeDiff = getMSTimeDiff(freezeDetector->_lastChangeMsTime, curtime);
                 if (msTimeDiff > freezeDetector->_maxCoreStuckTimeInMs)
                 {
-                    TC_LOG_ERROR("server.worldserver", "World Thread hangs for %u ms, forcing a crash!", msTimeDiff);
+                    TC_LOG_ERROR("server.worldserver", "World Thread hangs for {} ms, forcing a crash!", msTimeDiff);
                     ABORT_MSG("World Thread hangs for %u ms, forcing a crash!", msTimeDiff);
                 }
             }
 
-            freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(1));
-            freezeDetector->_timer.async_wait([freezeDetectorRef](boost::system::error_code const& timerError)
+            freezeDetector->_timer.expires_after(1s);
+            freezeDetector->_timer.async_wait([freezeDetectorRef = std::move(freezeDetectorRef)](boost::system::error_code const& error) mutable
             {
-                return Handler(freezeDetectorRef, timerError);
+                Handler(std::move(freezeDetectorRef), error);
             });
         }
     }
@@ -511,7 +518,7 @@ AsyncAcceptor* StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext)
 
 bool LoadRealmInfo(Trinity::Asio::IoContext& ioContext)
 {
-    QueryResult result = LoginDatabase.PQuery("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE id = %u", realm.Id.Realm);
+    QueryResult result = LoginDatabase.PQuery("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE id = {}", realm.Id.Realm);
     if (!result)
         return false;
 
@@ -522,7 +529,7 @@ bool LoadRealmInfo(Trinity::Asio::IoContext& ioContext)
     Optional<boost::asio::ip::tcp::endpoint> externalAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[2].GetString(), "");
     if (!externalAddress)
     {
-        TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[2].GetString().c_str());
+        TC_LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[2].GetString().c_str());
         return false;
     }
 
@@ -531,7 +538,7 @@ bool LoadRealmInfo(Trinity::Asio::IoContext& ioContext)
     Optional<boost::asio::ip::tcp::endpoint> localAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[3].GetString(), "");
     if (!localAddress)
     {
-        TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[3].GetString().c_str());
+        TC_LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[3].GetString().c_str());
         return false;
     }
 
@@ -540,7 +547,7 @@ bool LoadRealmInfo(Trinity::Asio::IoContext& ioContext)
     Optional<boost::asio::ip::tcp::endpoint> localSubmask = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[4].GetString(), "");
     if (!localSubmask)
     {
-        TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[4].GetString().c_str());
+        TC_LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[4].GetString().c_str());
         return false;
     }
 
@@ -567,7 +574,9 @@ bool StartDB()
         .AddDatabase(LoginDatabase, "Login")
         .AddDatabase(CharacterDatabase, "Character")
         .AddDatabase(WorldDatabase, "World");
-
+#ifdef PLAYERBOTS        
+    loader.AddDatabase(PlayerbotsDatabase, "Playerbots");
+#endif
     if (!loader.Load())
         return false;
 
@@ -592,17 +601,17 @@ bool StartDB()
         while (result->NextRow());
     }
 
-    TC_LOG_INFO("server.worldserver", "Realm running as realm ID %d", realm.Id.Realm);
+    TC_LOG_INFO("server.worldserver", "Realm running as realm ID {}", realm.Id.Realm);
 
     ///- Clean the database before starting
     ClearOnlineAccounts();
 
     ///- Insert version info into DB
-    WorldDatabase.PExecute("UPDATE version SET core_version = '%s', core_revision = '%s'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
+    WorldDatabase.PExecute("UPDATE version SET core_version = '{}', core_revision = '{}'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
 
     sWorld->LoadDBVersion();
 
-    TC_LOG_INFO("server.worldserver", "Using World DB: %s", sWorld->GetDBVersion());
+    TC_LOG_INFO("server.worldserver", "Using World DB: {}", sWorld->GetDBVersion());
     return true;
 }
 
@@ -611,6 +620,9 @@ void StopDB()
     CharacterDatabase.Close();
     WorldDatabase.Close();
     LoginDatabase.Close();
+#ifdef PLAYERBOTS    
+    PlayerbotsDatabase.Close();
+#endif
 
     MySQL::Library_End();
 }
@@ -619,7 +631,7 @@ void StopDB()
 void ClearOnlineAccounts()
 {
     // Reset online status for all accounts with characters on the current realm
-    LoginDatabase.DirectPExecute("UPDATE account SET online = 0 WHERE online > 0 AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = %d)", realm.Id.Realm);
+    LoginDatabase.DirectPExecute("UPDATE account SET online = 0 WHERE online > 0 AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = {})", realm.Id.Realm);
 
     // Reset online status for all characters
     CharacterDatabase.DirectExecute("UPDATE characters SET online = 0 WHERE online <> 0");

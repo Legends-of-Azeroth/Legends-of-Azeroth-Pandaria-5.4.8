@@ -136,7 +136,7 @@ class boss_liu_flameheart : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 summons.DespawnAll();
                 me->RemoveAllAuras();
@@ -221,7 +221,7 @@ class boss_liu_flameheart : public CreatureScript
                                  {
                                      float x, y, z;
                                      z = me->GetPositionZ();
-                                     me->GetNearPoint2D(x, y, 7.5f, Position::NormalizeOrientation(wAngle + i * (M_PI / 2)));
+                                     me->GetNearPoint2D(nullptr, x, y, 7.5f, Position::NormalizeOrientation(wAngle + i * (M_PI / 2)));
                                      if (Creature* trigger = me->SummonCreature(NPC_TRIGGER_WAVE, x, y, z, me->GetAngle(x, y)))
                                          trigger->AI()->DoAction(ACTION_SERPENT);
                                   }
@@ -250,7 +250,7 @@ class boss_liu_flameheart : public CreatureScript
                                  {
                                      float x, y, z;
                                      z = me->GetPositionZ();
-                                     me->GetNearPoint2D(x, y, 7.5f, Position::NormalizeOrientation(wAngle + i * (M_PI / 2)));
+                                     me->GetNearPoint2D(nullptr, x, y, 7.5f, Position::NormalizeOrientation(wAngle + i * (M_PI / 2)));
                                      if (Creature* trigger = me->SummonCreature(NPC_TRIGGER_WAVE, x, y, z, me->GetAngle(x, y)))
                                          trigger->AI()->DoAction(ACTION_JADE);
                                  }
@@ -345,8 +345,9 @@ class boss_yu_lon_tjs : public CreatureScript
 
                         me->SetReactState(REACT_PASSIVE);
                         me->CombatStop(true);
-                        me->DeleteThreatList();
-                        me->getThreatManager().resetAllAggro();
+                        me->GetThreatManager().RemoveMeFromThreatLists();
+                        me->GetThreatManager().ClearAllThreat();
+                        me->GetThreatManager().ResetAllThreat();
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         events.Reset();
 
@@ -541,7 +542,7 @@ class npc_minion_of_doubt : public CreatureScript
                     if (me->GetHealth() < me->GetMaxHealth() || me->GetHealth() <= damage)
                     {
                         damage = 0;
-                        me->getThreatManager().addThreat(attacker, 0.f);
+                        me->GetThreatManager().AddThreat(attacker, 0.f);
                     }
                 }
 
@@ -569,8 +570,8 @@ class npc_minion_of_doubt : public CreatureScript
                            return;
 
                        targeted = true;
-                       me->getThreatManager().resetAllAggro();
-                       me->getThreatManager().addThreat(who, 100.0f);
+                       me->GetThreatManager().ResetAllThreat();
+                       me->GetThreatManager().AddThreat(who, 100.0f);
                        AttackStart(who);
                    }
             }
@@ -649,7 +650,7 @@ class npc_lesser_sha : public CreatureScript
                     if (me->GetHealth() < me->GetMaxHealth() || me->GetHealth() <= damage)
                     {
                         damage = 0;
-                        me->getThreatManager().addThreat(attacker, 0.f);
+                        me->GetThreatManager().AddThreat(attacker, 0.f);
                     }
                 }
             }
@@ -664,8 +665,8 @@ class npc_lesser_sha : public CreatureScript
                         return;
 
                     targeted = true;
-                    me->getThreatManager().resetAllAggro();
-                    me->getThreatManager().addThreat(who, 100.0f);
+                    me->GetThreatManager().ResetAllThreat();
+                    me->GetThreatManager().AddThreat(who, 100.0f);
                     AttackStart(who);
                 }
             }
@@ -746,12 +747,12 @@ class npc_lie_flameheart_trash_base_ai : public CreatureScript
                     if (me->GetHealth() < me->GetMaxHealth() || me->GetHealth() <= damage)
                     {
                         damage = 0;
-                        me->getThreatManager().addThreat(attacker, 0.f);
+                        me->GetThreatManager().AddThreat(attacker, 0.f);
                     }
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (!talked)
                 {

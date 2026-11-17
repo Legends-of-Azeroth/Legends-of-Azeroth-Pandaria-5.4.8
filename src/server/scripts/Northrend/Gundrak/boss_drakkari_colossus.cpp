@@ -106,7 +106,7 @@ class boss_drakkari_colossus : public CreatureScript
             {
                 started = false;
                 for (uint8 i = 0; i < 5; ++i)
-                    if (Creature* mojo = me->SummonCreature(NPC_MOJO, SpawnLoc[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
+                    if (Creature* mojo = me->SummonCreature(NPC_MOJO, SpawnLoc[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(1 * IN_MILLISECONDS)))
                         _mojoGUID[i] = mojo->GetGUID();
             }
 
@@ -137,7 +137,7 @@ class boss_drakkari_colossus : public CreatureScript
                     }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
                 me->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM); // Will be applied in JustReachedHome
@@ -292,7 +292,7 @@ class boss_drakkari_elemental : public CreatureScript
                 _merging = false;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (Creature* colossus = Unit::GetCreature(*me, _instance ? _instance->GetGuidData(DATA_DRAKKARI_COLOSSUS) : ObjectGuid::Empty))
                     colossus->AI()->DoAction(ACTION_UNFREEZE);

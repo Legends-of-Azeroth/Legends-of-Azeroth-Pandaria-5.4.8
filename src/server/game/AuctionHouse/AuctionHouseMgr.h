@@ -80,12 +80,12 @@ struct AuctionEntry
     ObjectGuid::LowType itemGUIDLow;
     uint32 itemEntry;
     uint32 itemCount;
-    ObjectGuid::LowType owner;
+    ObjectGuid owner;
     uint64 startbid;                                        //maybe useless
     uint64 bid;
     uint64 buyout;
     time_t expire_time;
-    ObjectGuid::LowType bidder;
+    ObjectGuid bidder;
     uint64 deposit;                                         //deposit can be calculated only when creating auction
     uint32 etime;
     std::unordered_set<ObjectGuid> bidders;
@@ -96,11 +96,12 @@ struct AuctionEntry
     uint32 GetAuctionCut() const;
     uint32 GetAuctionOutBid() const;
     bool BuildAuctionInfo(WorldPacket & data, Item* sourceItem = nullptr) const;
+    void BuildAuctionInfo(std::vector<WorldPackets::AuctionHouse::AuctionItem>& items, bool listAuctionItems, Item* sourceItem = nullptr) const;
     void DeleteFromDB(CharacterDatabaseTransaction& trans) const;
     void SaveToDB(CharacterDatabaseTransaction& trans) const;
     bool LoadFromDB(Field* fields);
     std::string BuildAuctionMailSubject(MailAuctionAnswers response) const;
-    static std::string BuildAuctionMailBody(ObjectGuid::LowType lowGuid, uint64 bid, uint64 buyout, uint64 deposit, uint64 cut);
+    static std::string BuildAuctionMailBody(ObjectGuid guid, uint64 bid, uint64 buyout, uint64 deposit, uint64 cut);
 };
 
 //this class is used as auctionhouse instance
@@ -114,7 +115,18 @@ class AuctionHouseObject
     }
 
     typedef std::map<uint32, AuctionEntry*> AuctionEntryMap;
-    typedef std::unordered_map<ObjectGuid, time_t> PlayerGetAllThrottleMap;
+
+    struct PlayerGetAllThrottleData
+    {
+        uint32 Global = 0;
+        uint32 Cursor = 0;
+        uint32 Tombstone = 0;
+        time_t NextAllowedReplication = 0;
+
+        bool IsReplicationInProgress() const { return Cursor != Tombstone && Global != 0; }
+    };
+
+    typedef std::unordered_map<ObjectGuid, PlayerGetAllThrottleData> PlayerGetAllThrottleMap;
 
     uint32 Getcount() const { return AuctionsMap.size(); }
 
@@ -197,6 +209,7 @@ class AuctionHouseMgr
         void AddAItem(Item* it);
         bool RemoveAItem(ObjectGuid::LowType id, bool deleteItem = false, CharacterDatabaseTransaction* trans = nullptr);
         bool PendingAuctionAdd(Player* player, AuctionEntry* aEntry, Item* item);
+        void PendingAuctionRemove(AuctionEntry const* aEntry);
         uint32 PendingAuctionCount(Player const* player) const;
         void PendingAuctionProcess(Player* player);
         void UpdatePendingAuctions();

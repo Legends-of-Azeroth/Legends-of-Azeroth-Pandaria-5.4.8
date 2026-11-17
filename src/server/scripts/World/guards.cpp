@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -18,375 +18,237 @@
 /* ScriptData
 SDName: Guards
 SD%Complete: 100
-SDComment:
+SDComment: Ported from TrinityCore 3.3.5 / Cata Classic npc_guard.cpp
 SDCategory: Guards
 EndScriptData */
 
 /* ContentData
-guard_generic
-guard_shattrath_aldor
-guard_shattrath_scryer
+npc_guard_generic
+npc_guard_shattrath_faction
 EndContentData */
 
+#include "GuardAI.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "Random.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "GuardAI.h"
-#include "Player.h"
 #include "SpellInfo.h"
+#include "TaskScheduler.h"
 
-enum GuardGeneric
+enum GuardMisc
 {
-    GENERIC_CREATURE_COOLDOWN       = 5000,
+    SAY_GUARD_SIL_AGGRO = 0,
 
-    SAY_GUARD_SIL_AGGRO             = 0,
+    NPC_CENARION_HOLD_INFANTRY = 15184,
+    NPC_STORMWIND_CITY_GUARD = 68,
+    NPC_STORMWIND_CITY_PATROLLER = 1976,
+    NPC_ORGRIMMAR_GRUNT = 3296,
+    NPC_ALDOR_VINDICATOR = 18549,
 
-    NPC_CENARION_HOLD_INFANTRY      = 15184,
-    NPC_STORMWIND_CITY_GUARD        = 68,
-    NPC_STORMWIND_CITY_PATROLLER    = 1976,
-    NPC_ORGRIMMAR_GRUNT             = 3296
-};
-
-class guard_generic : public CreatureScript
-{
-public:
-    guard_generic() : CreatureScript("guard_generic") { }
-
-    struct guard_genericAI : public GuardAI
-    {
-        guard_genericAI(Creature* creature) : GuardAI(creature) { }
-
-        void Reset() override
-        {
-            globalCooldown = 0;
-            buffTimer = 0;
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            if (me->GetEntry() == NPC_CENARION_HOLD_INFANTRY)
-                Talk(SAY_GUARD_SIL_AGGRO, who);
-            if (SpellInfo const* spell = me->reachWithSpellAttack(who))
-                DoCast(who, spell->Id);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-             //Always decrease our global cooldown first
-            if (globalCooldown > diff)
-                globalCooldown -= diff;
-            else
-                globalCooldown = 0;
-
-            //Buff timer (only buff when we are alive and not in combat
-            if (me->IsAlive() && !me->IsInCombat())
-            {
-                if (buffTimer <= diff)
-                {
-                    //Find a spell that targets friendly and applies an aura (these are generally buffs)
-                    SpellInfo const* info = SelectSpell(me, 0, 0, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_AURA);
-
-                    if (info && !globalCooldown)
-                    {
-                        //Cast the buff spell
-                        DoCast(me, info->Id);
-
-                        //Set our global cooldown
-                        globalCooldown = GENERIC_CREATURE_COOLDOWN;
-
-                        //Set our timer to 10 minutes before rebuff
-                        buffTimer = 600000;
-                    }                                                   //Try again in 30 seconds
-                    else buffTimer = 30000;
-                } else buffTimer -= diff;
-            }
-
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            // Make sure our attack is ready and we arn't currently casting
-            if (me->isAttackReady() && !me->IsNonMeleeSpellCasted(false))
-            {
-                //If we are within range melee the target
-                if (me->IsWithinMeleeRange(me->GetVictim()))
-                {
-                    bool healing = false;
-                    SpellInfo const* info = NULL;
-
-                    //Select a healing spell if less than 30% hp
-                    if (me->HealthBelowPct(30))
-                        info = SelectSpell(me, 0, 0, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_HEALING);
-
-                    //No healing spell available, select a hostile spell
-                    if (info)
-                        healing = true;
-                    else
-                        info = SelectSpell(me->GetVictim(), 0, 0, SELECT_TARGET_ANY_ENEMY, 0, 0, 0, 0, SELECT_EFFECT_DONTCARE);
-
-                    //20% chance to replace our white hit with a spell
-                    if (info && urand(0, 99) < 20 && !globalCooldown)
-                    {
-                        //Cast the spell
-                        if (healing)
-                            DoCast(me, info->Id);
-                        else
-                            DoCastVictim(info->Id);
-
-                        //Set our global cooldown
-                        globalCooldown = GENERIC_CREATURE_COOLDOWN;
-                    }
-                    else
-                        me->AttackerStateUpdate(me->GetVictim());
-
-                    me->resetAttackTimer();
-                }
-            }
-            else
-            {
-                //Only run this code if we arn't already casting
-                if (!me->IsNonMeleeSpellCasted(false))
-                {
-                    bool healing = false;
-                    SpellInfo const* info = NULL;
-
-                    //Select a healing spell if less than 30% hp ONLY 33% of the time
-                    if (me->HealthBelowPct(30) && 33 > urand(0, 99))
-                        info = SelectSpell(me, 0, 0, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_HEALING);
-
-                    //No healing spell available, See if we can cast a ranged spell (Range must be greater than ATTACK_DISTANCE)
-                    if (info)
-                        healing = true;
-                    else
-                        info = SelectSpell(me->GetVictim(), 0, 0, SELECT_TARGET_ANY_ENEMY, 0, 0, NOMINAL_MELEE_RANGE, 0, SELECT_EFFECT_DONTCARE);
-
-                    //Found a spell, check if we arn't on cooldown
-                    if (info && !globalCooldown)
-                    {
-                        //If we are currently moving stop us and set the movement generator
-                        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != IDLE_MOTION_TYPE)
-                        {
-                            me->GetMotionMaster()->Clear(false);
-                            me->GetMotionMaster()->MoveIdle();
-                        }
-
-                        //Cast spell
-                        if (healing)
-                            DoCast(me, info->Id);
-                        else
-                            DoCastVictim(info->Id);
-
-                        //Set our global cooldown
-                        globalCooldown = GENERIC_CREATURE_COOLDOWN;
-                    }                                               //If no spells available and we arn't moving run to target
-                    else if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
-                    {
-                        //Cancel our current spell and then mutate new movement generator
-                        me->InterruptNonMeleeSpells(false);
-                        me->GetMotionMaster()->Clear(false);
-                        me->GetMotionMaster()->MoveChase(me->GetVictim());
-                    }
-                }
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-        void DoReplyToTextEmote(uint32 emote)
-        {
-            switch (emote)
-            {
-                case TEXT_EMOTE_KISS:
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
-                    break;
-
-                case TEXT_EMOTE_WAVE:
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
-                    break;
-
-                case TEXT_EMOTE_SALUTE:
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
-                    break;
-
-                case TEXT_EMOTE_SHY:
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_FLEX);
-                    break;
-
-                case TEXT_EMOTE_RUDE:
-                case TEXT_EMOTE_CHICKEN:
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
-                    break;
-            }
-        }
-
-        void ReceiveEmote(Player* player, uint32 textEmote) override
-        {
-            switch (me->GetEntry())
-            {
-                case NPC_STORMWIND_CITY_GUARD:
-                case NPC_STORMWIND_CITY_PATROLLER:
-                case NPC_ORGRIMMAR_GRUNT:
-                    break;
-                default:
-                    return;
-            }
-
-            if (!me->IsFriendlyTo(player))
-                return;
-
-            DoReplyToTextEmote(textEmote);
-        }
-
-    private:
-        uint32 globalCooldown;
-        uint32 buffTimer;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-       return new guard_genericAI(creature);
-    }
-};
-
-enum GuardShattrath
-{
     SPELL_BANISHED_SHATTRATH_A = 36642,
     SPELL_BANISHED_SHATTRATH_S = 36671,
-    SPELL_BANISH_TELEPORT      = 36643,
-    SPELL_EXILE                = 39533
+    SPELL_BANISH_TELEPORT = 36643,
+    SPELL_EXILE = 39533,
 };
 
-class guard_shattrath_scryer : public CreatureScript
+struct npc_guard_generic : public GuardAI
 {
-public:
-    guard_shattrath_scryer() : CreatureScript("guard_shattrath_scryer") { }
-
-    struct guard_shattrath_scryerAI : public GuardAI
+    npc_guard_generic(Creature* creature) : GuardAI(creature)
     {
-        guard_shattrath_scryerAI(Creature* creature) : GuardAI(creature) { }
-
-        void Reset() override
+        _scheduler.SetValidator([this]
         {
-            banishTimer = 5000;
-            exileTimer = 8500;
-            playerGUID.Clear();
-            canTeleport = false;
+            return !me->HasUnitState(UNIT_STATE_CASTING) && !me->IsInEvadeMode() && me->IsAlive();
+        });
+        _combatScheduler.SetValidator([this]
+        {
+            return !me->HasUnitState(UNIT_STATE_CASTING);
+        });
+    }
+
+    void Reset() override
+    {
+        _scheduler.CancelAll();
+        _combatScheduler.CancelAll();
+        _scheduler.Schedule(Seconds(1), [this](TaskContext context)
+        {
+            // Find a spell that targets friendly and applies an aura (these are generally buffs)
+            if (SpellInfo const* spellInfo = SelectSpell(me, 0, 0, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_AURA))
+                DoCast(me, spellInfo->Id);
+
+            context.Repeat(Minutes(10));
+        });
+    }
+
+    void DoReplyToTextEmote(uint32 emote)
+    {
+        switch (emote)
+        {
+            case TEXT_EMOTE_KISS:
+                me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
+                break;
+            case TEXT_EMOTE_WAVE:
+                me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
+                break;
+            case TEXT_EMOTE_SALUTE:
+                me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+                break;
+            case TEXT_EMOTE_SHY:
+                me->HandleEmoteCommand(EMOTE_ONESHOT_FLEX);
+                break;
+            case TEXT_EMOTE_RUDE:
+            case TEXT_EMOTE_CHICKEN:
+                me->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void ReceiveEmote(Player* player, uint32 textEmote) override
+    {
+        switch (me->GetEntry())
+        {
+            case NPC_STORMWIND_CITY_GUARD:
+            case NPC_STORMWIND_CITY_PATROLLER:
+            case NPC_ORGRIMMAR_GRUNT:
+                break;
+            default:
+                return;
         }
 
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
+        if (!me->IsFriendlyTo(player))
+            return;
 
-            if (canTeleport)
+        DoReplyToTextEmote(textEmote);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        if (me->GetEntry() == NPC_CENARION_HOLD_INFANTRY)
+            Talk(SAY_GUARD_SIL_AGGRO, who);
+
+        _combatScheduler.Schedule(Seconds(1), [this](TaskContext meleeContext)
+        {
+            Unit* victim = me->GetVictim();
+            if (!me->isAttackReady() || !me->IsWithinMeleeRange(victim))
             {
-                if (exileTimer <= diff)
+                meleeContext.Repeat();
+                return;
+            }
+            if (roll_chance_i(20))
+            {
+                if (SpellInfo const* spellInfo = SelectSpell(me->GetVictim(), 0, 0, SELECT_TARGET_ANY_ENEMY, 0, 0, 0, NOMINAL_MELEE_RANGE, SELECT_EFFECT_DONTCARE))
                 {
-                    if (Unit* temp = Unit::GetUnit(*me, playerGUID))
+                    me->resetAttackTimer();
+                    DoCastVictim(spellInfo->Id);
+                }
+            }
+            meleeContext.Repeat();
+        }).Schedule(Seconds(5), [this](TaskContext spellContext)
+        {
+            bool healing = false;
+            SpellInfo const* spellInfo = nullptr;
+
+            // Select a healing spell if less than 30% hp and ONLY 33% of the time
+            if (me->HealthBelowPct(30) && roll_chance_i(33))
+                spellInfo = SelectSpell(me, 0, 0, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_HEALING);
+
+            // No healing spell available, check if we can cast a ranged spell
+            if (spellInfo)
+                healing = true;
+            else
+                spellInfo = SelectSpell(me->GetVictim(), 0, 0, SELECT_TARGET_ANY_ENEMY, 0, 0, NOMINAL_MELEE_RANGE, 0, SELECT_EFFECT_DONTCARE);
+
+            // Found a spell
+            if (spellInfo)
+            {
+                if (healing)
+                    DoCast(me, spellInfo->Id);
+                else
+                    DoCastVictim(spellInfo->Id);
+                spellContext.Repeat(Seconds(5));
+            }
+            else
+                spellContext.Repeat(Seconds(1));
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+
+        if (!UpdateVictim())
+            return;
+
+        _combatScheduler.Update(diff);
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    TaskScheduler _scheduler;
+    TaskScheduler _combatScheduler;
+};
+
+struct npc_guard_shattrath_faction : public GuardAI
+{
+    npc_guard_shattrath_faction(Creature* creature) : GuardAI(creature)
+    {
+        _scheduler.SetValidator([this]
+        {
+            return !me->HasUnitState(UNIT_STATE_CASTING);
+        });
+    }
+
+    void Reset() override
+    {
+        _scheduler.CancelAll();
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        ScheduleVanish();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _scheduler.Update(diff);
+        DoMeleeAttackIfReady();
+    }
+
+    void ScheduleVanish()
+    {
+        _scheduler.Schedule(Seconds(5), [this](TaskContext banishContext)
+        {
+            Unit* temp = me->GetVictim();
+            if (temp && temp->GetTypeId() == TYPEID_PLAYER)
+            {
+                DoCast(temp, me->GetEntry() == NPC_ALDOR_VINDICATOR ? SPELL_BANISHED_SHATTRATH_S : SPELL_BANISHED_SHATTRATH_A);
+                ObjectGuid playerGUID = temp->GetGUID();
+                banishContext.Schedule(Seconds(9), [this, playerGUID](TaskContext /*exileContext*/)
+                {
+                    if (Unit* temp = ObjectAccessor::GetUnit(*me, playerGUID))
                     {
                         temp->CastSpell(temp, SPELL_EXILE, true);
                         temp->CastSpell(temp, SPELL_BANISH_TELEPORT, true);
                     }
-                    playerGUID.Clear();
-                    exileTimer = 8500;
-                    canTeleport = false;
-                } else exileTimer -= diff;
+                    ScheduleVanish();
+                });
             }
-            else if (banishTimer <= diff)
-            {
-                Unit* temp = me->GetVictim();
-                if (temp && temp->GetTypeId() == TYPEID_PLAYER)
-                {
-                    DoCast(temp, SPELL_BANISHED_SHATTRATH_A);
-                    banishTimer = 9000;
-                    playerGUID = temp->GetGUID();
-                    if (playerGUID)
-                        canTeleport = true;
-                }
-            } else banishTimer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-
-    private:
-        uint32 exileTimer;
-        uint32 banishTimer;
-        ObjectGuid playerGUID;
-        bool canTeleport;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new guard_shattrath_scryerAI(creature);
+            else
+                banishContext.Repeat();
+        });
     }
-};
 
-class guard_shattrath_aldor : public CreatureScript
-{
-public:
-    guard_shattrath_aldor() : CreatureScript("guard_shattrath_aldor") { }
-
-    struct guard_shattrath_aldorAI : public GuardAI
-    {
-        guard_shattrath_aldorAI(Creature* creature) : GuardAI(creature) { }
-
-        void Reset() override
-        {
-            banishTimer = 5000;
-            exileTimer = 8500;
-            playerGUID.Clear();
-            canTeleport = false;
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (canTeleport)
-            {
-                if (exileTimer <= diff)
-                {
-                    if (Unit* temp = Unit::GetUnit(*me, playerGUID))
-                    {
-                        temp->CastSpell(temp, SPELL_EXILE, true);
-                        temp->CastSpell(temp, SPELL_BANISH_TELEPORT, true);
-                    }
-                    playerGUID.Clear();
-                    exileTimer = 8500;
-                    canTeleport = false;
-                } else exileTimer -= diff;
-            }
-            else if (banishTimer <= diff)
-            {
-                Unit* temp = me->GetVictim();
-                if (temp && temp->GetTypeId() == TYPEID_PLAYER)
-                {
-                    DoCast(temp, SPELL_BANISHED_SHATTRATH_S);
-                    banishTimer = 9000;
-                    playerGUID = temp->GetGUID();
-                    if (playerGUID)
-                        canTeleport = true;
-                }
-            } else banishTimer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-    private:
-        uint32 exileTimer;
-        uint32 banishTimer;
-        ObjectGuid playerGUID;
-        bool canTeleport;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new guard_shattrath_aldorAI(creature);
-    }
+private:
+    TaskScheduler _scheduler;
 };
 
 void AddSC_guards()
 {
-    new guard_generic;
-    new guard_shattrath_aldor;
-    new guard_shattrath_scryer;
+    RegisterCreatureAI(npc_guard_generic);
+    RegisterCreatureAI(npc_guard_shattrath_faction);
 }

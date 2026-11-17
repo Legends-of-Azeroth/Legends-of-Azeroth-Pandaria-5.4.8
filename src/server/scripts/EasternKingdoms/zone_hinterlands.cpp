@@ -71,7 +71,7 @@ public:
             creature->AI()->Talk(SAY_OOX_START, player);
 
             if (npc_00x09hlAI* pEscortAI = CAST_AI(npc_00x09hl::npc_00x09hlAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID(), quest);
+                pEscortAI->Start(false, player->GetGUID(), quest);
         }
         return true;
     }
@@ -81,13 +81,13 @@ public:
         return new npc_00x09hlAI(creature);
     }
 
-    struct npc_00x09hlAI : public npc_escortAI
+    struct npc_00x09hlAI : public EscortAI
     {
-        npc_00x09hlAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_00x09hlAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             switch (waypointId)
             {
@@ -114,7 +114,7 @@ public:
                     {
                         const Position src = {147.927444f, -3851.513428f, 130.893f, 0};
                         Position dst = me->GetRandomPoint(src, 7.0f);
-                        DoSummon(NPC_MARAUDING_OWL, dst, 25000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                        DoSummon(NPC_MARAUDING_OWL, dst, 25000ms, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                     }
                     break;
                 case 44:
@@ -122,7 +122,7 @@ public:
                     {
                         const Position src = {-141.151581f, -4291.213867f, 120.130f, 0};
                         Position dst = me->GetRandomPoint(src, 7.0f);
-                        me->SummonCreature(NPC_VILE_AMBUSHER, dst, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 25000);
+                        me->SummonCreature(NPC_VILE_AMBUSHER, dst, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 25000ms);
                     }
                     break;
             }

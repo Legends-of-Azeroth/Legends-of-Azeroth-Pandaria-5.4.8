@@ -124,7 +124,7 @@ class boss_amanitar : public CreatureScript
                         {
                             u = 1 - u;
                             trigger->DisappearAndDie();
-                            me->SummonCreature(u > 0 ? NPC_POISONOUS_MUSHROOM : NPC_HEALTHY_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30 * IN_MILLISECONDS);
+                            me->SummonCreature(u > 0 ? NPC_POISONOUS_MUSHROOM : NPC_HEALTHY_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, Milliseconds(30 * IN_MILLISECONDS));
                         }
                     }
                 }

@@ -54,7 +54,7 @@ void BattlePetSpawnMgr::Initialise()
         auto speciesEntry = sBattlePetSpeciesStore.LookupEntry(species);
         if (!speciesEntry)
         {
-            TC_LOG_INFO("server.loading", "Invalid battle pet species %u in `wild_battlepet_zone_pool` table, skipping!", species);
+            TC_LOG_INFO("server.loading", "Invalid battle pet species {} in `wild_battlepet_zone_pool` table, skipping!", species);
             continue;
         }
 
@@ -74,7 +74,7 @@ void BattlePetSpawnMgr::Initialise()
 
         if (mapId == -1)
         {
-            TC_LOG_INFO("server.loading", "Invalid zone id %u in `wild_battlepet_zone_pool` table, skipping!", zoneId);
+            TC_LOG_INFO("server.loading", "Invalid zone id {} in `wild_battlepet_zone_pool` table, skipping!", zoneId);
             continue;
         }
 
@@ -92,7 +92,7 @@ void BattlePetSpawnMgr::Initialise()
 
         if (duplicate)
         {
-            TC_LOG_INFO("server.loading", "`wild_battlepet_zone_pool` duplicate entry (%u) for map %u and zone %u", npcEntry, mapId, zoneId);
+            TC_LOG_INFO("server.loading", "`wild_battlepet_zone_pool` duplicate entry ({}) for map {} and zone {}", npcEntry, mapId, zoneId);
             continue;
         }
 
@@ -109,7 +109,7 @@ void BattlePetSpawnMgr::Initialise()
 
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u battle pet spawns in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} battle pet spawns in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void BattlePetSpawnMgr::OnAddToMap(Creature* creature)

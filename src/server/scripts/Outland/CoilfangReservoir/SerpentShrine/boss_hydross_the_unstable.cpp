@@ -141,7 +141,7 @@ public:
 
         void SummonBeams()
         {
-            Creature* beamer = me->SummonCreature(ENTRY_BEAM_DUMMY, -258.333f, -356.34f, 22.0499f, 5.90835f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+            Creature* beamer = me->SummonCreature(ENTRY_BEAM_DUMMY, -258.333f, -356.34f, 22.0499f, 5.90835f, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
             if (beamer)
             {
                 beamer->CastSpell(me, SPELL_BLUE_BEAM, true);
@@ -149,7 +149,7 @@ public:
                 beamer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 beams[0]=beamer->GetGUID();
             }
-            beamer = me->SummonCreature(ENTRY_BEAM_DUMMY, -219.918f, -371.308f, 22.0042f, 2.73072f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+            beamer = me->SummonCreature(ENTRY_BEAM_DUMMY, -219.918f, -371.308f, 22.0042f, 2.73072f, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
             if (beamer)
             {
                 beamer->CastSpell(me, SPELL_BLUE_BEAM, true);
@@ -293,10 +293,10 @@ public:
                         SummonBeams();
 
                         // spawn 4 adds
-                        DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF1, SPAWN_Y_DIFF1, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                        DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF2, SPAWN_Y_DIFF2, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                        DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF3, SPAWN_Y_DIFF3, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                        DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF4, SPAWN_Y_DIFF4, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF1, SPAWN_Y_DIFF1, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
+                        DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF2, SPAWN_Y_DIFF2, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
+                        DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF3, SPAWN_Y_DIFF3, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
+                        DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF4, SPAWN_Y_DIFF4, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
 
                         me->SetMeleeDamageSchool(SPELL_SCHOOL_FROST);
                         me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
@@ -377,10 +377,10 @@ public:
                         DeSummonBeams();
 
                         // spawn 4 adds
-                        DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF1, SPAWN_Y_DIFF1, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                        DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF2, SPAWN_Y_DIFF2, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                        DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF3, SPAWN_Y_DIFF3, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                        DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF4, SPAWN_Y_DIFF4, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF1, SPAWN_Y_DIFF1, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
+                        DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF2, SPAWN_Y_DIFF2, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
+                        DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF3, SPAWN_Y_DIFF3, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
+                        DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF4, SPAWN_Y_DIFF4, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
 
                         me->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
                         me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);

@@ -295,7 +295,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                                     if (Creature* citizen = instance->GetCreature(guid))
                                     {
                                         if (Creature* arthas = instance->GetCreature(GetGuidData(DATA_ARTHAS)))
-                                            if (Creature* risenZombie = arthas->SummonCreature(NPC_ZOMBIE, citizen->GetPositionX(), citizen->GetPositionY(), citizen->GetPositionZ(), citizen->GetOrientation())) //, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+                                            if (Creature* risenZombie = arthas->SummonCreature(NPC_ZOMBIE, citizen->GetPositionX(), citizen->GetPositionY(), citizen->GetPositionZ(), citizen->GetOrientation())) //, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000ms))
                                                 _zombiesList.push_back(risenZombie->GetGUID());
                                         citizen->SetPhaseMask(2, true);
                                     }

@@ -361,11 +361,11 @@ class boss_professor_putricide : public CreatureScript
                         if (!me->IsInCombat())
                             AttackStart(summon);
                         else
-                            me->AddThreat(summon, 1.0f);
+                            me->GetThreatManager().AddThreat(summon, 1.0f);
 
                         if (summon->GetVehicleKit())
                             if (summon->GetVehicleKit()->GetPassenger(0))
-                                me->AddThreat(summon->GetVehicleKit()->GetPassenger(0), 1.0f);
+                                me->GetThreatManager().AddThreat(summon->GetVehicleKit()->GetPassenger(0), 1.0f);
 
                         return;
                     default:
@@ -737,10 +737,10 @@ class boss_professor_putricide : public CreatureScript
                             {
                                 std::list<Unit*> targetList;
                                 {
-                                    const std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
-                                    for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                                        if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER)
-                                            targetList.push_back((*itr)->getTarget());
+                                    auto threatlist = me->GetThreatManager().GetUnsortedThreatList();
+                                    for (ThreatReference const* ref : threatlist)
+                                        if (ref->GetVictim()->GetTypeId() == TYPEID_PLAYER)
+                                            targetList.push_back(ref->GetVictim());
                                 }
 
                                 size_t half = targetList.size()/2;
@@ -903,9 +903,9 @@ class npc_putricide_ooze : public CreatureScript
 
                 // Lock threat to the target of spell selection
                 // Prevent error message on first attack here
-                me->AddThreat(victim, 50000000.0f);
+                me->GetThreatManager().AddThreat(victim, 50000000.0f);
                 DoResetThreat();
-                me->AddThreat(victim, 50000000.0f);
+                me->GetThreatManager().AddThreat(victim, 50000000.0f);
 
                 UnitAI::AttackStart(victim);
 
@@ -1852,7 +1852,7 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
                 uint32 duration = uint32(GetSpellInfo()->GetDuration());
 
                 Position pos = caster->GetPosition();
-                TempSummon* summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id);
+                TempSummon* summon = caster->GetMap()->SummonCreature(entry, pos, properties, Milliseconds(duration), caster, GetSpellInfo()->Id);
                 if (!summon || !summon->IsVehicle())
                     return;
 

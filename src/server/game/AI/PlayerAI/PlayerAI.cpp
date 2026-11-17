@@ -19,7 +19,8 @@
 #include "CreatureAIImpl.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
-#include "TargetedMovementGenerator.h"
+#include "ChaseMovementGenerator.h"
+#include "FollowMovementGenerator.h"
 
 enum Spells
 {
@@ -819,7 +820,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
                 if (victim->HasUnitState(UNIT_STATE_CASTING))
                     VerifyAndPushSpellCast(spells, SPELL_KICK, TARGET_VICTIM, 25);
 
-                uint8 const cp = (me->GetComboTarget() == victim->GetGUID()) ? me->GetComboPoints() : 0;
+                uint8 const cp = (me->GetComboTarget() == victim) ? me->GetComboPoints() : 0;
                 if (cp >= 4)
                     VerifyAndPushSpellCast(spells, finisher, TARGET_VICTIM, 10);
                 if (cp <= 4)
@@ -1131,7 +1132,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
                     VerifyAndPushSpellCast(spells, SPELL_DASH, TARGET_NONE, 5);
                     if (Unit* victim = me->GetVictim())
                     {
-                        uint8 const cp = (me->GetComboTarget() == victim->GetGUID()) ? me->GetComboPoints() : 0;
+                        uint8 const cp = (me->GetComboTarget() == victim) ? me->GetComboPoints() : 0;
                         if (victim->HasUnitState(UNIT_STATE_CASTING) && cp >= 1)
                             VerifyAndPushSpellCast(spells, SPELL_MAIM, TARGET_VICTIM, 25);
                         if (!me->IsWithinMeleeRange(victim))
@@ -1169,8 +1170,13 @@ void SimpleCharmedPlayerAI::UpdateAI(uint32 const diff)
         MovementGeneratorType mgType = me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_ACTIVE);
         if (mgType == FOLLOW_MOTION_TYPE || mgType == CHASE_MOTION_TYPE)
         {
-            TargetedMovementGeneratorBase* movementGenerator = dynamic_cast<TargetedMovementGeneratorBase*>(me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_ACTIVE));
-            if (movementGenerator && !(movementGenerator->GetTarget() && movementGenerator->GetTarget()->IsAlive()))
+            MovementGenerator* movementGenerator = me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_ACTIVE);
+            Unit* movementTarget = nullptr;
+            if (ChaseMovementGenerator* chase = dynamic_cast<ChaseMovementGenerator*>(movementGenerator))
+                movementTarget = chase->GetTarget();
+            else if (FollowMovementGenerator* follow = dynamic_cast<FollowMovementGenerator*>(movementGenerator))
+                movementTarget = follow->GetTarget();
+            if (movementGenerator && !(movementTarget && movementTarget->IsAlive()))
             {
                 // Delete targeted movement generator if there is no target anymore or the target is dead
                 if (me->GetMotionMaster()->top() == me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_CONTROLLED))
@@ -1328,8 +1334,13 @@ void SimpleCharmedPlayerAI::OnCharmed(bool apply)
         MovementGeneratorType mgType = me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_ACTIVE);
         if (mgType == FOLLOW_MOTION_TYPE || mgType == CHASE_MOTION_TYPE)
         {
-            TargetedMovementGeneratorBase* movementGenerator = dynamic_cast<TargetedMovementGeneratorBase*>(me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_ACTIVE));
-            if (movementGenerator && !(movementGenerator->GetTarget() && movementGenerator->GetTarget()->IsAlive()))
+            MovementGenerator* movementGenerator = me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_ACTIVE);
+            Unit* movementTarget = nullptr;
+            if (ChaseMovementGenerator* chase = dynamic_cast<ChaseMovementGenerator*>(movementGenerator))
+                movementTarget = chase->GetTarget();
+            else if (FollowMovementGenerator* follow = dynamic_cast<FollowMovementGenerator*>(movementGenerator))
+                movementTarget = follow->GetTarget();
+            if (movementGenerator && !(movementTarget && movementTarget->IsAlive()))
             {
                 // Delete targeted movement generator if there is no target anymore or the target is dead
                 if (me->GetMotionMaster()->top() == me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_CONTROLLED))

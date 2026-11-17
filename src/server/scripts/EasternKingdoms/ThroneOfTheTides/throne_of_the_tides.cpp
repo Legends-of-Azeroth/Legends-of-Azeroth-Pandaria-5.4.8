@@ -110,9 +110,9 @@ class npc_throne_of_the_tides_teleporter: public CreatureScript
     public:
         npc_throne_of_the_tides_teleporter() : CreatureScript("npc_throne_of_the_tides_teleporter") { }
 
-        struct npc_throne_of_the_tides_teleporter_AI : public CreatureAI
+        struct npc_throne_of_the_tides_teleporter_AI : public ScriptedAI
         {
-           npc_throne_of_the_tides_teleporter_AI(Creature* creature) : CreatureAI(creature) { }
+           npc_throne_of_the_tides_teleporter_AI(Creature* creature) : ScriptedAI(creature) { }
 
             void OnSpellClick(Unit* clicker, bool& /*result*/) override
             {

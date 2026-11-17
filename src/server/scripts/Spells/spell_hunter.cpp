@@ -2934,7 +2934,7 @@ class spell_hunt_glyph_of_distracting_shot : public SpellScript
         if (GetCaster()->HasAura(SPELL_HUNTER_GLYPH_OF_DISTRACTING_SHOT) && pet)
         {
             PreventDefaultEffect(effIndex);
-            GetHitUnit()->AddThreat(pet, GetEffectValue());
+            GetHitUnit()->GetThreatManager().AddThreat(pet, GetEffectValue());
         }
     }
 
@@ -2988,7 +2988,7 @@ class spell_hunt_glyph_of_distracting_shot_taunt : public AuraScript
         {
             PreventDefaultAction();
             glyphed = true;
-            GetTarget()->TauntApply(pet);
+            GetTarget()->GetThreatManager().TauntUpdate();
         }
     }
 
@@ -3000,7 +3000,7 @@ class spell_hunt_glyph_of_distracting_shot_taunt : public AuraScript
 
             if (Unit* hunter = GetCaster())
                 if (Unit* pet = hunter->GetGuardianPet())
-                    GetTarget()->TauntFadeOut(pet);
+                    GetTarget()->GetThreatManager().TauntUpdate();
         }
     }
 

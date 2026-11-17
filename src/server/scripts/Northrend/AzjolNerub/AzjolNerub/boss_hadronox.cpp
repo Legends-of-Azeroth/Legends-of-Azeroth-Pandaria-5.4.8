@@ -143,7 +143,7 @@ class boss_hadronox : public CreatureScript
                 events.ScheduleEvent(EVENT_WEB_GRAB, urand(15000, 19000));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
                 //if (InstanceScript* instance = me->GetInstanceScript())
@@ -297,7 +297,7 @@ class npc_anubar_crusher : public CreatureScript
                     instance->SetData(DATA_HADRONOX_EVENT, SPECIAL);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
                 if (InstanceScript* instance = me->GetInstanceScript())

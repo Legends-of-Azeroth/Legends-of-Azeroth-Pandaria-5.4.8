@@ -139,7 +139,7 @@ class boss_netherspite : public CreatureScript
 
                 for (int i = 0; i < 3; ++i)
                 {
-                    if (Creature* portal = me->SummonCreature(PortalID[i],PortalCoord[pos[i]][0],PortalCoord[pos[i]][1],PortalCoord[pos[i]][2],0,TEMPSUMMON_TIMED_DESPAWN,60000))
+                    if (Creature* portal = me->SummonCreature(PortalID[i],PortalCoord[pos[i]][0],PortalCoord[pos[i]][1],PortalCoord[pos[i]][2],0,TEMPSUMMON_TIMED_DESPAWN,60000ms))
                     {
                         PortalGUID[i] = portal->GetGUID();
                         portal->AddAura(PortalVisual[i], portal);
@@ -203,7 +203,7 @@ class boss_netherspite : public CreatureScript
                                 BeamerGUID[j] = ObjectGuid::Empty;
                             }
                             // create new one and start beaming on the target
-                            if (Creature* beamer = portal->SummonCreature(PortalID[j],portal->GetPositionX(),portal->GetPositionY(),portal->GetPositionZ(),portal->GetOrientation(),TEMPSUMMON_TIMED_DESPAWN,60000))
+                            if (Creature* beamer = portal->SummonCreature(PortalID[j],portal->GetPositionX(),portal->GetPositionY(),portal->GetPositionZ(),portal->GetOrientation(),TEMPSUMMON_TIMED_DESPAWN,60000ms))
                             {
                                 beamer->CastSpell(target, PortalBeam[j], false);
                                 BeamerGUID[j] = beamer->GetGUID();
@@ -211,7 +211,7 @@ class boss_netherspite : public CreatureScript
                         }
                         // aggro target if Red Beam
                         if (j == RED_PORTAL && me->GetVictim() != target && target->GetTypeId() == TYPEID_PLAYER)
-                            me->getThreatManager().addThreat(target, 100000.0f + DoGetThreat(me->GetVictim()));
+                            me->GetThreatManager().AddThreat(target, 100000.0f + DoGetThreat(me->GetVictim()));
                     }
             }
 

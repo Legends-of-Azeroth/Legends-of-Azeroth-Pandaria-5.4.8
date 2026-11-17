@@ -202,7 +202,7 @@ class boss_svala : public CreatureScript
                             uiIntroTimer = 200;
                             break;
                         case 4:
-                            if (Creature* pSvalaSorrowgrave = me->SummonCreature(NPC_SVALA_SORROWGRAVE, 296.632f, -346.075f, 95.6307f, 1.58f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60 * IN_MILLISECONDS))
+                            if (Creature* pSvalaSorrowgrave = me->SummonCreature(NPC_SVALA_SORROWGRAVE, 296.632f, -346.075f, 95.6307f, 1.58f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(60 * IN_MILLISECONDS)))
                             {
                                 if (Creature* pArthas = Creature::GetCreature(*me, uiArthas))
                                     pArthas->CastStop();

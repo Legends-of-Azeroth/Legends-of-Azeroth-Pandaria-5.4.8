@@ -63,6 +63,9 @@ public:
 
     void balance();
     void update(uint32 diff);
+
+    bool GetObjectHitPos(const uint32 phasemask, const G3D::Vector3& startPos, const G3D::Vector3& endPos, G3D::Vector3& resultHit, float modifyDist) const;
+    bool GetIntersectionTime(const uint32 phasemask, const G3D::Ray& ray, const G3D::Vector3& endPos, float& maxDist) const;
 };
 
 #endif // _DYNTREE_H

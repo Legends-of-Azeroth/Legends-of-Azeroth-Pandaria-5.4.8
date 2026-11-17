@@ -31,7 +31,7 @@ class TC_GAME_API GuardAI : public ScriptedAI
         void UpdateAI(uint32 diff) override;
         bool CanSeeAlways(WorldObject const* obj) override;
 
-        void EnterEvadeMode() override;
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override;
         void JustDied(Unit* killer) override;
 };
 #endif

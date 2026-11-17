@@ -38,19 +38,19 @@ public:
 
         static std::vector<ChatCommand> cheatCommandTable =
         {
-            { "god",            SEC_GAMEMASTER,  false,  &HandleGodModeCheatCommand,     },
-            { "casttime",       SEC_GAMEMASTER,  false,  &HandleCasttimeCheatCommand,    },
-            { "cooldown",       SEC_GAMEMASTER,  false,  &HandleCoolDownCheatCommand,    },
-            { "power",          SEC_GAMEMASTER,  false,  &HandlePowerCheatCommand,       },
-            { "waterwalk",      SEC_GAMEMASTER,  false,  &HandleWaterWalkCheatCommand,   },
-            { "status",         SEC_GAMEMASTER,  false,  &HandleCheatStatusCommand,      },
-            { "taxi",           SEC_GAMEMASTER,  false,  &HandleTaxiCheatCommand,        },
-            { "explore",        SEC_GAMEMASTER,  false,  &HandleExploreCheatCommand,     },
+            { "god",            &HandleGodModeCheatCommand,     rbac::RBAC_PERM_COMMAND_CHEAT_GOD,      Trinity::ChatCommands::Console::No },
+            { "casttime",       &HandleCasttimeCheatCommand,    rbac::RBAC_PERM_COMMAND_CHEAT_CASTTIME, Trinity::ChatCommands::Console::No },
+            { "cooldown",       &HandleCoolDownCheatCommand,    rbac::RBAC_PERM_COMMAND_CHEAT_COOLDOWN, Trinity::ChatCommands::Console::No },
+            { "power",          &HandlePowerCheatCommand,       rbac::RBAC_PERM_COMMAND_CHEAT_POWER,    Trinity::ChatCommands::Console::No },
+            { "waterwalk",      &HandleWaterWalkCheatCommand,   rbac::RBAC_PERM_COMMAND_CHEAT_WATERWALK, Trinity::ChatCommands::Console::No },
+            { "status",         &HandleCheatStatusCommand,      rbac::RBAC_PERM_COMMAND_CHEAT_STATUS,   Trinity::ChatCommands::Console::No },
+            { "taxi",           &HandleTaxiCheatCommand,        rbac::RBAC_PERM_COMMAND_CHEAT_TAXI,     Trinity::ChatCommands::Console::No },
+            { "explore",        &HandleExploreCheatCommand,     rbac::RBAC_PERM_COMMAND_CHEAT_EXPLORE,  Trinity::ChatCommands::Console::No },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "cheat",          SEC_GAMEMASTER,  false, cheatCommandTable                },
+            { "cheat", cheatCommandTable, rbac::RBAC_PERM_COMMAND_CHEAT, Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

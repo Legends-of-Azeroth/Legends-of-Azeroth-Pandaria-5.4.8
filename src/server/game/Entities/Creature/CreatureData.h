@@ -127,10 +127,14 @@ struct TC_GAME_API CreatureMovementData
     std::string ToString() const;
 };
 
-static uint8 const MAX_KILL_CREDIT = 2;
-static uint32 const MAX_CREATURE_MODELS = 4;
-static uint32 const MAX_CREATURE_QUEST_ITEMS = 6;
-static uint32 const MAX_CREATURE_SPELLS = 8;
+static const uint32 CREATURE_REGEN_INTERVAL = 2 * IN_MILLISECONDS;
+static const uint32 PET_FOCUS_REGEN_INTERVAL = 4 * IN_MILLISECONDS;
+static const uint32 CREATURE_NOPATH_EVADE_TIME = 5 * IN_MILLISECONDS;
+
+static const uint8 MAX_KILL_CREDIT = 2;
+static const uint32 MAX_CREATURE_MODELS = 4;
+static const uint32 MAX_CREATURE_QUEST_ITEMS = 6;
+static const uint32 MAX_CREATURE_SPELLS = 8;
 
 struct CreatureModel
 {
@@ -171,11 +175,8 @@ struct TC_GAME_API CreatureTemplate
     float   speed_run;
     float   scale;
     uint32  rank;
-    float   mindmg;
-    float   maxdmg;
     uint32  dmgschool;
-    uint32  attackpower;
-    float   dmg_multiplier;
+    float   dmg_multiplier;                                 // runtime-only (default 1.0, not loaded from DB); used by world events
     uint32  BaseAttackTime;
     uint32  RangeAttackTime;
     uint32  unit_class;                                     // enum Classes. Note only 4 classes are known for creatures.
@@ -186,9 +187,6 @@ struct TC_GAME_API CreatureTemplate
     uint32  trainer_type;
     uint32  trainer_class;
     uint32  trainer_race;
-    float   minrangedmg;
-    float   maxrangedmg;
-    uint32  rangedattackpower;
     uint32  type;                                           // enum CreatureType values
     uint32  type_flags;                                     // enum CreatureTypeFlags mask values
     uint32  type_flags2;                                    // unknown enum, only set for 4 creatures (with value 1)

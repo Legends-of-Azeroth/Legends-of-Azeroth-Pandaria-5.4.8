@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -31,22 +31,22 @@ public:
     {
         static std::vector<ChatCommand> accountSetCommandTable =
         {
-            { "password",          SEC_ADMINISTRATOR, true,  &HandleAccountSetPasswordCommand },
+            { "password",          &HandleAccountSetPasswordCommand,  rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_SET_PASSWORD,  Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> accountCommandTable =
         {
-            { "create",            SEC_ADMINISTRATOR, true,  &HandleAccountCreateCommand        },
-            //{ "gameaccountcreate", SEC_ADMINISTRATOR, true,  &HandleGameAccountCreateCommand  },
-            { "set",               SEC_ADMINISTRATOR, true,  accountSetCommandTable             },
-            //{ "password",          SEC_ADMINISTRATOR, false, &HandleAccountPasswordCommand    },
-            //{ "link",              SEC_ADMINISTRATOR, true,  &HandleAccountLinkCommand        },
-            //{ "unlink",            SEC_ADMINISTRATOR, true,  &HandleAccountUnlinkCommand      },
+            { "create",            &HandleAccountCreateCommand,       rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_CREATE,         Trinity::ChatCommands::Console::Yes },
+            //{ "gameaccountcreate", &HandleGameAccountCreateCommand, rbac::RBAC_PERM_COMMAND_BNETACCOUNT_GAMEACCOUNTCREATE, Trinity::ChatCommands::Console::Yes },
+            { "set",               accountSetCommandTable,             rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_SET,            Trinity::ChatCommands::Console::Yes },
+            //{ "password", &HandleAccountPasswordCommand, rbac::RBAC_PERM_COMMAND_BNETACCOUNT_PASSWORD, Trinity::ChatCommands::Console::No },
+            //{ "link", &HandleAccountLinkCommand, rbac::RBAC_PERM_COMMAND_BNETACCOUNT_LINK, Trinity::ChatCommands::Console::Yes },
+            //{ "unlink", &HandleAccountUnlinkCommand, rbac::RBAC_PERM_COMMAND_BNETACCOUNT_UNLINK, Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "bnetaccount",       SEC_ADMINISTRATOR, true,  accountCommandTable },
+            { "bnetaccount",       accountCommandTable,               rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT,                Trinity::ChatCommands::Console::Yes },
         };
 
         return commandTable;
@@ -82,7 +82,7 @@ public:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName);
                 if (handler->GetSession())
                 {
-                    TC_LOG_INFO("entities.player.character", "Battle.net account: %u (IP: %s) Character:[%s] (" UI64FMTD ") created Account %s",
+                    TC_LOG_INFO("entities.player.character", "Battle.net account: {} (IP: {}) Character:[{}] (" "{}" ") created Account {}",
                         handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                         handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetRawValue(),
                         accountName);
@@ -135,7 +135,7 @@ public:
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
             handler->SetSentErrorMessage(true);
-            TC_LOG_INFO("entities.player.character", "Battle.net account: %u (IP: %s) Character:[%s] (" UI64FMTD ") Tried to change password, but the provided old password is wrong.",
+            TC_LOG_INFO("entities.player.character", "Battle.net account: {} (IP: {}) Character:[{}] (" "{}" ") Tried to change password, but the provided old password is wrong.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                 handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID());
             return false;
@@ -155,7 +155,7 @@ public:
         {
             case AccountOpResult::AOR_OK:
                 handler->SendSysMessage(LANG_COMMAND_PASSWORD);
-                TC_LOG_INFO("entities.player.character", "Battle.net account: %u (IP: %s) Character:[%s] (" UI64FMTD ") Changed Password.",
+                TC_LOG_INFO("entities.player.character", "Battle.net account: {} (IP: {}) Character:[{}] (" "{}" ") Changed Password.",
                     handler->GetSession()->GetBattlenetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                     handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID());
                 break;
@@ -329,7 +329,7 @@ public:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName.c_str());
                 if (handler->GetSession())
                 {
-                    TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (" UI64FMTD ") created Account %s (Email: '%s')",
+                    TC_LOG_INFO("entities.player.character", "Account: {} (IP: {}) Character:[{}] (" "{}" ") created Account {} (Email: '{}')",
                         handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                         handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetRawValue(),
                         accountName.c_str(), bnetAccountName.c_str());

@@ -172,7 +172,7 @@ class boss_wing_leader_neronok : public CreatureScript
                 _JustReachedHome();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ClearDebuffs();
                 BossAI::EnterEvadeMode();

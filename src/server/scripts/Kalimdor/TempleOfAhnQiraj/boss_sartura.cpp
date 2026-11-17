@@ -113,8 +113,8 @@ class boss_sartura : public CreatureScript
                         //Attack random Gamers
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                         {
-                            me->AddThreat(target, 1.0f);
-                            me->TauntApply(target);
+                            me->GetThreatManager().AddThreat(target, 1.0f);
+                            me->GetThreatManager().TauntUpdate();
                             AttackStart(target);
                         }
                         WhirlWindRandom_Timer = urand(3000, 7000);
@@ -141,8 +141,8 @@ class boss_sartura : public CreatureScript
                         //Attack random Gamers
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                         {
-                            me->AddThreat(target, 1.0f);
-                            me->TauntApply(target);
+                            me->GetThreatManager().AddThreat(target, 1.0f);
+                            me->GetThreatManager().TauntUpdate();
                             AttackStart(target);
                         }
                         AggroReset = true;
@@ -247,8 +247,8 @@ class npc_sartura_royal_guard : public CreatureScript
                         //Attack random Gamers
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                         {
-                            me->AddThreat(target, 1.0f);
-                            me->TauntApply(target);
+                            me->GetThreatManager().AddThreat(target, 1.0f);
+                            me->GetThreatManager().TauntUpdate();
                             AttackStart(target);
                         }
     
@@ -268,8 +268,8 @@ class npc_sartura_royal_guard : public CreatureScript
                         //Attack random Gamers
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                         {
-                            me->AddThreat(target, 1.0f);
-                            me->TauntApply(target);
+                            me->GetThreatManager().AddThreat(target, 1.0f);
+                            me->GetThreatManager().TauntUpdate();
                             AttackStart(target);
                         }
     

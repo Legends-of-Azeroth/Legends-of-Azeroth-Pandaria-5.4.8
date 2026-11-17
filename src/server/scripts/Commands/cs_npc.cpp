@@ -28,7 +28,7 @@ EndScriptData */
 #include "Transport.h"
 #include "CreatureGroups.h"
 #include "Language.h"
-#include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
+#include "FollowMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 #include "CreatureAI.h"
 #include "Player.h"
 #include "Pet.h"
@@ -130,7 +130,7 @@ EnumName<UnitFlags> const unitFlags[MAX_UNIT_FLAGS] =
     CREATE_NAMED_ENUM(UNIT_FLAG_SILENCED),
     CREATE_NAMED_ENUM(UNIT_FLAG_CANNOT_SWIM),
     CREATE_NAMED_ENUM(UNIT_FLAG_CAN_SWIM),
-    CREATE_NAMED_ENUM(UNIT_FLAG_UNK_16),
+    CREATE_NAMED_ENUM(UNIT_FLAG_NON_ATTACKABLE_2),
     CREATE_NAMED_ENUM(UNIT_FLAG_PACIFIED),
     CREATE_NAMED_ENUM(UNIT_FLAG_STUNNED),
     CREATE_NAMED_ENUM(UNIT_FLAG_IN_COMBAT),
@@ -157,60 +157,60 @@ public:
     {
         static std::vector<ChatCommand> npcAddCommandTable =
         {
-            { "formation",       SEC_ADMINISTRATOR,  false,  &HandleNpcAddFormationCommand,      },
-            { "item",            SEC_ADMINISTRATOR,  false,  &HandleNpcAddVendorItemCommand,     },
-            { "move",            SEC_ADMINISTRATOR,  false,  &HandleNpcAddMoveCommand,           },
-            { "temp",            SEC_ADMINISTRATOR,  false,  &HandleNpcAddTempSpawnCommand,      },
-            { "",                SEC_ADMINISTRATOR,  false,  &HandleNpcAddCommand,               },
+            { "formation",       &HandleNpcAddFormationCommand,      rbac::RBAC_PERM_COMMAND_NPC_ADD_FORMATION, Trinity::ChatCommands::Console::No },
+            { "item",            &HandleNpcAddVendorItemCommand,     rbac::RBAC_PERM_COMMAND_NPC_ADD_ITEM,      Trinity::ChatCommands::Console::No },
+            { "move",            &HandleNpcAddMoveCommand,           rbac::RBAC_PERM_COMMAND_NPC_ADD_MOVE,      Trinity::ChatCommands::Console::No },
+            { "temp",            &HandleNpcAddTempSpawnCommand,      rbac::RBAC_PERM_COMMAND_NPC_ADD_TEMP,      Trinity::ChatCommands::Console::No },
+            { "",                &HandleNpcAddCommand,               rbac::RBAC_PERM_COMMAND_NPC_ADD,           Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> npcDeleteCommandTable =
         {
-            { "item",            SEC_ADMINISTRATOR,  false,  &HandleNpcDeleteVendorItemCommand,  },
-            { "",                SEC_ADMINISTRATOR,  false,  &HandleNpcDeleteCommand,            },
+            { "item",            &HandleNpcDeleteVendorItemCommand,  rbac::RBAC_PERM_COMMAND_NPC_DELETE_ITEM,   Trinity::ChatCommands::Console::No },
+            { "",                &HandleNpcDeleteCommand,            rbac::RBAC_PERM_COMMAND_NPC_DELETE,        Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> npcFollowCommandTable =
         {
-            { "stop",            SEC_ADMINISTRATOR,  false,  &HandleNpcUnFollowCommand,          },
-            { "",                SEC_ADMINISTRATOR,  false,  &HandleNpcFollowCommand,            },
+            { "stop",            &HandleNpcUnFollowCommand,          rbac::RBAC_PERM_COMMAND_NPC_FOLLOW_STOP,   Trinity::ChatCommands::Console::No },
+            { "",                &HandleNpcFollowCommand,            rbac::RBAC_PERM_COMMAND_NPC_FOLLOW,        Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> npcSetCommandTable =
         {
-            { "allowmove",       SEC_ADMINISTRATOR,  false,  &HandleNpcSetAllowMovementCommand,  },
-            { "entry",           SEC_ADMINISTRATOR,  false,  &HandleNpcSetEntryCommand,          },
-            { "factionid",       SEC_ADMINISTRATOR,  false,  &HandleNpcSetFactionIdCommand,      },
-            { "flag",            SEC_ADMINISTRATOR,  false,  &HandleNpcSetFlagCommand,           },
-            { "level",           SEC_ADMINISTRATOR,  false,  &HandleNpcSetLevelCommand,          },
-            { "link",            SEC_ADMINISTRATOR,  false,  &HandleNpcSetLinkCommand,           },
-            { "model",           SEC_ADMINISTRATOR,  false,  &HandleNpcSetModelCommand,          },
-            { "movetype",        SEC_ADMINISTRATOR,  false,  &HandleNpcSetMoveTypeCommand,       },
-            { "phase",           SEC_ADMINISTRATOR,  false,  &HandleNpcSetPhaseCommand,          },
-            { "phaseid",         SEC_ADMINISTRATOR,  false,  &HandleNpcSetPhaseIDCommand,        },
-            { "phasegroup",      SEC_ADMINISTRATOR,  false,  &HandleNpcSetPhaseGroup,            },
-            { "wanderdistance",  SEC_ADMINISTRATOR,  false,  &HandleNpcSetWanderDistanceCommand, },
-            { "spawntime",       SEC_ADMINISTRATOR,  false,  &HandleNpcSetSpawnTimeCommand,      },
-            { "data",            SEC_ADMINISTRATOR,  false,  &HandleNpcSetDataCommand,           },
+            { "allowmove",       &HandleNpcSetAllowMovementCommand,  rbac::RBAC_PERM_COMMAND_NPC_SET_ALLOWMOVE, Trinity::ChatCommands::Console::No },
+            { "entry",           &HandleNpcSetEntryCommand,          rbac::RBAC_PERM_COMMAND_NPC_SET_ENTRY,     Trinity::ChatCommands::Console::No },
+            { "factionid",       &HandleNpcSetFactionIdCommand,      rbac::RBAC_PERM_COMMAND_NPC_SET_FACTIONID, Trinity::ChatCommands::Console::No },
+            { "flag",            &HandleNpcSetFlagCommand,           rbac::RBAC_PERM_COMMAND_NPC_SET_FLAG,      Trinity::ChatCommands::Console::No },
+            { "level",           &HandleNpcSetLevelCommand,          rbac::RBAC_PERM_COMMAND_NPC_SET_LEVEL,     Trinity::ChatCommands::Console::No },
+            { "link",            &HandleNpcSetLinkCommand,           rbac::RBAC_PERM_COMMAND_NPC_SET_LINK,      Trinity::ChatCommands::Console::No },
+            { "model",           &HandleNpcSetModelCommand,          rbac::RBAC_PERM_COMMAND_NPC_SET_MODEL,     Trinity::ChatCommands::Console::No },
+            { "movetype",        &HandleNpcSetMoveTypeCommand,       rbac::RBAC_PERM_COMMAND_NPC_SET_MOVETYPE,  Trinity::ChatCommands::Console::No },
+            { "phase",           &HandleNpcSetPhaseCommand,          rbac::RBAC_PERM_COMMAND_NPC_SET_PHASE,     Trinity::ChatCommands::Console::No },
+            { "phaseid", &HandleNpcSetPhaseIDCommand, rbac::RBAC_PERM_COMMAND_NPC_SET_PHASEID, Trinity::ChatCommands::Console::No },
+            { "phasegroup", &HandleNpcSetPhaseGroup, rbac::RBAC_PERM_COMMAND_NPC_SET_PHASEGROUP, Trinity::ChatCommands::Console::No },
+            { "wanderdistance", &HandleNpcSetWanderDistanceCommand, rbac::RBAC_PERM_COMMAND_NPC_SET_WANDERDISTANCE, Trinity::ChatCommands::Console::No },
+            { "spawntime",       &HandleNpcSetSpawnTimeCommand,      rbac::RBAC_PERM_COMMAND_NPC_SET_SPAWNTIME, Trinity::ChatCommands::Console::No },
+            { "data",            &HandleNpcSetDataCommand,           rbac::RBAC_PERM_COMMAND_NPC_SET_DATA,      Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> npcCommandTable =
         {
-            { "info",            SEC_ADMINISTRATOR,  false,  &HandleNpcInfoCommand,              },
-            { "near",            SEC_ADMINISTRATOR,  false,  &HandleNpcNearCommand,              },
-            { "move",            SEC_ADMINISTRATOR,  false,  &HandleNpcMoveCommand,              },
-            { "playemote",       SEC_ADMINISTRATOR,  false,  &HandleNpcPlayEmoteCommand,         },
-            { "say",             SEC_ADMINISTRATOR,  false,  &HandleNpcSayCommand,               },
-            { "textemote",       SEC_ADMINISTRATOR,  false,  &HandleNpcTextEmoteCommand,         },
-            { "whisper",         SEC_ADMINISTRATOR,  false,  &HandleNpcWhisperCommand,           },
-            { "yell",            SEC_ADMINISTRATOR,  false,  &HandleNpcYellCommand,              },
-            { "tame",            SEC_ADMINISTRATOR,  false,  &HandleNpcTameCommand,              },
-            { "scale",           SEC_ADMINISTRATOR,  false,  &HandleNpcScaleCommand,             },
-            { "add",             SEC_ADMINISTRATOR,  false,  npcAddCommandTable                  },
-            { "delete",          SEC_ADMINISTRATOR,  false,  npcDeleteCommandTable               },
-            { "follow",          SEC_ADMINISTRATOR,  false,  npcFollowCommandTable               },
-            { "set",             SEC_ADMINISTRATOR,  false,  npcSetCommandTable                  },
-            
+            { "info",            &HandleNpcInfoCommand,              rbac::RBAC_PERM_COMMAND_NPC_INFO,          Trinity::ChatCommands::Console::No },
+            { "near",            &HandleNpcNearCommand,              rbac::RBAC_PERM_COMMAND_NPC_NEAR,          Trinity::ChatCommands::Console::No },
+            { "move",            &HandleNpcMoveCommand,              rbac::RBAC_PERM_COMMAND_NPC_MOVE,          Trinity::ChatCommands::Console::No },
+            { "playemote",       &HandleNpcPlayEmoteCommand,         rbac::RBAC_PERM_COMMAND_NPC_PLAYEMOTE,     Trinity::ChatCommands::Console::No },
+            { "say",             &HandleNpcSayCommand,               rbac::RBAC_PERM_COMMAND_NPC_SAY,           Trinity::ChatCommands::Console::No },
+            { "textemote",       &HandleNpcTextEmoteCommand,         rbac::RBAC_PERM_COMMAND_NPC_TEXTEMOTE,     Trinity::ChatCommands::Console::No },
+            { "whisper",         &HandleNpcWhisperCommand,           rbac::RBAC_PERM_COMMAND_NPC_WHISPER,       Trinity::ChatCommands::Console::No },
+            { "yell",            &HandleNpcYellCommand,              rbac::RBAC_PERM_COMMAND_NPC_YELL,          Trinity::ChatCommands::Console::No },
+            { "tame",            &HandleNpcTameCommand,              rbac::RBAC_PERM_COMMAND_NPC_TAME,          Trinity::ChatCommands::Console::No },
+            { "scale", &HandleNpcScaleCommand, rbac::RBAC_PERM_COMMAND_NPC_SCALE, Trinity::ChatCommands::Console::No },
+            { "add",             npcAddCommandTable,                  rbac::RBAC_PERM_COMMAND_NPC_ADD,           Trinity::ChatCommands::Console::No },
+            { "delete",          npcDeleteCommandTable,               rbac::RBAC_PERM_COMMAND_NPC_DELETE,        Trinity::ChatCommands::Console::No },
+            { "follow",          npcFollowCommandTable,               rbac::RBAC_PERM_COMMAND_NPC_FOLLOW,        Trinity::ChatCommands::Console::No },
+            { "set",             npcSetCommandTable,                  rbac::RBAC_PERM_COMMAND_NPC_SET,           Trinity::ChatCommands::Console::No },
+
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "npc",             SEC_ADMINISTRATOR,  false,  npcCommandTable                     },
+            { "npc", npcCommandTable, rbac::RBAC_PERM_COMMAND_NPC, Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }
@@ -743,6 +743,11 @@ public:
         std::string defRespawnDelayMaxStr = target->GetRespawnDelayMax() ? secsToTimeString(target->GetRespawnDelayMax(), true) : defRespawnDelayStr;
 
         handler->PSendSysMessage(LANG_NPCINFO_CHAR,  target->GetDBTableGUIDLow(), target->GetGUID().GetCounter(), faction, npcflags, Entry, displayid, nativeid);
+        handler->PSendSysMessage("Name: %s, Subname: %s", target->GetName().c_str(), cInfo->SubName.c_str());
+        handler->PSendSysMessage("Map: %u, Orientation: %.4f", target->GetMapId(), target->GetOrientation());
+        handler->PSendSysMessage("SpawnId: %u, VehicleId: %u", target->GetSpawnId(), cInfo->VehicleId);
+        handler->PSendSysMessage("Rank: %u, Type: %u, Faction: %u", cInfo->rank, cInfo->type, cInfo->faction);
+        handler->PSendSysMessage("Speed: walk=%.4f run=%.4f, Scale: %.4f", cInfo->speed_walk, cInfo->speed_run, cInfo->scale);
         handler->PSendSysMessage(LANG_NPCINFO_LEVEL, target->GetLevel());
         handler->PSendSysMessage(LANG_NPCINFO_EQUIPMENT, target->GetCurrentEquipmentId(), target->GetOriginalEquipmentId());
         handler->PSendSysMessage(LANG_NPCINFO_HEALTH, target->GetCreateHealth(), target->GetMaxHealth(), target->GetHealth());
@@ -1184,8 +1189,10 @@ public:
 
         creature->ClearPhases();
 
-        for (uint32 id : GetPhasesForGroup(phaseGroupId))
-            creature->SetPhased(id, false, true); // don't send update here for multiple phases, only send it once after adding all phases
+        // don't send update here for multiple phases, only send it once after adding all phases
+        std::vector<uint32> const* phasesInGroup = sDBCManager.GetPhasesForGroup(phaseGroupId);
+        for (uint32 phaseId : *phasesInGroup)
+            creature->SetPhased(phaseId, false, true);
 
         creature->UpdateObjectVisibility();
 
@@ -1373,7 +1380,7 @@ public:
             return false;
         }
 
-        FollowMovementGenerator<Creature> const* mgen = static_cast<FollowMovementGenerator<Creature> const*>((creature->GetMotionMaster()->top()));
+        FollowMovementGenerator const* mgen = static_cast<FollowMovementGenerator const*>((creature->GetMotionMaster()->top()));
 
         if (mgen->GetTarget() != player)
         {
@@ -1453,7 +1460,7 @@ public:
         if (!sObjectMgr->GetCreatureTemplate(id))
             return false;
 
-        chr->SummonCreature(id, *chr, TEMPSUMMON_CORPSE_DESPAWN, 120);
+        chr->SummonCreature(id, *chr, TEMPSUMMON_CORPSE_DESPAWN, 120ms);
 
         return true;
     }

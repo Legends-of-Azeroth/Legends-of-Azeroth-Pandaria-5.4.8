@@ -53,7 +53,7 @@ class boss_dark_shaman_koranthal : public CreatureScript
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 BossAI::EnterEvadeMode();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);

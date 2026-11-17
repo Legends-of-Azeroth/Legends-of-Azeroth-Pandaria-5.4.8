@@ -329,12 +329,15 @@ class npc_wind_lord_meljarak_intro : public CreatureScript
                             Talk(MELJARAK_TALK_EVENT_SUMMON_GARALON);
                             SetMoveOnMeOrFamiliars();
 
-                            if (instance->GetData(DATA_GARALON) != SPECIAL)
+                            if (instance)
                             {
-                                instance->SetData(DATA_GARALON, SPECIAL);
+                                if (instance->GetData(DATA_GARALON) != SPECIAL)
+                                {
+                                    instance->SetData(DATA_GARALON, SPECIAL);
 
-                                if (Creature* Garalon = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_GARALON) : ObjectGuid::Empty))
-                                    Garalon->AI()->DoAction(ACTION_GARALON_INITIALIZE);
+                                    if (Creature* Garalon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GARALON)))
+                                        Garalon->AI()->DoAction(ACTION_GARALON_INITIALIZE);
+                                }
                             }
                             break;
                         case EVENT_MELJARAK_TERRACE_LEAVE:
@@ -1293,7 +1296,7 @@ class npc_instructor_maltik : public CreatureScript
                 CallForHelpMyStudients(me, me->GetGUID());
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->GetMotionMaster()->MoveTargetedHome();
             }
@@ -1699,7 +1702,7 @@ struct npc_zephyr_tornado : public ScriptedAI
         init.Launch();
     }
 
-    void EnterEvadeMode() override { }
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 };
 
 // Kaz`rik 64826

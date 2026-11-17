@@ -93,7 +93,7 @@ void Warden::Update()
                 // Kick player if client response delays more than set in config
                 if (_clientResponseTimer > maxClientResponseDelay * IN_MILLISECONDS)
                 {
-                    TC_LOG_WARN("warden", "%s (latency: %u, IP: %s) exceeded Warden module response delay for more than %s - disconnecting client",
+                    TC_LOG_WARN("warden", "{} (latency: {}, IP: {}) exceeded Warden module response delay for more than {} - disconnecting client",
                                    _session->GetPlayerInfo().c_str(), _session->GetLatency(), _session->GetRemoteAddress().c_str(), secsToTimeString(maxClientResponseDelay, true).c_str());
 
                     _clientResponseTimer = 0;
@@ -234,7 +234,7 @@ void WorldSession::HandleWardenDataOpcode(WorldPacket& recvData)
     _warden->DecryptData(recvData.contents() + recvData.rpos(), len);
     uint8 opcode;
     recvData >> opcode;
-    TC_LOG_DEBUG("warden", "Got packet, opcode %02X, size %u", opcode, uint32(recvData.size()));
+    TC_LOG_DEBUG("warden", "Got packet, opcode {}, size {}", opcode, uint32(recvData.size()));
     recvData.hexlike();
 
     switch (opcode)
@@ -263,7 +263,7 @@ void WorldSession::HandleWardenDataOpcode(WorldPacket& recvData)
             recvData.rfinish(); // NYI opcode
             break;
         default:
-            TC_LOG_DEBUG("warden", "Got unknown warden opcode %02X of size %u.", opcode, uint32(recvData.size() - 1));
+            TC_LOG_DEBUG("warden", "Got unknown warden opcode {} of size {}.", opcode, uint32(recvData.size() - 1));
             break;
     }
 }

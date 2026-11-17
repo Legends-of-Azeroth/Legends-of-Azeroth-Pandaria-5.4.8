@@ -371,7 +371,7 @@ class boss_atramedes : public CreatureScript
                                         me->SummonCreature(NPC_TRACKING_FLAMES,
                                             target->GetPositionX(), target->GetPositionY(),
                                             target->GetPositionZ(), me->GetOrientation(),
-                                            TEMPSUMMON_TIMED_DESPAWN, 8000);
+                                            TEMPSUMMON_TIMED_DESPAWN, 8000ms);
                                     }
                                     break;
                                 case 4:
@@ -560,7 +560,7 @@ class npc_roaring_flame_target : public CreatureScript
                         me->GetPositionX(),
                         me->GetPositionY(),
                         me->GetPositionZ(),
-                        0.0f, TEMPSUMMON_TIMED_DESPAWN, 45000);
+                        0.0f, TEMPSUMMON_TIMED_DESPAWN, 45000ms);
             }
         };
 

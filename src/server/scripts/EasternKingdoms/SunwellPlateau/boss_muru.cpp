@@ -149,7 +149,7 @@ class boss_entropius : public CreatureScript
                         summon->AddUnitState(UNIT_STATE_STUNNED);
                         float x, y, z, o;
                         summon->GetHomePosition(x, y, z, o);
-                        me->SummonCreature(NPC_DARK_FIENDS, x, y, z, o, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        me->SummonCreature(NPC_DARK_FIENDS, x, y, z, o, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
                         break;
                 }
                 summon->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM,0, 50, true));
@@ -337,13 +337,13 @@ class boss_muru : public CreatureScript
                                 {
                                     DarkFiend = false;
                                     for (uint8 j = 0; j < 8; ++j)
-                                        me->SummonCreature(NPC_DARK_FIENDS, DarkFiends[j][0], DarkFiends[j][1], DarkFiends[j][2], DarkFiends[j][3], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                        me->SummonCreature(NPC_DARK_FIENDS, DarkFiends[j][0], DarkFiends[j][1], DarkFiends[j][2], DarkFiends[j][3], TEMPSUMMON_CORPSE_DESPAWN, 0ms);
                                     timer[TIMER_DARKNESS] = 42000;
                                 }
                                 break;
                             case TIMER_HUMANOIDES:
                                 for (uint8 j = 0; j < 6; ++j)
-                                    me->SummonCreature(uint32(Humanoides[j][0]), Humanoides[j][1], Humanoides[j][2], Humanoides[j][3], Humanoides[j][4], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                    me->SummonCreature(uint32(Humanoides[j][0]), Humanoides[j][1], Humanoides[j][2], Humanoides[j][3], Humanoides[j][4], TEMPSUMMON_CORPSE_DESPAWN, 0ms);
                                 timer[TIMER_HUMANOIDES] = 60000;
                                 break;
                             case TIMER_PHASE:
@@ -544,7 +544,7 @@ class npc_void_sentinel : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 for (uint8 i = 0; i < 8; ++i)
-                    me->SummonCreature(NPC_VOID_SPAWN, me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(), float(rand()%6), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000);
+                    me->SummonCreature(NPC_VOID_SPAWN, me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(), float(rand()%6), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000ms);
             }
 
             void UpdateAI(uint32 diff) override

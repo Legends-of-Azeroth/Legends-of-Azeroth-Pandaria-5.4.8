@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -42,7 +42,7 @@ class TC_GAME_API TempSummon : public Creature
         explicit TempSummon(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject);
         virtual ~TempSummon() { }
         void Update(uint32 time) override;
-        bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, CreatureData const* data = nullptr);
+        bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, CreatureData const* data = nullptr, bool dynamic = false);
         virtual void InitStats(uint32 lifetime);
         virtual void InitSummon();
         virtual void UnSummon(uint32 msTime = 0);
@@ -54,6 +54,8 @@ class TC_GAME_API TempSummon : public Creature
         ObjectGuid GetSummonerGUID() const { return m_summonerGUID; }
         TempSummonType const& GetSummonType() { return m_type; }
         uint32 GetTimer() { return m_timer; }
+        bool CanFollowOwner() const { return m_canFollowOwner; }
+        void SetCanFollowOwner(bool can) { m_canFollowOwner = can; }
 
         const SummonPropertiesEntry* const m_Properties;
 
@@ -77,7 +79,8 @@ class TC_GAME_API TempSummon : public Creature
         uint32 m_timer;
         uint32 m_lifetime;
         ObjectGuid m_summonerGUID;
-};
+        bool m_canFollowOwner;
+    };
 
 class TC_GAME_API Minion : public TempSummon
 {

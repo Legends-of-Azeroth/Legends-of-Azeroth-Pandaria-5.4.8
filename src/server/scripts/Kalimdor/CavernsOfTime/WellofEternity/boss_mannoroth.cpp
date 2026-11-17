@@ -185,7 +185,7 @@ class boss_mannoroth : public CreatureScript
             {
                 _Reset();
 
-                me->SummonCreature(NPC_VAROTHEN, varothenPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                me->SummonCreature(NPC_VAROTHEN, varothenPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
 
                 phase = 0;
                 bVarothen = false;
@@ -359,12 +359,12 @@ class boss_mannoroth : public CreatureScript
                             break;
                         case EVENT_SUMMON_DEBILITATOR_1:
                             for (uint8 i = 0; i < 2; ++i)
-                                me->SummonCreature(NPC_DOOMGUARD_DEBILITATOR, debilitatorPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                                me->SummonCreature(NPC_DOOMGUARD_DEBILITATOR, debilitatorPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000ms);
                             break;
                         case EVENT_SUMMON_DEVASTATOR:
                         {
                             uint32 i = urand(0, 2);
-                            me->SummonCreature(NPC_DOOMGUARD_DEVASTATOR, devastatorPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
+                            me->SummonCreature(NPC_DOOMGUARD_DEVASTATOR, devastatorPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000ms);
                             events.ScheduleEvent(EVENT_SUMMON_DEVASTATOR, urand(4000, 7000));
                             break;
                         }

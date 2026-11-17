@@ -234,7 +234,7 @@ class npc_arthas : public CreatureScript
             switch (action)
             {
                 case GOSSIP_ACTION_INFO_DEF:
-                    pAI->Start(true, true, player->GetGUID(), 0, false, false);
+                    pAI->SetRun(true); pAI->Start(true, player->GetGUID(), 0, false, false);
                     pAI->SetDespawnAtEnd(false);
                     pAI->bStepping = false;
                     pAI->uiStep = 1;
@@ -242,7 +242,7 @@ class npc_arthas : public CreatureScript
                 case GOSSIP_ACTION_INFO_DEF+1:
                     if (pAI->respawned)
                     {
-                        pAI->Start(true, true, ObjectGuid::Empty, 0, false, false);
+                        pAI->SetRun(true); pAI->Start(true, ObjectGuid::Empty, 0, false, false);
                         pAI->SetNextWaypoint(9, false);
                         pAI->respawned = false;
                     }
@@ -256,7 +256,7 @@ class npc_arthas : public CreatureScript
                 case GOSSIP_ACTION_INFO_DEF+3:
                     if (pAI->respawned)
                     {
-                        pAI->Start(true, true, ObjectGuid::Empty, 0, false, false);
+                        pAI->SetRun(true); pAI->Start(true, ObjectGuid::Empty, 0, false, false);
                         pAI->SetNextWaypoint(21, false);
                         pAI->respawned = false;
                     }
@@ -270,7 +270,7 @@ class npc_arthas : public CreatureScript
                 case GOSSIP_ACTION_INFO_DEF+5:
                     if (pAI->respawned)
                     {
-                        pAI->Start(true, true, ObjectGuid::Empty, 0, false, false);
+                        pAI->SetRun(true); pAI->Start(true, ObjectGuid::Empty, 0, false, false);
                         pAI->respawned = false;
                         pAI->SetNextWaypoint(46, false);
                     }
@@ -282,7 +282,7 @@ class npc_arthas : public CreatureScript
                     pAI->uiStep = 85;
                     break;
                 case GOSSIP_ACTION_INFO_DEF+7:
-                    pAI->Start(true, true, player->GetGUID(), 0, false, false);
+                    pAI->SetRun(true); pAI->Start(true, player->GetGUID(), 0, false, false);
                     pAI->SetDespawnAtEnd(false);
                     pAI->bStepping = false;
                     pAI->uiStep = 22;
@@ -346,9 +346,9 @@ class npc_arthas : public CreatureScript
             return true;
         }
 
-        struct npc_arthasAI : public npc_escortAI
+        struct npc_arthasAI : public EscortAI
         {
-            npc_arthasAI(Creature* creature) : npc_escortAI(creature)
+            npc_arthasAI(Creature* creature) : EscortAI(creature)
             {
                 instance = creature->GetInstanceScript();
                 Reset();
@@ -433,14 +433,14 @@ class npc_arthas : public CreatureScript
 
             void SpawnTimeRift(uint32 timeRiftID, ObjectGuid* guidVector)
             {
-                me->SummonCreature((uint32)RiftAndSpawnsLocations[timeRiftID][0], RiftAndSpawnsLocations[timeRiftID][1], RiftAndSpawnsLocations[timeRiftID][2], RiftAndSpawnsLocations[timeRiftID][3], RiftAndSpawnsLocations[timeRiftID][4], TEMPSUMMON_TIMED_DESPAWN, 11000);
+                me->SummonCreature((uint32)RiftAndSpawnsLocations[timeRiftID][0], RiftAndSpawnsLocations[timeRiftID][1], RiftAndSpawnsLocations[timeRiftID][2], RiftAndSpawnsLocations[timeRiftID][3], RiftAndSpawnsLocations[timeRiftID][4], TEMPSUMMON_TIMED_DESPAWN, 11000ms);
 
                 for (uint32 i = timeRiftID + 1; i < ENCOUNTER_CHRONO_SPAWNS; ++i)
                 {
                     if ((uint32)RiftAndSpawnsLocations[i][0] == NPC_TIME_RIFT)
                         break;
 
-                    if (Creature* pTemp = me->SummonCreature((uint32)RiftAndSpawnsLocations[i][0], RiftAndSpawnsLocations[timeRiftID][1], RiftAndSpawnsLocations[timeRiftID][2], RiftAndSpawnsLocations[timeRiftID][3], RiftAndSpawnsLocations[timeRiftID][4], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000))
+                    if (Creature* pTemp = me->SummonCreature((uint32)RiftAndSpawnsLocations[i][0], RiftAndSpawnsLocations[timeRiftID][1], RiftAndSpawnsLocations[timeRiftID][2], RiftAndSpawnsLocations[timeRiftID][3], RiftAndSpawnsLocations[timeRiftID][4], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000ms))
                     {
                         guidVector[i-timeRiftID-1] = pTemp->GetGUID();
                         if (timeRiftID != 0) // Avoid unnatackable ones at the inn
@@ -462,7 +462,7 @@ class npc_arthas : public CreatureScript
                     if ((uint32)WavesLocations[waveID][i][0] == 0)
                         break;
 
-                    if (Creature* pTemp = me->SummonCreature((uint32)WavesLocations[waveID][i][0], WavesLocations[waveID][i][1], WavesLocations[waveID][i][2], WavesLocations[waveID][i][3], WavesLocations[waveID][i][4], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000))
+                    if (Creature* pTemp = me->SummonCreature((uint32)WavesLocations[waveID][i][0], WavesLocations[waveID][i][1], WavesLocations[waveID][i][2], WavesLocations[waveID][i][3], WavesLocations[waveID][i][4], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000ms))
                         guidVector[i] = pTemp->GetGUID();
                 }
                 SendCrierWarning(waveID);
@@ -480,7 +480,7 @@ class npc_arthas : public CreatureScript
                 instance->SetData(DATA_ARTHAS_STEP, uiStep);
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
                 switch (waypointId)
                 {
@@ -499,9 +499,9 @@ class npc_arthas : public CreatureScript
                         bStepping = true;
                         break;
                     case 7:
-                        if (Unit* pCityman0 = me->SummonCreature(NPC_CITY_MAN_1, 2091.977f, 1275.021f, 140.757f, 0.558f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
+                        if (Unit* pCityman0 = me->SummonCreature(NPC_CITY_MAN_1, 2091.977f, 1275.021f, 140.757f, 0.558f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000ms))
                             uiCitymenGUID[0] = pCityman0->GetGUID();
-                        if (Unit* pCityman1 = me->SummonCreature(NPC_CITY_MAN_2, 2093.514f, 1275.842f, 140.408f, 3.801f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
+                        if (Unit* pCityman1 = me->SummonCreature(NPC_CITY_MAN_2, 2093.514f, 1275.842f, 140.408f, 3.801f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000ms))
                             uiCitymenGUID[1] = pCityman1->GetGUID();
                         break;
                     case 8:
@@ -512,14 +512,14 @@ class npc_arthas : public CreatureScript
                     case 12:
                         SetRun(true);
                         Talk(SAY_PHASE210);
-                        if (Unit* pDisguised0 = me->SummonCreature(NPC_CITY_MAN_3, 2398.14f, 1207.81f, 134.04f, 5.155249f, TEMPSUMMON_DEAD_DESPAWN, 180000))
+                        if (Unit* pDisguised0 = me->SummonCreature(NPC_CITY_MAN_3, 2398.14f, 1207.81f, 134.04f, 5.155249f, TEMPSUMMON_DEAD_DESPAWN, 180000ms))
                         {
                             uiInfiniteDraconianGUID[0] = pDisguised0->GetGUID();
-                            if (Unit* pDisguised1 = me->SummonCreature(NPC_CITY_MAN_4, 2403.22f, 1205.54f, 134.04f, 3.311264f, TEMPSUMMON_DEAD_DESPAWN, 180000))
+                            if (Unit* pDisguised1 = me->SummonCreature(NPC_CITY_MAN_4, 2403.22f, 1205.54f, 134.04f, 3.311264f, TEMPSUMMON_DEAD_DESPAWN, 180000ms))
                             {
                                 uiInfiniteDraconianGUID[1] = pDisguised1->GetGUID();
 
-                                if (Unit* pDisguised2 = me->SummonCreature(NPC_CITY_MAN_1, 2400.82f, 1201.69f, 134.01f, 1.534082f, TEMPSUMMON_DEAD_DESPAWN, 180000))
+                                if (Unit* pDisguised2 = me->SummonCreature(NPC_CITY_MAN_1, 2400.82f, 1201.69f, 134.01f, 1.534082f, TEMPSUMMON_DEAD_DESPAWN, 180000ms))
                                 {
                                     uiInfiniteDraconianGUID[2] = pDisguised2->GetGUID();
                                     pDisguised0->SetTarget(uiInfiniteDraconianGUID[1]);
@@ -602,7 +602,7 @@ class npc_arthas : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
                 DoMeleeAttackIfReady();
 
@@ -616,7 +616,7 @@ class npc_arthas : public CreatureScript
                             case 0:
                                 if (Unit* pJaina = GetClosestCreatureWithEntry(me, NPC_JAINA, 50.0f))
                                     uiJainaGUID = pJaina->GetGUID();
-                                else if (Unit* pJaina = me->SummonCreature(NPC_JAINA, 1895.48f, 1292.66f, 143.706f, 0.023475f, TEMPSUMMON_DEAD_DESPAWN, 180000))
+                                else if (Unit* pJaina = me->SummonCreature(NPC_JAINA, 1895.48f, 1292.66f, 143.706f, 0.023475f, TEMPSUMMON_DEAD_DESPAWN, 180000ms))
                                     uiJainaGUID = pJaina->GetGUID();
                                 bStepping = false;
                                 JumpToNextStep(0);
@@ -624,7 +624,7 @@ class npc_arthas : public CreatureScript
                             // After waypoint 0
                             case 1:
                                 me->SetWalk(false);
-                                if (Unit* pUther = me->SummonCreature(NPC_UTHER, 1794.357f, 1272.183f, 140.558f, 1.37f, TEMPSUMMON_DEAD_DESPAWN, 180000))
+                                if (Unit* pUther = me->SummonCreature(NPC_UTHER, 1794.357f, 1272.183f, 140.558f, 1.37f, TEMPSUMMON_DEAD_DESPAWN, 180000ms))
                                 {
                                     uiUtherGUID = pUther->GetGUID();
                                     pUther->SetWalk(false);
@@ -761,7 +761,7 @@ class npc_arthas : public CreatureScript
                                 break;
                             // After Gossip 1 (waypoint 8)
                             case 24:
-                                if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET, 2026.469f, 1287.088f, 143.596f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 14000))
+                                if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET, 2026.469f, 1287.088f, 143.596f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 14000ms))
                                 {
                                     uiStalkerGUID = pStalker->GetGUID();
                                     me->SetTarget(uiStalkerGUID);
@@ -830,7 +830,7 @@ class npc_arthas : public CreatureScript
                                 JumpToNextStep(1000);
                                 break;
                             case 34:
-                                if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET, 2081.447f, 1287.770f, 141.3241f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                                if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET, 2081.447f, 1287.770f, 141.3241f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 10000ms))
                                 {
                                     uiStalkerGUID = pStalker->GetGUID();
                                     me->SetTarget(uiStalkerGUID);
@@ -839,12 +839,12 @@ class npc_arthas : public CreatureScript
                                 JumpToNextStep(3000);
                                 break;
                             case 35:
-                                if (Unit* pStalkerM = me->SummonCreature(NPC_INVIS_TARGET, 2117.349f, 1288.624f, 136.271f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 60000))
+                                if (Unit* pStalkerM = me->SummonCreature(NPC_INVIS_TARGET, 2117.349f, 1288.624f, 136.271f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 60000ms))
                                 {
                                     uiStalkerGUID = pStalkerM->GetGUID();
                                     me->SetTarget(uiStalkerGUID);
                                 }
-                                if (Creature* pMalganis = me->SummonCreature(NPC_MAL_GANIS, 2117.349f, 1288.624f, 136.271f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 60000))
+                                if (Creature* pMalganis = me->SummonCreature(NPC_MAL_GANIS, 2117.349f, 1288.624f, 136.271f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 60000ms))
                                 {
                                     if (Creature* pStalkerM = Unit::GetCreature(*me, uiStalkerGUID))
                                         pMalganis->CastSpell(pStalkerM, 63793, false);
@@ -883,7 +883,7 @@ class npc_arthas : public CreatureScript
                                 JumpToNextStep(7000);
                                 break;
                             case 40:
-                                if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET, 2081.447f, 1287.770f, 141.3241f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                                if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET, 2081.447f, 1287.770f, 141.3241f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 10000ms))
                                 {
                                     uiStalkerGUID = pStalker->GetGUID();
                                     me->SetTarget(uiStalkerGUID);
@@ -968,7 +968,7 @@ class npc_arthas : public CreatureScript
                                         SendCrierWarning(8); // shoul be spawned around the Elder's Square Gate
                                     }
 
-                                    if (Unit* pBoss = me->SummonCreature(uiBossID, 2232.19f, 1331.933f, 126.662f, 3.15f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000))
+                                    if (Unit* pBoss = me->SummonCreature(uiBossID, 2232.19f, 1331.933f, 126.662f, 3.15f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000ms))
                                     {
                                         uiBossGUID = pBoss->GetGUID();
                                         pBoss->SetWalk(true);
@@ -994,7 +994,7 @@ class npc_arthas : public CreatureScript
                                         }
                                     }
                                     else if (instance->GetData(uiBossEvent) == FAIL)
-                                        npc_escortAI::EnterEvadeMode();
+                                        EscortAI::EnterEvadeMode();
                                     else
                                         uiPhaseTimer = 10000;
                                 }
@@ -1161,7 +1161,7 @@ class npc_arthas : public CreatureScript
                                         JumpToNextStep(15000);
                                     }
                                     else if (instance->GetData(DATA_EPOCH_EVENT) == FAIL)
-                                        npc_escortAI::EnterEvadeMode();
+                                        EscortAI::EnterEvadeMode();
                                     else
                                         uiPhaseTimer = 10000;
                                 }
@@ -1175,7 +1175,7 @@ class npc_arthas : public CreatureScript
                             // After Gossip 5
                             case 85:
                                 Talk(SAY_PHASE501);
-                                if (Creature* pMalganis = me->SummonCreature(NPC_MAL_GANIS, 2296.665f, 1502.362f, 128.362f, 4.961f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000))
+                                if (Creature* pMalganis = me->SummonCreature(NPC_MAL_GANIS, 2296.665f, 1502.362f, 128.362f, 4.961f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000ms))
                                 {
                                     uiMalganisGUID = pMalganis->GetGUID();
                                     pMalganis->SetReactState(REACT_PASSIVE);
@@ -1210,7 +1210,7 @@ class npc_arthas : public CreatureScript
                                         JumpToNextStep(1000);
                                     }
                                     else if (instance->GetData(DATA_MAL_GANIS_EVENT) == FAIL)
-                                        npc_escortAI::EnterEvadeMode();
+                                        EscortAI::EnterEvadeMode();
                                     else
                                         uiPhaseTimer = 10000;
                                 }

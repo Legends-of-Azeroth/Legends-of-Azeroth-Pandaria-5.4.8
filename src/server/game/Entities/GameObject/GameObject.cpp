@@ -54,6 +54,7 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_usetimes = 0;
     m_spellId = 0;
     m_cooldownTime = 0;
+    m_prevGoState = GO_STATE_ACTIVE;
     m_goInfo = NULL;
     m_ritualOwner = NULL;
     m_goData = NULL;
@@ -137,7 +138,7 @@ void GameObject::RemoveFromOwner()
     else if (ownerGUID.IsPet())
         ownerType = "pet";
 
-    TC_LOG_FATAL("misc", "Removed GameObject (GUID: %u Entry: %u SpellId: %u LinkedGO: %u) that just lost any reference to the owner (GUID: %u Type: '%s') GO list",
+    TC_LOG_FATAL("misc", "Removed GameObject (GUID: {} Entry: {} SpellId: {} LinkedGO: {}) that just lost any reference to the owner (GUID: {} Type: '{}') GO list",
         GetGUID().GetCounter(), GetGOInfo()->entry, m_spellId, GetGOInfo()->GetLinkedGameObjectEntry(), ownerGUID.GetCounter(), ownerType);
     SetOwnerGUID(ObjectGuid::Empty);
 }
@@ -198,7 +199,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     m_stationaryPosition.Relocate(x, y, z, ang);
     if (!IsPositionValid())
     {
-        TC_LOG_ERROR("misc", "Gameobject (GUID: %u Entry: %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", guidlow, name_id, x, y);
+        TC_LOG_ERROR("misc", "Gameobject (GUID: {} Entry: {}) not created. Suggested coordinates isn't valid (X: {} Y: {})", guidlow, name_id, x, y);
         return false;
     }
 
@@ -216,19 +217,19 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(name_id);
     if (!goinfo)
     {
-        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: %u Entry: %u) not created: non-existing entry in `gameobject_template`. Map: %u (X: %f Y: %f Z: %f)", guidlow, name_id, map->GetId(), x, y, z);
+        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: {} Entry: {}) not created: non-existing entry in `gameobject_template`. Map: {} (X: {} Y: {} Z: {})", guidlow, name_id, map->GetId(), x, y, z);
         return false;
     }
 
     if (goinfo->type == GAMEOBJECT_TYPE_MO_TRANSPORT)
     {
-        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: %u Entry: %u) not created: gameobject type GAMEOBJECT_TYPE_MO_TRANSPORT cannot be manually created.", guidlow, name_id);
+        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: {} Entry: {}) not created: gameobject type GAMEOBJECT_TYPE_MO_TRANSPORT cannot be manually created.", guidlow, name_id);
         return false;
     }
 
     if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT && goinfo->entry != 216666)
     {
-        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: %u Entry: %u) not created: gameobject type GAMEOBJECT_TYPE_TRANSPORT cannot be manually created.", guidlow, name_id);
+        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: {} Entry: {}) not created: gameobject type GAMEOBJECT_TYPE_TRANSPORT cannot be manually created.", guidlow, name_id);
         return false;
     }
 
@@ -239,7 +240,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
 
     if (goinfo->type >= MAX_GAMEOBJECT_TYPE)
     {
-        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: %u Entry: %u) not created: non-existing GO type '%u' in `gameobject_template`. It will crash client if created.", guidlow, name_id, goinfo->type);
+        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: {} Entry: {}) not created: non-existing GO type '{}' in `gameobject_template`. It will crash client if created.", guidlow, name_id, goinfo->type);
         return false;
     }
 
@@ -276,6 +277,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     CreateModel();
     // GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, index at 0, 1, 2 and 3
     SetGoType(GameobjectTypes(goinfo->type));
+    m_prevGoState = go_state;
     SetGoState(go_state);
     SetGoArtKit(artKit);
 
@@ -348,6 +350,11 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     return true;
 }
 
+void GameObject::AddDelayedEvent(uint64 timeOffset, std::function<void()>&& function)
+{
+    _functions_delayed.AddDelayedEvent(timeOffset, std::move(function));
+}
+
 void GameObject::Update(uint32 diff)
 {
     // WARNING! Order of execution here is important, do not change.
@@ -361,6 +368,8 @@ void GameObject::Update(uint32 diff)
         AI()->UpdateAI(diff);
     else if (!AIM_Initialize())
         TC_LOG_ERROR("misc", "Could not initialize GameObjectAI");
+
+    _functions_delayed.Update(diff);
 
     switch (m_lootState)
     {
@@ -409,7 +418,7 @@ void GameObject::Update(uint32 diff)
 
                             G3D::Vector3 src(GetPositionX(), GetPositionY(), GetPositionZ());
 
-                            sLog->outDebug("misc", "Src: %s Dest: %s", src.toString().c_str(), pos.toString().c_str());
+                            sLog->OutMessage("misc", LOG_LEVEL_DEBUG, "Src: {} Dest: {}", src.toString().c_str(), pos.toString().c_str());
 
                             GetMap()->GameObjectRelocation(this, pos.x, pos.y, pos.z, GetOrientation());
                         }
@@ -822,7 +831,7 @@ void GameObject::SaveToDB(uint32 mapid, uint16 spawnMask, uint32 phaseMask)
         return;
 
     if (!m_DBTableGuid)
-        m_DBTableGuid = GetGUID().GetCounter();
+        m_DBTableGuid = sObjectMgr->GenerateGameObjectSpawnId();
 
     // update in loaded data (changing data only in this place)
     GameObjectData& data = sObjectMgr->NewGOData(m_DBTableGuid);
@@ -879,7 +888,7 @@ bool GameObject::LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap)
 
     if (!data)
     {
-        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: %u) not found in table `gameobject`, can't load. ", guid);
+        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: {}) not found in table `gameobject`, can't load. ", guid);
         return false;
     }
 
@@ -911,8 +920,11 @@ bool GameObject::LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap)
 
     if (data->phaseGroup)
     {
-        for (auto ph : GetPhasesForGroup(data->phaseGroup))
-            SetPhased(ph, false, true);
+        std::vector<uint32> const* phasesInGroup = sDBCManager.GetPhasesForGroup(data->phaseGroup);
+        for (uint32 phaseId : *phasesInGroup)
+            SetPhased(phaseId, false, true);
+        //for (auto ph : sDBCManager.GetPhasesForGroup(data->phaseGroup))
+            //SetPhased(ph, false, true);
     }
 
     if (data->spawntimesecs >= 0)
@@ -1213,7 +1225,9 @@ void GameObject::ResetDoorOrButton()
     if (m_lootState == GO_READY || m_lootState == GO_JUST_DEACTIVATED)
         return;
 
-    SwitchDoorOrButton(false);
+    RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
+    SetGoState(m_prevGoState);
+
     SetLootState(GO_JUST_DEACTIVATED);
     m_cooldownTime = 0;
 }
@@ -1289,7 +1303,7 @@ void GameObject::Use(Unit* user)
         if (sScriptMgr->OnGossipHello(playerUser, this))
             return;
 
-        if (AI()->OnGossipHello(playerUser))
+        if (AI()->OnGossipHello(playerUser, true))
             return;
     }
 
@@ -1455,7 +1469,7 @@ void GameObject::Use(Unit* user)
 
                     if (info->goober.eventId)
                     {
-                        TC_LOG_DEBUG("maps.script", "Goober ScriptStart id %u for GO entry %u (GUID %u).", info->goober.eventId, GetEntry(), GetDBTableGUIDLow());
+                        TC_LOG_DEBUG("maps.script", "Goober ScriptStart id {} for GO entry {} (GUID {}).", info->goober.eventId, GetEntry(), GetDBTableGUIDLow());
                         GetMap()->ScriptsStart(sEventScripts, info->goober.eventId, player, this);
                         EventInform(info->goober.eventId);
                     }
@@ -1537,7 +1551,7 @@ void GameObject::Use(Unit* user)
 
                     //provide error, no fishable zone or area should be 0
                     if (!zone_skill)
-                        TC_LOG_ERROR("sql.sql", "Fishable areaId %u are not properly defined in `skill_fishing_base_level`.", subzone);
+                        TC_LOG_ERROR("sql.sql", "Fishable areaId {} are not properly defined in `skill_fishing_base_level`.", subzone);
 
                     int32 skill = player->GetSkillValue(SKILL_FISHING);
 
@@ -1553,7 +1567,7 @@ void GameObject::Use(Unit* user)
 
                     int32 roll = irand(1, 100);
 
-                    TC_LOG_DEBUG("misc", "Fishing check (skill: %i zone min skill: %i chance %i roll: %i", skill, zone_skill, chance, roll);
+                    TC_LOG_DEBUG("misc", "Fishing check (skill: {} zone min skill: {} chance {} roll: {}", skill, zone_skill, chance, roll);
 
                     // but you will likely cause junk in areas that require a high fishing skill (not yet implemented)
                     if (chance >= roll)
@@ -1869,7 +1883,7 @@ void GameObject::Use(Unit* user)
         }
         default:
             if (GetGoType() >= MAX_GAMEOBJECT_TYPE)
-                TC_LOG_ERROR("misc", "GameObject::Use(): unit (type: %u, guid: %u, name: %s) tries to use object (guid: %u, entry: %u, name: %s) of unknown type (%u)",
+                TC_LOG_ERROR("misc", "GameObject::Use(): unit (type: {}, guid: {}, name: {}) tries to use object (guid: {}, entry: {}, name: {}) of unknown type ({})",
                     user->GetTypeId(), user->GetGUID().GetCounter(), user->GetName().c_str(), GetGUID().GetCounter(), GetEntry(), GetGOInfo()->name.c_str(), GetGoType());
             break;
     }
@@ -1881,9 +1895,9 @@ void GameObject::Use(Unit* user)
     if (!spellInfo)
     {
         if (user->GetTypeId() != TYPEID_PLAYER || !sOutdoorPvPMgr->HandleCustomSpell(user->ToPlayer(), spellId, this))
-            TC_LOG_ERROR("misc", "WORLD: unknown spell id %u at use action for gameobject (Entry: %u GoType: %u)", spellId, GetEntry(), GetGoType());
+            TC_LOG_ERROR("misc", "WORLD: unknown spell id {} at use action for gameobject (Entry: {} GoType: {})", spellId, GetEntry(), GetGoType());
         else
-            TC_LOG_DEBUG("outdoorpvp", "WORLD: %u non-dbc spell was handled by OutdoorPvP", spellId);
+            TC_LOG_DEBUG("outdoorpvp", "WORLD: {} non-dbc spell was handled by OutdoorPvP", spellId);
         return;
     }
 

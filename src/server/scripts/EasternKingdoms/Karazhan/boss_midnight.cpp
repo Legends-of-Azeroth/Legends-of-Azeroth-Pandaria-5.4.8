@@ -75,7 +75,7 @@ class boss_attumen : public CreatureScript
                 ResetTimer = 0;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 ScriptedAI::EnterEvadeMode();
                 ResetTimer = 2000;
@@ -152,7 +152,7 @@ class boss_midnight : public CreatureScript
                 if (Phase == 1 && HealthBelowPct(95))
                 {
                     Phase = 2;
-                    if (Creature* attumen = me->SummonCreature(SUMMON_ATTUMEN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000))
+                    if (Creature* attumen = me->SummonCreature(SUMMON_ATTUMEN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000ms))
                     {
                         attumenGUID = attumen->GetGUID();
                         attumen->AI()->AttackStart(me->GetVictim());
@@ -273,9 +273,9 @@ void boss_attumen::boss_attumenAI::UpdateAI(uint32 diff)
         {
             Unit* target = nullptr;
             std::vector<Unit *> target_list;
-            for (auto&& itr : me->getThreatManager().getThreatList())
+            for (auto&& ref : me->GetThreatManager().GetUnsortedThreatList())
             {
-                target = Unit::GetUnit(*me, itr->getUnitGuid());
+                target = Unit::GetUnit(*me, ref->GetVictim()->GetGUID());
                 if (target && !target->IsWithinDist(me, ATTACK_DISTANCE, false))
                     target_list.push_back(target);
                 target = nullptr;

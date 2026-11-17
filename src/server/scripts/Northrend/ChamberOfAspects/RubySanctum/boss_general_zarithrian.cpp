@@ -200,11 +200,11 @@ class npc_onyx_flamecaller : public CreatureScript
     public:
         npc_onyx_flamecaller() : CreatureScript("npc_onyx_flamecaller") { }
 
-        struct npc_onyx_flamecallerAI : public npc_escortAI
+        struct npc_onyx_flamecallerAI : public EscortAI
         {
-            npc_onyx_flamecallerAI(Creature* creature) : npc_escortAI(creature), _instance(creature->GetInstanceScript())
+            npc_onyx_flamecallerAI(Creature* creature) : EscortAI(creature), _instance(creature->GetInstanceScript())
             {
-                npc_escortAI::SetDespawnAtEnd(false);
+                EscortAI::SetDespawnAtEnd(false);
             }
 
             void Reset() override
@@ -212,7 +212,7 @@ class npc_onyx_flamecaller : public CreatureScript
                 _lavaGoutCount = 0;
                 me->setActive(true);
                 AddWaypoints();
-                Start(true, true);
+                SetRun(true); Start(true);
             }
 
             void JustEngagedWith(Unit* /*who*/) override
@@ -222,7 +222,7 @@ class npc_onyx_flamecaller : public CreatureScript
                 _events.ScheduleEvent(EVENT_LAVA_GOUT, 5000);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 // Prevent EvadeMode
             }
@@ -234,7 +234,7 @@ class npc_onyx_flamecaller : public CreatureScript
                     zarithrian->AI()->JustSummoned(me);
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 pathId) override
             {
                 if (waypointId == MAX_PATH_FLAMECALLER_WAYPOINTS || waypointId == MAX_PATH_FLAMECALLER_WAYPOINTS*2)
                 {

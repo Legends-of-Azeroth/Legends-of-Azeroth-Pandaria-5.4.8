@@ -146,7 +146,7 @@ class Aura
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         uint32 GetId() const{ return GetSpellInfo()->Id; }
 
-        uint64 GetCastItemGUID() const { return m_castItemGuid; }
+        ObjectGuid GetCastItemGUID() const { return m_castItemGuid; }
         ObjectGuid GetCasterGUID() const { return m_casterGuid; }
         Unit* GetCaster() const;
         WorldObject* GetOwner() const { return m_owner; }

@@ -212,22 +212,22 @@ struct npc_stormwind_infantry : public ScriptedAI
     {
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
-            me->getThreatManager().resetAllAggro();
-            who->AddThreat(me, 1.0f);
-            me->AddThreat(who, 1.0f);
+            me->GetThreatManager().ResetAllThreat();
+            who->GetThreatManager().AddThreat(me, 1.0f);
+            me->GetThreatManager().AddThreat(who, 1.0f);
             me->AI()->AttackStart(who);
         }
         else if (who->IsPet())
         {
-            me->getThreatManager().resetAllAggro();
-            me->AddThreat(who, 1.0f);
+            me->GetThreatManager().ResetAllThreat();
+            me->GetThreatManager().AddThreat(who, 1.0f);
             me->AI()->AttackStart(who);
         }
 
         if (who->GetEntry() == ElwynnForest::NPC_BLACKROCK_BATTLE_WORG && me->HealthBelowPct(ElwynnForest::AI_HEALTH_MIN))
         {
             damage = 0;
-            me->AddThreat(who, 1.0f);
+            me->GetThreatManager().AddThreat(who, 1.0f);
             me->AI()->AttackStart(who);
         }
     }
@@ -274,22 +274,22 @@ struct npc_blackrock_battle_worg : public ScriptedAI
     {
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
-            me->getThreatManager().resetAllAggro();
-            who->AddThreat(me, 1.0f);
-            me->AddThreat(who, 1.0f);
+            me->GetThreatManager().ResetAllThreat();
+            who->GetThreatManager().AddThreat(me, 1.0f);
+            me->GetThreatManager().AddThreat(who, 1.0f);
             me->AI()->AttackStart(who);
         }
         else if (who->IsPet())
         {
-            me->getThreatManager().resetAllAggro();
-            me->AddThreat(who, 1.0f);
+            me->GetThreatManager().ResetAllThreat();
+            me->GetThreatManager().AddThreat(who, 1.0f);
             me->AI()->AttackStart(who);
         }
 
         if (who->GetEntry() == ElwynnForest::NPC_STORMWIND_INFANTRY && me->HealthBelowPct(ElwynnForest::AI_HEALTH_MIN))
         {
             damage = 0;
-            me->AddThreat(who, 1.0f);
+            me->GetThreatManager().AddThreat(who, 1.0f);
             me->AI()->AttackStart(who);
         }
     }
@@ -352,7 +352,7 @@ struct npc_brother_paxton : public ScriptedAI
         _cooldownTimer = 0;
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         return;
     }
@@ -1153,10 +1153,10 @@ struct npc_hogger : public ScriptedAI
                     break;
                 case ElwynnForest::EVENT_SUMMON_KIDS:
                 {
-                    if (Creature* ragamuffin_1 = me->SummonCreature(ElwynnForest::NPC_RAGAMUFFIN, -10130.9f, 653.302f, 36.05013f, 1.652422f, TEMPSUMMON_TIMED_DESPAWN, 7500))
+                    if (Creature* ragamuffin_1 = me->SummonCreature(ElwynnForest::NPC_RAGAMUFFIN, -10130.9f, 653.302f, 36.05013f, 1.652422f, TEMPSUMMON_TIMED_DESPAWN, 7500ms))
                         ragamuffin_1->AI()->SetData(0, 1);
 
-                    if (Creature* ragamuffin_2 = me->SummonCreature(ElwynnForest::NPC_RAGAMUFFIN, -10122.5f, 660.198f, 36.03663f, 2.837752f, TEMPSUMMON_TIMED_DESPAWN, 6500))
+                    if (Creature* ragamuffin_2 = me->SummonCreature(ElwynnForest::NPC_RAGAMUFFIN, -10122.5f, 660.198f, 36.03663f, 2.837752f, TEMPSUMMON_TIMED_DESPAWN, 6500ms))
                         ragamuffin_2->AI()->SetData(0, 2);
 
                     events.ScheduleEvent(ElwynnForest::EVENT_SAY_GRR, 8s + 500ms);

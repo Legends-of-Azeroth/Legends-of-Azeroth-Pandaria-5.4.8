@@ -277,7 +277,7 @@ class instance_firelands : public InstanceMapScript
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const override
             {
-                if (player && !AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()))
+                if (_SkipCheckRequiredBosses(player))
                     return true;
 
                 switch (bossId)

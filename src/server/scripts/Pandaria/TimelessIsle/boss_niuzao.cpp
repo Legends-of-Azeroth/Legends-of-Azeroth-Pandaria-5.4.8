@@ -172,7 +172,8 @@ class boss_niuzao : public CreatureScript
                     me->SetHealth(391000000/*me->GetMaxHealth()*/);
 
                     me->SetFacingTo(MIDDLE_FACING_ANGLE);
-                    me->DeleteThreatList();
+                    me->GetThreatManager().RemoveMeFromThreatLists();
+                    me->GetThreatManager().ClearAllThreat();
 
                     events.Reset();
                     summons.DespawnAll();
@@ -189,7 +190,7 @@ class boss_niuzao : public CreatureScript
                 summons.Summon(summon);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 me->AddUnitState(UNIT_STATE_EVADE);
 

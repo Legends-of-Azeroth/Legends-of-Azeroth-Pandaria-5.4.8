@@ -30,15 +30,63 @@
 #include "WaypointMovementGenerator.h"
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
+#include "MovementPackets.h"
 #include "MovementStructures.h"
 #include "BattlePetMgr.h"
+#include "GameTime.h"
 #include <boost/accumulators/statistics/variance.hpp>
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics.hpp>
+#include <boost/circular_buffer.hpp>
 
-#define MOVEMENT_PACKET_TIME_DELAY 0
+uint32 WorldSession::AdjustClientMovementTime(uint32 time) const
+{
+    int64 movementTime = int64(time) + _timeSyncClockDelta;
+    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > SI64LIT(0xFFFFFFFF))
+    {
+        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
+        return GameTime::GetGameTimeMS();
+    }
+    else
+        return uint32(movementTime);
+}
 
-void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket& /*recvData*/)
+void WorldSession::ComputeNewClockDelta()
+{
+    // implementation of the technique described here: https://web.archive.org/web/20180430214420/http://www.mine-control.com/zack/timesync/timesync.html
+    // to reduce the skew induced by dropped TCP packets that get resent.
+
+    using namespace boost::accumulators;
+
+    accumulator_set<uint32, features<tag::mean, tag::median, tag::variance(lazy)> > latencyAccumulator;
+
+    for (auto [_, roundTripDuration] : *_timeSyncClockDeltaQueue)
+        latencyAccumulator(roundTripDuration);
+
+    uint32 latencyMedian = static_cast<uint32>(std::round(median(latencyAccumulator)));
+    uint32 latencyStandardDeviation = static_cast<uint32>(std::round(sqrt(variance(latencyAccumulator))));
+
+    accumulator_set<int64, features<tag::mean> > clockDeltasAfterFiltering;
+    uint32 sampleSizeAfterFiltering = 0;
+    for (auto [clockDelta, roundTripDuration] : *_timeSyncClockDeltaQueue)
+    {
+        if (roundTripDuration < latencyStandardDeviation + latencyMedian) {
+            clockDeltasAfterFiltering(clockDelta);
+            sampleSizeAfterFiltering++;
+        }
+    }
+
+    if (sampleSizeAfterFiltering != 0)
+    {
+        int64 meanClockDelta = static_cast<int64>(std::round(mean(clockDeltasAfterFiltering)));
+        if (std::abs(meanClockDelta - _timeSyncClockDelta) > 25)
+            _timeSyncClockDelta = meanClockDelta;
+    }
+    else if (_timeSyncClockDelta == 0)
+        _timeSyncClockDelta = _timeSyncClockDeltaQueue->back().first;
+}
+
+void WorldSession::HandleMoveWorldportAckOpcode(WorldPackets::Movement::WorldPortResponse& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: got MSG_MOVE_WORLDPORT_ACK.");
     HandleMoveWorldportAck();
@@ -76,7 +124,7 @@ void WorldSession::HandleMoveWorldportAck()
 
     if (GetPlayer()->IsInWorld())
     {
-        TC_LOG_ERROR("network", "Player %s (GUID: %u) is still in world when teleported from map %s (%u) to new map %s (%u)", GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter(), oldMap->GetMapName(), oldMap->GetId(), newMap ? newMap->GetMapName() : "Unknown", loc.GetMapId());
+        TC_LOG_ERROR("network", "Player {} (GUID: {}) is still in world when teleported from map {} ({}) to new map {} ({})", GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter(), oldMap->GetMapName(), oldMap->GetId(), newMap ? newMap->GetMapName() : "Unknown", loc.GetMapId());
         oldMap->RemovePlayerFromMap(GetPlayer(), false);
     }
 
@@ -86,7 +134,7 @@ void WorldSession::HandleMoveWorldportAck()
     if (!newMap || !newMap->CanEnter(GetPlayer()))
     {
         GetPlayer()->SetrSemaphoreTeleportForcedFar(false);
-        TC_LOG_ERROR("network", "Map %d (%s) could not be created for player %d (%s), porting player to homebind", loc.GetMapId(), newMap ? newMap->GetMapName() : "Unknown", GetPlayer()->GetGUID().GetCounter(), GetPlayer()->GetName().c_str());
+        TC_LOG_ERROR("network", "Map {} ({}) could not be created for player {} ({}), porting player to homebind", loc.GetMapId(), newMap ? newMap->GetMapName() : "Unknown", GetPlayer()->GetGUID().GetCounter(), GetPlayer()->GetName().c_str());
         GetPlayer()->TeleportTo(GetPlayer()->m_homebindMapId, GetPlayer()->m_homebindX, GetPlayer()->m_homebindY, GetPlayer()->m_homebindZ, GetPlayer()->GetOrientation());
         return;
     }
@@ -97,18 +145,19 @@ void WorldSession::HandleMoveWorldportAck()
 
     GetPlayer()->ResetMap();
     GetPlayer()->SetMap(newMap);
+    GetPlayer()->UpdatePositionData();
 
     bool invalidZ = false;
     if (GetPlayer()->GetPositionZ() > 500000.0f || GetPlayer()->GetPositionZ() <= -200000.0f)
     {
-        TC_LOG_ERROR("shitlog", "WorldSession::HandleMoveWorldportAckOpcode z coordinate fucked: %s, map %u, z %f\n", GetPlayerInfo().c_str(), newMap->GetId(), GetPlayer()->GetPositionZ());
+        TC_LOG_ERROR("shitlog", "WorldSession::HandleMoveWorldportAckOpcode z coordinate fucked: {}, map {}, z {}\n", GetPlayerInfo().c_str(), newMap->GetId(), GetPlayer()->GetPositionZ());
         invalidZ = true;
     }
 
     GetPlayer()->SendInitialPacketsBeforeAddToMap();
     if (invalidZ || !GetPlayer()->GetMap()->AddPlayerToMap(GetPlayer()))
     {
-        TC_LOG_ERROR("network", "WORLD: failed to teleport player %s (%d) to map %d (%s) because of unknown reason!",
+        TC_LOG_ERROR("network", "WORLD: failed to teleport player {} ({}) to map {} ({}) because of unknown reason!",
             GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter(), loc.GetMapId(), newMap ? newMap->GetMapName() : "Unknown");
         GetPlayer()->ResetMap();
         GetPlayer()->SetMap(oldMap);
@@ -163,7 +212,7 @@ void WorldSession::HandleMoveWorldportAck()
     if (mInstance)
     {
         Difficulty diff = GetPlayer()->GetDifficulty(mEntry->IsRaid());
-        if (MapDifficulty const* mapDiff = GetMapDifficultyData(mEntry->MapID, diff))
+        if (MapDifficulty const* mapDiff = sDBCManager.GetMapDifficultyData(mEntry->MapID, diff))
         {
             if (mapDiff->resetTime)
             {
@@ -207,41 +256,19 @@ void WorldSession::HandleMoveWorldportAck()
     GetPlayer()->ProcessDelayedOperations();
 }
 
-void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
+void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet)
 {
     TC_LOG_DEBUG("network", "CMSG_MOVE_TELEPORT_ACK");
 
-    ObjectGuid guid;
-    uint32 flags, time;
-    recvPacket >> time >> flags;
-
-    guid[0] = recvPacket.ReadBit();
-    guid[7] = recvPacket.ReadBit();
-    guid[3] = recvPacket.ReadBit();
-    guid[5] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
-    guid[1] = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-
-    recvPacket.ReadByteSeq(guid[4]);
-    recvPacket.ReadByteSeq(guid[1]);
-    recvPacket.ReadByteSeq(guid[6]);
-    recvPacket.ReadByteSeq(guid[7]);
-    recvPacket.ReadByteSeq(guid[0]);
-    recvPacket.ReadByteSeq(guid[2]);
-    recvPacket.ReadByteSeq(guid[5]);
-    recvPacket.ReadByteSeq(guid[3]);
-
-    TC_LOG_DEBUG("network", "Guid " UI64FMTD, uint64(guid));
-    TC_LOG_DEBUG("network", "Flags %u, time %u", flags, time/IN_MILLISECONDS);
+    TC_LOG_DEBUG("network", "Guid " UI64FMTD, uint64(packet.MoverGUID));
+    TC_LOG_DEBUG("network", "Flags {}, time {}", packet.Flags, packet.MoveTime/IN_MILLISECONDS);
 
     Player* plMover = _player->m_mover->ToPlayer();
 
     if (!plMover || !plMover->IsBeingTeleportedNear())
         return;
 
-    if (guid != plMover->GetGUID())
+    if (packet.MoverGUID != plMover->GetGUID())
         return;
 
     plMover->SetSemaphoreTeleportNear(false);
@@ -278,10 +305,13 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
     GetPlayer()->ProcessDelayedOperations();
 }
 
-void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
+void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet)
 {
-    uint16 opcode = recvPacket.GetOpcode();
+    HandleMovementOpcode(packet.GetOpcode(), packet.Status);
+}
 
+void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movementInfo)
+{
     Unit* mover = _player->m_mover;
 
     ASSERT(mover != NULL);                      // there must always be a mover
@@ -290,22 +320,12 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 
     // ignore, waiting processing in WorldSession::HandleMoveWorldportAckOpcode and WorldSession::HandleMoveTeleportAck
     if (plrMover && plrMover->IsBeingTeleported())
-    {
-        recvPacket.rfinish();                     // prevent warnings spam
         return;
-    }
 
     // Discard movement updates that were sent while the player uses a movement generator. Fixes movement motion being overriden by position update on client
     MovementGeneratorType moveGenType = mover->GetMotionMaster()->GetCurrentMovementGeneratorType();
     if (moveGenType != NULL_MOTION_TYPE && moveGenType != IDLE_MOTION_TYPE)
-    {
-        recvPacket.rfinish();
         return;
-    }
-
-    /* extract packet */
-    MovementInfo movementInfo;
-    GetPlayer()->ReadMovementInfo(recvPacket, &movementInfo, nullptr, true);
 
     // prevent tampered movement data
     if (movementInfo.guid != mover->GetGUID())
@@ -327,17 +347,11 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
         if (std::fabs(movementInfo.transport.pos.GetPositionX()) > 250.0f ||
             std::fabs(movementInfo.transport.pos.GetPositionY()) > 250.0f ||
             std::fabs(movementInfo.transport.pos.GetPositionZ()) > 250.0f)
-        {
-            recvPacket.rfinish();                 // prevent warnings spam
             return;
-        }
 
         if (!Trinity::IsValidMapCoord(movementInfo.pos.GetPositionX() + movementInfo.transport.pos.GetPositionX(), movementInfo.pos.GetPositionY() + movementInfo.transport.pos.GetPositionY(),
             movementInfo.pos.GetPositionZ() + movementInfo.transport.pos.GetPositionZ(), movementInfo.pos.GetOrientation() + movementInfo.transport.pos.GetOrientation()))
-        {
-            recvPacket.rfinish();                 // prevent warnings spam
             return;
-        }
 
         // if we boarded a transport, add us to it
         if (plrMover)
@@ -399,12 +413,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
         plrMover->SanitizeMovementInfo(&movementInfo, true);
     }
 
-    uint32 mstime = getMSTime();
-    if(m_clientTimeDelay == 0)
-        m_clientTimeDelay = mstime - movementInfo.time;
-
     /* process position-change */
-    movementInfo.time = movementInfo.time + m_clientTimeDelay + MOVEMENT_PACKET_TIME_DELAY;
+    movementInfo.time = AdjustClientMovementTime(movementInfo.time);
     movementInfo.guid = mover->GetGUID();
     mover->m_movementInfo = movementInfo;
 
@@ -428,7 +438,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
     }
     mover->UpdatePosition(movementInfo.pos);
 
-    WorldPacket data(SMSG_PLAYER_MOVE, recvPacket.size());
+    WorldPacket data(SMSG_PLAYER_MOVE, 100);
     mover->WriteMovementInfo(data);
     mover->SendMessageToSet(&data, _player);
 
@@ -459,24 +469,18 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
     }
 }
 
-void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
+void WorldSession::HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpeedAck& packet)
 {
-    uint32 opcode = recvData.GetOpcode();
+    uint32 opcode = packet.GetOpcode();
 
     /* extract packet */
-    MovementInfo movementInfo;
-    static MovementStatusElements const speedElement = MSEExtraFloat;
-    Movement::ExtraMovementStatusElement extras(&speedElement);
-    GetPlayer()->ReadMovementInfo(recvData, &movementInfo, &extras);
+    MovementInfo const& movementInfo = packet.Ack;
 
     // now can skip not our packet
     if (_player->GetGUID() != movementInfo.guid)
-    {
-        recvData.rfinish();                   // prevent warnings spam
         return;
-    }
 
-    float newspeed = extras.Data.floatData;
+    float newspeed = packet.Speed;
     /*----------------*/
 
     // client ACK send one packet for mounted/run case and need skip all except last from its
@@ -508,7 +512,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
         case CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK: move_type = MOVE_FLIGHT_BACK; break;
         case CMSG_MOVE_FORCE_PITCH_RATE_CHANGE_ACK:        move_type = MOVE_PITCH_RATE;  break;
         default:
-            TC_LOG_ERROR("network", "WorldSession::HandleForceSpeedChangeAck: Unknown move type opcode: %u", opcode);
+            TC_LOG_ERROR("network", "WorldSession::HandleForceSpeedChangeAck: Unknown move type opcode: {}", opcode);
             return;
     }
 
@@ -525,52 +529,29 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     {
         if (_player->GetSpeed(move_type) > newspeed)         // must be greater - just correct
         {
-            TC_LOG_ERROR("network", "%sSpeedChange player %s is NOT correct (must be %f instead %f), force set to correct value",
+            TC_LOG_ERROR("network", "{}SpeedChange player {} is NOT correct (must be {} instead {}), force set to correct value",
                 move_type_name[move_type], _player->GetName().c_str(), _player->GetSpeed(move_type), newspeed);
             _player->SetSpeed(move_type, _player->GetSpeedRate(move_type), true);
         }
         else                                                // must be lesser - cheating
         {
-            TC_LOG_DEBUG("misc", "Player %s from account id %u kicked for incorrect speed (must be %f instead %f)",
+            TC_LOG_DEBUG("misc", "Player {} from account id {} kicked for incorrect speed (must be {} instead {})",
                 _player->GetName().c_str(), _player->GetSession()->GetAccountId(), _player->GetSpeed(move_type), newspeed);
             _player->GetSession()->KickPlayer();
         }
     }
 }
 
-void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleSetActiveMoverOpcode(WorldPackets::Movement::SetActiveMover& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_SET_ACTIVE_MOVER");
 
-    ObjectGuid guid;
-
-    recvPacket.ReadBit();
-
-    guid[3] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-    guid[1] = recvPacket.ReadBit();
-    guid[5] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    guid[7] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
-
-    recvPacket.ReadByteSeq(guid[3]);
-    recvPacket.ReadByteSeq(guid[4]);
-    recvPacket.ReadByteSeq(guid[5]);
-    recvPacket.ReadByteSeq(guid[2]);
-    recvPacket.ReadByteSeq(guid[7]);
-    recvPacket.ReadByteSeq(guid[0]);
-    recvPacket.ReadByteSeq(guid[1]);
-    recvPacket.ReadByteSeq(guid[6]);
-
     if (GetPlayer()->IsInWorld())
     {
-        if (guid != _player->GetClientMoverGuid())
-            TC_LOG_ERROR("network", "HandleSetActiveMoverOpcode: incorrect mover guid: mover is " UI64FMTD " (%s - Entry: %u) and should be " UI64FMTD, guid.GetRawValue(), guid.GetTypeName(), guid.GetEntry(), _player->GetClientMoverGuid());
+        Unit* newActivelyMovedUnit = ObjectAccessor::GetUnit(*_player, packet.MoverGUID);
+        if (newActivelyMovedUnit)
+            _player->SetMover(newActivelyMovedUnit);
     }
-    // Unit* newActivelyMovedUnit = ObjectAccessor::GetUnit(*_player, guid); // todo
-    // _player->SetMover(newActivelyMovedUnit);
 }
 
 void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
@@ -582,7 +563,7 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
     _player->m_movementInfo = mi;
 }
 
-void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleMountSpecialAnimOpcode(WorldPackets::Movement::MountSpecialAnim& /*packet*/)
 {
     ObjectGuid guid = GetPlayer()->GetGUID();
 
@@ -610,98 +591,53 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
 }
 
 
-void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
+void WorldSession::HandleMoveKnockBackAck(WorldPackets::Movement::MoveKnockBackAck& packet)
 {
     TC_LOG_DEBUG("network", "CMSG_MOVE_KNOCK_BACK_ACK");
 
-    MovementInfo movementInfo;
-    GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
+    MovementInfo movementInfo = packet.Ack;
 
     if (_player->m_mover->GetGUID() != movementInfo.guid)
         return;
 
+    movementInfo.time = AdjustClientMovementTime(movementInfo.time);
     _player->m_movementInfo = movementInfo;
+    _player->UpdatePosition(movementInfo.pos);
 
     WorldPacket data(SMSG_MOVE_UPDATE_KNOCK_BACK, 66);
     _player->WriteMovementInfo(data);
     _player->SendMessageToSet(&data, false);
 }
 
-void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
+void WorldSession::HandleMoveHoverAck(WorldPackets::Movement::MoveHoverAck& /*packet*/)
 {
     TC_LOG_DEBUG("network", "CMSG_MOVE_HOVER_ACK");
-
-    MovementInfo movementInfo;
-    GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
 }
 
-void WorldSession::HandleMoveWaterWalkAck(WorldPacket& recvData)
+void WorldSession::HandleMoveWaterWalkAck(WorldPackets::Movement::MoveWaterWalkAck& /*packet*/)
 {
     TC_LOG_DEBUG("network", "CMSG_MOVE_WATER_WALK_ACK");
-
-    MovementInfo movementInfo;
-    GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
 }
 
-void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
+void WorldSession::HandleSummonResponseOpcode(WorldPackets::Movement::SummonResponse& packet)
 {
     if (!_player->IsAlive() || _player->IsInCombat())
         return;
 
-    ObjectGuid SummonerGUID;
-
-    SummonerGUID[1] = recvData.ReadBit();
-    SummonerGUID[3] = recvData.ReadBit();
-    SummonerGUID[5] = recvData.ReadBit();
-    SummonerGUID[2] = recvData.ReadBit();
-    bool Accept = recvData.ReadBit();
-    SummonerGUID[7] = recvData.ReadBit();
-    SummonerGUID[0] = recvData.ReadBit();
-    SummonerGUID[4] = recvData.ReadBit();
-    SummonerGUID[6] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(SummonerGUID[0]);
-    recvData.ReadByteSeq(SummonerGUID[1]);
-    recvData.ReadByteSeq(SummonerGUID[6]);
-    recvData.ReadByteSeq(SummonerGUID[3]);
-    recvData.ReadByteSeq(SummonerGUID[5]);
-    recvData.ReadByteSeq(SummonerGUID[4]);
-    recvData.ReadByteSeq(SummonerGUID[2]);
-    recvData.ReadByteSeq(SummonerGUID[7]);
-
-    _player->SummonIfPossible(Accept);
+    _player->SummonIfPossible(packet.Accept);
 }
 
-void WorldSession::HandleSetCollisionHeightAck(WorldPacket& recvPacket)
+void WorldSession::HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCollisionHeightAck& /*packet*/)
 {
     TC_LOG_DEBUG("network", "CMSG_MOVE_SET_COLLISION_HEIGHT_ACK");
-
-    static MovementStatusElements const heightElements[] = { MSEExtraFloat, MSEExtra2Bits };
-    Movement::ExtraMovementStatusElement extra(heightElements);
-    MovementInfo movementInfo;
-    GetPlayer()->ReadMovementInfo(recvPacket, &movementInfo, &extra);
 }
 
-void WorldSession::HandleMovementForceAck(WorldPacket& recvPacket)
+void WorldSession::HandleMovementForceAck(WorldPackets::Movement::MoveApplyMovementForceAck& packet)
 {
-    TC_LOG_DEBUG("network", "%s", recvPacket.GetOpcode() == CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK ? "CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK" : "CMSG_MOVE_REMOVE_MOVEMENT_FORCE_ACK");
-
-    if (recvPacket.GetOpcode() == CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK)
-    {
-        static MovementStatusElements const unkElements[] = { MSEExtraFloat, MSEExtraInt32, MSEExtraFloat };
-        Movement::ExtraMovementStatusElement extra(unkElements);
-        MovementInfo movementInfo;
-        GetPlayer()->ReadMovementInfo(recvPacket, &movementInfo, &extra);
-    }
-    else
-    {
-        MovementInfo movementInfo;
-        GetPlayer()->ReadMovementInfo(recvPacket, &movementInfo);
-    }
+    TC_LOG_DEBUG("network", "{}", packet.GetOpcode() == CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK ? "CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK" : "CMSG_MOVE_REMOVE_MOVEMENT_FORCE_ACK");
 }
 
-void WorldSession::HandleMoveSetCanTurnWhileFallingAck(WorldPacket& recvData)
+void WorldSession::HandleMoveSetCanTurnWhileFallingAck(WorldPackets::Movement::MoveSetCanTurnWhileFallingAck& /*packet*/)
 {
     // TODO: movement info
-    recvData.rfinish();
 }

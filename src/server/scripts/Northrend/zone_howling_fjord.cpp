@@ -64,14 +64,14 @@ public:
                     creature->SetFaction(FACTION_ESCORTEE_H);
                     break;
             }
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+            CAST_AI(EscortAI, (creature->AI()))->Start(true, player->GetGUID());
         }
         return true;
     }
 
-    struct npc_Apothecary_HanesAI : public npc_escortAI
+    struct npc_Apothecary_HanesAI : public EscortAI
     {
-        npc_Apothecary_HanesAI(Creature* creature) : npc_escortAI(creature){ }
+        npc_Apothecary_HanesAI(Creature* creature) : EscortAI(creature){ }
         uint32 PotTimer;
 
         void Reset() override
@@ -100,7 +100,7 @@ public:
                 DoMeleeAttackIfReady();
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -170,9 +170,9 @@ class npc_plaguehound_tracker : public CreatureScript
 public:
     npc_plaguehound_tracker() : CreatureScript("npc_plaguehound_tracker") { }
 
-    struct npc_plaguehound_trackerAI : public npc_escortAI
+    struct npc_plaguehound_trackerAI : public EscortAI
     {
-        npc_plaguehound_trackerAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_plaguehound_trackerAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override
         {
@@ -187,10 +187,10 @@ public:
                 return;
 
             me->SetWalk(true);
-            Start(false, false, summonerGUID);
+            Start(false, summonerGUID);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 pathId) override
         {
             if (waypointId != 26)
                 return;
@@ -372,7 +372,7 @@ public:
 
         void SummonGladiator(uint32 uiEntry)
         {
-            me->SummonCreature(uiEntry, afSummon[0], afSummon[1], afSummon[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30*IN_MILLISECONDS);
+            me->SummonCreature(uiEntry, afSummon[0], afSummon[1], afSummon[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, Milliseconds(30*IN_MILLISECONDS));
         }
 
         void SummonedCreatureDies(Creature* summoned, Unit* /*killer*/) override

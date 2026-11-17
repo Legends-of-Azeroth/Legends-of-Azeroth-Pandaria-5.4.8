@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -37,14 +37,14 @@ public:
     {
         static std::vector<ChatCommand> eventCommandTable =
         {
-            { "activelist", SEC_GAMEMASTER, true,   &HandleEventActiveListCommand,  },
-            { "start",      SEC_GAMEMASTER, true,   &HandleEventStartCommand,       },
-            { "stop",       SEC_GAMEMASTER, true,   &HandleEventStopCommand,        },
-            { "",           SEC_GAMEMASTER, true,   &HandleEventInfoCommand,        },
+            { "activelist", &HandleEventActiveListCommand,  rbac::RBAC_PERM_COMMAND_EVENT_ACTIVELIST,  Trinity::ChatCommands::Console::Yes },
+            { "start",      &HandleEventStartCommand,       rbac::RBAC_PERM_COMMAND_EVENT_START,       Trinity::ChatCommands::Console::Yes },
+            { "stop",       &HandleEventStopCommand,        rbac::RBAC_PERM_COMMAND_EVENT_STOP,        Trinity::ChatCommands::Console::Yes },
+            { "", &HandleEventInfoCommand, rbac::RBAC_PERM_COMMAND_EVENT, Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "event", SEC_GAMEMASTER,      false,  eventCommandTable               },
+            { "event", eventCommandTable, rbac::RBAC_PERM_COMMAND_EVENT, Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

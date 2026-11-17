@@ -19,6 +19,7 @@
 #include "AuctionHouseMgr.h"
 #include "BattlegroundMgr.h"
 #include "BlackMarketMgr.h"
+#include "CharacterCache.h"
 #include "CalendarMgr.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
@@ -52,7 +53,7 @@ MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery
         default:
             m_messageType = MAIL_NORMAL;
             m_senderId = 0;                                 // will show mail from not existed player
-            TC_LOG_ERROR("misc", "MailSender::MailSender - Mail have unexpected sender typeid (%u)", sender->GetTypeId());
+            TC_LOG_ERROR("misc", "MailSender::MailSender - Mail have unexpected sender typeid ({})", sender->GetTypeId());
             break;
     }
 }
@@ -135,11 +136,8 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, uint32 sender_guid, uint32
     ObjectGuid receiverGuid(HighGuid::Player, receiver_guid);
     Player* receiver = ObjectAccessor::FindConnectedPlayer(receiverGuid);
 
-    uint32 rc_account = 0;
-    if (!receiver)
-        rc_account = sObjectMgr->GetPlayerAccountIdByGUID(receiverGuid);
-
-    if (!receiver && !rc_account)                            // sender not exist
+    auto rc_account = sCharacterCache->GetCharacterAccountIdByGuid(receiverGuid);
+    if (!receiver && !rc_account)
     {
         deleteIncludedItems(trans, true);
         return;
@@ -231,6 +229,8 @@ void MailDraft::SendMailTo(CharacterDatabaseTransaction trans, MailReceiver cons
         stmt->setUInt32(2, receiver.GetPlayerGUIDLow());
         trans->Append(stmt);
     }
+
+    sCharacterCache->IncreaseCharacterMailCount(ObjectGuid(HighGuid::Player, receiver.GetPlayerGUIDLow()));
 
     // For online receiver update in game mail status and data
     if (pReceiver)

@@ -396,10 +396,13 @@ class boss_council_of_elders_baseAI : public ScriptedAI
         // Override JustEngagedWith to send the DoAction to the helper
         void JustEngagedWith(Unit* /*who*/) override 
         {
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+            if (instance)
+            {
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
-            if (Creature* pGarajal = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_COUNCIL_OF_ELDERS) : ObjectGuid::Empty))
-                pGarajal->AI()->DoAction(ACTION_FIGHT_BEGIN);
+                if (Creature* pGarajal = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_COUNCIL_OF_ELDERS)))
+                    pGarajal->AI()->DoAction(ACTION_FIGHT_BEGIN);
+            }
 
             Talk(TALK_AGGRO);
 
@@ -417,7 +420,7 @@ class boss_council_of_elders_baseAI : public ScriptedAI
             }
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
         {
             if (instance)
             {
@@ -542,7 +545,8 @@ class boss_council_of_elders_baseAI : public ScriptedAI
     
         void JustDied(Unit* killer) override
         {
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+            if (instance)
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
             switch (me->GetEntry())
             {
@@ -1338,7 +1342,7 @@ class npc_garajal : public CreatureScript
                 return m_uiDeadCouncillors;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 if (atEvade)
                     return;
@@ -1465,7 +1469,7 @@ class npc_garajal : public CreatureScript
 
             void BeginFight()
             {
-                if (instance && instance->GetBossState(DATA_COUNCIL_OF_ELDERS) == IN_PROGRESS)
+                if (!instance || instance->GetBossState(DATA_COUNCIL_OF_ELDERS) == IN_PROGRESS)
                     return;
 
                 m_uiDeadCouncillors = 0;
@@ -1809,7 +1813,7 @@ class npc_living_sand : public CreatureScript
 
             void Reset() override { }
 
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
             
             void Initialize()
             {
@@ -2675,7 +2679,7 @@ class spell_kazrajin_reckless_charge_targeting : public SpellScript
         {
             if (Unit* target = GetHitUnit())
             {
-                if (Creature* recklessChargeTrigger = target->SummonCreature(NPC_RECKLESS_CHARGE, *target, TEMPSUMMON_TIMED_DESPAWN, 7 * IN_MILLISECONDS))
+                if (Creature* recklessChargeTrigger = target->SummonCreature(NPC_RECKLESS_CHARGE, *target, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(7 * IN_MILLISECONDS)))
                 {
                     caster->CastSpell(caster, SPELL_RECKLESS_CHARGE_UNK, true);
                     caster->CastSpell(caster, SPELL_RECKLESS_CHARGE_FACE, true);

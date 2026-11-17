@@ -37,18 +37,18 @@ public:
     {
         static std::vector<ChatCommand> castCommandTable =
         {
-            { "back",   SEC_GAMEMASTER, false,  &HandleCastBackCommand,     },
-            { "dist",   SEC_GAMEMASTER, false,  &HandleCastDistCommand,     },
-            { "self",   SEC_GAMEMASTER, false,  &HandleCastSelfCommand,     },
-            { "target", SEC_GAMEMASTER, false,  &HandleCastTargetCommad,    },
-            { "dest",   SEC_GAMEMASTER, false,  &HandleCastDestCommand,     },
-            { "",       SEC_GAMEMASTER, false,  &HandleCastCommand,         },
-            
+            { "back",   &HandleCastBackCommand,     rbac::RBAC_PERM_COMMAND_CAST_BACK,   Trinity::ChatCommands::Console::No },
+            { "dist",   &HandleCastDistCommand,     rbac::RBAC_PERM_COMMAND_CAST_DIST,   Trinity::ChatCommands::Console::No },
+            { "self",   &HandleCastSelfCommand,     rbac::RBAC_PERM_COMMAND_CAST_SELF,   Trinity::ChatCommands::Console::No },
+            { "target", &HandleCastTargetCommad,    rbac::RBAC_PERM_COMMAND_CAST_TARGET, Trinity::ChatCommands::Console::No },
+            { "dest",   &HandleCastDestCommand,     rbac::RBAC_PERM_COMMAND_CAST_DEST,   Trinity::ChatCommands::Console::No },
+            { "",       &HandleCastCommand,         rbac::RBAC_PERM_COMMAND_CAST,        Trinity::ChatCommands::Console::No },
+
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "cast",   SEC_GAMEMASTER, false,  castCommandTable            },
-            
+            { "cast",   castCommandTable,            rbac::RBAC_PERM_COMMAND_CAST,        Trinity::ChatCommands::Console::No },
+
         };
         return commandTable;
     }

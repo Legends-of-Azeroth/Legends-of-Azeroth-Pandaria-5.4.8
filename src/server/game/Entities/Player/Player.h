@@ -825,7 +825,8 @@ enum TeleportToOptions
     TELE_TO_NOT_LEAVE_TRANSPORT = 0x02,
     TELE_TO_NOT_LEAVE_COMBAT = 0x04,
     TELE_TO_NOT_UNSUMMON_PET = 0x08,
-    TELE_TO_SPELL = 0x10
+    TELE_TO_SPELL = 0x10,
+    TELE_TO_TRANSPORT_TELEPORT = 0x20
 };
 
 /// Type of environmental damages
@@ -1322,6 +1323,23 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
     bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0);
     void CleanupAfterTaxiFlight();
     void ContinueTaxiFlight();
+    // flags
+    bool HasPlayerFlag(PlayerFlags flags) const
+    {
+        return HasFlag(PLAYER_FIELD_PLAYER_FLAGS, flags) != 0;
+    }
+    void SetPlayerFlag(PlayerFlags flags)
+    {
+        SetFlag(PLAYER_FIELD_PLAYER_FLAGS, flags);
+    }
+    void RemovePlayerFlag(PlayerFlags flags)
+    {
+        RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, flags);
+    }
+    void ReplaceAllPlayerFlags(PlayerFlags flags)
+    {
+        SetUInt32Value(PLAYER_FIELD_PLAYER_FLAGS, flags);
+    }
     // mount_id can be used in scripting calls
     bool isAcceptWhispers() const
     {
@@ -1449,7 +1467,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
     uint8 FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) const;
     uint32 GetItemCount(uint32 item, bool inBankAlso = false, Item* skipItem = NULL) const;
     uint32 GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem = NULL) const;
-    Item* GetItemByGuid(uint64 guid) const;
+    Item* GetItemByGuid(ObjectGuid guid) const;
     Item* GetItemByEntry(uint32 entry) const;
     Item* GetItemByPos(uint16 pos) const;
     Item* GetItemByPos(uint8 bag, uint8 slot) const;
@@ -1767,6 +1785,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
     bool IsQuestObjectiveComplete(Quest const* quest, QuestObjective const& objective) const;
 
     void SendQuestComplete(Quest const* quest);
+    void SendQuestComplete(uint32 questId) const;
     void SendQuestReward(Quest const* quest, uint32 XP);
     void SendQuestFailed(uint32 questId, InventoryResult reason = EQUIP_ERR_OK);
     void SendQuestTimerFailed(uint32 questId);
@@ -1919,9 +1938,13 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
     {
         return m_comboPoints;
     }
-    ObjectGuid GetComboTarget() const
+    Unit* GetComboTarget() const
     {
-        return m_comboTarget;
+        return const_cast<Player*>(this)->GetValidComboTarget();
+    }
+    ObjectGuid GetComboTargetGUID() const
+    {
+        return m_comboTarget ? m_comboTargetGuid : ObjectGuid::Empty;   // Never touch the pointer
     }
 
     void AddComboPoints(Unit* target, int8 count, Spell* spell = NULL);
@@ -2823,6 +2846,7 @@ public:
     void   SaveRecallPosition();
 
     void SetHomebind(WorldLocation const& loc, uint32 areaId);
+    void SendBindPointUpdate();
 
     // Homebind coordinates
     uint32 m_homebindMapId;
@@ -3448,7 +3472,9 @@ protected:
 
     uint32 m_ExtraFlags;
 
-    ObjectGuid m_comboTarget;
+    Unit* m_comboTarget;
+    ObjectGuid m_comboTargetGuid;
+    Unit* GetValidComboTarget();
     int8 m_comboPoints;
 
     QuestStatusMap m_QuestStatus;

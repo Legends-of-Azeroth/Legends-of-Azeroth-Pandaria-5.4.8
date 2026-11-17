@@ -100,7 +100,7 @@ class boss_echo_of_baine : public CreatureScript
                 DoZoneInCombat();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
             {
                 instance->SetData(DATA_PLATFORMS, NOT_STARTED);
                 BossAI::EnterEvadeMode();

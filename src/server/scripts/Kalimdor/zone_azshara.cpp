@@ -34,9 +34,9 @@ enum groundTroopsTypes
 };
 
 // AWOL Grunt 42646
-struct npc_azshara_awol_grunt : public CreatureAI
+struct npc_azshara_awol_grunt : public ScriptedAI
 {
-    npc_azshara_awol_grunt(Creature* creature) : CreatureAI(creature) { }
+    npc_azshara_awol_grunt(Creature* creature) : ScriptedAI(creature) { }
 
     TaskScheduler scheduler;
     ObjectGuid targetGUID;
@@ -181,7 +181,7 @@ enum ancientEnemy
         SPELL_FIRES_BEAM            = 73294,
 };
 
-#define VOLJIN_GOSSIP       "我准备好了."
+static const uint32 GOSSIP_MENU_VOLJIN_READY = 11020;   // gossip_menu_option: "I am ready, Vol'jin."
 static const uint32 npcId[3] = { NPC_ZUNI, NPC_VANIRA, NPC_VOLJIN };
 
 class npc_voljin_ancient_enemy : public CreatureScript
@@ -288,7 +288,7 @@ public:
     {
         if(player->GetQuestStatus(QUEST_ANCIENT_ENEMY) == QUEST_STATUS_INCOMPLETE)
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, VOLJIN_GOSSIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_VOLJIN_READY, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
             player->SEND_GOSSIP_MENU(GOSSIP_VOLJIN, creature->GetGUID());            
         }
         return true;

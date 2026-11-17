@@ -29,10 +29,10 @@ TradeData* TradeData::GetTraderData() const
 
 Item* TradeData::GetItem(TradeSlots slot) const
 {
-    return m_items[slot] ? m_player->GetItemByGuid(m_items[slot]) : NULL;
+    return !m_items[slot].IsEmpty() ? m_player->GetItemByGuid(m_items[slot]) : nullptr;
 }
 
-bool TradeData::HasItem(uint64 itemGuid) const
+bool TradeData::HasItem(ObjectGuid itemGuid) const
 {
     for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
         if (m_items[i] == itemGuid)
@@ -41,7 +41,7 @@ bool TradeData::HasItem(uint64 itemGuid) const
     return false;
 }
 
-TradeSlots TradeData::GetTradeSlotForItem(uint64 itemGuid) const
+TradeSlots TradeData::GetTradeSlotForItem(ObjectGuid itemGuid) const
 {
     for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
         if (m_items[i] == itemGuid)
@@ -52,12 +52,14 @@ TradeSlots TradeData::GetTradeSlotForItem(uint64 itemGuid) const
 
 Item* TradeData::GetSpellCastItem() const
 {
-    return m_spellCastItem ? m_player->GetItemByGuid(m_spellCastItem) : NULL;
+    return !m_spellCastItem.IsEmpty() ? m_player->GetItemByGuid(m_spellCastItem) : nullptr;
 }
 
-void TradeData::SetItem(TradeSlots slot, Item* item)
+void TradeData::SetItem(TradeSlots slot, Item* item, bool update /*= false*/)
 {
-    uint64 itemGuid = item ? item->GetGUID() : 0;
+    ObjectGuid itemGuid = ObjectGuid::Empty;
+    if (item)
+        itemGuid = item->GetGUID();
 
     if (m_items[slot] == itemGuid)
         return;
@@ -79,7 +81,7 @@ void TradeData::SetItem(TradeSlots slot, Item* item)
 
 void TradeData::SetSpell(uint32 spell_id, Item* castItem /*= NULL*/)
 {
-    uint64 itemGuid = castItem ? castItem->GetGUID() : 0;
+    ObjectGuid itemGuid = castItem ? castItem->GetGUID() : ObjectGuid::Empty;
 
     if (m_spell == spell_id && m_spellCastItem == itemGuid)
         return;

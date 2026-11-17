@@ -1,4 +1,4 @@
-/*
+﻿/*
 * This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
@@ -28,6 +28,7 @@
 #include "SocialMgr.h"
 #include "Language.h"
 #include "AccountMgr.h"
+#include "RBAC.h"
 #include "Group.h"
 #include "TradeData.h"
 
@@ -73,14 +74,14 @@ void WorldSession::SendTradeStatus(TradeStatus status)
     SendPacket(&data);
 }
 
-void WorldSession::HandleIgnoreTradeOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleIgnoreTradeOpcode(WorldPackets::Trade::IgnoreTrade& /*packet*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Ignore Trade %u", _player->GetGUID().GetCounter());
+    TC_LOG_DEBUG("network", "WORLD: Ignore Trade {}", _player->GetGUID().GetCounter());
 }
 
 void WorldSession::HandleBusyTradeOpcode(WorldPacket& /*recvPacket*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Busy Trade %u", _player->GetGUID().GetCounter());
+    TC_LOG_DEBUG("network", "WORLD: Busy Trade {}", _player->GetGUID().GetCounter());
 }
 
 void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
@@ -212,10 +213,10 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             if (myItems[i])
             {
                 // logging
-                TC_LOG_DEBUG("network", "partner storing: %u", myItems[i]->GetGUID().GetCounter());
-                if (trader->GetSession()->GetSecurity() > SEC_PLAYER && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
+                TC_LOG_DEBUG("network", "partner storing: {}", myItems[i]->GetGUID().GetCounter());
+                if (trader->GetSession()->HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
                 {
-                    sLog->outCommand(_player->GetSession()->GetAccountId(), "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
+                    sLog->OutCommand(_player->GetSession()->GetAccountId(), "GM {} (Account: {}) trade: {} (Entry: {} Count: {}) to player: {} (Account: {})",
                         _player->GetName().c_str(), _player->GetSession()->GetAccountId(),
                         myItems[i]->GetTemplate()->Name1.c_str(), myItems[i]->GetEntry(), myItems[i]->GetCount(),
                         trader->GetName().c_str(), trader->GetSession()->GetAccountId());
@@ -235,10 +236,10 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             if (hisItems[i])
             {
                 // logging
-                TC_LOG_DEBUG("network", "player storing: %u", hisItems[i]->GetGUID().GetCounter());
-                if (trader->GetSession()->GetSecurity() > SEC_PLAYER && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
+                TC_LOG_DEBUG("network", "player storing: {}", hisItems[i]->GetGUID().GetCounter());
+                if (trader->GetSession()->HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
                 {
-                    sLog->outCommand(trader->GetSession()->GetAccountId(), "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
+                    sLog->OutCommand(trader->GetSession()->GetAccountId(), "GM {} (Account: {}) trade: {} (Entry: {} Count: {}) to player: {} (Account: {})",
                         trader->GetName().c_str(), trader->GetSession()->GetAccountId(),
                         hisItems[i]->GetTemplate()->Name1.c_str(), hisItems[i]->GetEntry(), hisItems[i]->GetCount(),
                         _player->GetName().c_str(), _player->GetSession()->GetAccountId());
@@ -264,21 +265,21 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             if (myItems[i])
             {
                 if (!traderCanTrade)
-                    TC_LOG_ERROR("network", "trader can't store item: %u", myItems[i]->GetGUID().GetCounter());
+                    TC_LOG_ERROR("network", "trader can't store item: {}", myItems[i]->GetGUID().GetCounter());
                 if (_player->CanStoreItem(NULL_BAG, NULL_SLOT, playerDst, myItems[i], false) == EQUIP_ERR_OK)
                     _player->MoveItemToInventory(playerDst, myItems[i], true, true);
                 else
-                    TC_LOG_ERROR("network", "player can't take item back: %u", myItems[i]->GetGUID().GetCounter());
+                    TC_LOG_ERROR("network", "player can't take item back: {}", myItems[i]->GetGUID().GetCounter());
             }
             // return the already removed items to the original owner
             if (hisItems[i])
             {
                 if (!playerCanTrade)
-                    TC_LOG_ERROR("network", "player can't store item: %u", hisItems[i]->GetGUID().GetCounter());
+                    TC_LOG_ERROR("network", "player can't store item: {}", hisItems[i]->GetGUID().GetCounter());
                 if (trader->CanStoreItem(NULL_BAG, NULL_SLOT, traderDst, hisItems[i], false) == EQUIP_ERR_OK)
                     trader->MoveItemToInventory(traderDst, hisItems[i], true, true);
                 else
-                    TC_LOG_ERROR("network", "trader can't take item back: %u", hisItems[i]->GetGUID().GetCounter());
+                    TC_LOG_ERROR("network", "trader can't take item back: {}", hisItems[i]->GetGUID().GetCounter());
             }
         }
     }
@@ -296,7 +297,7 @@ static void setAcceptTradeMode(TradeData* myTrade, TradeData* hisTrade, Item* *m
     {
         if (Item* item = myTrade->GetItem(TradeSlots(i)))
         {
-            TC_LOG_DEBUG("network", "player trade item %u bag: %u slot: %u", item->GetGUID().GetCounter(), item->GetBagSlot(), item->GetSlot());
+            TC_LOG_DEBUG("network", "player trade item {} bag: {} slot: {}", item->GetGUID().GetCounter(), item->GetBagSlot(), item->GetSlot());
             //Can return NULL
             myItems[i] = item;
             myItems[i]->SetInTrade();
@@ -304,7 +305,7 @@ static void setAcceptTradeMode(TradeData* myTrade, TradeData* hisTrade, Item* *m
 
         if (Item* item = hisTrade->GetItem(TradeSlots(i)))
         {
-            TC_LOG_DEBUG("network", "partner trade item %u bag: %u slot: %u", item->GetGUID().GetCounter(), item->GetBagSlot(), item->GetSlot());
+            TC_LOG_DEBUG("network", "partner trade item {} bag: {} slot: {}", item->GetGUID().GetCounter(), item->GetBagSlot(), item->GetSlot());
             hisItems[i] = item;
             hisItems[i]->SetInTrade();
         }
@@ -329,7 +330,7 @@ static void clearAcceptTradeMode(Item* *myItems, Item* *hisItems)
     }
 }
 
-void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& /*packet*/)
 {
     TradeData* my_trade = _player->m_trade;
     if (!my_trade)
@@ -545,11 +546,11 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
         moveItems(myItems, hisItems);
 
         // logging money
-        if (sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE) && GetPlayer()->GetSession()->GetSecurity() > SEC_PLAYER)
+        if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
         {
             if (my_trade->GetMoney() > 0)
             {
-                sLog->outCommand(_player->GetSession()->GetAccountId(), "GM %s (Account: %u) give money (Amount: " UI64FMTD ") to player: %s (Account: %u)",
+                sLog->OutCommand(_player->GetSession()->GetAccountId(), "GM {} (Account: {}) give money (Amount: " "{}" ") to player: {} (Account: {})",
                     _player->GetName().c_str(), _player->GetSession()->GetAccountId(),
                     my_trade->GetMoney(),
                     trader->GetName().c_str(), trader->GetSession()->GetAccountId());
@@ -557,15 +558,12 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
 
             if (his_trade->GetMoney() > 0)
             {
-                sLog->outCommand(trader->GetSession()->GetAccountId(), "GM %s (Account: %u) give money (Amount: " UI64FMTD ") to player: %s (Account: %u)",
+                sLog->OutCommand(trader->GetSession()->GetAccountId(), "GM {} (Account: {}) give money (Amount: " "{}" ") to player: {} (Account: {})",
                     trader->GetName().c_str(), trader->GetSession()->GetAccountId(),
                     his_trade->GetMoney(),
                     _player->GetName().c_str(), _player->GetSession()->GetAccountId());
             }
         }
-
-        int64 mySum = int64(his_trade->GetMoney()) - int64(my_trade->GetMoney());
-        int64 hisSum = int64(my_trade->GetMoney()) - int64(his_trade->GetMoney());
 
         // update money
         _player->ModifyMoney(-int64(my_trade->GetMoney()));
@@ -601,7 +599,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
     }
 }
 
-void WorldSession::HandleUnacceptTradeOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleUnacceptTradeOpcode(WorldPackets::Trade::UnacceptTrade& /*packet*/)
 {
     TradeData* my_trade = _player->GetTradeData();
     if (!my_trade)
@@ -610,7 +608,7 @@ void WorldSession::HandleUnacceptTradeOpcode(WorldPacket& /*recvPacket*/)
     my_trade->SetAccepted(false, true);
 }
 
-void WorldSession::HandleBeginTradeOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleBeginTradeOpcode(WorldPackets::Trade::BeginTrade& /*packet*/)
 {
     TradeData* my_trade = _player->m_trade;
     if (!my_trade)
@@ -628,34 +626,16 @@ void WorldSession::SendCancelTrade()
     SendTradeStatus(TRADE_STATUS_CANCELLED);
 }
 
-void WorldSession::HandleCancelTradeOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleCancelTradeOpcode(WorldPackets::Trade::CancelTrade& /*packet*/)
 {
     // sent also after LOGOUT COMPLETE
     if (_player)                                             // needed because STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT
         _player->TradeCancel(true);
 }
 
-void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleInitiateTradeOpcode(WorldPackets::Trade::InitiateTrade& packet)
 {
-    ObjectGuid guid;
-
-    guid[5] = recvPacket.ReadBit();
-    guid[1] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-    guid[3] = recvPacket.ReadBit();
-    guid[7] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
-
-    recvPacket.ReadByteSeq(guid[4]);
-    recvPacket.ReadByteSeq(guid[6]);
-    recvPacket.ReadByteSeq(guid[2]);
-    recvPacket.ReadByteSeq(guid[0]);
-    recvPacket.ReadByteSeq(guid[3]);
-    recvPacket.ReadByteSeq(guid[7]);
-    recvPacket.ReadByteSeq(guid[5]);
-    recvPacket.ReadByteSeq(guid[1]);
+    ObjectGuid guid = packet.Guid;
 
     if (GetPlayer()->m_trade)
         return;
@@ -734,7 +714,8 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_TRADE) && pOther->GetTeam() !=_player->GetTeam())
+    if (pOther->GetTeam() != _player->GetTeam() &&
+        (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_TRADE) && !HasPermission(rbac::RBAC_PERM_ALLOW_TWO_SIDE_TRADE)))
     {
         SendTradeStatus(TRADE_STATUS_WRONG_FACTION);
         return;
@@ -784,10 +765,9 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
 
 }
 
-void WorldSession::HandleSetTradeGoldOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleSetTradeGoldOpcode(WorldPackets::Trade::SetTradeGold& packet)
 {
-    uint64 gold;
-    recvPacket >> gold;
+    uint64 gold = packet.Gold;
 
     TradeData* my_trade = _player->GetTradeData();
     if (!my_trade)
@@ -797,16 +777,12 @@ void WorldSession::HandleSetTradeGoldOpcode(WorldPacket& recvPacket)
     my_trade->SetMoney(gold);
 }
 
-void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleSetTradeItemOpcode(WorldPackets::Trade::SetTradeItem& packet)
 {
     // send update
-    uint8 tradeSlot;
-    uint8 bag;
-    uint8 slot;
-
-    recvPacket >> tradeSlot;
-    recvPacket >> slot;
-    recvPacket >> bag;
+    uint8 tradeSlot = packet.TradeSlot;
+    uint8 bag = packet.Bag;
+    uint8 slot = packet.Slot;
 
     TradeData* my_trade = _player->GetTradeData();
     if (!my_trade)
@@ -827,7 +803,7 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    uint64 iGUID = item->GetGUID();
+    ObjectGuid iGUID = item->GetGUID();
 
     // prevent place single item into many trade slots using cheating and client bugs
     if (my_trade->HasItem(iGUID))
@@ -840,10 +816,9 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
     my_trade->SetItem(TradeSlots(tradeSlot), item);
 }
 
-void WorldSession::HandleClearTradeItemOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleClearTradeItemOpcode(WorldPackets::Trade::ClearTradeItem& packet)
 {
-    uint8 tradeSlot;
-    recvPacket >> tradeSlot;
+    uint8 tradeSlot = packet.TradeSlot;
 
     TradeData* my_trade = _player->m_trade;
     if (!my_trade)

@@ -703,7 +703,7 @@ class npc_scarlet_zealot : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override 
             {
-                me->SummonCreature(NPC_SPIRIT_OF_REDEMPTION, me->GetPositionX() + frand(-2.0f, 2.0f), me->GetPositionY() + frand(-1.5f, 1.5f), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 12000);
+                me->SummonCreature(NPC_SPIRIT_OF_REDEMPTION, me->GetPositionX() + frand(-2.0f, 2.0f), me->GetPositionY() + frand(-1.5f, 1.5f), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 12000ms);
             }
 
             void DoAction(int32 actionId) override
@@ -964,7 +964,7 @@ class spell_sc_cleave : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_sc_cleave_SpellScript::RecalculateDamage, EFFECT_0, SPELL_EFFECT_WEAPON_DAMAGE);
+                OnEffectHitTarget += SpellEffectFn(spell_sc_cleave_SpellScript::RecalculateDamage, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
             }
         };
 

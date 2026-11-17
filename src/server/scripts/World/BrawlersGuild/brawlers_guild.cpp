@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -367,7 +367,7 @@ struct brawlers_guild_encounter_typeAI : public ScriptedAI
             queueController->AI()->DoAction(ACTION_FORCE_DESPAWNED);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         summons.DespawnAll();
@@ -1877,9 +1877,9 @@ struct npc_brawlers_guild_kirrawk : public brawlers_guild_encounter_typeAI
 };
 
 // Twister 67270
-struct npc_brawlers_guild_twister : public CreatureAI
+struct npc_brawlers_guild_twister : public ScriptedAI
 {
-    npc_brawlers_guild_twister(Creature* creature) : CreatureAI(creature) { }
+    npc_brawlers_guild_twister(Creature* creature) : ScriptedAI(creature) { }
 
     EventMap events;
 
@@ -2202,7 +2202,7 @@ struct npc_brawlers_guild_blat : public brawlers_guild_encounter_typeAI
             summons.Summon(summon);
             summon->SetInCombatWith(target);
             target->SetInCombatWith(summon);
-            summon->AddThreat(target, 0.0f);
+            summon->GetThreatManager().AddThreat(target, 0.0f);
 
             if (summon->AI())
                 summon->AI()->AttackStart(target);
@@ -2664,7 +2664,7 @@ struct npc_brawlers_guild_leona_earthwind : public brawlers_guild_encounter_type
             summons.Summon(summon);
             summon->SetInCombatWith(target);
             target->SetInCombatWith(summon);
-            summon->AddThreat(target, 0.0f);
+            summon->GetThreatManager().AddThreat(target, 0.0f);
         }
     }
 
@@ -2745,7 +2745,7 @@ struct npc_brawlers_guild_dominika_the_illusionist : public brawlers_guild_encou
             summons.Summon(summon);
             summon->SetInCombatWith(target);
             target->SetInCombatWith(summon);
-            summon->AddThreat(target, 0.0f);
+            summon->GetThreatManager().AddThreat(target, 0.0f);
             
             if (summon->AI())
                 summon->AI()->AttackStart(target);
@@ -3511,9 +3511,9 @@ struct npc_brawlers_guild_yikkan_izu : public brawlers_guild_encounter_typeAI
 };
 
 // Izus Raven 68268
-struct npc_brawlers_guild_izus_raven : public CreatureAI
+struct npc_brawlers_guild_izus_raven : public ScriptedAI
 {
-    npc_brawlers_guild_izus_raven(Creature* creature) : CreatureAI(creature) { }
+    npc_brawlers_guild_izus_raven(Creature* creature) : ScriptedAI(creature) { }
 
     void JustDied(Unit* killer) override
     {
@@ -4007,9 +4007,9 @@ struct npc_brawlers_guild_dark_summoner : public brawlers_guild_encounter_typeAI
 };
 
 // Tormented Ghost 67664
-struct npc_brawlers_guild_tormented_ghost : public CreatureAI
+struct npc_brawlers_guild_tormented_ghost : public ScriptedAI
 {
-    npc_brawlers_guild_tormented_ghost(Creature* creature) : CreatureAI(creature) { }
+    npc_brawlers_guild_tormented_ghost(Creature* creature) : ScriptedAI(creature) { }
 
     ObjectGuid targetGUID;
 
@@ -4168,9 +4168,9 @@ struct npc_brawlers_guild_battletron : public brawlers_guild_encounter_typeAI
 //}
 
 // Unstable Mine 67422
-struct npc_brawlers_guild_unstable_mine : public CreatureAI
+struct npc_brawlers_guild_unstable_mine : public ScriptedAI
 {
-    npc_brawlers_guild_unstable_mine(Creature* creature) : CreatureAI(creature) { }
+    npc_brawlers_guild_unstable_mine(Creature* creature) : ScriptedAI(creature) { }
 
     ObjectGuid targetGUID;
     EventMap events;
@@ -4535,7 +4535,7 @@ struct npc_brawlers_guild_blingtron_3000 : public brawlers_guild_encounter_typeA
             summons.Summon(summon);
             summon->SetInCombatWith(target);
             target->SetInCombatWith(summon);
-            summon->AddThreat(target, 0.0f);
+            summon->GetThreatManager().AddThreat(target, 0.0f);
 
             if (summon->AI())
                 summon->AI()->AttackStart(target);
@@ -4655,9 +4655,9 @@ struct npc_brawlers_guild_gnomish_tesla_coil : public ScriptedAI
 };
 
 // Blingtron 2000 70802
-struct npc_brawlers_guild_blingtron_2000 : public CreatureAI
+struct npc_brawlers_guild_blingtron_2000 : public ScriptedAI
 {
-    npc_brawlers_guild_blingtron_2000(Creature* creature) : CreatureAI(creature) { }
+    npc_brawlers_guild_blingtron_2000(Creature* creature) : ScriptedAI(creature) { }
 
     bool hasDefeat;
     uint32 isCharged;

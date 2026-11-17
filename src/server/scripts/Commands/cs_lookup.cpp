@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -41,40 +41,40 @@ public:
     {
         static std::vector<ChatCommand> lookupPlayerCommandTable =
         {
-            { "ip",         SEC_GAMEMASTER, true,   &HandleLookupPlayerIpCommand,       },
-            { "account",    SEC_GAMEMASTER, true,   &HandleLookupPlayerAccountCommand,  },
-            { "email",      SEC_GAMEMASTER, true,   &HandleLookupPlayerEmailCommand,    },
-            { "hwid",       SEC_GAMEMASTER, true,   &HandleLookupPlayerHWIDCommand,     },
+            { "ip",         &HandleLookupPlayerIpCommand,       rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_IP,       Trinity::ChatCommands::Console::Yes },
+            { "account",    &HandleLookupPlayerAccountCommand,  rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_ACCOUNT,  Trinity::ChatCommands::Console::Yes },
+            { "email",      &HandleLookupPlayerEmailCommand,    rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_EMAIL,    Trinity::ChatCommands::Console::Yes },
+            { "hwid", &HandleLookupPlayerHWIDCommand, rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_HWID, Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> lookupSpellCommandTable =
         {
-            { "id",         SEC_GAMEMASTER, true,   &HandleLookupSpellIdCommand,        },
-            { "",           SEC_GAMEMASTER, true,   &HandleLookupSpellCommand,          },
+            { "id",         &HandleLookupSpellIdCommand,        rbac::RBAC_PERM_COMMAND_LOOKUP_SPELL_ID,        Trinity::ChatCommands::Console::Yes },
+            { "",           &HandleLookupSpellCommand,          rbac::RBAC_PERM_COMMAND_LOOKUP_SPELL,          Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> lookupCommandTable =
         {
-            { "area",       SEC_GAMEMASTER, true,   &HandleLookupAreaCommand,           },
-            { "creature",   SEC_GAMEMASTER, true,   &HandleLookupCreatureCommand,       },
-            { "event",      SEC_GAMEMASTER, true,   &HandleLookupEventCommand,          },
-            { "faction",    SEC_GAMEMASTER, true,   &HandleLookupFactionCommand,        },
-            { "item",       SEC_GAMEMASTER, true,   &HandleLookupItemCommand,           },
-            { "itemset",    SEC_GAMEMASTER, true,   &HandleLookupItemSetCommand,        },
-            { "object",     SEC_GAMEMASTER, true,   &HandleLookupObjectCommand,         },
-            { "quest",      SEC_GAMEMASTER, true,   &HandleLookupQuestCommand,          },
-            { "player",     SEC_GAMEMASTER, true,   lookupPlayerCommandTable            },
-            { "skill",      SEC_GAMEMASTER, true,   &HandleLookupSkillCommand,          },
-            { "spell",      SEC_GAMEMASTER, true,   lookupSpellCommandTable             },
-            { "taxinode",   SEC_GAMEMASTER, true,   &HandleLookupTaxiNodeCommand,       },
-            { "tele",       SEC_GAMEMASTER, true,   &HandleLookupTeleCommand,           },
-            { "title",      SEC_GAMEMASTER, true,   &HandleLookupTitleCommand,          },
-            { "map",        SEC_GAMEMASTER, true,   &HandleLookupMapCommand,            },
+            { "area",       &HandleLookupAreaCommand,           rbac::RBAC_PERM_COMMAND_LOOKUP_AREA,           Trinity::ChatCommands::Console::Yes },
+            { "creature",   &HandleLookupCreatureCommand,       rbac::RBAC_PERM_COMMAND_LOOKUP_CREATURE,       Trinity::ChatCommands::Console::Yes },
+            { "event",      &HandleLookupEventCommand,          rbac::RBAC_PERM_COMMAND_LOOKUP_EVENT,          Trinity::ChatCommands::Console::Yes },
+            { "faction",    &HandleLookupFactionCommand,        rbac::RBAC_PERM_COMMAND_LOOKUP_FACTION,        Trinity::ChatCommands::Console::Yes },
+            { "item",       &HandleLookupItemCommand,           rbac::RBAC_PERM_COMMAND_LOOKUP_ITEM,           Trinity::ChatCommands::Console::Yes },
+            { "itemset",    &HandleLookupItemSetCommand,        rbac::RBAC_PERM_COMMAND_LOOKUP_ITEMSET,        Trinity::ChatCommands::Console::Yes },
+            { "object",     &HandleLookupObjectCommand,         rbac::RBAC_PERM_COMMAND_LOOKUP_OBJECT,         Trinity::ChatCommands::Console::Yes },
+            { "quest",      &HandleLookupQuestCommand,          rbac::RBAC_PERM_COMMAND_LOOKUP_QUEST,          Trinity::ChatCommands::Console::Yes },
+            { "player",     lookupPlayerCommandTable,            rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER,         Trinity::ChatCommands::Console::Yes },
+            { "skill",      &HandleLookupSkillCommand,          rbac::RBAC_PERM_COMMAND_LOOKUP_SKILL,          Trinity::ChatCommands::Console::Yes },
+            { "spell",      lookupSpellCommandTable,             rbac::RBAC_PERM_COMMAND_LOOKUP_SPELL,          Trinity::ChatCommands::Console::Yes },
+            { "taxinode",   &HandleLookupTaxiNodeCommand,       rbac::RBAC_PERM_COMMAND_LOOKUP_TAXINODE,       Trinity::ChatCommands::Console::Yes },
+            { "tele",       &HandleLookupTeleCommand,           rbac::RBAC_PERM_COMMAND_LOOKUP_TELE,           Trinity::ChatCommands::Console::Yes },
+            { "title",      &HandleLookupTitleCommand,          rbac::RBAC_PERM_COMMAND_LOOKUP_TITLE,          Trinity::ChatCommands::Console::Yes },
+            { "map",        &HandleLookupMapCommand,            rbac::RBAC_PERM_COMMAND_LOOKUP_MAP,            Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "lookup",     SEC_GAMEMASTER, true,   lookupCommandTable                  },
+            { "lookup",     lookupCommandTable,                  rbac::RBAC_PERM_COMMAND_LOOKUP,                Trinity::ChatCommands::Console::Yes },
         };
         return commandTable;
     }
@@ -107,9 +107,9 @@ public:
                 bool match = false;
                 for (int32 i = 0; i < TOTAL_LOCALES; ++i)
                 {
-                    if (*areaEntry->area_name[i])
+                    if (*areaEntry->area_name)
                     {
-                        name = areaEntry->area_name[i];
+                        name = areaEntry->area_name;
                         if (!Utf8FitTo(name, wNamePart))
                             continue;
 
@@ -311,7 +311,7 @@ public:
                 bool match = false;
                 for (int32 i = 0; i < TOTAL_LOCALES; ++i)
                 {
-                    if (*factionEntry->name[i])
+                    if (*factionEntry->name)
                     {
                         name = factionEntry->name[i];
                         if (!Utf8FitTo(name, wNamePart))
@@ -504,9 +504,9 @@ public:
                 bool match = false;
                 for (int32 i = 0; i < TOTAL_LOCALES; ++i)
                 {
-                    if (*set->name[i])
+                    if (*set->name)
                     {
-                        name = set->name[i];
+                        name = set->name;
                         if (!Utf8FitTo(name, wNamePart))
                             continue;
 
@@ -778,9 +778,9 @@ public:
                 bool match = false;
                 for (int32 i = 0; i < TOTAL_LOCALES; ++i)
                 {
-                    if (*skillInfo->name[i])
+                    if (*skillInfo->DisplayName)
                     {
-                        name = skillInfo->name[i];
+                        name = skillInfo->DisplayName;
                         if (!Utf8FitTo(name, wNamePart))
                             continue;
 
@@ -859,9 +859,9 @@ public:
                 bool match = false;
                 for (int32 i = 0; i < TOTAL_LOCALES; ++i)
                 {
-                    if (*spellInfo->SpellName[i])
+                    if (*spellInfo->SpellName)
                     {
-                        name = spellInfo->SpellName[i];
+                        name = spellInfo->SpellName;
                         if (!Utf8FitTo(name, wNamePart))
                             continue;
 
@@ -884,7 +884,7 @@ public:
 
                 SpellInfo const* learnSpellInfo = sSpellMgr->GetSpellInfo(spellInfo->Effects[0].TriggerSpell);
 
-                uint32 talentCost = GetTalentSpellCost(id);
+                uint32 talentCost = sDBCManager.GetTalentSpellCost(id);
 
                 bool talent = (talentCost > 0);
                 bool passive = spellInfo->IsPassive();
@@ -944,7 +944,7 @@ public:
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(id))
         {
             int locale = handler->GetSessionDbcLocale();
-            std::string name = spellInfo->SpellName[locale];
+            std::string name = spellInfo->SpellName;
             if (name.empty())
             {
                 handler->SendSysMessage(LANG_COMMAND_NOSPELLFOUND);
@@ -956,7 +956,7 @@ public:
 
                 SpellInfo const* learnSpellInfo = sSpellMgr->GetSpellInfo(spellInfo->Effects[0].TriggerSpell);
 
-                uint32 talentCost = GetTalentSpellCost(id);
+                uint32 talentCost = sDBCManager.GetTalentSpellCost(id);
 
                 bool talent = (talentCost > 0);
                 bool passive = spellInfo->IsPassive();
@@ -1029,9 +1029,9 @@ public:
                 bool match = false;
                 for (int32 i = 0; i < TOTAL_LOCALES; ++i)
                 {
-                    if (*nodeEntry->name[i])
+                    if (*nodeEntry->name)
                     {
-                        name = nodeEntry->name[i];
+                        name = nodeEntry->name;
                         if (!Utf8FitTo(name, wNamePart))
                             continue;
 
@@ -1159,9 +1159,9 @@ public:
                 bool match = false;
                 for (int32 i = 0; i < TOTAL_LOCALES; ++i)
                 {
-                    if (*titleInfo->name[i])
+                    if (*titleInfo->name)
                     {
-                        name = titleInfo->name[i];
+                        name = titleInfo->name;
                         if (!Utf8FitTo(name, wNamePart))
                             continue;
 
@@ -1229,9 +1229,9 @@ public:
                 bool match = false;
                 for (int32 i = 0; i < TOTAL_LOCALES; ++i)
                 {
-                    if (*mapInfo->name[i])
+                    if (*mapInfo->name)
                     {
-                        name = mapInfo->name[i];
+                        name = mapInfo->name;
                         if (!Utf8FitTo(name, wNamePart))
                             continue;
 

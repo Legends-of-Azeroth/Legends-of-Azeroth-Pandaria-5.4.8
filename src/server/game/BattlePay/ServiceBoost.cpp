@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -49,7 +49,7 @@ void LoadBoostItems()
 
         if (!sObjectMgr->GetItemTemplate(items->itemId))
         {
-            TC_LOG_ERROR("sql.sql", "Item %u specified in `battle_pay_boost_items` does not exist, skipped.", items->itemId);
+            TC_LOG_ERROR("sql.sql", "Item {} specified in `battle_pay_boost_items` does not exist, skipped.", items->itemId);
             continue;
         }
 
@@ -57,7 +57,7 @@ void LoadBoostItems()
         count++;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u boost items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} boost items in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 CharacterBooster::CharacterBooster(WorldSession* session) : m_session(session), m_timer(0), m_boosting(false), m_sendPacket(false) { }
@@ -240,7 +240,7 @@ void CharacterBooster::_SendMail(CharacterDatabaseTransaction trans, PreparedIte
     if (!mailTemplateEntry) // should never happen
         return;
 
-    uint32 mailId = _PrepareMail(trans, mailTemplateEntry->subject[GetSession()->GetSessionDbcLocale()], mailTemplateEntry->content[GetSession()->GetSessionDbcLocale()]);
+    uint32 mailId = _PrepareMail(trans, mailTemplateEntry->subject, mailTemplateEntry->content);
     CharacterDatabasePreparedStatement* stmt = NULL;
 
     for (auto&& itr : items)
@@ -256,7 +256,7 @@ void CharacterBooster::_SendMail(CharacterDatabaseTransaction trans, PreparedIte
             trans->Append(stmt);
         }
         else
-            TC_LOG_ERROR("sql.sql", "Can't create item %u for _SendMail in Boost. Skip.", itr.second);
+            TC_LOG_ERROR("sql.sql", "Can't create item {} for _SendMail in Boost. Skip.", itr.second);
     }
 }
 
@@ -273,7 +273,7 @@ void CharacterBooster::_PrepareInventory(CharacterDatabaseTransaction trans) con
     if (!mailTemplateEntry) // should never happen
         return;
 
-    uint32 mailId = _PrepareMail(trans, mailTemplateEntry->subject[GetSession()->GetSessionDbcLocale()], mailTemplateEntry->content[GetSession()->GetSessionDbcLocale()]);
+    uint32 mailId = _PrepareMail(trans, mailTemplateEntry->subject, mailTemplateEntry->content);
 
     uint32 itemCount = 0;
     do
@@ -281,7 +281,7 @@ void CharacterBooster::_PrepareInventory(CharacterDatabaseTransaction trans) con
         if (itemCount > 11)
         {
             itemCount = 0;
-            mailId = _PrepareMail(trans, mailTemplateEntry->subject[GetSession()->GetSessionDbcLocale()], mailTemplateEntry->content[GetSession()->GetSessionDbcLocale()]);
+            mailId = _PrepareMail(trans, mailTemplateEntry->subject, mailTemplateEntry->content);
         }
 
         uint32 itemGuid = (*result)[0].GetUInt32();
@@ -373,16 +373,19 @@ std::string CharacterBooster::_SetSpecialization(CharacterDatabaseTransaction tr
 
     for (auto&& spec : dbc::GetClassSpecializations(classId))
     {
-        if (std::vector<uint32> const* spells = dbc::GetSpecializetionSpells(spec))
+        
+        if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDBCManager.GetSpecializationSpells(spec))
         {
-            for (auto&& spell : *spells)
+            for (size_t j = 0; j < specSpells->size(); ++j)
             {
+                SpecializationSpellsEntry const* specSpell = specSpells->at(j);
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_BY_SPELL);
-                stmt->setUInt32(0, spell);
+                stmt->setUInt32(0, specSpell->SpellID);
                 stmt->setUInt32(1, m_charBoostInfo.charGuid.GetCounter());
                 trans->Append(stmt);
             }
         }
+        
     }
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_TALENT);
@@ -452,7 +455,7 @@ std::string CharacterBooster::_EquipItems(CharacterDatabaseTransaction trans, Pr
             }
             else
             {
-                TC_LOG_ERROR("sql.sql", "Can't create item %u for _EquipItems in Boost. Skip.", itr->second);
+                TC_LOG_ERROR("sql.sql", "Can't create item {} for _EquipItems in Boost. Skip.", itr->second);
 
                 items << "0 0 ";
             }
@@ -651,7 +654,7 @@ void CharacterBooster::_HandleCharacterBoost() const
 
     if (sWorld->getBoolConfig(CONFIG_BOOST_PROMOTION))
     {
-        auto paid = LoginDatabase.PQuery("SELECT counter FROM account_boost WHERE id = '%d' AND realmid = '%d' AND counter > 0", GetSession()->GetAccountId(), realm.Id.Realm);
+        auto paid = LoginDatabase.PQuery("SELECT counter FROM account_boost WHERE id = '{}' AND realmid = '{}' AND counter > 0", GetSession()->GetAccountId(), realm.Id.Realm);
         if (!paid)
             return;
     }

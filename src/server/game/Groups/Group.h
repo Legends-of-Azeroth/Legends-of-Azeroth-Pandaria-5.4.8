@@ -355,6 +355,8 @@ class Group
         void SetMemberRole(ObjectGuid guid, uint32 role);
         uint32 GetMemberRole(ObjectGuid guid) const;
 
+        ObjectGuid const GetTargetIcon(uint8 id) const { return m_targetIcons[id]; }
+
         Difficulty GetDifficulty(bool isRaid) const;
         Difficulty GetDungeonDifficulty() const;
         Difficulty GetRaidDifficulty() const;
@@ -370,7 +372,7 @@ class Group
 
         // -no description-
         //void SendInit(WorldSession* session);
-        void SendTargetIconList(WorldSession* session);
+        void SendTargetIconList(WorldSession* session, int8 partyIndex = 0);
         void SendUpdate();
         void SendUpdateToPlayer(ObjectGuid playerGUID);
         void SendGroupRemoved(ObjectGuid playerGUID);

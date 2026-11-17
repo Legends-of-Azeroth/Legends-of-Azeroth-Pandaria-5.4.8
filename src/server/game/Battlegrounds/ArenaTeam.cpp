@@ -91,7 +91,7 @@ uint8 ArenaTeam::GetSlotByType(uint32 type)
         default:
             break;
     }
-    TC_LOG_ERROR("bg.arena", "FATAL: Unknown arena team type %u for some arena team", type);
+    TC_LOG_ERROR("bg.arena", "FATAL: Unknown arena team type {} for some arena team", type);
     return 0xFF;
 }
 
@@ -105,7 +105,7 @@ uint8 ArenaTeam::GetTypeBySlot(uint8 slot)
         default:
             break;
     }
-    TC_LOG_ERROR("bg.arena", "FATAL: Unknown arena team slot %u for some arena team", slot);
+    TC_LOG_ERROR("bg.arena", "FATAL: Unknown arena team slot {} for some arena team", slot);
     return 0xFF;
 }
 
@@ -217,7 +217,7 @@ void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 
 
     memberInfo->Rating += mod;
 
-    if (player && GetSlot() != PVP_SLOT_RATED_BG)
+    if (GetSlot() != PVP_SLOT_RATED_BG)
         player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING, memberInfo->Rating, GetTypeBySlot(memberInfo->Slot));
 
     if (memberInfo->Rating > memberInfo->SeasonBest)

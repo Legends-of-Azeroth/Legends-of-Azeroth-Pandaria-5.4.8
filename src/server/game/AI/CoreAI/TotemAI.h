@@ -18,14 +18,14 @@
 #ifndef TRINITY_TOTEMAI_H
 #define TRINITY_TOTEMAI_H
 
-#include "CreatureAI.h"
+#include "PassiveAI.h"
 #include "Timer.h"
 #include "ScriptedCreature.h"
 
 class Creature;
 class Totem;
 
-class TotemAI : public CreatureAI
+class TotemAI : public NullCreatureAI
 {
     public:
 
@@ -33,7 +33,7 @@ class TotemAI : public CreatureAI
 
         void MoveInLineOfSight(Unit* who);
         void AttackStart(Unit* victim);
-        void EnterEvadeMode();
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
 
         void UpdateAI(uint32 diff);
         static int Permissible(Creature const* creature);

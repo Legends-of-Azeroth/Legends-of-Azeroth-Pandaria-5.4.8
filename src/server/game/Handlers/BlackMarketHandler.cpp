@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -23,30 +23,13 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "BlackMarketMgr.h"
+#include "BlackMarketPackets.h"
 
-void WorldSession::HandleBlackMarketHelloOpcode(WorldPacket& recvData)
+void WorldSession::HandleBlackMarketHelloOpcode(WorldPackets::BlackMarket::BlackMarketOpen& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BLACK_MARKET_OPEN");
 
-    ObjectGuid guid;
-
-    guid[4] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[2]);
+    ObjectGuid guid = packet.Guid;
 
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
@@ -78,29 +61,12 @@ void WorldSession::SendBlackMarketHello(ObjectGuid guid, bool open)
     SendPacket(&data);
 }
 
-void WorldSession::HandleBlackMarketRequestItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleBlackMarketRequestItemOpcode(WorldPackets::BlackMarket::BlackMarketRequestItems& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BLACK_MARKET_REQUEST_ITEMS");
 
-    ObjectGuid guid;
-    uint32 timestamp = recvData.read<uint32>();
-    guid[2] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[0]);
+    uint32 timestamp = packet.Timestamp;
+    ObjectGuid guid = packet.Guid;
 
     SendBlackMarketRequestItemsResult();
 }
@@ -112,32 +78,16 @@ void WorldSession::SendBlackMarketRequestItemsResult()
     SendPacket(&data);
 }
 
-void WorldSession::HandleBlackMarketBidOnItem(WorldPacket& recvData)
+void WorldSession::HandleBlackMarketBidOnItem(WorldPackets::BlackMarket::BlackMarketBidOnItem& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BLACK_MARKET_BID_ON_ITEM");
 
-    ObjectGuid guid;
-    uint32 itemId = recvData.read<uint32>();
-    uint32 auctionId = recvData.read<uint32>();
-    uint64 bidAmount = recvData.read<uint64>();
-    guid[0] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[2]);
+    uint32 itemId = packet.ItemId;
+    uint32 auctionId = packet.AuctionId;
+    uint64 bidAmount = packet.BidAmount;
+    ObjectGuid guid = packet.Guid;
 
-    TC_LOG_DEBUG("blackMarket", ">> HandleBlackMarketBid >> MarketID : %u, BidAmount : " UI64FMTD ", ItemID : %u", auctionId, bidAmount, itemId);
+    TC_LOG_DEBUG("blackMarket", ">> HandleBlackMarketBid >> MarketID : {}, BidAmount : " "{}" ", ItemID : {}", auctionId, bidAmount, itemId);
 
     if (!bidAmount)
         return;
@@ -145,21 +95,21 @@ void WorldSession::HandleBlackMarketBidOnItem(WorldPacket& recvData)
     BlackMarketAuction* auction = sBlackMarketMgr->GetAuction(auctionId);
     if (!auction)
     {
-        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Auction (MarketID: %u) not found.", auctionId);
+        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Auction (MarketID: {}) not found.", auctionId);
         SendBlackMarketBidOnItemResult(auctionId, itemId, ERR_BMAH_ITEM_NOT_FOUND);
         return;
     }
 
     if (auction->GetCurrentBidder() == GetPlayer()->GetGUID().GetCounter())
     {
-        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: %u) is already the highest bidder.", GetPlayer()->GetGUID().GetCounter());
+        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: {}) is already the highest bidder.", GetPlayer()->GetGUID().GetCounter());
         SendBlackMarketBidOnItemResult(auctionId, itemId, ERR_BMAH_ALREADY_BID);
         return;
     }
 
     if (auction->GetCurrentBid() > bidAmount && bidAmount != auction->GetTemplate()->MinBid)
     {
-        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: %u) could not bid. The current bid (" UI64FMTD ") is higher than the given amount (" UI64FMTD ").", GetPlayer()->GetGUID().GetCounter(), auction->GetCurrentBid(), bidAmount);
+        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: {}) could not bid. The current bid (" "{}" ") is higher than the given amount (" "{}" ").", GetPlayer()->GetGUID().GetCounter(), auction->GetCurrentBid(), bidAmount);
         SendBlackMarketBidOnItemResult(auctionId, itemId, ERR_BMAH_HIGHER_BID);
         return;
     }
@@ -167,7 +117,7 @@ void WorldSession::HandleBlackMarketBidOnItem(WorldPacket& recvData)
     uint64 currentRequiredIncrement = !auction->GetNumBids() ? auction->GetCurrentBid() : (auction->GetCurrentBid() + auction->GetMinIncrement());
     if (currentRequiredIncrement > bidAmount)
     {
-        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: %u) could not bid. The BidAmount (" UI64FMTD ") is lower than the current requiredIncrement (" UI64FMTD ").", GetPlayer()->GetGUID().GetCounter(), bidAmount, currentRequiredIncrement);
+        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: {}) could not bid. The BidAmount (" "{}" ") is lower than the current requiredIncrement (" "{}" ").", GetPlayer()->GetGUID().GetCounter(), bidAmount, currentRequiredIncrement);
         SendBlackMarketBidOnItemResult(auctionId, itemId, ERR_BMAH_DATABASE_ERROR);
         return;
     }
@@ -175,7 +125,7 @@ void WorldSession::HandleBlackMarketBidOnItem(WorldPacket& recvData)
     uint64 newIncrement = bidAmount - currentRequiredIncrement;
     if (!GetPlayer()->HasEnoughMoney(bidAmount))
     {
-        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: %u) has not enough money to bid.", GetPlayer()->GetGUID().GetCounter());
+        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: {}) has not enough money to bid.", GetPlayer()->GetGUID().GetCounter());
         SendBlackMarketBidOnItemResult(auctionId, itemId, ERR_BMAH_NOT_ENOUGH_MONEY);
         return;
     }

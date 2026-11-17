@@ -472,7 +472,7 @@ class TC_GAME_API Spell
 
         SpellInfo const* const m_spellInfo;
         Item* m_CastItem;
-        uint64 m_castItemGUID;
+        ObjectGuid m_castItemGUID;
         uint8 m_cast_count;
         uint32 m_glyphIndex;
         uint32 m_preCastSpell;

@@ -410,7 +410,7 @@ class boss_magtheridon : public CreatureScript
                     {
                         float x, y, z;
                         target->GetPosition(x, y, z);
-                        Creature* summon = me->SummonCreature(NPC_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        Creature* summon = me->SummonCreature(NPC_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
                         if (summon)
                         {
                             CAST_AI(npc_abyssal::npc_abyssalAI, summon->AI())->SetTrigger(2);
@@ -444,7 +444,7 @@ class boss_magtheridon : public CreatureScript
                         {
                             float x, y, z;
                             target->GetPosition(x, y, z);
-                            Creature* summon = me->SummonCreature(NPC_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                            Creature* summon = me->SummonCreature(NPC_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0ms);
                             if (summon)
                                 CAST_AI(npc_abyssal::npc_abyssalAI, summon->AI())->SetTrigger(1);
                         }

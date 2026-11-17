@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -35,40 +35,21 @@ void WorldSession::SendVoidStorageTransferResult(VoidTransferError result)
     SendPacket(&data);
 }
 
-void WorldSession::HandleVoidStorageUnlock(WorldPacket& recvData)
+void WorldSession::HandleVoidStorageUnlock(WorldPackets::VoidStorage::VoidStorageUnlock& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_VOID_STORAGE_UNLOCK");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_UNLOCK_VOID_STORAGE");
     Player* player = GetPlayer();
 
-    ObjectGuid npcGuid;
-    npcGuid[3] = recvData.ReadBit();
-    npcGuid[1] = recvData.ReadBit();
-    npcGuid[5] = recvData.ReadBit();
-    npcGuid[6] = recvData.ReadBit();
-    npcGuid[4] = recvData.ReadBit();
-    npcGuid[0] = recvData.ReadBit();
-    npcGuid[7] = recvData.ReadBit();
-    npcGuid[2] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(npcGuid[4]);
-    recvData.ReadByteSeq(npcGuid[3]);
-    recvData.ReadByteSeq(npcGuid[6]);
-    recvData.ReadByteSeq(npcGuid[2]);
-    recvData.ReadByteSeq(npcGuid[1]);
-    recvData.ReadByteSeq(npcGuid[5]);
-    recvData.ReadByteSeq(npcGuid[7]);
-    recvData.ReadByteSeq(npcGuid[0]);
-
-    Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
+    Creature* unit = player->GetNPCIfCanInteractWith(packet.NpcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageUnlock - Unit (GUID: %u) not found or player can't interact with it.", npcGuid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageUnlock - Unit (GUID: {}) not found or player can't interact with it.", packet.NpcGuid.GetCounter());
         return;
     }
 
     if (player->IsVoidStorageUnlocked())
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageUnlock - Player (GUID: %u, name: %s) tried to unlock void storage a 2nd time.", player->GetGUID().GetCounter(), player->GetName().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageUnlock - Player (GUID: {}, name: {}) tried to unlock void storage a 2nd time.", player->GetGUID().GetCounter(), player->GetName().c_str());
         return;
     }
 
@@ -76,41 +57,21 @@ void WorldSession::HandleVoidStorageUnlock(WorldPacket& recvData)
     player->UnlockVoidStorage();
 }
 
-void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
+void WorldSession::HandleVoidStorageQuery(WorldPackets::VoidStorage::VoidStorageQuery& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_VOID_STORAGE_QUERY");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUERY_VOID_STORAGE");
     Player* player = GetPlayer();
 
-    ObjectGuid npcGuid;
-
-    npcGuid[1] = recvData.ReadBit();
-    npcGuid[5] = recvData.ReadBit();
-    npcGuid[6] = recvData.ReadBit();
-    npcGuid[0] = recvData.ReadBit();
-    npcGuid[7] = recvData.ReadBit();
-    npcGuid[2] = recvData.ReadBit();
-    npcGuid[3] = recvData.ReadBit();
-    npcGuid[4] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(npcGuid[1]);
-    recvData.ReadByteSeq(npcGuid[6]);
-    recvData.ReadByteSeq(npcGuid[4]);
-    recvData.ReadByteSeq(npcGuid[3]);
-    recvData.ReadByteSeq(npcGuid[7]);
-    recvData.ReadByteSeq(npcGuid[0]);
-    recvData.ReadByteSeq(npcGuid[2]);
-    recvData.ReadByteSeq(npcGuid[5]);
-
-    Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_TRANSMOGRIFIER | UNIT_NPC_FLAG_VAULTKEEPER);
+    Creature* unit = player->GetNPCIfCanInteractWith(packet.NpcGuid, UNIT_NPC_FLAG_TRANSMOGRIFIER | UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageQuery - Unit (GUID: %u) not found or player can't interact with it.", npcGuid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageQuery - Unit (GUID: {}) not found or player can't interact with it.", packet.NpcGuid.GetCounter());
         return;
     }
 
     if (!player->IsVoidStorageUnlocked())
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageQuery - Player (GUID: %u, name: %s) queried void storage without unlocking it.", player->GetGUID().GetCounter(), player->GetName().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageQuery - Player (GUID: {}, name: {}) queried void storage without unlocking it.", player->GetGUID().GetCounter(), player->GetName().c_str());
         return;
     }
 
@@ -189,119 +150,44 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
+void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStorageTransfer& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_VOID_STORAGE_TRANSFER");
     Player* player = GetPlayer();
 
-    ObjectGuid npcGuid;
-    npcGuid[7] = recvData.ReadBit();
-    npcGuid[4] = recvData.ReadBit();
-
-    uint32 countDeposit = recvData.ReadBits(24); //40
-
-    if (countDeposit > 9)
+    if (packet.CountDeposit > 9)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) wants to deposit more than 9 items (%u).", player->GetGUID().GetCounter(), player->GetName().c_str(), countDeposit);
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (GUID: {}, name: {}) wants to deposit more than 9 items ({}).", player->GetGUID().GetCounter(), player->GetName().c_str(), packet.CountDeposit);
         return;
     }
 
-    std::vector<ObjectGuid> itemGuids(countDeposit);
-    for (uint32 i = 0; i < countDeposit; ++i)
+    if (packet.CountWithdraw > 9)
     {
-        itemGuids[i][0] = recvData.ReadBit();
-        itemGuids[i][3] = recvData.ReadBit();
-        itemGuids[i][6] = recvData.ReadBit();
-        itemGuids[i][5] = recvData.ReadBit();
-        itemGuids[i][4] = recvData.ReadBit();
-        itemGuids[i][2] = recvData.ReadBit();
-        itemGuids[i][1] = recvData.ReadBit();
-        itemGuids[i][7] = recvData.ReadBit();
-    }
-
-    uint32 countWithdraw = recvData.ReadBits(24);
-
-    if (countWithdraw > 9)
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) wants to withdraw more than 9 items (%u).", player->GetGUID().GetCounter(), player->GetName().c_str(), countWithdraw);
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (GUID: {}, name: {}) wants to withdraw more than 9 items ({}).", player->GetGUID().GetCounter(), player->GetName().c_str(), packet.CountWithdraw);
         return;
     }
 
-    std::vector<ObjectGuid> itemIds(countWithdraw);
-    for (uint32 i = 0; i < countWithdraw; ++i)
-    {
-        itemIds[i][4] = recvData.ReadBit();
-        itemIds[i][0] = recvData.ReadBit();
-        itemIds[i][5] = recvData.ReadBit();
-        itemIds[i][7] = recvData.ReadBit();
-        itemIds[i][6] = recvData.ReadBit();
-        itemIds[i][1] = recvData.ReadBit();
-        itemIds[i][2] = recvData.ReadBit();
-        itemIds[i][3] = recvData.ReadBit();
-    }
-
-    npcGuid[6] = recvData.ReadBit();
-    npcGuid[0] = recvData.ReadBit();
-    npcGuid[3] = recvData.ReadBit();
-    npcGuid[1] = recvData.ReadBit();
-    npcGuid[2] = recvData.ReadBit();
-    npcGuid[5] = recvData.ReadBit();
-
-    for (uint32 i = 0; i < countDeposit; ++i)
-    {
-        recvData.ReadByteSeq(itemGuids[i][5]);
-        recvData.ReadByteSeq(itemGuids[i][6]);
-        recvData.ReadByteSeq(itemGuids[i][3]);
-        recvData.ReadByteSeq(itemGuids[i][4]);
-        recvData.ReadByteSeq(itemGuids[i][1]);
-        recvData.ReadByteSeq(itemGuids[i][7]);
-        recvData.ReadByteSeq(itemGuids[i][2]);
-        recvData.ReadByteSeq(itemGuids[i][0]);
-    }
-
-    recvData.ReadByteSeq(npcGuid[5]);
-
-    for (uint32 i = 0; i < countWithdraw; ++i)
-    {
-        recvData.ReadByteSeq(itemIds[i][0]);
-        recvData.ReadByteSeq(itemIds[i][4]);
-        recvData.ReadByteSeq(itemIds[i][1]);
-        recvData.ReadByteSeq(itemIds[i][2]);
-        recvData.ReadByteSeq(itemIds[i][6]);
-        recvData.ReadByteSeq(itemIds[i][3]);
-        recvData.ReadByteSeq(itemIds[i][7]);
-        recvData.ReadByteSeq(itemIds[i][5]);
-    }
-
-    recvData.ReadByteSeq(npcGuid[1]);
-    recvData.ReadByteSeq(npcGuid[7]);
-    recvData.ReadByteSeq(npcGuid[4]);
-    recvData.ReadByteSeq(npcGuid[3]);
-    recvData.ReadByteSeq(npcGuid[2]);
-    recvData.ReadByteSeq(npcGuid[0]);
-    recvData.ReadByteSeq(npcGuid[6]);
-
-    Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
+    Creature* unit = player->GetNPCIfCanInteractWith(packet.NpcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Unit (GUID: %u) not found or player can't interact with it.", npcGuid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Unit (GUID: {}) not found or player can't interact with it.", packet.NpcGuid.GetCounter());
         return;
     }
 
     if (!player->IsVoidStorageUnlocked())
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) queried void storage without unlocking it.", player->GetGUID().GetCounter(), player->GetName().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (GUID: {}, name: {}) queried void storage without unlocking it.", player->GetGUID().GetCounter(), player->GetName().c_str());
         return;
     }
 
-    if (itemGuids.size() > player->GetNumOfVoidStorageFreeSlots())
+    if (packet.ItemGuids.size() > player->GetNumOfVoidStorageFreeSlots())
     {
         SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_FULL);
         return;
     }
 
     uint32 freeBagSlots = 0;
-    if (itemIds.size() != 0)
+    if (packet.ItemIds.size() != 0)
     {
         // make this a Player function
         for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
@@ -312,13 +198,13 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
                 ++freeBagSlots;
     }
 
-    if (itemIds.size() > freeBagSlots)
+    if (packet.ItemIds.size() > freeBagSlots)
     {
         SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_INVENTORY_FULL);
         return;
     }
 
-    if (!player->HasEnoughMoney(uint64(itemGuids.size() * VOID_STORAGE_STORE_ITEM)))
+    if (!player->HasEnoughMoney(uint64(packet.ItemGuids.size() * VOID_STORAGE_STORE_ITEM)))
     {
         SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_NOT_ENOUGH_MONEY);
         return;
@@ -326,12 +212,12 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     std::pair<VoidStorageItem, uint8> depositItems[VOID_STORAGE_MAX_DEPOSIT];
     uint8 depositCount = 0;
-    for (std::vector<ObjectGuid>::iterator itr = itemGuids.begin(); itr != itemGuids.end(); ++itr)
+    for (std::vector<ObjectGuid>::iterator itr = packet.ItemGuids.begin(); itr != packet.ItemGuids.end(); ++itr)
     {
         Item* item = player->GetItemByGuid(*itr);
         if (!item)
         {
-            TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) wants to deposit an invalid item (item guid: " UI64FMTD ").", player->GetGUID().GetCounter(), player->GetName().c_str(), uint64(*itr));
+            TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (GUID: {}, name: {}) wants to deposit an invalid item (item guid: " "{}" ").", player->GetGUID().GetCounter(), player->GetName().c_str(), uint64(*itr));
             continue;
         }
 
@@ -350,13 +236,13 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     VoidStorageItem withdrawItems[VOID_STORAGE_MAX_WITHDRAW];
     uint8 withdrawCount = 0;
-    for (std::vector<ObjectGuid>::iterator itr = itemIds.begin(); itr != itemIds.end(); ++itr)
+    for (std::vector<ObjectGuid>::iterator itr = packet.ItemIds.begin(); itr != packet.ItemIds.end(); ++itr)
     {
         uint8 slot;
         VoidStorageItem* itemVS = player->GetVoidStorageItem(*itr, slot);
         if (!itemVS)
         {
-            TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) tried to withdraw an invalid item (id: " UI64FMTD ")", player->GetGUID().GetCounter(), player->GetName().c_str(), uint64(*itr));
+            TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (GUID: {}, name: {}) tried to withdraw an invalid item (id: " "{}" ")", player->GetGUID().GetCounter(), player->GetName().c_str(), uint64(*itr));
             continue;
         }
 
@@ -365,7 +251,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
         if (msg != EQUIP_ERR_OK)
         {
             SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_INVENTORY_FULL);
-            TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) couldn't withdraw item id " UI64FMTD " because inventory was full.", player->GetGUID().GetCounter(), player->GetName().c_str(), uint64(*itr));
+            TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (GUID: {}, name: {}) couldn't withdraw item id " "{}" " because inventory was full.", player->GetGUID().GetCounter(), player->GetName().c_str(), uint64(*itr));
             return;
         }
 
@@ -482,78 +368,39 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
     SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_NO_ERROR);
 }
 
-void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
+void WorldSession::HandleVoidSwapItem(WorldPackets::VoidStorage::VoidSwapItem& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_VOID_SWAP_ITEM");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_SWAP_VOID_ITEM");
 
     Player* player = GetPlayer();
-    uint32 newSlot;
-    ObjectGuid npcGuid;
-    ObjectGuid itemId;
 
-    recvData >> newSlot;
-
-    npcGuid[6] = recvData.ReadBit();
-    itemId[4] = recvData.ReadBit();
-    itemId[7] = recvData.ReadBit();
-    itemId[3] = recvData.ReadBit();
-    itemId[2] = recvData.ReadBit();
-    npcGuid[4] = recvData.ReadBit();
-    npcGuid[2] = recvData.ReadBit();
-    itemId[0] = recvData.ReadBit();
-    itemId[1] = recvData.ReadBit();
-    npcGuid[7] = recvData.ReadBit();
-    npcGuid[1] = recvData.ReadBit();
-    itemId[6] = recvData.ReadBit();
-    npcGuid[3] = recvData.ReadBit();
-    npcGuid[5] = recvData.ReadBit();
-    itemId[5] = recvData.ReadBit();
-    npcGuid[0] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(npcGuid[3]);
-    recvData.ReadByteSeq(npcGuid[5]);
-    recvData.ReadByteSeq(itemId[6]);
-    recvData.ReadByteSeq(npcGuid[4]);
-    recvData.ReadByteSeq(itemId[4]);
-    recvData.ReadByteSeq(npcGuid[0]);
-    recvData.ReadByteSeq(itemId[5]);
-    recvData.ReadByteSeq(itemId[7]);
-    recvData.ReadByteSeq(npcGuid[7]);
-    recvData.ReadByteSeq(npcGuid[2]);
-    recvData.ReadByteSeq(npcGuid[1]);
-    recvData.ReadByteSeq(itemId[1]);
-    recvData.ReadByteSeq(itemId[3]);
-    recvData.ReadByteSeq(npcGuid[6]);
-    recvData.ReadByteSeq(itemId[0]);
-    recvData.ReadByteSeq(itemId[2]);
-
-    Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
+    Creature* unit = player->GetNPCIfCanInteractWith(packet.NpcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidSwapItem - Unit (GUID: %u) not found or player can't interact with it.", npcGuid.GetCounter());
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidSwapItem - Unit (GUID: {}) not found or player can't interact with it.", packet.NpcGuid.GetCounter());
         return;
     }
 
     if (!player->IsVoidStorageUnlocked())
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidSwapItem - Player (GUID: %u, name: %s) queried void storage without unlocking it.", player->GetGUID().GetCounter(), player->GetName().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidSwapItem - Player (GUID: {}, name: {}) queried void storage without unlocking it.", player->GetGUID().GetCounter(), player->GetName().c_str());
         return;
     }
 
     uint8 oldSlot;
-    if (!player->GetVoidStorageItem(itemId, oldSlot))
+    if (!player->GetVoidStorageItem(packet.ItemId, oldSlot))
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidSwapItem - Player (GUID: %u, name: %s) requested swapping an invalid item (slot: %u, itemid: " UI64FMTD ").", player->GetGUID().GetCounter(), player->GetName().c_str(), newSlot, uint64(itemId));
+        TC_LOG_DEBUG("network", "WORLD: HandleVoidSwapItem - Player (GUID: {}, name: {}) requested swapping an invalid item (slot: {}, itemid: " "{}" ").", player->GetGUID().GetCounter(), player->GetName().c_str(), packet.NewSlot, uint64(packet.ItemId));
         return;
     }
 
     bool usedSrcSlot = player->GetVoidStorageItem(oldSlot) != NULL; // should be always true
-    bool usedDestSlot = player->GetVoidStorageItem(newSlot) != NULL;
+    bool usedDestSlot = player->GetVoidStorageItem(packet.NewSlot) != NULL;
     ObjectGuid itemIdDest;
     if (usedDestSlot)
-        itemIdDest.Set(player->GetVoidStorageItem(newSlot)->ItemId);
+        itemIdDest.Set(player->GetVoidStorageItem(packet.NewSlot)->ItemId);
 
-    if (!player->SwapVoidStorageItem(oldSlot, newSlot))
+    if (!player->SwapVoidStorageItem(oldSlot, packet.NewSlot))
     {
         SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_INTERNAL_ERROR_1);
         return;
@@ -563,14 +410,14 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
 
     data.WriteBit(!usedSrcSlot);
 
-    data.WriteBit(itemId[4]);
-    data.WriteBit(itemId[1]);
-    data.WriteBit(itemId[6]);
-    data.WriteBit(itemId[0]);
-    data.WriteBit(itemId[3]);
-    data.WriteBit(itemId[7]);
-    data.WriteBit(itemId[2]);
-    data.WriteBit(itemId[5]);
+    data.WriteBit(packet.ItemId[4]);
+    data.WriteBit(packet.ItemId[1]);
+    data.WriteBit(packet.ItemId[6]);
+    data.WriteBit(packet.ItemId[0]);
+    data.WriteBit(packet.ItemId[3]);
+    data.WriteBit(packet.ItemId[7]);
+    data.WriteBit(packet.ItemId[2]);
+    data.WriteBit(packet.ItemId[5]);
 
     data.WriteBit(!usedDestSlot);
 
@@ -596,20 +443,20 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
     data.WriteByteSeq(itemIdDest[1]);
     data.WriteByteSeq(itemIdDest[4]);
     data.WriteByteSeq(itemIdDest[6]);
-    data.WriteByteSeq(itemId[0]);
-    data.WriteByteSeq(itemId[2]);
-    data.WriteByteSeq(itemId[7]);
-    data.WriteByteSeq(itemId[5]);
-    data.WriteByteSeq(itemId[6]);
-    data.WriteByteSeq(itemId[4]);
-    data.WriteByteSeq(itemId[3]);
-    data.WriteByteSeq(itemId[1]);
+    data.WriteByteSeq(packet.ItemId[0]);
+    data.WriteByteSeq(packet.ItemId[2]);
+    data.WriteByteSeq(packet.ItemId[7]);
+    data.WriteByteSeq(packet.ItemId[5]);
+    data.WriteByteSeq(packet.ItemId[6]);
+    data.WriteByteSeq(packet.ItemId[4]);
+    data.WriteByteSeq(packet.ItemId[3]);
+    data.WriteByteSeq(packet.ItemId[1]);
 
     if (usedDestSlot)
         data << uint32(oldSlot);
 
     if (usedSrcSlot)
-        data << uint32(newSlot);
+        data << uint32(packet.NewSlot);
 
     SendPacket(&data);
 }

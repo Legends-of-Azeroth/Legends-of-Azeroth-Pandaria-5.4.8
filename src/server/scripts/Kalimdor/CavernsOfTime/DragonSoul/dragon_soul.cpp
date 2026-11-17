@@ -1644,8 +1644,8 @@ class npc_dragon_soul_thrall : public CreatureScript
                             break;
                         case EVENT_SPAWN_NPC:
                             instance->DoRemoveAurasDueToSpellOnPlayers(106368); // Twilight Shift
-                            me->SummonCreature(NPC_SKY_CAPTAIN_SWAYZE, customPos[1], TEMPSUMMON_MANUAL_DESPAWN, 0);
-                            me->SummonCreature(NPC_KAANU_REEVS, customPos[2], TEMPSUMMON_MANUAL_DESPAWN, 0);
+                            me->SummonCreature(NPC_SKY_CAPTAIN_SWAYZE, customPos[1], TEMPSUMMON_MANUAL_DESPAWN, 0ms);
+                            me->SummonCreature(NPC_KAANU_REEVS, customPos[2], TEMPSUMMON_MANUAL_DESPAWN, 0ms);
                             if (Creature* pSwayze = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SWAYZE)))
                                 pSwayze->AI()->Talk(9);
                             events.ScheduleEvent(EVENT_TALK_ULTRAXION_WIN_1, 10000);
@@ -1896,7 +1896,7 @@ class npc_dragon_soul_twilight_assaulter : public CreatureScript
                 if (me->GetReactState() == REACT_PASSIVE)
                 {
                     me->CombatStop(true);
-                    me->getHostileRefManager().deleteReferences();
+                    me->GetThreatManager().RemoveMeFromThreatLists();
                     if (wasChanneling)
                         DoCastAOE(SPELL_TWLIGHT_FLAMES_CHANNEL);
                     return;
@@ -1990,7 +1990,7 @@ class npc_dragon_soul_twilight_assaulter : public CreatureScript
                     if (me->IsInCombat())
                     {
                         me->CombatStop(true);
-                        me->getHostileRefManager().deleteReferences();
+                        me->GetThreatManager().RemoveMeFromThreatLists();
                         EnterEvadeMode();
                     }
                 }
@@ -2303,7 +2303,7 @@ class spell_dragon_soul_cobalt_globule_mana_void : public SpellScriptLoader
                             return true;
                         if (unit->ToPlayer()->GetPowerType() == POWER_MANA)
                             return false;
-                        return GetPowerIndexByClass(POWER_MANA, unit->ToPlayer()->GetClass()) == MAX_POWERS;
+                        return sDBCManager.GetPowerIndexByClass(POWER_MANA, unit->ToPlayer()->GetClass()) == MAX_POWERS;
                     }
             };
         };

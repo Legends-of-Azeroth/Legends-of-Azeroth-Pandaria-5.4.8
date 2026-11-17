@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -46,7 +46,7 @@ public:
         }
         catch (boost::system::system_error const& err)
         {
-            TC_LOG_ERROR("network", "Exception caught in SocketMgr.StartNetwork (%s:%u): %s", bindIp.c_str(), port, err.what());
+            TC_LOG_ERROR("network", "Exception caught in SocketMgr.StartNetwork ({}:{}): {}", bindIp.c_str(), port, err.what());
             return false;
         }
 
@@ -106,7 +106,7 @@ public:
         }
         catch (boost::system::system_error const& err)
         {
-            TC_LOG_WARN("network", "Failed to retrieve client's remote address %s", err.what());
+            TC_LOG_WARN("network", "Failed to retrieve client's remote address {}", err.what());
         }
     }
 

@@ -672,7 +672,6 @@ class spell_gen_clone : public SpellScript
         }
         else
         {
-            OnEffectHitTarget += SpellEffectFn(spell_gen_clone::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             OnEffectHitTarget += SpellEffectFn(spell_gen_clone::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     }
@@ -1495,35 +1494,6 @@ class spell_gen_interrupt : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_gen_interrupt_AuraScript();
-        }
-};
-
-class spell_gen_increase_stats_buff : public SpellScriptLoader
-{
-    public:
-        spell_gen_increase_stats_buff(char const* scriptName) : SpellScriptLoader(scriptName) { }
-
-        class spell_gen_increase_stats_buff_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gen_increase_stats_buff_SpellScript);
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (GetHitUnit()->IsInRaidWith(GetCaster()))
-                    GetCaster()->CastSpell(GetCaster(), GetEffectValue() + 1, true); // raid buff
-                else
-                    GetCaster()->CastSpell(GetHitUnit(), GetEffectValue(), true); // single-target buff
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_increase_stats_buff_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_gen_increase_stats_buff_SpellScript();
         }
 };
 
@@ -2378,10 +2348,7 @@ class spell_gen_replenishment : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_REPLENISHMENT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_INFINITE_REPLENISHMENT))
-                    return false;
-                return true;
+                return sSpellMgr->GetSpellInfo(SPELL_REPLENISHMENT);
             }
 
             bool Load() override
@@ -3900,7 +3867,7 @@ class spell_gen_noodle_cart : public SpellScript
                     case 145169: vendorId = NPC_NOODLE_CART_VENDOR_TIER_2; cartVisual = SPELL_COOKING_NOODLE_CART_VISUAL_TIER_2; break;
                     case 145196: vendorId = NPC_NOODLE_CART_VENDOR_TIER_3; cartVisual = SPELL_COOKING_NOODLE_CART_VISUAL_TIER_3; break;
                 }
-                Creature* vendor = player->SummonCreature(vendorId, player->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 180000);
+                Creature* vendor = player->SummonCreature(vendorId, player->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 180000ms);
                 if (!vendor)
                     return;
 
@@ -4424,7 +4391,7 @@ class spell_gen_portal_to_isle_of_thunder : public SpellScript
             }
             else
             {
-                TC_LOG_ERROR("shit", "spell_gen_portal_to_isle_of_thunder: Player %u, team %u, spell %u.", player->GetGUID().GetCounter(), player->GetTeam(), GetSpellInfo()->Id);
+                TC_LOG_ERROR("shit", "spell_gen_portal_to_isle_of_thunder: Player {}, team {}, spell {}.", player->GetGUID().GetCounter(), player->GetTeam(), GetSpellInfo()->Id);
                 return;
             }
             dest._position.m_mapId = 1064;
@@ -4776,12 +4743,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_gadgetzan_transporter_backfire();
     new aura_script<spell_gen_gift_of_naaru>("spell_gen_gift_of_naaru");
     new spell_gen_gnomish_transporter();
-    new spell_gen_increase_stats_buff("spell_pal_blessing_of_kings");
-    new spell_gen_increase_stats_buff("spell_pal_blessing_of_might");
-    new spell_gen_increase_stats_buff("spell_dru_mark_of_the_wild_stats");
-    new spell_gen_increase_stats_buff("spell_pri_power_word_fortitude_stats");
-    new spell_gen_increase_stats_buff("spell_mage_arcane_brilliance_stats");
-    new spell_gen_increase_stats_buff("spell_mage_dalaran_brilliance");
     new spell_gen_interrupt();
     new spell_gen_lifebloom("spell_hexlord_lifebloom", SPELL_HEXLORD_MALACRASS_LIFEBLOOM_FINAL_HEAL);
     new spell_gen_lifebloom("spell_tur_ragepaw_lifebloom", SPELL_TUR_RAGEPAW_LIFEBLOOM_FINAL_HEAL);

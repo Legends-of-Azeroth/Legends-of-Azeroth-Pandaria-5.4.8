@@ -38,7 +38,7 @@ struct FormationInfo
     uint32 leaderGUID;
     float follow_dist;
     float follow_angle;
-    uint8 groupAI;
+    uint32 groupAI;
     uint16 point_1;
     uint16 point_2;
 };
@@ -86,6 +86,7 @@ class TC_GAME_API CreatureGroup
         void FormationReset(bool dismiss);
 
         void LeaderMoveTo(float x, float y, float z);
+        void LeaderStartedMoving();
         void MemberEngagingTarget(Creature* member, Unit* target);
 };
 

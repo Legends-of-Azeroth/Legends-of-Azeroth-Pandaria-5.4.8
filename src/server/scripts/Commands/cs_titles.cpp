@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -37,18 +37,18 @@ public:
     {
         static std::vector<ChatCommand> titlesSetCommandTable =
         {
-            { "mask",       SEC_ADMINISTRATOR,  false,  &HandleTitlesSetMaskCommand,    },
+            { "mask",       &HandleTitlesSetMaskCommand,    rbac::RBAC_PERM_COMMAND_TITLES_SET_MASK, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> titlesCommandTable =
         {
-            { "add",        SEC_ADMINISTRATOR,  false,  &HandleTitlesAddCommand,        },
-            { "current",    SEC_ADMINISTRATOR,  false,  &HandleTitlesCurrentCommand,    },
-            { "remove",     SEC_ADMINISTRATOR,  false,  &HandleTitlesRemoveCommand,     },
-            { "set",        SEC_ADMINISTRATOR,  false,  titlesSetCommandTable           },
+            { "add",        &HandleTitlesAddCommand,        rbac::RBAC_PERM_COMMAND_TITLES_ADD,      Trinity::ChatCommands::Console::No },
+            { "current",    &HandleTitlesCurrentCommand,    rbac::RBAC_PERM_COMMAND_TITLES_CURRENT,  Trinity::ChatCommands::Console::No },
+            { "remove",     &HandleTitlesRemoveCommand,     rbac::RBAC_PERM_COMMAND_TITLES_REMOVE,   Trinity::ChatCommands::Console::No },
+            { "set",        titlesSetCommandTable,           rbac::RBAC_PERM_COMMAND_TITLES_SET_MASK, Trinity::ChatCommands::Console::No },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "titles",     SEC_ADMINISTRATOR,  false,  titlesCommandTable              },
+            { "titles",     titlesCommandTable,              rbac::RBAC_PERM_COMMAND_TITLES_ADD,      Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }
@@ -136,7 +136,7 @@ public:
         std::string tNameLink = handler->GetNameLink(target);
 
         char titleNameStr[80];
-        snprintf(titleNameStr, 80, titleInfo->name[handler->GetSessionDbcLocale()], target->GetName().c_str());
+        snprintf(titleNameStr, 80, titleInfo->name, target->GetName().c_str());
 
         target->SetTitle(titleInfo);
         handler->PSendSysMessage(LANG_TITLE_ADD_RES, id, titleNameStr, tNameLink.c_str());
@@ -184,7 +184,7 @@ public:
         std::string tNameLink = handler->GetNameLink(target);
 
         char titleNameStr[80];
-        snprintf(titleNameStr, 80, titleInfo->name[handler->GetSessionDbcLocale()], target->GetName().c_str());
+        snprintf(titleNameStr, 80, titleInfo->name, target->GetName().c_str());
 
         handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, id, titleNameStr, tNameLink.c_str());
 

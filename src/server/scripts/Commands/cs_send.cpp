@@ -31,15 +31,15 @@ public:
     {
         static std::vector<ChatCommand> sendCommandTable =
         {
-            { "items",      SEC_GAMEMASTER, true,   &HandleSendItemsCommand,    },
-            { "mail",       SEC_GAMEMASTER, true,   &HandleSendMailCommand,     },
-            { "message",    SEC_GAMEMASTER, true,   &HandleSendMessageCommand,  },
-            { "money",      SEC_GAMEMASTER, true,   &HandleSendMoneyCommand,    },
+            { "items",      &HandleSendItemsCommand,    rbac::RBAC_PERM_COMMAND_SEND_ITEMS,   Trinity::ChatCommands::Console::Yes },
+            { "mail",       &HandleSendMailCommand,     rbac::RBAC_PERM_COMMAND_SEND_MAIL,    Trinity::ChatCommands::Console::Yes },
+            { "message",    &HandleSendMessageCommand,  rbac::RBAC_PERM_COMMAND_SEND_MESSAGE, Trinity::ChatCommands::Console::Yes },
+            { "money",      &HandleSendMoneyCommand,    rbac::RBAC_PERM_COMMAND_SEND_MONEY,   Trinity::ChatCommands::Console::Yes },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "send",       SEC_GAMEMASTER, false,  sendCommandTable            },
+            { "send",       sendCommandTable,            rbac::RBAC_PERM_COMMAND_SEND,         Trinity::ChatCommands::Console::No },
         };
         return commandTable;
     }

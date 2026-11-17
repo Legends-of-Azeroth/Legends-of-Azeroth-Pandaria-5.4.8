@@ -25,6 +25,7 @@
 #include <memory>
 #include <utility>
 #include <set>
+#include <functional>
 
 #include "Util.h"
 #include "Duration.h"

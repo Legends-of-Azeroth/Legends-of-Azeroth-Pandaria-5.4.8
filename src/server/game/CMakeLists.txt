@@ -20,6 +20,7 @@ file(GLOB_RECURSE sources_Battlegrounds Battlegrounds/*.cpp Battlegrounds/*.h)
 file(GLOB_RECURSE sources_BattlePay BattlePay/*.cpp BattlePay/*.h)
 file(GLOB_RECURSE sources_BattlePet BattlePet/*.cpp BattlePet/*.h)
 file(GLOB_RECURSE sources_BlackMarket BlackMarket/*.cpp BlackMarket/*.h)
+file(GLOB_RECURSE sources_Cached Cached/*.cpp Cached/*.h)
 file(GLOB_RECURSE sources_Calendar Calendar/*.cpp Calendar/*.h)
 file(GLOB_RECURSE sources_Chat Chat/*.cpp Chat/*.h)
 file(GLOB_RECURSE sources_Combat Combat/*.cpp Combat/*.h)
@@ -74,6 +75,7 @@ source_group(Battlegrounds FILES ${sources_Battlegrounds})
 source_group(BattlePay FILES ${sources_BattlePay})
 source_group(BattlePet FILES ${sources_BattlePet})
 source_group(BlackMarket FILES ${sources_BlackMarket})
+source_group(Cached FILES ${sources_Cached})
 source_group(Calendar FILES ${sources_Calendar})
 source_group(Chat FILES ${sources_Chat})
 source_group(Combat FILES ${sources_Combat})
@@ -133,6 +135,7 @@ set(game_STAT_SRCS
   ${sources_BattlePay}
   ${sources_BattlePet}
   ${sources_BlackMarket}
+  ${sources_Cached}
   ${sources_Calendar}
   ${sources_Chat}
   ${sources_Combat}
@@ -210,9 +213,11 @@ target_include_directories(game
     ${CMAKE_CURRENT_SOURCE_DIR}/BattlePay
     ${CMAKE_CURRENT_SOURCE_DIR}/BattlePet
     ${CMAKE_CURRENT_SOURCE_DIR}/BlackMarket
+    ${CMAKE_CURRENT_SOURCE_DIR}/Cached
     ${CMAKE_CURRENT_SOURCE_DIR}/Calendar
     ${CMAKE_CURRENT_SOURCE_DIR}/Chat
     ${CMAKE_CURRENT_SOURCE_DIR}/Chat/Channels
+    ${CMAKE_CURRENT_SOURCE_DIR}/Chat/ChatCommands
     ${CMAKE_CURRENT_SOURCE_DIR}/Combat
     ${CMAKE_CURRENT_SOURCE_DIR}/Conditions
     ${CMAKE_CURRENT_SOURCE_DIR}/CustomTransmogrification
@@ -305,6 +310,10 @@ target_link_libraries(game
   PRIVATE
     zlib
 )
+
+if(USE_MODULES)
+    target_compile_definitions(game PRIVATE USE_MODULES)
+endif()
 
 if (ELUNA)
   add_dependencies(game lua)

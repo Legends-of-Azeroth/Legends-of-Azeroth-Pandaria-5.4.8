@@ -148,7 +148,7 @@ struct npc_darkmoon_moonfang : public customCreatureAI
         events.ScheduleEvent(EVENT_LEAP_FOR_THE_KILL, 15s);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
     }

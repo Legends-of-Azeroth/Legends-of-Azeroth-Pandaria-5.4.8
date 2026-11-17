@@ -17,12 +17,35 @@
 
 #include "MiscPackets.h"
 
+WorldPacket const* WorldPackets::Misc::BinderConfirm::Write()
+{
+    _worldPacket.WriteBit(Unit[4]);
+    _worldPacket.WriteBit(Unit[6]);
+    _worldPacket.WriteBit(Unit[2]);
+    _worldPacket.WriteBit(Unit[1]);
+    _worldPacket.WriteBit(Unit[5]);
+    _worldPacket.WriteBit(Unit[3]);
+    _worldPacket.WriteBit(Unit[0]);
+    _worldPacket.WriteBit(Unit[7]);
+
+    _worldPacket.WriteByteSeq(Unit[6]);
+    _worldPacket.WriteByteSeq(Unit[2]);
+    _worldPacket.WriteByteSeq(Unit[5]);
+    _worldPacket.WriteByteSeq(Unit[0]);
+    _worldPacket.WriteByteSeq(Unit[4]);
+    _worldPacket.WriteByteSeq(Unit[7]);
+    _worldPacket.WriteByteSeq(Unit[1]);
+    _worldPacket.WriteByteSeq(Unit[3]);
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::TriggerCinematic::Write()
 {
     _worldPacket << uint32(CinematicID);
 
     return &_worldPacket;
 }
+
 WorldPacket const* WorldPackets::Misc::TriggerMovie::Write()
 {
     _worldPacket << uint32(MovieID);
@@ -151,6 +174,17 @@ WorldPacket const* WorldPackets::Misc::StopMirrorTimer::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::BindPointUpdate::Write()
+{
+    _worldPacket << BindPosition.GetPositionX();
+    _worldPacket << BindPosition.GetPositionY();
+    _worldPacket << BindPosition.GetPositionZ();
+    _worldPacket << uint32(BindAreaID);    
+    _worldPacket << uint32(BindMapID);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::Dismount::Write()
 {
     _worldPacket.WriteBit(Guid[6]);
@@ -208,4 +242,211 @@ WorldPacket const* WorldPackets::Misc::OverrideLight::Write()
     _worldPacket << int32(TransitionMilliseconds);
 
     return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::DisplayGameError::Write()
+{
+    _worldPacket << uint32(Error);
+    _worldPacket.WriteBit(Arg.has_value());
+    _worldPacket.WriteBit(Arg2.has_value());
+    _worldPacket.FlushBits();
+
+    if (Arg)
+        _worldPacket << int32(*Arg);
+
+    if (Arg2)
+        _worldPacket << int32(*Arg2);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::TutorialSetFlag::Read()
+{
+    _worldPacket >> TutorialBit;
+}
+
+void WorldPackets::Misc::QueryCountdownTimer::Read()
+{
+    _worldPacket.read_skip<uint32>();
+}
+
+void WorldPackets::Misc::RequestHotfix::Read()
+{
+    Type = _worldPacket.read<uint32>();
+
+    uint32 count = _worldPacket.ReadBits(21);
+
+    for (uint32 i = 0; i < count; ++i)
+    {
+        ObjectGuid guid;
+        guid[6] = _worldPacket.ReadBit();
+        guid[3] = _worldPacket.ReadBit();
+        guid[0] = _worldPacket.ReadBit();
+        guid[1] = _worldPacket.ReadBit();
+        guid[4] = _worldPacket.ReadBit();
+        guid[5] = _worldPacket.ReadBit();
+        guid[7] = _worldPacket.ReadBit();
+        guid[2] = _worldPacket.ReadBit();
+    }
+
+    Entries.resize(count);
+    for (uint32 i = 0; i < count; ++i)
+    {
+        ObjectGuid guid;
+        _worldPacket.ReadByteSeq(guid[1]);
+        Entries[i] = _worldPacket.read<uint32>();
+        _worldPacket.ReadByteSeq(guid[0]);
+        _worldPacket.ReadByteSeq(guid[5]);
+        _worldPacket.ReadByteSeq(guid[6]);
+        _worldPacket.ReadByteSeq(guid[4]);
+        _worldPacket.ReadByteSeq(guid[7]);
+        _worldPacket.ReadByteSeq(guid[2]);
+        _worldPacket.ReadByteSeq(guid[3]);
+    }
+}
+
+void WorldPackets::Misc::SetSelection::Read()
+{
+    Guid[7] = _worldPacket.ReadBit();
+    Guid[6] = _worldPacket.ReadBit();
+    Guid[5] = _worldPacket.ReadBit();
+    Guid[4] = _worldPacket.ReadBit();
+    Guid[3] = _worldPacket.ReadBit();
+    Guid[2] = _worldPacket.ReadBit();
+    Guid[1] = _worldPacket.ReadBit();
+    Guid[0] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(Guid[0]);
+    _worldPacket.ReadByteSeq(Guid[7]);
+    _worldPacket.ReadByteSeq(Guid[3]);
+    _worldPacket.ReadByteSeq(Guid[5]);
+    _worldPacket.ReadByteSeq(Guid[1]);
+    _worldPacket.ReadByteSeq(Guid[4]);
+    _worldPacket.ReadByteSeq(Guid[6]);
+    _worldPacket.ReadByteSeq(Guid[2]);
+}
+
+void WorldPackets::Misc::StandStateChange::Read()
+{
+    _worldPacket >> AnimState;
+}
+
+void WorldPackets::Misc::SetActionButton::Read()
+{
+    _worldPacket >> SlotId;
+
+    ButtonStream[7] = _worldPacket.ReadBit();
+    ButtonStream[0] = _worldPacket.ReadBit();
+    ButtonStream[5] = _worldPacket.ReadBit();
+    ButtonStream[2] = _worldPacket.ReadBit();
+    ButtonStream[1] = _worldPacket.ReadBit();
+    ButtonStream[6] = _worldPacket.ReadBit();
+    ButtonStream[3] = _worldPacket.ReadBit();
+    ButtonStream[4] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(ButtonStream[6]);
+    _worldPacket.ReadByteSeq(ButtonStream[7]);
+    _worldPacket.ReadByteSeq(ButtonStream[3]);
+    _worldPacket.ReadByteSeq(ButtonStream[5]);
+    _worldPacket.ReadByteSeq(ButtonStream[2]);
+    _worldPacket.ReadByteSeq(ButtonStream[1]);
+    _worldPacket.ReadByteSeq(ButtonStream[4]);
+    _worldPacket.ReadByteSeq(ButtonStream[0]);
+}
+
+void WorldPackets::Misc::SetActionBarToggles::Read()
+{
+    _worldPacket >> ActionBar;
+}
+
+void WorldPackets::Misc::PlayedTimeClient::Read()
+{
+    _worldPacket >> Unk1;
+}
+
+void WorldPackets::Misc::SetTitle::Read()
+{
+    _worldPacket >> Title;
+}
+
+void WorldPackets::Misc::TimeSyncResponse::Read()
+{
+    _worldPacket >> Counter >> ClientTicks;
+}
+
+void WorldPackets::Misc::SetTaxiBenchmarkMode::Read()
+{
+    _worldPacket >> Mode;
+}
+
+void WorldPackets::Misc::GuildAchievementProgressQuery::Read()
+{
+    _worldPacket >> AchievementId;
+}
+
+void WorldPackets::Misc::ViolenceLevel::Read()
+{
+    _worldPacket >> Level;
+}
+
+void WorldPackets::Misc::ObjectUpdateFailed::Read()
+{
+    Guid[3] = _worldPacket.ReadBit();
+    Guid[5] = _worldPacket.ReadBit();
+    Guid[6] = _worldPacket.ReadBit();
+    Guid[0] = _worldPacket.ReadBit();
+    Guid[1] = _worldPacket.ReadBit();
+    Guid[2] = _worldPacket.ReadBit();
+    Guid[7] = _worldPacket.ReadBit();
+    Guid[4] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(Guid[0]);
+    _worldPacket.ReadByteSeq(Guid[6]);
+    _worldPacket.ReadByteSeq(Guid[5]);
+    _worldPacket.ReadByteSeq(Guid[7]);
+    _worldPacket.ReadByteSeq(Guid[2]);
+    _worldPacket.ReadByteSeq(Guid[1]);
+    _worldPacket.ReadByteSeq(Guid[3]);
+    _worldPacket.ReadByteSeq(Guid[4]);
+}
+
+void WorldPackets::Misc::SelectFaction::Read()
+{
+    Choice = _worldPacket.read<uint32>();
+}
+
+void WorldPackets::Misc::DiscardedTimeSyncAcks::Read()
+{
+    bool hasInfo = !_worldPacket.ReadBit();
+    if (hasInfo)
+        _worldPacket.read_skip<uint32>();
+}
+
+void WorldPackets::Misc::LogStreamingError::Read()
+{
+    uint32 lenght = _worldPacket.ReadBits(9);
+    MissingData = _worldPacket.ReadString(lenght);
+}
+
+void WorldPackets::Misc::ShowTradeSkill::Read()
+{
+    _worldPacket >> SpellId >> SkillId;
+
+    Guid[0] = _worldPacket.ReadBit();
+    Guid[4] = _worldPacket.ReadBit();
+    Guid[1] = _worldPacket.ReadBit();
+    Guid[5] = _worldPacket.ReadBit();
+    Guid[2] = _worldPacket.ReadBit();
+    Guid[6] = _worldPacket.ReadBit();
+    Guid[7] = _worldPacket.ReadBit();
+    Guid[3] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(Guid[5]);
+    _worldPacket.ReadByteSeq(Guid[2]);
+    _worldPacket.ReadByteSeq(Guid[7]);
+    _worldPacket.ReadByteSeq(Guid[3]);
+    _worldPacket.ReadByteSeq(Guid[4]);
+    _worldPacket.ReadByteSeq(Guid[0]);
+    _worldPacket.ReadByteSeq(Guid[1]);
+    _worldPacket.ReadByteSeq(Guid[6]);
 }

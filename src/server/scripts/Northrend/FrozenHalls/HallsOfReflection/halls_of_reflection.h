@@ -264,7 +264,7 @@ struct boss_horAI : ScriptedAI
         me->SetReactState(REACT_PASSIVE);
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         ScriptedAI::EnterEvadeMode();
         instance->SetData(DATA_WAVE_COUNT, NOT_STARTED);

@@ -110,7 +110,7 @@ class boss_sacrolash : public CreatureScript
                         if (temp->isDead())
                             temp->Respawn();
                         else if (temp->GetVictim())
-                            me->getThreatManager().addThreat(temp->GetVictim(),0.0f);
+                            me->GetThreatManager().AddThreat(temp->GetVictim(),0.0f);
                     }
                 }
 
@@ -297,10 +297,10 @@ class boss_sacrolash : public CreatureScript
                     for (uint8 i = 0; i < 3; ++i)
                     {
                         target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                        temp = DoSpawnCreature(NPC_SHADOW_IMAGE, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 10000);
+                        temp = DoSpawnCreature(NPC_SHADOW_IMAGE, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 10000ms);
                         if (temp && target)
                         {
-                            temp->AddThreat(target,1000000);//don't change target(healers)
+                            temp->GetThreatManager().AddThreat(target,1000000);//don't change target(healers)
                             temp->AI()->AttackStart(target);
                         }
                     }
@@ -380,7 +380,7 @@ class boss_alythess : public CreatureScript
                         if (temp->isDead())
                             temp->Respawn();
                         else if (temp->GetVictim())
-                            me->getThreatManager().addThreat(temp->GetVictim(),0.0f);
+                            me->GetThreatManager().AddThreat(temp->GetVictim(),0.0f);
                     }
                 }
 
@@ -587,7 +587,7 @@ class boss_alythess : public CreatureScript
                         Creature* sisiter = Unit::GetCreature((*me),instance->GetGuidData(DATA_SACROLASH));
                         if (sisiter && !sisiter->isDead() && sisiter->GetVictim())
                         {
-                            me->AddThreat(sisiter->GetVictim(),0.0f);
+                            me->GetThreatManager().AddThreat(sisiter->GetVictim(),0.0f);
                             DoStartNoMovement(sisiter->GetVictim());
                             me->Attack(sisiter->GetVictim(),false);
                         }

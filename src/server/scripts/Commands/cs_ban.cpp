@@ -41,40 +41,40 @@ public:
     {
         static std::vector<ChatCommand> unbanCommandTable =
         {
-            { "account",        SEC_GAMEMASTER,  true,   &HandleUnBanAccountCommand,         },
-            { "character",      SEC_GAMEMASTER,  true,   &HandleUnBanCharacterCommand,       },
-            { "playeraccount",  SEC_GAMEMASTER,  true,   &HandleUnBanAccountByCharCommand,   },
-            { "ip",             SEC_GAMEMASTER,  true,   &HandleUnBanIPCommand,              },
-            { "solo",           SEC_GAMEMASTER,  true,   &HandleUnBanSoloCommand             },
+            { "account",        &HandleUnBanAccountCommand,         rbac::RBAC_PERM_COMMAND_UNBAN_ACCOUNT,       Trinity::ChatCommands::Console::Yes },
+            { "character",      &HandleUnBanCharacterCommand,       rbac::RBAC_PERM_COMMAND_UNBAN_CHARACTER,     Trinity::ChatCommands::Console::Yes },
+            { "playeraccount",  &HandleUnBanAccountByCharCommand,   rbac::RBAC_PERM_COMMAND_UNBAN_PLAYERACCOUNT, Trinity::ChatCommands::Console::Yes },
+            { "ip",             &HandleUnBanIPCommand,              rbac::RBAC_PERM_COMMAND_UNBAN_IP,            Trinity::ChatCommands::Console::Yes },
+            { "solo", &HandleUnBanSoloCommand, rbac::RBAC_PERM_COMMAND_UNBAN_SOLO, Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> banlistCommandTable =
         {
-            { "account",        SEC_GAMEMASTER,  true,   &HandleBanListAccountCommand,       },
-            { "character",      SEC_GAMEMASTER,  true,   &HandleBanListCharacterCommand,     },
-            { "ip",             SEC_GAMEMASTER,  true,   &HandleBanListIPCommand,            },
-            
+            { "account",        &HandleBanListAccountCommand,       rbac::RBAC_PERM_COMMAND_BANLIST_ACCOUNT,     Trinity::ChatCommands::Console::Yes },
+            { "character",      &HandleBanListCharacterCommand,     rbac::RBAC_PERM_COMMAND_BANLIST_CHARACTER,   Trinity::ChatCommands::Console::Yes },
+            { "ip",             &HandleBanListIPCommand,            rbac::RBAC_PERM_COMMAND_BANLIST_IP,          Trinity::ChatCommands::Console::Yes },
+
         };
         static std::vector<ChatCommand> baninfoCommandTable =
         {
-            { "account",        SEC_GAMEMASTER,  true,   &HandleBanInfoAccountCommand,       },
-            { "character",      SEC_GAMEMASTER,  true,   &HandleBanInfoCharacterCommand,     },
-            { "ip",             SEC_GAMEMASTER,  true,   &HandleBanInfoIPCommand,            },
-            
+            { "account",        &HandleBanInfoAccountCommand,       rbac::RBAC_PERM_COMMAND_BANINFO_ACCOUNT,     Trinity::ChatCommands::Console::Yes },
+            { "character",      &HandleBanInfoCharacterCommand,     rbac::RBAC_PERM_COMMAND_BANINFO_CHARACTER,   Trinity::ChatCommands::Console::Yes },
+            { "ip",             &HandleBanInfoIPCommand,            rbac::RBAC_PERM_COMMAND_BANINFO_IP,          Trinity::ChatCommands::Console::Yes },
+
         };
         static std::vector<ChatCommand> banCommandTable =
         {
-            { "account",        SEC_GAMEMASTER,  true,   &HandleBanAccountCommand,           },
-            { "character",      SEC_GAMEMASTER,  true,   &HandleBanCharacterCommand,         },
-            { "playeraccount",  SEC_GAMEMASTER,  true,   &HandleBanAccountByCharCommand,     },
-            { "ip",             SEC_GAMEMASTER,  true,   &HandleBanIPCommand,                },
-            { "solo",           SEC_GAMEMASTER,  true,   &HandleBanSoloCommand               },
+            { "account",        &HandleBanAccountCommand,           rbac::RBAC_PERM_COMMAND_BAN_ACCOUNT,         Trinity::ChatCommands::Console::Yes },
+            { "character",      &HandleBanCharacterCommand,         rbac::RBAC_PERM_COMMAND_BAN_CHARACTER,       Trinity::ChatCommands::Console::Yes },
+            { "playeraccount",  &HandleBanAccountByCharCommand,     rbac::RBAC_PERM_COMMAND_BAN_PLAYERACCOUNT,   Trinity::ChatCommands::Console::Yes },
+            { "ip",             &HandleBanIPCommand,                rbac::RBAC_PERM_COMMAND_BAN_IP,              Trinity::ChatCommands::Console::Yes },
+            { "solo", &HandleBanSoloCommand, rbac::RBAC_PERM_COMMAND_BAN_SOLO, Trinity::ChatCommands::Console::Yes },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "ban",            SEC_GAMEMASTER,  true,   banCommandTable                     },
-            { "baninfo",        SEC_GAMEMASTER,  true,   baninfoCommandTable                 },
-            { "banlist",        SEC_GAMEMASTER,  true,   banlistCommandTable                 },
-            { "unban",          SEC_GAMEMASTER,  true,   unbanCommandTable                   },
+            { "ban", banCommandTable, rbac::RBAC_PERM_COMMAND_BAN, Trinity::ChatCommands::Console::Yes },
+            { "baninfo", baninfoCommandTable, rbac::RBAC_PERM_COMMAND_BANINFO, Trinity::ChatCommands::Console::Yes },
+            { "banlist", banlistCommandTable, rbac::RBAC_PERM_COMMAND_BANLIST, Trinity::ChatCommands::Console::Yes },
+            { "unban", unbanCommandTable, rbac::RBAC_PERM_COMMAND_UNBAN, Trinity::ChatCommands::Console::Yes },
         };
         return commandTable;
     }
@@ -282,7 +282,7 @@ public:
 
     static bool HandleBanInfoHelper(uint32 accountId, char const* accountName, ChatHandler* handler)
     {
-        QueryResult result = LoginDatabase.PQuery("SELECT FROM_UNIXTIME(bandate), unbandate-bandate, active, unbandate, banreason, bannedby FROM account_banned WHERE id = '%u' ORDER BY bandate ASC", accountId);
+        QueryResult result = LoginDatabase.PQuery("SELECT FROM_UNIXTIME(bandate), unbandate-bandate, active, unbandate, banreason, bannedby FROM account_banned WHERE id = '{}' ORDER BY bandate ASC", accountId);
         if (!result)
         {
             handler->PSendSysMessage(LANG_BANINFO_NOACCOUNTBAN, accountName);
@@ -376,7 +376,7 @@ public:
         std::string IP = ipStr;
 
         LoginDatabase.EscapeString(IP);
-        QueryResult result = LoginDatabase.PQuery("SELECT ip, FROM_UNIXTIME(bandate), FROM_UNIXTIME(unbandate), unbandate-UNIX_TIMESTAMP(), banreason, bannedby, unbandate-bandate FROM ip_banned WHERE ip = '%s'", IP.c_str());
+        QueryResult result = LoginDatabase.PQuery("SELECT ip, FROM_UNIXTIME(bandate), FROM_UNIXTIME(unbandate), unbandate-UNIX_TIMESTAMP(), banreason, bannedby, unbandate-bandate FROM ip_banned WHERE ip = '{}'", IP.c_str());
         if (!result)
         {
             handler->PSendSysMessage(LANG_BANINFO_NOIP);
@@ -436,7 +436,7 @@ public:
                 Field* fields = result->Fetch();
                 uint32 accountid = fields[0].GetUInt32();
 
-                QueryResult banResult = LoginDatabase.PQuery("SELECT account.username FROM account, account_banned WHERE account_banned.id='%u' AND account_banned.id=account.id", accountid);
+                QueryResult banResult = LoginDatabase.PQuery("SELECT account.username FROM account, account_banned WHERE account_banned.id='{}' AND account_banned.id=account.id", accountid);
                 if (banResult)
                 {
                     Field* fields2 = banResult->Fetch();
@@ -467,7 +467,7 @@ public:
                     AccountMgr::GetName(accountId, accountName);
 
                 // No SQL injection. id is uint32.
-                QueryResult banInfo = LoginDatabase.PQuery("SELECT bandate, unbandate, bannedby, banreason FROM account_banned WHERE id = %u ORDER BY unbandate", accountId);
+                QueryResult banInfo = LoginDatabase.PQuery("SELECT bandate, unbandate, bannedby, banreason FROM account_banned WHERE id = {} ORDER BY unbandate", accountId);
                 if (banInfo)
                 {
                     Field* fields2 = banInfo->Fetch();

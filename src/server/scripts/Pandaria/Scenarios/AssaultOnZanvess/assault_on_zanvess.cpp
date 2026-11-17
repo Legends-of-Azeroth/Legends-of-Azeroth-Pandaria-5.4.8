@@ -128,9 +128,9 @@ class npc_zanvess_korkron_gunship : public CreatureScript
             EVENT_LAUNCH_GUNSHIP,
         };
 
-        struct npc_zanvess_korkron_gunshipAI : public CreatureAI
+        struct npc_zanvess_korkron_gunshipAI : public ScriptedAI
         {
-            npc_zanvess_korkron_gunshipAI(Creature* creature) : CreatureAI(creature) 
+            npc_zanvess_korkron_gunshipAI(Creature* creature) : ScriptedAI(creature) 
             { 
                 instance = me->GetInstanceScript();
                 nalleyGUID = ObjectGuid::Empty;
@@ -1198,7 +1198,7 @@ struct npc_zanvess_zarthik_guardian : public ScriptedAI
         DoCast(me, SPELL_PROTECTIVE_SHELL);
     }
 
-    void EnterEvadeMode() override 
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override 
     {
         ScriptedAI::EnterEvadeMode();
     }
