@@ -1,3 +1,17 @@
+-- Captain Day (64861) SAI — Emote 432 (OneShotUseStanding), ~1.2s interval
+-- Skyfire Engineer (66480) SAI — Emote 539 (Oneshot_Work), 0.4-7s irregular
+-- Skyfire Marine (66300) SAI — Emote 66 (OneShotSalute), ~108s interval
+-- Source: 11.0.0.55939 stormwind capture
+
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (64861, 66480, 66300);
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(64861, 0, 0, 0, 1, 0, 100, 0, 1000, 1400, 1000, 1400, 0, 5, 432, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Captain Day - Out of Combat - Play Emote 432'),
+(66480, 0, 0, 0, 1, 0, 100, 0, 400, 7000, 400, 7000, 0, 5, 539, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Skyfire Engineer - Out of Combat - Play Emote 539'),
+(66480, 0, 1, 0, 0, 0, 100, 0, 8000, 12000, 8000, 12000, 0, 11, 130795, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Skyfire Engineer - On Combat - Cast 130795'),
+(66300, 0, 0, 0, 1, 0, 100, 0, 108000, 110000, 108000, 110000, 0, 5, 66, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Skyfire Marine - Out of Combat - Play Emote 66');
+
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry` IN (64861, 66480, 66300);
+
 -- gossip_menu
 ALTER TABLE `gossip_menu` 
 MODIFY COLUMN `VerifiedBuild` int NOT NULL DEFAULT 0 AFTER `TextID`;
@@ -91,10 +105,9 @@ UPDATE `creature_template` SET `gossip_menu_id`= 13265, `npcflag`=`npcflag`|1 WH
 UPDATE `creature_template` SET `gossip_menu_id`= 13518, `npcflag`=`npcflag`|1 WHERE `entry`=54618; -- Nimm Codejack
 
 -- SAI Mishka cast 61493 ([DND] First Aid) to 66480 (Skyfire Engineer) every 1 minute
--- bug
--- DELETE FROM `smart_scripts` WHERE `entryorguid` IN (66527);
--- INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
--- (66527, 0, 0, 0, 1, 0, 100, 0, 0, 0, 60000, 60000, 11, 61493, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Mishka - Out of Combat - Cast 61493 ([DND] First Aid)');
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (66527);
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(66527, 0, 0, 0, 1, 0, 100, 0, 0, 0, 60000, 60000, 0, 11, 61493, 0, 0, 0, 0, 0, 2, 66480, 0, 0, 0, 0, 0, 0, 0, 'Mishka - Out of Combat - Cast 61493 ([DND] First Aid) to 66480');
 
 -- creature
 -- delete old creatures
