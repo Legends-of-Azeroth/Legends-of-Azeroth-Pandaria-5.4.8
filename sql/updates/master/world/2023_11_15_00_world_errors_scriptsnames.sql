@@ -207,9 +207,9 @@ UPDATE `creature_template` SET `ScriptName`='npc_ruul_snowhoof' WHERE `entry`=12
 UPDATE creature_template SET `ScriptName` = 'npc_tushui_trainee' WHERE `entry` = 54587;
 UPDATE creature_template SET `ScriptName` = 'npc_pandriarch_bramblestaff' WHERE `entry` = 56209;
 UPDATE creature_template SET ScriptName = 'npc_wild_imp' WHERE entry = 55659;
-UPDATE creature_template SET ScriptName = 'npc_warlock_guardian ' WHERE entry = 58965;
+UPDATE creature_template SET ScriptName = 'npc_warlock_guardian' WHERE entry = 58965;
 UPDATE creature_template SET ScriptName = 'npc_greenstone_terror' WHERE entry = 611590;
-UPDATE creature_template SET ScriptName = 'npc_greenstone_village_terror ' WHERE entry = 61159;
+UPDATE creature_template SET ScriptName = 'npc_greenstone_village_terror' WHERE entry = 61159;
 
 
 UPDATE `gameobject_template` SET questItem1='73210', ScriptName='go_wandering_weapon_rack' WHERE entry='210005';

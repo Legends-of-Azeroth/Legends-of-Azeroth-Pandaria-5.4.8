@@ -173,9 +173,9 @@ UPDATE `creature_template` SET `AIName` = 'npc_aysa_gunship_crash_escortAI' WHER
 -- 56416 Aysa Cloudsinger (quest giver): C++ ScriptedAI
 UPDATE `creature_template` SET `AIName` = 'npc_aysa_gunship_crashAI' WHERE `entry` = 56416;
 -- 60042 Korga Strongmane: C++ ScriptedAI
-UPDATE `creature_template` SET `AIName` = 'npc_korgaAI', `ScriptName` = '' WHERE `entry` = 60042;
+UPDATE `creature_template` SET `AIName` = '', `ScriptName` = 'npc_korgaAI' WHERE `entry` = 60042;
 -- 55940 Jojo Ironbrow: C++ ScriptedAI
-UPDATE `creature_template` SET `AIName` = 'npc_jojo_ironbrowAI', `ScriptName` = '' WHERE `entry` = 55940;
+UPDATE `creature_template` SET `AIName` = '', `ScriptName` = 'npc_jojo_ironbrowAI' WHERE `entry` = 55940;
 -- 56013 Spirit of Master Shang Xi: C++ ScriptedAI + gossip menu
 UPDATE `creature_template` SET `AIName` = 'npc_shang_xi_choose_factionAI', `gossip_menu_id` = 13726 WHERE `entry` = 56013;
 
