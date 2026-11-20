@@ -1555,15 +1555,8 @@ void GameObject::Use(Unit* user)
 
                     int32 skill = player->GetSkillValue(SKILL_FISHING);
 
-                    int32 chance;
-                    if (skill < zone_skill)
-                    {
-                        chance = int32(pow((double)skill/zone_skill, 2) * 100);
-                        if (chance < 1)
-                            chance = 1;
-                    }
-                    else
-                        chance = 100;
+                    // since Cataclysm a fish no longer gets away because of a low fishing skill
+                    int32 chance = 100;
 
                     int32 roll = irand(1, 100);
 
