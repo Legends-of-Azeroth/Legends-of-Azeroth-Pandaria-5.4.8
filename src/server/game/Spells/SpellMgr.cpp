@@ -8078,6 +8078,9 @@ void SpellMgr::LoadSpellInfoCorrections()
                     spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(4);
                     spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(1);
                     break;
+                case 102207: // Summon Living Air (Wandering Isle - Fanning the Flames)
+                    spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_TARGET_RANDOM);
+                    break;
                 default:
                     break;
             }
