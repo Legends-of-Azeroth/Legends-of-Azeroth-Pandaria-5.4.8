@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -18,7 +18,7 @@
 /* ScriptData
 SDName: Silithus
 SD%Complete: 100
-SDComment: Quest support: 7785, 8304.
+SDComment: Quest support: 7785, 7786, 8304.
 SDCategory: Silithus
 EndScriptData */
 
@@ -117,12 +117,20 @@ class npc_highlord_demitrian : public CreatureScript
             return true;
         }
 
-        bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*item*/) override
+        struct npc_highlord_demitrianAI : public ScriptedAI
         {
-            if (quest->GetQuestId() == QUEST_THUNDERAAN_THE_WINDSEEKER)
-                player->SummonCreature(NPC_PRINCE_THUNDERAAN, windseekerSpawnPos, TEMPSUMMON_MANUAL_DESPAWN); // in SAI it was 60s, but... i think it should despawn at evade and summon new if need from demitrian
+            npc_highlord_demitrianAI(Creature* creature) : ScriptedAI(creature) { }
 
-            return true;
+            void OnQuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
+            {
+                if (quest->GetQuestId() == QUEST_THUNDERAAN_THE_WINDSEEKER)
+                    player->SummonCreature(NPC_PRINCE_THUNDERAAN, windseekerSpawnPos, TEMPSUMMON_MANUAL_DESPAWN); // in SAI it was 60s, but... i think it should despawn at evade and summon new if need from demitrian
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_highlord_demitrianAI(creature);
         }
 };
 

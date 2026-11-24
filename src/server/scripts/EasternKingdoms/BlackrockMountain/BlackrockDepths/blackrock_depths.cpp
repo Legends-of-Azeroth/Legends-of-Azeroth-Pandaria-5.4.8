@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -14,6 +14,24 @@
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
+
+/* ScriptData
+SDName: Blackrock Depths
+SD%Complete: 100
+SDComment: Quest support: 4001, 4322, 4342, 4295, 7604
+SDCategory: Blackrock Mountain
+EndScriptData */
+
+/* ContentData
+go_shadowforge_brazier
+at_ring_of_law
+npc_grimstone
+npc_phalanx
+npc_kharan_mighthammer
+npc_lokhtos_darkbargainer
+npc_rocknot
+npc_lord_roccor
+EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -1205,36 +1223,6 @@ class npc_rocknot : public CreatureScript
 public:
     npc_rocknot() : CreatureScript("npc_rocknot") { }
 
-    bool OnQuestReward(Player* /*player*/, Creature* creature, Quest const* quest, uint32 /*item*/) override
-    {
-        InstanceScript* instance = creature->GetInstanceScript();
-        if (!instance)
-            return true;
-
-        if (instance->GetData(TYPE_BAR) == DONE || instance->GetData(TYPE_BAR) == SPECIAL)
-            return true;
-
-        if (quest->GetQuestId() == QUEST_ALE)
-        {
-            if (instance->GetData(TYPE_BAR) != IN_PROGRESS)
-                instance->SetData(TYPE_BAR, IN_PROGRESS);
-
-            instance->SetData(TYPE_BAR, SPECIAL);
-
-            //keep track of amount in instance script, returns SPECIAL if amount ok and event in progress
-            if (instance->GetData(TYPE_BAR) == SPECIAL)
-            {
-                creature->AI()->Talk(SAY_GOT_BEER);
-                creature->CastSpell(creature, SPELL_DRUNKEN_RAGE, false);
-
-                if (EscortAI* escortAI = CAST_AI(npc_rocknot::npc_rocknotAI, creature->AI()))
-                    escortAI->Start(false);
-            }
-        }
-
-        return true;
-    }
-
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_rocknotAI(creature);
@@ -1248,6 +1236,31 @@ public:
         }
 
         InstanceScript* instance;
+
+        void OnQuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) override
+        {
+            if (!instance)
+                return;
+
+            if (instance->GetData(TYPE_BAR) == DONE || instance->GetData(TYPE_BAR) == SPECIAL)
+                return;
+
+            if (quest->GetQuestId() == QUEST_ALE)
+            {
+                if (instance->GetData(TYPE_BAR) != IN_PROGRESS)
+                    instance->SetData(TYPE_BAR, IN_PROGRESS);
+
+                instance->SetData(TYPE_BAR, SPECIAL);
+
+                //keep track of amount in instance script, returns SPECIAL if amount ok and event in progress
+                if (instance->GetData(TYPE_BAR) == SPECIAL)
+                {
+                    Talk(SAY_GOT_BEER);
+                    me->CastSpell(me, SPELL_DRUNKEN_RAGE, false);
+                    Start(false);
+                }
+            }
+        }
 
         uint32 BreakKeg_Timer;
         uint32 BreakDoor_Timer;

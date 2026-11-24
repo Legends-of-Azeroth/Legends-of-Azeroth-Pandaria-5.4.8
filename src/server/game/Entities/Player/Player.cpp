@@ -16816,10 +16816,6 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         }
 
         PlayerTalkClass->ClearMenus();
-        if (Creature* creatureQGiver = questGiver->ToCreature())
-            creatureQGiver->AI()->OnQuestReward(this, quest, reward);
-        else if (GameObject* goQGiver = questGiver->ToGameObject())
-            goQGiver->AI()->OnQuestReward(this, quest, reward);
     }
 
     sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, QUEST_STATUS_REWARDED);

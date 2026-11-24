@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -76,21 +76,6 @@ class npc_lady_sylvanas_windrunner : public CreatureScript
 public:
     npc_lady_sylvanas_windrunner() : CreatureScript("npc_lady_sylvanas_windrunner") { }
 
-    bool OnQuestReward(Player* /*player*/, Creature* creature, const Quest *_Quest, uint32 /*slot*/) override
-    {
-        if (_Quest->GetQuestId() == QUEST_JOURNEY_TO_UNDERCITY)
-        {
-            CAST_AI(npc_lady_sylvanas_windrunner::npc_lady_sylvanas_windrunnerAI, creature->AI())->LamentEvent = true;
-            CAST_AI(npc_lady_sylvanas_windrunner::npc_lady_sylvanas_windrunnerAI, creature->AI())->DoPlaySoundToSet(creature, SOUND_CREDIT);
-            creature->CastSpell(creature, SPELL_SYLVANAS_CAST, false);
-
-            for (uint8 i = 0; i < 4; ++i)
-                creature->SummonCreature(ENTRY_HIGHBORNE_LAMENTER, HighborneLoc[i][0], HighborneLoc[i][1], HIGHBORNE_LOC_Y, HighborneLoc[i][2], TEMPSUMMON_TIMED_DESPAWN, 160000ms);
-        }
-
-        return true;
-    }
-
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_lady_sylvanas_windrunnerAI(creature);
@@ -109,6 +94,19 @@ public:
         uint32 BlackArrowTimer;
         uint32 ShotTimer;
         uint32 MultiShotTimer;
+
+        void OnQuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) override
+        {
+            if (quest->GetQuestId() == QUEST_JOURNEY_TO_UNDERCITY)
+            {
+                LamentEvent = true;
+                DoPlaySoundToSet(me, SOUND_CREDIT);
+                me->CastSpell(me, SPELL_SYLVANAS_CAST, false);
+
+                for (uint8 i = 0; i < 4; ++i)
+                    me->SummonCreature(ENTRY_HIGHBORNE_LAMENTER, HighborneLoc[i][0], HighborneLoc[i][1], HIGHBORNE_LOC_Y, HighborneLoc[i][2], TEMPSUMMON_TIMED_DESPAWN, 160000ms);
+            }
+        }
 
         void Reset() override
         {

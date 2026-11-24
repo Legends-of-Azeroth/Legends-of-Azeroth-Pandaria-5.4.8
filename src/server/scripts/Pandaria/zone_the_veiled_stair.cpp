@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,23 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/* ScriptData
+SDName: The Veiled Stair
+SD%Complete: 100
+SDComment: Quest support: 31454, 31482, 32108, 32109, 32373, 32427, 32474, 32476 (Wrathion quest line)
+SDCategory: The Veiled Stair
+EndScriptData */
+
+/* ContentData
+npc_wrathion
+npc_tong_the_fixer_legend_in_the_making
+npc_wrathion_breath_of_the_black_prince
+go_wrathion_jewel_chest
+EndContentData */
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "AchievementMgr.h"
 
 #define TONG_MAX_WP 3
@@ -2168,12 +2183,21 @@ class go_wrathion_jewel_chest : public GameObjectScript
     public:
         go_wrathion_jewel_chest() : GameObjectScript("go_wrathion_jewel_chest") { }
 
-        bool OnQuestReward(Player* player, GameObject* go, Quest const* quest, uint32 /*item*/) override
+        struct go_wrathion_jewel_chestAI : public GameObjectAI
         {
-            player->SetPhaseMask(1, true);
-            go->Delete();
+            go_wrathion_jewel_chestAI(GameObject* go) : GameObjectAI(go) { }
 
-            return true;
+            bool OnQuestReward(Player* player, Quest const* /*quest*/, uint32 /*opt*/) override
+            {
+                player->SetPhaseMask(1, true);
+                me->Delete();
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_wrathion_jewel_chestAI(go);
         }
 };
 

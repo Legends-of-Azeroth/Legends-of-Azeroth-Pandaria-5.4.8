@@ -451,9 +451,6 @@ public:
     // Called when a player completes a quest with the creature.
     virtual bool OnQuestComplete(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) { return false; }
 
-    // Called when a player selects a quest reward.
-    virtual bool OnQuestReward(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
-
     // Called when the dialog status between a player and the creature is requested.
     virtual Optional<QuestGiverStatus> GetDialogStatus(Player* /*player*/, Creature* /*creature*/) { return {}; }
 
@@ -486,9 +483,6 @@ public:
 
     // Called when a player accepts a quest from the gameobject.
     virtual bool OnQuestAccept(Player* /*player*/, GameObject* /*go*/, Quest const* /*quest*/) { return false; }
-
-    // Called when a player selects a quest reward.
-    virtual bool OnQuestReward(Player* /*player*/, GameObject* /*go*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
 
     // Called when the dialog status between a player and the gameobject is requested.
     virtual Optional<QuestGiverStatus> GetDialogStatus(Player* /*player*/, GameObject* /*go*/) { return {}; }
@@ -1088,7 +1082,6 @@ public: /* CreatureScript */
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest);
     bool OnQuestSelect(Player* player, Creature* creature, Quest const* quest);
     bool OnQuestComplete(Player* player, Creature* creature, Quest const* quest);
-    bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt);
     Optional<QuestGiverStatus> GetDialogStatus(Player* player, Creature* creature);
     CreatureAI* GetCreatureAI(Creature* creature);
 
@@ -1100,7 +1093,6 @@ public: /* GameObjectScript */
     bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action);
     bool OnGossipSelectCode(Player* player, GameObject* go, uint32 sender, uint32 action, const char* code);
     bool OnQuestAccept(Player* player, GameObject* go, Quest const* quest);
-    bool OnQuestReward(Player* player, GameObject* go, Quest const* quest, uint32 opt);
     Optional<QuestGiverStatus> GetDialogStatus(Player* player, GameObject* go);
     void OnGameObjectDestroyed(GameObject* go, Player* player);
     void OnGameObjectDamaged(GameObject* go, Player* player);

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -14,6 +14,20 @@
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
+
+/* ScriptData
+SDName: Isle of Thunder
+SD%Complete: 100
+SDComment: Quest support: 32678, 32680, 32681
+SDCategory: Isle of Thunder
+EndScriptData */
+
+/* ContentData
+npc_sunreaver_construct
+npc_progenitus
+npc_altabim_the_allseeing
+npc_scout_captain_elsia
+EndContentData */
 
 #include "ScriptMgr.h"
 #include "SpellScript.h"
@@ -2581,14 +2595,6 @@ class npc_scout_captain_elsia : public CreatureScript
     public:
         npc_scout_captain_elsia() : CreatureScript("npc_scout_captain_elsia") { }
 
-        bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*item*/) override
-        {
-            if (quest->GetQuestId() == QUEST_THUNDER_CALLS_H)
-                creature->AI()->Talk(TALK_INTRO, player);
-
-            return true;
-        }
-
         bool OnGossipHello(Player* player, Creature* creature) override
         {
             if (creature->IsQuestGiver())
@@ -2635,6 +2641,12 @@ class npc_scout_captain_elsia : public CreatureScript
                 {
                     Talk(TALK_SPECIAL_2);
                 });
+            }
+
+            void OnQuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
+            {
+                if (quest->GetQuestId() == QUEST_THUNDER_CALLS_H)
+                    Talk(TALK_INTRO, player);
             }
 
             void UpdateAI(uint32 /*diff*/) override { }

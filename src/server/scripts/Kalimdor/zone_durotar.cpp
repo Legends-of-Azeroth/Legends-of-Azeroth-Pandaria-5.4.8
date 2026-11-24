@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -14,6 +14,22 @@
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
+
+/* ScriptData
+SDName: Durotar
+SD%Complete: 100
+SDComment: Quest support: 25134, 25187, 25188, 25189, 25192, 25193, 25195, 31013, 31014
+SDCategory: Durotar
+EndScriptData */
+
+/* ContentData
+npc_lazy_peon
+npc_garrosh_hellscream_warchief
+npc_trial_challengers
+npc_watershed_patrol
+npc_darkspear_jailer
+npc_captive_pitescale_scout
+EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -672,30 +688,28 @@ class npc_watershed_patrol : public CreatureScript
     public:
         npc_watershed_patrol() : CreatureScript("npc_watershed_patrol") { }
 
-        bool OnQuestReward(Player* player, Creature* creature, const Quest *_Quest, uint32 /*slot*/) override
-        {
-            if (player->GetQuestStatus(QUEST_WATERSHED_PATROL) != QUEST_STATUS_INCOMPLETE)
-                return false;
-
-            for (auto iType : watershedMatchType)
-            {
-                if (_Quest->GetQuestId() == iType.first)
-                {
-                    player->KilledMonsterCredit(iType.second);
-
-                    if (player->GetQuestStatus(QUEST_WATERSHED_PATROL) == QUEST_STATUS_INCOMPLETE)
-                        player->CompleteQuest(QUEST_WATERSHED_PATROL);
-
-                    return true;
-                }
-            }
-
-            return true;
-        }
-
         struct npc_watershed_patrolAI : public ScriptedAI
         {
             npc_watershed_patrolAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void OnQuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
+            {
+                if (player->GetQuestStatus(QUEST_WATERSHED_PATROL) != QUEST_STATUS_INCOMPLETE)
+                    return;
+
+                for (auto iType : watershedMatchType)
+                {
+                    if (quest->GetQuestId() == iType.first)
+                    {
+                        player->KilledMonsterCredit(iType.second);
+
+                        if (player->GetQuestStatus(QUEST_WATERSHED_PATROL) == QUEST_STATUS_INCOMPLETE)
+                            player->CompleteQuest(QUEST_WATERSHED_PATROL);
+
+                        return;
+                    }
+                }
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override

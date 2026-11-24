@@ -832,24 +832,6 @@ bool ScriptMgr::OnQuestComplete(Player* player, Creature* creature, Quest const*
     return tmpscript->OnQuestComplete(player, creature, quest);
 }
 
-bool ScriptMgr::OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
-{
-    ASSERT(player);
-    ASSERT(creature);
-    ASSERT(quest);
-#ifdef ELUNA
-    if (sHookMgr->OnQuestReward(player, creature, quest))
-    {
-        player->PlayerTalkClass->ClearMenus();
-        return true;
-    }
-#endif
-
-    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnQuestReward(player, creature, quest, opt);
-}
-
 Optional<QuestGiverStatus> ScriptMgr::GetDialogStatus(Player* player, Creature* creature)
 {
     ASSERT(player);
@@ -965,21 +947,6 @@ bool ScriptMgr::OnQuestAccept(Player* player, GameObject* go, Quest const* quest
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->OnQuestAccept(player, go, quest);
-}
-
-bool ScriptMgr::OnQuestReward(Player* player, GameObject* go, Quest const* quest, uint32 opt)
-{
-    ASSERT(player);
-    ASSERT(go);
-    ASSERT(quest);
-#ifdef ELUNA
-    if (sHookMgr->OnQuestReward(player, go, quest))
-        return true;
-#endif
-
-    GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnQuestReward(player, go, quest, opt);
 }
 
 Optional<QuestGiverStatus> ScriptMgr::GetDialogStatus(Player* player, GameObject* go)
