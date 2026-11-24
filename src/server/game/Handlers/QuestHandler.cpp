@@ -56,8 +56,13 @@ void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestG
             Creature* cr_questgiver=questgiver->ToCreature();
             if (!cr_questgiver->IsHostileTo(_player))       // do not show quest status to enemies
             {
-                if (Optional<QuestGiverStatus> scriptStatus = sScriptMgr->GetDialogStatus(_player, cr_questgiver))
+#ifdef ELUNA
+                if (Optional<QuestGiverStatus> scriptStatus = sHookMgr->GetDialogStatus(_player, cr_questgiver))
                     questStatus = *scriptStatus;
+                else
+#endif
+                if (Optional<QuestGiverStatus> aiStatus = cr_questgiver->AI()->GetDialogStatus(_player))
+                    questStatus = *aiStatus;
                 else
                     questStatus = _player->GetQuestDialogStatus(cr_questgiver);
             }
@@ -67,8 +72,13 @@ void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestG
         {
             TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUESTGIVER_STATUS_QUERY for GameObject guid = {}", packet.Guid.GetCounter());
             auto go_questgiver=(GameObject*)questgiver;
-            if (Optional<QuestGiverStatus> scriptStatus = sScriptMgr->GetDialogStatus(_player, go_questgiver))
+#ifdef ELUNA
+            if (Optional<QuestGiverStatus> scriptStatus = sHookMgr->GetDialogStatus(_player, go_questgiver))
                 questStatus = *scriptStatus;
+            else
+#endif
+            if (Optional<QuestGiverStatus> aiStatus = go_questgiver->AI()->GetDialogStatus(_player))
+                questStatus = *aiStatus;
             else
                 questStatus = _player->GetQuestDialogStatus(go_questgiver);
             break;
@@ -316,8 +326,10 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPackets::Quest::QuestGi
 
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestId))
     {
-        if (object->GetTypeId() == TYPEID_UNIT && sScriptMgr->OnQuestSelect(_player, object->ToCreature(), quest))
+#ifdef ELUNA
+        if (object->GetTypeId() == TYPEID_UNIT && sHookMgr->OnQuestSelect(_player, object->ToCreature(), quest))
             return;
+#endif
 
         if (!object->hasQuest(packet.QuestId) && !object->hasInvolvedQuest(packet.QuestId))
         {
@@ -586,8 +598,10 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiver
                 _player->PlayerTalkClass->SendQuestGiverOfferReward(quest, packet.PlayerGuid, true);
         }
 
+#ifdef ELUNA
         if (Creature* creature = object->ToCreature())
-            sScriptMgr->OnQuestComplete(_player, creature, quest);
+            sHookMgr->OnQuestComplete(_player, creature, quest);
+#endif
     }
 }
 

@@ -1809,8 +1809,14 @@ struct npc_wild_imp : public npc_warlock_guardian
 
     void SpellCasted(Spell const* spell) override
     {
-        if (spell->GetSpellInfo()->Id == SPELL_FEL_FIREBOLT)
-            --remainedCasts;
+        if (spell->GetSpellInfo()->Id != SPELL_FEL_FIREBOLT)
+            return;
+
+        --remainedCasts;
+
+        if (Unit* owner = me->GetOwner())
+            if (owner->HasAura(SPELL_WARLOCK_MOLTEN_CORE_PASSIVE) && roll_chance_i(8))
+                owner->CastSpell(owner, SPELL_WARLOCK_MOLTEN_CORE, true);
     }
 };
 

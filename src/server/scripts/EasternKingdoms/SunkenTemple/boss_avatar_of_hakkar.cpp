@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 #include "sunken_temple.h"
 
 enum ScriptTexts
@@ -205,15 +206,26 @@ class go_shrine_of_soulflayer : public GameObjectScript
     public:
         go_shrine_of_soulflayer() : GameObjectScript("go_shrine_of_soulflayer") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        struct go_shrine_of_soulflayerAI : public GameObjectAI
         {
-            go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+            go_shrine_of_soulflayerAI(GameObject* go) : GameObjectAI(go) { }
+
+        bool OnGossipHello(Player* player, bool /*isUse*/) override
+        {
+            me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
 
             if (InstanceScript* instance = player->GetInstanceScript())
                 if (Creature* m_Hakkar = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_AVATAR_OF_HAKKAR)))
                     m_Hakkar->AI()->DoAction(ACTION_HAKKAR_RISE);
 
             return true;
+        }
+
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_shrine_of_soulflayerAI(go);
         }
 };
 

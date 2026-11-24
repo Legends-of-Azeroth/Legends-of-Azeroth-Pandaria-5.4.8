@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "ScriptMgr.h"
+#include "GameObjectAI.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "blackwing_lair.h"
@@ -164,17 +165,28 @@ class go_orb_of_domination : public GameObjectScript
 public:
     go_orb_of_domination() : GameObjectScript("go_orb_of_domination") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+        struct go_orb_of_dominationAI : public GameObjectAI
+        {
+            go_orb_of_dominationAI(GameObject* go) : GameObjectAI(go) { }
+
+    bool OnGossipHello(Player* player, bool /*isUse*/) override
     {
-        if (InstanceScript* instance = go->GetInstanceScript())
+        if (InstanceScript* instance = me->GetInstanceScript())
             if (instance->GetData(DATA_EGG_EVENT) != DONE)
-                if (Creature* razor = Unit::GetCreature(*go, instance->GetGuidData(DATA_RAZORGORE_THE_UNTAMED)))
+                if (Creature* razor = Unit::GetCreature(*me, instance->GetGuidData(DATA_RAZORGORE_THE_UNTAMED)))
                 {
                     razor->Attack(player, true);
                     player->CastSpell(razor, SPELL_MINDCONTROL);
                 }
         return true;
     }
+
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_orb_of_dominationAI(go);
+        }
 };
 
 class spell_egg_event : public SpellScriptLoader

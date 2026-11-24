@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -507,20 +507,20 @@ class npc_essence_of_twin : public CreatureScript
 
                 return spellReturned;
             }
+
+            bool OnGossipHello(Player* player) override
+            {
+                player->RemoveAurasDueToSpell(GetData(ESSENCE_REMOVE));
+                player->CastSpell(player, GetData(ESSENCE_APPLY), true);
+                CloseGossipMenuFor(player);
+                return true;
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_essence_of_twinAI(creature);
         };
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            player->RemoveAurasDueToSpell(creature->GetAI()->GetData(ESSENCE_REMOVE));
-            player->CastSpell(player, creature->GetAI()->GetData(ESSENCE_APPLY), true);
-            player->CLOSE_GOSSIP_MENU();
-            return true;
-        }
 };
 
 struct npc_unleashed_ballAI : public ScriptedAI
