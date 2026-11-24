@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -18,7 +18,7 @@
 /* ScriptData
 SDName: Teldrassil
 SD%Complete: 100
-SDComment: Quest support: 938
+SDComment: Quest support: 938, 28727, 2561
 SDCategory: Teldrassil
 EndScriptData */
 
@@ -46,107 +46,92 @@ enum VileTouch
     SPELL_ENTANGLING_ROOTS = 33844,
     SPELL_SUMMON_NATURES_BITE = 92573,
     SPELL_CLEANSE_SPIRIT = 66056
-
 };
-#define TARINDRELLA_TEXT_ON_COMPLETE "This totem has been corrupting the eggs! It seems a greater threat looms. The Gnarlpine remain tainted by something most foul."
-#define TARINDRELLA_TEXT_SPAWN "You've come to help, $c? Let us stay together for a while."
-#define TARINDRELLA_TEXT_ON_KILL "My dear friends... I'm so sorry..."
-class npc_tarindrella : public CreatureScript
+
+enum VileTouchSays
 {
-public:
-    npc_tarindrella() : CreatureScript("npc_tarindrella") { }
-    bool OnQuestComplete(Player* player, Creature* creature, Quest const* quest) OVERRIDE
+    SAY_ON_COMPLETE = 0,
+    SAY_ON_SPAWN = 1,
+    SAY_ON_KILL = 2
+};
+struct npc_tarindrellaAI : public ScriptedAI
+{
+    npc_tarindrellaAI(Creature* creature) : ScriptedAI(creature) { }
+
+    void IsSummonedBy(Unit* unit) override
     {
-        if (player->GetQuestStatus(QUEST_VILE_TOUCH) == QUEST_STATUS_COMPLETE)
-            creature->MonsterSay(TARINDRELLA_TEXT_ON_COMPLETE, Language::LANG_UNIVERSAL, player);
-        return true;
+        Talk(SAY_ON_SPAWN, unit);
     }
-    bool OnQuestReward(Player * player, Creature * creature, Quest const* quest, uint32 /*opt*/) OVERRIDE
+
+    void KilledUnit(Unit* /*victim*/) override
     {
-        if (player->GetQuestStatus(QUEST_VILE_TOUCH) == QUEST_STATUS_REWARDED)
-            creature->DespawnOrUnsummon();
-        return true;
+        Talk(SAY_ON_KILL, me->GetOwner());
     }
-    struct npc_tarindrellaAI : public FollowerAI
+
+    void OnQuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
     {
-        npc_tarindrellaAI(Creature* creature) : FollowerAI(creature) { }
-
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        if (quest->GetQuestId() == QUEST_VILE_TOUCH)
         {
-            FollowerAI::MoveInLineOfSight(who);
+            Talk(SAY_ON_COMPLETE, player);
+            me->DespawnOrUnsummon();
         }
+    }
 
-        void IsSummonedBy(Unit* unit) OVERRIDE
+    void Reset() override
+    {
+        events.ScheduleEvent(EVENT_ENTANGLING_ROOTS, 2000);
+        events.ScheduleEvent(EVENT_SUMMON_NATURES_BITE, 6000);
+        events.ScheduleEvent(EVENT_CLEANSE_SPIRIT, 10000);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            me->MonsterSay(TARINDRELLA_TEXT_SPAWN, Language::LANG_UNIVERSAL, unit);
-        }
-
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
-        {
-            me->MonsterSay(TARINDRELLA_TEXT_ON_KILL, Language::LANG_UNIVERSAL, me->GetOwner());
-        }
-
-        void Reset() OVERRIDE
-        {
-            events.ScheduleEvent(EVENT_ENTANGLING_ROOTS, 2000);
-            events.ScheduleEvent(EVENT_SUMMON_NATURES_BITE, 6000);
-            events.ScheduleEvent(EVENT_CLEANSE_SPIRIT, 10000);
-        }
-
-        void UpdateFollowerAI(const uint32 diff) OVERRIDE
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            switch (eventId)
             {
-                switch (eventId)
+                case EVENT_ENTANGLING_ROOTS:
                 {
-                    case EVENT_ENTANGLING_ROOTS:
-                    {
-                        DoCast(me->GetVictim(), SPELL_ENTANGLING_ROOTS);
-                        events.ScheduleEvent(EVENT_ENTANGLING_ROOTS, 10000);
-                        break;
-                    }
-                    case EVENT_CLEANSE_SPIRIT:
-                    {
-                        if (me->HasAura(6751))
-                        {
-                            DoCast(me, SPELL_ENTANGLING_ROOTS);
-                            events.ScheduleEvent(EVENT_CLEANSE_SPIRIT, 10000);
-                        }
-                        else if (me->GetOwner()->HasAura(6751))
-                        {
-                            DoCast(me->GetOwner(), SPELL_ENTANGLING_ROOTS);
-                            events.ScheduleEvent(EVENT_CLEANSE_SPIRIT, 10000);
-                        }
-                        else
-                        {
-                            events.ScheduleEvent(EVENT_CLEANSE_SPIRIT, 10000);
-                        }
-                        break;
-                    }
-                    case EVENT_SUMMON_NATURES_BITE:
-                    {
-                        DoCast(me->GetVictim(), SPELL_SUMMON_NATURES_BITE);
-                        events.ScheduleEvent(EVENT_SUMMON_NATURES_BITE, 10000);
-                        break;
-                    }
-                    default:
-                        break;
+                    DoCast(me->GetVictim(), SPELL_ENTANGLING_ROOTS);
+                    events.ScheduleEvent(EVENT_ENTANGLING_ROOTS, 10000);
+                    break;
                 }
+                case EVENT_CLEANSE_SPIRIT:
+                {
+                    if (me->HasAura(6751))
+                    {
+                        DoCast(me, SPELL_ENTANGLING_ROOTS);
+                        events.ScheduleEvent(EVENT_CLEANSE_SPIRIT, 10000);
+                    }
+                    else if (me->GetOwner()->HasAura(6751))
+                    {
+                        DoCast(me->GetOwner(), SPELL_ENTANGLING_ROOTS);
+                        events.ScheduleEvent(EVENT_CLEANSE_SPIRIT, 10000);
+                    }
+                    else
+                    {
+                        events.ScheduleEvent(EVENT_CLEANSE_SPIRIT, 10000);
+                    }
+                    break;
+                }
+                case EVENT_SUMMON_NATURES_BITE:
+                {
+                    DoCast(me->GetVictim(), SPELL_SUMMON_NATURES_BITE);
+                    events.ScheduleEvent(EVENT_SUMMON_NATURES_BITE, 10000);
+                    break;
+                }
+                default:
+                    break;
             }
-            DoMeleeAttackIfReady();
         }
-        EventMap events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_tarindrellaAI(creature);
+        DoMeleeAttackIfReady();
     }
+    EventMap events;
 };
 
 /*####
@@ -248,7 +233,7 @@ class at_barrow_den_door : public AreaTriggerScript
 
 void AddSC_teldrassil()
 {
-    new npc_tarindrella();
+    RegisterCreatureAI(npc_tarindrellaAI);
     new npc_mist();
     new at_barrow_den_door();
 }
