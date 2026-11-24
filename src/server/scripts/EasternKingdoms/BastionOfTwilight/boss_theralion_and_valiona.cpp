@@ -16,6 +16,7 @@
 */
 
 #include "ScriptPCH.h"
+#include "ScriptedGossip.h"
 #include "bastion_of_twilight.h"
 
 enum ValionaScriptTexts
@@ -1107,15 +1108,6 @@ class npc_collapsing_twilight_portal : public CreatureScript
     public:
         npc_collapsing_twilight_portal() : CreatureScript("npc_collapsing_twilight_portal") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            player->RemoveAurasDueToSpell(SPELL_TWILIGHT_PROTECTION_BUFF);
-            player->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_AURA_1);
-            player->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_AURA_2);
-            player->RemoveAurasDueToSpell(SPELL_TWILIGHT_ZONE_DMG);
-            return true;
-        }
-
         struct npc_collapsing_twilight_portalAI : public ScriptedAI
         {
             npc_collapsing_twilight_portalAI(Creature* creature) : ScriptedAI(creature)
@@ -1126,6 +1118,15 @@ class npc_collapsing_twilight_portal : public CreatureScript
             }
 
             EventMap events;
+
+            bool OnGossipHello(Player* player) override
+            {
+                player->RemoveAurasDueToSpell(SPELL_TWILIGHT_PROTECTION_BUFF);
+                player->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_AURA_1);
+                player->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_AURA_2);
+                player->RemoveAurasDueToSpell(SPELL_TWILIGHT_ZONE_DMG);
+                return true;
+            }
 
             void Reset() override
             {

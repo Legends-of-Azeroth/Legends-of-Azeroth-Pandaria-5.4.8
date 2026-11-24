@@ -16,6 +16,7 @@
 */
 
 #include "ruins_of_ahnqiraj.h"
+#include "GameObjectAI.h"
 #include "MiscPackets.h"
 #include "Player.h"
 #include "ScriptMgr.h"
@@ -281,18 +282,28 @@ class go_ossirian_crystal : public GameObjectScript
     public:
         go_ossirian_crystal() : GameObjectScript("go_ossirian_crystal") { }
 
-        bool OnGossipHello(Player* player, GameObject* /*go*/) override
+        struct go_ossirian_crystalAI : public GameObjectAI
         {
-            InstanceScript* Instance = player->GetInstanceScript();
-            if (!Instance)
-                return false;
+            go_ossirian_crystalAI(GameObject* go) : GameObjectAI(go) { }
 
-            Creature* Ossirian = player->FindNearestCreature(NPC_OSSIRIAN, 30.0f);
-            if (!Ossirian || Instance->GetBossState(DATA_OSSIRIAN) != IN_PROGRESS)
-                return false;
+            bool OnGossipHello(Player* player, bool /*isUse*/) override
+            {
+                InstanceScript* Instance = player->GetInstanceScript();
+                if (!Instance)
+                    return false;
 
-            Ossirian->AI()->DoAction(ACTION_TRIGGER_WEAKNESS);
-            return true;
+                Creature* Ossirian = player->FindNearestCreature(NPC_OSSIRIAN, 30.0f);
+                if (!Ossirian || Instance->GetBossState(DATA_OSSIRIAN) != IN_PROGRESS)
+                    return false;
+
+                Ossirian->AI()->DoAction(ACTION_TRIGGER_WEAKNESS);
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_ossirian_crystalAI(go);
         }
 };
 

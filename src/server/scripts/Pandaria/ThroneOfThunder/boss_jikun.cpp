@@ -1788,15 +1788,25 @@ class go_feather_of_ji_kun : public GameObjectScript
 {
     public:
         go_feather_of_ji_kun() : GameObjectScript("go_feather_of_ji_kun") { }
-    
-        bool OnGossipHello(Player* player, GameObject* go) override
+
+        struct go_feather_of_ji_kunAI : public GameObjectAI
         {
-            if (player->HasAura(SPELL_LESSON_OF_ICARUS) || player->HasAura(SPELL_DAEDELIAN_WINGS))
-                return false;
-    
-            player->CastSpell(player, SPELL_DAEDELIAN_WINGS, true);
-            go->Delete();
-            return true;
+            go_feather_of_ji_kunAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool /*isUse*/) override
+            {
+                if (player->HasAura(SPELL_LESSON_OF_ICARUS) || player->HasAura(SPELL_DAEDELIAN_WINGS))
+                    return false;
+
+                player->CastSpell(player, SPELL_DAEDELIAN_WINGS, true);
+                me->Delete();
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_feather_of_ji_kunAI(go);
         }
 };
 

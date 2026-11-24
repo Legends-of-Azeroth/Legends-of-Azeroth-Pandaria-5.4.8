@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -23,6 +23,7 @@ SDCategory: Black Temple
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 #include "black_temple.h"
 
 enum Yells
@@ -225,16 +226,27 @@ class go_najentus_spine : public GameObjectScript
     public:
         go_najentus_spine() : GameObjectScript("go_najentus_spine") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        struct go_najentus_spineAI : public GameObjectAI
         {
-            if (InstanceScript* instance = go->GetInstanceScript())
-                if (Creature* Najentus = Unit::GetCreature(*go, instance->GetGuidData(DATA_HIGH_WARLORD_NAJENTUS)))
+            go_najentus_spineAI(GameObject* go) : GameObjectAI(go) { }
+
+        bool OnGossipHello(Player* player, bool /*isUse*/) override
+        {
+            if (InstanceScript* instance = me->GetInstanceScript())
+                if (Creature* Najentus = Unit::GetCreature(*me, instance->GetGuidData(DATA_HIGH_WARLORD_NAJENTUS)))
                     if (CAST_AI(boss_najentus::boss_najentusAI, Najentus->AI())->RemoveImpalingSpine())
                     {
                         player->CastSpell(player, SPELL_CREATE_NAJENTUS_SPINE, true);
-                        go->Delete();
+                        me->Delete();
                     }
             return true;
+        }
+
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_najentus_spineAI(go);
         }
 };
 
