@@ -796,59 +796,6 @@ bool ScriptMgr::OnQuestAccept(Player* player, Creature* creature, Quest const* q
     return tmpscript->OnQuestAccept(player, creature, quest);
 }
 
-bool ScriptMgr::OnQuestSelect(Player* player, Creature* creature, Quest const* quest)
-{
-    ASSERT(player);
-    ASSERT(creature);
-    ASSERT(quest);
-#ifdef ELUNA
-    if (sHookMgr->OnQuestSelect(player, creature, quest))
-    {
-        player->PlayerTalkClass->ClearMenus();
-        return true;
-    }
-#endif
-
-    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnQuestSelect(player, creature, quest);
-}
-
-bool ScriptMgr::OnQuestComplete(Player* player, Creature* creature, Quest const* quest)
-{
-    ASSERT(player);
-    ASSERT(creature);
-    ASSERT(quest);
-#ifdef ELUNA
-    if (sHookMgr->OnQuestComplete(player, creature, quest))
-    {
-        player->PlayerTalkClass->ClearMenus();
-        return true;
-    }
-#endif
-
-    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnQuestComplete(player, creature, quest);
-}
-
-Optional<QuestGiverStatus> ScriptMgr::GetDialogStatus(Player* player, Creature* creature)
-{
-    ASSERT(player);
-    ASSERT(creature);
-#ifdef ELUNA
-    if (Optional<QuestGiverStatus> status = sHookMgr->GetDialogStatus(player, creature))
-    {
-        player->PlayerTalkClass->ClearMenus();
-        return *status;
-    }
-#endif
-
-    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, std::nullopt);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->GetDialogStatus(player, creature);
-}
-
 CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
 {
     ASSERT(creature);
@@ -947,23 +894,6 @@ bool ScriptMgr::OnQuestAccept(Player* player, GameObject* go, Quest const* quest
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->OnQuestAccept(player, go, quest);
-}
-
-Optional<QuestGiverStatus> ScriptMgr::GetDialogStatus(Player* player, GameObject* go)
-{
-    ASSERT(player);
-    ASSERT(go);
-#ifdef ELUNA
-    if (Optional<QuestGiverStatus> status = sHookMgr->GetDialogStatus(player, go))
-    {
-        player->PlayerTalkClass->ClearMenus();
-        return *status;
-    }
-#endif
-
-    GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, std::nullopt);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->GetDialogStatus(player, go);
 }
 
 void ScriptMgr::OnGameObjectDestroyed(GameObject* go, Player* player)
