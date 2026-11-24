@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -14,6 +14,19 @@
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
+
+/* ScriptData
+SDName: Vale of Eternal Blossoms
+SD%Complete: 100
+SDComment: Quest support: 32257
+SDCategory: Vale of Eternal Blossoms
+EndScriptData */
+
+/* ContentData
+npc_alani
+npc_fanlyr_silverhorn
+go_guo_lai_treasure_cache
+EndContentData */
 
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
@@ -1082,17 +1095,15 @@ class npc_fanlyr_silverhorn : public CreatureScript
     public:
         npc_fanlyr_silverhorn() : CreatureScript("npc_fanlyr_silverhorn") { }
 
-        bool OnQuestReward(Player* player, Creature* creature, const Quest *_Quest, uint32 /*slot*/) override
-        {
-            if (_Quest->GetQuestId() == QUEST_VOICE_OF_THE_GODS)
-                creature->AI()->Talk(0, player);
-
-            return true;
-        }
-
         struct npc_fanlyr_silverhornAI : public ScriptedAI
         {
             npc_fanlyr_silverhornAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void OnQuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
+            {
+                if (quest->GetQuestId() == QUEST_VOICE_OF_THE_GODS)
+                    Talk(0, player);
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override

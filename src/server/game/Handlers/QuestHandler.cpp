@@ -31,6 +31,9 @@
 #include "Battleground.h"
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
+#ifdef ELUNA
+#include "HookMgr.h"
+#endif
 #include "PoolMgr.h"
 #include "QuestPackets.h"
 
@@ -380,6 +383,24 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
     if (_player->CanRewardQuest(quest, packet.Reward, true))
     {
         _player->RewardQuest(quest, packet.Reward, object);
+
+        switch (object->GetTypeId())
+        {
+            case TYPEID_UNIT:
+                object->ToCreature()->AI()->OnQuestReward(_player, quest, packet.Reward);
+#ifdef ELUNA
+                sHookMgr->OnQuestReward(_player, object->ToCreature(), quest);
+#endif
+                break;
+            case TYPEID_GAMEOBJECT:
+                object->ToGameObject()->AI()->OnQuestReward(_player, quest, packet.Reward);
+#ifdef ELUNA
+                sHookMgr->OnQuestReward(_player, object->ToGameObject(), quest);
+#endif
+                break;
+            default:
+                break;
+        }
     }
     else
         _player->PlayerTalkClass->SendQuestGiverOfferReward(quest, packet.Guid, true);

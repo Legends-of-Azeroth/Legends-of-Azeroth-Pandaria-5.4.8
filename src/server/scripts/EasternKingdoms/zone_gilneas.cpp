@@ -15,6 +15,22 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/* ScriptData
+SDName: Gilneas
+SD%Complete: 100
+SDComment: Quest support: 14204, 14293, 14416, 24438
+SDCategory: Gilneas
+EndScriptData */
+
+/* ContentData
+npc_gilneas_crow
+npc_prince_liam_greymane
+npc_lorna_crowley_basement
+npc_gilnean_mastiff
+npc_bloodfang_lurker
+npc_king_genn_greymane
+EndContentData */
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
@@ -1128,20 +1144,6 @@ public:
         return true;
     }
 
-    bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*opt*/) override
-    {
-        if (quest->GetQuestId() == QUEST_FROM_THE_SHADOWS)
-            if (Unit* charm = Unit::GetCreature(*creature, player->GetMinionGUID()))
-                if (charm->GetEntry() == NPC_GILNEAS_MASTIFF)
-                    if (Creature* mastiff = charm->ToCreature())
-                        mastiff->DespawnOrUnsummon();
-
-        if (player->GetClass() == CLASS_HUNTER)
-            player->ResummonPetTemporaryUnSummonedIfAny();
-
-        return true;
-    }
-
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_lorna_crowley_basementAI (creature);
@@ -1153,6 +1155,18 @@ public:
         {
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        }
+
+        void OnQuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
+        {
+            if (quest->GetQuestId() == QUEST_FROM_THE_SHADOWS)
+                if (Unit* charm = Unit::GetCreature(*me, player->GetMinionGUID()))
+                    if (charm->GetEntry() == NPC_GILNEAS_MASTIFF)
+                        if (Creature* mastiff = charm->ToCreature())
+                            mastiff->DespawnOrUnsummon();
+
+            if (player->GetClass() == CLASS_HUNTER)
+                player->ResummonPetTemporaryUnSummonedIfAny();
         }
 
         void UpdateAI(uint32 diff) override
