@@ -446,10 +446,13 @@ public:
     virtual bool OnQuestAccept(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) { return false; }
 
     // Called when a player selects a quest in the creature's quest menu.
+    virtual bool OnQuestSelect(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) { return false; }
 
     // Called when a player completes a quest with the creature.
+    virtual bool OnQuestComplete(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) { return false; }
 
     // Called when the dialog status between a player and the creature is requested.
+    virtual Optional<QuestGiverStatus> GetDialogStatus(Player* /*player*/, Creature* /*creature*/) { return {}; }
 
     // Called when a CreatureAI object is needed for the creature.
     virtual CreatureAI* GetAI(Creature* /*creature*/) const { return NULL; }
@@ -482,6 +485,7 @@ public:
     virtual bool OnQuestAccept(Player* /*player*/, GameObject* /*go*/, Quest const* /*quest*/) { return false; }
 
     // Called when the dialog status between a player and the gameobject is requested.
+    virtual Optional<QuestGiverStatus> GetDialogStatus(Player* /*player*/, GameObject* /*go*/) { return {}; }
 
     // Called when the game object is destroyed (destructible buildings only).
     virtual void OnDestroyed(GameObject* /*go*/, Player* /*player*/) { }
@@ -1076,6 +1080,9 @@ public: /* CreatureScript */
     bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action);
     bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, const char* code);
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest);
+    bool OnQuestSelect(Player* player, Creature* creature, Quest const* quest);
+    bool OnQuestComplete(Player* player, Creature* creature, Quest const* quest);
+    Optional<QuestGiverStatus> GetDialogStatus(Player* player, Creature* creature);
     CreatureAI* GetCreatureAI(Creature* creature);
 
 public: /* GameObjectScript */
@@ -1086,6 +1093,7 @@ public: /* GameObjectScript */
     bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action);
     bool OnGossipSelectCode(Player* player, GameObject* go, uint32 sender, uint32 action, const char* code);
     bool OnQuestAccept(Player* player, GameObject* go, Quest const* quest);
+    Optional<QuestGiverStatus> GetDialogStatus(Player* player, GameObject* go);
     void OnGameObjectDestroyed(GameObject* go, Player* player);
     void OnGameObjectDamaged(GameObject* go, Player* player);
     void OnGameObjectLootStateChanged(GameObject* go, uint32 state, Unit* unit);
