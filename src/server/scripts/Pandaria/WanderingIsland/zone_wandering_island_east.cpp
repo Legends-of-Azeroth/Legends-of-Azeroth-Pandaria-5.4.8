@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,13 @@
 *
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+
+/* ScriptDataSDName: WanderingIslandEast
+SD%Complete: 100
+SDComment: Quest support: 29774, 29775
+SDCategory: WanderingIsland
+EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -21,6 +27,7 @@
 #include "SpellScript.h"
 #include "Vehicle.h"
 
+// AT - Bassin Curse (Area 6991/6992/6993)
 class AreaTrigger_at_bassin_curse : public AreaTriggerScript
 {
     public:
@@ -82,45 +89,35 @@ class AreaTrigger_at_bassin_curse : public AreaTriggerScript
         }
 };
 
-class npc_tushui_monk : public CreatureScript
+// NPC 54993 - Balance Pole (Water Temple)
+struct npc_tushui_monkAI : public ScriptedAI
 {
-    public:
-        npc_tushui_monk() : CreatureScript("npc_tushui_monk") { }
+    npc_tushui_monkAI(Creature* creature) : ScriptedAI(creature) { }
 
-        struct npc_tushui_monkAI : public ScriptedAI
+    void Reset() override
+    {
+        std::list<Creature*> poleList;
+        GetCreatureListWithEntryInGrid(poleList, me, 54993, 25.0f);
+
+        if (poleList.empty())
         {
-            npc_tushui_monkAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void Reset() override
-            {
-                std::list<Creature*> poleList;
-                GetCreatureListWithEntryInGrid(poleList, me, 54993, 25.0f);
-
-                if (poleList.empty())
-                {
-                    me->DespawnOrUnsummon(1000);
-                    return;
-                }
-
-                Trinity::Containers::RandomResizeList(poleList, 1);
-
-                for (auto&& creature: poleList)
-                    me->EnterVehicle(creature);
-
-                me->SetFaction(2357);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                me->ExitVehicle();
-                me->DespawnOrUnsummon(1000);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_tushui_monkAI(creature);
+            me->DespawnOrUnsummon(1000);
+            return;
         }
+
+        Trinity::Containers::RandomResizeList(poleList, 1);
+
+        for (auto&& creature: poleList)
+            me->EnterVehicle(creature);
+
+        me->SetFaction(2357);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        me->ExitVehicle();
+        me->DespawnOrUnsummon(1000);
+    }
 };
 
 // Rock Jump - 103069 / 103070 / 103077
@@ -173,142 +170,132 @@ Position rocksPos[4] =
     {1111.52f, 2849.84f, 94.84f, 1.94f}
 };
 
-class npc_shu_water_spirit : public CreatureScript
+// NPC 55558/60916 - Shu/Wugou (Water Spirits) | Quest 29774
+struct npc_shu_water_spiritAI : public ScriptedAI
 {
-    public:
-        npc_shu_water_spirit() : CreatureScript("npc_shu_water_spirit") { }
+    npc_shu_water_spiritAI(Creature* creature) : ScriptedAI(creature) { }
 
-        struct npc_shu_water_spiritAI : public ScriptedAI
+    EventMap _events;
+    uint8 actualPlace;
+    ObjectGuid waterSpoutGUID;
+
+    enum eShuSpells
+    {
+        SPELL_WATER_SPOUT_SUMMON    = 116810,
+        SPELL_WATER_SPOUT_WARNING   = 116695,
+        SPELL_WATER_SPOUT_EJECT     = 116696,
+        SPELL_WATER_SPOUT_VISUAL    = 117057
+    };
+
+    enum eEvents
+    {
+        EVENT_CHANGE_PLACE          = 1,
+        EVENT_SUMMON_WATER_SPOUT    = 2,
+        EVENT_WATER_SPOUT_VISUAL    = 3,
+        EVENT_WATER_SPOUT_EJECT     = 4,
+        EVENT_WATER_SPOUT_DESPAWN   = 5
+    };
+
+    void Reset() override
+    {
+        _events.Reset();
+        actualPlace = 0;
+        waterSpoutGUID = ObjectGuid::Empty;
+
+        _events.ScheduleEvent(EVENT_CHANGE_PLACE, 5000);
+    }
+
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type != EFFECT_MOTION_TYPE)
+            return;
+
+        if (pointId == 1)
         {
-            npc_shu_water_spiritAI(Creature* creature) : ScriptedAI(creature) { }
-
-            EventMap _events;
-            uint8 actualPlace;
-            ObjectGuid waterSpoutGUID;
-
-            enum eShuSpells
+            me->RemoveAurasDueToSpell(SPELL_WATER_SPOUT_WARNING);
+            if (Player* player = me->SelectNearestPlayerNotGM(50.0f))
             {
-                SPELL_WATER_SPOUT_SUMMON    = 116810,
-                SPELL_WATER_SPOUT_WARNING   = 116695,
-                SPELL_WATER_SPOUT_EJECT     = 116696,
-                SPELL_WATER_SPOUT_VISUAL    = 117057
-            };
+                me->SetOrientation(me->GetAngle(player));
+                me->SetFacingToObject(player);
+                _events.ScheduleEvent(EVENT_SUMMON_WATER_SPOUT, 2000);
+            }
+            else
+                _events.ScheduleEvent(EVENT_CHANGE_PLACE, 5000);
+        }
+    }
 
-            enum eEvents
-            {
-                EVENT_CHANGE_PLACE          = 1,
-                EVENT_SUMMON_WATER_SPOUT    = 2,
-                EVENT_WATER_SPOUT_VISUAL    = 3,
-                EVENT_WATER_SPOUT_EJECT     = 4,
-                EVENT_WATER_SPOUT_DESPAWN   = 5
-            };
+    Creature* getWaterSpout()
+    {
+        return me->GetMap()->GetCreature(waterSpoutGUID);
+    }
 
-            void Reset() override
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        switch (_events.ExecuteEvent())
+        {
+            case EVENT_CHANGE_PLACE:
             {
-                _events.Reset();
-                actualPlace = 0;
+                uint8 newPlace = 0;
+
+                do
+                {
+                    newPlace = urand(0, 3);
+                }
+                while (newPlace == actualPlace);
+
+                me->GetMotionMaster()->MoveJump(rocksPos[newPlace].GetPositionX(), rocksPos[newPlace].GetPositionY(), rocksPos[newPlace].GetPositionZ(), 10.0f, 10.0f, 1);
+                me->AddAura(SPELL_WATER_SPOUT_WARNING, me); // Just visual
+                actualPlace = newPlace;
+                break;
+            }
+            case EVENT_SUMMON_WATER_SPOUT:
+            {
+                float x = 0.0f, y = 0.0f;
+                GetPositionWithDistInOrientation(me, 5.0f, me->GetOrientation() + frand(-M_PI, M_PI), x, y);
                 waterSpoutGUID = ObjectGuid::Empty;
 
-                _events.ScheduleEvent(EVENT_CHANGE_PLACE, 5000);
+                if (Creature* waterSpout = me->SummonCreature(60488, x, y, 92.189629f))
+                    waterSpoutGUID = waterSpout->GetGUID();
+
+                _events.ScheduleEvent(EVENT_WATER_SPOUT_VISUAL, 500);
+                _events.ScheduleEvent(EVENT_WATER_SPOUT_EJECT, 7500);
+                break;
             }
-
-            void MovementInform(uint32 type, uint32 pointId) override
+            case EVENT_WATER_SPOUT_VISUAL:
             {
-                if (type != EFFECT_MOTION_TYPE)
-                    return;
-
-                if (pointId == 1)
+                if (Creature* waterSpout = getWaterSpout())
+                    waterSpout->CastSpell(waterSpout, SPELL_WATER_SPOUT_WARNING, true);
+                break;
+            }
+            case EVENT_WATER_SPOUT_EJECT:
+            {
+                if (Creature* waterSpout = getWaterSpout())
                 {
-                    me->RemoveAurasDueToSpell(SPELL_WATER_SPOUT_WARNING);
-                    if (Player* player = me->SelectNearestPlayerNotGM(50.0f))
-                    {
-                        me->SetOrientation(me->GetAngle(player));
-                        me->SetFacingToObject(player);
-                        _events.ScheduleEvent(EVENT_SUMMON_WATER_SPOUT, 2000);
-                    }
-                    else
-                        _events.ScheduleEvent(EVENT_CHANGE_PLACE, 5000);
+                    std::list<Player*> playerList;
+                    GetPlayerListInGrid(playerList, waterSpout, 1.0f);
+
+                    for (auto&& player: playerList)
+                        player->CastSpell(player, SPELL_WATER_SPOUT_EJECT, true);
+
+                    waterSpout->CastSpell(waterSpout, SPELL_WATER_SPOUT_VISUAL, true);
                 }
+                _events.ScheduleEvent(EVENT_WATER_SPOUT_DESPAWN, 3000);
+                break;
             }
-
-            Creature* getWaterSpout()
+            case EVENT_WATER_SPOUT_DESPAWN:
             {
-                return me->GetMap()->GetCreature(waterSpoutGUID);
+                if (Creature* waterSpout = getWaterSpout())
+                    waterSpout->DespawnOrUnsummon();
+
+                waterSpoutGUID = ObjectGuid::Empty;
+
+                _events.ScheduleEvent(EVENT_CHANGE_PLACE, 2000);
+                break;
             }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                switch (_events.ExecuteEvent())
-                {
-                    case EVENT_CHANGE_PLACE:
-                    {
-                        uint8 newPlace = 0;
-
-                        do
-                        {
-                            newPlace = urand(0, 3);
-                        }
-                        while (newPlace == actualPlace);
-
-                        me->GetMotionMaster()->MoveJump(rocksPos[newPlace].GetPositionX(), rocksPos[newPlace].GetPositionY(), rocksPos[newPlace].GetPositionZ(), 10.0f, 10.0f, 1);
-                        me->AddAura(SPELL_WATER_SPOUT_WARNING, me); // Just visual
-                        actualPlace = newPlace;
-                        break;
-                    }
-                    case EVENT_SUMMON_WATER_SPOUT:
-                    {
-                        float x = 0.0f, y = 0.0f;
-                        GetPositionWithDistInOrientation(me, 5.0f, me->GetOrientation() + frand(-M_PI, M_PI), x, y);
-                        waterSpoutGUID = ObjectGuid::Empty;
-
-                        if (Creature* waterSpout = me->SummonCreature(60488, x, y, 92.189629f))
-                            waterSpoutGUID = waterSpout->GetGUID();
-
-                        _events.ScheduleEvent(EVENT_WATER_SPOUT_VISUAL, 500);
-                        _events.ScheduleEvent(EVENT_WATER_SPOUT_EJECT, 7500);
-                        break;
-                    }
-                    case EVENT_WATER_SPOUT_VISUAL:
-                    {
-                        if (Creature* waterSpout = getWaterSpout())
-                            waterSpout->CastSpell(waterSpout, SPELL_WATER_SPOUT_WARNING, true);
-                        break;
-                    }
-                    case EVENT_WATER_SPOUT_EJECT:
-                    {
-                        if (Creature* waterSpout = getWaterSpout())
-                        {
-                            std::list<Player*> playerList;
-                            GetPlayerListInGrid(playerList, waterSpout, 1.0f);
-
-                            for (auto&& player: playerList)
-                                player->CastSpell(player, SPELL_WATER_SPOUT_EJECT, true);
-
-                            waterSpout->CastSpell(waterSpout, SPELL_WATER_SPOUT_VISUAL, true);
-                        }
-                        _events.ScheduleEvent(EVENT_WATER_SPOUT_DESPAWN, 3000);
-                        break;
-                    }
-                    case EVENT_WATER_SPOUT_DESPAWN:
-                    {
-                        if (Creature* waterSpout = getWaterSpout())
-                            waterSpout->DespawnOrUnsummon();
-
-                        waterSpoutGUID = ObjectGuid::Empty;
-
-                        _events.ScheduleEvent(EVENT_CHANGE_PLACE, 2000);
-                        break;
-                    }
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_shu_water_spiritAI(creature);
         }
+    }
 };
 
 // Shu Benediction - 103245, 105889, 105890
@@ -437,84 +424,266 @@ class spell_grab_carriage: public SpellScriptLoader
         }
 };
 
-class npc_nourished_yak : public CreatureScript
+// NPC 57208/59496/57740 - Delivery Cart (Carriage Vehicle)
+struct npc_nourished_yakAI : public EscortAI
 {
-    public:
-        npc_nourished_yak() : CreatureScript("npc_nourished_yak") { }
+    npc_nourished_yakAI(Creature* creature) : EscortAI(creature) { }
 
-        struct npc_nourished_yakAI : public EscortAI
+    uint32 IntroTimer;
+    uint8 waypointToEject;
+
+    void Reset() override
+    {
+        waypointToEject = 100;
+
+        if (me->IsSummon())
         {
-            npc_nourished_yakAI(Creature* creature) : EscortAI(creature)
-            { }
+            IntroTimer = 2500;
 
-            uint32 IntroTimer;
-            uint8 waypointToEject;
-
-            void Reset() override
-            {
-                waypointToEject = 100;
-
-                if (me->IsSummon())
-                {
-                    IntroTimer = 2500;
-
-                    // The Singing Pools -> Dai-Lo Farmstead
-                    if (me->GetAreaId() == 5826)
-                        waypointToEject = 24;
-                    // Dai-Lo Farmstead -> Temple
-                    else if (me->GetAreaId() == 5881) // Ferme Dai-Lo
-                        waypointToEject = 22;
-                    // Epave -> Temple
-                    else if (me->GetAreaId() == 5833) // New Allies quest Carraige
-                        waypointToEject = 18;
-                }
-                else
-                    IntroTimer = 0;
-            }
-
-            void WaypointReached(uint32 waypointId, uint32 pathId) override
-            {
-                if (waypointId == waypointToEject)
-                {
-                    if (Creature* vehicle = GetClosestCreatureWithEntry(me, 57208, 50.0f))
-                        vehicle->DespawnOrUnsummon();
-                    if (Creature* vehicle = GetClosestCreatureWithEntry(me, 59496, 50.0f))
-                        vehicle->DespawnOrUnsummon();
-                    if (Creature* vehicle = GetClosestCreatureWithEntry(me, 57740, 50.0f))
-                        vehicle->DespawnOrUnsummon();
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (IntroTimer)
-                {
-                    if (IntroTimer <= diff)
-                    {
-                        SetRun(true); Start(false);
-                        IntroTimer = 0;
-                    }
-                    else
-                        IntroTimer -= diff;
-                }
-
-                EscortAI::UpdateAI(diff);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_nourished_yakAI(creature);
+            // The Singing Pools -> Dai-Lo Farmstead
+            if (me->GetAreaId() == 5826)
+                waypointToEject = 24;
+            // Dai-Lo Farmstead -> Temple
+            else if (me->GetAreaId() == 5881) // Ferme Dai-Lo
+                waypointToEject = 22;
+            // Epave -> Temple
+            else if (me->GetAreaId() == 5833) // New Allies quest Carraige
+                waypointToEject = 18;
         }
+        else
+            IntroTimer = 0;
+    }
+
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
+    {
+        if (waypointId == waypointToEject)
+        {
+            if (Creature* vehicle = GetClosestCreatureWithEntry(me, 57208, 50.0f))
+                vehicle->DespawnOrUnsummon();
+            if (Creature* vehicle = GetClosestCreatureWithEntry(me, 59496, 50.0f))
+                vehicle->DespawnOrUnsummon();
+            if (Creature* vehicle = GetClosestCreatureWithEntry(me, 57740, 50.0f))
+                vehicle->DespawnOrUnsummon();
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (IntroTimer)
+        {
+            if (IntroTimer <= diff)
+            {
+                SetRun(true); Start(false);
+                IntroTimer = 0;
+            }
+            else
+                IntroTimer -= diff;
+        }
+
+        EscortAI::UpdateAI(diff);
+    }
+};
+
+// NPC 55558 - Shu (Water Spirit Dailo) | Quest 29774
+struct npc_water_spirit_dailoAI : public ScriptedAI
+{
+    npc_water_spirit_dailoAI(Creature* creature) : ScriptedAI(creature) { }
+
+    uint64 playerGuid = 0;
+    uint32 eventTimer = 0;
+    uint8 eventProgress = 0;
+
+    bool OnGossipHello(Player* player) override
+    {
+        if (me->IsQuestGiver())
+            player->PrepareQuestMenu(me->GetGUID());
+
+        if (player->GetQuestStatus(29774) == QUEST_STATUS_INCOMPLETE)
+            AddGossipItemFor(player, 13727, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+        SendGossipMenuFor(player, 13727, me->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* player, uint32 /*sender*/, uint32 action) override
+    {
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+        {
+            CloseGossipMenuFor(player);
+            player->KilledMonsterCredit(55548, ObjectGuid::Empty);
+            player->RemoveAurasDueToSpell(59073); // Remove Phase 2, first water spirit disappear
+
+            if (Creature* shu = player->SummonCreature(55558, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0ms, player->GetGUID()))
+            {
+                if (shu->AI())
+                {
+                    shu->AI()->DoAction(0);
+                    shu->AI()->SetGUID(player->GetGUID());
+                }
+            }
+        }
+        return true;
+    }
+
+    void Reset() override
+    {
+        eventTimer = 0;
+        eventProgress = 0;
+        playerGuid = 0;
+    }
+
+    void DoAction(int32 actionId) override
+    {
+        if (actionId == 0)
+            eventTimer = 2500;
+    }
+
+    void SetGUID(ObjectGuid guid, int32 /*id*/ = 0) override
+    {
+        playerGuid = guid;
+    }
+
+    void MovementInform(uint32 motionType, uint32 pointId) override
+    {
+        if (motionType != POINT_MOTION_TYPE)
+            return;
+
+        switch (pointId)
+        {
+            case 1:
+                eventTimer = 250;
+                ++eventProgress;
+                break;
+            case 2:
+                eventTimer = 250;
+                ++eventProgress;
+                break;
+            case 3:
+                if (Creature* wugou = GetClosestCreatureWithEntry(me, 60916, 20.0f))
+                    me->SetFacingToObject(wugou);
+                me->SetEmoteState(EMOTE_STATE_READY_UNARMED);
+                eventTimer = 2000;
+                ++eventProgress;
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (eventTimer)
+        {
+            if (eventTimer <= diff)
+            {
+                switch (eventProgress)
+                {
+                    case 0:
+                        me->GetMotionMaster()->MovePoint(1, 650.30f, 3127.16f, 89.62f);
+                        eventTimer = 0;
+                        break;
+                    case 1:
+                        me->GetMotionMaster()->MovePoint(2, 625.25f, 3127.88f, 87.95f);
+                        eventTimer = 0;
+                        break;
+                    case 2:
+                        me->GetMotionMaster()->MovePoint(3, 624.44f, 3142.94f, 87.75f);
+                        eventTimer = 0;
+                        break;
+                    case 3:
+                        if (Creature* wugou = GetClosestCreatureWithEntry(me, 60916, 20.0f))
+                            wugou->CastSpell(wugou, 118027, false);
+                        me->SetEmoteState(EMOTE_ONESHOT_NONE);
+                        eventTimer = 3000;
+                        ++eventProgress;
+                        break;
+                    case 4:
+                        eventTimer = 0;
+                        if (Player* owner = ObjectAccessor::FindPlayer(ObjectGuid(playerGuid)))
+                        {
+                            owner->KilledMonsterCredit(55547, ObjectGuid::Empty);
+                            owner->RemoveAurasDueToSpell(59074); // Remove phase 4, asleep wugou disappear
+
+                            if (Creature* wugou = GetClosestCreatureWithEntry(me, 60916, 20.0f))
+                                if (Creature* newWugou = owner->SummonCreature(60916, wugou->GetPositionX(), wugou->GetPositionY(), wugou->GetPositionZ(), wugou->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0ms, owner->GetGUID()))
+                                    newWugou->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+
+                            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, -PET_FOLLOW_ANGLE);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+                eventTimer -= diff;
+        }
+    }
+};
+
+// AT - Middle Temple from East
+class AreaTrigger_at_middle_temple_from_east : public AreaTriggerScript
+{
+public:
+    AreaTrigger_at_middle_temple_from_east() : AreaTriggerScript("AreaTrigger_at_middle_temple_from_east") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
+    {
+        if (Creature* shu = player->FindNearestCreature(55558, 25.0f))
+            shu->DespawnOrUnsummon();
+
+        if (Creature* wugou = player->FindNearestCreature(60916, 25.0f))
+            wugou->DespawnOrUnsummon();
+
+        return true;
+    }
+};
+
+// NPC - Delivery Cart Tender | Quest 29775
+struct npc_delivery_cart_tenderAI : public ScriptedAI
+{
+    npc_delivery_cart_tenderAI(Creature* creature) : ScriptedAI(creature) { }
+
+    bool hasSaidIntro = false;
+    bool hasSaidIntro2 = false;
+
+    void UpdateAI(uint32 /*diff*/) override
+    {
+        std::list<Player*> playerList;
+        GetPlayerListInGrid(playerList, me, 15.0f);
+
+        for (auto&& player : playerList)
+        {
+            if (me->GetPositionX() == 974.718994f && me->GetPositionY() == 2863.25f)
+            {
+                if (!hasSaidIntro)
+                {
+                    Talk(0);
+                    hasSaidIntro = true;
+                }
+            }
+            else if (player->GetQuestStatus(29775) == QUEST_STATUS_COMPLETE)
+            {
+                if (!hasSaidIntro2)
+                {
+                    Talk(1);
+                    hasSaidIntro2 = true;
+                }
+            }
+        }
+    }
 };
 
 void AddSC_wandering_island_east()
 {
     new AreaTrigger_at_bassin_curse();
-    new npc_tushui_monk();
+    RegisterCreatureAI(npc_tushui_monkAI);
     new spell_rock_jump();
-    new npc_shu_water_spirit();
+    RegisterCreatureAI(npc_shu_water_spiritAI);
     new aura_script<spell_shu_benediction>("spell_shu_benediction");
     new spell_grab_carriage();
-    new npc_nourished_yak();
+    RegisterCreatureAI(npc_nourished_yakAI);
+    RegisterCreatureAI(npc_water_spirit_dailoAI);
+    new AreaTrigger_at_middle_temple_from_east();
+    RegisterCreatureAI(npc_delivery_cart_tenderAI);
 }
