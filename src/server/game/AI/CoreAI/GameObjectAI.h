@@ -46,8 +46,6 @@ class TC_GAME_API GameObjectAI
 
         static int Permissible(GameObject const* go);
 
-        virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/) { return false; }
-
         virtual bool OnGossipHello(Player* /*player*/, bool /*isUse*/) { return false; }
         virtual bool OnReportUse(Player* /*player*/) { return false; }
         virtual bool OnGossipSelect(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/) { return false; }

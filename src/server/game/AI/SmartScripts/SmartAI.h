@@ -184,7 +184,6 @@ class TC_GAME_API SmartAI : public CreatureAI
         bool OnGossipSelectCode(Player* player, uint32 menuId, uint32 gossipListId, char const* code) override;  
         void OnQuestAccept(Player* player, Quest const* quest) override;  
         void OnQuestReward(Player* player, Quest const* quest, uint32 opt) override;   
-        bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex) override;
         void sOnGameEvent(bool start, uint16 eventId) override;
 
         uint32 mEscortQuestID;

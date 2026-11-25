@@ -873,68 +873,133 @@ class npc_chess_piece : public CreatureScript
         
             }
 
-            bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex) override
-            {
-
-                        // movement perform spell
-                        if (spellId == SPELL_MOVE_TO_SQUARE && effIndex == EFFECT_0)
-                        {
-                            if (caster->GetTypeId() == TYPEID_UNIT && !caster->HasAura(SPELL_DISABLE_SQUARE) && !caster->HasAura(SPELL_IS_SQUARE_OCCUPIED))
-                            {
-                                caster->CastSpell(caster, SPELL_DISABLE_SQUARE, true);
-                                caster->CastSpell(caster, SPELL_IS_SQUARE_OCCUPIED, true);
-
-                                me->CastSpell(me, SPELL_MOVE_COOLDOWN);
-                                me->AddCreatureSpellCooldown(SPELL_MOVE_COOLDOWN);
-                                me->AI()->SetGUID(caster->GetGUID(), 1);
-                            }
-
-                            return true;
-                        }
-                        // generic melee tick
-                        else if (spellId == SPELL_ACTION_MELEE && effIndex == EFFECT_0)
-                        {
-                            if (!me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_ACTIVE))
-                                me->SetFacingTo(me->GetOrientation());
-
-                            me->CastSpell(me, me->AI()->GetData(0), true);
-                            return true;
-                        }
-                        // square facing
-                        else if (spellId == SPELL_FACE_SQUARE && effIndex == EFFECT_0)
-                        {
-                            if (caster->GetTypeId() != TYPEID_UNIT)
-                                return true;
-
-                            if (Creature* square = ObjectAccessor::GetCreature(*me, me->AI()->GetGUID()))
-                            {
-                                if (caster->GetExactDist2d(square) > 8.0f)
-                                    return true;
-
-                                if (caster->GetEntry() != (square->GetEntry() == NPC_SQUARE_WHITE ? NPC_SQUARE_BLACK : NPC_SQUARE_WHITE) &&
-                                    caster->GetEntry() != (square->GetEntry() == NPC_SQUARE_WHITE ? NPC_SQUARE_OUTSIDE_BLACK : NPC_SQUARE_OUTSIDE_WHITE))
-                                    return true;
-
-                                me->SetFacingTo(square->GetAngle(caster));
-                                me->AI()->DoAction(0);
-                            }
-                            return true;
-                        }
-                        // Is Square OCCUPIED (DND)
-                        else if (spellId == SPELL_IS_SQUARE_OCCUPIED_CHECK)
-                        {
-                            //caster->CastSpell(caster, SPELL_DISABLE_SQUARE, true);
-                            return true;
-                        }
-
-                        return false;
-        
-            }
 };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_chess_pieceAI(creature);
+        }
+};
+
+class spell_chess_move_to_square : public SpellScriptLoader
+{
+    public:
+        spell_chess_move_to_square() : SpellScriptLoader("spell_chess_move_to_square") { }
+
+        class spell_chess_move_to_square_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_chess_move_to_square_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+                if (!caster || !target || caster->GetTypeId() != TYPEID_UNIT)
+                    return;
+
+                if (caster->HasAura(SPELL_DISABLE_SQUARE) || caster->HasAura(SPELL_IS_SQUARE_OCCUPIED))
+                    return;
+
+                caster->CastSpell(caster, SPELL_DISABLE_SQUARE, true);
+                caster->CastSpell(caster, SPELL_IS_SQUARE_OCCUPIED, true);
+
+                if (Creature* creature = target->ToCreature())
+                {
+                    target->CastSpell(target, SPELL_MOVE_COOLDOWN);
+                    creature->AddCreatureSpellCooldown(SPELL_MOVE_COOLDOWN);
+                    creature->AI()->SetGUID(caster->GetGUID(), 1);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHit += SpellEffectFn(spell_chess_move_to_square_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_chess_move_to_square_SpellScript();
+        }
+};
+
+class spell_chess_action_melee : public SpellScriptLoader
+{
+    public:
+        spell_chess_action_melee() : SpellScriptLoader("spell_chess_action_melee") { }
+
+        class spell_chess_action_melee_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_chess_action_melee_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* target = GetHitUnit();
+                if (!target)
+                    return;
+
+                if (!target->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_ACTIVE))
+                    target->SetFacingTo(target->GetOrientation());
+
+                if (Creature* creature = target->ToCreature())
+                    target->CastSpell(target, creature->AI()->GetData(0), true);
+            }
+
+            void Register() override
+            {
+                OnEffectHit += SpellEffectFn(spell_chess_action_melee_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_chess_action_melee_SpellScript();
+        }
+};
+
+class spell_chess_face_square : public SpellScriptLoader
+{
+    public:
+        spell_chess_face_square() : SpellScriptLoader("spell_chess_face_square") { }
+
+        class spell_chess_face_square_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_chess_face_square_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+                if (!caster || !target || caster->GetTypeId() != TYPEID_UNIT)
+                    return;
+
+                Creature* creature = target->ToCreature();
+                if (!creature)
+                    return;
+
+                if (Creature* square = ObjectAccessor::GetCreature(*creature, creature->AI()->GetGUID()))
+                {
+                    if (caster->GetExactDist2d(square) > 8.0f)
+                        return;
+
+                    if (caster->GetEntry() != (square->GetEntry() == NPC_SQUARE_WHITE ? NPC_SQUARE_BLACK : NPC_SQUARE_WHITE) &&
+                        caster->GetEntry() != (square->GetEntry() == NPC_SQUARE_WHITE ? NPC_SQUARE_OUTSIDE_BLACK : NPC_SQUARE_OUTSIDE_WHITE))
+                        return;
+
+                    creature->SetFacingTo(square->GetAngle(caster));
+                    creature->AI()->DoAction(0);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHit += SpellEffectFn(spell_chess_face_square_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_chess_face_square_SpellScript();
         }
 };
 
@@ -987,5 +1052,8 @@ void AddSC_chess_event()
 {
     new npc_echo_of_medivh();
     new npc_chess_piece();
+    new spell_chess_move_to_square();
+    new spell_chess_action_melee();
+    new spell_chess_face_square();
     new spell_game_in_session();
 }
