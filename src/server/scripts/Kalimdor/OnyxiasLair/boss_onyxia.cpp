@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -209,7 +209,7 @@ public:
             Talk(SAY_KILL);
         }
 
-        void SpellHit(Unit* /*pCaster*/, const SpellInfo* Spell) override
+        void SpellHit(WorldObject* /*pCaster*/, const SpellInfo* Spell) override
         {
             if (Spell->Id == SPELL_BREATH_EAST_TO_WEST ||
                 Spell->Id == SPELL_BREATH_WEST_TO_EAST ||
@@ -267,7 +267,7 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+        void SpellHitTarget(WorldObject* target, const SpellInfo* spell) override
         {
             //Workaround - Couldn't find a way to group this spells (All Eruption)
             if (((spell->Id >= 17086 && spell->Id <= 17095) ||

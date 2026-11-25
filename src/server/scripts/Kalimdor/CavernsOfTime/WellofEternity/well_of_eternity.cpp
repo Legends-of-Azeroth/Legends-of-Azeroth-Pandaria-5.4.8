@@ -676,16 +676,20 @@ class npc_well_of_eternity_legion_demon : public CreatureScript
                     DoCastAOE(SPELL_AGGRO_ILLIDAN, true);
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(WorldObject* caster, const SpellInfo* spell) override
             {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
                 if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
                 if (spell->Id == SPELL_ARCHIVED_DEMON_1)
-                    DoCast(caster, SPELL_ARCHIVED_DEMON_2, true);
+                    DoCast(unitCaster, SPELL_ARCHIVED_DEMON_2, true);
                 else if (spell->Id == SPELL_SHADOWCLOAK_AGGRO)
                 {
-                    caster->RemoveAura(SPELL_SHADOW_WALK_AURA);
-                    AttackStart(caster);
+                    unitCaster->RemoveAura(SPELL_SHADOW_WALK_AURA);
+                    AttackStart(unitCaster);
                 }
             }
 
@@ -1022,12 +1026,16 @@ class npc_well_of_eternity_illidan_1 : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(WorldObject* caster, const SpellInfo* spell) override
             {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
                 if (spell->Id == SPELL_AGGRO_ILLIDAN)
                 {
                     me->RemoveAura(SPELL_SHADOWCLOAK_ILLIDAN);
-                    AttackStart(caster);
+                    AttackStart(unitCaster);
                     if (!aggroTalkCooldown)
                     {
                         Talk(RAND(SAY_ILLIDAN_1_AGGRO_1, SAY_ILLIDAN_1_AGGRO_2));
@@ -1476,13 +1484,17 @@ class npc_well_of_eternity_legion_demon_preevent : CreatureScript
                 pos = FORMATION_LEGION_DEMON_NOT_SET;
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(WorldObject* caster, const SpellInfo* spell) override
             {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
                 if (spell->Id == SPELL_SHADOWCLOAK_AGGRO)
                 {
-                    caster->RemoveAura(SPELL_SHADOW_WALK_AURA);
+                    unitCaster->RemoveAura(SPELL_SHADOW_WALK_AURA);
                     if (Creature* guardian = GetClosestCreatureWithEntry(me, NPC_GUARDIAN_DEMON, 200))
-                        guardian->AI()->SetGUID(caster->GetGUID());
+                        guardian->AI()->SetGUID(unitCaster->GetGUID());
                 }
             }
 
@@ -1710,12 +1722,16 @@ class npc_well_of_eternity_guardian_demon : CreatureScript
                 Talk(RAND(2,3,4));
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(WorldObject* caster, const SpellInfo* spell) override
             {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
                 if (spell->Id == SPELL_SHADOWCLOAK_AGGRO)
                 {
-                    caster->RemoveAura(SPELL_SHADOW_WALK_AURA);
-                    SetGUID(caster->GetGUID(), 0);
+                    unitCaster->RemoveAura(SPELL_SHADOW_WALK_AURA);
+                    SetGUID(unitCaster->GetGUID(), 0);
                 }
             }
 
@@ -2159,14 +2175,18 @@ class npc_well_of_eternity_portal_trash : public CreatureScript
                     DoCastAOE(SPELL_AGGRO_ILLIDAN, true);
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(WorldObject* caster, const SpellInfo* spell) override
             {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
                 if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
                 if (spell->Id == SPELL_SHADOWCLOAK_AGGRO)
                 {
-                    caster->RemoveAura(SPELL_SHADOW_WALK_AURA);
-                    AttackStart(caster);
+                    unitCaster->RemoveAura(SPELL_SHADOW_WALK_AURA);
+                    AttackStart(unitCaster);
                 }
             }
 
@@ -2961,10 +2981,14 @@ class npc_well_of_eternity_royal_handmaiden : public CreatureScript
                 events.ScheduleEvent(EVENT_SWEET_LULLABY, urand(7000, 12000));
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(WorldObject* caster, const SpellInfo* spell) override
             {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
                 if (spell->Id == SPELL_ARCHIVED_HANDMAIDEN_1)
-                    DoCast(caster, SPELL_ARCHIVED_HANDMAIDEN_2, true);
+                    DoCast(unitCaster, SPELL_ARCHIVED_HANDMAIDEN_2, true);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -3354,7 +3378,7 @@ class npc_well_of_eternity_tyrande : public CreatureScript
 
             void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override { }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == 104678/*SPELL_DEBILITATING_FLAY*/)
                     if (!bDebilitating)

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -307,19 +307,23 @@ class npc_land_mine : public CreatureScript
                 uiDespawnTimer = 5500;
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_DETONATE_TRAPS)
                     StartCountDown();
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 if (spell->Id == 83112)
                 {
                     float x, y, _x, _y;
                     me->GetPosition(x, y);
-                    target->GetPosition(_x, _y);
+                    unitTarget->GetPosition(_x, _y);
 
                     if (sqrt(pow(x - _x, 2) + pow(y - _y, 2)) < 1.4f)
                     {
@@ -329,7 +333,7 @@ class npc_land_mine : public CreatureScript
                         ClearMineState(LAND_MINE_STATE_ACTIVATED);
                         AddMineState(LAND_MINE_STATE_DETONATED);
                         uiDespawnTimer = 1000;
-                        me->CastSpell(target, SPELL_MYSTIC_TRAP, true);
+                        me->CastSpell(unitTarget, SPELL_MYSTIC_TRAP, true);
                         me->RemoveAura(SPELL_TOLVIR_LAND_MINE_VISUAL);
                         me->RemoveAura(SPELL_TOLVIR_MINE_PLAYER_SEARCH_TRIGGER);
                     }
@@ -424,11 +428,15 @@ class npc_shockwave_stalker : public CreatureScript
                     lSummonedGUID.push_back(uiGUID);
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(WorldObject* caster, const SpellInfo* spell) override
             {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
                 if (spell->Id == SPELL_SHOCKWAVE || spell->Id == 91257)
                 {
-                    caster->CastSpell(me, SPELL_SHOCKWAVE_VISUAL, true);
+                    unitCaster->CastSpell(me, SPELL_SHOCKWAVE_VISUAL, true);
                     me->RemoveAllAuras();
                     CanCheck = false;
                     

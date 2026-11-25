@@ -1237,7 +1237,7 @@ class npc_bd_spirit_of_dwarf: public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 switch (spell->Id)
                 {

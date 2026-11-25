@@ -878,7 +878,7 @@ class npc_warmaster_blackhorn_twilight_assault_drake: public CreatureScript
                 return bReady;
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_HARPOON)
                 {

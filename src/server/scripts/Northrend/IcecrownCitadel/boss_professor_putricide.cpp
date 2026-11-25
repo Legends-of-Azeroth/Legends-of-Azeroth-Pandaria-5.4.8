@@ -575,16 +575,20 @@ class boss_professor_putricide : public CreatureScript
                 return 0;
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 if (spell && spell->Id == SPELL_TEAR_GAS_1 && !IsHeroic() && me->IsInCombat())
                     events.RescheduleEvent(EVENT_RESUME_ATTACK, 16000);
                 else if (spell && spell->Id == SPELL_TEAR_GAS_CANCEL)
                 {
-                    target->RemoveAurasDueToSpell(SPELL_TEAR_GAS_1);
-                    target->RemoveAurasDueToSpell(SPELL_TEAR_GAS_2);
-                    if (target->IsAIEnabled && (target->GetEntry() == NPC_VOLATILE_OOZE || target->GetEntry() == NPC_GAS_CLOUD))
-                        target->GetAI()->DoAction(ACTION_OOZE_RESUME);
+                    unitTarget->RemoveAurasDueToSpell(SPELL_TEAR_GAS_1);
+                    unitTarget->RemoveAurasDueToSpell(SPELL_TEAR_GAS_2);
+                    if (unitTarget->IsAIEnabled && (unitTarget->GetEntry() == NPC_VOLATILE_OOZE || unitTarget->GetEntry() == NPC_GAS_CLOUD))
+                        unitTarget->GetAI()->DoAction(ACTION_OOZE_RESUME);
                 }
             }
 
@@ -917,7 +921,7 @@ class npc_putricide_ooze : public CreatureScript
                     me->GetMotionMaster()->MovePoint(0, victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ());
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spell) override
             {
                 // Start new target search, if current target exploded
                 if (!_needSearchNewTarget && (spell->Id == SPELL_OOZE_ERUPTION || spell->Id == 70701))

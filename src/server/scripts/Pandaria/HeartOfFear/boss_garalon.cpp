@@ -454,7 +454,7 @@ class boss_garalon : public CreatureScript
                 EnterEvadeIfOutOfCombatArea(diff);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_BROKEN_LEG)
                 {

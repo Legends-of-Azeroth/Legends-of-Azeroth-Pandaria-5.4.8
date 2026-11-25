@@ -134,7 +134,7 @@ public:
                 me->UpdateEntry(NPC_KYLE_FRENZIED);
         }
 
-        void SpellHit(Unit* Caster, SpellInfo const* Spell) override
+        void SpellHit(WorldObject* Caster, SpellInfo const* Spell) override
         {
             if (!me->GetVictim() && !EventActive && Spell->Id == SPELL_LUNCH)
             {

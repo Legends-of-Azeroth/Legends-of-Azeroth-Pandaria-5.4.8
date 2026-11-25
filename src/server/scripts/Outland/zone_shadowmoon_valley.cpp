@@ -101,14 +101,18 @@ public:
             CastTimer = 5000;
         }
 
-        void SpellHit(Unit* pCaster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* pCaster, SpellInfo const* spell) override
         {
+                Unit* unitCaster = pCaster ? pCaster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
             if (bCanEat || bIsEating)
                 return;
 
-            if (pCaster->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_PLACE_CARCASS && !me->HasAura(SPELL_JUST_EATEN))
+            if (unitCaster->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_PLACE_CARCASS && !me->HasAura(SPELL_JUST_EATEN))
             {
-                uiPlayerGUID = pCaster->GetGUID();
+                uiPlayerGUID = unitCaster->GetGUID();
                 bCanEat = true;
             }
         }
@@ -239,18 +243,22 @@ public:
             me->SetVisible(true);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(WorldObject* caster, const SpellInfo* spell) override
         {
-            if (!caster)
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
+            if (!unitCaster)
                 return;
 
-            if (caster->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_HIT_FORCE_OF_NELTHARAKU && !Tapped)
+            if (unitCaster->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_HIT_FORCE_OF_NELTHARAKU && !Tapped)
             {
                 Tapped = true;
-                PlayerGUID = caster->GetGUID();
+                PlayerGUID = unitCaster->GetGUID();
 
                 me->SetFaction(FACTION_FRIENDLY);
-                DoCast(caster, SPELL_FORCE_OF_NELTHARAKU, true);
+                DoCast(unitCaster, SPELL_FORCE_OF_NELTHARAKU, true);
 
                 Unit* Dragonmaw = me->FindNearestCreature(NPC_DRAGONMAW_SUBJUGATOR, 50);
                 if (Dragonmaw)
@@ -259,7 +267,7 @@ public:
                     AttackStart(Dragonmaw);
                 }
 
-                me->GetThreatManager().ClearThreat(caster);
+                me->GetThreatManager().ClearThreat(unitCaster);
             }
         }
 
@@ -360,18 +368,22 @@ public:
             PoisonTimer = 0;
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(WorldObject* caster, const SpellInfo* spell) override
         {
-            if (!caster)
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
+            if (!unitCaster)
                 return;
 
-            if (caster->GetTypeId() == TYPEID_PLAYER && spell->Id == 40468 && !Tapped)
+            if (unitCaster->GetTypeId() == TYPEID_PLAYER && spell->Id == 40468 && !Tapped)
             {
-                PlayerGUID = caster->GetGUID();
+                PlayerGUID = unitCaster->GetGUID();
 
                 Tapped = true;
                 float x, y, z;
-                caster->GetClosePoint(x, y, z, me->GetObjectSize());
+                unitCaster->GetClosePoint(x, y, z, me->GetObjectSize());
 
                 me->SetWalk(false);
                 me->GetMotionMaster()->MovePoint(1, x, y, z);
@@ -2058,7 +2070,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
         {
             if (!tapped && spell->Id == SPELL_WHISTLE)
             {

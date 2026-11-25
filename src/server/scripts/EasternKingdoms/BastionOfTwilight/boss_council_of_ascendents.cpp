@@ -365,7 +365,7 @@ class boss_feludius : public CreatureScript
                 Talk(SAY_FELUDIUS_KILL);
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                     if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_HYDROLANCE)
@@ -581,7 +581,7 @@ class boss_ignacious : public CreatureScript
                 Talk(SAY_IGNACIOUS_KILL);
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (me->HasAura(SPELL_AEGIS_OF_FLAMES))
                     return;
@@ -840,7 +840,7 @@ class boss_arion : public CreatureScript
                 Talk(SAY_ARION_KILL);
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                     if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_LIGHTNING_BLAST)
@@ -1471,7 +1471,7 @@ class npc_feludius_water_bomb : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_WATER_BOMB)
                     DoCastAOE(SPELL_WATER_BOMB_1);
@@ -1510,7 +1510,7 @@ class npc_ignacious_flame_strike : public CreatureScript
                 DoCast(SPELL_FLAME_STRIKE);
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_FLAME_STRIKE_DUMMY)
                 {

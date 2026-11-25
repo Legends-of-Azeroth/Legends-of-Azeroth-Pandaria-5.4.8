@@ -66,7 +66,7 @@ struct npc_felwood_honey_bunny : public ScriptedAI
 {
     npc_felwood_honey_bunny(Creature* creature) : ScriptedAI(creature) { }
 
-    void SpellHit(Unit* caster, const SpellInfo* spell) override
+    void SpellHit(WorldObject* caster, const SpellInfo* spell) override
     {
         if (spell->Id == SPELL_SWIPE_HONEY)
         {
@@ -76,7 +76,7 @@ struct npc_felwood_honey_bunny : public ScriptedAI
                 if ((rand() % 10) < 4) // Random chance 40%
                 {
                     me->AI()->Talk(SAY_BEES, player);
-                    me->CastSpell(caster, SPELL_BEES_BEES, true);
+                    me->CastSpell(player, SPELL_BEES_BEES, true);
                 }
                 me->DespawnOrUnsummon();
             }

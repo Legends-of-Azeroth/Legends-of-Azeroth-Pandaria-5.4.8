@@ -151,7 +151,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
         {
             if (SpellCorrupt_Timer)
                 return;

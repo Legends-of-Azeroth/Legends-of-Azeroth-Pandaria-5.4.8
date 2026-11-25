@@ -1031,31 +1031,17 @@ class boss_the_lich_king : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_HARVESTED_SOUL && me->IsInCombat() && !IsHeroic())
                     Talk(SAY_LK_FROSTMOURNE_KILL);
-            }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
-            {
-                //switch (spell->Id)
-                //{
-                //case SPELL_PAIN_AND_SUFFERING:
-                //case 73788 /* Pain and Suffering */:
-                //case 73789 /* Pain and Suffering */:
-                //case 73790 /* Pain and Suffering */:
-                //    events.RescheduleEvent(EVENT_PAIN_AND_SUFFERING, 700U, 0, PHASE_TRANSITION);
-                //    break;
-                //default:
-                    if (spell->Id == SPELL_REMORSELESS_WINTER_1 || spell->Id == SPELL_REMORSELESS_WINTER_2)
-                    {
-                        me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_DEFAULT, LIGHT_SNOWSTORM, 5s);
-                        me->GetMap()->SetZoneWeather(AREA_ICECROWN_CITADEL, WEATHER_STATE_LIGHT_SNOW, 0.5f);
-                        summons.DespawnEntry(39137 /* Shadow Trap */);
-                    }
-                //    break;
-                //}
+                if (spell->Id == SPELL_REMORSELESS_WINTER_1 || spell->Id == SPELL_REMORSELESS_WINTER_2)
+                {
+                    me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_DEFAULT, LIGHT_SNOWSTORM, 5s);
+                    me->GetMap()->SetZoneWeather(AREA_ICECROWN_CITADEL, WEATHER_STATE_LIGHT_SNOW, 0.5f);
+                    summons.DespawnEntry(39137 /* Shadow Trap */);
+                }
             }
 
             void MovementInform(uint32 type, uint32 pointId) override
@@ -1579,7 +1565,7 @@ class npc_tirion_fordring_tft : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_ICE_LOCK)
                     me->SetFacingTo(3.085098f);

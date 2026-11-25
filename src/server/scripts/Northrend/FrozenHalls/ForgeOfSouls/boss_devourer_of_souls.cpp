@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -258,7 +258,7 @@ class boss_devourer_of_souls : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* /*spell*/) override
             {
                 if (wasCasting && !me->HasUnitState(UNIT_STATE_CASTING))
                 {
@@ -268,7 +268,7 @@ class boss_devourer_of_souls : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_PHANTOM_BLAST/* && (target->GetTypeId() == TYPEID_PLAYER)*/)
                 {

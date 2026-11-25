@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -176,18 +176,22 @@ class boss_sacrolash : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(WorldObject* target, const SpellInfo* spell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 switch (spell->Id)
                 {
                     case SPELL_SHADOW_BLADES:
                     case SPELL_SHADOW_NOVA:
                     case SPELL_CONFOUNDING_BLOW:
                     case SPELL_SHADOW_FURY:
-                        HandleTouchedSpells(target, SPELL_DARK_TOUCHED);
+                        HandleTouchedSpells(unitTarget, SPELL_DARK_TOUCHED);
                         break;
                     case SPELL_CONFLAGRATION:
-                        HandleTouchedSpells(target, SPELL_FLAME_TOUCHED);
+                        HandleTouchedSpells(unitTarget, SPELL_FLAME_TOUCHED);
                         break;
                 }
             }
@@ -478,18 +482,22 @@ class boss_alythess : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target,const SpellInfo* spell) override
+            void SpellHitTarget(WorldObject* target,const SpellInfo* spell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 switch(spell->Id)
                 {
                     case SPELL_BLAZE:
-                        target->CastSpell(target, SPELL_BLAZE_SUMMON, true);
+                        unitTarget->CastSpell(unitTarget, SPELL_BLAZE_SUMMON, true);
                     case SPELL_CONFLAGRATION:
                     case SPELL_FLAME_SEAR:
-                        HandleTouchedSpells(target, SPELL_FLAME_TOUCHED);
+                        HandleTouchedSpells(unitTarget, SPELL_FLAME_TOUCHED);
                         break;
                     case SPELL_SHADOW_NOVA:
-                        HandleTouchedSpells(target, SPELL_DARK_TOUCHED);
+                        HandleTouchedSpells(unitTarget, SPELL_DARK_TOUCHED);
                         break;
                 }
             }
@@ -700,21 +708,25 @@ class npc_shadow_image : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override { }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(WorldObject* target, const SpellInfo* spell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 switch(spell->Id)
                 {
                     case SPELL_SHADOW_FURY:
                     case SPELL_DARK_STRIKE:
-                        if (!target->HasAura(SPELL_DARK_FLAME))
+                        if (!unitTarget->HasAura(SPELL_DARK_FLAME))
                         {
-                            if (target->HasAura(SPELL_FLAME_TOUCHED))
+                            if (unitTarget->HasAura(SPELL_FLAME_TOUCHED))
                             {
-                                target->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
-                                target->CastSpell(target, SPELL_DARK_FLAME, true);
+                                unitTarget->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
+                                unitTarget->CastSpell(unitTarget, SPELL_DARK_FLAME, true);
                             }
                             else
-                                target->CastSpell(target,SPELL_DARK_TOUCHED,true);
+                                unitTarget->CastSpell(unitTarget,SPELL_DARK_TOUCHED,true);
                         }
                         break;
                 }

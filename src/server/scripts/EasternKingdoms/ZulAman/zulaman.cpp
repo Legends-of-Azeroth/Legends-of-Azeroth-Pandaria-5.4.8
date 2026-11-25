@@ -159,15 +159,15 @@ class npc_zulaman_forest_frog : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(WorldObject* caster, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_REMOVE_AMANI_CURSE && caster->GetTypeId() == TYPEID_PLAYER && me->GetEntry() == NPC_FOREST_FROG)
                 {
                     if (roll_chance_i(6))
                     {
-                        if (!caster->ToPlayer()->HasItemCount(33993) && !caster->HasSpell(43918))
+                        if (!caster->ToPlayer()->HasItemCount(33993) && !caster->ToUnit()->HasSpell(43918))
                         {
-                            DoCast(caster, SPELL_PUSH_MOJO, true);
+                            DoCast(caster->ToUnit(), SPELL_PUSH_MOJO, true);
                             me->DespawnOrUnsummon();
                         }
                         else

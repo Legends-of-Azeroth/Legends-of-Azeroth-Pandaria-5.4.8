@@ -2839,7 +2839,7 @@ struct npc_windward_hatchling : public ScriptedAI
 
     void Reset() override { }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
         auto player = caster->ToPlayer();
         if (spell->Id == SPELL_SILKEN_ROPE && player && player->GetQuestStatus(QUEST_EMPTY_NESTS) == QUEST_STATUS_INCOMPLETE)

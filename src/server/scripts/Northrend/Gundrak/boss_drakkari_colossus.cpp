@@ -226,7 +226,7 @@ class boss_drakkari_colossus : public CreatureScript
                 DoZoneInCombat(summon);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_EMERGE)
                 {
@@ -235,10 +235,14 @@ class boss_drakkari_colossus : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 if (spell->Id == SPELL_FACE_ME)
-                    target->SetFacingToObject(me);
+                    unitTarget->SetFacingToObject(me);
             }
 
             void UpdateAI(uint32 diff) override
@@ -321,10 +325,14 @@ class boss_drakkari_elemental : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 if (spell->Id == SPELL_DRENCHED_IN_MOJO_CLEAR)
-                    target->RemoveAurasDueToSpell(SPELL_DRENCHED_IN_MOJO);
+                    unitTarget->RemoveAurasDueToSpell(SPELL_DRENCHED_IN_MOJO);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override

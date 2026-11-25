@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -575,12 +575,16 @@ class npc_amber_monstrosity : public CreatureScript
                     unsok->AI()->DoAction(ACTION_UNLEASHED);
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(WorldObject* target, const SpellInfo* spell) override
             {
-                if (target && spell->Id == SPELL_GRAB)
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
+                if (unitTarget && spell->Id == SPELL_GRAB)
                 {
-                    if (me->GetThreatManager().GetThreat(target))
-                        me->GetThreatManager().ModifyThreatByPercent(target, -100);
+                    if (me->GetThreatManager().GetThreat(unitTarget))
+                        me->GetThreatManager().ModifyThreatByPercent(unitTarget, -100);
                 }
             }
 

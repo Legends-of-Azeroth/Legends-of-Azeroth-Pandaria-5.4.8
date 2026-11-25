@@ -133,13 +133,17 @@ class boss_general_pavalak : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 if (spell->Id == SPELL_BLADE_RUSH_DUMMY)
                 {
-                    me->SetFacingToObject(target);
-                    target->CastSpell(target, 124307, true);
-                    target->CastSpell(target, SPELL_BLADE_RUSH_DMG_A, true);
+                    me->SetFacingToObject(unitTarget);
+                    unitTarget->CastSpell(unitTarget, 124307, true);
+                    unitTarget->CastSpell(unitTarget, SPELL_BLADE_RUSH_DMG_A, true);
                     events.ScheduleEvent(EVENT_BLADE_RUSH_CHARGE, 200);
                 }
 

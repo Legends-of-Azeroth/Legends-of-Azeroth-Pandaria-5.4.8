@@ -252,7 +252,7 @@ class npc_jaina_and_sylvanas_hor_part1 : public CreatureScript
                 return true;
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_CAST_VISUAL)
                     me->m_Events.Schedule(1400, [this]() { me->RemoveAurasDueToSpell(SPELL_CAST_VISUAL); });

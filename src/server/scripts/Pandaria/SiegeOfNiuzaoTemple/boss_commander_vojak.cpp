@@ -394,13 +394,17 @@ class npc_yang_ironclaw : public CreatureScript
                     creature->AI()->SetData(0, mask);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 if (spell->Id == SPELL_BREACH_DOOR_TARGET) // fix crash when it did try despawn player...
-                    if (target->ToCreature())
+                    if (unitTarget->ToCreature())
                     {
-                        target->CastSpell(target, SPELL_BREACH_DOOR_EFFECT, true);
-                        target->ToCreature()->DespawnOrUnsummon(300);
+                        unitTarget->CastSpell(unitTarget, SPELL_BREACH_DOOR_EFFECT, true);
+                        unitTarget->ToCreature()->DespawnOrUnsummon(300);
                     }
             }
 
@@ -1171,24 +1175,28 @@ class npc_chu_helper : public CreatureScript
                 events.Reset();
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 if (!eventInProgress)
                     return;
 
                 switch (spell->Id)
                 {
                     case SPELL_GRAB_BARREL:
-                        barrelGUID = target->GetGUID();
-                        target->CastSpell(me, SPELL_KEG_ENTER_VEHICLE, true);
+                        barrelGUID = unitTarget->GetGUID();
+                        unitTarget->CastSpell(me, SPELL_KEG_ENTER_VEHICLE, true);
                         events.ScheduleEvent(EVENT_MOVE_TO_TARGET, 1000);
                         break;
                     case SPELL_ASSIGNMENT_EFF:
                         if (barrelTargetGUID)
                             break;
-                        barrelTargetGUID = target->GetGUID();
+                        barrelTargetGUID = unitTarget->GetGUID();
                         me->RemoveAurasDueToSpell(SPELL_ASSIGNMENT);
-                        DoCast(target, SPELL_HAS_BARREL, true);
+                        DoCast(unitTarget, SPELL_HAS_BARREL, true);
                         DoCast(me, SPELL_GRAB_BARREL, true);
                         break;
                     default:

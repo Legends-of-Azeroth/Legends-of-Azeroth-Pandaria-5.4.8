@@ -1306,7 +1306,7 @@ class npc_suna_silentstrike : public CreatureScript
             EventMap events;
             bool sayOnHit;
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_INNER_PEACE && !sayOnHit)
                 {

@@ -498,8 +498,12 @@ class boss_ragnaros_firelands : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(WorldObject* caster, const SpellInfo* spell) override
             {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
                 if (spell->Id == SPELL_DRAW_OUT_FIRELORD_1)
                 {
                     if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_RAGNAROS_FLOOR)))
@@ -513,8 +517,8 @@ class boss_ragnaros_firelands : public CreatureScript
                 }
                 else if (spell->Id == SPELL_ENTRAPPING_ROOTS_DMG)
                 {
-                    if (caster->GetEntry() == NPC_ENTRAPPING_ROOTS)
-                        caster->ToCreature()->DespawnOrUnsummon();
+                    if (unitCaster->GetEntry() == NPC_ENTRAPPING_ROOTS)
+                        unitCaster->ToCreature()->DespawnOrUnsummon();
                 }
             }
 
@@ -1299,7 +1303,7 @@ class npc_ragnaros_firelands_son_of_flame : public CreatureScript
                 bDespawn = false;
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_INVOKE_SONS_AOE_2)
                 {
@@ -1360,10 +1364,14 @@ class npc_ragnaros_firelands_molten_seed_caster : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(WorldObject* caster, const SpellInfo* spell) override
             {
-                if (caster && (spell->Id == SPELL_MOLTEN_SEED_AOE_2))
-                    caster->CastSpell(caster, SPELL_MOLTEN_SEED_MISSILE, true);
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
+                if (unitCaster && (spell->Id == SPELL_MOLTEN_SEED_AOE_2))
+                    unitCaster->CastSpell(unitCaster, SPELL_MOLTEN_SEED_MISSILE, true);
             }
         };
 
@@ -1399,7 +1407,7 @@ class npc_ragnaros_firelands_molten_elemental : public CreatureScript
                 DoZoneInCombat();
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (bHit)
                     return;
@@ -1625,11 +1633,15 @@ class npc_ragnaros_firelands_living_meteor : public CreatureScript
                 bExplode = false;
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(WorldObject* caster, const SpellInfo* spell) override
             {
-                if (caster->GetEntry() == NPC_BREADTH_OF_FROST && spell->Id == SPELL_BREADTH_OF_FROST_DMG)
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
+                if (unitCaster->GetEntry() == NPC_BREADTH_OF_FROST && spell->Id == SPELL_BREADTH_OF_FROST_DMG)
                 {
-                    caster->ToCreature()->DespawnOrUnsummon();
+                    unitCaster->ToCreature()->DespawnOrUnsummon();
                     me->StopMoving();
                     me->GetMotionMaster()->MovementExpired(false);
                     me->RemoveAura(SPELL_LIVING_METEOR_DMG_REDUCTION);
@@ -1639,7 +1651,7 @@ class npc_ragnaros_firelands_living_meteor : public CreatureScript
                     me->RemoveAura(SPELL_LIVING_METEOR_AURA_1);
                     events.ScheduleEvent(EVENT_CONTINUE_METEOR, 11000);
                 }
-                else if (caster->GetEntry() == NPC_LAVA_WAVE && spell->Id == SPELL_LAVALOGGED)
+                else if (unitCaster->GetEntry() == NPC_LAVA_WAVE && spell->Id == SPELL_LAVALOGGED)
                 {
                     if (instance)
                         if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGNAROS)))

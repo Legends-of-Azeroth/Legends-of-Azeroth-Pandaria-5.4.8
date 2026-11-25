@@ -103,7 +103,8 @@ class boss_ionar : public CreatureScript
 
                 uiDisperseHealth = 45 + urand(0, 10);
 
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
+                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                me->SetControlled(false, UNIT_STATE_ROOT);
 
                 if (!me->IsVisible())
                     me->SetVisible(true);
@@ -215,7 +216,8 @@ class boss_ionar : public CreatureScript
                         else if (lSparkList.empty())
                         {
                             me->SetVisible(true);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
+                            me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                            me->SetControlled(false, UNIT_STATE_ROOT);
 
                             DoCast(me, SPELL_SPARK_DESPAWN, false);
 
@@ -266,16 +268,17 @@ class boss_ionar : public CreatureScript
                 DoMeleeAttackIfReady();
             }
         
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spellInfo->Id == SPELL_DISPERSE && me->GetEntry() == NPC_IONAR)
+                if (spellInfo->Id == SPELL_DISPERSE)
                 {
                     for (uint8 i = 0; i < DATA_MAX_SPARKS; ++i)
                         me->CastSpell(me, SPELL_SUMMON_SPARK, true);
 
                     me->AttackStop();
                     me->SetVisible(false);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
+                    me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetControlled(true, UNIT_STATE_ROOT);
 
                     me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MoveIdle();

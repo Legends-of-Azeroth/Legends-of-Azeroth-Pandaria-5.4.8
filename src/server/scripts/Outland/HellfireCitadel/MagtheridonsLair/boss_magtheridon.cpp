@@ -117,7 +117,7 @@ class npc_abyssal : public CreatureScript
                 FireBlast_Timer = 6000;
             }
 
-            void SpellHit(Unit*, const SpellInfo* spell) override
+            void SpellHit(WorldObject*, const SpellInfo* spell) override
             {
                 if (trigger == 2 && spell->Id == SPELL_BLAZE_TARGET)
                 {

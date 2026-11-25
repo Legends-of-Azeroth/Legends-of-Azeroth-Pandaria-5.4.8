@@ -274,7 +274,7 @@ class npc_neptulon : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* /*target*/, const SpellInfo* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_TIDAL_SURGE && !bTidalSurgeSaid)
                 {

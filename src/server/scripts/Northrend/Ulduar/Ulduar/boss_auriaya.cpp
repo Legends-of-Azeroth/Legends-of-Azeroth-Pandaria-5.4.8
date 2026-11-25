@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -476,7 +476,7 @@ class npc_feral_defender : public CreatureScript
                 events.ScheduleEvent(EVENT_RUSH, 5000);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_FERAL_RUSH_AURA && target != me)
                     rushTargets.insert(target->GetGUID());

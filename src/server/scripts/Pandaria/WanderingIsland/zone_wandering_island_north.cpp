@@ -52,15 +52,19 @@ struct npc_master_shang_xiAI : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* caster, const SpellInfo* spell) override
+    void SpellHit(WorldObject* caster, const SpellInfo* spell) override
     {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
         if (spell->Id == SPELL_SNATCH_MASTERS_FLAME)
         {
-            if (caster->GetTypeId() == TYPEID_PLAYER)
+            if (unitCaster->GetTypeId() == TYPEID_PLAYER)
             {
-                if (caster->ToPlayer()->GetQuestStatus(QUEST_LESSONS_OF_BURNING_SCROLL) == QUEST_STATUS_INCOMPLETE)
+                if (unitCaster->ToPlayer()->GetQuestStatus(QUEST_LESSONS_OF_BURNING_SCROLL) == QUEST_STATUS_INCOMPLETE)
                 {
-                    me->CastSpell(caster, SPELL_CREATE_MASTERS_FLAME, true);
+                    me->CastSpell(unitCaster, SPELL_CREATE_MASTERS_FLAME, true);
                     me->RemoveAurasDueToSpell(SPELL_MASTERS_FLAME);
                     me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                     Talk(0);

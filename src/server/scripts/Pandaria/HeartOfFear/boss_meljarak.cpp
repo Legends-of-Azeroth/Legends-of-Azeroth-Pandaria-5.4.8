@@ -851,7 +851,7 @@ class npc_meljarak_swarm : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void SpellHit(Unit*, SpellInfo const* spell) override
+            void SpellHit(WorldObject*, SpellInfo const* spell) override
             {
                 if (!_instance)
                     return;

@@ -1309,7 +1309,7 @@ class npc_crate_helper : public CreatureScript
                 _marked = false;
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
                  if (caster->ToPlayer() && spell->Id == SPELL_ARCANE_DISRUPTION  && !_marked)
                 {

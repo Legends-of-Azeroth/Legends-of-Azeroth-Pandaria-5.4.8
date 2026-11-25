@@ -113,7 +113,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* caster, SpellInfo const* spellInfo) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
             Player* player = caster->ToPlayer();
             if (!player)

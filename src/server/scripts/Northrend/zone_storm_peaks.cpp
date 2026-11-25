@@ -223,15 +223,19 @@ public:
                 me->DespawnOrUnsummon();
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(WorldObject* caster, const SpellInfo* spell) override
         {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
             if (spell->Id != SPELL_ICE_LANCE)
                 return;
 
-            if (caster->GetVehicleKit()->GetAvailableSeatCount() != 0)
+            if (unitCaster->GetVehicleKit()->GetAvailableSeatCount() != 0)
             {
                 me->CastSpell(me, SPELL_FREE_PRISONER, true);
-                me->CastSpell(caster, SPELL_RIDE_DRAKE, true);
+                me->CastSpell(unitCaster, SPELL_RIDE_DRAKE, true);
                 me->CastSpell(me, SPELL_SHARD_IMPACT, true);
                 freed = true;
             }
@@ -448,19 +452,23 @@ struct npc_dead_irongiant : public ScriptedAI
 {
     npc_dead_irongiant(Creature *pCreature) : ScriptedAI(pCreature) {}
 
-    void SpellHit(Unit* caster, const SpellInfo* spell) override
+    void SpellHit(WorldObject* caster, const SpellInfo* spell) override
     {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
         if (spell->Id == SPELL_SALVAGE_CORPSE)
         {
             if (!urand(0, 2))
             {
                 for (uint8 i = 0; i < 3; ++i)
                     if (Creature* temp = me->SummonCreature(ENTRY_AMBUSHER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, Milliseconds(60 * IN_MILLISECONDS)))
-                        temp->AI()->AttackStart(caster);
+                        temp->AI()->AttackStart(unitCaster);
             }
             else
             {
-                me->CastSpell(caster, SPELL_CREATE_EYES, true);
+                me->CastSpell(unitCaster, SPELL_CREATE_EYES, true);
             }
 
             me->DespawnOrUnsummon(500);

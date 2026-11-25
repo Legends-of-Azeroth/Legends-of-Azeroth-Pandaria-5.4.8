@@ -357,7 +357,7 @@ class boss_urom : public CreatureScript
                 me->GetThreatManager().ClearAllThreat();
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spellInfo) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spellInfo) override
             {
                 Position home;
                 switch (spellInfo->Id)

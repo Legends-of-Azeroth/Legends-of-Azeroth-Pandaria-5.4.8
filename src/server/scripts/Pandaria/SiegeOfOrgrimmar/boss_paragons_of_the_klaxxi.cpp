@@ -1516,7 +1516,7 @@ struct boss_korven_the_prime : public soo_paragon_typeAI
         events.ScheduleEvent(EVENT_AMBER_REGENERATION, 5 * IN_MILLISECONDS);
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
         if (spell->HasEffect(SPELL_EFFECT_ATTACK_ME) || spell->HasAura(SPELL_AURA_MOD_TAUNT))
             me->SetFacingTo(me->GetAngle(caster));

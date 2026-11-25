@@ -547,7 +547,7 @@ struct npc_headless_horseman_fire : public ScriptedAI
        return nullptr;
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_BUCKET_LANDS && Fire && !Immuned)
         {

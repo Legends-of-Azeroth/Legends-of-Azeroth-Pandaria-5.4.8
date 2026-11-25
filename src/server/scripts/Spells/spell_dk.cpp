@@ -1896,7 +1896,7 @@ struct npc_bloodworm : public ScriptedAI
             DoMeleeAttackIfReady();
     }
 
-    void SpellHit(Unit*, SpellInfo const* spell) override
+    void SpellHit(WorldObject*, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_BLOOD_GORGED)
         {
@@ -2356,7 +2356,7 @@ struct npc_ebon_gargoyle : ScriptedAI
             m_casterMovement.Chase(target);
     }
 
-    void SpellHit(Unit* source, SpellInfo const* spell) override
+    void SpellHit(WorldObject* source, SpellInfo const* spell) override
     {
         // Fly away when dismissed
         if (spell->Id != SPELL_DK_DISMISS_GARGOYLE || !me->IsAlive())

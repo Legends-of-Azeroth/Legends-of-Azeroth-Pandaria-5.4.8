@@ -639,7 +639,7 @@ class boss_thorim : public CreatureScript
                 Reset();
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_TOUCH_OF_DOMINION_AURA)
                 {
@@ -651,7 +651,7 @@ class boss_thorim : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
                 if (spell->Id == 62466)
                     if (target->GetTypeId() == TYPEID_PLAYER)
@@ -1761,7 +1761,7 @@ class npc_sif : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_STORMHAMMER_SIF)
                     DoCast(me, SPELL_SIF_TRANSFORM, true);
@@ -1871,7 +1871,7 @@ class npc_thorim_combat_trigger : public CreatureScript
                 _events.Reset();
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 switch (spell->Id)
                 {

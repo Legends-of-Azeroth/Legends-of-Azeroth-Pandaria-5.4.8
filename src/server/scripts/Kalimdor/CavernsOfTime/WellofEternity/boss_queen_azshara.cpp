@@ -184,7 +184,7 @@ class boss_queen_azshara : public CreatureScript
                     Talk(SAY_KILL);
             }
             
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spellInfo) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spellInfo) override
             {
                 if (Spell* spell = me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                     if (spellInfo->HasEffect(SPELL_EFFECT_INTERRUPT_CAST))

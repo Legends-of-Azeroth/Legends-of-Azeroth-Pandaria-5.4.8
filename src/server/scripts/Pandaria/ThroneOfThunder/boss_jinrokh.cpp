@@ -368,12 +368,16 @@ class boss_jinrokh : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(WorldObject* target, const SpellInfo* spell) override
             {
-                if (target && spell->Id == SPELL_THUNDERING_THROW_FORCED_PLAYER)
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
+                if (unitTarget && spell->Id == SPELL_THUNDERING_THROW_FORCED_PLAYER)
                 {
-                    if (me->GetThreatManager().GetThreat(target))
-                        me->GetThreatManager().ModifyThreatByPercent(target, -100);
+                    if (me->GetThreatManager().GetThreat(unitTarget))
+                        me->GetThreatManager().ModifyThreatByPercent(unitTarget, -100);
                 }
             }
 

@@ -67,7 +67,7 @@ public:
             me->HandleEmoteStateCommand(EMOTE_STATE_NONE);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(WorldObject* caster, const SpellInfo* spell) override
         {
             if (bReset || spell->Id != SPELL_YENNIKUS_RELEASE)
                 return;

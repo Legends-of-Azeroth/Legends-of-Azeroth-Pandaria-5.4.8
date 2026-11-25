@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -910,7 +910,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 return Trinity::Containers::SelectRandomContainerElement(readyCultists);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (Spell* currentCast = me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                     if (currentCast->m_spellInfo->Id == SPELL_FROSTBOLT)
@@ -972,8 +972,12 @@ class npc_cult_fanatic : public CreatureScript
                     ScriptedAI::EnterEvadeMode();
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
                 switch (spell->Id)
                 {
                     case SPELL_DARK_TRANSFORMATION_T:
@@ -986,7 +990,7 @@ class npc_cult_fanatic : public CreatureScript
                         DoZoneInCombat(me, 150.0f);
                         break;
                     case SPELL_DARK_MARTYRDOM_T:
-                        _martyrdomCaster = caster;
+                        _martyrdomCaster = unitCaster;
                         me->InterruptNonMeleeSpells(true);
                         me->RemoveAurasByType(SPELL_AURA_MOD_STUN);
                         me->RemoveAurasByType(SPELL_AURA_MOD_PACIFY);
@@ -1108,8 +1112,12 @@ class npc_cult_adherent : public CreatureScript
                     casterMovement.Chase(victim);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
                 switch (spell->Id)
                 {
                     case SPELL_DARK_EMPOWERMENT_T:
@@ -1122,7 +1130,7 @@ class npc_cult_adherent : public CreatureScript
                         DoZoneInCombat(me, 150.0f);
                         break;
                     case SPELL_DARK_MARTYRDOM_T:
-                        _martyrdomCaster = caster;
+                        _martyrdomCaster = unitCaster;
                         me->InterruptNonMeleeSpells(true);
                         me->RemoveAurasByType(SPELL_AURA_MOD_STUN);
                         me->RemoveAurasByType(SPELL_AURA_MOD_PACIFY);
@@ -1240,7 +1248,7 @@ class npc_vengeful_shade : public CreatureScript
                 events.ScheduleEvent(EVENT_SHADE_SUICIDE, 8 * IN_MILLISECONDS);
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_VENGEFUL_BLAST)
                     me->Kill(me);

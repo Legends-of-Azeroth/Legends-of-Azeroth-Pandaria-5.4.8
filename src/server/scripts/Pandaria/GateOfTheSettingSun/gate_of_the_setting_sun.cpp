@@ -449,10 +449,14 @@ class npc_krikthik_bombarder : public CreatureScript
             }
 
             // Called when spell hits a target
-            void SpellHitTarget(Unit* target, SpellInfo const* /*spell*/) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* /*spell*/) override
             {
-                if (target->GetEntry() == NPC_BOMB_STALKER)
-                    me->AddAura(SPELL_BOMB_AURA, target);
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
+                if (unitTarget->GetEntry() == NPC_BOMB_STALKER)
+                    me->AddAura(SPELL_BOMB_AURA, unitTarget);
             }
 
             void UpdateAI(uint32 diff) override

@@ -1,4 +1,6 @@
 /*
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
+*
 * Copyright (C) 2010 - 2013 Eluna Lua Engine <http://emudevs.com/>
 * This program is free software licensed under GPL version 3
 * Please see the included DOCS/LICENSE.TXT for more information
@@ -1382,7 +1384,7 @@ struct HookMgr::ElunaCreatureAI : ScriptedAI
     }
 
     // Called when hit by a spell
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
         ScriptedAI::SpellHit(caster, spell);
         int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_HIT_BY_SPELL);
@@ -1397,7 +1399,7 @@ struct HookMgr::ElunaCreatureAI : ScriptedAI
     }
 
     // Called when spell hits a target
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
     {
         ScriptedAI::SpellHitTarget(target, spell);
         int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_SPELL_HIT_TARGET);

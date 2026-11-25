@@ -2032,7 +2032,7 @@ struct celestial_experience_sha : public ScriptedAI
             me->RemoveChanneledCast(victimGUID);
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
         if (caster->ToPlayer() && (HasAnyControlEffects() || spell->HasEffect(SPELL_EFFECT_KNOCK_BACK)))
             me->RemoveChanneledCast(victimGUID);

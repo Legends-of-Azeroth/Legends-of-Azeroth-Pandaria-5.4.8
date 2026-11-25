@@ -283,13 +283,16 @@ struct npc_brewmaiden : public ScriptedAI
         }
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell)
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spell)
     {
-        if (spell->Id == SPELL_SEND_FIRST_MUG)
-            target->CastSpell(target, SPELL_HAS_BREW_BUFF, true);
+        if (Unit* unitTarget = target ? target->ToUnit() : nullptr)
+        {
+            if (spell->Id == SPELL_SEND_FIRST_MUG)
+                unitTarget->CastSpell(unitTarget, SPELL_HAS_BREW_BUFF, true);
 
-        if (spell->Id == SPELL_SEND_SECOND_MUG)
-            target->CastSpell(target, SPELL_CONSUME_BREW, true);
+            if (spell->Id == SPELL_SEND_SECOND_MUG)
+                unitTarget->CastSpell(unitTarget, SPELL_CONSUME_BREW, true);
+        }
     }
 
     void UpdateAI(uint32 const diff)

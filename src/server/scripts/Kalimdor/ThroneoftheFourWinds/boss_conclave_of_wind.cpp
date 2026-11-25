@@ -374,21 +374,25 @@ struct boss_conclave_of_wind : public BossAI
             heal = 0;
     }
 
-    void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+    void SpellHitTarget(WorldObject* target, const SpellInfo* spell) override
     {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
         if (spell->Id == SPELL_WIND_DISTANCE_CHECKER)
         {
             evading = false;
             me->RemoveAurasDueToSpell(COUNCIL_BOSS(SPELL_WITHERING_WINDS, SPELL_CHILLING_WINDS, SPELL_DEAFENING_WINDS));
             me->RemoveAurasDueToSpell(COUNCIL_BOSS(SPELL_WITHERING_WINDS_RESET, SPELL_CHILLING_WINDS_RESET, SPELL_DEAFENING_WINDS_RESET));
             TogglePlatformEffects(false);
-            AttackStart(target);
+            AttackStart(unitTarget);
             if (!IsRohash())
             {
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     delayedChase = true;
                 else
-                    me->GetMotionMaster()->MoveChase(target);
+                    me->GetMotionMaster()->MoveChase(unitTarget);
             }
         }
         else if (spell->Id == SPELL_GATHER_STRENGTH)
@@ -788,28 +792,32 @@ class boss_rohash : public CreatureScript
                     events.ScheduleEvent(EVENT_STORM_SHIELD,    30000);
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(WorldObject* target, const SpellInfo* spell) override
             {
-                boss_conclave_of_wind::SpellHitTarget(target, spell);
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
+                boss_conclave_of_wind::SpellHitTarget(unitTarget, spell);
                 if (spell->Id == SPELL_HURRICANE_DUMMY_ENEMY)
                 {
                     Position pos = me->GetPosition();
                     pos.m_positionZ = 250;
                     if (Creature* hurricane = me->SummonCreature(NPC_HURRICANE, pos, TEMPSUMMON_TIMED_DESPAWN, 20000ms))
                     {
-                        target->CastSpell(target, SPELL_HURRICANE_FLIGHT_AURA, true);
+                        unitTarget->CastSpell(unitTarget, SPELL_HURRICANE_FLIGHT_AURA, true);
                         // Hack to make a player "fly". Without it the camera drops to the ground when boarding a flying vehicle
                         float x, y, z, o;
-                        target->GetPosition(x, y, z, o);
-                        target->NearTeleportTo(x, y, z + 5, o);
-                        affectedByHurricaneGuids.push_back(target->GetGUID());
+                        unitTarget->GetPosition(x, y, z, o);
+                        unitTarget->NearTeleportTo(x, y, z + 5, o);
+                        affectedByHurricaneGuids.push_back(unitTarget->GetGUID());
                         persistentEvents.ScheduleEvent(EVENT_HURRICANE, affectedByHurricaneGuids.size() * 200);
                     }
                 }
-                else if (spell->Id == SPELL_WIND_BLAST_PREPARATION && target->GetEntry() == NPC_WIND_BLAST_TARGET)
+                else if (spell->Id == SPELL_WIND_BLAST_PREPARATION && unitTarget->GetEntry() == NPC_WIND_BLAST_TARGET)
                 {
-                    target->SetSpeed(MOVE_FLIGHT, 2, true);
-                    me->SetFacingToObject(target);
+                    unitTarget->SetSpeed(MOVE_FLIGHT, 2, true);
+                    me->SetFacingToObject(unitTarget);
                 }
             }
 

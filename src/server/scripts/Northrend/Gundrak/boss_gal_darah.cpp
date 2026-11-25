@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -123,21 +123,25 @@ class boss_gal_darah : public CreatureScript
                 oocTimer = 1;
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_TRANSFORM_CLEAR)
                     me->RemoveAurasDueToSpell(SPELL_TRANSFORM);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 if (spell->Id == SPELL_CLEAR_PUNCTURE)
-                    target->RemoveAurasDueToSpell(DUNGEON_MODE(SPELL_PUNCTURE, SPELL_PUNCTURE_H));
+                    unitTarget->RemoveAurasDueToSpell(DUNGEON_MODE(SPELL_PUNCTURE, SPELL_PUNCTURE_H));
                 else if (spell->Id == SPELL_IMPALING_CHARGE)
                 {
-                    Talk(EMOTE_IMPALE, target);
-                    target->CastSpell(me, SPELL_IMPALING_CHARGE_VEHICLE, true);
-                    impaled.insert(target->GetGUID());
+                    Talk(EMOTE_IMPALE, unitTarget);
+                    unitTarget->CastSpell(me, SPELL_IMPALING_CHARGE_VEHICLE, true);
+                    impaled.insert(unitTarget->GetGUID());
 
                     if (impaled.size() >= 5)
                         me->GetMap()->SetWorldState(WORLDSTATE_SHARE_THE_LOVE, 1);

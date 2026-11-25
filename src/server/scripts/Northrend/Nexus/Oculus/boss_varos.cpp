@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -193,11 +193,15 @@ class npc_azure_ring_captain : public CreatureScript
                 me->SetReactState(REACT_AGGRESSIVE);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 if (spell->Id == SPELL_ICE_BEAM)
                 {
-                    target->CastSpell(target, SPELL_SUMMON_ARCANE_BEAM, true);
+                    unitTarget->CastSpell(unitTarget, SPELL_SUMMON_ARCANE_BEAM, true);
                     me->DespawnOrUnsummon();
                 }
             }

@@ -165,9 +165,13 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(WorldObject* caster, const SpellInfo* spell) override
         {
-            if (spell->Id == SPELL_T_PHASE_MODULATOR && caster->GetTypeId() == TYPEID_PLAYER)
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
+            if (spell->Id == SPELL_T_PHASE_MODULATOR && unitCaster->GetTypeId() == TYPEID_PLAYER)
             {
                 const uint32 entry_list[4] = {ENTRY_PROTO, ENTRY_ADOLE, ENTRY_MATUR, ENTRY_NIHIL};
                 int cid = rand()%(4-1);
@@ -191,7 +195,7 @@ public:
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         IsNihil = true;
                     }else
-                        AttackStart(caster);
+                        AttackStart(unitCaster);
                 }
             }
         }
@@ -1110,15 +1114,19 @@ class npc_simon_bunny : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(WorldObject* target, const SpellInfo* spell) override
             {
-                // Cast SPELL_BAD_PRESS_DAMAGE with scaled basepoints when the visual hits the target.
-                // Need Fix: When SPELL_BAD_PRESS_TRIGGER hits target it triggers spell SPELL_BAD_PRESS_DAMAGE by itself
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
+                // Cast SPELL_BAD_PRESS_DAMAGE with scaled basepoints when the visual hits the unitTarget.
+                // Need Fix: When SPELL_BAD_PRESS_TRIGGER hits unitTarget it triggers spell SPELL_BAD_PRESS_DAMAGE by itself
                 // so player gets damage equal to calculated damage  dbc basepoints for SPELL_BAD_PRESS_DAMAGE (~50)
                 if (spell->Id == SPELL_BAD_PRESS_TRIGGER)
                 {
-                    int32 bp = (int32)((float)(fails)*0.33f*target->GetMaxHealth());
-                    target->CastCustomSpell(target, SPELL_BAD_PRESS_DAMAGE, &bp, NULL, NULL, true);
+                    int32 bp = (int32)((float)(fails)*0.33f*unitTarget->GetMaxHealth());
+                    unitTarget->CastCustomSpell(unitTarget, SPELL_BAD_PRESS_DAMAGE, &bp, NULL, NULL, true);
                 }
             }
 

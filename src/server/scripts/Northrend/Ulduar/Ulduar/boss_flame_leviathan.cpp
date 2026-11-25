@@ -475,7 +475,7 @@ class boss_flame_leviathan : public CreatureScript
                     instance->HandleGameObject(door->GetGUID(), true);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_START_THE_ENGINE)
                 {
@@ -676,7 +676,7 @@ class boss_flame_leviathan : public CreatureScript
                 DoBatteringRamIfReady();
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_PURSUED)
                     _pursueTarget = target->GetGUID();
@@ -899,7 +899,7 @@ class boss_flame_leviathan_defense_cannon : public CreatureScript
                 DoCast(me, SPELL_INVIS_AND_STEALTH_DETECT);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_OVERLOAD_CIRCUIT)
                     if (Creature* leviathan = me->GetVehicleCreatureBase())
@@ -1186,7 +1186,7 @@ class npc_pool_of_tar : public CreatureScript
                 damage = 0;
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
                 if ((spell->Id == SPELL_FLAMES_TAR || spell->Id == SPELL_FLAMES_VEHICLES) && !me->HasAura(SPELL_BLAZE))
                     me->CastSpell(me, SPELL_BLAZE, true);

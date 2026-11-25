@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -416,7 +416,7 @@ class npc_muru_portal : public CreatureScript
                 summons.Summon(summon);
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 float x,y,z,o;
                 me->GetHomePosition(x,y,z,o);
@@ -477,7 +477,7 @@ class npc_dark_fiend : public CreatureScript
                 me->AddUnitState(UNIT_STATE_STUNNED);
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 for (uint8 i = 0; i < 3; ++i)
                     if (spell->Effects[i].Effect == 38)

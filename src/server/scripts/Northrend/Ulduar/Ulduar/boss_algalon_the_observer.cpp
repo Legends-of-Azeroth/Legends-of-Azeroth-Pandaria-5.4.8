@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -856,18 +856,22 @@ class npc_living_constellation : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
-                if (spell->Id != SPELL_CONSTELLATION_PHASE_EFFECT || caster->GetTypeId() != TYPEID_UNIT)
+                Creature* creatureCaster = caster ? caster->ToCreature() : nullptr;
+                if (!creatureCaster)
+                    return;
+
+                if (spell->Id != SPELL_CONSTELLATION_PHASE_EFFECT)
                     return;
 
                 me->DespawnOrUnsummon(0);
                 if (InstanceScript* instance = me->GetInstanceScript())
                     instance->DoStartCriteria(CRITERIA_START_TYPE_EVENT, EVENT_ID_SUPERMASSIVE_START);
-                caster->CastSpell((Unit*)nullptr, SPELL_BLACK_HOLE_CREDIT, TRIGGERED_FULL_MASK);
-                if (Creature* voidZone = GetClosestCreatureWithEntry(caster, NPC_ALGALON_VOID_ZONE_VISUAL_STALKER, 10))
+                creatureCaster->CastSpell((Unit*)nullptr, SPELL_BLACK_HOLE_CREDIT, TRIGGERED_FULL_MASK);
+                if (Creature* voidZone = GetClosestCreatureWithEntry(creatureCaster, NPC_ALGALON_VOID_ZONE_VISUAL_STALKER, 10))
                     voidZone->DespawnOrUnsummon(1);
-                caster->ToCreature()->DespawnOrUnsummon(1);
+                creatureCaster->DespawnOrUnsummon(1);
             }
 
             void UpdateAI(uint32 diff) override
@@ -984,16 +988,20 @@ class npc_black_hole : public CreatureScript
             void AttackStart(Unit* /*who*/) override { }
             void UpdateAI(uint32 /*diff*/) override { }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
-                if (target && (spell->Id == SPELL_BLACK_HOLE_PHASE || spell->Id == SPELL_WORM_HOLE_PHASE))
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
+                if (unitTarget && (spell->Id == SPELL_BLACK_HOLE_PHASE || spell->Id == SPELL_WORM_HOLE_PHASE))
                 {
-                    if (me->GetEntry() == NPC_BLACK_HOLE && !target->HasAura(SPELL_BLACK_HOLE_DAMAGE))
-                        target->CastSpell(target, SPELL_BLACK_HOLE_DAMAGE, true, nullptr, nullptr, me->GetGUID());
+                    if (me->GetEntry() == NPC_BLACK_HOLE && !unitTarget->HasAura(SPELL_BLACK_HOLE_DAMAGE))
+                        unitTarget->CastSpell(unitTarget, SPELL_BLACK_HOLE_DAMAGE, true, nullptr, nullptr, me->GetGUID());
 
                     if (Creature* algalon = me->FindNearestCreature(NPC_ALGALON, 200.0f))
                     {
-                        algalon->GetThreatManager().ModifyThreatByPercent(target, -100);
+                        algalon->GetThreatManager().ModifyThreatByPercent(unitTarget, -100);
                     }
                 }
             }

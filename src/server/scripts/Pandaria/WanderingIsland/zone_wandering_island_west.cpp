@@ -468,7 +468,7 @@ struct boss_zhao_renAI : public ScriptedAI
         me->GetMotionMaster()->MovePoint(0, ZhaoPos[0].GetPositionX(), ZhaoPos[0].GetPositionY(), ZhaoPos[0].GetPositionZ());
     }
 
-    void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+    void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
     {
         if (spell->Id == SPELL_ROCKET_LAUNCH)
         {

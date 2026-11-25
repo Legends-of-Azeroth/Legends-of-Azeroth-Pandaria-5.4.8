@@ -2083,7 +2083,7 @@ struct npc_mage_frozen_orb : public SpellDummyAI
         }
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
     {
         Unit* mage = me->GetOwner();
         if (mage && fistHit && spell->Id == SPELL_FROZEN_ORB_DAMAGE_TRIGGER)

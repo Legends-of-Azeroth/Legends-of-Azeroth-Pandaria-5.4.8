@@ -773,7 +773,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/)override { }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
             Player* player = caster->ToPlayer();
             if (!player || !me->IsAlive() || spell->Id != 20804)
@@ -956,7 +956,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_LESSER_HEAL_R2 || spell->Id == SPELL_FORTITUDE_R1)
             {
@@ -1767,7 +1767,7 @@ public:
                 damage = 0;
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
             switch (spell->Id)
             {
@@ -3286,7 +3286,7 @@ struct npc_ethereal_soul_trader : public ScriptedAI
         DoCastAOE(SPELL_ETHEREAL_PET_AURA_REMOVE, true);
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_ETHEREAL_PET_AURA_ONKILL)
         {
@@ -3295,17 +3295,17 @@ struct npc_ethereal_soul_trader : public ScriptedAI
         }
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
     {
         switch (spell->Id)
         {
             case SPELL_ETHEREAL_PET_ONSUMMON:
-                if (target)
-                    target->CastSpell(target, SPELL_ETHEREAL_PET_AURA, true);
+                if (Unit* unitTarget = target ? target->ToUnit() : nullptr)
+                    unitTarget->CastSpell(unitTarget, SPELL_ETHEREAL_PET_AURA, true);
                 break;
             case SPELL_ETHEREAL_PET_AURA_REMOVE:
-                if (target)
-                    target->RemoveAurasDueToSpell(SPELL_ETHEREAL_PET_AURA);
+                if (Unit* unitTarget = target ? target->ToUnit() : nullptr)
+                    unitTarget->RemoveAurasDueToSpell(SPELL_ETHEREAL_PET_AURA);
                 break;
             default:
                 break;

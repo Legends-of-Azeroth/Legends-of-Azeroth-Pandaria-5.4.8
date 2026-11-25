@@ -397,7 +397,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                     Chogall->AI()->DoAction(ACTION_AT_HALFUS_END);
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                     if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_SHADOW_NOVA)

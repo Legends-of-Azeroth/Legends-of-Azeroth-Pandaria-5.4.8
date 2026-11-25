@@ -223,7 +223,7 @@ class boss_chimaeron : public CreatureScript
                     pNefarius->AI()->DoAction(ACTION_CHIMAERON_DEATH);
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_SHADOW_WHIP)
                 {

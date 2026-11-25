@@ -339,7 +339,7 @@ struct npc_deathknell_grave_target : public ScriptedAI
         m_phase = TirisfalGlades::GRAVE_TARGET_PHASE_00;
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
         if (spell->Id == TirisfalGlades::SPELL_RAISE_UNDEAD)
         {
@@ -1403,13 +1403,13 @@ struct npc_vile_fin_puddlejumper : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
         if (caster->ToPlayer())
         {
             if (spell->Id == TirisfalGlades::SPELL_MURLOC_LEACH)
             {
-                me->CastSpell(caster, TirisfalGlades::SPELL_SUMMON_PUDDLEJUMPER, true);
+                me->CastSpell(caster->ToUnit(), TirisfalGlades::SPELL_SUMMON_PUDDLEJUMPER, true);
                 me->DespawnOrUnsummon(500);
             }
         }
@@ -1451,13 +1451,13 @@ struct npc_vile_fin_minor_oracle : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
         if (caster->ToPlayer())
         {
             if (spell->Id == TirisfalGlades::SPELL_MURLOC_LEACH)
             {
-                me->CastSpell(caster, TirisfalGlades::SPELL_SUMMON_ORACLE, true);
+                me->CastSpell(caster->ToUnit(), TirisfalGlades::SPELL_SUMMON_ORACLE, true);
                 me->DespawnOrUnsummon(500);
             }
         }

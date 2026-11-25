@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -462,15 +462,19 @@ class boss_lei_shi : public CreatureScript
                 _DespawnAtEvade();
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
                 if (!hidden)
                     return;
 
-                if (!caster)
+                if (!unitCaster)
                     return;
 
-                if (caster->GetTypeId() == TYPEID_UNIT && (caster->GetEntry() == NPC_LEI_SHI || caster->GetEntry() == NPC_LEI_SHI_HIDDEN))
+                if (unitCaster->GetTypeId() == TYPEID_UNIT && (unitCaster->GetEntry() == NPC_LEI_SHI || unitCaster->GetEntry() == NPC_LEI_SHI_HIDDEN))
                     return;
 
                 if (!spell)
@@ -949,10 +953,14 @@ class npc_lei_shi_hidden : public CreatureScript
             InstanceScript* instance;
             EventMap events;
 
-            void SpellHitTarget(Unit* caster, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* caster, SpellInfo const* spell) override
             {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
                 if (spell->Id == SPELL_HIDE_TRIGGER)
-                    caster->CastSpell(caster, SPELL_HIDE_VISUAL, true);
+                    unitCaster->CastSpell(unitCaster, SPELL_HIDE_VISUAL, true);
             }
 
             void Reset() override

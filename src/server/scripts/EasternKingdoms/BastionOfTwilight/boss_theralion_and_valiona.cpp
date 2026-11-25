@@ -1172,7 +1172,7 @@ struct npc_dazzling_destruction_stalker : public ScriptedAI
         DoCast(me, SPELL_DAZZLING_DESTRUCTION_STALKER_VISUAL);
     }
 
-    void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+    void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
     {
         if (spell->Id == SPELL_DAZZLING_DESTRUCTION_DMG)
             me->DespawnOrUnsummon();

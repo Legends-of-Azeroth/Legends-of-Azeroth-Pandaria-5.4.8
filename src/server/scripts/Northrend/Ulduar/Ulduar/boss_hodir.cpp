@@ -1077,7 +1077,7 @@ class npc_toasty_fire : public CreatureScript
                 DoCast(me, SPELL_TOASTY_FIRE, true);
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_BLOCK_OF_ICE)
                 {
