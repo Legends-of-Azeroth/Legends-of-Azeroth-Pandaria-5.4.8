@@ -94,48 +94,9 @@ class npc_brewmaster_blanche : public CreatureScript
     public:
         npc_brewmaster_blanche() : CreatureScript("npc_brewmaster_blanche") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
+    
 
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                    creature->AI()->DoAction(ACTION_MAKE_BOOMERS_BREW);
-                    creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                    creature->AI()->DoAction(ACTION_ROAD_TO_THUNDERPAW);
-                    creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 3:
-                    creature->AI()->DoAction(ACTION_SAVE_THUNDERPAW_REFUGE);
-                    creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    break;
-            }
-
-            player->CLOSE_GOSSIP_MENU();
-
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (InstanceScript* instance = creature->GetInstanceScript())
-            {
-                if (instance->GetData(DATA_MAKE_BOOMERS_BREW) < DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, TEXT_CHAPTER_MAKE_BOOMERS_BREW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-                if (instance->GetData(DATA_ROAD_TO_THUNDERPAW) < DONE && instance->GetData(DATA_ROAD_TO_THUNDERPAW - 1) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, TEXT_CHAPTER_ROAD_TO_THUNDERPAW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-
-                if (instance->GetData(DATA_SAVE_THUNDERPAW_REFUGE) < DONE && instance->GetData(DATA_SAVE_THUNDERPAW_REFUGE - 1) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, TEXT_CHAPTER_SAVE_THUNDERPAW_REFUGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-            }
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+        
 
         struct npc_brewmaster_blancheAI : public ScriptedAI
         {
@@ -472,7 +433,53 @@ class npc_brewmaster_blanche : public CreatureScript
                 for (auto&& itr : BrewKegs)
                     itr->AI()->DoAction(ACTION_MAKE_BOOMERS_BREW);
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    if (instance->GetData(DATA_MAKE_BOOMERS_BREW) < DONE)
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, TEXT_CHAPTER_MAKE_BOOMERS_BREW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                    if (instance->GetData(DATA_ROAD_TO_THUNDERPAW) < DONE && instance->GetData(DATA_ROAD_TO_THUNDERPAW - 1) == DONE)
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, TEXT_CHAPTER_ROAD_TO_THUNDERPAW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+
+                    if (instance->GetData(DATA_SAVE_THUNDERPAW_REFUGE) < DONE && instance->GetData(DATA_SAVE_THUNDERPAW_REFUGE - 1) == DONE)
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, TEXT_CHAPTER_SAVE_THUNDERPAW_REFUGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                }
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        switch (action)
+                        {
+                            case GOSSIP_ACTION_INFO_DEF + 1:
+                                me->AI()->DoAction(ACTION_MAKE_BOOMERS_BREW);
+                                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 2:
+                                me->AI()->DoAction(ACTION_ROAD_TO_THUNDERPAW);
+                                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 3:
+                                me->AI()->DoAction(ACTION_SAVE_THUNDERPAW_REFUGE);
+                                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                break;
+                        }
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -82,54 +82,9 @@ public:
         return new npc_disciple_of_naralexAI(creature);
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        InstanceScript* instance = creature->GetInstanceScript();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            if (instance)
-                instance->SetData(TYPE_NARALEX_EVENT, IN_PROGRESS);
 
-            creature->AI()->Talk(SAY_MAKE_PREPARATIONS);
 
-            creature->SetFaction(250);
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-
-            CAST_AI(EscortAI, (creature->AI()))->Start(false, player->GetGUID());
-            CAST_AI(EscortAI, (creature->AI()))->SetDespawnAtFar(false);
-            CAST_AI(EscortAI, (creature->AI()))->SetDespawnAtEnd(false);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        InstanceScript* instance = creature->GetInstanceScript();
-
-        if (instance)
-        {
-            //creature->CastSpell(player, SPELL_MARK_OF_THE_WILD_RANK_2, true); doesn't exist anymore
-            if ((instance->GetData(TYPE_LORD_COBRAHN) == DONE) && (instance->GetData(TYPE_LORD_PYTHAS) == DONE) &&
-                (instance->GetData(TYPE_LADY_ANACONDRA) == DONE) && (instance->GetData(TYPE_LORD_SERPENTIS) == DONE))
-            {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_NARALEX, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                player->SEND_GOSSIP_MENU(GOSSIP_ID_START_2, creature->GetGUID());
-
-                if (!instance->GetData(TYPE_NARALEX_YELLED))
-                {
-                    creature->AI()->Talk(SAY_AT_LAST);
-                    instance->SetData(TYPE_NARALEX_YELLED, 1);
-                }
-            }
-            else
-            {
-                player->SEND_GOSSIP_MENU(GOSSIP_ID_START_1, creature->GetGUID());
-            }
-        }
-        return true;
-    }
+    
 
     struct npc_disciple_of_naralexAI : public EscortAI
     {
@@ -375,7 +330,59 @@ public:
                 }
             } else eventTimer -= diff;
         }
-    };
+                bool OnGossipHello(Player* player) override
+            {
+
+            InstanceScript* instance = me->GetInstanceScript();
+
+            if (instance)
+            {
+                //me->CastSpell(player, SPELL_MARK_OF_THE_WILD_RANK_2, true); doesn't exist anymore
+                if ((instance->GetData(TYPE_LORD_COBRAHN) == DONE) && (instance->GetData(TYPE_LORD_PYTHAS) == DONE) &&
+                    (instance->GetData(TYPE_LADY_ANACONDRA) == DONE) && (instance->GetData(TYPE_LORD_SERPENTIS) == DONE))
+                {
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_NARALEX, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    player->SEND_GOSSIP_MENU(GOSSIP_ID_START_2, me->GetGUID());
+
+                    if (!instance->GetData(TYPE_NARALEX_YELLED))
+                    {
+                        Talk(SAY_AT_LAST);
+                        instance->SetData(TYPE_NARALEX_YELLED, 1);
+                    }
+                }
+                else
+                {
+                    player->SEND_GOSSIP_MENU(GOSSIP_ID_START_1, me->GetGUID());
+                }
+            }
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    InstanceScript* instance = me->GetInstanceScript();
+                    if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                    {
+                        player->CLOSE_GOSSIP_MENU();
+                        if (instance)
+                            instance->SetData(TYPE_NARALEX_EVENT, IN_PROGRESS);
+
+                        me->AI()->Talk(SAY_MAKE_PREPARATIONS);
+
+                        me->SetFaction(250);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+
+                        CAST_AI(EscortAI, (me->AI()))->Start(false, player->GetGUID());
+                        CAST_AI(EscortAI, (me->AI()))->SetDespawnAtFar(false);
+                        CAST_AI(EscortAI, (me->AI()))->SetDespawnAtEnd(false);
+                    }
+                    return true;
+    
+            }
+};
 
 };
 

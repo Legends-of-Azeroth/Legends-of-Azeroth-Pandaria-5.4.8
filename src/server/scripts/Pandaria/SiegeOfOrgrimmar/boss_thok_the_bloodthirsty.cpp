@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "siege_of_orgrimmar.h"
 
 enum eSpells
@@ -1389,12 +1390,25 @@ class go_thok_helper_prisons : public GameObjectScript
     public:
         go_thok_helper_prisons() : GameObjectScript("go_thok_helper_prisons") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_thok_helper_prisonsAI : public GameObjectAI
         {
-            if (player->HasAura(SPELL_SKELETON_KEY) && go->GetInstanceScript() && go->GetInstanceScript()->GetBossState(DATA_THOK_THE_BLOODTHIRSTY) == IN_PROGRESS)
-                player->CastSpell(go, SPELL_UNLOCKING, true);
+            go_thok_helper_prisonsAI(GameObject* go) : GameObjectAI(go) { }
 
-            return true; // not open by default
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                if (player->HasAura(SPELL_SKELETON_KEY) && me->GetInstanceScript() && me->GetInstanceScript()->GetBossState(DATA_THOK_THE_BLOODTHIRSTY) == IN_PROGRESS)
+                    player->CastSpell(me, SPELL_UNLOCKING, true);
+
+                return true; // not open by default
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_thok_helper_prisonsAI(go);
         }
 };
 
@@ -1404,28 +1418,41 @@ class go_thok_third_locked_cage : public GameObjectScript
     public:
         go_thok_third_locked_cage() : GameObjectScript("go_thok_third_locked_cage") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_thok_third_locked_cageAI : public GameObjectAI
         {
-            if (player->HasAura(SPELL_SKELETON_KEY) && go->GetInstanceScript() && go->GetInstanceScript()->GetBossState(DATA_THOK_THE_BLOODTHIRSTY) == IN_PROGRESS)
+            go_thok_third_locked_cageAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                if (Creature* thok = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(DATA_THOK_THE_BLOODTHIRSTY) : ObjectGuid::Empty))
+
+                if (player->HasAura(SPELL_SKELETON_KEY) && me->GetInstanceScript() && me->GetInstanceScript()->GetBossState(DATA_THOK_THE_BLOODTHIRSTY) == IN_PROGRESS)
                 {
-                    thok->AI()->SetData(TYPE_GIANT_SNAIL_LOCKED_COUNT, 1);
-
-                    player->RemoveAurasDueToSpell(SPELL_SKELETON_KEY);
-
-                    // Summon Jailer
-                    thok->SummonCreature(NPC_KORKRON_JAILER, jailerEntrancePos, TEMPSUMMON_MANUAL_DESPAWN);
-
-                    if (thok->AI()->GetData(TYPE_GIANT_SNAIL_LOCKED_COUNT) > 2)
+                    if (Creature* thok = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(DATA_THOK_THE_BLOODTHIRSTY) : ObjectGuid::Empty))
                     {
-                        go->SetGoState(GO_STATE_ACTIVE);
-                        go->SetLootState(GO_ACTIVATED);
+                        thok->AI()->SetData(TYPE_GIANT_SNAIL_LOCKED_COUNT, 1);
+
+                        player->RemoveAurasDueToSpell(SPELL_SKELETON_KEY);
+
+                        // Summon Jailer
+                        thok->SummonCreature(NPC_KORKRON_JAILER, jailerEntrancePos, TEMPSUMMON_MANUAL_DESPAWN);
+
+                        if (thok->AI()->GetData(TYPE_GIANT_SNAIL_LOCKED_COUNT) > 2)
+                        {
+                            me->SetGoState(GO_STATE_ACTIVE);
+                            me->SetLootState(GO_ACTIVATED);
+                        }
                     }
                 }
-            }
 
-            return true; // not open by default
+                return true; // not open by default
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_thok_third_locked_cageAI(go);
         }
 };
 

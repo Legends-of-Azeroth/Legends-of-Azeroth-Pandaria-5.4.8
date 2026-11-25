@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -196,29 +196,9 @@ class npc_quest_mullan_gryphon : public CreatureScript
     public:
         npc_quest_mullan_gryphon() : CreatureScript("npc_quest_mullan_gryphon") { }
     
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
     
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                creature->AI()->DoAction(ACTION_START_INTRO);
     
-            player->CLOSE_GOSSIP_MENU();
-    
-            return true;
-        }
-    
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-
-            if (player->GetQuestStatus(QUEST_SCENT_OF_BATTLE) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+        
 
         struct npc_quest_mullan_gryphonAI : public ScriptedAI
         {
@@ -251,7 +231,34 @@ class npc_quest_mullan_gryphon : public CreatureScript
                     me->DespawnOrUnsummon(me->GetSplineDuration());
                 }
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                if (player->GetQuestStatus(QUEST_SCENT_OF_BATTLE) == QUEST_STATUS_INCOMPLETE)
+                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+    
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            me->AI()->DoAction(ACTION_START_INTRO);
+    
+                        player->CLOSE_GOSSIP_MENU();
+    
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -301,22 +308,9 @@ class npc_gurgthock_twilands : public CreatureScript
     public:
         npc_gurgthock_twilands() : CreatureScript("npc_gurgthock_twilands") { }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-        {
-            creature->AI()->SetGUID(player->GetGUID());
-            creature->AI()->DoAction(invChallengeType.find(quest->GetQuestId())->second);
+        
 
-            return false;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver() && !creature->AI()->GetData(TYPE_TRIAL)) // not allow to accept new quest while anybody on arena
-                player->PrepareQuestMenu(creature->GetGUID());
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+        
 
         struct npc_gurgthock_twilandsAI : public ScriptedAI
         {
@@ -536,6 +530,25 @@ class npc_gurgthock_twilands : public CreatureScript
             void UpdateAI(uint32 diff) override 
             {
                 scheduler.Update(diff);
+            }
+                    void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                me->AI()->SetGUID(player->GetGUID());
+                me->AI()->DoAction(invChallengeType.find(quest->GetQuestId())->second);
+
+                return;
+        
+            }
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver() && !me->AI()->GetData(TYPE_TRIAL)) // not allow to accept new quest while anybody on arena
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
             }
         };
 

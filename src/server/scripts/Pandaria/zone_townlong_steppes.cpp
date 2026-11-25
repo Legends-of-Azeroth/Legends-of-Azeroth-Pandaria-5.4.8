@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "SpellScript.h"
@@ -832,33 +833,46 @@ class go_sikthik_cage : public GameObjectScript
     public:
         go_sikthik_cage() : GameObjectScript("go_sikthik_cage") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_sikthik_cageAI : public GameObjectAI
         {
-            // If counter is 7 (script is called before counting) max is 8
-            if (player->GetQuestObjectiveCounter(OBJECTIVE_SIKTHIK_CAGES_SEARCHED) == 7 && player->GetQuestStatus(QUEST_THE_SEARCH_OF_RESTLESS_LENG) == QUEST_STATUS_INCOMPLETE)
+            go_sikthik_cageAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                if (Creature* leng = player->SummonCreature(NPC_RESTLESS_LENG, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 20000ms))
+
+                // If counter is 7 (script is called before counting) max is 8
+                if (player->GetQuestObjectiveCounter(OBJECTIVE_SIKTHIK_CAGES_SEARCHED) == 7 && player->GetQuestStatus(QUEST_THE_SEARCH_OF_RESTLESS_LENG) == QUEST_STATUS_INCOMPLETE)
                 {
-                    ObjectGuid playerGuid = player->GetGUID();
+                    if (Creature* leng = player->SummonCreature(NPC_RESTLESS_LENG, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 20000ms))
+                    {
+                        ObjectGuid playerGuid = player->GetGUID();
 
-                    uint32 delay = 0;
-                    leng->m_Events.Schedule(delay += 2000, [leng]()             { leng->AI()->Talk(0); });
-                    leng->m_Events.Schedule(delay += 2000, [leng]()             { leng->SetStandState(UNIT_STAND_STATE_STAND); });
-                    leng->m_Events.Schedule(delay += 3000, [leng]()             { leng->AI()->Talk(1); });
-                    leng->m_Events.Schedule(delay += 6000, [leng, playerGuid]() { if (Player* player = ObjectAccessor::GetPlayer(*leng, playerGuid)) leng->AI()->Talk(2, player); });
+                        uint32 delay = 0;
+                        leng->m_Events.Schedule(delay += 2000, [leng]()             { leng->AI()->Talk(0); });
+                        leng->m_Events.Schedule(delay += 2000, [leng]()             { leng->SetStandState(UNIT_STAND_STATE_STAND); });
+                        leng->m_Events.Schedule(delay += 3000, [leng]()             { leng->AI()->Talk(1); });
+                        leng->m_Events.Schedule(delay += 6000, [leng, playerGuid]() { if (Player* player = ObjectAccessor::GetPlayer(*leng, playerGuid)) leng->AI()->Talk(2, player); });
+                    }
+                    player->KilledMonsterCredit(NPC_RESTLESS_LENG);
                 }
-                player->KilledMonsterCredit(NPC_RESTLESS_LENG);
+
+                ObjectGuid goGuid = me->GetGUID();
+                uint32 delay = 0;
+                player->m_Events.Schedule(delay += 8000, [player, goGuid]()
+                {
+                    if (GameObject* cage = ObjectAccessor::GetGameObject(*player, goGuid))
+                        cage->ForcedDespawn();
+                });
+
+                return false;
+        
             }
+        };
 
-            ObjectGuid goGuid = go->GetGUID();
-            uint32 delay = 0;
-            player->m_Events.Schedule(delay += 8000, [player, goGuid]()
-            {
-                if (GameObject* cage = ObjectAccessor::GetGameObject(*player, goGuid))
-                    cage->ForcedDespawn();
-            });
-
-            return false;
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_sikthik_cageAI(go);
         }
 };
 
@@ -965,26 +979,39 @@ class go_drywood_cage : public GameObjectScript
     public:
         go_drywood_cage() : GameObjectScript("go_drywood_cage") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_drywood_cageAI : public GameObjectAI
         {
-            if (player->GetQuestStatus(QUEST_RANGER_RESCUE) == QUEST_STATUS_INCOMPLETE
-                && player->GetQuestObjectiveCounter(QUEST_OBJECTIVE_LONGYIN_RANGER_RESCUED) < 4)
+            go_drywood_cageAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                if (auto ranger = GetClosestCreatureWithEntry(player, NPC_LONGYING_RANGER, 10.f))
+
+                if (player->GetQuestStatus(QUEST_RANGER_RESCUE) == QUEST_STATUS_INCOMPLETE
+                    && player->GetQuestObjectiveCounter(QUEST_OBJECTIVE_LONGYIN_RANGER_RESCUED) < 4)
                 {
-                    go->SetGoState(GO_STATE_ACTIVE);
+                    if (auto ranger = GetClosestCreatureWithEntry(player, NPC_LONGYING_RANGER, 10.f))
+                    {
+                        me->SetGoState(GO_STATE_ACTIVE);
 
-                    player->QuestObjectiveSatisfy(QUEST_OBJECTIVE_LONGYIN_RANGER_RESCUED, 1);
-                    player->CastSpell(player, SPELL_SUMMON_LONGYING_RANGER, true);
+                        player->QuestObjectiveSatisfy(QUEST_OBJECTIVE_LONGYIN_RANGER_RESCUED, 1);
+                        player->CastSpell(player, SPELL_SUMMON_LONGYING_RANGER, true);
 
-                    if (auto rangerHelper = GetClosestCreatureWithEntry(player, NPC_LONGYING_RANGER_HELPER, 10.f))
-                        rangerHelper->AI()->Talk(0, player);
+                        if (auto rangerHelper = GetClosestCreatureWithEntry(player, NPC_LONGYING_RANGER_HELPER, 10.f))
+                            rangerHelper->AI()->Talk(0, player);
 
-                    ranger->DisappearAndDie();
+                        ranger->DisappearAndDie();
+                    }
                 }
-            }
 
-            return true;
+                return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_drywood_cageAI(go);
         }
 };
 
@@ -1015,28 +1042,9 @@ class npc_lin_silentstrike : public CreatureScript
     public:
         npc_lin_silentstrike() : CreatureScript("npc_lin_silentstrike") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (player->GetQuestStatus(QUEST_RANGER_RESCUE) == QUEST_STATUS_INCOMPLETE
-                && !player->GetQuestObjectiveCounter(QUEST_OBJECTIVE_FREE_LIN_SILENTSTRIKE))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Examine the body.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        
 
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                player->QuestObjectiveSatisfy(QUEST_OBJECTIVE_FREE_LIN_SILENTSTRIKE, 1);
-                creature->AI()->SetGUID(player->GetGUID(), 0);
-                player->CLOSE_GOSSIP_MENU();
-            }
-
-            return false;
-        }
+    
 
         struct npc_lin_silentstrikeAI : public ScriptedAI
         {
@@ -1109,7 +1117,33 @@ class npc_lin_silentstrike : public CreatureScript
                     }
                 }
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (player->GetQuestStatus(QUEST_RANGER_RESCUE) == QUEST_STATUS_INCOMPLETE
+                    && !player->GetQuestObjectiveCounter(QUEST_OBJECTIVE_FREE_LIN_SILENTSTRIKE))
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Examine the body.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            player->QuestObjectiveSatisfy(QUEST_OBJECTIVE_FREE_LIN_SILENTSTRIKE, 1);
+                            me->AI()->SetGUID(player->GetGUID(), 0);
+                            player->CLOSE_GOSSIP_MENU();
+                        }
+
+                        return false;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {

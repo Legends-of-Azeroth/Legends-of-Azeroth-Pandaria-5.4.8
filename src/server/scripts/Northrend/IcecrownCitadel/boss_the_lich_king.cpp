@@ -1530,24 +1530,7 @@ class npc_tirion_fordring_tft : public CreatureScript
     public:
         npc_tirion_fordring_tft() : CreatureScript("npc_tirion_fordring_tft") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (!player || !creature)
-                return true;
-
-            uint32 gossipMenuId = player->GetDefaultGossipMenuForSource(creature);
-            uint32 gossipTextId = player->GetGossipTextId(gossipMenuId, creature);
-            bool checkLeader = player->GetGroup() ? player->GetGroup()->IsLeader(player->GetGUID()) : true;
-
-            if (checkLeader || player->IsGameMaster())
-                if (InstanceScript* instance = creature->GetInstanceScript())
-                    if (instance->CheckRequiredBosses(DATA_THE_LICH_KING) && instance->GetBossState(DATA_THE_LICH_KING) != IN_PROGRESS && instance->GetBossState(DATA_THE_LICH_KING) != DONE)
-                        player->ADD_GOSSIP_ITEM_DB(gossipMenuId, 0, gossipMenuId, 0);
-
-            player->PlayerTalkClass->GetGossipMenu().SetMenuId(gossipMenuId);
-            player->SEND_GOSSIP_MENU(gossipTextId, creature->GetGUID());
-            return true;
-        }
+    
 
         struct npc_tirion_fordringAI : public ScriptedAI
         {
@@ -1685,12 +1668,35 @@ class npc_tirion_fordring_tft : public CreatureScript
         private:
             EventMap _events;
             InstanceScript* _instance;
+        
+            bool OnGossipHello(Player* player) override
+            {
+
+                        if (!player || !me)
+                            return true;
+
+                        uint32 gossipMenuId = player->GetDefaultGossipMenuForSource(me);
+                        uint32 gossipTextId = player->GetGossipTextId(gossipMenuId, me);
+                        bool checkLeader = player->GetGroup() ? player->GetGroup()->IsLeader(player->GetGUID()) : true;
+
+                        if (checkLeader || player->IsGameMaster())
+                            if (InstanceScript* instance = me->GetInstanceScript())
+                                if (instance->CheckRequiredBosses(DATA_THE_LICH_KING) && instance->GetBossState(DATA_THE_LICH_KING) != IN_PROGRESS && instance->GetBossState(DATA_THE_LICH_KING) != DONE)
+                                    player->ADD_GOSSIP_ITEM_DB(gossipMenuId, 0, gossipMenuId, 0);
+
+                        player->PlayerTalkClass->GetGossipMenu().SetMenuId(gossipMenuId);
+                        player->SEND_GOSSIP_MENU(gossipTextId, me->GetGUID());
+                        return true;
+        
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetIcecrownCitadelAI<npc_tirion_fordringAI>(creature);
         }
+
+
 };
 
 class npc_shambling_horror_icc : public CreatureScript

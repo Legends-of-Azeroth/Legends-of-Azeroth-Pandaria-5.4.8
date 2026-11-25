@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "ScriptMgr.h"
+#include "GameObjectAI.h"
 #include "ScriptedCreature.h"
 #include "shadopan_monastery.h"
 
@@ -426,24 +427,34 @@ class go_containment_override : public GameObjectScript
     public:
         go_containment_override() : GameObjectScript("go_containment_override") { }
 
-        void OnGameObjectStateChanged(GameObject* go, uint32 state) override
+                struct go_containment_overrideAI : public GameObjectAI
         {
-            if (state != GO_STATE_ACTIVE)
-                return;
+            go_containment_overrideAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (GameObject* prison1 = ObjectAccessor::GetGameObject(*go, go->GetInstanceScript() ? go->GetInstanceScript()->GetGuidData(DATA_SHA_PRISON_1) : ObjectGuid::Empty))
-                prison1->SetGoState(GO_STATE_ACTIVE);
+    void OnStateChanged(uint32 state) override {
+                if (state != GO_STATE_ACTIVE)
+                    return;
 
-            if (GameObject* prison2 = ObjectAccessor::GetGameObject(*go, go->GetInstanceScript() ? go->GetInstanceScript()->GetGuidData(DATA_SHA_PRISON_2) : ObjectGuid::Empty))
-                prison2->SetGoState(GO_STATE_ACTIVE);
+                if (GameObject* prison1 = ObjectAccessor::GetGameObject(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_SHA_PRISON_1) : ObjectGuid::Empty))
+                    prison1->SetGoState(GO_STATE_ACTIVE);
 
-            if (GameObject* prison3 = ObjectAccessor::GetGameObject(*go, go->GetInstanceScript() ? go->GetInstanceScript()->GetGuidData(DATA_SHA_PRISON_3) : ObjectGuid::Empty))
-                prison3->SetGoState(GO_STATE_ACTIVE);
+                if (GameObject* prison2 = ObjectAccessor::GetGameObject(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_SHA_PRISON_2) : ObjectGuid::Empty))
+                    prison2->SetGoState(GO_STATE_ACTIVE);
 
-            // Force sha to attack players
-            if (Creature* shaOfViolence = ObjectAccessor::GetCreature(*go, go->GetInstanceScript() ? go->GetInstanceScript()->GetGuidData(NPC_SHA_VIOLENCE) : ObjectGuid::Empty))
-                shaOfViolence->AI()->DoAction(0);
+                if (GameObject* prison3 = ObjectAccessor::GetGameObject(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_SHA_PRISON_3) : ObjectGuid::Empty))
+                    prison3->SetGoState(GO_STATE_ACTIVE);
+
+                // Force sha to attack players
+                if (Creature* shaOfViolence = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_SHA_VIOLENCE) : ObjectGuid::Empty))
+                    shaOfViolence->AI()->DoAction(0);
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_containment_overrideAI(go);
         }
+
 };
 
 void AddSC_boss_sha_of_violence()

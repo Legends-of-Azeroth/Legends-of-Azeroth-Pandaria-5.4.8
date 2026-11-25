@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -156,19 +156,22 @@ class npc_thassarian_quest : public CreatureScript
     public:
         npc_thassarian_quest() : CreatureScript("npc_thassarian_quest") { }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_SCHOLOMANCER)
-                creature->AI()->Talk(SAY_INTRO);
-
-            return true;
-        }
+        
 
         struct npc_thassarian_questAI : public ScriptedAI
         {
             npc_thassarian_questAI(Creature* creature) : ScriptedAI(creature) { }
 
             void UpdateAI(uint32 /*diff*/) override { }
+                    void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == QUEST_SCHOLOMANCER)
+                    Talk(SAY_INTRO);
+
+                return;
+        
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override

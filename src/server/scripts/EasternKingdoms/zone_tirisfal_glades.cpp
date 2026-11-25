@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -1046,19 +1046,7 @@ class npc_marshal_redpath : public CreatureScript
 public:
     npc_marshal_redpath() : CreatureScript("npc_marshal_redpath") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
-    {
-        uint32 id = player->PlayerTalkClass->GetGossipMenu().GetMenuId();
 
-        if (player->GetQuestStatus(TirisfalGlades::QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE && id == TirisfalGlades::GOSSIP_MENU_MARSHAL_REDPATH)
-        {
-            player->PlayerTalkClass->SendCloseGossip();
-            CAST_AI(npc_marshal_redpathAI, creature->AI())->StartAnimation(player);
-            return false;
-        }
-
-        return false;
-    }
 
     struct npc_marshal_redpathAI : public ScriptedAI
     {
@@ -1138,7 +1126,23 @@ public:
                     break;
             }
         }
-    };
+    
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    uint32 id = player->PlayerTalkClass->GetGossipMenu().GetMenuId();
+
+                    if (player->GetQuestStatus(TirisfalGlades::QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE && id == TirisfalGlades::GOSSIP_MENU_MARSHAL_REDPATH)
+                    {
+                        player->PlayerTalkClass->SendCloseGossip();
+                        CAST_AI(npc_marshal_redpathAI, me->AI())->StartAnimation(player);
+                        return false;
+                    }
+
+                    return false;
+    
+            }
+};
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
@@ -1151,19 +1155,7 @@ class npc_lilian_voss : public CreatureScript
 public:
     npc_lilian_voss() : CreatureScript("npc_lilian_voss") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
-    {
-        uint32 id = player->PlayerTalkClass->GetGossipMenu().GetMenuId();
 
-        if (player->GetQuestStatus(TirisfalGlades::QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE && id == TirisfalGlades::GOSSIP_MENU_LILIAN_VOSS)
-        {
-            player->PlayerTalkClass->SendCloseGossip();
-            CAST_AI(npc_lilian_vossAI, creature->AI())->StartAnimation(player);
-            return false;
-        }
-
-        return false;
-    }
 
     struct npc_lilian_vossAI : public ScriptedAI
     {
@@ -1248,7 +1240,23 @@ public:
                     break;
             }
         }
-    };
+    
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    uint32 id = player->PlayerTalkClass->GetGossipMenu().GetMenuId();
+
+                    if (player->GetQuestStatus(TirisfalGlades::QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE && id == TirisfalGlades::GOSSIP_MENU_LILIAN_VOSS)
+                    {
+                        player->PlayerTalkClass->SendCloseGossip();
+                        CAST_AI(npc_lilian_vossAI, me->AI())->StartAnimation(player);
+                        return false;
+                    }
+
+                    return false;
+    
+            }
+};
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
@@ -1261,19 +1269,7 @@ class npc_valdred_moray : public CreatureScript
 public:
     npc_valdred_moray() : CreatureScript("npc_valdred_moray") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
-    {
-        uint32 id = player->PlayerTalkClass->GetGossipMenu().GetMenuId();
 
-        if (player->GetQuestStatus(TirisfalGlades::QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE && id == TirisfalGlades::GOSSIP_MENU_VALDRED_MORAY)
-        {
-            player->PlayerTalkClass->SendCloseGossip();
-            CAST_AI(npc_valdred_morayAI, creature->AI())->StartAnimation(player);
-            return false;
-        }
-
-        return false;
-    }
 
     struct npc_valdred_morayAI : public ScriptedAI
     {
@@ -1354,7 +1350,23 @@ public:
                     break;
             }
         }
-    };
+    
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    uint32 id = player->PlayerTalkClass->GetGossipMenu().GetMenuId();
+
+                    if (player->GetQuestStatus(TirisfalGlades::QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE && id == TirisfalGlades::GOSSIP_MENU_VALDRED_MORAY)
+                    {
+                        player->PlayerTalkClass->SendCloseGossip();
+                        CAST_AI(npc_valdred_morayAI, me->AI())->StartAnimation(player);
+                        return false;
+                    }
+
+                    return false;
+    
+            }
+};
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {

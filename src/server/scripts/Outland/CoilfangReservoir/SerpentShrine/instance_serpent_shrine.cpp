@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -23,6 +23,7 @@ SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "serpent_shrine.h"
 #include "Player.h"
@@ -63,19 +64,32 @@ class go_bridge_console : public GameObjectScript
     public:
         go_bridge_console() : GameObjectScript("go_bridge_console") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        
+        struct go_bridge_consoleAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
+            go_bridge_consoleAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (!instance)
-                return false;
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
 
-            if (instance)
-                instance->SetData(DATA_CONTROL_CONSOLE, DONE);
+                InstanceScript* instance = me->GetInstanceScript();
 
-            instance->HandleGameObject(go->GetGUID(), true);
+                if (!instance)
+                    return false;
 
-            return true;
+                if (instance)
+                    instance->SetData(DATA_CONTROL_CONSOLE, DONE);
+
+                instance->HandleGameObject(me->GetGUID(), true);
+
+                return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_bridge_consoleAI(go);
         }
 };
 

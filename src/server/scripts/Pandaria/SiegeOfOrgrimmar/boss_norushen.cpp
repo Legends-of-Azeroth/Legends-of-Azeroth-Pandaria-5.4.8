@@ -524,36 +524,43 @@ class boss_norushen : public CreatureScript
                     }
                 }
             }
-        };
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-
-            player->ADD_GOSSIP_ITEM_DB(15762, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            player->CLOSE_GOSSIP_MENU();
-
-            switch (action)
+                    bool OnGossipHello(Player* player) override
             {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                    creature->AI()->DoAction(ACTION_START_EVENT);
-                    creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    break;
-                default:
-                    break;
-            }
 
-            return true;
-        }
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                player->ADD_GOSSIP_ITEM_DB(15762, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+                        player->CLOSE_GOSSIP_MENU();
+
+                        switch (action)
+                        {
+                            case GOSSIP_ACTION_INFO_DEF + 1:
+                                me->AI()->DoAction(ACTION_START_EVENT);
+                                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                break;
+                            default:
+                                break;
+                        }
+
+                        return true;
+        
+            }
+};
+
+        
+
+    
 
         CreatureAI* GetAI(Creature* creature) const override
         {

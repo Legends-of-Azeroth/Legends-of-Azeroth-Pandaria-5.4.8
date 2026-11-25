@@ -16,6 +16,7 @@
 */
 
 #include "scarlet_monastery.h"
+#include "GameObjectAI.h"
 #include "LFGMgr.h"
 #include "Player.h"
 #include "Group.h"
@@ -425,49 +426,67 @@ class go_pumpkin_shrine : public GameObjectScript
     public:
         go_pumpkin_shrine() : GameObjectScript("go_pumpkin_shrine") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+    
+
+    
+
+        struct go_pumpkin_shrineAI : public GameObjectAI
         {
-            if (go->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
-                player->PrepareQuestMenu(go->GetGUID());
+            go_pumpkin_shrineAI(GameObject* go) : GameObjectAI(go) { }
 
-            player->ADD_GOSSIP_ITEM_DB(GOSSIP_OPTION_MENU, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(go), go->GetGUID());
-
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, GameObject* go, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-
-            if (action == GOSSIP_ACTION_INFO_DEF)
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                if (Unit* horseman = go->GetOwner())
-                {
-                    uint32 delay = 0;
-                    horseman->ToCreature()->AI()->SetGUID(player->GetGUID(), TYPE_STARTER_GUID);
-                    horseman->m_Events.Schedule(delay += 1000, [horseman] { CAST_AI(boss_headless_horseman, horseman->GetAI())->PlayerSay(text[0]); });
-                    horseman->m_Events.Schedule(delay += 3000, [horseman] { CAST_AI(boss_headless_horseman, horseman->GetAI())->PlayerSay(text[1]); });
-                    horseman->m_Events.Schedule(delay += 3000, [horseman] { CAST_AI(boss_headless_horseman, horseman->GetAI())->PlayerSay(text[2]); });
-                    horseman->m_Events.Schedule(delay += 3000, [horseman] { CAST_AI(boss_headless_horseman, horseman->GetAI())->PlayerSay(text[3]); });
-                    horseman->m_Events.Schedule(delay +=  100, [horseman]
-                    {
-                        horseman->ToCreature()->AI()->Talk(SAY_ENTRANCE);
-                        horseman->CastSpell(horseman, SPELL_RHYME_BIG, true);
-                        horseman->GetMotionMaster()->MovePath(2368200, false);
-                        horseman->SetVisible(true);
-                    });
-                    horseman->m_Events.Schedule(delay += 4000, [horseman]
-                    {
-                        if (GameObject* go = horseman->FindNearestGameObject(GO_LOOSELY_TURNED_SOIL, 100.0f))
-                            go->ForcedDespawn();
-                    });
-                    go->ForcedDespawn();
-                }
+
+                        if (me->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
+                            player->PrepareQuestMenu(me->GetGUID());
+
+                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_OPTION_MENU, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+
+                        return true;
+        
             }
-            go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
-            player->CLOSE_GOSSIP_MENU();
-            return true;
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF)
+                        {
+                            if (Unit* horseman = me->GetOwner())
+                            {
+                                uint32 delay = 0;
+                                horseman->ToCreature()->AI()->SetGUID(player->GetGUID(), TYPE_STARTER_GUID);
+                                horseman->m_Events.Schedule(delay += 1000, [horseman] { CAST_AI(boss_headless_horseman, horseman->GetAI())->PlayerSay(text[0]); });
+                                horseman->m_Events.Schedule(delay += 3000, [horseman] { CAST_AI(boss_headless_horseman, horseman->GetAI())->PlayerSay(text[1]); });
+                                horseman->m_Events.Schedule(delay += 3000, [horseman] { CAST_AI(boss_headless_horseman, horseman->GetAI())->PlayerSay(text[2]); });
+                                horseman->m_Events.Schedule(delay += 3000, [horseman] { CAST_AI(boss_headless_horseman, horseman->GetAI())->PlayerSay(text[3]); });
+                                horseman->m_Events.Schedule(delay +=  100, [horseman]
+                                {
+                                    horseman->ToCreature()->AI()->Talk(SAY_ENTRANCE);
+                                    horseman->CastSpell(horseman, SPELL_RHYME_BIG, true);
+                                    horseman->GetMotionMaster()->MovePath(2368200, false);
+                                    horseman->SetVisible(true);
+                                });
+                                horseman->m_Events.Schedule(delay += 4000, [horseman]
+                                {
+                                    if (GameObject* me = horseman->FindNearestGameObject(GO_LOOSELY_TURNED_SOIL, 100.0f))
+                                        me->ForcedDespawn();
+                                });
+                                me->ForcedDespawn();
+                            }
+                        }
+                        me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        player->CLOSE_GOSSIP_MENU();
+                        return true;
+        
+            }
+};
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_pumpkin_shrineAI(go);
         }
 };
 

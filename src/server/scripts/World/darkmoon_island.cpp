@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "ScriptMgr.h"
+#include "GameObjectAI.h"
 #include "GameEventMgr.h"
 #include "Transport.h"
 #include "Random.h"
@@ -180,24 +181,31 @@ struct npc_darkmoon_moonfang : public customCreatureAI
 class go_darkmoon_treasure_chest : public GameObjectScript
 {
     public:
-        go_darkmoon_treasure_chest() : GameObjectScript("go_darkmoon_treasure_chest")
+        go_darkmoon_treasure_chest() : GameObjectScript("go_darkmoon_treasure_chest") { }
+
+        struct go_darkmoon_treasure_chestAI : public GameObjectAI
         {
-            lastLooter = ObjectGuid::Empty;
-        }
+            go_darkmoon_treasure_chestAI(GameObject* go) : GameObjectAI(go) { }
 
-        void OnLootStateChanged(GameObject* go, uint32 state, Unit* unit) override
+            void OnLootStateChanged(uint32 state, Unit* unit) override
+            {
+                if (state == GO_ACTIVATED && unit)
+                    lastLooter = unit->GetGUID();
+
+                if (state == GO_JUST_DEACTIVATED)
+                    if (Creature* announcer = GetClosestCreatureWithEntry(me, NPC_DARKMOON_DEATHMATCH_ANNOUNCER, 100, true))
+                        if (npc_darkmoon_deathmatch_announcer::npc_darkmoon_deathmatch_announcerAI* ai = CAST_AI(npc_darkmoon_deathmatch_announcer::npc_darkmoon_deathmatch_announcerAI, announcer->GetAI()))
+                            ai->SetWinner(lastLooter);
+            }
+
+            private:
+                ObjectGuid lastLooter;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
         {
-            if (state == GO_ACTIVATED && unit)
-                lastLooter = unit->GetGUID();
-
-            if (state == GO_JUST_DEACTIVATED)
-                if (Creature* announcer = GetClosestCreatureWithEntry(go, NPC_DARKMOON_DEATHMATCH_ANNOUNCER, 100, true))
-                    if (npc_darkmoon_deathmatch_announcer::npc_darkmoon_deathmatch_announcerAI* ai = CAST_AI(npc_darkmoon_deathmatch_announcer::npc_darkmoon_deathmatch_announcerAI, announcer->GetAI()))
-                        ai->SetWinner(lastLooter);
+            return new go_darkmoon_treasure_chestAI(go);
         }
-
-    private:
-        ObjectGuid lastLooter;
 };
 
 class spell_darkmoon_deathmatch : public SpellScriptLoader

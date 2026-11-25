@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 #include "ScriptedEscortAI.h"
 #include "violet_hold.h"
 
@@ -275,82 +276,9 @@ class npc_sinclari_vh : public CreatureScript
     public:
         npc_sinclari_vh() : CreatureScript("npc_sinclari_vh") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                    player->PlayerTalkClass->GetGossipMenu().SetMenuId(GOSSIP_MENU_SINCLARI_START_2);
-                    player->ADD_GOSSIP_ITEM_DB(player->PlayerTalkClass->GetGossipMenu().GetMenuId(), GOSSIP_OPTION_SINCLARI_START_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                    player->SEND_GOSSIP_MENU(player->GetGossipTextId(player->PlayerTalkClass->GetGossipMenu().GetMenuId(), creature), creature->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                    CAST_AI(npc_sinclari_vh::npc_sinclariAI, (creature->AI()))->uiPhase = 1;
-                    creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    player->CLOSE_GOSSIP_MENU();
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 3:
-                    player->NearTeleportTo(playerTeleportPosition.GetPositionX(),playerTeleportPosition.GetPositionY(),playerTeleportPosition.GetPositionZ(),playerTeleportPosition.GetOrientation(),true);
-                    player->CLOSE_GOSSIP_MENU();
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 4:
-                case GOSSIP_ACTION_INFO_DEF + 5:
-                case GOSSIP_ACTION_INFO_DEF + 6:
-                case GOSSIP_ACTION_INFO_DEF + 7:
-                case GOSSIP_ACTION_INFO_DEF + 8:
-                case GOSSIP_ACTION_INFO_DEF + 9:
-                case GOSSIP_ACTION_INFO_DEF + 10:
-                    if (InstanceScript* instance = creature->GetInstanceScript())
-                    {
-                        instance->SetData(DATA_MAIN_EVENT_PHASE, IN_PROGRESS);
-                        instance->SetData(DATA_WAVE_COUNT, 6);
-                        instance->SetData(DATA_FIRST_BOSS, action - (GOSSIP_ACTION_INFO_DEF+4));
-                        instance->SetData(DATA_SECOND_BOSS, 0);
-                    }
-                    player->CLOSE_GOSSIP_MENU();
-                    break;
-            }
-            return true;
-        }
+    
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-
-            if (InstanceScript* instance = creature->GetInstanceScript())
-            {
-                switch (instance->GetData(DATA_MAIN_EVENT_PHASE))
-                {
-                    case NOT_STARTED:
-                    case FAIL: // Allow to start event if not started or wiped
-                        player->PlayerTalkClass->GetGossipMenu().SetMenuId(GOSSIP_MENU_SINCLARI_START_1);
-                        player->ADD_GOSSIP_ITEM_DB(player->PlayerTalkClass->GetGossipMenu().GetMenuId(), GOSSIP_OPTION_SINCLARI_START_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                        if (player->IsGameMaster())
-                        {
-                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "[GM] Quick start with random bosses", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4 + 0);
-                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "[GM] Spawn Moragg",                   GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4 + 1);
-                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "[GM] Spawn Erekem",                   GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4 + 2);
-                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "[GM] Spawn Ichoron",                  GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4 + 3);
-                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "[GM] Spawn Lavanthor",                GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4 + 4);
-                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "[GM] Spawn Xevozz",                   GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4 + 5);
-                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "[GM] Spawn Zuramat",                  GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4 + 6);
-                        }
-                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(player->PlayerTalkClass->GetGossipMenu().GetMenuId(), creature), creature->GetGUID());
-                        break;
-                    case IN_PROGRESS: // Allow to teleport inside if event is in progress
-                        player->PlayerTalkClass->GetGossipMenu().SetMenuId(GOSSIP_MENU_SINCLARI_TELEPORT);
-                        player->ADD_GOSSIP_ITEM_DB(player->PlayerTalkClass->GetGossipMenu().GetMenuId(), GOSSIP_OPTION_SINCLARI_TELEPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(player->PlayerTalkClass->GetGossipMenu().GetMenuId(), creature), creature->GetGUID());
-                        break;
-                    default:
-                        player->PlayerTalkClass->GetGossipMenu().SetMenuId(GOSSIP_MENU_SINCLARI_END);
-                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(player->PlayerTalkClass->GetGossipMenu().GetMenuId(), creature), creature->GetGUID());
-                }
-            }
-            return true;
-        }
+    
 
         struct npc_sinclariAI : public ScriptedAI
         {
@@ -493,12 +421,97 @@ class npc_sinclari_vh : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-        };
+        
+            bool OnGossipHello(Player* player) override
+            {
+
+                        if (me->IsQuestGiver())
+                            player->PrepareQuestMenu(me->GetGUID());
+
+                        if (InstanceScript* instance = me->GetInstanceScript())
+                        {
+                            switch (instance->GetData(DATA_MAIN_EVENT_PHASE))
+                            {
+                                case NOT_STARTED:
+                                case FAIL: // Allow to start event if not started or wiped
+                                    player->PlayerTalkClass->GetGossipMenu().SetMenuId(GOSSIP_MENU_SINCLARI_START_1);
+                                    player->ADD_GOSSIP_ITEM_DB(player->PlayerTalkClass->GetGossipMenu().GetMenuId(), GOSSIP_OPTION_SINCLARI_START_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                                    if (player->IsGameMaster())
+                                    {
+                                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "[GM] Quick start with random bosses", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4 + 0);
+                                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "[GM] Spawn Moragg",                   GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4 + 1);
+                                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "[GM] Spawn Erekem",                   GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4 + 2);
+                                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "[GM] Spawn Ichoron",                  GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4 + 3);
+                                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "[GM] Spawn Lavanthor",                GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4 + 4);
+                                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "[GM] Spawn Xevozz",                   GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4 + 5);
+                                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "[GM] Spawn Zuramat",                  GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4 + 6);
+                                    }
+                                    player->SEND_GOSSIP_MENU(player->GetGossipTextId(player->PlayerTalkClass->GetGossipMenu().GetMenuId(), me), me->GetGUID());
+                                    break;
+                                case IN_PROGRESS: // Allow to teleport inside if event is in progress
+                                    player->PlayerTalkClass->GetGossipMenu().SetMenuId(GOSSIP_MENU_SINCLARI_TELEPORT);
+                                    player->ADD_GOSSIP_ITEM_DB(player->PlayerTalkClass->GetGossipMenu().GetMenuId(), GOSSIP_OPTION_SINCLARI_TELEPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                                    player->SEND_GOSSIP_MENU(player->GetGossipTextId(player->PlayerTalkClass->GetGossipMenu().GetMenuId(), me), me->GetGUID());
+                                    break;
+                                default:
+                                    player->PlayerTalkClass->GetGossipMenu().SetMenuId(GOSSIP_MENU_SINCLARI_END);
+                                    player->SEND_GOSSIP_MENU(player->GetGossipTextId(player->PlayerTalkClass->GetGossipMenu().GetMenuId(), me), me->GetGUID());
+                            }
+                        }
+                        return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+                        switch (action)
+                        {
+                            case GOSSIP_ACTION_INFO_DEF + 1:
+                                player->PlayerTalkClass->GetGossipMenu().SetMenuId(GOSSIP_MENU_SINCLARI_START_2);
+                                player->ADD_GOSSIP_ITEM_DB(player->PlayerTalkClass->GetGossipMenu().GetMenuId(), GOSSIP_OPTION_SINCLARI_START_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                                player->SEND_GOSSIP_MENU(player->GetGossipTextId(player->PlayerTalkClass->GetGossipMenu().GetMenuId(), me), me->GetGUID());
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 2:
+                                CAST_AI(npc_sinclari_vh::npc_sinclariAI, (me->AI()))->uiPhase = 1;
+                                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                player->CLOSE_GOSSIP_MENU();
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 3:
+                                player->NearTeleportTo(playerTeleportPosition.GetPositionX(),playerTeleportPosition.GetPositionY(),playerTeleportPosition.GetPositionZ(),playerTeleportPosition.GetOrientation(),true);
+                                player->CLOSE_GOSSIP_MENU();
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 4:
+                            case GOSSIP_ACTION_INFO_DEF + 5:
+                            case GOSSIP_ACTION_INFO_DEF + 6:
+                            case GOSSIP_ACTION_INFO_DEF + 7:
+                            case GOSSIP_ACTION_INFO_DEF + 8:
+                            case GOSSIP_ACTION_INFO_DEF + 9:
+                            case GOSSIP_ACTION_INFO_DEF + 10:
+                                if (InstanceScript* instance = me->GetInstanceScript())
+                                {
+                                    instance->SetData(DATA_MAIN_EVENT_PHASE, IN_PROGRESS);
+                                    instance->SetData(DATA_WAVE_COUNT, 6);
+                                    instance->SetData(DATA_FIRST_BOSS, action - (GOSSIP_ACTION_INFO_DEF+4));
+                                    instance->SetData(DATA_SECOND_BOSS, 0);
+                                }
+                                player->CLOSE_GOSSIP_MENU();
+                                break;
+                        }
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_sinclariAI(creature);
         }
+
+
+
+
 };
 
 class npc_azure_saboteur : public CreatureScript
@@ -1400,12 +1413,26 @@ class go_activation_crystal : public GameObjectScript
     public:
         go_activation_crystal() : GameObjectScript("go_activation_crystal") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
-        {
-            if (InstanceScript* instance = go->GetInstanceScript())
-                instance->SetData(DATA_ACTIVATE_CRYSTAL, 1);
+    
 
-            return false;
+        struct go_activation_crystalAI : public GameObjectAI
+        {
+            go_activation_crystalAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                        if (InstanceScript* instance = me->GetInstanceScript())
+                            instance->SetData(DATA_ACTIVATE_CRYSTAL, 1);
+
+                        return false;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_activation_crystalAI(go);
         }
 };
 

@@ -1711,34 +1711,9 @@ class npc_heart_of_fear_kazrik : public CreatureScript
     public:
         npc_heart_of_fear_kazrik() : CreatureScript("npc_heart_of_fear_kazrik") { }
     
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
     
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
     
-                if (creature->GetInstanceScript())
-                    creature->GetInstanceScript()->DoRemoveDampeningFromCreatures();
-            }
-    
-            player->CLOSE_GOSSIP_MENU();
-    
-            return true;
-        }
-    
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-
-            if(sConfigMgr->GetIntDefault("FirstOfTheKingdom.HeartOfFear", 1))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Turn off dampening?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-    
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+        
     
         struct npc_heart_of_fear_kazrikAI : public ScriptedAI
         {
@@ -1749,7 +1724,39 @@ class npc_heart_of_fear_kazrik : public CreatureScript
                 if (me->GetMap()->GetDifficulty() != RAID_DIFFICULTY_25MAN_LFR)
                     me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                if(sConfigMgr->GetIntDefault("FirstOfTheKingdom.HeartOfFear", 1))
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Turn off dampening?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+    
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+    
+                            if (me->GetInstanceScript())
+                                me->GetInstanceScript()->DoRemoveDampeningFromCreatures();
+                        }
+    
+                        player->CLOSE_GOSSIP_MENU();
+    
+                        return true;
+        
+            }
+};
     
         CreatureAI* GetAI(Creature* creature) const override
         {

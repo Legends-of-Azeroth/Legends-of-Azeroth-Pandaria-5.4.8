@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "magtheridons_lair.h"
 #include "Player.h"
 #include "SpellInfo.h"
@@ -591,29 +592,42 @@ public:
     {
     }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        InstanceScript* instance = go->GetInstanceScript();
+    
+        struct go_manticron_cubeAI : public GameObjectAI
+        {
+            go_manticron_cubeAI(GameObject* go) : GameObjectAI(go) { }
 
-        if (!instance)
-            return true;
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
 
-        if (instance->GetData(DATA_MAGTHERIDON_EVENT) != IN_PROGRESS)
-            return true;
-        Creature* Magtheridon =Unit::GetCreature(*go, instance->GetGuidData(DATA_MAGTHERIDON));
-        if (!Magtheridon || !Magtheridon->IsAlive())
-            return true;
+            InstanceScript* instance = me->GetInstanceScript();
 
-        // if exhausted or already channeling return
-        if (player->HasAura(SPELL_MIND_EXHAUSTION) || player->HasAura(SPELL_SHADOW_GRASP))
-            return true;
+            if (!instance)
+                return true;
 
-        player->InterruptNonMeleeSpells(false);
-        player->CastSpell(player, SPELL_SHADOW_GRASP, true);
-        player->CastSpell(player, SPELL_SHADOW_GRASP_VISUAL, false);
-        CAST_AI(boss_magtheridon::boss_magtheridonAI, Magtheridon->AI())->SetClicker(go->GetGUID(), player->GetGUID());
-        return true;
-    }
+            if (instance->GetData(DATA_MAGTHERIDON_EVENT) != IN_PROGRESS)
+                return true;
+            Creature* Magtheridon =Unit::GetCreature(*me, instance->GetGuidData(DATA_MAGTHERIDON));
+            if (!Magtheridon || !Magtheridon->IsAlive())
+                return true;
+
+            // if exhausted or already channeling return
+            if (player->HasAura(SPELL_MIND_EXHAUSTION) || player->HasAura(SPELL_SHADOW_GRASP))
+                return true;
+
+            player->InterruptNonMeleeSpells(false);
+            player->CastSpell(player, SPELL_SHADOW_GRASP, true);
+            player->CastSpell(player, SPELL_SHADOW_GRASP_VISUAL, false);
+            CAST_AI(boss_magtheridon::boss_magtheridonAI, Magtheridon->AI())->SetClicker(me->GetGUID(), player->GetGUID());
+            return true;
+    
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_manticron_cubeAI(go);
+        }
 };
 
 void AddSC_boss_magtheridon()

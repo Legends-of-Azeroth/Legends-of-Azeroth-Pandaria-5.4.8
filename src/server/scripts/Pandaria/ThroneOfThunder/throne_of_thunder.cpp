@@ -16,6 +16,7 @@
 */
 
 #include "throne_of_thunder.h"
+#include "GameObjectAI.h"
 #include "CreatureTextMgr.h"
 
 enum sSpells
@@ -3782,12 +3783,22 @@ class go_ancient_mogu_bell : public GameObjectScript
     public:
         go_ancient_mogu_bell() : GameObjectScript("go_ancient_mogu_bell") { }
 
-        void OnGameObjectStateChanged(GameObject* go, uint32 state)
+                struct go_ancient_mogu_bellAI : public GameObjectAI
         {
-            if (state == GO_STATE_ACTIVE && go->GetInstanceScript())
-                if (Creature* bellAnnouncer = go->FindNearestCreature(NPC_SLG_GENERIC_MOP, 50.0f, true))
-                    bellAnnouncer->AI()->Talk(go->GetInstanceScript()->GetData(DATA_MEGERA_EVENT) - 1);
+            go_ancient_mogu_bellAI(GameObject* go) : GameObjectAI(go) { }
+
+    void OnStateChanged(uint32 state) override {
+                if (state == GO_STATE_ACTIVE && me->GetInstanceScript())
+                    if (Creature* bellAnnouncer = me->FindNearestCreature(NPC_SLG_GENERIC_MOP, 50.0f, true))
+                        bellAnnouncer->AI()->Talk(me->GetInstanceScript()->GetData(DATA_MEGERA_EVENT) - 1);
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_ancient_mogu_bellAI(go);
         }
+
 };
 // Displacement Pad 218417
 class go_displacement_pad : public GameObjectScript
@@ -3795,12 +3806,26 @@ class go_displacement_pad : public GameObjectScript
     public:
         go_displacement_pad() : GameObjectScript("go_displacement_pad") { }
     
-        bool OnGossipHello(Player* player, GameObject* go)
-        {
-            if (player->GetInstanceScript() && player->GetInstanceScript()->GetBossState(DATA_LEI_SHEN) != IN_PROGRESS)
-                player->CastSpell(player, SPELL_DISPLACEMENT, true);
+    
 
-            return true;
+        struct go_displacement_padAI : public GameObjectAI
+        {
+            go_displacement_padAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                        if (player->GetInstanceScript() && player->GetInstanceScript()->GetBossState(DATA_LEI_SHEN) != IN_PROGRESS)
+                            player->CastSpell(player, SPELL_DISPLACEMENT, true);
+
+                        return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_displacement_padAI(go);
         }
 };
 

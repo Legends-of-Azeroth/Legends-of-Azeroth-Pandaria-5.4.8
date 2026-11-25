@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -183,64 +183,71 @@ class example_escort : public CreatureScript
                     }
                 }
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                player->TalkedToCreature(me->GetEntry(), me->GetGUID());
+                player->PrepareGossipMenu(me, 0);
+
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+
+                player->SendPreparedGossip(me);
+
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+                        EscortAI* pEscortAI = CAST_AI(example_escort::example_escortAI, me->AI());
+
+                        switch (action)
+                        {
+                            case GOSSIP_ACTION_INFO_DEF+1:
+                                player->CLOSE_GOSSIP_MENU();
+
+                                if (pEscortAI)
+                                {
+                                    pEscortAI->SetRun(true);
+                                    pEscortAI->Start(true, player->GetGUID());
+                                }
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF+2:
+                                player->CLOSE_GOSSIP_MENU();
+
+                                if (pEscortAI)
+                                    pEscortAI->Start(false, player->GetGUID());
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF+3:
+                                player->CLOSE_GOSSIP_MENU();
+
+                                if (pEscortAI)
+                                {
+                                    pEscortAI->SetRun(true);
+                                    pEscortAI->Start(false, player->GetGUID());
+                                }
+                                break;
+                            default:
+                                return false;                                   // nothing defined      -> trinity core handling
+                        }
+
+                        return true;                                            // no default handling  -> prevent trinity core handling
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
             return new example_escortAI(creature);
         }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
-            player->PrepareGossipMenu(creature, 0);
+        
 
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-
-            player->SendPreparedGossip(creature);
-
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            EscortAI* pEscortAI = CAST_AI(example_escort::example_escortAI, creature->AI());
-
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF+1:
-                    player->CLOSE_GOSSIP_MENU();
-
-                    if (pEscortAI)
-                    {
-                        pEscortAI->SetRun(true);
-                        pEscortAI->Start(true, player->GetGUID());
-                    }
-                    break;
-                case GOSSIP_ACTION_INFO_DEF+2:
-                    player->CLOSE_GOSSIP_MENU();
-
-                    if (pEscortAI)
-                        pEscortAI->Start(false, player->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF+3:
-                    player->CLOSE_GOSSIP_MENU();
-
-                    if (pEscortAI)
-                    {
-                        pEscortAI->SetRun(true);
-                        pEscortAI->Start(false, player->GetGUID());
-                    }
-                    break;
-                default:
-                    return false;                                   // nothing defined      -> trinity core handling
-            }
-
-            return true;                                            // no default handling  -> prevent trinity core handling
-        }
+    
 };
 
 void AddSC_example_escort()

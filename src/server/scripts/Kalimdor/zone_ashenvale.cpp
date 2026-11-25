@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -29,6 +29,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptedEscortAI.h"
 #include "Player.h"
 
@@ -142,6 +143,25 @@ class npc_torek : public CreatureScript
                     Thunderclap_Timer = 30000;
                 } else Thunderclap_Timer -= diff;
             }
+                    void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == QUEST_TOREK_ASSULT)
+                {
+                    /// @todo find companions, make them follow Torek, at any time (possibly done by core/database in future?)
+                    Talk(SAY_READY, player);
+                    me->SetFaction(113);
+
+                    if (EscortAI* pEscortAI = this)
+                    {
+                        pEscortAI->SetRun(true);
+                        pEscortAI->Start(true, player->GetGUID());
+                    }
+                }
+
+                return;
+        
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -149,23 +169,7 @@ class npc_torek : public CreatureScript
             return new npc_torekAI(creature);
         }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_TOREK_ASSULT)
-            {
-                /// @todo find companions, make them follow Torek, at any time (possibly done by core/database in future?)
-                creature->AI()->Talk(SAY_READY, player);
-                creature->SetFaction(113);
-
-                if (EscortAI* pEscortAI = CAST_AI(npc_torekAI, creature->AI()))
-                {
-                    pEscortAI->SetRun(true);
-                    pEscortAI->Start(true, player->GetGUID());
-                }
-            }
-
-            return true;
-        }
+        
 };
 
 /*####
@@ -248,6 +252,20 @@ class npc_ruul_snowhoof : public CreatureScript
             {
                 EscortAI::UpdateAI(diff);
             }
+                    void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == QUEST_FREEDOM_TO_RUUL)
+                {
+                    me->SetFaction(113);
+
+                    if (EscortAI* pEscortAI = this)
+                        pEscortAI->Start(true, player->GetGUID());
+                }
+
+                return;
+        
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -255,18 +273,7 @@ class npc_ruul_snowhoof : public CreatureScript
             return new npc_ruul_snowhoofAI(creature);
         }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_FREEDOM_TO_RUUL)
-            {
-                creature->SetFaction(113);
-
-                if (EscortAI* pEscortAI = CAST_AI(npc_ruul_snowhoofAI, (creature->AI())))
-                    pEscortAI->Start(true, player->GetGUID());
-            }
-
-            return true;
-        }
+        
 };
 
 enum Muglash
@@ -434,6 +441,22 @@ class npc_muglash : public CreatureScript
                 }
                 DoMeleeAttackIfReady();
             }
+                    void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == QUEST_VORSHA)
+                {
+                    if (npc_muglashAI* pEscortAI = this)
+                    {
+                        Talk(SAY_MUG_START1);
+                        me->SetFaction(113);
+
+                        pEscortAI->Start(true, player->GetGUID());
+                    }
+                }
+                return;
+        
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -441,20 +464,7 @@ class npc_muglash : public CreatureScript
             return new npc_muglashAI(creature);
         }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_VORSHA)
-            {
-                if (npc_muglashAI* pEscortAI = CAST_AI(npc_muglashAI, creature->AI()))
-                {
-                    creature->AI()->Talk(SAY_MUG_START1);
-                    creature->SetFaction(113);
-
-                    pEscortAI->Start(true, player->GetGUID());
-                }
-            }
-            return true;
-        }
+        
 };
 
 class go_naga_brazier : public GameObjectScript
@@ -462,20 +472,33 @@ class go_naga_brazier : public GameObjectScript
     public:
         go_naga_brazier() : GameObjectScript("go_naga_brazier") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        
+        struct go_naga_brazierAI : public GameObjectAI
         {
-            if (Creature* creature = GetClosestCreatureWithEntry(go, NPC_MUGLASH, INTERACTION_DISTANCE*2))
+            go_naga_brazierAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                if (npc_muglash::npc_muglashAI* pEscortAI = CAST_AI(npc_muglash::npc_muglashAI, creature->AI()))
+
+                if (Creature* creature = GetClosestCreatureWithEntry(me, NPC_MUGLASH, INTERACTION_DISTANCE*2))
                 {
-                    creature->AI()->Talk(SAY_MUG_BRAZIER_WAIT);
+                    if (npc_muglash::npc_muglashAI* pEscortAI = CAST_AI(npc_muglash::npc_muglashAI, creature->AI()))
+                    {
+                        creature->AI()->Talk(SAY_MUG_BRAZIER_WAIT);
 
-                    pEscortAI->IsBrazierExtinguished = true;
-                    return false;
+                        pEscortAI->IsBrazierExtinguished = true;
+                        return false;
+                    }
                 }
-            }
 
-            return true;
+                return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_naga_brazierAI(go);
         }
 };
 

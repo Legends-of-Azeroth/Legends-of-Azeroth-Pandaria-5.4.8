@@ -1209,69 +1209,82 @@ class npc_dragon_soul_teleport : public CreatureScript
     public:
         npc_dragon_soul_teleport() : CreatureScript("npc_dragon_soul_teleport") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+        
+        struct npc_dragon_soul_teleportAI : public ScriptedAI
         {
-            if (player->IsInCombat())
-                return true;
+            npc_dragon_soul_teleportAI(Creature* creature) : ScriptedAI(creature) { }
 
-            if (InstanceScript* instance = creature->GetInstanceScript())
-                if (instance->GetData(DATA_ULTRAXION_TRASH) == SPECIAL)
+            bool OnGossipHello(Player* player) override
+            {
+
+                if (player->IsInCombat())
                     return true;
 
-            if (InstanceScript* instance = creature->GetInstanceScript())
-            {
-                switch (creature->GetEntry())
+                if (InstanceScript* instance = me->GetInstanceScript())
+                    if (instance->GetData(DATA_ULTRAXION_TRASH) == SPECIAL)
+                        return true;
+
+                if (InstanceScript* instance = me->GetInstanceScript())
                 {
-                    case NPC_TRAVEL_TO_WYRMREST_BASE:
-                        if (instance->GetBossState(DATA_MORCHOK) == DONE)
-                            if (creature->GetPositionZ() > 50.0f && creature->GetPositionZ() < 100.0f)
-                                player->NearTeleportTo(portalsPos[0].GetPositionX(), portalsPos[0].GetPositionY(), portalsPos[0].GetPositionZ(), portalsPos[0].GetOrientation());
-                            else if (creature->GetPositionZ() < 50.0f || creature->GetPositionZ() > 100.0f)
-                                player->NearTeleportTo(portalsPos[10].GetPositionX(), portalsPos[10].GetPositionY(), portalsPos[10].GetPositionZ(), portalsPos[10].GetOrientation());
-                        break;
-                    case NPC_TRAVEL_TO_WYRMREST_TEMPLE:
-                        if (instance->GetBossState(DATA_MORCHOK) == DONE)
-                            if (creature->GetPositionZ() < -200.0f)
-                                player->NearTeleportTo(portalsPos[1].GetPositionX(), portalsPos[1].GetPositionY(), portalsPos[1].GetPositionZ(), portalsPos[1].GetOrientation());
-                            else
-                                player->NearTeleportTo(portalsPos[2].GetPositionX(), portalsPos[2].GetPositionY(), portalsPos[2].GetPositionZ(), portalsPos[2].GetOrientation());
-                        break;
-                    case NPC_VALEERA:
-                        if (instance->GetBossState(DATA_MORCHOK) == DONE)
-                            player->NearTeleportTo(portalsPos[3].GetPositionX(), portalsPos[3].GetPositionY(), portalsPos[3].GetPositionZ(), portalsPos[3].GetOrientation());
-                        break;
-                    case NPC_EIENDORMI:
-                        if (instance->GetBossState(DATA_MORCHOK) == DONE)
-                            player->NearTeleportTo(portalsPos[4].GetPositionX(), portalsPos[4].GetPositionY(), portalsPos[4].GetPositionZ(), portalsPos[4].GetOrientation());
-                        break;
-                    case NPC_NETHESTRASZ:
-                        if (instance->GetBossState(DATA_YORSAHJ) == DONE && instance->GetBossState(DATA_ZONOZZ) == DONE)
-                            player->NearTeleportTo(portalsPos[5].GetPositionX(), portalsPos[5].GetPositionY(), portalsPos[5].GetPositionZ(), portalsPos[5].GetOrientation());
-                        break;
-                    case NPC_TRAVEL_TO_EYE_OF_ETERNITY:
-                        if (instance->GetBossState(DATA_YORSAHJ) == DONE && instance->GetBossState(DATA_ZONOZZ) == DONE)
-                            player->NearTeleportTo(portalsPos[6].GetPositionX(), portalsPos[6].GetPositionY(), portalsPos[6].GetPositionZ(), portalsPos[6].GetOrientation());
-                        break;
-                    case NPC_TRAVEL_TO_WYRMREST_SUMMIT:
-                        player->NearTeleportTo(portalsPos[7].GetPositionX(), portalsPos[7].GetPositionY(), portalsPos[7].GetPositionZ(), portalsPos[7].GetOrientation());
-                        break;
-                    case NPC_TRAVEL_TO_DECK:
-                        if (instance->GetBossState(DATA_BLACKHORN) == DONE && instance->GetBossState(DATA_ULTRAXION) == DONE)
-                            player->NearTeleportTo(portalsPos[8].GetPositionX(), portalsPos[8].GetPositionY(), portalsPos[8].GetPositionZ(), portalsPos[8].GetOrientation());
-                        break;
-                    case NPC_TRAVEL_TO_MAELSTORM:
-                        if (instance->GetBossState(DATA_BLACKHORN) == DONE && instance->GetBossState(DATA_ULTRAXION) == DONE)
-                        {
-                            player->NearTeleportTo(portalsPos[9].GetPositionX(), portalsPos[9].GetPositionY(), portalsPos[9].GetPositionZ(), portalsPos[9].GetOrientation());
-                            if (instance->GetBossState(DATA_MADNESS) == DONE)
-                                player->AddAura(SPELL_CALM_MAELSTROM_SKYBOX, player);
-                        }
-                        break;
-                    default:
-                        break;
+                    switch (me->GetEntry())
+                    {
+                        case NPC_TRAVEL_TO_WYRMREST_BASE:
+                            if (instance->GetBossState(DATA_MORCHOK) == DONE)
+                                if (me->GetPositionZ() > 50.0f && me->GetPositionZ() < 100.0f)
+                                    player->NearTeleportTo(portalsPos[0].GetPositionX(), portalsPos[0].GetPositionY(), portalsPos[0].GetPositionZ(), portalsPos[0].GetOrientation());
+                                else if (me->GetPositionZ() < 50.0f || me->GetPositionZ() > 100.0f)
+                                    player->NearTeleportTo(portalsPos[10].GetPositionX(), portalsPos[10].GetPositionY(), portalsPos[10].GetPositionZ(), portalsPos[10].GetOrientation());
+                            break;
+                        case NPC_TRAVEL_TO_WYRMREST_TEMPLE:
+                            if (instance->GetBossState(DATA_MORCHOK) == DONE)
+                                if (me->GetPositionZ() < -200.0f)
+                                    player->NearTeleportTo(portalsPos[1].GetPositionX(), portalsPos[1].GetPositionY(), portalsPos[1].GetPositionZ(), portalsPos[1].GetOrientation());
+                                else
+                                    player->NearTeleportTo(portalsPos[2].GetPositionX(), portalsPos[2].GetPositionY(), portalsPos[2].GetPositionZ(), portalsPos[2].GetOrientation());
+                            break;
+                        case NPC_VALEERA:
+                            if (instance->GetBossState(DATA_MORCHOK) == DONE)
+                                player->NearTeleportTo(portalsPos[3].GetPositionX(), portalsPos[3].GetPositionY(), portalsPos[3].GetPositionZ(), portalsPos[3].GetOrientation());
+                            break;
+                        case NPC_EIENDORMI:
+                            if (instance->GetBossState(DATA_MORCHOK) == DONE)
+                                player->NearTeleportTo(portalsPos[4].GetPositionX(), portalsPos[4].GetPositionY(), portalsPos[4].GetPositionZ(), portalsPos[4].GetOrientation());
+                            break;
+                        case NPC_NETHESTRASZ:
+                            if (instance->GetBossState(DATA_YORSAHJ) == DONE && instance->GetBossState(DATA_ZONOZZ) == DONE)
+                                player->NearTeleportTo(portalsPos[5].GetPositionX(), portalsPos[5].GetPositionY(), portalsPos[5].GetPositionZ(), portalsPos[5].GetOrientation());
+                            break;
+                        case NPC_TRAVEL_TO_EYE_OF_ETERNITY:
+                            if (instance->GetBossState(DATA_YORSAHJ) == DONE && instance->GetBossState(DATA_ZONOZZ) == DONE)
+                                player->NearTeleportTo(portalsPos[6].GetPositionX(), portalsPos[6].GetPositionY(), portalsPos[6].GetPositionZ(), portalsPos[6].GetOrientation());
+                            break;
+                        case NPC_TRAVEL_TO_WYRMREST_SUMMIT:
+                            player->NearTeleportTo(portalsPos[7].GetPositionX(), portalsPos[7].GetPositionY(), portalsPos[7].GetPositionZ(), portalsPos[7].GetOrientation());
+                            break;
+                        case NPC_TRAVEL_TO_DECK:
+                            if (instance->GetBossState(DATA_BLACKHORN) == DONE && instance->GetBossState(DATA_ULTRAXION) == DONE)
+                                player->NearTeleportTo(portalsPos[8].GetPositionX(), portalsPos[8].GetPositionY(), portalsPos[8].GetPositionZ(), portalsPos[8].GetOrientation());
+                            break;
+                        case NPC_TRAVEL_TO_MAELSTORM:
+                            if (instance->GetBossState(DATA_BLACKHORN) == DONE && instance->GetBossState(DATA_ULTRAXION) == DONE)
+                            {
+                                player->NearTeleportTo(portalsPos[9].GetPositionX(), portalsPos[9].GetPositionY(), portalsPos[9].GetPositionZ(), portalsPos[9].GetOrientation());
+                                if (instance->GetBossState(DATA_MADNESS) == DONE)
+                                    player->AddAura(SPELL_CALM_MAELSTROM_SKYBOX, player);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
+                return true;
+        
             }
-            return true;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_dragon_soul_teleportAI(creature);
         }
 };
 
@@ -1280,55 +1293,9 @@ class npc_dragon_soul_thrall : public CreatureScript
     public:
         npc_dragon_soul_thrall() : CreatureScript("npc_dragon_soul_thrall") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (player->IsInCombat())
-                return true;
+        
 
-            if (InstanceScript* instance = creature->GetInstanceScript())
-            {
-                if (instance->GetData(DATA_IS_LFR) && !instance->GetData(DATA_IS_FALL_OF_DEATHWING))
-                    return true;
-
-                if (instance->GetBossState(DATA_HAGARA) != DONE)
-                    return true;
-
-                if (instance->GetBossState(DATA_HAGARA) == DONE && instance->GetData(DATA_DRAGON_SOUL_EVENT) != DONE && instance->GetBossState(DATA_ULTRAXION) != DONE)
-                {
-                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ULTRAXION_START, 0, GOSSIP_MENU_ULTRAXION_START, GOSSIP_ACTION_INFO_DEF + 1);
-                    player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                    return true;
-                }
-                else if (instance->GetBossState(DATA_HAGARA) == DONE && instance->GetData(DATA_DRAGON_SOUL_EVENT) == DONE && instance->GetData(DATA_ULTRAXION_TRASH) != DONE && instance->GetBossState(DATA_ULTRAXION) != DONE)
-                {
-                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ULTRAXION_START, 1, GOSSIP_MENU_ULTRAXION_START, GOSSIP_ACTION_INFO_DEF + 2);
-                    player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                    return true;
-                }
-            }
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
-        {
-            InstanceScript* instance = creature->GetInstanceScript();
-
-            if (sender == GOSSIP_MENU_ULTRAXION_START && action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                player->CLOSE_GOSSIP_MENU();
-                creature->AI()->DoAction(ACTION_AFTER_HAGARA);
-                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            }
-            else if (sender == GOSSIP_MENU_ULTRAXION_START && action == GOSSIP_ACTION_INFO_DEF + 2)
-            {
-                player->CLOSE_GOSSIP_MENU();
-                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                creature->AI()->DoAction(ACTION_SPAWN_DRAGONS);
-            }
-            return true;
-        }
+    
 
         struct npc_dragon_soul_thrallAI : public ScriptedAI
         {
@@ -1669,7 +1636,60 @@ class npc_dragon_soul_thrall : public CreatureScript
             private:
                 InstanceScript* instance;
                 EventMap events;
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (player->IsInCombat())
+                    return true;
+
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    if (instance->GetData(DATA_IS_LFR) && !instance->GetData(DATA_IS_FALL_OF_DEATHWING))
+                        return true;
+
+                    if (instance->GetBossState(DATA_HAGARA) != DONE)
+                        return true;
+
+                    if (instance->GetBossState(DATA_HAGARA) == DONE && instance->GetData(DATA_DRAGON_SOUL_EVENT) != DONE && instance->GetBossState(DATA_ULTRAXION) != DONE)
+                    {
+                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ULTRAXION_START, 0, GOSSIP_MENU_ULTRAXION_START, GOSSIP_ACTION_INFO_DEF + 1);
+                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                        return true;
+                    }
+                    else if (instance->GetBossState(DATA_HAGARA) == DONE && instance->GetData(DATA_DRAGON_SOUL_EVENT) == DONE && instance->GetData(DATA_ULTRAXION_TRASH) != DONE && instance->GetBossState(DATA_ULTRAXION) != DONE)
+                    {
+                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ULTRAXION_START, 1, GOSSIP_MENU_ULTRAXION_START, GOSSIP_ACTION_INFO_DEF + 2);
+                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                        return true;
+                    }
+                }
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        InstanceScript* instance = me->GetInstanceScript();
+
+                        if (sender == GOSSIP_MENU_ULTRAXION_START && action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            player->CLOSE_GOSSIP_MENU();
+                            me->AI()->DoAction(ACTION_AFTER_HAGARA);
+                            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        }
+                        else if (sender == GOSSIP_MENU_ULTRAXION_START && action == GOSSIP_ACTION_INFO_DEF + 2)
+                        {
+                            player->CLOSE_GOSSIP_MENU();
+                            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            me->AI()->DoAction(ACTION_SPAWN_DRAGONS);
+                        }
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {

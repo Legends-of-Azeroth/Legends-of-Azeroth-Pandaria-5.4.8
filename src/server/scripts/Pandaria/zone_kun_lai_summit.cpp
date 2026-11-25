@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "Vehicle.h"
@@ -951,37 +952,9 @@ class npc_waterspeaker_gorai : public CreatureScript
     public:
         npc_waterspeaker_gorai() : CreatureScript("npc_waterspeaker_gorai") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
+        
 
-            if (creature->IsVendor())
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
-            if (player->GetQuestStatus(QUEST_THE_RITUAL) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I'm ready. Begin the ritual.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                player->KilledMonsterCredit(creature->GetEntry());
-                creature->AI()->SetGUID(player->GetGUID(), ObjectGuid::Empty);
-                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER | UNIT_NPC_FLAG_GOSSIP);
-                player->CLOSE_GOSSIP_MENU();
-            }
-            else if (action == GOSSIP_ACTION_TRADE)
-                player->GetSession()->SendListInventory(creature->GetGUID());
-
-            return false;
-        }
+    
 
         struct npc_waterspeaker_goraiAI : public ScriptedAI
         {
@@ -1082,7 +1055,42 @@ class npc_waterspeaker_gorai : public CreatureScript
                 else
                     phaseTimer -= diff;
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                if (me->IsVendor())
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
+                if (player->GetQuestStatus(QUEST_THE_RITUAL) == QUEST_STATUS_INCOMPLETE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I'm ready. Begin the ritual.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            player->KilledMonsterCredit(me->GetEntry());
+                            me->AI()->SetGUID(player->GetGUID(), ObjectGuid::Empty);
+                            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER | UNIT_NPC_FLAG_GOSSIP);
+                            player->CLOSE_GOSSIP_MENU();
+                        }
+                        else if (action == GOSSIP_ACTION_TRADE)
+                            player->GetSession()->SendListInventory(me->GetGUID());
+
+                        return false;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -1156,22 +1164,35 @@ class go_yaungol_banner : public GameObjectScript
     public:
         go_yaungol_banner() : GameObjectScript("go_yaungol_banner") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_yaungol_bannerAI : public GameObjectAI
         {
-            if (player->GetQuestStatus(QUEST_CHALLENGE_ACCEPTED) == QUEST_STATUS_INCOMPLETE)
+            go_yaungol_bannerAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                if (GetClosestCreatureWithEntry(player, NPC_URBATAAR, 30.f))
-                    return false;
 
-                player->SummonGameObject(NPC_URBATAAR, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, { }, 60 * IN_MILLISECONDS);
-
-                if (auto urbataar = player->SummonCreature(NPC_URBATAAR, 2110.05f, 1182.91f, 476.32f, 0, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(120 * IN_MILLISECONDS)))
+                if (player->GetQuestStatus(QUEST_CHALLENGE_ACCEPTED) == QUEST_STATUS_INCOMPLETE)
                 {
-                    urbataar->AI()->Talk(SAY_URBATAAR);
-                    urbataar->AI()->AttackStart(player);
+                    if (GetClosestCreatureWithEntry(player, NPC_URBATAAR, 30.f))
+                        return false;
+
+                    player->SummonGameObject(NPC_URBATAAR, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, { }, 60 * IN_MILLISECONDS);
+
+                    if (auto urbataar = player->SummonCreature(NPC_URBATAAR, 2110.05f, 1182.91f, 476.32f, 0, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(120 * IN_MILLISECONDS)))
+                    {
+                        urbataar->AI()->Talk(SAY_URBATAAR);
+                        urbataar->AI()->AttackStart(player);
+                    }
                 }
+                return true;
+        
             }
-            return true;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_yaungol_bannerAI(go);
         }
 };
 
@@ -1251,32 +1272,49 @@ class npc_inkgill_dissenter : public CreatureScript
     public:
         npc_inkgill_dissenter() : CreatureScript("npc_inkgill_dissenter") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+        
+
+    
+        struct npc_inkgill_dissenterAI : public ScriptedAI
         {
-            if (player->GetQuestStatus(QUEST_FREE_THE_DISSENTERS) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "There's still hope - Gorai is still alive, to the south. Go!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            npc_inkgill_dissenterAI(Creature* creature) : ScriptedAI(creature) { }
 
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            bool OnGossipHello(Player* player) override
             {
-                player->KilledMonsterCredit(RESCUE_DISSENTER_KILL_CREDIT);
-                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                creature->AI()->Talk(0);
-                creature->DespawnOrUnsummon(3 * IN_MILLISECONDS);
-                float x, y, z;
-                creature->GetClosePoint(x, y, z, creature->GetObjectSize() / 3, 10.f);
-                creature->GetMotionMaster()->MovePoint(1, x, y, z);
-                player->CLOSE_GOSSIP_MENU();
-            }
 
-            return false;
+                if (player->GetQuestStatus(QUEST_FREE_THE_DISSENTERS) == QUEST_STATUS_INCOMPLETE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "There's still hope - Gorai is still alive, to the south. Go!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            player->KilledMonsterCredit(RESCUE_DISSENTER_KILL_CREDIT);
+                            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            me->AI()->Talk(0);
+                            me->DespawnOrUnsummon(3 * IN_MILLISECONDS);
+                            float x, y, z;
+                            me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, 10.f);
+                            me->GetMotionMaster()->MovePoint(1, x, y, z);
+                            player->CLOSE_GOSSIP_MENU();
+                        }
+
+                        return false;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_inkgill_dissenterAI(creature);
         }
 };
 
@@ -1285,46 +1323,9 @@ class npc_shado_pan_sentinel : public CreatureScript
     public:
         npc_shado_pan_sentinel() : CreatureScript("npc_shado_pan_sentinel") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (player->GetQuestStatus(QUEST_UNBELIEVABLE) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_SENTINEL, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        
 
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                player->CLOSE_GOSSIP_MENU();
-                creature->AI()->Talk(SAY_SENTINEL_1);
-                creature->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
-
-                uint32 delay = 0;
-                creature->m_Events.Schedule(delay += 3000, [creature]()
-                {
-                    creature->AI()->Talk(SAY_SENTINEL_2);
-                    creature->HandleEmoteCommand(EMOTE_ONESHOT_SHOUT);
-                });
-
-                creature->m_Events.Schedule(delay += 5000, [creature]()
-                {
-                    creature->CastSpell(creature, SPELL_POSSESSED_BY_RAGE);
-                });
-
-                creature->m_Events.Schedule(delay += 1000, [creature, player]()
-                {
-                    creature->SetFaction(14);
-                    creature->Attack(player, true);
-                });
-            }
-
-            return false;
-        }
+    
 
         struct npc_shado_pan_sentinelAI : public ScriptedAI
         {
@@ -1334,7 +1335,51 @@ class npc_shado_pan_sentinel : public CreatureScript
             {
                 me->SetFaction(me->GetCreatureTemplate()->faction);
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (player->GetQuestStatus(QUEST_UNBELIEVABLE) == QUEST_STATUS_INCOMPLETE)
+                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_SENTINEL, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            player->CLOSE_GOSSIP_MENU();
+                            me->AI()->Talk(SAY_SENTINEL_1);
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
+
+                            uint32 delay = 0;
+                            me->m_Events.Schedule(delay += 3000, [this]()
+                            {
+                                me->AI()->Talk(SAY_SENTINEL_2);
+                                me->HandleEmoteCommand(EMOTE_ONESHOT_SHOUT);
+                            });
+
+                            me->m_Events.Schedule(delay += 5000, [this]()
+                            {
+                                me->CastSpell(me, SPELL_POSSESSED_BY_RAGE);
+                            });
+
+                            me->m_Events.Schedule(delay += 1000, [this, player]()
+                            {
+                                me->SetFaction(14);
+                                me->Attack(player, true);
+                            });
+                        }
+
+                        return false;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -1347,33 +1392,50 @@ class npc_lorewalker_cho_bashon : public CreatureScript
     public:
         npc_lorewalker_cho_bashon() : CreatureScript("npc_lorewalker_cho_bashon") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
+    
 
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+        
+        struct npc_lorewalker_cho_bashonAI : public ScriptedAI
+        {
+            npc_lorewalker_cho_bashonAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
             {
-                creature->CastSpell(player, SPELL_SUMMON_CHO_FORCE, true);
-                player->AddAura(SPELL_SUMMON_CHO, player);
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                if (player->GetQuestStatus(QUEST_TONGUE_OF_BASHON) != QUEST_STATUS_INCOMPLETE)
+                    return true;
+
+                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
             }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
 
-            player->CLOSE_GOSSIP_MENU();
+                        player->PlayerTalkClass->ClearMenus();
 
-            return true;
-        }
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            me->CastSpell(player, SPELL_SUMMON_CHO_FORCE, true);
+                            player->AddAura(SPELL_SUMMON_CHO, player);
+                        }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-
-            if (player->GetQuestStatus(QUEST_TONGUE_OF_BASHON) != QUEST_STATUS_INCOMPLETE)
-                return false;
-
-            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
+            return new npc_lorewalker_cho_bashonAI(creature);
         }
 };
 
@@ -1539,20 +1601,7 @@ class npc_master_hight : public CreatureScript
     public:
         npc_master_hight() : CreatureScript("npc_master_hight") { }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_BEGIN_YOUR_TRAINING)
-            {
-                creature->AI()->Talk(SAY_INTRO);
-
-                if (Creature* initiate = player->FindNearestCreature(NPC_INITIATE_CHUANGE_SPAWN, 100.0f, true))
-                    player->CastSpell(initiate, SPELL_SUMMON_GUIDE_TOUR_FORCE, true);
-
-                player->AddAura(SPELL_SUMMON_GUIDE_TOUR, player);
-            }
-
-            return false;
-        }
+        
 
         struct npc_master_hightAI : public ScriptedAI
         {
@@ -1561,6 +1610,22 @@ class npc_master_hight : public CreatureScript
             EventMap events;
 
             void IsSummonedBy(Unit* summoner) override { }
+                    void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == QUEST_BEGIN_YOUR_TRAINING)
+                {
+                    Talk(SAY_INTRO);
+
+                    if (Creature* initiate = player->FindNearestCreature(NPC_INITIATE_CHUANGE_SPAWN, 100.0f, true))
+                        player->CastSpell(initiate, SPELL_SUMMON_GUIDE_TOUR_FORCE, true);
+
+                    player->AddAura(SPELL_SUMMON_GUIDE_TOUR, player);
+                }
+
+                return;
+        
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -1690,20 +1755,7 @@ class npc_xuen_celestial_experience : public CreatureScript
     public:
         npc_xuen_celestial_experience() : CreatureScript("npc_xuen_celestial_experience") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-
-            if (!creature->GetDBTableGUIDLow() || (player->GetQuestStatus(QUEST_CELESTIAL_EXPERIENCE_A) != QUEST_STATUS_INCOMPLETE && player->GetQuestStatus(QUEST_CELESTIAL_EXPERIENCE_H) != QUEST_STATUS_INCOMPLETE))
-                return false;
-
-            player->KilledMonsterCredit(NPC_XUEN);
-            player->SummonCreature(NPC_XUEN, *creature, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(300 * IN_MILLISECONDS));
-            player->SetPhaseMask(3, true);
-            player->CLOSE_GOSSIP_MENU();;
-            return true;
-        }
+        
 
         struct npc_xuen_celestial_experienceAI : public ScriptedAI
         {
@@ -1903,6 +1955,22 @@ class npc_xuen_celestial_experience : public CreatureScript
                         me->DespawnOrUnsummon();
                         break;
                 }
+            }
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                if (!me->GetDBTableGUIDLow() || (player->GetQuestStatus(QUEST_CELESTIAL_EXPERIENCE_A) != QUEST_STATUS_INCOMPLETE && player->GetQuestStatus(QUEST_CELESTIAL_EXPERIENCE_H) != QUEST_STATUS_INCOMPLETE))
+                    return false;
+
+                player->KilledMonsterCredit(NPC_XUEN);
+                player->SummonCreature(NPC_XUEN, *me, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(300 * IN_MILLISECONDS));
+                player->SetPhaseMask(3, true);
+                player->CLOSE_GOSSIP_MENU();;
+                return true;
+        
             }
         };
 

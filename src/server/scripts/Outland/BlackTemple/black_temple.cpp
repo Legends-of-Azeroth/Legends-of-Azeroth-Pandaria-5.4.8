@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -37,26 +37,43 @@ class npc_spirit_of_olum : public CreatureScript
     public:
         npc_spirit_of_olum() : CreatureScript("npc_spirit_of_olum") { }
 
-        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
+    
+
+        
+        struct npc_spirit_of_olumAI : public ScriptedAI
         {
-            player->PlayerTalkClass->ClearMenus();
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                player->CLOSE_GOSSIP_MENU();
+            npc_spirit_of_olumAI(Creature* creature) : ScriptedAI(creature) { }
 
-            player->InterruptNonMeleeSpells(false);
-            player->CastSpell(player, SPELL_TELEPORT, false);
-            return true;
-        }
+            bool OnGossipHello(Player* player) override
+            {
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+                InstanceScript* instance = me->GetInstanceScript();
+
+                if (instance && (instance->GetData(DATA_SUPREMUS_EVENT) >= DONE) && (instance->GetData(DATA_HIGH_WARLORD_NAJENTUS_EVENT) >= DONE))
+                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_OLUM1, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            player->CLOSE_GOSSIP_MENU();
+
+                        player->InterruptNonMeleeSpells(false);
+                        player->CastSpell(player, SPELL_TELEPORT, false);
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            InstanceScript* instance = creature->GetInstanceScript();
-
-            if (instance && (instance->GetData(DATA_SUPREMUS_EVENT) >= DONE) && (instance->GetData(DATA_HIGH_WARLORD_NAJENTUS_EVENT) >= DONE))
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_OLUM1, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
+            return new npc_spirit_of_olumAI(creature);
         }
 };
 

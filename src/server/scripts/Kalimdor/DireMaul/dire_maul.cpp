@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -25,55 +25,62 @@ class npc_old_ironbark : public CreatureScript
     public:
         npc_old_ironbark() : CreatureScript("npc_old_ironbark") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
+    
 
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-
-                uint32 delay = 0;
-                ObjectGuid guid = creature->GetGUID();
-
-                Movement::MoveSplineInit init(creature);
-                for (auto itr : ironbarkPath)
-                    init.Path().push_back(G3D::Vector3(itr.GetPositionX(), itr.GetPositionY(), itr.GetPositionZ()));
-
-                init.SetSmooth();
-                init.SetUncompressed();
-                init.Launch();
-                creature->m_Events.Schedule(delay += creature->GetSplineDuration(), 1, [this,creature,guid]()
-                {
-                    if (Unit* ironbark = ObjectAccessor::GetUnit(*creature, guid))
-                        if (InstanceScript* instance = ironbark->GetInstanceScript())
-                            if (GameObject* door = ObjectAccessor::GetGameObject(*ironbark, instance->GetGuidData(GO_CONSERVATORY_DOOR)))
-                                door->UseDoorOrButton();
-                });
-            }
-
-            player->CLOSE_GOSSIP_MENU();
-
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-
-            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+        
 
         struct npc_old_ironbarkAI : public ScriptedAI
         {
             npc_old_ironbarkAI(Creature* creature) : ScriptedAI(creature) { }
 
             void UpdateAI(uint32 /*diff*/) override { }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+                            uint32 delay = 0;
+                            ObjectGuid guid = me->GetGUID();
+
+                            Movement::MoveSplineInit init(me);
+                            for (auto itr : ironbarkPath)
+                                init.Path().push_back(G3D::Vector3(itr.GetPositionX(), itr.GetPositionY(), itr.GetPositionZ()));
+
+                            init.SetSmooth();
+                            init.SetUncompressed();
+                            init.Launch();
+                            me->m_Events.Schedule(delay += me->GetSplineDuration(), 1, [this,guid]()
+                            {
+                                if (Unit* ironbark = ObjectAccessor::GetUnit(*me, guid))
+                                    if (InstanceScript* instance = ironbark->GetInstanceScript())
+                                        if (GameObject* door = ObjectAccessor::GetGameObject(*ironbark, instance->GetGuidData(GO_CONSERVATORY_DOOR)))
+                                            door->UseDoorOrButton();
+                            });
+                        }
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {

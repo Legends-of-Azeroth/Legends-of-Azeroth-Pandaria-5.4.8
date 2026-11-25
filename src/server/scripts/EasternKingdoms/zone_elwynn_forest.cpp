@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -633,13 +633,7 @@ class npc_king_varian_wrynn : public CreatureScript
     public:
         npc_king_varian_wrynn() : CreatureScript("npc_king_varian_wrynn") { }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_ALLIANCE_WAY)
-                player->CastSpell(creature, SPELL_SUMMON_VARIAN, true);
-
-            return false;
-        }
+        
 
         struct npc_king_varian_wrynnAI : public SmartAI
         {
@@ -653,6 +647,15 @@ class npc_king_varian_wrynn : public CreatureScript
             void UpdateAI(uint32 diff) override
             {
                 SmartAI::UpdateAI(diff);
+            }
+                    void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == QUEST_ALLIANCE_WAY)
+                    player->CastSpell(me, SPELL_SUMMON_VARIAN, true);
+
+                return;
+        
             }
         };
 
@@ -668,13 +671,7 @@ class npc_varian_wrynn_alliance_way_quest : public CreatureScript
     public:
         npc_varian_wrynn_alliance_way_quest() : CreatureScript("npc_varian_wrynn_alliance_way_quest") { }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_AN_OLD_PIT_FIGHTER)
-                player->CastSpell(creature, SPELL_SUMMON_VARIAN, true);
-
-            return false;
-        }
+        
 
         struct npc_varian_wrynn_alliance_way_questAI : public ScriptedAI
         {
@@ -870,6 +867,15 @@ class npc_varian_wrynn_alliance_way_quest : public CreatureScript
             {
                 damage = 0;
                 me->HandleEmoteCommand(EMOTE_ONESHOT_DODGE);
+            }
+                    void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == QUEST_AN_OLD_PIT_FIGHTER)
+                    player->CastSpell(me, SPELL_SUMMON_VARIAN, true);
+
+                return;
+        
             }
         };
 

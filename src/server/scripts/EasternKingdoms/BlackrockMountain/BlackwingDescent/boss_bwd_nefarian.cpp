@@ -16,6 +16,7 @@
 */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 #include "blackwing_descent.h"
 #include "MoveSplineInit.h"
 #include "VMapFactory.h"
@@ -1450,34 +1451,52 @@ class go_orb_of_culmination : public GameObjectScript
     public:
         go_orb_of_culmination() : GameObjectScript("go_orb_of_culmination") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
-        {
-            if (Creature* nefarius = go->FindNearestCreature(NPC_NEFARIAN_INTRO, 250))
-                if (nefarius->AI()->GetData(0))
-                    player->ADD_GOSSIP_ITEM_DB(11492, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    
 
-            player->SEND_GOSSIP_MENU(16139, go->GetGUID());
-            return true;
-        }
+    
 
-        bool OnGossipSelect(Player* player, GameObject* go, uint32 /*sender*/, uint32 action) override
+        struct go_orb_of_culminationAI : public GameObjectAI
         {
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            go_orb_of_culminationAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                if (Creature* nefarius = go->FindNearestCreature(NPC_NEFARIAN_INTRO, 250))
-                {
-                    if (nefarius->AI()->GetData(0))
-                    {
-                        nefarius->AI()->DoAction(ACTION_START_ENCOUNTER);
-                        if (Creature* stalker = go->FindNearestCreature(NPC_ORB_OF_CULMINATION_STALKER, 50))
-                            stalker->SetVisible(false);
-                        go->SetRespawnTime(WEEK);
-                        player->CLOSE_GOSSIP_MENU();
-                    }
-                }
-            }
 
-            return true;
+                        if (Creature* nefarius = me->FindNearestCreature(NPC_NEFARIAN_INTRO, 250))
+                            if (nefarius->AI()->GetData(0))
+                                player->ADD_GOSSIP_ITEM_DB(11492, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                        player->SEND_GOSSIP_MENU(16139, me->GetGUID());
+                        return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            if (Creature* nefarius = me->FindNearestCreature(NPC_NEFARIAN_INTRO, 250))
+                            {
+                                if (nefarius->AI()->GetData(0))
+                                {
+                                    nefarius->AI()->DoAction(ACTION_START_ENCOUNTER);
+                                    if (Creature* stalker = me->FindNearestCreature(NPC_ORB_OF_CULMINATION_STALKER, 50))
+                                        stalker->SetVisible(false);
+                                    me->SetRespawnTime(WEEK);
+                                    player->CLOSE_GOSSIP_MENU();
+                                }
+                            }
+                        }
+
+                        return true;
+        
+            }
+};
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_orb_of_culminationAI(go);
         }
 };
 

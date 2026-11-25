@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -28,6 +28,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptedGossip.h"
 #include "razorfen_downs.h"
 #include "Player.h"
@@ -109,20 +110,33 @@ class go_gong : public GameObjectScript
 public:
     go_gong() : GameObjectScript("go_gong") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
-    {
-        //basic support, not blizzlike data is missing...
-        InstanceScript* instance = go->GetInstanceScript();
+    
 
-        if (instance)
+        struct go_gongAI : public GameObjectAI
         {
-            instance->SetData(DATA_GONG_WAVES, instance->GetData(DATA_GONG_WAVES)+1);
-            return true;
+            go_gongAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+            //basic support, not blizzlike data is missing...
+            InstanceScript* instance = me->GetInstanceScript();
+
+            if (instance)
+            {
+                instance->SetData(DATA_GONG_WAVES, instance->GetData(DATA_GONG_WAVES)+1);
+                return true;
+            }
+
+            return false;
+    
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_gongAI(go);
         }
-
-        return false;
-    }
-
 };
 
 enum TombCreature

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -29,6 +29,7 @@ npc_creditmarker_visit_with_ancestors
 EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "Player.h"
@@ -59,87 +60,104 @@ class npc_greatmother_geyah : public CreatureScript
 public:
     npc_greatmother_geyah() : CreatureScript("npc_greatmother_geyah") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 2:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 3:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 4:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 5:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 6:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 7:
-                player->AreaExploredOrEventHappens(10044);
-                player->CLOSE_GOSSIP_MENU();
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 10:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 11:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG8, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 12:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG9, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 13:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG10, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 14:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG11, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 15);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 15:
-                player->AreaExploredOrEventHappens(10172);
-                player->CLOSE_GOSSIP_MENU();
-                break;
-        }
-        return true;
-    }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (player->GetQuestStatus(10044) == QUEST_STATUS_INCOMPLETE)
+    
+        struct npc_greatmother_geyahAI : public ScriptedAI
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HGG1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        }
-        else if (player->GetQuestStatus(10172) == QUEST_STATUS_INCOMPLETE)
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HGG2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        }
-        else
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+            npc_greatmother_geyahAI(Creature* creature) : ScriptedAI(creature) { }
 
-        return true;
-    }
+            bool OnGossipHello(Player* player) override
+            {
+
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            if (player->GetQuestStatus(10044) == QUEST_STATUS_INCOMPLETE)
+            {
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HGG1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+            }
+            else if (player->GetQuestStatus(10172) == QUEST_STATUS_INCOMPLETE)
+            {
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HGG2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+            }
+            else
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    switch (action)
+                    {
+                        case GOSSIP_ACTION_INFO_DEF + 1:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF + 2:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF + 3:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF + 4:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF + 5:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+                            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF + 6:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
+                            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF + 7:
+                            player->AreaExploredOrEventHappens(10044);
+                            player->CLOSE_GOSSIP_MENU();
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF + 10:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
+                            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF + 11:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG8, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
+                            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF + 12:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG9, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
+                            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF + 13:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG10, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
+                            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF + 14:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG11, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 15);
+                            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF + 15:
+                            player->AreaExploredOrEventHappens(10172);
+                            player->CLOSE_GOSSIP_MENU();
+                            break;
+                    }
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_greatmother_geyahAI(creature);
+        }
 };
 
 /*#####
@@ -177,26 +195,7 @@ class npc_maghar_captive : public CreatureScript
 public:
     npc_maghar_captive() : CreatureScript("npc_maghar_captive") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_TOTEM_KARDASH_H)
-        {
-            if (npc_maghar_captiveAI* pEscortAI = dynamic_cast<npc_maghar_captiveAI*>(creature->AI()))
-            {
-                creature->SetStandState(UNIT_STAND_STATE_STAND);
-                creature->SetFaction(232);
-
-                pEscortAI->Start(true, player->GetGUID(), quest);
-
-                creature->AI()->Talk(SAY_MAG_START);
-
-                creature->SummonCreature(NPC_MURK_RAIDER, m_afAmbushA[0]+2.5f, m_afAmbushA[1]-2.5f, m_afAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
-                creature->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushA[0]-2.5f, m_afAmbushA[1]+2.5f, m_afAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
-                creature->SummonCreature(NPC_MURK_BRUTE, m_afAmbushA[0], m_afAmbushA[1], m_afAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
-            }
-        }
-        return true;
-    }
+    
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -308,7 +307,29 @@ public:
 
             DoMeleeAttackIfReady();
         }
-    };
+                void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+            if (quest->GetQuestId() == QUEST_TOTEM_KARDASH_H)
+            {
+                if (npc_maghar_captiveAI* pEscortAI = this)
+                {
+                    me->SetStandState(UNIT_STAND_STATE_STAND);
+                    me->SetFaction(232);
+
+                    pEscortAI->Start(true, player->GetGUID(), quest);
+
+                    Talk(SAY_MAG_START);
+
+                    me->SummonCreature(NPC_MURK_RAIDER, m_afAmbushA[0]+2.5f, m_afAmbushA[1]-2.5f, m_afAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
+                    me->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushA[0]-2.5f, m_afAmbushA[1]+2.5f, m_afAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
+                    me->SummonCreature(NPC_MURK_BRUTE, m_afAmbushA[0], m_afAmbushA[1], m_afAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
+                }
+            }
+            return;
+    
+            }
+        };
 };
 
 /*######
@@ -384,40 +405,53 @@ class go_corkis_prison : public GameObjectScript
 public:
   go_corkis_prison() : GameObjectScript("go_corkis_prison") { }
 
-  bool OnGossipHello(Player* player, GameObject* go) override
-  {
-      go->SetGoState(GO_STATE_READY);
-      if (go->GetEntry() == GO_CORKIS_PRISON)
-      {
-          if (Creature* corki = go->FindNearestCreature(NPC_CORKI, 25, true))
-          {
-              corki->GetMotionMaster()->MovePoint(1, go->GetPositionX()+5, go->GetPositionY(), go->GetPositionZ());
-              if (player)
-                  player->KilledMonsterCredit(NPC_CORKI_CREDIT_1, ObjectGuid::Empty);
-          }
-      }
+  
+        struct go_corkis_prisonAI : public GameObjectAI
+        {
+            go_corkis_prisonAI(GameObject* go) : GameObjectAI(go) { }
 
-      if (go->GetEntry() == GO_CORKIS_PRISON_2)
-      {
-          if (Creature* corki = go->FindNearestCreature(NPC_CORKI_2, 25, true))
-          {
-              corki->GetMotionMaster()->MovePoint(1, go->GetPositionX()-5, go->GetPositionY(), go->GetPositionZ());
-              if (player)
-                  player->KilledMonsterCredit(NPC_CORKI_2, ObjectGuid::Empty);
-          }
-      }
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
 
-      if (go->GetEntry() == GO_CORKIS_PRISON_3)
-      {
-          if (Creature* corki = go->FindNearestCreature(NPC_CORKI_3, 25, true))
+          me->SetGoState(GO_STATE_READY);
+          if (me->GetEntry() == GO_CORKIS_PRISON)
           {
-              corki->GetMotionMaster()->MovePoint(1, go->GetPositionX()+4, go->GetPositionY(), go->GetPositionZ());
-              if (player)
-                  player->KilledMonsterCredit(NPC_CORKI_CREDIT_3, ObjectGuid::Empty);
+              if (Creature* corki = me->FindNearestCreature(NPC_CORKI, 25, true))
+              {
+                  corki->GetMotionMaster()->MovePoint(1, me->GetPositionX()+5, me->GetPositionY(), me->GetPositionZ());
+                  if (player)
+                      player->KilledMonsterCredit(NPC_CORKI_CREDIT_1, ObjectGuid::Empty);
+              }
           }
-      }
-      return true;
-  }
+
+          if (me->GetEntry() == GO_CORKIS_PRISON_2)
+          {
+              if (Creature* corki = me->FindNearestCreature(NPC_CORKI_2, 25, true))
+              {
+                  corki->GetMotionMaster()->MovePoint(1, me->GetPositionX()-5, me->GetPositionY(), me->GetPositionZ());
+                  if (player)
+                      player->KilledMonsterCredit(NPC_CORKI_2, ObjectGuid::Empty);
+              }
+          }
+
+          if (me->GetEntry() == GO_CORKIS_PRISON_3)
+          {
+              if (Creature* corki = me->FindNearestCreature(NPC_CORKI_3, 25, true))
+              {
+                  corki->GetMotionMaster()->MovePoint(1, me->GetPositionX()+4, me->GetPositionY(), me->GetPositionZ());
+                  if (player)
+                      player->KilledMonsterCredit(NPC_CORKI_CREDIT_3, ObjectGuid::Empty);
+              }
+          }
+          return true;
+  
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_corkis_prisonAI(go);
+        }
 };
 
 class npc_corki : public CreatureScript
@@ -509,23 +543,7 @@ class npc_kurenai_captive : public CreatureScript
 public:
     npc_kurenai_captive() : CreatureScript("npc_kurenai_captive") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_TOTEM_KARDASH_A)
-        {
-            if (npc_kurenai_captiveAI* EscortAI = dynamic_cast<npc_kurenai_captiveAI*>(creature->AI()))
-            {
-                creature->SetStandState(UNIT_STAND_STATE_STAND);
-                EscortAI->Start(true, player->GetGUID(), quest);
-                creature->AI()->Talk(SAY_KUR_START);
-
-                creature->SummonCreature(NPC_KUR_MURK_RAIDER, kurenaiAmbushA[0]+2.5f, kurenaiAmbushA[1]-2.5f, kurenaiAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
-                creature->SummonCreature(NPC_KUR_MURK_BRUTE, kurenaiAmbushA[0]-2.5f, kurenaiAmbushA[1]+2.5f, kurenaiAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
-                creature->SummonCreature(NPC_KUR_MURK_SCAVENGER, kurenaiAmbushA[0], kurenaiAmbushA[1], kurenaiAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
-            }
-        }
-        return true;
-    }
+    
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -657,7 +675,26 @@ public:
 
             DoMeleeAttackIfReady();
         }
-    };
+                void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+            if (quest->GetQuestId() == QUEST_TOTEM_KARDASH_A)
+            {
+                if (npc_kurenai_captiveAI* EscortAI = this)
+                {
+                    me->SetStandState(UNIT_STAND_STATE_STAND);
+                    EscortAI->Start(true, player->GetGUID(), quest);
+                    Talk(SAY_KUR_START);
+
+                    me->SummonCreature(NPC_KUR_MURK_RAIDER, kurenaiAmbushA[0]+2.5f, kurenaiAmbushA[1]-2.5f, kurenaiAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
+                    me->SummonCreature(NPC_KUR_MURK_BRUTE, kurenaiAmbushA[0]-2.5f, kurenaiAmbushA[1]+2.5f, kurenaiAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
+                    me->SummonCreature(NPC_KUR_MURK_SCAVENGER, kurenaiAmbushA[0], kurenaiAmbushA[1], kurenaiAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms);
+                }
+            }
+            return;
+    
+            }
+        };
 };
 
 /*######
@@ -677,20 +714,33 @@ class go_warmaul_prison : public GameObjectScript
     public:
         go_warmaul_prison() : GameObjectScript("go_warmaul_prison") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_warmaul_prisonAI : public GameObjectAI
         {
-            go->UseDoorOrButton();
-            if (player->GetQuestStatus(QUEST_FINDING_THE_SURVIVORS) != QUEST_STATUS_INCOMPLETE)
-                return false;
+            go_warmaul_prisonAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (Creature* prisoner = go->FindNearestCreature(NPC_MAGHAR_PRISONER, 5.0f))
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                player->KilledMonsterCredit(NPC_MAGHAR_PRISONER, ObjectGuid::Empty);
 
-                prisoner->AI()->Talk(SAY_FREE, player);
-                prisoner->DespawnOrUnsummon(6000);
+                me->UseDoorOrButton();
+                if (player->GetQuestStatus(QUEST_FINDING_THE_SURVIVORS) != QUEST_STATUS_INCOMPLETE)
+                    return false;
+
+                if (Creature* prisoner = me->FindNearestCreature(NPC_MAGHAR_PRISONER, 5.0f))
+                {
+                    player->KilledMonsterCredit(NPC_MAGHAR_PRISONER, ObjectGuid::Empty);
+
+                    prisoner->AI()->Talk(SAY_FREE, player);
+                    prisoner->DespawnOrUnsummon(6000);
+                }
+                return true;
+        
             }
-            return true;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_warmaul_prisonAI(go);
         }
 };
 

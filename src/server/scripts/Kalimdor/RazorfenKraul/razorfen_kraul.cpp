@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -46,17 +46,7 @@ class npc_willix : public CreatureScript
 public:
     npc_willix() : CreatureScript("npc_willix") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_WILLIX_THE_IMPORTER)
-        {
-            CAST_AI(EscortAI, (creature->AI()))->Start(true, player->GetGUID());
-            creature->AI()->Talk(SAY_READY, player);
-            creature->SetFaction(113);
-        }
-
-        return true;
-    }
+    
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -134,7 +124,20 @@ public:
             if (Player* player = GetPlayerForEscort())
                 player->FailQuest(QUEST_WILLIX_THE_IMPORTER);
         }
-    };
+                void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+            if (quest->GetQuestId() == QUEST_WILLIX_THE_IMPORTER)
+            {
+                this->Start(true, player->GetGUID());
+                Talk(SAY_READY, player);
+                me->SetFaction(113);
+            }
+
+            return;
+    
+            }
+        };
 
 };
 

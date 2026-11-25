@@ -822,26 +822,43 @@ class npc_grandmother : public CreatureScript
     public:
         npc_grandmother() : CreatureScript("npc_grandmother") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    
+
+        
+        struct npc_grandmotherAI : public ScriptedAI
         {
-            player->PlayerTalkClass->ClearMenus();
-            if (action == GOSSIP_ACTION_INFO_DEF)
+            npc_grandmotherAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
             {
-                if (Creature* bigBadWolf = creature->SummonCreature(CREATURE_BIG_BAD_WOLF, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, Milliseconds(HOUR*2*IN_MILLISECONDS)))
-                    bigBadWolf->AI()->AttackStart(player);
 
-                creature->DespawnOrUnsummon();
+                player->ADD_GOSSIP_ITEM_DB(GOSSIP_GRANDMA, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                player->SEND_GOSSIP_MENU(8990, me->GetGUID());
+
+                return true;
+        
             }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
 
-            return true;
-        }
+                        player->PlayerTalkClass->ClearMenus();
+                        if (action == GOSSIP_ACTION_INFO_DEF)
+                        {
+                            if (Creature* bigBadWolf = me->SummonCreature(CREATURE_BIG_BAD_WOLF, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, Milliseconds(HOUR*2*IN_MILLISECONDS)))
+                                bigBadWolf->AI()->AttackStart(player);
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+                            me->DespawnOrUnsummon();
+                        }
+
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            player->ADD_GOSSIP_ITEM_DB(GOSSIP_GRANDMA, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            player->SEND_GOSSIP_MENU(8990, creature->GetGUID());
-
-            return true;
+            return new npc_grandmotherAI(creature);
         }
 };
 

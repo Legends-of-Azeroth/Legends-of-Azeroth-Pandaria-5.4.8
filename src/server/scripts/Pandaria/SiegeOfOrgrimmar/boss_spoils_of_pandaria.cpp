@@ -16,6 +16,7 @@
 */
 
 #include "ScriptMgr.h"
+#include "GameObjectAI.h"
 #include "ScriptedCreature.h"
 #include "siege_of_orgrimmar.h"
 #include "Vehicle.h"
@@ -2497,68 +2498,85 @@ class go_spoils_secured_stockpile_of_spoils : public GameObjectScript
     public:
         go_spoils_secured_stockpile_of_spoils() : GameObjectScript("go_spoils_secured_stockpile_of_spoils") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+
+    
+        struct go_spoils_secured_stockpile_of_spoilsAI : public GameObjectAI
         {
-            if (player->GetInstanceScript() && (player->GetInstanceScript()->GetBossState(DATA_SPOILS_OF_PANDARIA) == DONE || player->GetInstanceScript()->GetBossState(DATA_SPOILS_OF_PANDARIA) == IN_PROGRESS))
+            go_spoils_secured_stockpile_of_spoilsAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                if (player->GetInstanceScript() && (player->GetInstanceScript()->GetBossState(DATA_SPOILS_OF_PANDARIA) == DONE || player->GetInstanceScript()->GetBossState(DATA_SPOILS_OF_PANDARIA) == IN_PROGRESS))
+                    return true;
+
+                // Choise 3 strings of voice system
+                std::list<uint32> leadersVoice = { 0, 1, 2, 3, 4 };
+                Trinity::Containers::RandomResizeList(leadersVoice, 3);
+
+                for (auto&& itr : leadersVoice)
+                    player->ADD_GOSSIP_ITEM_DB(SPOILS_GOSSIP_MENU, itr, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1 + itr);
+
+                player->SEND_GOSSIP_MENU(SPOILS_TEXT_ID, me->GetGUID());
+
                 return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
 
-            // Choise 3 strings of voice system
-            std::list<uint32> leadersVoice = { 0, 1, 2, 3, 4 };
-            Trinity::Containers::RandomResizeList(leadersVoice, 3);
+                        player->PlayerTalkClass->ClearMenus();
 
-            for (auto&& itr : leadersVoice)
-                player->ADD_GOSSIP_ITEM_DB(SPOILS_GOSSIP_MENU, itr, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1 + itr);
+                        // Launch
+                        if (action > GOSSIP_ACTION_INFO_DEF + 5)
+                        {
+                            uint32 choisedVoice = invSystemVoiceType.find(action)->second;
 
-            player->SEND_GOSSIP_MENU(SPOILS_TEXT_ID, go->GetGUID());
+                            if (Creature* spoils = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_SPOILS_OF_PANDARIA) : ObjectGuid::Empty))
+                            {
+                                if (choisedVoice == spoils->AI()->GetData(TYPE_CURRENT_VOICE_CHOISE))
+                                    spoils->AI()->DoAction(ACTION_START_INTRO);
+                            }
 
-            return true;
-        }
+                            player->CLOSE_GOSSIP_MENU();
+                        }
+                        else
+                        {
+                            // Choise 3 strings of voice system varianty include right
+                            std::list<uint32> leadersVoiceChoise = { 5, 6, 7, 8, 9 };
+                            uint32 mainVarianty = invSystemVoiceType.find(action)->second;
 
-        bool OnGossipSelect(Player* player, GameObject* go, uint32 /*sender*/, uint32 action) override
+                            if (std::find(leadersVoiceChoise.begin(), leadersVoiceChoise.end(), mainVarianty) != leadersVoiceChoise.end())
+                                leadersVoiceChoise.erase(std::find(leadersVoiceChoise.begin(), leadersVoiceChoise.end(), mainVarianty));
+
+                            Trinity::Containers::RandomResizeList(leadersVoiceChoise, 2);
+                            leadersVoiceChoise.push_back(mainVarianty);
+
+                            // Mix this
+                            std::vector<uint32> mixedVoiceChoise(leadersVoiceChoise.begin(), leadersVoiceChoise.end());
+                            std::random_device rd;
+                            std::mt19937 g(rd());
+                            std::shuffle(mixedVoiceChoise.begin(), mixedVoiceChoise.end(), g);                
+
+                            // save this value for check
+                            if (Creature* spoils = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_SPOILS_OF_PANDARIA) : ObjectGuid::Empty))
+                                spoils->AI()->SetData(TYPE_CURRENT_VOICE_CHOISE, mainVarianty);
+
+                            for (auto&& itr : mixedVoiceChoise)
+                                player->ADD_GOSSIP_ITEM_DB(SPOILS_GOSSIP_MENU, itr, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + itr + 1);
+
+                            player->SEND_GOSSIP_MENU(SPOILS_TEXT_ID, me->GetGUID());
+                        }
+                        return true;
+        
+            }
+};
+
+        GameObjectAI* GetAI(GameObject* go) const override
         {
-            player->PlayerTalkClass->ClearMenus();
-
-            // Launch
-            if (action > GOSSIP_ACTION_INFO_DEF + 5)
-            {
-                uint32 choisedVoice = invSystemVoiceType.find(action)->second;
-
-                if (Creature* spoils = ObjectAccessor::GetCreature(*go, go->GetInstanceScript() ? go->GetInstanceScript()->GetGuidData(DATA_SPOILS_OF_PANDARIA) : ObjectGuid::Empty))
-                {
-                    if (choisedVoice == spoils->AI()->GetData(TYPE_CURRENT_VOICE_CHOISE))
-                        spoils->AI()->DoAction(ACTION_START_INTRO);
-                }
-
-                player->CLOSE_GOSSIP_MENU();
-            }
-            else
-            {
-                // Choise 3 strings of voice system varianty include right
-                std::list<uint32> leadersVoiceChoise = { 5, 6, 7, 8, 9 };
-                uint32 mainVarianty = invSystemVoiceType.find(action)->second;
-
-                if (std::find(leadersVoiceChoise.begin(), leadersVoiceChoise.end(), mainVarianty) != leadersVoiceChoise.end())
-                    leadersVoiceChoise.erase(std::find(leadersVoiceChoise.begin(), leadersVoiceChoise.end(), mainVarianty));
-
-                Trinity::Containers::RandomResizeList(leadersVoiceChoise, 2);
-                leadersVoiceChoise.push_back(mainVarianty);
-
-                // Mix this
-                std::vector<uint32> mixedVoiceChoise(leadersVoiceChoise.begin(), leadersVoiceChoise.end());
-                std::random_device rd;
-                std::mt19937 g(rd());
-                std::shuffle(mixedVoiceChoise.begin(), mixedVoiceChoise.end(), g);                
-
-                // save this value for check
-                if (Creature* spoils = ObjectAccessor::GetCreature(*go, go->GetInstanceScript() ? go->GetInstanceScript()->GetGuidData(DATA_SPOILS_OF_PANDARIA) : ObjectGuid::Empty))
-                    spoils->AI()->SetData(TYPE_CURRENT_VOICE_CHOISE, mainVarianty);
-
-                for (auto&& itr : mixedVoiceChoise)
-                    player->ADD_GOSSIP_ITEM_DB(SPOILS_GOSSIP_MENU, itr, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + itr + 1);
-
-                player->SEND_GOSSIP_MENU(SPOILS_TEXT_ID, go->GetGUID());
-            }
-            return true;
+            return new go_spoils_secured_stockpile_of_spoilsAI(go);
         }
 };
 
@@ -2568,22 +2586,32 @@ class go_spoils_lever : public GameObjectScript
     public:
         go_spoils_lever() : GameObjectScript("go_spoils_lever") { }
 
-        void OnGameObjectStateChanged(GameObject* go, uint32 state) override
+                struct go_spoils_leverAI : public GameObjectAI
         {
-            if (state == GO_STATE_ACTIVE && go->GetInstanceScript())
-            {
-                uint32 regionEntry = 0;
+            go_spoils_leverAI(GameObject* go) : GameObjectAI(go) { }
 
-                // Get our region controller ID
-                for (auto&& itr : invControllerRegionType)
-                    if (itr.second[1] == go->GetEntry())
-                        regionEntry = itr.first;
+    void OnStateChanged(uint32 state) override {
+                if (state == GO_STATE_ACTIVE && me->GetInstanceScript())
+                {
+                    uint32 regionEntry = 0;
 
-                // Send data to this
-                if (Creature* regionController = ObjectAccessor::GetCreature(*go, go->GetInstanceScript()->GetGuidData(regionEntry)))
-                    regionController->AI()->SetData(TYPE_LEVER_DATA, DONE);
+                    // Get our region controller ID
+                    for (auto&& itr : invControllerRegionType)
+                        if (itr.second[1] == me->GetEntry())
+                            regionEntry = itr.first;
+
+                    // Send data to this
+                    if (Creature* regionController = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetGuidData(regionEntry)))
+                        regionController->AI()->SetData(TYPE_LEVER_DATA, DONE);
+                }
             }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_spoils_leverAI(go);
         }
+
 };
 
 // Unstable Defense System Initialize 144256

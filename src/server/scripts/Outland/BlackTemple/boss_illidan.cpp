@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "PassiveAI.h"
+#include "GameObjectAI.h"
 #include "ScriptPCH.h"
 #include "black_temple.h"
 
@@ -1333,38 +1334,9 @@ class npc_akama_illidan : public CreatureScript
     public:
         npc_akama_illidan() : CreatureScript("npc_akama_illidan") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            if (action == GOSSIP_ACTION_INFO_DEF) // Time to begin the Event
-            {
-                player->CLOSE_GOSSIP_MENU();
-                //CAST_AI(npc_akama_illidan::npc_akama_illidanAI, creature->AI())->EnterPhase(PHASE_CHANNEL);
-                InstanceScript* instance = creature->GetInstanceScript();
+    
 
-                if (!instance || instance->GetData(DATA_ILLIDAN_GATE_OPENED) != DONE)
-                {
-                    ((npc_akama_illidanAI*)creature->AI())->EnterPhase(PHASE_CHANNEL);
-                }
-                else
-                {
-                    ((npc_akama_illidanAI*)creature->AI())->Phase = PHASE_CHANNEL;
-                    ((npc_akama_illidanAI*)creature->AI())->EnterPhase(PHASE_WALK);
-                }
-            }
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            InstanceScript* instance = creature->GetInstanceScript();
-
-            if (instance && instance->GetData(DATA_ILLIDAN_STORMRAGE_EVENT) == NOT_STARTED && instance->CheckRequiredBosses(DATA_ILLIDAN_STORMRAGE_EVENT, player))
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_ITEM, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-            player->SEND_GOSSIP_MENU(10465, creature->GetGUID());
-            return true;
-        }
+        
 
         struct npc_akama_illidanAI : public ScriptedAI
         {
@@ -1815,7 +1787,43 @@ class npc_akama_illidan : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                InstanceScript* instance = me->GetInstanceScript();
+
+                if (instance && instance->GetData(DATA_ILLIDAN_STORMRAGE_EVENT) == NOT_STARTED && instance->CheckRequiredBosses(DATA_ILLIDAN_STORMRAGE_EVENT, player))
+                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_ITEM, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+                player->SEND_GOSSIP_MENU(10465, me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+                        if (action == GOSSIP_ACTION_INFO_DEF) // Time to begin the Event
+                        {
+                            player->CLOSE_GOSSIP_MENU();
+                            //CAST_AI(npc_akama_illidan::npc_akama_illidanAI, me->AI())->EnterPhase(PHASE_CHANNEL);
+                            InstanceScript* instance = me->GetInstanceScript();
+
+                            if (!instance || instance->GetData(DATA_ILLIDAN_GATE_OPENED) != DONE)
+                            {
+                                ((npc_akama_illidanAI*)me->AI())->EnterPhase(PHASE_CHANNEL);
+                            }
+                            else
+                            {
+                                ((npc_akama_illidanAI*)me->AI())->Phase = PHASE_CHANNEL;
+                                ((npc_akama_illidanAI*)me->AI())->EnterPhase(PHASE_WALK);
+                            }
+                        }
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -2085,16 +2093,29 @@ class gameobject_cage_trap : public GameObjectScript
     public:
         gameobject_cage_trap() : GameObjectScript("gameobject_cage_trap") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct gameobject_cage_trapAI : public GameObjectAI
         {
-            float x, y, z;
-            player->GetPosition(x, y, z);
+            gameobject_cage_trapAI(GameObject* go) : GameObjectAI(go) { }
 
-            // Grid search for nearest live Creature of entry 23304 within 10 yards
-            if (Creature* pTrigger = go->FindNearestCreature(23304, 10.0f))
-                CAST_AI(npc_cage_trap_trigger::cage_trap_triggerAI, pTrigger->AI())->Active = true;
-            go->SetGoState(GO_STATE_ACTIVE);
-            return true;
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                float x, y, z;
+                player->GetPosition(x, y, z);
+
+                // Grid search for nearest live Creature of entry 23304 within 10 yards
+                if (Creature* pTrigger = me->FindNearestCreature(23304, 10.0f))
+                    CAST_AI(npc_cage_trap_trigger::cage_trap_triggerAI, pTrigger->AI())->Active = true;
+                me->SetGoState(GO_STATE_ACTIVE);
+                return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new gameobject_cage_trapAI(go);
         }
 };
 

@@ -16,6 +16,7 @@
 */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 #include "ScriptedGossip.h"
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
@@ -58,17 +59,31 @@ class go_defias_cannon : public GameObjectScript
     public:
         go_defias_cannon() : GameObjectScript("go_defias_cannon") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+    
+
+        struct go_defias_cannonAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
-            if (!instance)
-                return false;
+            go_defias_cannonAI(GameObject* go) : GameObjectAI(go) { }
 
-            //if (instance->GetData(DATA_CANNON_EVENT) != CANNON_NOT_USED)
-                //return false ;
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
 
-            instance->SetData(DATA_CANNON_EVENT, CANNON_BLAST_INITIATED);
-            return false;
+                        InstanceScript* instance = me->GetInstanceScript();
+                        if (!instance)
+                            return false;
+
+                        //if (instance->GetData(DATA_CANNON_EVENT) != CANNON_NOT_USED)
+                            //return false ;
+
+                        instance->SetData(DATA_CANNON_EVENT, CANNON_BLAST_INITIATED);
+                        return false;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_defias_cannonAI(go);
         }
 };
 
@@ -77,40 +92,58 @@ class go_deadmines_teleport : public GameObjectScript
     public:
         go_deadmines_teleport() : GameObjectScript("go_deadmines_teleport") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
-        {
-            bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
+    
 
-            if (InstanceScript* instance = go->GetInstanceScript())
+    
+
+        struct go_deadmines_teleportAI : public GameObjectAI
+        {
+            go_deadmines_teleportAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                if (instance->GetBossState(DATA_GLUBTOK) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться ко входу." : "Teleport to entrance.", GOSSIP_SENDER_DEADMINES_PORT, 0);
 
-                if (instance->GetBossState(DATA_ADMIRAL) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться в потайную бухту." : "Teleport to Ironclad Cove.", GOSSIP_SENDER_DEADMINES_PORT, 3);
-                else if (instance->GetBossState(DATA_FOEREAPER) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться в гоблинский цех." : "Teleport to The Foundry.", GOSSIP_SENDER_DEADMINES_PORT, 2);
-                else if (instance->GetBossState(DATA_HELIX) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться в мачтовую мастерскую." : "Teleport to The Mast Room.", GOSSIP_SENDER_DEADMINES_PORT, 1);
+                        bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
+
+                        if (InstanceScript* instance = me->GetInstanceScript())
+                        {
+                            if (instance->GetBossState(DATA_GLUBTOK) == DONE)
+                                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться ко входу." : "Teleport to entrance.", GOSSIP_SENDER_DEADMINES_PORT, 0);
+
+                            if (instance->GetBossState(DATA_ADMIRAL) == DONE)
+                                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться в потайную бухту." : "Teleport to Ironclad Cove.", GOSSIP_SENDER_DEADMINES_PORT, 3);
+                            else if (instance->GetBossState(DATA_FOEREAPER) == DONE)
+                                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться в гоблинский цех." : "Teleport to The Foundry.", GOSSIP_SENDER_DEADMINES_PORT, 2);
+                            else if (instance->GetBossState(DATA_HELIX) == DONE)
+                                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться в мачтовую мастерскую." : "Teleport to The Mast Room.", GOSSIP_SENDER_DEADMINES_PORT, 1);
+                        }
+
+                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                        return true;
+        
             }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
 
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(go), go->GetGUID());
-            return true;
-        }
+                        player->PlayerTalkClass->ClearMenus();
+                        player->CLOSE_GOSSIP_MENU();
 
-        bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 /*sender*/, uint32 action) override
+                        if (action >= 4)
+                            return false;
+
+                        Position loc = deadmines_locs[action];
+                        if (!player->IsInCombat())
+                            player->NearTeleportTo(loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), false);
+
+                        return true;
+        
+            }
+};
+
+        GameObjectAI* GetAI(GameObject* go) const override
         {
-            player->PlayerTalkClass->ClearMenus();
-            player->CLOSE_GOSSIP_MENU();
-
-            if (action >= 4)
-                return false;
-
-            Position loc = deadmines_locs[action];
-            if (!player->IsInCombat())
-                player->NearTeleportTo(loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), false);
-
-            return true;
+            return new go_deadmines_teleportAI(go);
         }
 };
 

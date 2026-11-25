@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -133,30 +133,47 @@ class npc_naturalist_bite : public CreatureScript
     public:
         npc_naturalist_bite() : CreatureScript("npc_naturalist_bite") { }
     
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    
+    
+        
+        struct npc_naturalist_biteAI : public ScriptedAI
         {
-            player->PlayerTalkClass->ClearMenus();
+            npc_naturalist_biteAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
     
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                player->KilledMonsterCredit(creature->GetEntry());
+                if (player->GetQuestStatus(QUEST_LOST_IN_ACTIONS) != QUEST_STATUS_INCOMPLETE)
+                    return true;
     
-            player->CLOSE_GOSSIP_MENU();
+                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
     
-            return true;
-        }
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
     
-        bool OnGossipHello(Player* player, Creature* creature) override
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            player->KilledMonsterCredit(me->GetEntry());
+    
+                        player->CLOSE_GOSSIP_MENU();
+    
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-    
-            if (player->GetQuestStatus(QUEST_LOST_IN_ACTIONS) != QUEST_STATUS_INCOMPLETE)
-                return false;
-    
-            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-    
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
+            return new npc_naturalist_biteAI(creature);
         }
 };
 

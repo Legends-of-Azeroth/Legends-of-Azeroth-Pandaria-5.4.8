@@ -178,34 +178,9 @@ class npc_echo_of_medivh : public CreatureScript
     public:
         npc_echo_of_medivh() : CreatureScript("npc_echo_of_medivh") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (InstanceScript* instance = creature->GetInstanceScript())
-            {
-                if (instance->GetData(TYPE_CHESS) == SPECIAL)
-                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        
 
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                return true;
-            }
-
-            return false;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                // reset the board
-                if (InstanceScript* instance = creature->GetInstanceScript())
-                    if (instance->GetData(TYPE_CHESS) == SPECIAL)
-                        instance->SetData(TYPE_CHESS, DONE);
-
-                player->CLOSE_GOSSIP_MENU();
-            }
-
-            return true;
-        }
+    
 
         struct npc_echo_of_medivhAI : public ScriptedAI
         {
@@ -296,7 +271,39 @@ class npc_echo_of_medivh : public CreatureScript
             uint32 cheatTimer;
             uint32 cheatEffectTimer;
             uint32 movementTimer;
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    if (instance->GetData(TYPE_CHESS) == SPECIAL)
+                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                    player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                    return true;
+                }
+
+                return false;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            // reset the board
+                            if (InstanceScript* instance = me->GetInstanceScript())
+                                if (instance->GetData(TYPE_CHESS) == SPECIAL)
+                                    instance->SetData(TYPE_CHESS, DONE);
+
+                            player->CLOSE_GOSSIP_MENU();
+                        }
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -309,95 +316,11 @@ class npc_chess_piece : public CreatureScript
     public:
         npc_chess_piece() : CreatureScript("npc_chess_piece") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (!player->HasAura(SPELL_RECENTLY_IN_GAME) && !player->HasAura(SPELL_CONTROL_PIECE) && !creature->HasAura(SPELL_CONTROL_PIECE))
-                if (InstanceScript* instance = creature->GetInstanceScript())
-                    if (instance->GetData(TYPE_CHESS) != DONE && instance->GetData(TYPE_CHESS) != FAIL && player->GetTeam() == creature->AI()->GetData(1) || dynamic_cast<karazhan_accessor*>(instance)->IsFriendlyGameReady())
-                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        
 
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+    
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                // start event when used on the king
-                if (InstanceScript* instance = creature->GetInstanceScript())
-                {
-                    if (instance->GetData(TYPE_CHESS) == NOT_STARTED)
-                        instance->SetData(TYPE_CHESS, IN_PROGRESS);
-                    else if (instance->GetData(TYPE_CHESS) == DONE)
-                        instance->SetData(TYPE_CHESS, SPECIAL);
 
-                    // teleport at the entrance and control the chess piece
-                    player->CastSpell(player, SPELL_IN_GAME, true);
-                    player->CastSpell(creature, SPELL_CONTROL_PIECE, true);
-                }
-
-                player->CLOSE_GOSSIP_MENU();
-            }
-
-            return true;
-        }
-
-        bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Creature* target) override
-        {
-            // movement perform spell
-            if (spellId == SPELL_MOVE_TO_SQUARE && effIndex == EFFECT_0)
-            {
-                if (caster->GetTypeId() == TYPEID_UNIT && !caster->HasAura(SPELL_DISABLE_SQUARE) && !caster->HasAura(SPELL_IS_SQUARE_OCCUPIED))
-                {
-                    caster->CastSpell(caster, SPELL_DISABLE_SQUARE, true);
-                    caster->CastSpell(caster, SPELL_IS_SQUARE_OCCUPIED, true);
-
-                    target->CastSpell(target, SPELL_MOVE_COOLDOWN);
-                    target->AddCreatureSpellCooldown(SPELL_MOVE_COOLDOWN);
-                    target->AI()->SetGUID(caster->GetGUID(), 1);
-                }
-
-                return true;
-            }
-            // generic melee tick
-            else if (spellId == SPELL_ACTION_MELEE && effIndex == EFFECT_0)
-            {
-                if (!target->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_ACTIVE))
-                    target->SetFacingTo(target->GetOrientation());
-
-                target->CastSpell(target, target->AI()->GetData(0), true);
-                return true;
-            }
-            // square facing
-            else if (spellId == SPELL_FACE_SQUARE && effIndex == EFFECT_0)
-            {
-                if (caster->GetTypeId() != TYPEID_UNIT)
-                    return true;
-
-                if (Creature* square = ObjectAccessor::GetCreature(*target, target->AI()->GetGUID()))
-                {
-                    if (caster->GetExactDist2d(square) > 8.0f)
-                        return true;
-
-                    if (caster->GetEntry() != (square->GetEntry() == NPC_SQUARE_WHITE ? NPC_SQUARE_BLACK : NPC_SQUARE_WHITE) &&
-                        caster->GetEntry() != (square->GetEntry() == NPC_SQUARE_WHITE ? NPC_SQUARE_OUTSIDE_BLACK : NPC_SQUARE_OUTSIDE_WHITE))
-                        return true;
-
-                    target->SetFacingTo(square->GetAngle(caster));
-                    target->AI()->DoAction(0);
-                }
-                return true;
-            }
-            // Is Square OCCUPIED (DND)
-            else if (spellId == SPELL_IS_SQUARE_OCCUPIED_CHECK)
-            {
-                //caster->CastSpell(caster, SPELL_DISABLE_SQUARE, true);
-                return true;
-            }
-
-            return false;
-        }
 
         struct npc_chess_pieceAI : public ScriptedAI
         {
@@ -912,7 +835,102 @@ class npc_chess_piece : public CreatureScript
             {
                 moveChance = 15;
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (!player->HasAura(SPELL_RECENTLY_IN_GAME) && !player->HasAura(SPELL_CONTROL_PIECE) && !me->HasAura(SPELL_CONTROL_PIECE))
+                    if (InstanceScript* instance = me->GetInstanceScript())
+                        if (instance->GetData(TYPE_CHESS) != DONE && instance->GetData(TYPE_CHESS) != FAIL && player->GetTeam() == me->AI()->GetData(1) || dynamic_cast<karazhan_accessor*>(instance)->IsFriendlyGameReady())
+                            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            // start event when used on the king
+                            if (InstanceScript* instance = me->GetInstanceScript())
+                            {
+                                if (instance->GetData(TYPE_CHESS) == NOT_STARTED)
+                                    instance->SetData(TYPE_CHESS, IN_PROGRESS);
+                                else if (instance->GetData(TYPE_CHESS) == DONE)
+                                    instance->SetData(TYPE_CHESS, SPECIAL);
+
+                                // teleport at the entrance and control the chess piece
+                                player->CastSpell(player, SPELL_IN_GAME, true);
+                                player->CastSpell(me, SPELL_CONTROL_PIECE, true);
+                            }
+
+                            player->CLOSE_GOSSIP_MENU();
+                        }
+
+                        return true;
+        
+            }
+
+            bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex) override
+            {
+
+                        // movement perform spell
+                        if (spellId == SPELL_MOVE_TO_SQUARE && effIndex == EFFECT_0)
+                        {
+                            if (caster->GetTypeId() == TYPEID_UNIT && !caster->HasAura(SPELL_DISABLE_SQUARE) && !caster->HasAura(SPELL_IS_SQUARE_OCCUPIED))
+                            {
+                                caster->CastSpell(caster, SPELL_DISABLE_SQUARE, true);
+                                caster->CastSpell(caster, SPELL_IS_SQUARE_OCCUPIED, true);
+
+                                me->CastSpell(me, SPELL_MOVE_COOLDOWN);
+                                me->AddCreatureSpellCooldown(SPELL_MOVE_COOLDOWN);
+                                me->AI()->SetGUID(caster->GetGUID(), 1);
+                            }
+
+                            return true;
+                        }
+                        // generic melee tick
+                        else if (spellId == SPELL_ACTION_MELEE && effIndex == EFFECT_0)
+                        {
+                            if (!me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_ACTIVE))
+                                me->SetFacingTo(me->GetOrientation());
+
+                            me->CastSpell(me, me->AI()->GetData(0), true);
+                            return true;
+                        }
+                        // square facing
+                        else if (spellId == SPELL_FACE_SQUARE && effIndex == EFFECT_0)
+                        {
+                            if (caster->GetTypeId() != TYPEID_UNIT)
+                                return true;
+
+                            if (Creature* square = ObjectAccessor::GetCreature(*me, me->AI()->GetGUID()))
+                            {
+                                if (caster->GetExactDist2d(square) > 8.0f)
+                                    return true;
+
+                                if (caster->GetEntry() != (square->GetEntry() == NPC_SQUARE_WHITE ? NPC_SQUARE_BLACK : NPC_SQUARE_WHITE) &&
+                                    caster->GetEntry() != (square->GetEntry() == NPC_SQUARE_WHITE ? NPC_SQUARE_OUTSIDE_BLACK : NPC_SQUARE_OUTSIDE_WHITE))
+                                    return true;
+
+                                me->SetFacingTo(square->GetAngle(caster));
+                                me->AI()->DoAction(0);
+                            }
+                            return true;
+                        }
+                        // Is Square OCCUPIED (DND)
+                        else if (spellId == SPELL_IS_SQUARE_OCCUPIED_CHECK)
+                        {
+                            //caster->CastSpell(caster, SPELL_DISABLE_SQUARE, true);
+                            return true;
+                        }
+
+                        return false;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {

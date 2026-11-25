@@ -110,13 +110,16 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPackets::Quest::QuestGiverHe
     // Stop the npc if moving
     creature->StopMoving();
 
-    if (sScriptMgr->OnGossipHello(_player, creature))
+    _player->PlayerTalkClass->ClearMenus();
+#ifdef ELUNA
+    if (sHookMgr->OnGossipHello(_player, creature))
+        return;
+#endif
+    if (creature->AI()->OnGossipHello(_player))
         return;
 
     _player->PrepareGossipMenu(creature, creature->GetGossipMenuId(), true);
     _player->SendPreparedGossip(creature);
-
-    creature->AI()->OnGossipHello(_player);
 }
 
 void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestGiverAcceptQuest& packet)
@@ -245,7 +248,10 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestG
                 case TYPEID_UNIT:
                     // the hook of the script class as well, as Player::AddQuestAndCheckCompletion does:
                     // without it the accept scripts of the old kind (escorts, start zone events) never ran for a real player
-                    sScriptMgr->OnQuestAccept(_player, object->ToCreature(), quest);
+#ifdef ELUNA
+                    if (sHookMgr->OnQuestAccept(_player, object->ToCreature(), quest))
+                        return;
+#endif
                     object->ToCreature()->AI()->OnQuestAccept(_player, quest);
                     break;
                 case TYPEID_ITEM:
@@ -293,7 +299,10 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestG
                     break;
                 }
                 case TYPEID_GAMEOBJECT:
-                    sScriptMgr->OnQuestAccept(_player, object->ToGameObject(), quest);
+#ifdef ELUNA
+                    if (sHookMgr->OnQuestAccept(_player, object->ToGameObject(), quest))
+                        return;
+#endif
                     object->ToGameObject()->AI()->OnQuestAccept(_player, quest);
                     break;
                 default:

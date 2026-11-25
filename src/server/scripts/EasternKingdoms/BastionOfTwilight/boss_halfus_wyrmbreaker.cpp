@@ -16,6 +16,7 @@
 */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 #include "Spell.h"
 #include "bastion_of_twilight.h"
 
@@ -612,18 +613,31 @@ class go_whelp_cage : public GameObjectScript
     public:
         go_whelp_cage() : GameObjectScript("go_whelp_cage") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
-        {       
-            InstanceScript* instance = go ? go->GetInstanceScript() : NULL;
-            if (!instance)
-                return true;
+        
+        struct go_whelp_cageAI : public GameObjectAI
+        {
+            go_whelp_cageAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (Creature* halfus = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_HALFUS)))
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                halfus->AI()->DoAction(ACTION_WHELPS_RELEASE);
-                go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+       
+                InstanceScript* instance = me ? me->GetInstanceScript() : NULL;
+                if (!instance)
+                    return true;
+
+                if (Creature* halfus = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_HALFUS)))
+                {
+                    halfus->AI()->DoAction(ACTION_WHELPS_RELEASE);
+                    me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+                }
+                return false;
+        
             }
-            return false;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_whelp_cageAI(go);
         }
 };
 
@@ -632,55 +646,9 @@ class npc_halfus_dragon : public CreatureScript
     public:
         npc_halfus_dragon() : CreatureScript("npc_halfus_dragon") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->HasAura(SPELL_UNRESPONSIVE_DRAKE))
-                return false;
-            player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_RELEASE_DRAKE, 0,GOSSIP_SENDER_MAIN ,GOSSIP_ACTION_INFO_DEF+1);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+        
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            InstanceScript* instance;
-            instance = (InstanceScript*)creature->GetInstanceScript();
-            if (!instance) 
-                return false;
-            player->CLOSE_GOSSIP_MENU();
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF+1:
-                    if (Creature* Halfus = Unit::GetCreature(*creature,instance->GetGuidData(DATA_HALFUS)))
-                    {
-                        switch (creature->GetEntry())
-                        {
-                            case NPC_SLATE_DRAKE:
-                                creature->CastSpell(Halfus, SPELL_STONE_GRIP, false); 
-                                break;
-                            case NPC_NETHER_SCION:
-                                creature->CastSpell(Halfus, SPELL_NETHER_BLINDNESS, false);
-                                break;
-                            case NPC_STORM_RIDER:
-                                //creature->CastSpell(Halfus, SPELL_CYCLONE_WINDS_SUM, true);
-                                creature->CastSpell(Halfus, SPELL_CYCLONE_WINDS, false);
-                                break;
-                            case NPC_TIME_WARDEN:
-                                if (Creature* proto = creature->FindNearestCreature(NPC_PROTO_BEHEMOTH, 100.0f, true))
-                                    creature->CastSpell(proto, SPELL_TIME_DILATION, false);
-                                break;
-                        }
-
-                        Halfus->CastSpell(creature, SPELL_BIND_WILL, true);
-                        creature->SetReactState(REACT_AGGRESSIVE);
-                        if (Unit* target = Halfus->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                            creature->AI()->AttackStart(target);
-                    }
-                    break;
-            }
-            return true;
-        }
+    
 
         struct npc_halfus_dragonAI : public ScriptedAI 
         {
@@ -728,7 +696,60 @@ class npc_halfus_dragon : public CreatureScript
                 if (Creature* halfus = Unit::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(DATA_HALFUS) : ObjectGuid::Empty))
                     halfus->AI()->DoAction(ACTION_ACHIEV_TIMING);
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->HasAura(SPELL_UNRESPONSIVE_DRAKE))
+                    return false;
+                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_RELEASE_DRAKE, 0,GOSSIP_SENDER_MAIN ,GOSSIP_ACTION_INFO_DEF+1);
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+                        InstanceScript* instance;
+                        instance = (InstanceScript*)me->GetInstanceScript();
+                        if (!instance) 
+                            return false;
+                        player->CLOSE_GOSSIP_MENU();
+                        switch (action)
+                        {
+                            case GOSSIP_ACTION_INFO_DEF+1:
+                                if (Creature* Halfus = Unit::GetCreature(*me,instance->GetGuidData(DATA_HALFUS)))
+                                {
+                                    switch (me->GetEntry())
+                                    {
+                                        case NPC_SLATE_DRAKE:
+                                            me->CastSpell(Halfus, SPELL_STONE_GRIP, false); 
+                                            break;
+                                        case NPC_NETHER_SCION:
+                                            me->CastSpell(Halfus, SPELL_NETHER_BLINDNESS, false);
+                                            break;
+                                        case NPC_STORM_RIDER:
+                                            //me->CastSpell(Halfus, SPELL_CYCLONE_WINDS_SUM, true);
+                                            me->CastSpell(Halfus, SPELL_CYCLONE_WINDS, false);
+                                            break;
+                                        case NPC_TIME_WARDEN:
+                                            if (Creature* proto = me->FindNearestCreature(NPC_PROTO_BEHEMOTH, 100.0f, true))
+                                                me->CastSpell(proto, SPELL_TIME_DILATION, false);
+                                            break;
+                                    }
+
+                                    Halfus->CastSpell(me, SPELL_BIND_WILL, true);
+                                    me->SetReactState(REACT_AGGRESSIVE);
+                                    if (Unit* target = Halfus->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                                        me->AI()->AttackStart(target);
+                                }
+                                break;
+                        }
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {

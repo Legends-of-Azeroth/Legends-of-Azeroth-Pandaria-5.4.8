@@ -23,6 +23,7 @@ SDCategory: Sunwell_Plateau
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 #include "sunwell_plateau.h"
 
 enum Yells
@@ -509,26 +510,40 @@ class go_kalecgos_teleporter : public GameObjectScript
     public:
         go_kalecgos_teleporter() : GameObjectScript("go_kalecgos_teleporter") { }
 
-        bool OnGossipHello(Player* player, GameObject* go)
+    
+
+        struct go_kalecgos_teleporterAI : public GameObjectAI
         {
-            uint8 spectralPlayers = 0;
-            Map* map = go->GetMap();
-            if (!map->IsDungeon())
-                return true;
+            go_kalecgos_teleporterAI(GameObject* go) : GameObjectAI(go) { }
 
-            for (auto&& itr : map->GetPlayers())
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                if (itr.GetSource() && itr.GetSource()->GetPositionZ() < DEMON_REALM_Z + 5)
-                    ++spectralPlayers;
+
+                        uint8 spectralPlayers = 0;
+                        Map* map = me->GetMap();
+                        if (!map->IsDungeon())
+                            return true;
+
+                        for (auto&& itr : map->GetPlayers())
+                        {
+                            if (itr.GetSource() && itr.GetSource()->GetPositionZ() < DEMON_REALM_Z + 5)
+                                ++spectralPlayers;
+                        }
+
+                        uint8 maxSpectralPlayers =  MAX_PLAYERS_IN_SPECTRAL_REALM;
+                        if (player->HasAura(AURA_SPECTRAL_EXHAUSTION) || (maxSpectralPlayers && spectralPlayers >= maxSpectralPlayers))
+                            player->GetSession()->SendNotification(GO_FAILED);
+                        else
+                            player->CastSpell(player, SPELL_TELEPORT_SPECTRAL, true);
+
+                        return true;
+        
             }
+        };
 
-            uint8 maxSpectralPlayers =  MAX_PLAYERS_IN_SPECTRAL_REALM;
-            if (player->HasAura(AURA_SPECTRAL_EXHAUSTION) || (maxSpectralPlayers && spectralPlayers >= maxSpectralPlayers))
-                player->GetSession()->SendNotification(GO_FAILED);
-            else
-                player->CastSpell(player, SPELL_TELEPORT_SPECTRAL, true);
-
-            return true;
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_kalecgos_teleporterAI(go);
         }
 };
 

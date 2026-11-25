@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -113,72 +113,9 @@ class npc_barnes : public CreatureScript
     public:
         npc_barnes() : CreatureScript("npc_barnes") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (InstanceScript* instance = creature->GetInstanceScript())
-            {
-                // Check for death of Moroes and if opera event is not done already
-                if (instance->GetData(TYPE_MOROES) == DONE && instance->GetData(TYPE_OPERA) == NOT_STARTED)
-                {
-                    player->ADD_GOSSIP_ITEM_DB(OZ_GOSSIP1, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        
 
-                    if (player->IsGameMaster())
-                    {
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, OZ_GM_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, OZ_GM_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, OZ_GM_GOSSIP3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                    }
-
-                    if (npc_barnesAI* barnesAI = CAST_AI(npc_barnes::npc_barnesAI, creature->AI()))
-                    {
-                        if (!barnesAI->RaidWiped)
-                            player->SEND_GOSSIP_MENU(8970, creature->GetGUID());
-                        else
-                            player->SEND_GOSSIP_MENU(8975, creature->GetGUID());
-
-                        return true;
-                    }
-                }
-            }
-
-            player->SEND_GOSSIP_MENU(8978, creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            npc_barnesAI* barnesAI = CAST_AI(npc_barnes::npc_barnesAI, creature->AI());
-
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                    player->ADD_GOSSIP_ITEM_DB(OZ_GOSSIP2, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                    player->SEND_GOSSIP_MENU(8971, creature->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                    player->CLOSE_GOSSIP_MENU();
-                    barnesAI->StartEvent();
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 3:
-                    player->CLOSE_GOSSIP_MENU();
-                    barnesAI->m_uiEventId = EVENT_OZ;
-                    TC_LOG_DEBUG("scripts", "TSCR: player ({}) manually set Opera event to EVENT_OZ", player->GetGUID().ToString().c_str());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 4:
-                    player->CLOSE_GOSSIP_MENU();
-                    barnesAI->m_uiEventId = EVENT_HOOD;
-                    TC_LOG_DEBUG("scripts", "TSCR: player ({}) manually set Opera event to EVENT_HOOD", player->GetGUID().ToString().c_str());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 5:
-                    player->CLOSE_GOSSIP_MENU();
-                    barnesAI->m_uiEventId = EVENT_RAJ;
-                    TC_LOG_DEBUG("scripts", "TSCR: player ({}) manually set Opera event to EVENT_RAJ", player->GetGUID().ToString().c_str());
-                    break;
-            }
-
-            return true;
-        }
+    
 
         struct npc_barnesAI : public EscortAI
         {
@@ -391,7 +328,77 @@ class npc_barnes : public CreatureScript
 
                 }
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    // Check for death of Moroes and if opera event is not done already
+                    if (instance->GetData(TYPE_MOROES) == DONE && instance->GetData(TYPE_OPERA) == NOT_STARTED)
+                    {
+                        player->ADD_GOSSIP_ITEM_DB(OZ_GOSSIP1, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                        if (player->IsGameMaster())
+                        {
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, OZ_GM_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, OZ_GM_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, OZ_GM_GOSSIP3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                        }
+
+                        if (npc_barnesAI* barnesAI = this)
+                        {
+                            if (!barnesAI->RaidWiped)
+                                player->SEND_GOSSIP_MENU(8970, me->GetGUID());
+                            else
+                                player->SEND_GOSSIP_MENU(8975, me->GetGUID());
+
+                            return true;
+                        }
+                    }
+                }
+
+                player->SEND_GOSSIP_MENU(8978, me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+                        npc_barnesAI* barnesAI = CAST_AI(npc_barnes::npc_barnesAI, me->AI());
+
+                        switch (action)
+                        {
+                            case GOSSIP_ACTION_INFO_DEF + 1:
+                                player->ADD_GOSSIP_ITEM_DB(OZ_GOSSIP2, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                player->SEND_GOSSIP_MENU(8971, me->GetGUID());
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 2:
+                                player->CLOSE_GOSSIP_MENU();
+                                barnesAI->StartEvent();
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 3:
+                                player->CLOSE_GOSSIP_MENU();
+                                barnesAI->m_uiEventId = EVENT_OZ;
+                                TC_LOG_DEBUG("scripts", "TSCR: player ({}) manually set Opera event to EVENT_OZ", player->GetGUID().ToString().c_str());
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 4:
+                                player->CLOSE_GOSSIP_MENU();
+                                barnesAI->m_uiEventId = EVENT_HOOD;
+                                TC_LOG_DEBUG("scripts", "TSCR: player ({}) manually set Opera event to EVENT_HOOD", player->GetGUID().ToString().c_str());
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 5:
+                                player->CLOSE_GOSSIP_MENU();
+                                barnesAI->m_uiEventId = EVENT_RAJ;
+                                TC_LOG_DEBUG("scripts", "TSCR: player ({}) manually set Opera event to EVENT_RAJ", player->GetGUID().ToString().c_str());
+                                break;
+                        }
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -415,46 +422,63 @@ class npc_berthold : public CreatureScript
     public:
         npc_berthold() : CreatureScript("npc_berthold") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+        
+
+    
+        struct npc_bertholdAI : public ScriptedAI
         {
-            if (InstanceScript* instance = creature->GetInstanceScript())
+            npc_bertholdAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
             {
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_ITEM_TELEPORT, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_ITEM_TELEPORT, 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_ITEM_TELEPORT, 2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                // Check if Shade of Aran event is done
-                if (instance->GetData(TYPE_ARAN) == DONE)
+
+                if (InstanceScript* instance = me->GetInstanceScript())
                 {
-                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_ITEM_TELEPORT, 3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                    player->SEND_GOSSIP_MENU(10741, creature->GetGUID());
-                    return true;
+                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_ITEM_TELEPORT, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_ITEM_TELEPORT, 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_ITEM_TELEPORT, 2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                    // Check if Shade of Aran event is done
+                    if (instance->GetData(TYPE_ARAN) == DONE)
+                    {
+                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_ITEM_TELEPORT, 3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                        player->SEND_GOSSIP_MENU(10741, me->GetGUID());
+                        return true;
+                    }
                 }
+
+                player->SEND_GOSSIP_MENU(8401, me->GetGUID());
+                return true;
+        
             }
-
-            player->SEND_GOSSIP_MENU(8401, creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            switch (action)
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
             {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                    player->SEND_GOSSIP_MENU(10113, creature->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                    player->SEND_GOSSIP_MENU(10114, creature->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 3:
-                    player->SEND_GOSSIP_MENU(10114, creature->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 4:
-                    player->CLOSE_GOSSIP_MENU();
-                    player->CastSpell(player, SPELL_TELEPORT, true);
-                    break;
+
+                        player->PlayerTalkClass->ClearMenus();
+                        switch (action)
+                        {
+                            case GOSSIP_ACTION_INFO_DEF + 1:
+                                player->SEND_GOSSIP_MENU(10113, me->GetGUID());
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 2:
+                                player->SEND_GOSSIP_MENU(10114, me->GetGUID());
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 3:
+                                player->SEND_GOSSIP_MENU(10114, me->GetGUID());
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 4:
+                                player->CLOSE_GOSSIP_MENU();
+                                player->CastSpell(player, SPELL_TELEPORT, true);
+                                break;
+                        }
+                        return true;
+        
             }
-            return true;
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_bertholdAI(creature);
         }
 };
 

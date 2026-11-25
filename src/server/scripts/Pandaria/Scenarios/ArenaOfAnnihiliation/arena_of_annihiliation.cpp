@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,7 @@
 
 #include "arena_of_annihiliation.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
@@ -1452,20 +1453,33 @@ class go_arena_of_annihiliation_gong : public GameObjectScript
     public:
         go_arena_of_annihiliation_gong() : GameObjectScript("go_arena_of_annihiliation_gong") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_arena_of_annihiliation_gongAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
+            go_arena_of_annihiliation_gongAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (instance && player)
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                instance->SetData(DATA_CALL, IN_PROGRESS);
-                go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
 
-                instance->SendScenarioProgressUpdate(CriteriaProgressData(CRITERIA_GONG, 1, instance->GetScenarioGUID(), time(NULL), 0, 0));
-                return true;
+                InstanceScript* instance = me->GetInstanceScript();
+
+                if (instance && player)
+                {
+                    instance->SetData(DATA_CALL, IN_PROGRESS);
+                    me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+
+                    instance->SendScenarioProgressUpdate(CriteriaProgressData(CRITERIA_GONG, 1, instance->GetScenarioGUID(), time(NULL), 0, 0));
+                    return true;
+                }
+
+                return false;
+        
             }
+        };
 
-            return false;
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_arena_of_annihiliation_gongAI(go);
         }
 };
 

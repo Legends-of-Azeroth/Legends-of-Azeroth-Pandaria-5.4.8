@@ -16,6 +16,7 @@
 */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 #include "ahnkahet.h"
 
 enum Spells
@@ -425,36 +426,50 @@ class go_prince_taldaram_sphere : public GameObjectScript
     public:
         go_prince_taldaram_sphere() : GameObjectScript("go_prince_taldaram_sphere") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go)
+    
+
+        struct go_prince_taldaram_sphereAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
+            go_prince_taldaram_sphereAI(GameObject* go) : GameObjectAI(go) { }
 
-            Creature* pPrinceTaldaram = Unit::GetCreature(*go, instance ? instance->GetGuidData(DATA_PRINCE_TALDARAM) : ObjectGuid::Empty);
-            if (pPrinceTaldaram && pPrinceTaldaram->IsAlive())
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                go->SetGoState(GO_STATE_ACTIVE);
 
-                if (instance)
-                {
-                    switch (go->GetEntry())
-                    {
-                        case GO_PRINCE_TALDARAM_SPHERE_1:
-                            instance->SetData(DATA_SPHERE1_EVENT, IN_PROGRESS);
-                            instance->SetData64(DATA_SPHERE1, go->GetGUID());
-                            pPrinceTaldaram->AI()->Talk(SAY_SPHERE);
-                            break;
-                        case GO_PRINCE_TALDARAM_SPHERE_2:
-                            instance->SetData(DATA_SPHERE2_EVENT, IN_PROGRESS);
-                            instance->SetData64(DATA_SPHERE2, go->GetGUID());
-                            pPrinceTaldaram->AI()->Talk(SAY_SPHERE);
-                            break;
-                    }
-                }
+                        InstanceScript* instance = me->GetInstanceScript();
 
-                 CAST_AI(boss_taldaram::boss_taldaramAI, pPrinceTaldaram->AI())->CheckSpheres();
-             }
-            return true;
+                        Creature* pPrinceTaldaram = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_PRINCE_TALDARAM) : ObjectGuid::Empty);
+                        if (pPrinceTaldaram && pPrinceTaldaram->IsAlive())
+                        {
+                            me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            me->SetGoState(GO_STATE_ACTIVE);
+
+                            if (instance)
+                            {
+                                switch (me->GetEntry())
+                                {
+                                    case GO_PRINCE_TALDARAM_SPHERE_1:
+                                        instance->SetData(DATA_SPHERE1_EVENT, IN_PROGRESS);
+                                        instance->SetData64(DATA_SPHERE1, me->GetGUID());
+                                        pPrinceTaldaram->AI()->Talk(SAY_SPHERE);
+                                        break;
+                                    case GO_PRINCE_TALDARAM_SPHERE_2:
+                                        instance->SetData(DATA_SPHERE2_EVENT, IN_PROGRESS);
+                                        instance->SetData64(DATA_SPHERE2, me->GetGUID());
+                                        pPrinceTaldaram->AI()->Talk(SAY_SPHERE);
+                                        break;
+                                }
+                            }
+
+                             CAST_AI(boss_taldaram::boss_taldaramAI, pPrinceTaldaram->AI())->CheckSpheres();
+                         }
+                        return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_prince_taldaram_sphereAI(go);
         }
 };
 

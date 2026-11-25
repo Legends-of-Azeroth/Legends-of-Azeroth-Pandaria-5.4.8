@@ -280,30 +280,37 @@ class npc_voljin_ancient_enemy : public CreatureScript
     private:
         bool EventInProgress;
         EventMap events;
-    };
+                bool OnGossipHello(Player* player) override
+            {
+
+            if(player->GetQuestStatus(QUEST_ANCIENT_ENEMY) == QUEST_STATUS_INCOMPLETE)
+            {
+                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_VOLJIN_READY, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                player->SEND_GOSSIP_MENU(GOSSIP_VOLJIN, me->GetGUID());            
+            }
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    player->CLOSE_GOSSIP_MENU();
+                    if (action == GOSSIP_ACTION_INFO_DEF+1)
+                        me->AI()->DoAction(1);
+                    player->KilledMonsterCredit(NPC_VOLJIN);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    return true;
+    
+            }
+};
 
 public:
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if(player->GetQuestStatus(QUEST_ANCIENT_ENEMY) == QUEST_STATUS_INCOMPLETE)
-        {
-            player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_VOLJIN_READY, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->SEND_GOSSIP_MENU(GOSSIP_VOLJIN, creature->GetGUID());            
-        }
-        return true;
-    }
+    
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        player->CLOSE_GOSSIP_MENU();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-            creature->AI()->DoAction(1);
-        player->KilledMonsterCredit(NPC_VOLJIN);
-        creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-        return true;
-    }
+
 
     npc_voljin_ancient_enemy() : CreatureScript("npc_voljin_ancient_enemy") { }
 

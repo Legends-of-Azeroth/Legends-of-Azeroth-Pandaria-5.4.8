@@ -57,24 +57,7 @@ class npc_00x09hl : public CreatureScript
 public:
     npc_00x09hl() : CreatureScript("npc_00x09hl") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_RESQUE_OOX_09)
-        {
-            creature->SetStandState(UNIT_STAND_STATE_STAND);
-
-            if (player->GetTeam() == ALLIANCE)
-                creature->SetFaction(FACTION_ESCORTEE_A);
-            else if (player->GetTeam() == HORDE)
-                creature->SetFaction(FACTION_ESCORTEE_H);
-
-            creature->AI()->Talk(SAY_OOX_START, player);
-
-            if (npc_00x09hlAI* pEscortAI = CAST_AI(npc_00x09hl::npc_00x09hlAI, creature->AI()))
-                pEscortAI->Start(false, player->GetGUID(), quest);
-        }
-        return true;
-    }
+    
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -140,7 +123,27 @@ public:
         {
             summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
         }
-    };
+                void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+            if (quest->GetQuestId() == QUEST_RESQUE_OOX_09)
+            {
+                me->SetStandState(UNIT_STAND_STATE_STAND);
+
+                if (player->GetTeam() == ALLIANCE)
+                    me->SetFaction(FACTION_ESCORTEE_A);
+                else if (player->GetTeam() == HORDE)
+                    me->SetFaction(FACTION_ESCORTEE_H);
+
+                Talk(SAY_OOX_START, player);
+
+                if (npc_00x09hlAI* pEscortAI = this)
+                    pEscortAI->Start(false, player->GetGUID(), quest);
+            }
+            return;
+    
+            }
+        };
 };
 
 void AddSC_hinterlands()

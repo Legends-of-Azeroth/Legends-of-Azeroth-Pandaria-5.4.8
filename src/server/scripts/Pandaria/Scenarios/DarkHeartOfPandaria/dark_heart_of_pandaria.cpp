@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -288,12 +288,7 @@ class npc_darkheart_grizzle_gearslip : public CreatureScript
     public:
         npc_darkheart_grizzle_gearslip() : CreatureScript("npc_darkheart_grizzle_gearslip") { }
     
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            creature->AI()->DoAction(ACTION_START_INTRO);
-            player->CLOSE_GOSSIP_MENU();
-            return true;
-        }
+        
     
         struct npc_darkheart_grizzle_gearslipAI : public ScriptedAI
         {
@@ -383,6 +378,14 @@ class npc_darkheart_grizzle_gearslip : public CreatureScript
             {
                 scheduler.Update(diff);
             }
+                    bool OnGossipHello(Player* player) override
+            {
+
+                me->AI()->DoAction(ACTION_START_INTRO);
+                player->CLOSE_GOSSIP_MENU();
+                return true;
+        
+            }
         };
     
         CreatureAI* GetAI(Creature* creature) const override
@@ -434,12 +437,7 @@ class npc_darkheart_crafty_the_ambitious : public CreatureScript
     public:
         npc_darkheart_crafty_the_ambitious() : CreatureScript("npc_darkheart_crafty_the_ambitious") { }
     
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            creature->AI()->DoAction(ACTION_START_INTRO);
-            player->CLOSE_GOSSIP_MENU();
-            return true;
-        }
+        
     
         struct npc_darkheart_crafty_the_ambitiousAI : public ScriptedAI
         {
@@ -535,6 +533,14 @@ class npc_darkheart_crafty_the_ambitious : public CreatureScript
             void UpdateAI(uint32 diff) override
             {
                 scheduler.Update(diff);
+            }
+                    bool OnGossipHello(Player* player) override
+            {
+
+                me->AI()->DoAction(ACTION_START_INTRO);
+                player->CLOSE_GOSSIP_MENU();
+                return true;
+        
             }
         };
     

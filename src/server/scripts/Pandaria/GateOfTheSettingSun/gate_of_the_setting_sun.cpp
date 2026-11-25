@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -490,61 +490,7 @@ class go_setting_sun_brasier : public GameObjectScript
             NPC_LTW_CREDIT          = 64553
         };
 
-        bool OnGossipHello(Player* player, GameObject* go) override
-        {
-            if (InstanceScript* instance = player->GetInstanceScript())
-            {
-                if (instance->GetData(DATA_BRASIER_CLICKED) != DONE && instance->GetBossState(DATA_GADOK) == DONE)
-                {
-                    instance->SetData(DATA_BRASIER_CLICKED, DONE);
-                    go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
-
-                    Map::PlayerList const& playerList = go->GetMap()->GetPlayers();
-                    for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
-                    {
-                        if (Player* player = i->GetSource())
-                        {
-                            if (player->GetQuestStatus(QUEST_LIGHTNING_THE_WAY) == QUEST_STATUS_INCOMPLETE)
-                                player->KilledMonsterCredit(NPC_LTW_CREDIT);
-
-                            player->SendCinematicStart(CINEMATIC_SETTING_SUN);
-                            player->NearTeleportTo(1370.0f, 2283.6f, 402.328f, 2.70f);
-                        }
-                    }
-
-                    if (Creature* rimok = Unit::GetCreature(*go, instance->GetGuidData(DATA_RIMOK)))
-                    {
-                        rimok->SetVisible(true);
-                        rimok->AI()->Talk(2);
-                    }
-
-                    if (GameObject* signalFire = ObjectAccessor::GetGameObject(*go, instance->GetGuidData(DATA_SIGNAL_FIRE)))
-                        signalFire->SetGoState(GO_STATE_ACTIVE);
-
-                    for (uint8 i = 0; i < 4; ++i)
-                    {
-                        if (Creature* krithik = instance->instance->SummonCreature(NPC_KRITHIK_INFILTRATOR, SummonPositionsRimok[i]))
-                            krithik->HandleEmoteStateCommand(EMOTE_STATE_READY2H);
-                    }
-
-                    for (uint8 i = 4; i < 6; ++i)
-                    {
-                        if (Creature* krithik = instance->instance->SummonCreature(NPC_KRITHIK_WND_SHAPER, SummonPositionsRimok[i]))
-                            krithik->HandleEmoteStateCommand(EMOTE_STATE_READY2H);
-                    }
-
-                    for (uint8 i = 6; i < 8; ++i)
-                    {
-                        if (Creature* krithik = instance->instance->SummonCreature(NPC_KRITHIK_SHAPER, SummonPositionsRimok[i]))
-                            krithik->HandleEmoteStateCommand(EMOTE_STATE_READY2H);
-                    }
-
-                    return false;
-                }
-            }
-
-            return true;
-        }
+        
 
         struct go_setting_sun_brasierAI : public GameObjectAI
         {
@@ -580,6 +526,63 @@ class go_setting_sun_brasier : public GameObjectScript
                         }
                     }
                 }
+            }
+                    bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                if (InstanceScript* instance = player->GetInstanceScript())
+                {
+                    if (instance->GetData(DATA_BRASIER_CLICKED) != DONE && instance->GetBossState(DATA_GADOK) == DONE)
+                    {
+                        instance->SetData(DATA_BRASIER_CLICKED, DONE);
+                        me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
+                        Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+                        for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+                        {
+                            if (Player* player = i->GetSource())
+                            {
+                                if (player->GetQuestStatus(QUEST_LIGHTNING_THE_WAY) == QUEST_STATUS_INCOMPLETE)
+                                    player->KilledMonsterCredit(NPC_LTW_CREDIT);
+
+                                player->SendCinematicStart(CINEMATIC_SETTING_SUN);
+                                player->NearTeleportTo(1370.0f, 2283.6f, 402.328f, 2.70f);
+                            }
+                        }
+
+                        if (Creature* rimok = Unit::GetCreature(*me, instance->GetGuidData(DATA_RIMOK)))
+                        {
+                            rimok->SetVisible(true);
+                            rimok->AI()->Talk(2);
+                        }
+
+                        if (GameObject* signalFire = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_SIGNAL_FIRE)))
+                            signalFire->SetGoState(GO_STATE_ACTIVE);
+
+                        for (uint8 i = 0; i < 4; ++i)
+                        {
+                            if (Creature* krithik = instance->instance->SummonCreature(NPC_KRITHIK_INFILTRATOR, SummonPositionsRimok[i]))
+                                krithik->HandleEmoteStateCommand(EMOTE_STATE_READY2H);
+                        }
+
+                        for (uint8 i = 4; i < 6; ++i)
+                        {
+                            if (Creature* krithik = instance->instance->SummonCreature(NPC_KRITHIK_WND_SHAPER, SummonPositionsRimok[i]))
+                                krithik->HandleEmoteStateCommand(EMOTE_STATE_READY2H);
+                        }
+
+                        for (uint8 i = 6; i < 8; ++i)
+                        {
+                            if (Creature* krithik = instance->instance->SummonCreature(NPC_KRITHIK_SHAPER, SummonPositionsRimok[i]))
+                                krithik->HandleEmoteStateCommand(EMOTE_STATE_READY2H);
+                        }
+
+                        return false;
+                    }
+                }
+
+                return true;
+        
             }
         };
 

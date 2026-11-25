@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -23,6 +23,7 @@ SDCategory: Script Examples
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "GameObjectAI.h"
 #include "Player.h"
 
 class AT_example_areatrigger : public AreaTriggerScript
@@ -66,10 +67,23 @@ class GOHello_example_go_teleporter : public GameObjectScript
         {
         }
 
-        bool OnGossipHello(Player* player, GameObject* /*go*/) override
+        
+        struct GOHello_example_go_teleporterAI : public GameObjectAI
         {
-            player->TeleportTo(0, 1807.07f, 336.105f, 70.3975f, 0.0f);
-            return false;
+            GOHello_example_go_teleporterAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                player->TeleportTo(0, 1807.07f, 336.105f, 70.3975f, 0.0f);
+                return false;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new GOHello_example_go_teleporterAI(go);
         }
 };
 

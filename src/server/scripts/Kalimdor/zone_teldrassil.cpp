@@ -152,14 +152,7 @@ class npc_mist : public CreatureScript
 public:
     npc_mist() : CreatureScript("npc_mist") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_MIST)
-            if (npc_mistAI* pMistAI = CAST_AI(npc_mist::npc_mistAI, creature->AI()))
-                pMistAI->StartFollow(player, FACTION_DARNASSUS, quest);
-
-        return true;
-    }
+    
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -207,7 +200,17 @@ public:
 
             DoMeleeAttackIfReady();
         }*/
-    };
+                void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+            if (quest->GetQuestId() == QUEST_MIST)
+                if (npc_mistAI* pMistAI = this)
+                    pMistAI->StartFollow(player, FACTION_DARNASSUS, quest);
+
+            return;
+    
+            }
+        };
 };
 
 enum

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -145,21 +145,7 @@ class npc_salsalabim : public CreatureScript
 public:
     npc_salsalabim() : CreatureScript("npc_salsalabim") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_10004) == QUEST_STATUS_INCOMPLETE)
-        {
-            creature->SetFaction(FACTION_HOSTILE_SA);
-            creature->AI()->AttackStart(player);
-        }
-        else
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        }
-        return true;
-    }
+    
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -201,7 +187,24 @@ public:
 
             DoMeleeAttackIfReady();
         }
-    };
+                bool OnGossipHello(Player* player) override
+            {
+
+            if (player->GetQuestStatus(QUEST_10004) == QUEST_STATUS_INCOMPLETE)
+            {
+                me->SetFaction(FACTION_HOSTILE_SA);
+                me->AI()->AttackStart(player);
+            }
+            else
+            {
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+            }
+            return true;
+    
+            }
+        };
 };
 
 /*
@@ -220,47 +223,64 @@ class npc_shattrathflaskvendors : public CreatureScript
 public:
     npc_shattrathflaskvendors() : CreatureScript("npc_shattrathflaskvendors") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
 
-        return true;
-    }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->GetEntry() == 23484)
+    
+        struct npc_shattrathflaskvendorsAI : public ScriptedAI
         {
-            // Aldor vendor
-            if (creature->IsVendor() && (player->GetReputationRank(932) == REP_EXALTED) && (player->GetReputationRank(935) == REP_EXALTED) && (player->GetReputationRank(942) == REP_EXALTED))
-            {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-                player->SEND_GOSSIP_MENU(11085, creature->GetGUID());
-            }
-            else
-            {
-                player->SEND_GOSSIP_MENU(11083, creature->GetGUID());
-            }
-        }
+            npc_shattrathflaskvendorsAI(Creature* creature) : ScriptedAI(creature) { }
 
-        if (creature->GetEntry() == 23483)
+            bool OnGossipHello(Player* player) override
+            {
+
+            if (me->GetEntry() == 23484)
+            {
+                // Aldor vendor
+                if (me->IsVendor() && (player->GetReputationRank(932) == REP_EXALTED) && (player->GetReputationRank(935) == REP_EXALTED) && (player->GetReputationRank(942) == REP_EXALTED))
+                {
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                    player->SEND_GOSSIP_MENU(11085, me->GetGUID());
+                }
+                else
+                {
+                    player->SEND_GOSSIP_MENU(11083, me->GetGUID());
+                }
+            }
+
+            if (me->GetEntry() == 23483)
+            {
+                // Scryers vendor
+                if (me->IsVendor() && (player->GetReputationRank(934) == REP_EXALTED) && (player->GetReputationRank(935) == REP_EXALTED) && (player->GetReputationRank(942) == REP_EXALTED))
+                {
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                    player->SEND_GOSSIP_MENU(11085, me->GetGUID());
+                }
+                else
+                {
+                    player->SEND_GOSSIP_MENU(11084, me->GetGUID());
+                }
+            }
+
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    if (action == GOSSIP_ACTION_TRADE)
+                        player->GetSession()->SendListInventory(me->GetGUID());
+
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            // Scryers vendor
-            if (creature->IsVendor() && (player->GetReputationRank(934) == REP_EXALTED) && (player->GetReputationRank(935) == REP_EXALTED) && (player->GetReputationRank(942) == REP_EXALTED))
-            {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-                player->SEND_GOSSIP_MENU(11085, creature->GetGUID());
-            }
-            else
-            {
-                player->SEND_GOSSIP_MENU(11084, creature->GetGUID());
-            }
+            return new npc_shattrathflaskvendorsAI(creature);
         }
-
-        return true;
-    }
 };
 
 /*######

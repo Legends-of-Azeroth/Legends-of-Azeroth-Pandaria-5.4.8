@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 #include "Spell.h"
 #include "halls_of_origination.h"
 
@@ -369,13 +370,26 @@ class go_beacon_of_light : public GameObjectScript
     public:
         go_beacon_of_light() : GameObjectScript("go_beacon_of_light") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        
+        struct go_beacon_of_lightAI : public GameObjectAI
         {
-            if (Creature* pAnhuur = go->FindNearestCreature(NPC_TEMPLE_GUARDIAN_ANHUUR, 100.0f))
-                pAnhuur->GetAI()->DoAction(ACTION_ACTIVATE);
-            go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+            go_beacon_of_lightAI(GameObject* go) : GameObjectAI(go) { }
 
-            return false;
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                if (Creature* pAnhuur = me->FindNearestCreature(NPC_TEMPLE_GUARDIAN_ANHUUR, 100.0f))
+                    pAnhuur->GetAI()->DoAction(ACTION_ACTIVATE);
+                me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+
+                return false;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_beacon_of_lightAI(go);
         }
 };
 

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 #include "zulaman.h"
 #include "Random.h"
 
@@ -189,12 +190,26 @@ class go_strange_gong : public GameObjectScript
     public:
         go_strange_gong() : GameObjectScript("go_strange_gong") { }
         
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
-        {
-            if (InstanceScript* instance = go->GetInstanceScript())
-                instance->SetData(DATA_MAIN_GATE, 1);
+    
 
-            return false;
+        struct go_strange_gongAI : public GameObjectAI
+        {
+            go_strange_gongAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                        if (InstanceScript* instance = me->GetInstanceScript())
+                            instance->SetData(DATA_MAIN_GATE, 1);
+
+                        return false;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_strange_gongAI(go);
         }
 };
 

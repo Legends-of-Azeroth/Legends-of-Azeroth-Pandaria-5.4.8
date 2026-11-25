@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "pursuing_the_black_harvest.h"
+#include "GameObjectAI.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
@@ -130,28 +131,9 @@ class npc_black_harvest_akama : public CreatureScript
     public:
         npc_black_harvest_akama() : CreatureScript("npc_black_harvest_akama") { }
     
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
     
-            if (action == GOSSIP_ACTION_INFO_DEF + 1 && creature->GetInstanceScript())
-                creature->GetInstanceScript()->SetData(STEP_SEARCH_FOR_SIGNS, DONE);
     
-            player->CLOSE_GOSSIP_MENU();
-    
-            return true;
-        }
-    
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-    
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Show me a path!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-    
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+        
 
         struct npc_black_harvest_akamaAI : public ScriptedAI
         {
@@ -336,7 +318,33 @@ class npc_black_harvest_akama : public CreatureScript
             {
                 scheduler.Update(diff);
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+    
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Show me a path!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+    
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1 && me->GetInstanceScript())
+                            me->GetInstanceScript()->SetData(STEP_SEARCH_FOR_SIGNS, DONE);
+    
+                        player->CLOSE_GOSSIP_MENU();
+    
+                        return true;
+        
+            }
+};
     
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -1313,16 +1321,27 @@ class go_black_harvest_illidari_scroll : public GameObjectScript
     public:
         go_black_harvest_illidari_scroll() : GameObjectScript("go_black_harvest_illidari_scroll") { }
     
-        void OnLootStateChanged(GameObject* go, uint32 state, Unit* unit) override
+                struct go_black_harvest_illidari_scrollAI : public GameObjectAI
         {
-            if (state == GO_ACTIVATED && unit)
-            {
-                go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+            go_black_harvest_illidari_scrollAI(GameObject* go) : GameObjectAI(go) { }
 
-                if (Creature* akama = ObjectAccessor::GetCreature(*unit, unit->GetInstanceScript() ? unit->GetInstanceScript()->GetGuidData(NPC_AKAMA) : ObjectGuid::Empty))
-                    akama->AI()->DoAction(ACTION_START_INTRO);
+    void OnLootStateChanged(uint32 state, Unit* unit) override
+            {
+                if (state == GO_ACTIVATED && unit)
+                {
+                    me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+
+                    if (Creature* akama = ObjectAccessor::GetCreature(*unit, unit->GetInstanceScript() ? unit->GetInstanceScript()->GetGuidData(NPC_AKAMA) : ObjectGuid::Empty))
+                        akama->AI()->DoAction(ACTION_START_INTRO);
+                }
             }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_black_harvest_illidari_scrollAI(go);
         }
+
 };
 
 // Jubekas Mark 216481

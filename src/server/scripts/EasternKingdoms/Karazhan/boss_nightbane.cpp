@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 #include "karazhan.h"
 
 enum Spells
@@ -373,22 +374,36 @@ class go_blackened_urn : public GameObjectScript
     public:
         go_blackened_urn() : GameObjectScript("go_blackened_urn") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+    
+
+        struct go_blackened_urnAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
-            if (!instance)
-                return false;
+            go_blackened_urnAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (instance->GetData(TYPE_NIGHTBANE) != NOT_STARTED)
-                return false;
-
-            // TODO: check if can summon without quest on 335
-            if (player->GetQuestStatus(QUEST_NIGHTBANE) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_NIGHTBANE) == QUEST_STATUS_REWARDED)
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                go->SummonCreature(17225, -11003.7f, -1760.19f, 140.25f, 0.29f);
-                instance->SetData(TYPE_NIGHTBANE, SPECIAL);
+
+                        InstanceScript* instance = me->GetInstanceScript();
+                        if (!instance)
+                            return false;
+
+                        if (instance->GetData(TYPE_NIGHTBANE) != NOT_STARTED)
+                            return false;
+
+                        // TODO: check if can summon without quest on 335
+                        if (player->GetQuestStatus(QUEST_NIGHTBANE) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_NIGHTBANE) == QUEST_STATUS_REWARDED)
+                        {
+                            me->SummonCreature(17225, -11003.7f, -1760.19f, 140.25f, 0.29f);
+                            instance->SetData(TYPE_NIGHTBANE, SPECIAL);
+                        }
+                        return false;
+        
             }
-            return false;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_blackened_urnAI(go);
         }
 };
 

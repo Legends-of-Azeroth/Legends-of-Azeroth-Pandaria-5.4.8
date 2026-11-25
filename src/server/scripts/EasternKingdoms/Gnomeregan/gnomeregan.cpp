@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -88,33 +88,9 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
     public:
         npc_blastmaster_emi_shortfuse() : CreatureScript("npc_blastmaster_emi_shortfuse") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            if (action == GOSSIP_ACTION_INFO_DEF+1)
-            {
-                if (EscortAI* pEscortAI = CAST_AI(npc_blastmaster_emi_shortfuse::npc_blastmaster_emi_shortfuseAI, creature->AI()))
-                    pEscortAI->Start(true, player->GetGUID());
+    
 
-                creature->SetFaction(player->GetFaction());
-                creature->AI()->SetData(1, 0);
-
-                player->CLOSE_GOSSIP_MENU();
-            }
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            InstanceScript* instance = creature->GetInstanceScript();
-
-            if (instance && instance->GetData(TYPE_EVENT) == NOT_STARTED)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-            player->SEND_GOSSIP_MENU(GOSSIP_TEXT_EMI, creature->GetGUID());
-
-            return true;
-        }
+        
 
         struct npc_blastmaster_emi_shortfuseAI : public EscortAI
         {
@@ -537,7 +513,38 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
                 SummonList.push_back(summon->GetGUID());
                 AggroAllPlayers(summon);
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                InstanceScript* instance = me->GetInstanceScript();
+
+                if (instance && instance->GetData(TYPE_EVENT) == NOT_STARTED)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+                player->SEND_GOSSIP_MENU(GOSSIP_TEXT_EMI, me->GetGUID());
+
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+                        if (action == GOSSIP_ACTION_INFO_DEF+1)
+                        {
+                            if (EscortAI* pEscortAI = CAST_AI(npc_blastmaster_emi_shortfuse::npc_blastmaster_emi_shortfuseAI, me->AI()))
+                                pEscortAI->Start(true, player->GetGUID());
+
+                            me->SetFaction(player->GetFaction());
+                            me->AI()->SetData(1, 0);
+
+                            player->CLOSE_GOSSIP_MENU();
+                        }
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {

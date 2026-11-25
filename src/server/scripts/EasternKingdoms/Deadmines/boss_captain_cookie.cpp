@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -271,20 +271,7 @@ class npc_captain_cookie_good_food : public CreatureScript
     public:
         npc_captain_cookie_good_food() : CreatureScript("npc_captain_cookie_good_food") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (!instance)
-                return true;
-
-            if (instance->GetBossState(DATA_CAPTAIN) != IN_PROGRESS)
-                return true;
-
-            player->CastSpell(player, SPELL_SETIATED, true);
-
-            creature->DespawnOrUnsummon();
-            return true;
-        }
+        
 
         struct npc_captain_cookie_good_foodAI : public ScriptedAI
         {
@@ -306,6 +293,22 @@ class npc_captain_cookie_good_food : public CreatureScript
 
         private:
             InstanceScript* instance;
+                    bool OnGossipHello(Player* player) override
+            {
+
+                InstanceScript* instance = me->GetInstanceScript();
+                if (!instance)
+                    return true;
+
+                if (instance->GetBossState(DATA_CAPTAIN) != IN_PROGRESS)
+                    return true;
+
+                player->CastSpell(player, SPELL_SETIATED, true);
+
+                me->DespawnOrUnsummon();
+                return true;
+        
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -319,20 +322,7 @@ class npc_captain_cookie_bad_food : public CreatureScript
     public:
         npc_captain_cookie_bad_food() : CreatureScript("npc_captain_cookie_bad_food") { }
      
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (!instance)
-                return true;
-            if (instance->GetBossState(DATA_CAPTAIN) != IN_PROGRESS)
-                return true;
-
-            player->CastSpell(player, SPELL_NAUSEATED, true);
-            player->CastSpell(player, SPELL_ACHIEVEMENT_AURA_REMOVE, true);
-            
-            creature->DespawnOrUnsummon();
-            return true;
-        }
+        
 
         struct npc_captain_cookie_bad_foodAI : public ScriptedAI
         {
@@ -354,6 +344,22 @@ class npc_captain_cookie_bad_food : public CreatureScript
 
         private:
             InstanceScript* instance;
+                    bool OnGossipHello(Player* player) override
+            {
+
+                InstanceScript* instance = me->GetInstanceScript();
+                if (!instance)
+                    return true;
+                if (instance->GetBossState(DATA_CAPTAIN) != IN_PROGRESS)
+                    return true;
+
+                player->CastSpell(player, SPELL_NAUSEATED, true);
+                player->CastSpell(player, SPELL_ACHIEVEMENT_AURA_REMOVE, true);
+            
+                me->DespawnOrUnsummon();
+                return true;
+        
+            }
         };
      
         CreatureAI* GetAI(Creature* creature) const override

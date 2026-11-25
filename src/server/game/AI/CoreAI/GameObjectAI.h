@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -46,20 +46,24 @@ class TC_GAME_API GameObjectAI
 
         static int Permissible(GameObject const* go);
 
+        virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/) { return false; }
+
         virtual bool OnGossipHello(Player* /*player*/, bool /*isUse*/) { return false; }
         virtual bool OnReportUse(Player* /*player*/) { return false; }
         virtual bool OnGossipSelect(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/) { return false; }
         virtual bool OnGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, char const* /*code*/) { return false; }
-        virtual bool OnQuestAccept(Player* /*player*/, Quest const* /*quest*/) { return false; }
-        virtual bool OnQuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
+        virtual void OnQuestAccept(Player* /*player*/, Quest const* /*quest*/) { }
+        virtual void OnQuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }
         virtual Optional<QuestGiverStatus> GetDialogStatus(Player* /*player*/) { return {}; }
+        virtual void Damaged(Player* /*player*/, uint32 /*eventId*/) { }
         virtual void Destroyed(Player* /*player*/, uint32 /*eventId*/) { }
         virtual uint32 GetData(uint32 /*id*/) const { return 0; }
         virtual void SetData64(uint32 /*id*/, uint64 /*value*/) { }
         virtual uint64 GetData64(uint32 /*id*/) const { return 0; }
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) { }
         virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
-        virtual void OnStateChanged(uint32 /*state*/, Unit* /*unit*/) { }
+        virtual void OnStateChanged(uint32 /*state*/) { }
+        virtual void OnLootStateChanged(uint32 /*state*/, Unit* /*unit*/) { }
         virtual void EventInform(uint32 /*eventId*/) { }
 };
 

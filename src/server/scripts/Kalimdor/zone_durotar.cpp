@@ -261,13 +261,7 @@ class npc_garrosh_hellscream_warchief : public CreatureScript
     public:
         npc_garrosh_hellscream_warchief() : CreatureScript("npc_garrosh_hellscream_warchief") { }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_THE_HORDE_WAY)
-                creature->CastSpell(player, SPELL_SUMMON_GARROSH_JI, true);
-
-            return false;
-        }
+        
 
         struct npc_garrosh_hellscream_warchiefAI : public ScriptedAI
         {
@@ -338,6 +332,15 @@ class npc_garrosh_hellscream_warchief : public CreatureScript
 
                     return false;
                 }
+                    void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == QUEST_THE_HORDE_WAY)
+                    me->CastSpell(player, SPELL_SUMMON_GARROSH_JI, true);
+
+                return;
+        
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override

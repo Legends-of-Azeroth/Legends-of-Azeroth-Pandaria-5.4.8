@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -186,27 +186,44 @@ class npc_stranglethorn_priestess_hurala : public CreatureScript
     public:
         npc_stranglethorn_priestess_hurala() : CreatureScript("npc_stranglethorn_priestess_hurala") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+        
+
+    
+        struct npc_stranglethorn_priestess_huralaAI : public ScriptedAI
         {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
+            npc_stranglethorn_priestess_huralaAI(Creature* creature) : ScriptedAI(creature) { }
 
-            if (player->GetQuestStatus(QUEST_SEE_RAPTOR_A) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_SEE_RAPTOR_H) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            bool OnGossipHello(Player* player) override
+            {
 
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+                if (player->GetQuestStatus(QUEST_SEE_RAPTOR_A) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_SEE_RAPTOR_H) == QUEST_STATUS_INCOMPLETE)
+                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1) // @Todo:: Event with teleport into Zul`Gurub
+                            player->KilledMonsterCredit(NPC_CAPTURED_LASHTAIL_HATCHLING);
+
+                        player->CLOSE_GOSSIP_MENU();
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            player->PlayerTalkClass->ClearMenus();
-
-            if (action == GOSSIP_ACTION_INFO_DEF + 1) // @Todo:: Event with teleport into Zul`Gurub
-                player->KilledMonsterCredit(NPC_CAPTURED_LASHTAIL_HATCHLING);
-
-            player->CLOSE_GOSSIP_MENU();
-            return true;
+            return new npc_stranglethorn_priestess_huralaAI(creature);
         }
 };
 

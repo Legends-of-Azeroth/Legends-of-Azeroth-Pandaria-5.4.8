@@ -1408,91 +1408,9 @@ class npc_dragon_soul_sky_captain_swayze : public CreatureScript
     public:
         npc_dragon_soul_sky_captain_swayze() : CreatureScript("npc_dragon_soul_sky_captain_swayze") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (player->IsInCombat())
-                return true;
+        
 
-            if (InstanceScript* instance = creature->GetInstanceScript())
-            {
-                if (instance->IsEncounterInProgress())
-                    return true;
-
-                if (instance->GetBossState(DATA_ULTRAXION) != DONE)
-                    return true;
-
-                if (instance->GetBossState(DATA_ULTRAXION) == DONE)
-                {
-                    if (creature->GetPositionZ() > 200.0f && player->GetTeam() == HORDE)
-                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    else if (creature->GetPositionZ() > 200.0f && player->GetTeam() == ALLIANCE)
-                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    else if (creature->GetPositionZ() < 200.0f && instance->GetBossState(DATA_BLACKHORN) != DONE)
-                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                    else if (creature->GetPositionZ() < 200.0f && player->GetTeam() == HORDE && instance->GetBossState(DATA_SPINE) != DONE)
-                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                    else if (creature->GetPositionZ() < 200.0f && player->GetTeam() == ALLIANCE && instance->GetBossState(DATA_SPINE) != DONE)
-                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-
-                    player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-                    return true;
-                }
-            }
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->SendCloseGossip();
-
-            if (player->IsInCombat())
-                return true;
-
-            if (InstanceScript* instance = creature->GetInstanceScript())
-            {
-                if (instance->IsEncounterInProgress())
-                    return true;
-
-                if (instance->GetBossState(DATA_ULTRAXION) == DONE)
-                {
-                    if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                    {
-                        Map::PlayerList const &plrList = instance->instance->GetPlayers();
-                        if (!plrList.isEmpty())
-                            for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
-                                if (Player* player = i->GetSource())
-                                    if (creature->GetDistance(player) <= 100.0f)
-                                        player->NearTeleportTo(customPos[0].GetPositionX(), customPos[0].GetPositionY(), customPos[0].GetPositionZ(), customPos[0].GetOrientation());
-                    }
-                    else if (action == GOSSIP_ACTION_INFO_DEF + 2)
-                    {
-                        creature->SummonCreature(NPC_BLACKHORN, blackhornPos);
-                        creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        creature->AI()->DoAction(ACTION_START);
-                    }
-                    else if (action == GOSSIP_ACTION_INFO_DEF + 3)
-                    {
-                        instance->SetBossState(DATA_SPINE, IN_PROGRESS);
-                        if (Creature* pDeathwing = creature->SummonCreature(NPC_SPINE_OF_DEATHWING, customPos[3]))
-                            pDeathwing->AI()->DoAction(1); // ACTION_START_BATTLE
-                        instance->DoStartMovie(74);
-                        Map::PlayerList const &plrList = instance->instance->GetPlayers();
-                        if (!plrList.isEmpty())
-                            for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
-                                if (Player* player = i->GetSource())
-                                    if (creature->GetDistance(player) <= 100.0f)
-                                    {
-                                        player->CastSpell(player, SPELL_PARACHUTE, true);
-                                        player->NearTeleportTo(customPos[3].GetPositionX() + frand(-2.f, 2.f), customPos[3].GetPositionY() + frand(-2.f, 2.f), customPos[3].GetPositionZ(), customPos[3].GetOrientation());
-                                    }
-                    }
-                }
-            }
-            return true;
-        }
+    
 
         struct npc_dragon_soul_sky_captain_swayzeAI : public ScriptedAI
         {
@@ -1648,7 +1566,96 @@ class npc_dragon_soul_sky_captain_swayze : public CreatureScript
                     WorldObject const* _obj;
                     float _range;
             };
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (player->IsInCombat())
+                    return true;
+
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    if (instance->IsEncounterInProgress())
+                        return true;
+
+                    if (instance->GetBossState(DATA_ULTRAXION) != DONE)
+                        return true;
+
+                    if (instance->GetBossState(DATA_ULTRAXION) == DONE)
+                    {
+                        if (me->GetPositionZ() > 200.0f && player->GetTeam() == HORDE)
+                            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        else if (me->GetPositionZ() > 200.0f && player->GetTeam() == ALLIANCE)
+                            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        else if (me->GetPositionZ() < 200.0f && instance->GetBossState(DATA_BLACKHORN) != DONE)
+                            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                        else if (me->GetPositionZ() < 200.0f && player->GetTeam() == HORDE && instance->GetBossState(DATA_SPINE) != DONE)
+                            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                        else if (me->GetPositionZ() < 200.0f && player->GetTeam() == ALLIANCE && instance->GetBossState(DATA_SPINE) != DONE)
+                            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+
+                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+
+                        return true;
+                    }
+                }
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->SendCloseGossip();
+
+                        if (player->IsInCombat())
+                            return true;
+
+                        if (InstanceScript* instance = me->GetInstanceScript())
+                        {
+                            if (instance->IsEncounterInProgress())
+                                return true;
+
+                            if (instance->GetBossState(DATA_ULTRAXION) == DONE)
+                            {
+                                if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                                {
+                                    Map::PlayerList const &plrList = instance->instance->GetPlayers();
+                                    if (!plrList.isEmpty())
+                                        for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
+                                            if (Player* player = i->GetSource())
+                                                if (me->GetDistance(player) <= 100.0f)
+                                                    player->NearTeleportTo(customPos[0].GetPositionX(), customPos[0].GetPositionY(), customPos[0].GetPositionZ(), customPos[0].GetOrientation());
+                                }
+                                else if (action == GOSSIP_ACTION_INFO_DEF + 2)
+                                {
+                                    me->SummonCreature(NPC_BLACKHORN, blackhornPos);
+                                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                    me->AI()->DoAction(ACTION_START);
+                                }
+                                else if (action == GOSSIP_ACTION_INFO_DEF + 3)
+                                {
+                                    instance->SetBossState(DATA_SPINE, IN_PROGRESS);
+                                    if (Creature* pDeathwing = me->SummonCreature(NPC_SPINE_OF_DEATHWING, customPos[3]))
+                                        pDeathwing->AI()->DoAction(1); // ACTION_START_BATTLE
+                                    instance->DoStartMovie(74);
+                                    Map::PlayerList const &plrList = instance->instance->GetPlayers();
+                                    if (!plrList.isEmpty())
+                                        for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
+                                            if (Player* player = i->GetSource())
+                                                if (me->GetDistance(player) <= 100.0f)
+                                                {
+                                                    player->CastSpell(player, SPELL_PARACHUTE, true);
+                                                    player->NearTeleportTo(customPos[3].GetPositionX() + frand(-2.f, 2.f), customPos[3].GetPositionY() + frand(-2.f, 2.f), customPos[3].GetPositionZ(), customPos[3].GetOrientation());
+                                                }
+                                }
+                            }
+                        }
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {

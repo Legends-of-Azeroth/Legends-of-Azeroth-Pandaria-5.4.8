@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -182,31 +182,7 @@ class npc_vortex_pinnacle_slipsteam : public CreatureScript
     public:
         npc_vortex_pinnacle_slipsteam() : CreatureScript("npc_vortex_pinnacle_slipsteam") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (InstanceScript* instance = creature->GetInstanceScript())
-            {
-                if (instance->GetBossState(DATA_ALTAIRUS) == DONE)
-                {
-                    player->NearTeleportTo(
-                        teleportPos[1].GetPositionX(),
-                        teleportPos[1].GetPositionY(),
-                        teleportPos[1].GetPositionZ()+10.0f,
-                        teleportPos[1].GetOrientation());
-                    return true;
-                }
-                else if (instance->GetBossState(DATA_ERTAN) == DONE)
-                {
-                    player->NearTeleportTo(
-                        teleportPos[0].GetPositionX(),
-                        teleportPos[0].GetPositionY(),
-                        teleportPos[0].GetPositionZ()+10.0f,
-                        teleportPos[0].GetOrientation());
-                    return true;
-                }
-            }
-            return false;
-        }
+        
 
         struct npc_vortex_pinnacle_slipsteamAI : public ScriptedAI
         {
@@ -223,7 +199,34 @@ class npc_vortex_pinnacle_slipsteam : public CreatureScript
             }
 
             void UpdateAI(uint32 diff) override { }
-     };
+                 bool OnGossipHello(Player* player) override
+            {
+
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    if (instance->GetBossState(DATA_ALTAIRUS) == DONE)
+                    {
+                        player->NearTeleportTo(
+                            teleportPos[1].GetPositionX(),
+                            teleportPos[1].GetPositionY(),
+                            teleportPos[1].GetPositionZ()+10.0f,
+                            teleportPos[1].GetOrientation());
+                        return true;
+                    }
+                    else if (instance->GetBossState(DATA_ERTAN) == DONE)
+                    {
+                        player->NearTeleportTo(
+                            teleportPos[0].GetPositionX(),
+                            teleportPos[0].GetPositionY(),
+                            teleportPos[0].GetPositionZ()+10.0f,
+                            teleportPos[0].GetOrientation());
+                        return true;
+                    }
+                }
+                return false;
+        
+            }
+        };
 
         CreatureAI* GetAI(Creature* creature) const override
         {

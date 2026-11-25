@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 #include "CombatAI.h"
 #include "Player.h"
 #include "Vehicle.h"
@@ -456,10 +457,24 @@ class go_nexus_portal : public GameObjectScript
     public:
         go_nexus_portal() : GameObjectScript("go_nexus_portal") { }
 
-        bool OnGossipHello(Player* player, GameObject* /*go*/)
+    
+
+        struct go_nexus_portalAI : public GameObjectAI
         {
-            player->TeleportTo(player->GetMapId(), 985.33f, 1057.04f, 359.97f, 0.0f);
-            return false;
+            go_nexus_portalAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                        player->TeleportTo(player->GetMapId(), 985.33f, 1057.04f, 359.97f, 0.0f);
+                        return false;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_nexus_portalAI(go);
         }
 };
 

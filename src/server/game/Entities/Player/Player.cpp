@@ -16,6 +16,9 @@
 */
 
 #include "Player.h"
+#ifdef ELUNA
+#include "HookMgr.h"
+#endif
 #include "RBAC.h"
 #include "GameClient.h"
 #include "AccountMgr.h"
@@ -16303,7 +16306,10 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
     switch (questGiver->GetTypeId())
     {
         case TYPEID_UNIT:
-            sScriptMgr->OnQuestAccept(this, (questGiver->ToCreature()), quest);
+#ifdef ELUNA
+            if (sHookMgr->OnQuestAccept(this, questGiver->ToCreature(), quest))
+                return;
+#endif
             questGiver->ToCreature()->AI()->OnQuestAccept(this, quest);
             break;
         case TYPEID_ITEM:
@@ -16314,7 +16320,10 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
             break;
         }
         case TYPEID_GAMEOBJECT:
-            sScriptMgr->OnQuestAccept(this, questGiver->ToGameObject(), quest);
+#ifdef ELUNA
+            if (sHookMgr->OnQuestAccept(this, questGiver->ToGameObject(), quest))
+                return;
+#endif
             questGiver->ToGameObject()->AI()->OnQuestAccept(this, quest);
             break;
         default:
@@ -16396,7 +16405,11 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         switch (questGiver->GetTypeId())
         {
             case TYPEID_UNIT:
-                sScriptMgr->OnQuestAccept(this, (questGiver->ToCreature()), quest);
+#ifdef ELUNA
+                if (sHookMgr->OnQuestAccept(this, questGiver->ToCreature(), quest))
+                    break;
+#endif
+                questGiver->ToCreature()->AI()->OnQuestAccept(this, quest);
                 break;
             case TYPEID_ITEM:
             case TYPEID_CONTAINER:
@@ -16406,7 +16419,11 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
                     break;
                 }
             case TYPEID_GAMEOBJECT:
-                sScriptMgr->OnQuestAccept(this, questGiver->ToGameObject(), quest);
+#ifdef ELUNA
+                if (sHookMgr->OnQuestAccept(this, questGiver->ToGameObject(), quest))
+                    break;
+#endif
+                questGiver->ToGameObject()->AI()->OnQuestAccept(this, quest);
                 break;
             default:
                 break;

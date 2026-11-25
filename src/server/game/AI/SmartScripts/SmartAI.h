@@ -184,7 +184,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         bool OnGossipSelectCode(Player* player, uint32 menuId, uint32 gossipListId, char const* code) override;  
         void OnQuestAccept(Player* player, Quest const* quest) override;  
         void OnQuestReward(Player* player, Quest const* quest, uint32 opt) override;   
-        bool sOnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex) override;
+        bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex) override;
         void sOnGameEvent(bool start, uint16 eventId) override;
 
         uint32 mEscortQuestID;
@@ -281,14 +281,14 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
         bool OnReportUse(Player* player) override;
         bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override;
         bool OnGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) override;
-        bool OnQuestAccept(Player* player, Quest const* quest) override;
-        bool OnQuestReward(Player* player, Quest const* quest, uint32 opt) override;
+        void OnQuestAccept(Player* player, Quest const* quest) override;
+        void OnQuestReward(Player* player, Quest const* quest, uint32 opt) override;
         Optional<QuestGiverStatus> GetDialogStatus(Player* /*player*/) override;
         void Destroyed(Player* player, uint32 eventId) override;
         void SetData(uint32 id, uint32 value) override;
         void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
         void OnGameEvent(bool start, uint16 eventId) override;
-        void OnStateChanged(uint32 state, Unit* unit) override;
+        void OnLootStateChanged(uint32 state, Unit* unit) override;
         void EventInform(uint32 eventId) override;
 
         void SetGossipReturn(bool val) { _gossipReturn = val; }

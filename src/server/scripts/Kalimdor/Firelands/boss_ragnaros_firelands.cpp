@@ -2146,26 +2146,7 @@ class npc_ragnaros_firelands_cloudburst : public CreatureScript
     public:
         npc_ragnaros_firelands_cloudburst() : CreatureScript("npc_ragnaros_firelands_cloudburst") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            uint32 clicks = creature->AI()->GetData(DATA_CLICKS);
-            if (!clicks)
-                return true;
-
-            if (player->HasAura(SPELL_DELUGE_AURA))
-                return true;
-
-            player->CastSpell(player, SPELL_DELUGE_AURA, true);
-
-            clicks--;
-
-            if (!clicks)
-                creature->DespawnOrUnsummon();
-            else
-                creature->AI()->SetData(DATA_CLICKS, clicks);
-
-            return true;
-        }
+        
     
         struct npc_ragnaros_firelands_cloudburstAI : public ScriptedAI
         {
@@ -2197,6 +2178,28 @@ class npc_ragnaros_firelands_cloudburst : public CreatureScript
 
         private:
             uint32 _clicks;
+                    bool OnGossipHello(Player* player) override
+            {
+
+                uint32 clicks = me->AI()->GetData(DATA_CLICKS);
+                if (!clicks)
+                    return true;
+
+                if (player->HasAura(SPELL_DELUGE_AURA))
+                    return true;
+
+                player->CastSpell(player, SPELL_DELUGE_AURA, true);
+
+                clicks--;
+
+                if (!clicks)
+                    me->DespawnOrUnsummon();
+                else
+                    me->AI()->SetData(DATA_CLICKS, clicks);
+
+                return true;
+        
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override

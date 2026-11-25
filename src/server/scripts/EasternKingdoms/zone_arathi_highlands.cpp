@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -142,6 +142,20 @@ class npc_professor_phizzlethorpe : public CreatureScript
             }
 
             EventMap events;
+                    void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == QUEST_GOGGLE_BOGGLE)
+                {
+                    Talk(SAY_PROGRESS_1, player);
+                    if (EscortAI* pEscortAI = this)
+                        pEscortAI->Start(false, player->GetGUID(), quest);
+
+                    me->SetFaction(42);
+                }
+                return;
+        
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -149,18 +163,7 @@ class npc_professor_phizzlethorpe : public CreatureScript
             return new npc_professor_phizzlethorpeAI(creature);
         }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_GOGGLE_BOGGLE)
-            {
-                creature->AI()->Talk(SAY_PROGRESS_1, player);
-                if (EscortAI* pEscortAI = CAST_AI(npc_professor_phizzlethorpeAI, (creature->AI())))
-                    pEscortAI->Start(false, player->GetGUID(), quest);
-
-                creature->SetFaction(42);
-            }
-            return true;
-        }
+        
 };
 
 void AddSC_arathi_highlands()

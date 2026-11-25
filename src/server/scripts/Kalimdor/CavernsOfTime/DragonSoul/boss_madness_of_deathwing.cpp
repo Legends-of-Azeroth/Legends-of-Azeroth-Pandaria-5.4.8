@@ -853,75 +853,9 @@ class npc_dragon_soul_thrall_1 : public CreatureScript
     public:
         npc_dragon_soul_thrall_1() : CreatureScript("npc_dragon_soul_thrall_1") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (player->IsInCombat())
-                return true;
+        
 
-            if (InstanceScript* instance = creature->GetInstanceScript())
-            {
-                if (instance->IsEncounterInProgress())
-                    return true;
-
-                if (instance->GetBossState(DATA_SPINE) != DONE ||
-                    instance->GetBossState(DATA_MADNESS) == IN_PROGRESS ||
-                    instance->GetBossState(DATA_MADNESS) == DONE)
-                    return true;
-
-                if (instance->instance->IsHeroic())
-                {
-                    if (Group* group = player->GetGroup())
-                    {
-                        Player* leader = ObjectAccessor::GetPlayer(*player, group->GetLeaderGUID());
-                        if (!leader || !leader->HasAchieved(6115))
-                            return true;
-                    }
-                    else if (!player->HasAchieved(6115))
-                        return true;
-                }
-
-                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                
-                return true;
-            }
-            return false;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->SendCloseGossip();
-
-            if (player->IsInCombat())
-                return true;
-
-            if (InstanceScript* instance = creature->GetInstanceScript())
-            {
-                if (instance->IsEncounterInProgress())
-                    return true;
-
-                if (instance->GetBossState(DATA_SPINE) != DONE ||
-                    instance->GetBossState(DATA_MADNESS) == IN_PROGRESS ||
-                    instance->GetBossState(DATA_MADNESS) == DONE)
-                    return true;
-
-                if (instance->instance->IsHeroic())
-                {
-                    if (Group* group = player->GetGroup())
-                    {
-                        Player* leader = ObjectAccessor::GetPlayer(*player, group->GetLeaderGUID());
-                        if (!leader || !leader->HasAchieved(6115))
-                            return true;
-                    }
-                    else if (!player->HasAchieved(6115))
-                        return true;
-                }
-
-                if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                    creature->AI()->DoAction(ACTION_START_INTRO);
-            }
-            return true;
-        }
+    
 
         struct npc_dragon_soul_thrall_1AI : public ScriptedAI
         {
@@ -1322,7 +1256,80 @@ class npc_dragon_soul_thrall_1 : public CreatureScript
                     WorldObject const* _obj;
                     float _range;
             };
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (player->IsInCombat())
+                    return true;
+
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    if (instance->IsEncounterInProgress())
+                        return true;
+
+                    if (instance->GetBossState(DATA_SPINE) != DONE ||
+                        instance->GetBossState(DATA_MADNESS) == IN_PROGRESS ||
+                        instance->GetBossState(DATA_MADNESS) == DONE)
+                        return true;
+
+                    if (instance->instance->IsHeroic())
+                    {
+                        if (Group* group = player->GetGroup())
+                        {
+                            Player* leader = ObjectAccessor::GetPlayer(*player, group->GetLeaderGUID());
+                            if (!leader || !leader->HasAchieved(6115))
+                                return true;
+                        }
+                        else if (!player->HasAchieved(6115))
+                            return true;
+                    }
+
+                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                
+                    return true;
+                }
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->SendCloseGossip();
+
+                        if (player->IsInCombat())
+                            return true;
+
+                        if (InstanceScript* instance = me->GetInstanceScript())
+                        {
+                            if (instance->IsEncounterInProgress())
+                                return true;
+
+                            if (instance->GetBossState(DATA_SPINE) != DONE ||
+                                instance->GetBossState(DATA_MADNESS) == IN_PROGRESS ||
+                                instance->GetBossState(DATA_MADNESS) == DONE)
+                                return true;
+
+                            if (instance->instance->IsHeroic())
+                            {
+                                if (Group* group = player->GetGroup())
+                                {
+                                    Player* leader = ObjectAccessor::GetPlayer(*player, group->GetLeaderGUID());
+                                    if (!leader || !leader->HasAchieved(6115))
+                                        return true;
+                                }
+                                else if (!player->HasAchieved(6115))
+                                    return true;
+                            }
+
+                            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                                me->AI()->DoAction(ACTION_START_INTRO);
+                        }
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {

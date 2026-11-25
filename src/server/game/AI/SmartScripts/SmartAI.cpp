@@ -837,7 +837,7 @@ void SmartAI::OnQuestReward(Player* player, Quest const* quest, uint32 opt)
 }
 
 
-bool SmartAI::sOnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex)
+bool SmartAI::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_DUMMY_EFFECT, caster, spellId, (uint32)effIndex);
     return true;
@@ -1051,17 +1051,15 @@ bool SmartGameObjectAI::OnGossipSelectCode(Player* /*player*/, uint32 /*sender*/
 }
 
 // Called when a player accepts a quest from the gameobject.
-bool SmartGameObjectAI::OnQuestAccept(Player* player, Quest const* quest)
+void SmartGameObjectAI::OnQuestAccept(Player* player, Quest const* quest)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_ACCEPTED_QUEST, player, quest->GetQuestId(), 0, false, NULL, me);
-    return false;
 }
 
 // Called when a player selects a quest reward.
-bool SmartGameObjectAI::OnQuestReward(Player* player, Quest const* quest, uint32 opt)
+void SmartGameObjectAI::OnQuestReward(Player* player, Quest const* quest, uint32 opt)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_REWARD_QUEST, player, quest->GetQuestId(), opt, false, NULL, me);
-    return false;
 }
 
 Optional<QuestGiverStatus> SmartGameObjectAI::GetDialogStatus(Player* /*player*/) { return {}; }
@@ -1089,7 +1087,7 @@ void SmartGameObjectAI::OnGameEvent(bool start, uint16 eventId)
     GetScript()->ProcessEventsFor(start ? SMART_EVENT_GAME_EVENT_START : SMART_EVENT_GAME_EVENT_END, NULL, eventId);
 }
 
-void SmartGameObjectAI::OnStateChanged(uint32 state, Unit* unit)
+void SmartGameObjectAI::OnLootStateChanged(uint32 state, Unit* unit)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_GO_STATE_CHANGED, unit, state);
 }
@@ -1108,8 +1106,7 @@ class SmartTrigger : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {
             if (!player->IsAlive())
-                return false;
-
+            
             TC_LOG_DEBUG("scripts.ai", "AreaTrigger {} is using SmartTrigger script", trigger->ID);
             SmartScript script;
             script.OnInitialize(NULL, trigger);

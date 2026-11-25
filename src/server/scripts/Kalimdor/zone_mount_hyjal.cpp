@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 #include "Vehicle.h"
 #include "AchievementMgr.h"
 #include "CombatAI.h"
@@ -259,11 +260,24 @@ class npc_marion_wormswing : public CreatureScript
     public:
         go_harpy_signal_fire() : GameObjectScript("go_harpy_signal_fire") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_harpy_signal_fireAI : public GameObjectAI
         {
-            if (!go->FindNearestCreature(41112, 100.0f) && player->GetQuestStatus(25731) == QUEST_STATUS_INCOMPLETE)
-                go->SummonCreature(41112, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 60000ms);
-            return false;
+            go_harpy_signal_fireAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                if (!me->FindNearestCreature(41112, 100.0f) && player->GetQuestStatus(25731) == QUEST_STATUS_INCOMPLETE)
+                    me->SummonCreature(41112, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 60000ms);
+                return false;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_harpy_signal_fireAI(go);
         }
 }; */
 
@@ -548,26 +562,39 @@ class npc_morthis_whisperwing : public CreatureScript
     public:
         npc_morthis_whisperwing() : CreatureScript("npc_morthis_whisperwing") { }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+        
+        struct npc_morthis_whisperwingAI : public ScriptedAI
         {
-            if (!player || !creature || !quest || quest->GetQuestId() != QUEST_FIRE_IN_THE_SKIES)
-                return false;
+            npc_morthis_whisperwingAI(Creature* creature) : ScriptedAI(creature) { }
 
-            for (uint32 i = 0; i < 100; ++i)
-                player->KilledMonsterCredit(NPC_FLAMEWAKER_CENTURION, ObjectGuid::Empty);
-            for (uint32 i = 0; i < 40; ++i)
-                player->KilledMonsterCredit(NPC_CINDERWEB_MATRIARCH, ObjectGuid::Empty);
-            for (uint32 i = 0; i < 3; ++i)
-                player->KilledMonsterCredit(NPC_MOLTEN_LORD, ObjectGuid::Empty);
+            void OnQuestAccept(Player* player, Quest const* quest) override
+            {
 
-            player->CastSpell(player, SPELL_RAGEPYRE, true);
-            player->CastSpell(player, SPELL_FLASHFIRE, true);
-            player->CastSpell(player, SPELL_HEATFLAYER, true);
-            player->CastSpell(player, SPELL_BLAZEFURY, true);
-            player->CastSpell(player, SPELL_HATESPARK, true);
-            player->CastSpell(player, SPELL_SINGESLAYER, true);
+                if (!player || !me || !quest || quest->GetQuestId() != QUEST_FIRE_IN_THE_SKIES)
+                    return;
 
-            return true;
+                for (uint32 i = 0; i < 100; ++i)
+                    player->KilledMonsterCredit(NPC_FLAMEWAKER_CENTURION, ObjectGuid::Empty);
+                for (uint32 i = 0; i < 40; ++i)
+                    player->KilledMonsterCredit(NPC_CINDERWEB_MATRIARCH, ObjectGuid::Empty);
+                for (uint32 i = 0; i < 3; ++i)
+                    player->KilledMonsterCredit(NPC_MOLTEN_LORD, ObjectGuid::Empty);
+
+                player->CastSpell(player, SPELL_RAGEPYRE, true);
+                player->CastSpell(player, SPELL_FLASHFIRE, true);
+                player->CastSpell(player, SPELL_HEATFLAYER, true);
+                player->CastSpell(player, SPELL_BLAZEFURY, true);
+                player->CastSpell(player, SPELL_HATESPARK, true);
+                player->CastSpell(player, SPELL_SINGESLAYER, true);
+
+                return;
+        
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_morthis_whisperwingAI(creature);
         }
 };
 

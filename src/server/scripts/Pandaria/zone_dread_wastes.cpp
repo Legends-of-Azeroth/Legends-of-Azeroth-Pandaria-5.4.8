@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 
@@ -2455,23 +2456,36 @@ class go_full_crab_pot : public GameObjectScript
     public:
         go_full_crab_pot() : GameObjectScript("go_full_crab_pot") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_full_crab_potAI : public GameObjectAI
         {
-            if (player->GetQuestStatus(31187) == QUEST_STATUS_INCOMPLETE)
+            go_full_crab_potAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                /*player->CastSpell(player, 89404, true);
-                player->TeleportTo(player->GetMapId(), -9207.99f, -1560.32f, 65.46f, 0.82f);*/
-                player->KilledMonsterCredit(64006);
-                Position pos = go->GetPosition();
-                if (auto crabTrap = player->SummonCreature(64009, pos, TEMPSUMMON_TIMED_DESPAWN, 10000ms))
+
+                if (player->GetQuestStatus(31187) == QUEST_STATUS_INCOMPLETE)
                 {
-                    crabTrap->CastSpell(crabTrap, 124959, true);
-                    pos.m_positionZ = pos.m_positionZ + 20;
-                    crabTrap->GetMotionMaster()->MovePoint(1, pos);
+                    /*player->CastSpell(player, 89404, true);
+                    player->TeleportTo(player->GetMapId(), -9207.99f, -1560.32f, 65.46f, 0.82f);*/
+                    player->KilledMonsterCredit(64006);
+                    Position pos = me->GetPosition();
+                    if (auto crabTrap = player->SummonCreature(64009, pos, TEMPSUMMON_TIMED_DESPAWN, 10000ms))
+                    {
+                        crabTrap->CastSpell(crabTrap, 124959, true);
+                        pos.m_positionZ = pos.m_positionZ + 20;
+                        crabTrap->GetMotionMaster()->MovePoint(1, pos);
+                    }
+                    me->SetRespawnTime(60);
                 }
-                go->SetRespawnTime(60);
+                return false;
+        
             }
-            return false;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_full_crab_potAI(go);
         }
 };
 
@@ -2517,20 +2531,33 @@ class npc_hisek_the_swarmkeeper : public CreatureScript
     public:
         npc_hisek_the_swarmkeeper() : CreatureScript("npc_hisek_the_swarmkeeper") { }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+        
+        struct npc_hisek_the_swarmkeeperAI : public ScriptedAI
         {
-            if (quest->GetQuestId() == 31441)
-            {
-                Position pos = creature->GetPosition();
-                ObjectGuid playerGUID = player->GetGUID();
-                if (auto qgiver = creature->SummonCreature(64705, pos))
-                {
-                    qgiver->SetExplicitSeerGuid(playerGUID);
-                    qgiver->AI()->SetGUID(playerGUID);
-                }
-            }
+            npc_hisek_the_swarmkeeperAI(Creature* creature) : ScriptedAI(creature) { }
 
-            return true;
+            void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == 31441)
+                {
+                    Position pos = me->GetPosition();
+                    ObjectGuid playerGUID = player->GetGUID();
+                    if (auto qgiver = me->SummonCreature(64705, pos))
+                    {
+                        qgiver->SetExplicitSeerGuid(playerGUID);
+                        qgiver->AI()->SetGUID(playerGUID);
+                    }
+                }
+
+                return;
+        
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_hisek_the_swarmkeeperAI(creature);
         }
 };
 
@@ -2636,13 +2663,7 @@ class npc_klaxxiva_ik : public CreatureScript
     public:
         npc_klaxxiva_ik() : CreatureScript("npc_klaxxiva_ik") { }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_OVERTHRONE)
-                player->CastSpell(player, SPELL_KLAXXI_SCENE_SHEKZEER, true);
-
-            return false;
-        }
+        
 
         struct npc_klaxxiva_ikAI : public ScriptedAI
         {
@@ -2655,6 +2676,15 @@ class npc_klaxxiva_ik : public CreatureScript
                 {
                     DoCast(me, SPELL_KLAXXI_RESONANCE);
                 });
+            }
+                    void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == QUEST_OVERTHRONE)
+                    player->CastSpell(player, SPELL_KLAXXI_SCENE_SHEKZEER, true);
+
+                return;
+        
             }
         };
 
@@ -2817,35 +2847,52 @@ class npc_kilruk_wind_reaver : public CreatureScript
     public:
         npc_kilruk_wind_reaver() : CreatureScript("npc_kilruk_wind_reaver") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+        
+
+    
+        struct npc_kilruk_wind_reaverAI : public ScriptedAI
         {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
+            npc_kilruk_wind_reaverAI(Creature* creature) : ScriptedAI(creature) { }
 
-            // Missed Gossip ID
-            if (player->GetQuestStatus(QUEST_SHADOW_OF_EMPIRE) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            bool OnGossipHello(Player* player) override
             {
-                player->SetPhaseMask(3, true);
 
-                if (Creature* Kilruk_reaver = player->SummonCreature(NPC_KILRUK_QUEST, *creature, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(300 * IN_MILLISECONDS)))
-                    Kilruk_reaver->SetPhaseMask(2, true);
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                // Missed Gossip ID
+                if (player->GetQuestStatus(QUEST_SHADOW_OF_EMPIRE) == QUEST_STATUS_INCOMPLETE)
+                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+
+                return true;
+        
             }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
 
-            player->CLOSE_GOSSIP_MENU();
+                        player->PlayerTalkClass->ClearMenus();
 
-            return true;
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            player->SetPhaseMask(3, true);
+
+                            if (Creature* Kilruk_reaver = player->SummonCreature(NPC_KILRUK_QUEST, *me, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(300 * IN_MILLISECONDS)))
+                                Kilruk_reaver->SetPhaseMask(2, true);
+                        }
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_kilruk_wind_reaverAI(creature);
         }
 };
 
@@ -2978,30 +3025,47 @@ class npc_malik_the_unscathed_quest_empress_gambit : public CreatureScript
     public:
         npc_malik_the_unscathed_quest_empress_gambit() : CreatureScript("npc_malik_the_unscathed_quest_empress_gambit") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+        
+
+    
+        struct npc_malik_the_unscathed_quest_empress_gambitAI : public ScriptedAI
         {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
+            npc_malik_the_unscathed_quest_empress_gambitAI(Creature* creature) : ScriptedAI(creature) { }
 
-            // Missed Gossip ID
-            if (player->GetQuestStatus(QUEST_EMPRESS_GAMBIT) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            bool OnGossipHello(Player* player) override
+            {
 
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
 
-            return true;
-        }
+                // Missed Gossip ID
+                if (player->GetQuestStatus(QUEST_EMPRESS_GAMBIT) == QUEST_STATUS_INCOMPLETE)
+                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            player->CastSpell(player, SPELL_KLAXXI_EMPRESS_GAMBIT, true);
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            player->PlayerTalkClass->ClearMenus();
-
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                player->CastSpell(player, SPELL_KLAXXI_EMPRESS_GAMBIT, true);
-
-            player->CLOSE_GOSSIP_MENU();
-
-            return true;
+            return new npc_malik_the_unscathed_quest_empress_gambitAI(creature);
         }
 };
 

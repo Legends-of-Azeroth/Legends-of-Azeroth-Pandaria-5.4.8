@@ -23,6 +23,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObjectAI.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
@@ -1683,58 +1684,68 @@ class go_ulduar_tower : public GameObjectScript
     public:
         go_ulduar_tower() : GameObjectScript("go_ulduar_tower") { }
 
-        void OnDestroyed(GameObject* go, Player* /*player*/)
+        struct go_ulduar_towerAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
-            if (!instance)
-                return;
+            go_ulduar_towerAI(GameObject* go) : GameObjectAI(go) { }
 
-            switch (go->GetEntry())
+            void Destroyed(Player* /*player*/, uint32 /*eventId*/) override
             {
-                case GO_TOWER_OF_STORMS:
-                    CreatureDies(go);
-                    if (GameObject* HightTower = go->FindNearestGameObject(194666, 150.0f))
-                        HightTower->SetGoState(GO_STATE_ACTIVE);
-                    if (GameObject* Crystal = ObjectAccessor::GetGameObject(*go, instance->GetGuidData(DATA_TOWER_OF_STORMS_CRYSTAL)))
-                        Crystal->SetGoState(GO_STATE_ACTIVE);
-                    break;
-                case GO_TOWER_OF_FLAMES:
-                    CreatureDies(go);
-                    if (GameObject* HightTower = go->FindNearestGameObject(194664, 150.0f))
-                        HightTower->SetGoState(GO_STATE_ACTIVE);
-                    if (GameObject* Crystal = ObjectAccessor::GetGameObject(*go, instance->GetGuidData(DATA_TOWER_OF_FLAMES_CRYSTAL)))
-                        Crystal->SetGoState(GO_STATE_ACTIVE);
-                    break;
-                case GO_TOWER_OF_FROST:
-                    CreatureDies(go);
-                    if (GameObject* HightTower = go->FindNearestGameObject(194665, 150.0f))
-                        HightTower->SetGoState(GO_STATE_ACTIVE);
-                    if (GameObject* Crystal = ObjectAccessor::GetGameObject(*go, instance->GetGuidData(DATA_TOWER_OF_FROST_CRYSTAL)))
-                        Crystal->SetGoState(GO_STATE_ACTIVE);
-                    break;
-                case GO_TOWER_OF_LIFE:
-                    CreatureDies(go);
-                    if (GameObject* HightTower = go->FindNearestGameObject(194663, 150.0f))
-                        HightTower->SetGoState(GO_STATE_ACTIVE);
-                    if (GameObject* Crystal = ObjectAccessor::GetGameObject(*go, instance->GetGuidData(DATA_TOWER_OF_LIFE_CRYSTAL)))
-                        Crystal->SetGoState(GO_STATE_ACTIVE);
-                    break;
+                InstanceScript* instance = me->GetInstanceScript();
+                if (!instance)
+                    return;
+
+                switch (me->GetEntry())
+                {
+                    case GO_TOWER_OF_STORMS:
+                        CreatureDies();
+                        if (GameObject* HightTower = me->FindNearestGameObject(194666, 150.0f))
+                            HightTower->SetGoState(GO_STATE_ACTIVE);
+                        if (GameObject* Crystal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_TOWER_OF_STORMS_CRYSTAL)))
+                            Crystal->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    case GO_TOWER_OF_FLAMES:
+                        CreatureDies();
+                        if (GameObject* HightTower = me->FindNearestGameObject(194664, 150.0f))
+                            HightTower->SetGoState(GO_STATE_ACTIVE);
+                        if (GameObject* Crystal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_TOWER_OF_FLAMES_CRYSTAL)))
+                            Crystal->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    case GO_TOWER_OF_FROST:
+                        CreatureDies();
+                        if (GameObject* HightTower = me->FindNearestGameObject(194665, 150.0f))
+                            HightTower->SetGoState(GO_STATE_ACTIVE);
+                        if (GameObject* Crystal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_TOWER_OF_FROST_CRYSTAL)))
+                            Crystal->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    case GO_TOWER_OF_LIFE:
+                        CreatureDies();
+                        if (GameObject* HightTower = me->FindNearestGameObject(194663, 150.0f))
+                            HightTower->SetGoState(GO_STATE_ACTIVE);
+                        if (GameObject* Crystal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_TOWER_OF_LIFE_CRYSTAL)))
+                            Crystal->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                }
+
+                if (me->GetEntry() != GO_TOWER_OF_STORMS || me->GetEntry() != GO_TOWER_OF_FLAMES || me->GetEntry() != GO_TOWER_OF_FROST || me->GetEntry() != GO_TOWER_OF_LIFE)
+                    if (Creature* trigger = me->FindNearestCreature(NPC_ULDUAR_GAUNTLET_GENERATOR, 15.0f, true))
+                        trigger->DisappearAndDie();
             }
 
-            if (go->GetEntry() != GO_TOWER_OF_STORMS || go->GetEntry() != GO_TOWER_OF_FLAMES || go->GetEntry() != GO_TOWER_OF_FROST || go->GetEntry() != GO_TOWER_OF_LIFE)
-                if (Creature* trigger = go->FindNearestCreature(NPC_ULDUAR_GAUNTLET_GENERATOR, 15.0f, true))
-                    trigger->DisappearAndDie();
-        }
+            void CreatureDies()
+            {
+                std::list<Creature*> trashmobs;
+                GetCreatureListWithEntryInGrid(trashmobs, me, NPC_ULDUAR_GAUNTLET_GENERATOR, 25);
+                GetCreatureListWithEntryInGrid(trashmobs, me, NPC_IRONWORK_CANNON, 25);
+                GetCreatureListWithEntryInGrid(trashmobs, me, 34159, 25);
+                for (auto&& trash : trashmobs)
+                    if (trash->IsAlive())
+                        trash->DisappearAndDie();
+            }
+        };
 
-        void CreatureDies(GameObject* go)
+        GameObjectAI* GetAI(GameObject* go) const override
         {
-            std::list<Creature*> trashmobs;
-            GetCreatureListWithEntryInGrid(trashmobs, go, NPC_ULDUAR_GAUNTLET_GENERATOR, 25);
-            GetCreatureListWithEntryInGrid(trashmobs, go, NPC_IRONWORK_CANNON, 25);
-            GetCreatureListWithEntryInGrid(trashmobs, go, 34159, 25);
-            for (auto&& trash : trashmobs)
-                if (trash->IsAlive())
-                    trash->DisappearAndDie();
+            return new go_ulduar_towerAI(go);
         }
 };
 

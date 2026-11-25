@@ -16,6 +16,7 @@
 */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 #include "Vehicle.h"
 #include "well_of_eternity.h"
 
@@ -832,78 +833,9 @@ class npc_well_of_eternity_illidan_1 : public CreatureScript
     public:
         npc_well_of_eternity_illidan_1() : CreatureScript("npc_well_of_eternity_illidan_1") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (InstanceScript* instance = creature->GetInstanceScript())
-            {
-                if (instance->GetBossState(DATA_PEROTHARN) == DONE)
-                {
-                    player->ADD_GOSSIP_ITEM_DB(13163, 1, 0, 0);
-                    player->SEND_GOSSIP_MENU(18958, creature->GetGUID());
-                }
-                else
-                {
-                    creature->AI()->DoAction(ACTION_ILLIDAN_1_STOP_NAGGING);
-                    if (!creature->HasAura(SPELL_SHADOWCLOAK_ILLIDAN))
-                    {
-                        player->ADD_GOSSIP_ITEM_DB(13162, 0, 0, 0);
-                        player->SEND_GOSSIP_MENU(18550, creature->GetGUID());
-                    }
-                    else
-                    {
-                        player->ADD_GOSSIP_ITEM_DB(13163, 0, 0, 0);
-                        if (player->IsGameMaster())
-                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "Skip to boss.", 0, 100);
-                        player->SEND_GOSSIP_MENU(18551, creature->GetGUID());
-                    }
-                }
-            }
-            return true;
-        }
+        
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            player->CLOSE_GOSSIP_MENU();
-            
-            if (InstanceScript* instance = creature->GetInstanceScript())
-            {
-                if (instance->GetBossState(DATA_PEROTHARN) == DONE)
-                {
-                    creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    creature->AI()->DoAction(ACTION_ILLIDAN_1_OUTRO_RESUME);
-                }
-                else
-                {
-                    if (!creature->HasAura(SPELL_SHADOWCLOAK_ILLIDAN))
-                    {
-                        creature->AI()->DoAction(ACTION_ILLIDAN_1_PRESTART);
-                    }
-                    else
-                    {
-                        if (action == 100)
-                        {
-                            // Preevent skip for GMs
-                            if (InstanceScript* instance = creature->GetInstanceScript())
-                            {
-                                instance->SetData(DATA_EVENT_ILLIDAN_1, DONE);
-                                instance->SetData(DATA_LEGION_DEMON_BLOCKED_PATH_LEFT, 1);
-                                instance->SetData(DATA_LEGION_DEMON_BLOCKED_PATH_RIGHT, 1);
-                                instance->SetData(DATA_LEGION_DEMON_BLOCKED_PATH_FORWARD, 1);
-                            }
-                            creature->AI()->DoAction(ACTION_ILLIDAN_1_SKIP);
-                        }
-                        else
-                        {
-                            creature->AI()->DoAction(ACTION_ILLIDAN_1_START);
-                            if (InstanceScript* instance = creature->GetInstanceScript())
-                                instance->SetData(DATA_EVENT_ILLIDAN_1, IN_PROGRESS);
-                        }
-                    }
-                }
-            }
-            return true;
-        }
+    
 
         struct npc_well_of_eternity_illidan_1AI : public ScriptedAI
         {
@@ -1443,7 +1375,83 @@ class npc_well_of_eternity_illidan_1 : public CreatureScript
             uint32 victimCheckTimer;
             EventMap events;
             InstanceScript* instance;
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    if (instance->GetBossState(DATA_PEROTHARN) == DONE)
+                    {
+                        player->ADD_GOSSIP_ITEM_DB(13163, 1, 0, 0);
+                        player->SEND_GOSSIP_MENU(18958, me->GetGUID());
+                    }
+                    else
+                    {
+                        me->AI()->DoAction(ACTION_ILLIDAN_1_STOP_NAGGING);
+                        if (!me->HasAura(SPELL_SHADOWCLOAK_ILLIDAN))
+                        {
+                            player->ADD_GOSSIP_ITEM_DB(13162, 0, 0, 0);
+                            player->SEND_GOSSIP_MENU(18550, me->GetGUID());
+                        }
+                        else
+                        {
+                            player->ADD_GOSSIP_ITEM_DB(13163, 0, 0, 0);
+                            if (player->IsGameMaster())
+                                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "Skip to boss.", 0, 100);
+                            player->SEND_GOSSIP_MENU(18551, me->GetGUID());
+                        }
+                    }
+                }
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+                        player->CLOSE_GOSSIP_MENU();
+            
+                        if (InstanceScript* instance = me->GetInstanceScript())
+                        {
+                            if (instance->GetBossState(DATA_PEROTHARN) == DONE)
+                            {
+                                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                me->AI()->DoAction(ACTION_ILLIDAN_1_OUTRO_RESUME);
+                            }
+                            else
+                            {
+                                if (!me->HasAura(SPELL_SHADOWCLOAK_ILLIDAN))
+                                {
+                                    me->AI()->DoAction(ACTION_ILLIDAN_1_PRESTART);
+                                }
+                                else
+                                {
+                                    if (action == 100)
+                                    {
+                                        // Preevent skip for GMs
+                                        if (InstanceScript* instance = me->GetInstanceScript())
+                                        {
+                                            instance->SetData(DATA_EVENT_ILLIDAN_1, DONE);
+                                            instance->SetData(DATA_LEGION_DEMON_BLOCKED_PATH_LEFT, 1);
+                                            instance->SetData(DATA_LEGION_DEMON_BLOCKED_PATH_RIGHT, 1);
+                                            instance->SetData(DATA_LEGION_DEMON_BLOCKED_PATH_FORWARD, 1);
+                                        }
+                                        me->AI()->DoAction(ACTION_ILLIDAN_1_SKIP);
+                                    }
+                                    else
+                                    {
+                                        me->AI()->DoAction(ACTION_ILLIDAN_1_START);
+                                        if (InstanceScript* instance = me->GetInstanceScript())
+                                            instance->SetData(DATA_EVENT_ILLIDAN_1, IN_PROGRESS);
+                                    }
+                                }
+                            }
+                        }
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -2445,62 +2453,73 @@ class go_npc_well_of_eternity_portal_energy_focus : public GameObjectScript
     public:
         go_npc_well_of_eternity_portal_energy_focus() : GameObjectScript("go_npc_well_of_eternity_portal_energy_focus") { }
 
-        void OnLootStateChanged(GameObject* go, uint32 state, Unit* /*unit*/) override
+                struct go_npc_well_of_eternity_portal_energy_focusAI : public GameObjectAI
         {
-            if (state != GO_JUST_DEACTIVATED)
-                return;
-            if (go->HasFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE))
-                return;
-            go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            go_npc_well_of_eternity_portal_energy_focusAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (Creature* stalker = GetClosestCreatureWithEntry(go, NPC_FEL_CRYSTAL_STALKER, 10))
-                stalker->GetAI()->DoAction(ACTION_FEL_CRYSTAL_STALKER_MELTDOWN);
-
-            uint32 guardianPath = 0;
-            uint32 guardianDbGuid1 = 0, guardianDbGuid2 = 0;
-            uint32 creditEntry = 0;
-
-            switch (go->GetEntry())
+    void OnLootStateChanged(uint32 state, Unit* /*unit*/) override
             {
-                case GO_PORTAL_ENERGY_FOCUS_1:
-                    if (InstanceScript* instance = go->GetInstanceScript())
-                        instance->SetData(DATA_LEGION_DEMON_BLOCKED_PATH_LEFT, 1);
-                    guardianDbGuid1 = guardianDbGuid2 = GUID_GUARDIAN_LEFT;
-                    guardianPath = 1;
-                    creditEntry = 58239;
-                    break;
-                case GO_PORTAL_ENERGY_FOCUS_2:
-                    if (InstanceScript* instance = go->GetInstanceScript())
-                        instance->SetData(DATA_LEGION_DEMON_BLOCKED_PATH_RIGHT, 1);
-                    guardianDbGuid1 = guardianDbGuid2 = GUID_GUARDIAN_RIGHT;
-                    guardianPath = 2;
-                    creditEntry = 58240;
-                    break;
-                case GO_PORTAL_ENERGY_FOCUS_3:
-                    if (InstanceScript* instance = go->GetInstanceScript())
-                    {
-                        instance->SetData(DATA_LEGION_DEMON_BLOCKED_PATH_FORWARD, 1);
-                        instance->SetData(DATA_EVENT_ILLIDAN_1, DONE);
-                    }
-                    guardianDbGuid1 = GUID_GUARDIAN_CENTER_1;
-                    guardianDbGuid2 = GUID_GUARDIAN_CENTER_2;
-                    guardianPath = 3;
-                    creditEntry = 58241;
-                    break;
-                default:
+                if (state != GO_JUST_DEACTIVATED)
                     return;
+                if (me->HasFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE))
+                    return;
+                me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
+                if (Creature* stalker = GetClosestCreatureWithEntry(me, NPC_FEL_CRYSTAL_STALKER, 10))
+                    stalker->GetAI()->DoAction(ACTION_FEL_CRYSTAL_STALKER_MELTDOWN);
+
+                uint32 guardianPath = 0;
+                uint32 guardianDbGuid1 = 0, guardianDbGuid2 = 0;
+                uint32 creditEntry = 0;
+
+                switch (me->GetEntry())
+                {
+                    case GO_PORTAL_ENERGY_FOCUS_1:
+                        if (InstanceScript* instance = me->GetInstanceScript())
+                            instance->SetData(DATA_LEGION_DEMON_BLOCKED_PATH_LEFT, 1);
+                        guardianDbGuid1 = guardianDbGuid2 = GUID_GUARDIAN_LEFT;
+                        guardianPath = 1;
+                        creditEntry = 58239;
+                        break;
+                    case GO_PORTAL_ENERGY_FOCUS_2:
+                        if (InstanceScript* instance = me->GetInstanceScript())
+                            instance->SetData(DATA_LEGION_DEMON_BLOCKED_PATH_RIGHT, 1);
+                        guardianDbGuid1 = guardianDbGuid2 = GUID_GUARDIAN_RIGHT;
+                        guardianPath = 2;
+                        creditEntry = 58240;
+                        break;
+                    case GO_PORTAL_ENERGY_FOCUS_3:
+                        if (InstanceScript* instance = me->GetInstanceScript())
+                        {
+                            instance->SetData(DATA_LEGION_DEMON_BLOCKED_PATH_FORWARD, 1);
+                            instance->SetData(DATA_EVENT_ILLIDAN_1, DONE);
+                        }
+                        guardianDbGuid1 = GUID_GUARDIAN_CENTER_1;
+                        guardianDbGuid2 = GUID_GUARDIAN_CENTER_2;
+                        guardianPath = 3;
+                        creditEntry = 58241;
+                        break;
+                    default:
+                        return;
+                }
+
+                std::list<Creature*> guardians;
+                GetCreatureListWithEntryInGrid(guardians, me, NPC_GUARDIAN_DEMON, 200);
+                for (std::list<Creature*>::iterator itr = guardians.begin(); itr != guardians.end(); ++itr)
+                    if (Creature* guardian = *itr)
+                        if (guardian->GetDBTableGUIDLow() == guardianDbGuid1 || guardian->GetDBTableGUIDLow() == guardianDbGuid2)
+                            guardian->AI()->SetData(1, guardianPath++);
+
+                if (InstanceScript* instance = me->GetInstanceScript())
+                    instance->DoKilledMonsterKredit(QUEST_IN_UNENDING_NUMBERS, creditEntry);
             }
+        };
 
-            std::list<Creature*> guardians;
-            GetCreatureListWithEntryInGrid(guardians, go, NPC_GUARDIAN_DEMON, 200);
-            for (std::list<Creature*>::iterator itr = guardians.begin(); itr != guardians.end(); ++itr)
-                if (Creature* guardian = *itr)
-                    if (guardian->GetDBTableGUIDLow() == guardianDbGuid1 || guardian->GetDBTableGUIDLow() == guardianDbGuid2)
-                        guardian->AI()->SetData(1, guardianPath++);
-
-            if (InstanceScript* instance = go->GetInstanceScript())
-                instance->DoKilledMonsterKredit(QUEST_IN_UNENDING_NUMBERS, creditEntry);
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_npc_well_of_eternity_portal_energy_focusAI(go);
         }
+
 };
 
 class at_well_of_eternity_intro : public AreaTriggerScript

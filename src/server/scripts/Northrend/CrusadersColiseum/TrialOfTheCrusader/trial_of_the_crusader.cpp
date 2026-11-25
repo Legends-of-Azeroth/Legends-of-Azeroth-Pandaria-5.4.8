@@ -124,100 +124,107 @@ class npc_announcer_toc10 : public CreatureScript
             }
 
             void AttackStart(Unit* /*who*/) override { }
-        };
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (!instance)
-                return true;
-
-            char const* _message = "We are ready!";
-
-            if (player->IsInCombat() || instance->IsEncounterInProgress() || instance->GetData(TYPE_EVENT))
-                return true;
-
-            uint8 i = 0;
-            for (; i < NUM_MESSAGES; ++i)
+                    bool OnGossipHello(Player* player) override
             {
-                if ((!_GossipMessage[i].state && instance->GetBossState(_GossipMessage[i].encounter) != DONE)
-                    || (_GossipMessage[i].state && instance->GetBossState(_GossipMessage[i].encounter) == DONE))
+
+                InstanceScript* instance = me->GetInstanceScript();
+                if (!instance)
+                    return true;
+
+                char const* _message = "We are ready!";
+
+                if (player->IsInCombat() || instance->IsEncounterInProgress() || instance->GetData(TYPE_EVENT))
+                    return true;
+
+                uint8 i = 0;
+                for (; i < NUM_MESSAGES; ++i)
                 {
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, _message, GOSSIP_SENDER_MAIN, _GossipMessage[i].id);
-                    break;
+                    if ((!_GossipMessage[i].state && instance->GetBossState(_GossipMessage[i].encounter) != DONE)
+                        || (_GossipMessage[i].state && instance->GetBossState(_GossipMessage[i].encounter) == DONE))
+                    {
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, _message, GOSSIP_SENDER_MAIN, _GossipMessage[i].id);
+                        break;
+                    }
                 }
-            }
 
-            if (i >= NUM_MESSAGES)
-                return false;
+                if (i >= NUM_MESSAGES)
+                    return false;
 
-            player->SEND_GOSSIP_MENU(_GossipMessage[i].msgnum, creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            player->CLOSE_GOSSIP_MENU();
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (!instance)
+                player->SEND_GOSSIP_MENU(_GossipMessage[i].msgnum, me->GetGUID());
                 return true;
-
-            if (instance->GetBossState(BOSS_BEASTS) != DONE)
-            {
-                instance->SetData(TYPE_EVENT, 110);
-                instance->SetData(TYPE_NORTHREND_BEASTS, NOT_STARTED);
-                instance->SetBossState(BOSS_BEASTS, NOT_STARTED);
+        
             }
-            else if (instance->GetBossState(BOSS_JARAXXUS) != DONE)
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
             {
-                // if Jaraxxus is spawned, but the raid wiped
-                if (Creature* jaraxxus = Unit::GetCreature(*player, instance->GetGuidData(NPC_JARAXXUS)))
-                {
-                    jaraxxus->RemoveAurasDueToSpell(SPELL_JARAXXUS_CHAINS);
-                    jaraxxus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    jaraxxus->SetReactState(REACT_DEFENSIVE);
-                    jaraxxus->SetInCombatWithZone();
-                }
-                else
-                {
-                    instance->SetData(TYPE_EVENT, 1010);
-                    instance->SetBossState(BOSS_JARAXXUS, NOT_STARTED);
-                }
-            }
-            else if (instance->GetBossState(BOSS_CRUSADERS) != DONE)
-            {
-                if (player->GetTeam() == ALLIANCE)
-                    instance->SetData(TYPE_EVENT, 3000);
-                else
-                    instance->SetData(TYPE_EVENT, 3001);
-                instance->SetBossState(BOSS_CRUSADERS, NOT_STARTED);
-            }
-            else if (instance->GetBossState(BOSS_VALKIRIES) != DONE)
-            {
-                instance->SetData(TYPE_EVENT, 4000);
-                instance->SetBossState(BOSS_VALKIRIES, NOT_STARTED);
-            }
-            else if (instance->GetBossState(BOSS_LICH_KING) != DONE)
-            {
-                if (GameObject* floor = GameObject::GetGameObject(*player, instance->GetGuidData(GO_ARGENT_COLISEUM_FLOOR)))
-                    floor->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
 
-                creature->CastSpell(creature, SPELL_CORPSE_TELEPORT, false);
-                creature->CastSpell(creature, SPELL_DESTROY_FLOOR_KNOCKUP, false);
+                        player->PlayerTalkClass->ClearMenus();
+                        player->CLOSE_GOSSIP_MENU();
+                        InstanceScript* instance = me->GetInstanceScript();
+                        if (!instance)
+                            return true;
 
-                Creature* anubArak = Unit::GetCreature(*creature, instance->GetGuidData(NPC_ANUBARAK));
-                if (!anubArak || !anubArak->IsAlive())
-                    anubArak = creature->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(DESPAWN_TIME));
+                        if (instance->GetBossState(BOSS_BEASTS) != DONE)
+                        {
+                            instance->SetData(TYPE_EVENT, 110);
+                            instance->SetData(TYPE_NORTHREND_BEASTS, NOT_STARTED);
+                            instance->SetBossState(BOSS_BEASTS, NOT_STARTED);
+                        }
+                        else if (instance->GetBossState(BOSS_JARAXXUS) != DONE)
+                        {
+                            // if Jaraxxus is spawned, but the raid wiped
+                            if (Creature* jaraxxus = Unit::GetCreature(*player, instance->GetGuidData(NPC_JARAXXUS)))
+                            {
+                                jaraxxus->RemoveAurasDueToSpell(SPELL_JARAXXUS_CHAINS);
+                                jaraxxus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                                jaraxxus->SetReactState(REACT_DEFENSIVE);
+                                jaraxxus->SetInCombatWithZone();
+                            }
+                            else
+                            {
+                                instance->SetData(TYPE_EVENT, 1010);
+                                instance->SetBossState(BOSS_JARAXXUS, NOT_STARTED);
+                            }
+                        }
+                        else if (instance->GetBossState(BOSS_CRUSADERS) != DONE)
+                        {
+                            if (player->GetTeam() == ALLIANCE)
+                                instance->SetData(TYPE_EVENT, 3000);
+                            else
+                                instance->SetData(TYPE_EVENT, 3001);
+                            instance->SetBossState(BOSS_CRUSADERS, NOT_STARTED);
+                        }
+                        else if (instance->GetBossState(BOSS_VALKIRIES) != DONE)
+                        {
+                            instance->SetData(TYPE_EVENT, 4000);
+                            instance->SetBossState(BOSS_VALKIRIES, NOT_STARTED);
+                        }
+                        else if (instance->GetBossState(BOSS_LICH_KING) != DONE)
+                        {
+                            if (GameObject* floor = GameObject::GetGameObject(*player, instance->GetGuidData(GO_ARGENT_COLISEUM_FLOOR)))
+                                floor->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
 
-                instance->SetBossState(BOSS_ANUBARAK, NOT_STARTED);
+                            me->CastSpell(me, SPELL_CORPSE_TELEPORT, false);
+                            me->CastSpell(me, SPELL_DESTROY_FLOOR_KNOCKUP, false);
 
-                if (creature->IsVisible())
-                    creature->SetVisible(false);
+                            Creature* anubArak = Unit::GetCreature(*me, instance->GetGuidData(NPC_ANUBARAK));
+                            if (!anubArak || !anubArak->IsAlive())
+                                anubArak = me->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, Milliseconds(DESPAWN_TIME));
+
+                            instance->SetBossState(BOSS_ANUBARAK, NOT_STARTED);
+
+                            if (me->IsVisible())
+                                me->SetVisible(false);
+                        }
+                        me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        return true;
+        
             }
-            creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            return true;
-        }
+};
+
+        
+
+    
 
         CreatureAI* GetAI(Creature* creature) const override
         {

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -64,262 +64,279 @@ class npc_taxi : public CreatureScript
 public:
     npc_taxi() : CreatureScript("npc_taxi") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
+    
 
-        switch (creature->GetEntry())
+
+        struct npc_taxiAI : public ScriptedAI
         {
-        case 17435: // Azuremyst Isle - Susurrus
-            if (player->HasItemCount(23843, 1, true))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SUSURRUS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            break;
-        case 20903: // Netherstorm - Protectorate Nether Drake
-            if (player->GetQuestStatus(10438) == QUEST_STATUS_INCOMPLETE && player->HasItemCount(29778))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_NETHER_DRAKE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            break;
-        // case 18725: // Old Hillsbrad Foothills - Brazen done in SAI
-        //     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BRAZEN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-        //     break;
-        // case 29154: // Stormwind City - Thargold Ironwing done in SAI
-        //     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_IRONWING, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-        //     break;
-        case 19409: // Hellfire Peninsula - Wing Commander Dabir'ee
-            //Mission: The Murketh and Shaadraz Gateways
-            if (player->GetQuestStatus(10146) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DABIREE1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+            npc_taxiAI(Creature* creature) : ScriptedAI(creature) { }
 
-            //Shatter Point
-            if (!player->GetQuestRewardStatus(10340))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DABIREE2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-            break;
-        case 20235: // Hellfire Peninsula - Gryphoneer Windbellow
-            //Mission: The Abyssal Shelf || Return to the Abyssal Shelf
-            if (player->GetQuestStatus(10163) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10346) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WINDBELLOW1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-
-            //Go to the Front
-            if (player->GetQuestStatus(10382) != QUEST_STATUS_NONE && !player->GetQuestRewardStatus(10382))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WINDBELLOW2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
-            break;
-        case 19401: // Hellfire Peninsula - Wing Commander Brack
-            //Mission: The Murketh and Shaadraz Gateways
-            if (player->GetQuestStatus(10129) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BRACK1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
-
-            //Mission: The Abyssal Shelf || Return to the Abyssal Shelf
-            if (player->GetQuestStatus(10162) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10347) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BRACK2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
-
-            //Spinebreaker Post
-            if (player->GetQuestStatus(10242) == QUEST_STATUS_COMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BRACK3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
-            break;
-        case 23413: // Blade's Edge Mountains - Skyguard Handler Irena
-            if (player->GetReputationRank(1031) >= REP_HONORED)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_IRENA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
-            break;
-        case 25059: // Isle of Quel'Danas - Ayren Cloudbreaker
-            if (player->GetQuestStatus(11532) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(11533) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CLOUDBREAKER1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
-
-            if (player->GetQuestStatus(11542) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(11543) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CLOUDBREAKER2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
-            break;
-        case 25236: // Isle of Quel'Danas - Unrestrained Dragonhawk
-            if (player->GetQuestStatus(11542) == QUEST_STATUS_COMPLETE || player->GetQuestStatus(11543) == QUEST_STATUS_COMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DRAGONHAWK, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
-            break;
-        case 20162: // Netherstorm - Veronia
-            //Behind Enemy Lines
-            if (player->GetQuestStatus(10652) != QUEST_STATUS_REWARDED)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_VERONIA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 15);
-            break;
-        case 23415: // Terokkar Forest - Skyguard Handler Deesak
-            if (player->GetReputationRank(1031) >= REP_HONORED)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEESAK, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 16);
-            break;
-        // case 27575: // Dragonblight - Lord Afrasastrasz
-        //     // middle -> ground
-        //     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_AFRASASTRASZ1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 17);
-        //     // middle -> top
-        //     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_AFRASASTRASZ2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 18);
-        //     break;
-        // case 26443: // Dragonblight - Tariolstrasz //need to check if quests are required before gossip available (12123, 12124)
-        //     // ground -> top
-        //     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TARIOLSTRASZ1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 19);
-        //     // ground -> middle
-        //     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TARIOLSTRASZ2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 20);
-        //     break;
-        // case 26949: // Dragonblight - Torastrasza
-        //     // top -> middle
-        //     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TORASTRASZA1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);
-        //     // top -> ground
-        //     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TORASTRASZA2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
-        //     break;
-        case 23704: // Dustwallow Marsh - Cassa Crimsonwing
-            if (player->GetQuestStatus(11142) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CRIMSONWING, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+25);
-            break;
-        case 26602:
-            if (creature->IsTaxi())
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, GOSSIP_THRICESTAR1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 26);
-
-            if (player->GetQuestStatus(11692) == QUEST_STATUS_COMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_THRICESTAR2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 27);
-            break;
-        case 17209:
-            player->SetTaxiCheater(true);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WILLIAMKEILAR1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 28);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WILLIAMKEILAR2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 29);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WILLIAMKEILAR3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 30);
-            break;
-        }
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-        case GOSSIP_ACTION_INFO_DEF:
-            //spellId is correct, however it gives flight a somewhat funny effect //TaxiPath 506.
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 32474, true);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 1:
-            player->CLOSE_GOSSIP_MENU();
-            player->ActivateTaxiPathTo(627);                  //TaxiPath 627 (possibly 627+628(152->153->154->155))
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 2:
-            if (!player->HasItemCount(25853))
-                player->SEND_GOSSIP_MENU(9780, creature->GetGUID());
-            else
+            bool OnGossipHello(Player* player) override
             {
-                player->CLOSE_GOSSIP_MENU();
-                player->ActivateTaxiPathTo(534);              //TaxiPath 534
-            }
-            break;
-        // case GOSSIP_ACTION_INFO_DEF + 3:
-        //     player->CLOSE_GOSSIP_MENU();
-        //     player->CastSpell(player, 53335, true);               //TaxiPath 1041 (Stormwind Harbor)
-        //     break;
-        case GOSSIP_ACTION_INFO_DEF + 4:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 33768, true);               //TaxiPath 585 (Gateways Murket and Shaadraz)
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 5:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 35069, true);               //TaxiPath 612 (Taxi - Hellfire Peninsula - Expedition Point to Shatter Point)
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 6:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 33899, true);               //TaxiPath 589 (Aerial Assault Flight (Alliance))
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 7:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 35065, true);               //TaxiPath 607 (Taxi - Hellfire Peninsula - Shatter Point to Beach Head)
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 8:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 33659, true);               //TaxiPath 584 (Gateways Murket and Shaadraz)
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 9:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 33825, true);               //TaxiPath 587 (Aerial Assault Flight (Horde))
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 10:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 34578, true);               //TaxiPath 604 (Taxi - Reaver's Fall to Spinebreaker Ridge)
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 11:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 41278, true);               //TaxiPath 706
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 12:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 45071, true);               //TaxiPath 779
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 13:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 45113, true);               //TaxiPath 784
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 14:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 45353, true);               //TaxiPath 788
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 15:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 34905, true);               //TaxiPath 606
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 16:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 41279, true);               //TaxiPath 705 (Taxi - Skettis to Skyguard Outpost)
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 17:
-            player->CLOSE_GOSSIP_MENU();
-            player->ActivateTaxiPathTo(882);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 18:
-            player->CLOSE_GOSSIP_MENU();
-            player->ActivateTaxiPathTo(881);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 19:
-            player->CLOSE_GOSSIP_MENU();
-            player->ActivateTaxiPathTo(878);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 20:
-            player->CLOSE_GOSSIP_MENU();
-            player->ActivateTaxiPathTo(883);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 21:
-            player->CLOSE_GOSSIP_MENU();
-            player->ActivateTaxiPathTo(880);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 22:
-            player->CLOSE_GOSSIP_MENU();
-            player->ActivateTaxiPathTo(879);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 23:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 43074, true);               //TaxiPath 736
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 24:
-            player->CLOSE_GOSSIP_MENU();
-            //player->ActivateTaxiPathTo(738);
-            player->CastSpell(player, 43136, false);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 25:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 42295, true);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 26:
-            player->GetSession()->SendTaxiMenu(creature);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 27:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 51446, false);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 28:
-            player->CLOSE_GOSSIP_MENU();
-            player->ActivateTaxiPathTo(494);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 29:
-            player->CLOSE_GOSSIP_MENU();
-            player->ActivateTaxiPathTo(495);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 30:
-            player->CLOSE_GOSSIP_MENU();
-            player->ActivateTaxiPathTo(496);
-            break;
-        }
 
-        return true;
-    }
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            switch (me->GetEntry())
+            {
+            case 17435: // Azuremyst Isle - Susurrus
+                if (player->HasItemCount(23843, 1, true))
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SUSURRUS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                break;
+            case 20903: // Netherstorm - Protectorate Nether Drake
+                if (player->GetQuestStatus(10438) == QUEST_STATUS_INCOMPLETE && player->HasItemCount(29778))
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_NETHER_DRAKE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                break;
+            // case 18725: // Old Hillsbrad Foothills - Brazen done in SAI
+            //     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BRAZEN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            //     break;
+            // case 29154: // Stormwind City - Thargold Ironwing done in SAI
+            //     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_IRONWING, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            //     break;
+            case 19409: // Hellfire Peninsula - Wing Commander Dabir'ee
+                //Mission: The Murketh and Shaadraz Gateways
+                if (player->GetQuestStatus(10146) == QUEST_STATUS_INCOMPLETE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DABIREE1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+
+                //Shatter Point
+                if (!player->GetQuestRewardStatus(10340))
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DABIREE2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                break;
+            case 20235: // Hellfire Peninsula - Gryphoneer Windbellow
+                //Mission: The Abyssal Shelf || Return to the Abyssal Shelf
+                if (player->GetQuestStatus(10163) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10346) == QUEST_STATUS_INCOMPLETE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WINDBELLOW1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+
+                //Go to the Front
+                if (player->GetQuestStatus(10382) != QUEST_STATUS_NONE && !player->GetQuestRewardStatus(10382))
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WINDBELLOW2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
+                break;
+            case 19401: // Hellfire Peninsula - Wing Commander Brack
+                //Mission: The Murketh and Shaadraz Gateways
+                if (player->GetQuestStatus(10129) == QUEST_STATUS_INCOMPLETE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BRACK1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
+
+                //Mission: The Abyssal Shelf || Return to the Abyssal Shelf
+                if (player->GetQuestStatus(10162) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10347) == QUEST_STATUS_INCOMPLETE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BRACK2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
+
+                //Spinebreaker Post
+                if (player->GetQuestStatus(10242) == QUEST_STATUS_COMPLETE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BRACK3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
+                break;
+            case 23413: // Blade's Edge Mountains - Skyguard Handler Irena
+                if (player->GetReputationRank(1031) >= REP_HONORED)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_IRENA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
+                break;
+            case 25059: // Isle of Quel'Danas - Ayren Cloudbreaker
+                if (player->GetQuestStatus(11532) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(11533) == QUEST_STATUS_INCOMPLETE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CLOUDBREAKER1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
+
+                if (player->GetQuestStatus(11542) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(11543) == QUEST_STATUS_INCOMPLETE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CLOUDBREAKER2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
+                break;
+            case 25236: // Isle of Quel'Danas - Unrestrained Dragonhawk
+                if (player->GetQuestStatus(11542) == QUEST_STATUS_COMPLETE || player->GetQuestStatus(11543) == QUEST_STATUS_COMPLETE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DRAGONHAWK, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
+                break;
+            case 20162: // Netherstorm - Veronia
+                //Behind Enemy Lines
+                if (player->GetQuestStatus(10652) != QUEST_STATUS_REWARDED)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_VERONIA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 15);
+                break;
+            case 23415: // Terokkar Forest - Skyguard Handler Deesak
+                if (player->GetReputationRank(1031) >= REP_HONORED)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEESAK, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 16);
+                break;
+            // case 27575: // Dragonblight - Lord Afrasastrasz
+            //     // middle -> ground
+            //     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_AFRASASTRASZ1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 17);
+            //     // middle -> top
+            //     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_AFRASASTRASZ2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 18);
+            //     break;
+            // case 26443: // Dragonblight - Tariolstrasz //need to check if quests are required before gossip available (12123, 12124)
+            //     // ground -> top
+            //     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TARIOLSTRASZ1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 19);
+            //     // ground -> middle
+            //     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TARIOLSTRASZ2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 20);
+            //     break;
+            // case 26949: // Dragonblight - Torastrasza
+            //     // top -> middle
+            //     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TORASTRASZA1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);
+            //     // top -> ground
+            //     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TORASTRASZA2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
+            //     break;
+            case 23704: // Dustwallow Marsh - Cassa Crimsonwing
+                if (player->GetQuestStatus(11142) == QUEST_STATUS_INCOMPLETE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CRIMSONWING, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+25);
+                break;
+            case 26602:
+                if (me->IsTaxi())
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, GOSSIP_THRICESTAR1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 26);
+
+                if (player->GetQuestStatus(11692) == QUEST_STATUS_COMPLETE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_THRICESTAR2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 27);
+                break;
+            case 17209:
+                player->SetTaxiCheater(true);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WILLIAMKEILAR1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 28);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WILLIAMKEILAR2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 29);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WILLIAMKEILAR3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 30);
+                break;
+            }
+
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    switch (action)
+                    {
+                    case GOSSIP_ACTION_INFO_DEF:
+                        //spellId is correct, however it gives flight a somewhat funny effect //TaxiPath 506.
+                        player->CLOSE_GOSSIP_MENU();
+                        player->CastSpell(player, 32474, true);
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 1:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->ActivateTaxiPathTo(627);                  //TaxiPath 627 (possibly 627+628(152->153->154->155))
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 2:
+                        if (!player->HasItemCount(25853))
+                            player->SEND_GOSSIP_MENU(9780, me->GetGUID());
+                        else
+                        {
+                            player->CLOSE_GOSSIP_MENU();
+                            player->ActivateTaxiPathTo(534);              //TaxiPath 534
+                        }
+                        break;
+                    // case GOSSIP_ACTION_INFO_DEF + 3:
+                    //     player->CLOSE_GOSSIP_MENU();
+                    //     player->CastSpell(player, 53335, true);               //TaxiPath 1041 (Stormwind Harbor)
+                    //     break;
+                    case GOSSIP_ACTION_INFO_DEF + 4:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->CastSpell(player, 33768, true);               //TaxiPath 585 (Gateways Murket and Shaadraz)
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 5:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->CastSpell(player, 35069, true);               //TaxiPath 612 (Taxi - Hellfire Peninsula - Expedition Point to Shatter Point)
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 6:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->CastSpell(player, 33899, true);               //TaxiPath 589 (Aerial Assault Flight (Alliance))
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 7:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->CastSpell(player, 35065, true);               //TaxiPath 607 (Taxi - Hellfire Peninsula - Shatter Point to Beach Head)
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 8:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->CastSpell(player, 33659, true);               //TaxiPath 584 (Gateways Murket and Shaadraz)
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 9:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->CastSpell(player, 33825, true);               //TaxiPath 587 (Aerial Assault Flight (Horde))
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 10:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->CastSpell(player, 34578, true);               //TaxiPath 604 (Taxi - Reaver's Fall to Spinebreaker Ridge)
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 11:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->CastSpell(player, 41278, true);               //TaxiPath 706
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 12:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->CastSpell(player, 45071, true);               //TaxiPath 779
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 13:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->CastSpell(player, 45113, true);               //TaxiPath 784
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 14:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->CastSpell(player, 45353, true);               //TaxiPath 788
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 15:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->CastSpell(player, 34905, true);               //TaxiPath 606
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 16:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->CastSpell(player, 41279, true);               //TaxiPath 705 (Taxi - Skettis to Skyguard Outpost)
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 17:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->ActivateTaxiPathTo(882);
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 18:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->ActivateTaxiPathTo(881);
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 19:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->ActivateTaxiPathTo(878);
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 20:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->ActivateTaxiPathTo(883);
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 21:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->ActivateTaxiPathTo(880);
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 22:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->ActivateTaxiPathTo(879);
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 23:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->CastSpell(player, 43074, true);               //TaxiPath 736
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 24:
+                        player->CLOSE_GOSSIP_MENU();
+                        //player->ActivateTaxiPathTo(738);
+                        player->CastSpell(player, 43136, false);
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 25:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->CastSpell(player, 42295, true);
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 26:
+                        player->GetSession()->SendTaxiMenu(me);
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 27:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->CastSpell(player, 51446, false);
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 28:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->ActivateTaxiPathTo(494);
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 29:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->ActivateTaxiPathTo(495);
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF + 30:
+                        player->CLOSE_GOSSIP_MENU();
+                        player->ActivateTaxiPathTo(496);
+                        break;
+                    }
+
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_taxiAI(creature);
+        }
 };
 
 void AddSC_npc_taxi()

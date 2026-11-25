@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -379,54 +379,71 @@ class npc_finkle_einhorn : public CreatureScript
     public:
         npc_finkle_einhorn() : CreatureScript("npc_finkle_einhorn") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
-          
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (!instance)
-                return false;
-            if (instance->GetData(DATA_CHIMAERON) == IN_PROGRESS || instance->GetData(DATA_BILE_O_TRON_800) == 1)
-                return false;
-            player->ADD_GOSSIP_ITEM(0, ru ? GOSSIP_OPTION_1_RU : GOSSIP_OPTION_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->SEND_GOSSIP_MENU(GOSSIP_MENU_1, creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
         
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (!instance)
-                return false;
-            player->PlayerTalkClass->ClearMenus();
-            switch (action)
+
+    
+        struct npc_finkle_einhornAI : public ScriptedAI
+        {
+            npc_finkle_einhornAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
             {
-                case GOSSIP_ACTION_INFO_DEF+1:
-                    player->ADD_GOSSIP_ITEM(0, ru ? GOSSIP_OPTION_2_RU : GOSSIP_OPTION_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                    player->SEND_GOSSIP_MENU(GOSSIP_MENU_2, creature->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF+2:
-                    player->ADD_GOSSIP_ITEM(0, ru ? GOSSIP_OPTION_3_RU : GOSSIP_OPTION_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                    player->SEND_GOSSIP_MENU(GOSSIP_MENU_3, creature->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF+3:
-                    player->ADD_GOSSIP_ITEM(0, ru ? GOSSIP_OPTION_4_RU : GOSSIP_OPTION_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                    player->SEND_GOSSIP_MENU(GOSSIP_MENU_4, creature->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF+4:
-                    player->ADD_GOSSIP_ITEM(0, ru ? GOSSIP_OPTION_5_RU : GOSSIP_OPTION_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-                    player->SEND_GOSSIP_MENU(GOSSIP_MENU_5, creature->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF+5:
-                    player->SEND_GOSSIP_MENU(GOSSIP_MENU_6, creature->GetGUID());
-                    instance->SetData(DATA_BILE_O_TRON_800, 1);
-                    if (Creature* pBileotron = ObjectAccessor::GetCreature(*creature, instance->GetGuidData(DATA_BILE_O_TRON_800)))
-                        pBileotron->AI()->DoAction(ACTION_BILE_O_TRON_START);
-                    break;
+
+                bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
+          
+                InstanceScript* instance = me->GetInstanceScript();
+                if (!instance)
+                    return false;
+                if (instance->GetData(DATA_CHIMAERON) == IN_PROGRESS || instance->GetData(DATA_BILE_O_TRON_800) == 1)
+                    return false;
+                player->ADD_GOSSIP_ITEM(0, ru ? GOSSIP_OPTION_1_RU : GOSSIP_OPTION_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                player->SEND_GOSSIP_MENU(GOSSIP_MENU_1, me->GetGUID());
+                return true;
+        
             }
-            return true;
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
+        
+                        InstanceScript* instance = me->GetInstanceScript();
+                        if (!instance)
+                            return false;
+                        player->PlayerTalkClass->ClearMenus();
+                        switch (action)
+                        {
+                            case GOSSIP_ACTION_INFO_DEF+1:
+                                player->ADD_GOSSIP_ITEM(0, ru ? GOSSIP_OPTION_2_RU : GOSSIP_OPTION_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                                player->SEND_GOSSIP_MENU(GOSSIP_MENU_2, me->GetGUID());
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF+2:
+                                player->ADD_GOSSIP_ITEM(0, ru ? GOSSIP_OPTION_3_RU : GOSSIP_OPTION_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+                                player->SEND_GOSSIP_MENU(GOSSIP_MENU_3, me->GetGUID());
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF+3:
+                                player->ADD_GOSSIP_ITEM(0, ru ? GOSSIP_OPTION_4_RU : GOSSIP_OPTION_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+                                player->SEND_GOSSIP_MENU(GOSSIP_MENU_4, me->GetGUID());
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF+4:
+                                player->ADD_GOSSIP_ITEM(0, ru ? GOSSIP_OPTION_5_RU : GOSSIP_OPTION_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+                                player->SEND_GOSSIP_MENU(GOSSIP_MENU_5, me->GetGUID());
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF+5:
+                                player->SEND_GOSSIP_MENU(GOSSIP_MENU_6, me->GetGUID());
+                                instance->SetData(DATA_BILE_O_TRON_800, 1);
+                                if (Creature* pBileotron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BILE_O_TRON_800)))
+                                    pBileotron->AI()->DoAction(ACTION_BILE_O_TRON_START);
+                                break;
+                        }
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_finkle_einhornAI(creature);
         }
 };
 

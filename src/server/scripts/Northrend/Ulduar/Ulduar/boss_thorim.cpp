@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ulduar.h"
 #include <limits>
 
@@ -2249,16 +2250,29 @@ class go_thorim_lever : public GameObjectScript
     public:
         go_thorim_lever() : GameObjectScript("go_thorim_lever") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        
+        struct go_thorim_leverAI : public GameObjectAI
         {
-            if (GameObject* door = go->FindNearestGameObject(GO_THORIM_DARK_IRON_PROTCULLIS, 15.0f))
+            go_thorim_leverAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                door->UseDoorOrButton();
-                go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);
-                go->SetGoState(GO_STATE_ACTIVE);
-                return true;
+
+                if (GameObject* door = me->FindNearestGameObject(GO_THORIM_DARK_IRON_PROTCULLIS, 15.0f))
+                {
+                    door->UseDoorOrButton();
+                    me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);
+                    me->SetGoState(GO_STATE_ACTIVE);
+                    return true;
+                }
+                return false;
+        
             }
-            return false;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_thorim_leverAI(go);
         }
 };
 

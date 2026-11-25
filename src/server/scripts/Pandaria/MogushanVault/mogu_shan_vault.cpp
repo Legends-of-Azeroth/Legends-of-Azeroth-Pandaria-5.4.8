@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -1560,28 +1560,9 @@ class npc_msv_lorewalker_cho : public CreatureScript
     public:
         npc_msv_lorewalker_cho() : CreatureScript("npc_msv_lorewalker_cho") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
+    
 
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                creature->AI()->DoAction(ACTION_SPIRIT_KINGS_INTRO);
-
-            player->CLOSE_GOSSIP_MENU();
-
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (InstanceScript* instance = player->GetInstanceScript())
-                if (instance->GetBossState(DATA_GARAJAL) == DONE)
-                {
-                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                }
-            return true;
-        }
+        
 
         struct npc_msv_lorewalker_choAI : public ScriptedAI
         {
@@ -1818,7 +1799,33 @@ class npc_msv_lorewalker_cho : public CreatureScript
                 for (auto&& itr : SpiritKings)
                     itr->AI()->DoAction(ACTION_SPIRIT_KINGS_EVENT);
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (InstanceScript* instance = player->GetInstanceScript())
+                    if (instance->GetBossState(DATA_GARAJAL) == DONE)
+                    {
+                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                    }
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            me->AI()->DoAction(ACTION_SPIRIT_KINGS_INTRO);
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -2159,34 +2166,9 @@ class npc_mogushan_vaults_leng_windstaff : public CreatureScript
     public:
         npc_mogushan_vaults_leng_windstaff() : CreatureScript("npc_mogushan_vaults_leng_windstaff") { }
     
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
     
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
     
-                if (creature->GetInstanceScript())
-                    creature->GetInstanceScript()->DoRemoveDampeningFromCreatures();
-            }
-    
-            player->CLOSE_GOSSIP_MENU();
-    
-            return true;
-        }
-    
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-                
-            if(sConfigMgr->GetIntDefault("FirstOfTheKingdom.MogushanVaults", 1))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Turn off dampening?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-    
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+        
     
         struct npc_mogushan_vaults_leng_windstaffAI : public ScriptedAI
         {
@@ -2197,7 +2179,39 @@ class npc_mogushan_vaults_leng_windstaff : public CreatureScript
                 if (me->GetMap()->GetDifficulty() != RAID_DIFFICULTY_25MAN_LFR)
                     me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+                
+                if(sConfigMgr->GetIntDefault("FirstOfTheKingdom.MogushanVaults", 1))
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Turn off dampening?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+    
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+    
+                            if (me->GetInstanceScript())
+                                me->GetInstanceScript()->DoRemoveDampeningFromCreatures();
+                        }
+    
+                        player->CLOSE_GOSSIP_MENU();
+    
+                        return true;
+        
+            }
+};
     
         CreatureAI* GetAI(Creature* creature) const override
         {

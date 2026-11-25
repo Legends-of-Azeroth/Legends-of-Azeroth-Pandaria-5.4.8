@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,7 @@
 
 #include "crypt_of_forgotten_kings.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
@@ -1083,27 +1084,40 @@ class go_cfk_treasure_urn : public GameObjectScript
     public:
         go_cfk_treasure_urn() : GameObjectScript("go_cfk_treasure_urn") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_cfk_treasure_urnAI : public GameObjectAI
         {
-            if (InstanceScript* instance = player->GetInstanceScript())
+            go_cfk_treasure_urnAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                std::list<Creature*> Quilens;
-                GetCreatureListWithEntryInGrid(Quilens, go, NPC_QUILEN_STATUE, 15.0f);
 
-                for (auto&& itr : Quilens)
+                if (InstanceScript* instance = player->GetInstanceScript())
                 {
-                    itr->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
-                    itr->RemoveAura(SPELL_STONE_FORM);
+                    std::list<Creature*> Quilens;
+                    GetCreatureListWithEntryInGrid(Quilens, me, NPC_QUILEN_STATUE, 15.0f);
 
-                    if (Player* m_itr = itr->FindNearestPlayer(50.0f))
+                    for (auto&& itr : Quilens)
                     {
-                        itr->Attack(m_itr, true);
-                        itr->GetMotionMaster()->MoveChase(m_itr);
+                        itr->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
+                        itr->RemoveAura(SPELL_STONE_FORM);
+
+                        if (Player* m_itr = itr->FindNearestPlayer(50.0f))
+                        {
+                            itr->Attack(m_itr, true);
+                            itr->GetMotionMaster()->MoveChase(m_itr);
+                        }
                     }
                 }
-            }
 
-            return false;
+                return false;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_cfk_treasure_urnAI(go);
         }
 };
 

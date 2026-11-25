@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 
 enum Spells
 {
@@ -274,11 +275,24 @@ class npc_addarah : public CreatureScript
     public:
         npc_addarah() : CreatureScript("npc_addarah") { }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+    
+        struct npc_addarahAI : public ScriptedAI
         {
-            player->CastSpell(player, 89328, true);
+            npc_addarahAI(Creature* creature) : ScriptedAI(creature) { }
 
-            return false;
+            void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                player->CastSpell(player, 89328, true);
+
+                return;
+        
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_addarahAI(creature);
         }
 };
 
@@ -288,12 +302,25 @@ class npc_prince_nadun : public CreatureScript
     public:
         npc_prince_nadun() : CreatureScript("npc_prince_nadun") { }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+    
+        struct npc_prince_nadunAI : public ScriptedAI
         {
-            if (quest->GetQuestId() == QUEST_ESCAPE_FROM_THE_LOST_CITY)
-                player->CastSpell(player, SPELL_TELEPORT_TO_RAMKAHEN, true);
+            npc_prince_nadunAI(Creature* creature) : ScriptedAI(creature) { }
 
-            return false;
+            void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == QUEST_ESCAPE_FROM_THE_LOST_CITY)
+                    player->CastSpell(player, SPELL_TELEPORT_TO_RAMKAHEN, true);
+
+                return;
+        
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_prince_nadunAI(creature);
         }
 };
 
@@ -303,37 +330,55 @@ class npc_quest_impending_retribution : public CreatureScript
     public:
         npc_quest_impending_retribution() : CreatureScript("npc_quest_impending_retribution") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    
+
+    
+
+        struct npc_quest_impending_retributionAI : public ScriptedAI
         {
-            player->PlayerTalkClass->ClearMenus();
+            npc_quest_impending_retributionAI(Creature* creature) : ScriptedAI(creature) { }
 
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                player->KilledMonsterCredit(CreditMatchType.find(creature->GetEntry())->second);
-
-            player->CLOSE_GOSSIP_MENU();
-
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-
-            if (player->GetQuestStatus(QUEST_IMPENDING_RETRIBUTION) != QUEST_STATUS_INCOMPLETE)
-                return false;
-
-            switch (creature->GetEntry())
+            bool OnGossipHello(Player* player) override
             {
-                case NPC_SUN_PRIEST_ASARIS:
-                case NPC_ASAQ:
-                case NPC_NORMACH:
-                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    break;
-            }
 
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
+                        if (me->IsQuestGiver())
+                            player->PrepareQuestMenu(me->GetGUID());
+
+                        if (player->GetQuestStatus(QUEST_IMPENDING_RETRIBUTION) != QUEST_STATUS_INCOMPLETE)
+                            return false;
+
+                        switch (me->GetEntry())
+                        {
+                            case NPC_SUN_PRIEST_ASARIS:
+                            case NPC_ASAQ:
+                            case NPC_NORMACH:
+                                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                break;
+                        }
+
+                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                        return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            player->KilledMonsterCredit(CreditMatchType.find(me->GetEntry())->second);
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_quest_impending_retributionAI(creature);
         }
 };
 
@@ -388,35 +433,9 @@ class npc_quest_ramkahen_prisoner : public CreatureScript
     public:
         npc_quest_ramkahen_prisoner() : CreatureScript("npc_quest_ramkahen_prisoner") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
+    
 
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                if (TempSummon* sPrisoner = player->SummonCreature(NPC_RAMKAHEN_PRISONER, *creature, TEMPSUMMON_MANUAL_DESPAWN))
-                    sPrisoner->SetPhaseMask(QUEST_NEFERSET_PRISON + 1, true);
-
-                player->SetPhaseMask(QUEST_NEFERSET_PRISON + 1, true);
-            }
-
-            player->CLOSE_GOSSIP_MENU();
-
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-
-            if (player->GetQuestStatus(QUEST_NEFERSET_PRISON) != QUEST_STATUS_INCOMPLETE)
-                return false;
-
-            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+    
 
         struct npc_quest_ramkahen_prisonerAI : public ScriptedAI
         {
@@ -489,7 +508,41 @@ class npc_quest_ramkahen_prisoner : public CreatureScript
                     if (boss)
                         me->SummonCreature(NPC_NEFERSET_OVERLORD, RamkahenPrisonerEvent[2], TEMPSUMMON_MANUAL_DESPAWN);
                 }
-        };
+        
+            bool OnGossipHello(Player* player) override
+            {
+
+                        if (me->IsQuestGiver())
+                            player->PrepareQuestMenu(me->GetGUID());
+
+                        if (player->GetQuestStatus(QUEST_NEFERSET_PRISON) != QUEST_STATUS_INCOMPLETE)
+                            return false;
+
+                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                        return true;
+        
+            }
+
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            if (TempSummon* sPrisoner = player->SummonCreature(NPC_RAMKAHEN_PRISONER, *me, TEMPSUMMON_MANUAL_DESPAWN))
+                                sPrisoner->SetPhaseMask(QUEST_NEFERSET_PRISON + 1, true);
+
+                            player->SetPhaseMask(QUEST_NEFERSET_PRISON + 1, true);
+                        }
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -561,33 +614,47 @@ class npc_tahet : public CreatureScript
     public:
         npc_tahet() : CreatureScript("npc_tahet") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+    
+
+        struct npc_tahetAI : public ScriptedAI
         {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
+            npc_tahetAI(Creature* creature) : ScriptedAI(creature) { }
 
-            if (player->GetQuestStatus(QUEST_THE_PIT_OF_SCALES) != QUEST_STATUS_INCOMPLETE)
-                return false;
-
-            player->SetPhaseMask(QUEST_THE_PIT_OF_SCALES, true);
-
-            if (TempSummon* Tahet = player->SummonCreature(NPC_TAHET, *creature, TEMPSUMMON_MANUAL_DESPAWN))
+            bool OnGossipHello(Player* player) override
             {
-                Tahet->SetPhaseMask(QUEST_THE_PIT_OF_SCALES, true);
 
-                uint32 delay = 0;
-                creature->m_Events.Schedule(delay += 1000, 1, [creature, player, Tahet]()
-                {
-                    Tahet->Kill(Tahet);
+                        if (me->IsQuestGiver())
+                            player->PrepareQuestMenu(me->GetGUID());
 
-                    if (TempSummon* PitMaster = player->SummonCreature(NPC_CAIMAS_PIT_MASTER, PitMasterPath[0], TEMPSUMMON_MANUAL_DESPAWN))
-                        PitMaster->SetPhaseMask(QUEST_THE_PIT_OF_SCALES, true);
-                });
+                        if (player->GetQuestStatus(QUEST_THE_PIT_OF_SCALES) != QUEST_STATUS_INCOMPLETE)
+                            return false;
+
+                        player->SetPhaseMask(QUEST_THE_PIT_OF_SCALES, true);
+
+                        if (TempSummon* Tahet = player->SummonCreature(NPC_TAHET, *me, TEMPSUMMON_MANUAL_DESPAWN))
+                        {
+                            Tahet->SetPhaseMask(QUEST_THE_PIT_OF_SCALES, true);
+
+                            uint32 delay = 0;
+                            me->m_Events.Schedule(delay += 1000, 1, [this, player, Tahet]()
+                            {
+                                Tahet->Kill(Tahet);
+
+                                if (TempSummon* PitMaster = player->SummonCreature(NPC_CAIMAS_PIT_MASTER, PitMasterPath[0], TEMPSUMMON_MANUAL_DESPAWN))
+                                    PitMaster->SetPhaseMask(QUEST_THE_PIT_OF_SCALES, true);
+                            });
                 
-            }
+                        }
 
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
+                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                        return true;
+        
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_tahetAI(creature);
         }
 };
 
@@ -752,12 +819,26 @@ class go_neferset_frond : public GameObjectScript
     public:
         go_neferset_frond() : GameObjectScript("go_neferset_frond") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
-        {
-            if (player && player->GetQuestStatus(QUEST_TRAITORS) == QUEST_STATUS_INCOMPLETE)
-                player->CompleteQuest(QUEST_TRAITORS);
+    
 
-            return true;
+        struct go_neferset_frondAI : public GameObjectAI
+        {
+            go_neferset_frondAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                        if (player && player->GetQuestStatus(QUEST_TRAITORS) == QUEST_STATUS_INCOMPLETE)
+                            player->CompleteQuest(QUEST_TRAITORS);
+
+                        return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_neferset_frondAI(go);
         }
 };
 

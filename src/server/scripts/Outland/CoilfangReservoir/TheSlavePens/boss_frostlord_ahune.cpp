@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 #include "LFGMgr.h"
 #include "Player.h"
 #include "Group.h"
@@ -587,20 +588,34 @@ class go_ahune_ice_stone : public GameObjectScript
     public:
         go_ahune_ice_stone() : GameObjectScript("go_ahune_ice_stone") { }
 
-        bool OnGossipSelect(Player* player, GameObject* go, uint32 /*sender*/, uint32 /*action*/)
+    
+
+        struct go_ahune_ice_stoneAI : public GameObjectAI
         {
-            player->PlayerTalkClass->ClearMenus();
+            go_ahune_ice_stoneAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (Creature* ahune = go->FindNearestCreature(NPC_AHUNE, 200.0f, true))
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
             {
-                ahune->AI()->SetGUID(player->GetGUID(), TYPE_STARTER_GUID);
-                ahune->AI()->DoAction(ACTION_START_EVENT);
 
-                player->PlayerTalkClass->SendCloseGossip();
-                go->Delete();
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (Creature* ahune = me->FindNearestCreature(NPC_AHUNE, 200.0f, true))
+                        {
+                            ahune->AI()->SetGUID(player->GetGUID(), TYPE_STARTER_GUID);
+                            ahune->AI()->DoAction(ACTION_START_EVENT);
+
+                            player->PlayerTalkClass->SendCloseGossip();
+                            me->Delete();
+                        }
+
+                        return true;
+        
             }
+        };
 
-            return true;
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_ahune_ice_stoneAI(go);
         }
 };
 

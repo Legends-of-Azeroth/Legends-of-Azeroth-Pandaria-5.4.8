@@ -2595,30 +2595,9 @@ class npc_scout_captain_elsia : public CreatureScript
     public:
         npc_scout_captain_elsia() : CreatureScript("npc_scout_captain_elsia") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
+        
 
-            if (player->GetQuestStatus(QUEST_THE_STORM_GATHERS_H) != QUEST_STATUS_INCOMPLETE)
-                return false;
-
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I`m ready to go", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                player->CastSpell(player, SPELL_SUMMON_PLAYER_MOUNT_H, true);
-
-            player->CLOSE_GOSSIP_MENU();
-            return true;
-        }
+    
 
         struct npc_scout_captain_elsiaAI : public ScriptedAI
         {
@@ -2650,7 +2629,35 @@ class npc_scout_captain_elsia : public CreatureScript
             }
 
             void UpdateAI(uint32 /*diff*/) override { }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                if (player->GetQuestStatus(QUEST_THE_STORM_GATHERS_H) != QUEST_STATUS_INCOMPLETE)
+                    return false;
+
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I`m ready to go", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            player->CastSpell(player, SPELL_SUMMON_PLAYER_MOUNT_H, true);
+
+                        player->CLOSE_GOSSIP_MENU();
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -2757,31 +2764,9 @@ class npc_vereesa_windrunner : public CreatureScript
     public:
         npc_vereesa_windrunner() : CreatureScript("npc_vereesa_windrunner") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
+        
 
-            if (player->GetQuestStatus(QUEST_THE_STORM_GATHERS_A) != QUEST_STATUS_INCOMPLETE)
-                return false;
-
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I`m ready to go", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                player->CastSpell(player, SPELL_SUMMON_PLAYER_MOUNT_A, true);
-
-            player->CLOSE_GOSSIP_MENU();
-
-            return true;
-        }
+    
 
         struct npc_vereesa_windrunnerAI : public ScriptedAI
         {
@@ -2809,7 +2794,36 @@ class npc_vereesa_windrunner : public CreatureScript
             }
 
             void UpdateAI(uint32 /*diff*/) override { }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                if (player->GetQuestStatus(QUEST_THE_STORM_GATHERS_A) != QUEST_STATUS_INCOMPLETE)
+                    return false;
+
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I`m ready to go", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            player->CastSpell(player, SPELL_SUMMON_PLAYER_MOUNT_A, true);
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -3475,33 +3489,46 @@ class npc_iot_taran_zhu : public CreatureScript
     public:
         npc_iot_taran_zhu() : CreatureScript("npc_iot_taran_zhu") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+        
+        struct npc_iot_taran_zhuAI : public ScriptedAI
         {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
+            npc_iot_taran_zhuAI(Creature* creature) : ScriptedAI(creature) { }
 
-            if (player->GetQuestStatus(32640) == QUEST_STATUS_INCOMPLETE)
+            bool OnGossipHello(Player* player) override
             {
-                QuestObjective const* obj1 = sObjectMgr->GetQuestObjective(270185);
-                QuestObjective const* obj2 = sObjectMgr->GetQuestObjective(270186);
-                QuestObjective const* obj3 = sObjectMgr->GetQuestObjective(270187);
-                Quest const* qInfo = sObjectMgr->GetQuestTemplate(32640);
-                if (player->IsQuestObjectiveComplete(qInfo, *obj1) && player->IsQuestObjectiveComplete(qInfo, *obj2) && player->IsQuestObjectiveComplete(qInfo, *obj3))
-                    player->CompleteQuest(32640);
-            }
 
-            if (player->GetQuestStatus(32641) == QUEST_STATUS_INCOMPLETE)
-            {
-                QuestObjective const* obj1 = sObjectMgr->GetQuestObjective(270188);
-                QuestObjective const* obj2 = sObjectMgr->GetQuestObjective(270189);
-                QuestObjective const* obj3 = sObjectMgr->GetQuestObjective(270190);
-                Quest const* qInfo = sObjectMgr->GetQuestTemplate(32641);
-                if (player->IsQuestObjectiveComplete(qInfo, *obj1) && player->IsQuestObjectiveComplete(qInfo, *obj2) && player->IsQuestObjectiveComplete(qInfo, *obj3))
-                    player->CompleteQuest(32641);
-            }
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
 
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
+                if (player->GetQuestStatus(32640) == QUEST_STATUS_INCOMPLETE)
+                {
+                    QuestObjective const* obj1 = sObjectMgr->GetQuestObjective(270185);
+                    QuestObjective const* obj2 = sObjectMgr->GetQuestObjective(270186);
+                    QuestObjective const* obj3 = sObjectMgr->GetQuestObjective(270187);
+                    Quest const* qInfo = sObjectMgr->GetQuestTemplate(32640);
+                    if (player->IsQuestObjectiveComplete(qInfo, *obj1) && player->IsQuestObjectiveComplete(qInfo, *obj2) && player->IsQuestObjectiveComplete(qInfo, *obj3))
+                        player->CompleteQuest(32640);
+                }
+
+                if (player->GetQuestStatus(32641) == QUEST_STATUS_INCOMPLETE)
+                {
+                    QuestObjective const* obj1 = sObjectMgr->GetQuestObjective(270188);
+                    QuestObjective const* obj2 = sObjectMgr->GetQuestObjective(270189);
+                    QuestObjective const* obj3 = sObjectMgr->GetQuestObjective(270190);
+                    Quest const* qInfo = sObjectMgr->GetQuestTemplate(32641);
+                    if (player->IsQuestObjectiveComplete(qInfo, *obj1) && player->IsQuestObjectiveComplete(qInfo, *obj2) && player->IsQuestObjectiveComplete(qInfo, *obj3))
+                        player->CompleteQuest(32641);
+                }
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_iot_taran_zhuAI(creature);
         }
 };
 
@@ -3537,11 +3564,24 @@ class npc_assigment_map : public CreatureScript
     public:
         npc_assigment_map() : CreatureScript("npc_assigment_map") { }
     
-        bool OnGossipHello(Player* player, Creature* creature) override
+        
+        struct npc_assigment_mapAI : public ScriptedAI
         {
-            player->CLOSE_GOSSIP_MENU();
-            creature->HandleSpellClick(player);
-            return true;
+            npc_assigment_mapAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
+            {
+
+                player->CLOSE_GOSSIP_MENU();
+                me->HandleSpellClick(player);
+                return true;
+        
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_assigment_mapAI(creature);
         }
 };
 
@@ -4658,10 +4698,23 @@ class go_thunder_isle_altar : public GameObjectScript
     public:
         go_thunder_isle_altar() : GameObjectScript("go_thunder_isle_altar") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_thunder_isle_altarAI : public GameObjectAI
         {
-            player->KilledMonsterCredit(invAltarType.find(go->GetEntry())->second);
-            return true;
+            go_thunder_isle_altarAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                player->KilledMonsterCredit(invAltarType.find(me->GetEntry())->second);
+                return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_thunder_isle_altarAI(go);
         }
 };
 

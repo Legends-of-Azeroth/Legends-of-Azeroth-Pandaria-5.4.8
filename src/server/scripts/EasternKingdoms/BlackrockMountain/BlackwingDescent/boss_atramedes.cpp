@@ -84,7 +84,7 @@ enum Adds
     NPC_ROARING_FLAME                   = 41807,
     NPC_ROARING_FLAME_TARGET            = 42121,
     NPC_ABNOXIOUS_FIEND                 = 49740,
-    NPC_LORD_VICTOR_NEFARIUS_A          = 43396, // не уверен
+    NPC_LORD_VICTOR_NEFARIUS_A          = 43396, // пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 
     NPC_IMP_PORTAL_STALKER              = 49801,
     NPC_BLIND_DRAGON_TAIL               = 42356,
@@ -150,15 +150,15 @@ const Position dwarvenshieldsPos[8] =
 
 const Position atramedesnefariusspawnPos = {96.54f, -220.32f, 94.90f, 0.06f};
 
-Unit* atramedesTarget; // цель луча атрамеда
-Creature* atramedesShield; // последний использованный щит
+Unit* atramedesTarget; // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+Creature* atramedesShield; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
 Creature* roaringsummon;
 Creature* _shields[8];
 
 //
-// ротация заклинаний при наземной фазе:
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ:
 // pulse, breath, pulse, breath, flame, pulse, breath, pulse
-// фаза 80сек, значит примерно каждые 13 секунд что-то должно кастоваться, позже настрою таймеры точнее
+// пїЅпїЅпїЅпїЅ 80пїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ 13 пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ-пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 //
 
 class boss_atramedes : public CreatureScript
@@ -257,7 +257,7 @@ class boss_atramedes : public CreatureScript
                 switch (summon->GetEntry())
                 {
                     case NPC_TRACKING_FLAMES:
-                        //todo: реализовать передвижение
+                        //todo: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                         DoCast(summon, SPELL_SONIC_BREATH);
                         break;
                     case NPC_ROARING_FLAME_TARGET:
@@ -350,7 +350,7 @@ class boss_atramedes : public CreatureScript
                             me->GetMotionMaster()->MovePoint(2, groundPos);
                             break;
                         case EVENT_NEXT_SPELL:
-                            // За одну фазу будет скастовано 7 скиллов
+                            // пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 7 пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                             if (nextspell > 7)
                                 break;
                             switch (nextspell)
@@ -487,7 +487,7 @@ class npc_sonar_pulse : public CreatureScript
             {
                 if (type == POINT_MOTION_TYPE)
                 {
-                    // Если нпц достиг конечной точки, то деспавн
+                    // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                     if (pointId == 1)
                     {
                         me->DespawnOrUnsummon();
@@ -505,7 +505,7 @@ class npc_sonar_pulse : public CreatureScript
                 {
                     switch (eventId)
                     {
-                        // Через 1сек нпц начинает движение
+                        // пїЅпїЅпїЅпїЅпїЅ 1пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                         case EVENT_SONAR_PULSE_MOVE:
                             if (target)
                                 pos = me->GetNearPosition(50.0f, me->GetAngle(target->GetPositionX(), target->GetPositionY()));
@@ -575,23 +575,36 @@ class npc_atramedes_gong : public CreatureScript
     public:
         npc_atramedes_gong() : CreatureScript("npc_atramedes_gong") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+        
+        struct npc_atramedes_gongAI : public ScriptedAI
         {
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (!instance)
-                return false;
+            npc_atramedes_gongAI(Creature* creature) : ScriptedAI(creature) { }
 
-            if (instance->GetBossState(DATA_ATRAMEDES) != IN_PROGRESS)
-                return true;
-
-            if (Creature* atramedes = creature->FindNearestCreature(NPC_ATRAMEDES, 200.0f))
+            bool OnGossipHello(Player* player) override
             {
-                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                atramedesShield = creature;
-                atramedesTarget = player;
-                atramedes->AI()->DoAction(ACTION_SHIELD);
+
+                InstanceScript* instance = me->GetInstanceScript();
+                if (!instance)
+                    return false;
+
+                if (instance->GetBossState(DATA_ATRAMEDES) != IN_PROGRESS)
+                    return true;
+
+                if (Creature* atramedes = me->FindNearestCreature(NPC_ATRAMEDES, 200.0f))
+                {
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    atramedesShield = me;
+                    atramedesTarget = player;
+                    atramedes->AI()->DoAction(ACTION_SHIELD);
+                }
+                return true;
+        
             }
-            return true;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_atramedes_gongAI(creature);
         }
 };
 
