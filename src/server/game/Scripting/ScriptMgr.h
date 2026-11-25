@@ -377,9 +377,6 @@ protected:
 
 public:
 
-    // Called when a dummy spell effect is triggered on the item.
-    virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/, Item* /*target*/) { return false; }
-
     // Called when a player accepts a quest from the item.
     virtual bool OnQuestAccept(Player* /*player*/, Item* /*item*/, Quest const* /*quest*/) { return false; }
 
@@ -1035,7 +1032,6 @@ public: /* InstanceMapScript */
 
 public: /* ItemScript */
 
-    bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Item* target);
     bool OnQuestAccept(Player* player, Item* item, Quest const* quest);
     bool OnItemUse(Player* player, Item* item, SpellCastTargets const& targets);
     bool OnItemExpire(Player* player, ItemTemplate const* proto);
@@ -1050,9 +1046,6 @@ public: /* CreatureScript */
 public: /* GameObjectScript */
 
     bool OnReportUse(Player* player, GameObject* go);
-    void OnGameObjectDestroyed(GameObject* go, Player* player);
-    void OnGameObjectDamaged(GameObject* go, Player* player);
-    void OnGameObjectLootStateChanged(GameObject* go, uint32 state, Unit* unit);
     void OnGameObjectUpdate(GameObject* go, uint32 diff);
     GameObjectAI* GetGameObjectAI(GameObject* go);
 

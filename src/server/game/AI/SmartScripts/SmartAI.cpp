@@ -837,12 +837,6 @@ void SmartAI::OnQuestReward(Player* player, Quest const* quest, uint32 opt)
 }
 
 
-bool SmartAI::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex)
-{
-    GetScript()->ProcessEventsFor(SMART_EVENT_DUMMY_EFFECT, caster, spellId, (uint32)effIndex);
-    return true;
-}
-
 void SmartAI::SetCombatMove(bool on)
 {
     if (mCanCombatMove == on)

@@ -360,7 +360,6 @@ class TC_GAME_API UnitAI
         static void FillAISpellInfo();
 
         // skyfire function start
-        virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/) { return false; }
         virtual void sOnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
         // skyfire function end
 

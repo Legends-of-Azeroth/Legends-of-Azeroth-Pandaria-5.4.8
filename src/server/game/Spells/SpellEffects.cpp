@@ -817,26 +817,14 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
     TC_LOG_DEBUG("spells", "Spell ScriptStart spellid {} in EffectDummy({})", m_spellInfo->Id, effIndex);
     m_caster->GetMap()->ScriptsStart(sSpellScripts, uint32(m_spellInfo->Id | (effIndex << 24)), m_caster, unitTarget);
 
-    // Script based implementation. Must be used only for not good for implementation in core spell effects
-    // So called only for not proccessed cases
+#ifdef ELUNA
     if (gameObjTarget)
-    {
-#ifdef ELUNA
-        if (sHookMgr->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex, gameObjTarget))
-            return;
-#endif
-        gameObjTarget->AI()->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex);
-    }
+        sHookMgr->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex, gameObjTarget);
     else if (unitTarget && unitTarget->GetTypeId() == TYPEID_UNIT)
-    {
-#ifdef ELUNA
-        if (sHookMgr->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex, unitTarget->ToCreature()))
-            return;
-#endif
-        unitTarget->ToCreature()->AI()->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex);
-    }
+        sHookMgr->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex, unitTarget->ToCreature());
     else if (itemTarget)
-        sScriptMgr->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex, itemTarget);
+        sHookMgr->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex, itemTarget);
+#endif
 }
 
 void Spell::EffectTriggerSpell(SpellEffIndex effIndex)

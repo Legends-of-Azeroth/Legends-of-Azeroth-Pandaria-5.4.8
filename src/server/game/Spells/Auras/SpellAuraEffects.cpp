@@ -6263,13 +6263,10 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
     }
     else
     {
-        Creature* c = target->ToCreature();
-        bool handled = false;
 #ifdef ELUNA
-        handled = sHookMgr->OnDummyEffect(caster, GetId(), SpellEffIndex(GetEffIndex()), c);
+        sHookMgr->OnDummyEffect(caster, GetId(), SpellEffIndex(GetEffIndex()), target->ToCreature());
 #endif
-        if (!c || !caster || (!handled && !c->AI()->OnDummyEffect(caster, GetId(), SpellEffIndex(GetEffIndex()))))
-            TC_LOG_DEBUG("spells", "AuraEffect::HandlePeriodicTriggerSpellAuraTick: Spell {} has non-existent spell {} in EffectTriggered[{}] and is therefor not triggered.", GetId(), triggerSpellId, GetEffIndex());
+        TC_LOG_DEBUG("spells", "AuraEffect::HandlePeriodicTriggerSpellAuraTick: Spell {} has non-existent spell {} in EffectTriggered[{}] and is therefor not triggered.", GetId(), triggerSpellId, GetEffIndex());
     }
 }
 
