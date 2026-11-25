@@ -16,6 +16,9 @@
 */
 
 #include "Player.h"
+#ifdef ELUNA
+#include "HookMgr.h"
+#endif
 #include "RBAC.h"
 #include "GameClient.h"
 #include "AccountMgr.h"
