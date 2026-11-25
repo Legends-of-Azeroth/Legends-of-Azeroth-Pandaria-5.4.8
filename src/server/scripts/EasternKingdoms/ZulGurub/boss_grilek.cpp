@@ -164,15 +164,18 @@ class boss_grilek : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(WorldObject* target, const SpellInfo* spell) override
             {
-                if (target && spell->Id == SPELL_PURSUIT)
+                if (Unit* unitTarget = target ? target->ToUnit() : nullptr)
                 {
-                    me->GetThreatManager().ResetAllThreat();
-                    me->GetThreatManager().AddThreat(target, 100000);
-                    me->SetTarget(target->GetGUID());
-                    me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->MoveChase(target);
+                    if (spell->Id == SPELL_PURSUIT)
+                    {
+                        me->GetThreatManager().ResetAllThreat();
+                        me->GetThreatManager().AddThreat(unitTarget, 100000);
+                        me->SetTarget(unitTarget->GetGUID());
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MoveChase(unitTarget);
+                    }
                 }
             }
         };

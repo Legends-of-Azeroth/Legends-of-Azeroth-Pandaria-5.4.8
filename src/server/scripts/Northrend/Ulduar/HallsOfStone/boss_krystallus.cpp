@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -155,7 +155,7 @@ public:
             Talk(SAY_KILL);
         }
 
-        void SpellHitTarget(Unit* /*target*/, const SpellInfo* pSpell) override
+        void SpellHitTarget(WorldObject* /*target*/, const SpellInfo* pSpell) override
         {
             //this part should be in the core
             if (pSpell->Id == SPELL_SHATTER || pSpell->Id == H_SPELL_SHATTER)

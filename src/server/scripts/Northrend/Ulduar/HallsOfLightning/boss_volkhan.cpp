@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -237,7 +237,7 @@ class boss_volkhan : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_TEMPER || spell->Id == SPELL_TEMPER_DUMMY)
                     if (GameObject* visual = me->FindNearestGameObject(GO_VOLKHAN_TEMPER_VISUAL, 30.0f))
@@ -450,7 +450,7 @@ class npc_molten_golem : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 // this is the dummy effect of the spells
                 if (spell->Id == SPELL_SHATTER || spell->Id == SPELL_SHATTER_H)

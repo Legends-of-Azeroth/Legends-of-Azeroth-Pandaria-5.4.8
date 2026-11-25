@@ -1283,7 +1283,7 @@ class npc_storm_tempered_keeper : public CreatureScript
                 events.ScheduleEvent(EVENT_CHECK_COMPANION, 2000);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_VENGEFUL_SURGE)
                     events.CancelEvent(EVENT_SUMMON_CHARGED_SPHERE);
@@ -1565,7 +1565,7 @@ class npc_arachnopod_destroyer : public CreatureScript
                     DoCast(who, SPELL_MACHINE_GUN);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_TRIGGER_000)
                     me->Kill(me);

@@ -86,7 +86,7 @@ struct npc_feralas_wisp : public ScriptedAI
         _playerGUID = ObjectGuid::Empty;
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
         if (!_isFollowing)
         {
@@ -163,7 +163,7 @@ struct npc_feralas_hippogryph : public ScriptedAI
         _timer_spell_wing_buffet = urand(3000, 11000);
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
         if (!_hippogryph_called)
         {
@@ -285,7 +285,7 @@ struct npc_feralas_wandering_forest_walker : public ScriptedAI
         _timer_spell_regrowth = urand(2000, 3000);
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
         if (!_treant_called)
         {

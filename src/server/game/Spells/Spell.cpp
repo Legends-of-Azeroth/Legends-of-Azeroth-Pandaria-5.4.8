@@ -30,6 +30,7 @@
 #include "Player.h"
 #include "Pet.h"
 #include "Unit.h"
+#include "GameObjectAI.h"
 #include "Totem.h"
 #include "Spell.h"
 #include "DynamicObject.h"
@@ -3306,6 +3307,14 @@ void Spell::DoAllEffectOnTarget(GOTargetInfo* target)
     for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
         if (effectMask & (1 << effectNumber))
             HandleEffects(nullptr, nullptr, go, nullptr, effectNumber, SPELL_EFFECT_HANDLE_HIT_TARGET);
+
+    if (go->AI())
+        go->AI()->SpellHit(m_caster, m_spellInfo);
+
+    if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->IsAIEnabled)
+        m_caster->ToCreature()->AI()->SpellHitTarget(go, m_spellInfo);
+    else if (m_caster->GetTypeId() == TYPEID_GAMEOBJECT && m_caster->ToGameObject()->AI())
+        m_caster->ToGameObject()->AI()->SpellHitTarget(go, m_spellInfo);
 
     CallScriptOnHitHandlers();
     CallScriptAfterHitHandlers();

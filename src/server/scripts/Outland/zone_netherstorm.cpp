@@ -104,7 +104,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        /*void SpellHit(Unit* caster, const SpellInfo* spell) override
+        /*void SpellHit(WorldObject* caster, const SpellInfo* spell) override
         {
             //we have no way of telling the Creature was hit by spell -> got aura applied after 10-12 seconds
             //then no way for the mobs to actually stop the shutdown as intended.
@@ -808,7 +808,7 @@ public:
                 PlayerGUID = who->GetGUID();
         }
 
-        //void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/) override
+        //void SpellHit(WorldObject* /*caster*/, const SpellInfo* /*spell*/) override
         //{
         //    DoCast(me, SPELL_DE_MATERIALIZE);
         //}

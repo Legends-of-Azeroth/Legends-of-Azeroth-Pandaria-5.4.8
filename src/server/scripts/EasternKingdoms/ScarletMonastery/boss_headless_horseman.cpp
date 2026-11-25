@@ -243,7 +243,7 @@ struct boss_headless_horseman : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* /*target*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*target*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_HORSEMANS_SUMMON)
             Talk(SAY_SPROUTING_PUMPKINS);

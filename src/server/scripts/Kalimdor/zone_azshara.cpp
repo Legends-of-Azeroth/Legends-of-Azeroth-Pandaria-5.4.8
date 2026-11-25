@@ -483,7 +483,7 @@ class npc_fire_of_the_seas : public CreatureScript
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void SpellHit(Unit * /*caster*/, const SpellInfo * spell) override
+        void SpellHit(WorldObject * /*caster*/, const SpellInfo * spell) override
         {
             if(spell->Id == SPELL_STAMP_OUT_FIRES)
             {

@@ -332,7 +332,7 @@ class boss_jin_qin_xi : public CreatureScript
                 return 0;
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 // Applies only if hit by opportunistic strike
                 if (spell->Id != SPELL_OPPORTUNISTIC_STRIKE)
@@ -498,7 +498,7 @@ class boss_jin_qin_xi : public CreatureScript
                 return orientation;
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
                 if (spell->Id != SPELL_DEVAST_ARC && spell->Id != SPELL_STOMP)
                     return;

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -306,7 +306,7 @@ class npc_sap_globule : public CreatureScript
                     jinbak->AI()->JustSummoned(me);
             }
 
-            void SpellHit(Unit*  caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject*  caster, SpellInfo const* spell) override
             {
                 if (!done && spell->Id == SPELL_SAP_RESIDUE)
                 {
@@ -371,7 +371,7 @@ class npc_sap_puddle : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
                 if (!skipTick && target->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_RESIDUE_DOT)
                     if (Aura * growAura = me->GetAura(SPELL_GROW))

@@ -1963,12 +1963,16 @@ class npc_unstable_sun_beam : public CreatureScript
                     _despawnTimer -= diff;
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
-                if (target && spell->Id == SPELL_UNSTABLE_ENERGY)
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
+                if (unitTarget && spell->Id == SPELL_UNSTABLE_ENERGY)
                 {
-                    target->RemoveAurasDueToSpell(SPELL_UNSTABLE_SUN_BEAM);
-                    target->RemoveAurasDueToSpell(SPELL_UNSTABLE_SUN_BEAM_TRIGGERED);
+                    unitTarget->RemoveAurasDueToSpell(SPELL_UNSTABLE_SUN_BEAM);
+                    unitTarget->RemoveAurasDueToSpell(SPELL_UNSTABLE_SUN_BEAM_TRIGGERED);
                 }
             }
 

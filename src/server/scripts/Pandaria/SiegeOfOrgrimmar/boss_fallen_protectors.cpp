@@ -768,7 +768,7 @@ class boss_he_softfoot : public CreatureScript
                 _JustEngagedWith();
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(WorldObject* caster, const SpellInfo* spell) override
             {
                 if (instance && spell->HasEffect(SPELL_EFFECT_ATTACK_ME))
                 {

@@ -580,7 +580,7 @@ struct npc_gilneas_crow : public ScriptedAI
         me->SetPosition(me->GetCreatureData()->posX, me->GetCreatureData()->posY, me->GetCreatureData()->posZ, me->GetCreatureData()->orientation);
     }
 
-    void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+    void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
     {
         if (spell->Id == SPELL_PING_GILNEAN_CROW)
         {
@@ -1046,7 +1046,7 @@ struct npc_josiah_avery_worgen_form : public PassiveAI
         }, 200);
     }
 
-    void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+    void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
     {
         if (spell->Id == SPELL_SHOOT_INSTAKILL)
             me->CastSpell(me, SPELL_GET_SHOT);
@@ -1252,10 +1252,10 @@ struct npc_bloodfang_lurker : public ScriptedAI
             StartAttack(attacker);
     }
 
-    void SpellHit(Unit* caster, const SpellInfo* spell) override
+    void SpellHit(WorldObject* caster, const SpellInfo* spell) override
     {
         if (spell->Id == SPELL_ATTACK_LURKER)
-            StartAttack(caster);
+            StartAttack(caster->ToUnit());
     }
 
     void UpdateAI(uint32 diff) override
@@ -1635,7 +1635,7 @@ class npc_gilneas_children : public CreatureScript
                     events.ScheduleEvent(EVENT_CRY, 1s);
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(WorldObject* caster, const SpellInfo* spell) override
             {
                 if (!activated && spell->Id == _spellId)
                 {
@@ -1947,7 +1947,7 @@ struct npc_chance_the_cat : public ScriptedAI
             Despawn = true;
     }
 
-    void SpellHit(Unit* caster, const SpellInfo* spell) override
+    void SpellHit(WorldObject* caster, const SpellInfo* spell) override
     {
         if (spell->Id == SPELL_CATCH_CAT && caster->GetTypeId() == TYPEID_PLAYER)
         {
@@ -1996,7 +1996,7 @@ public:
                 me->GetMotionMaster()->MoveRandom(8.0f);
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
             switch (spell->Id)
             {

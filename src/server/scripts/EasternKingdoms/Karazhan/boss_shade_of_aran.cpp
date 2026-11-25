@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -473,7 +473,7 @@ class boss_shade_of_aran : public CreatureScript
                     DrinkInturrupted = true;
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 // We only care about interrupt effects and only if they are durring a spell currently being casted
                 if ((spell->Effects[0].Effect != SPELL_EFFECT_INTERRUPT_CAST &&

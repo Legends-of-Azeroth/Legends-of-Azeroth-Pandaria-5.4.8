@@ -380,7 +380,7 @@ class boss_strawman : public CreatureScript
                 //me->DespawnOrUnsummon();
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if ((spell->SchoolMask == SPELL_SCHOOL_MASK_FIRE) && (!(rand()%10)))
                 {
@@ -1150,7 +1150,7 @@ class boss_julianne : public CreatureScript
                 //me->DespawnOrUnsummon();
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_DRINK_POISON)
                 {

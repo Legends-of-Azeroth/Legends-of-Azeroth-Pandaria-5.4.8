@@ -236,7 +236,7 @@ class boss_echo_of_tyrande : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->HasEffect(SPELL_EFFECT_INTERRUPT_CAST))
                     if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))

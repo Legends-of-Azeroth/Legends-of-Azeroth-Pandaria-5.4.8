@@ -312,15 +312,19 @@ class boss_kalecgos : public CreatureScript
                     damage = 0;
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
                 if (!spell || spell->Id != SPELL_SPECTRAL_BLAST)
                     return;
 
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 spectralBlastTimer = 20000+rand()%5000;
-                target->RemoveAurasDueToSpell(SPELL_ARCANE_BUFFET);
-                target->CastSpell(target, SPELL_SPECTRAL_BLAST_SELF, true);
-                DoCast(target, SPELL_SPECTRAL_BLAST_SELF_VISUAL, true);
+                unitTarget->RemoveAurasDueToSpell(SPELL_ARCANE_BUFFET);
+                unitTarget->CastSpell(unitTarget, SPELL_SPECTRAL_BLAST_SELF, true);
+                DoCast(unitTarget, SPELL_SPECTRAL_BLAST_SELF_VISUAL, true);
             }
 
             void JustEngagedWith(Unit* /*who*/) override

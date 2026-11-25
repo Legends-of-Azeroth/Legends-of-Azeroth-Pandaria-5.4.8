@@ -501,7 +501,7 @@ class npc_niuzao_shado_pan_prisoner : public CreatureScript
                 exitTimer = 0;
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_INTERACT)
                 {
@@ -778,10 +778,14 @@ class npc_sikthik_engineer : public CreatureScript
                 crystallizeTimer = 4000;
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
-                if (spell->Id == SPELL_CRYSTALLIZE && target->HasAura(SPELL_BURNING_PITCH))
-                    DoCast(target, SPELL_CRYSTALLIZED_PITCH, true);
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
+                if (spell->Id == SPELL_CRYSTALLIZE && unitTarget->HasAura(SPELL_BURNING_PITCH))
+                    DoCast(unitTarget, SPELL_CRYSTALLIZED_PITCH, true);
             }
 
             void UpdateAI(uint32 diff) override

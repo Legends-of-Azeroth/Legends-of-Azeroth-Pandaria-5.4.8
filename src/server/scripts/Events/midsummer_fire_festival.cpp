@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -305,7 +305,7 @@ struct npc_torch_tossing_target_bunny: public ScriptedAI
 {
     npc_torch_tossing_target_bunny(Creature* creature) : ScriptedAI(creature) { }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
         if (spell->Id != SPELL_TOSS_TORCH_LAND || !me->HasAura(SPELL_TARGET_INDICATOR) || !caster->CanSeeOrDetect(me))
             return;

@@ -76,18 +76,22 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
             if (spell->Id == SPELL_KODO_KOMBO_ITEM)
             {
-                if (!(caster->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) || me->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
+                if (!(unitCaster->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) || me->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
                     && (me->GetEntry() == NPC_AGED_KODO || me->GetEntry() == NPC_DYING_KODO || me->GetEntry() == NPC_ANCIENT_KODO))
                 {
-                    caster->CastSpell(caster, SPELL_KODO_KOMBO_PLAYER_BUFF, true);
+                    unitCaster->CastSpell(unitCaster, SPELL_KODO_KOMBO_PLAYER_BUFF, true);
                     DoCast(me, SPELL_KODO_KOMBO_DESPAWN_BUFF, true);
 
                     me->UpdateEntry(NPC_TAMED_KODO);
-                    me->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, me->GetFollowAngle());
+                    me->GetMotionMaster()->MoveFollow(unitCaster, PET_FOLLOW_DIST, me->GetFollowAngle());
                 }
             }
             else if (spell->Id == SPELL_KODO_KOMBO_GOSSIP)

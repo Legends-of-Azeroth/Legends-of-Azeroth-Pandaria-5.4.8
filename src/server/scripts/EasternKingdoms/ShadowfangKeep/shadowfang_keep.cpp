@@ -589,15 +589,15 @@ class npc_apothecary_frye : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(WorldObject* target, const SpellInfo* spell) override
             {
                 switch (spell->Id)
                 {
                     case SPELL_THROW_PERFUME:
-                        SummonBunny(target, true);
+                        SummonBunny(target->ToUnit(), true);
                         break;
                     case SPELL_THROW_COLOGNE:
-                        SummonBunny(target, false);
+                        SummonBunny(target->ToUnit(), false);
                         break;
                 }
             }

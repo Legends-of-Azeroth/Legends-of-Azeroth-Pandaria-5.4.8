@@ -1718,7 +1718,7 @@ class npc_gunship_cannon : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_BELOW_ZERO)
                     me->GetVehicleKit()->RemoveAllPassengers();

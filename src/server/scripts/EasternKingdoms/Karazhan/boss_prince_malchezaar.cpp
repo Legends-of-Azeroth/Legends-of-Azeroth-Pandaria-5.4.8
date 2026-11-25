@@ -143,7 +143,7 @@ class netherspite_infernal : public CreatureScript
                          creature->AI()->KilledUnit(victim);
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_INFERNAL_RELAY)
                 {

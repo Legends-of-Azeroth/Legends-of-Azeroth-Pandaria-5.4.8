@@ -88,16 +88,20 @@ public:
             me->setDeathState(DEAD);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(WorldObject* caster, const SpellInfo* spell) override
         {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
             if (spell->Id == SPELL_UNLOCK_SHACKLE)
             {
-                if (caster->ToPlayer()->GetQuestStatus(QUEST_TROLLS_IS_GONE_CRAZY) == QUEST_STATUS_INCOMPLETE)
+                if (unitCaster->ToPlayer()->GetQuestStatus(QUEST_TROLLS_IS_GONE_CRAZY) == QUEST_STATUS_INCOMPLETE)
                 {
                     if (Creature* rageclaw = Unit::GetCreature(*me, _rageclawGUID))
                     {
-                        UnlockRageclaw(caster);
-                        caster->ToPlayer()->KilledMonster(rageclaw->GetCreatureTemplate(), _rageclawGUID);
+                        UnlockRageclaw(unitCaster);
+                        unitCaster->ToPlayer()->KilledMonster(rageclaw->GetCreatureTemplate(), _rageclawGUID);
                         me->DespawnOrUnsummon();
                     }
                     else
@@ -145,7 +149,7 @@ public:
         void MoveInLineOfSight(Unit* /*who*/)override { }
 
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
         {
             if (spell->Id == SPELL_FREE_RAGECLAW)
             {
@@ -896,16 +900,20 @@ public:
             Reset();
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(WorldObject* caster, const SpellInfo* spell) override
         {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
             if (spell->Id != GYMERS_GRAB)
                 return;
 
-            if (Vehicle* veh = caster->GetVehicleKit())
+            if (Vehicle* veh = unitCaster->GetVehicleKit())
                 if (veh->GetAvailableSeatCount() != 0)
             {
-                me->CastSpell(caster, RIDE_VEHICLE, true);
-                me->CastSpell(caster, HEALING_WINDS, true);
+                me->CastSpell(unitCaster, RIDE_VEHICLE, true);
+                me->CastSpell(unitCaster, HEALING_WINDS, true);
             }
         }
     };

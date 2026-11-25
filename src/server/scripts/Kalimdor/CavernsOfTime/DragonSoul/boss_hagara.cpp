@@ -1656,7 +1656,7 @@ class npc_hagara_the_stormbinder_crystal_conductor : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(WorldObject* caster, const SpellInfo* spell) override
             {
                 if ((spell->Id == SPELL_OVERLOAD_2 || spell->Id == SPELL_LIGHTNING_CONDUIT_DUMMY_1) && !bOverloaded)
                 {
@@ -1673,7 +1673,7 @@ class npc_hagara_the_stormbinder_crystal_conductor : public CreatureScript
                         uint32 chainLength = 0;
                         std::set<Unit*> visitedGuids;
                         std::queue<Unit*> connected;
-                        connected.push(caster);
+                        connected.push(caster->ToUnit());
                         while (connected.size())
                         {
                             Unit* link = connected.front();
@@ -1693,7 +1693,7 @@ class npc_hagara_the_stormbinder_crystal_conductor : public CreatureScript
                                 if (AuraApplication* auraApp = itr->second)
                                     if (auraApp->GetBase()->GetId() == SPELL_LIGHTNING_CONDUIT_DUMMY_1 || auraApp->GetBase()->GetId() == SPELL_LIGHTNING_CONDUIT_DUMMY_2)
                                         if (Unit* caster = auraApp->GetBase()->GetCaster())
-                                            connected.push(caster);
+                                            connected.push(caster->ToUnit());
                         }
                         uint32 reqPlayers = me->GetInstanceScript() ? me->GetInstanceScript()->instance->GetPlayersCountExceptGMs() : 0;
                         achievement = chainLength >= reqPlayers;

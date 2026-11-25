@@ -1014,9 +1014,13 @@ class boss_leviathan_mk : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
-                if (!caster || !spell)
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
+                if (!unitCaster || !spell)
                     return;
 
                 if (spell->Id == SPELL_SELF_REPAIR)
@@ -1290,12 +1294,16 @@ class npc_proximity_mine : public CreatureScript
                 _boomLocked = false;
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
-                if (!target || !spell)
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
                     return;
 
-                if (target->ToPlayer())
+                if (!unitTarget || !spell)
+                    return;
+
+                if (unitTarget->ToPlayer())
                     if (spell->Id == SPELL_EXPLOSION || spell->Id == SPELL_EXPLOSION_25)
                         if (InstanceScript* instance = me->GetInstanceScript())
                             if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_MIMIRON)))
@@ -1519,9 +1527,13 @@ class boss_vx_001 : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
-                if (!caster || !spell)
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
+                if (!unitCaster || !spell)
                     return;
 
                 if (spell->Id == SPELL_SELF_REPAIR)
@@ -1532,12 +1544,16 @@ class boss_vx_001 : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 switch (spell->Id)
                 {
                     case SPELL_FROSTBOMB:
-                        me->SummonCreature(NPC_FROST_BOMB, *target, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(11*IN_MILLISECONDS));
+                        me->SummonCreature(NPC_FROST_BOMB, *unitTarget, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(11*IN_MILLISECONDS));
                         break;
                     default:
                         break;
@@ -1813,9 +1829,13 @@ class boss_aerial_unit : public CreatureScript
                     }
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
-                if (!caster || !spell)
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
+                if (!unitCaster || !spell)
                     return;
 
                 if (spell->Id == SPELL_SELF_REPAIR)
@@ -1826,8 +1846,12 @@ class boss_aerial_unit : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 uint32 aura = 0;
                 switch (spell->Id)
                 {
@@ -1837,10 +1861,10 @@ class boss_aerial_unit : public CreatureScript
                     default:
                         return;
                 }
-                target->CastSpell(target, aura, true);
+                unitTarget->CastSpell(unitTarget, aura, true);
                 for (uint32 id = 194740; id <= 194748; ++id)
                 {
-                    if (GameObject* go = target->FindNearestGameObject(id, 5.0f))
+                    if (GameObject* go = unitTarget->FindNearestGameObject(id, 5.0f))
                     {
                         go->UseDoorOrButton();
                         break;
@@ -2147,7 +2171,7 @@ class npc_assault_bot : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 // Achievement Not-So-Friendly Fire
                 if (spell->Id == SPELL_ROCKET_STRIKE_DMG)
@@ -2272,19 +2296,23 @@ class npc_mimiron_bomb_bot : public CreatureScript
                 });
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
-                if (!target || !spell)
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
                     return;
 
-                if (target->ToPlayer())
+                if (!unitTarget || !spell)
+                    return;
+
+                if (unitTarget->ToPlayer())
                     if (spell->Id == SPELL_BOOM_BOT || spell->Id == SPELL_BOOM_BOT_PERIODIC)
                         if (InstanceScript* instance = me->GetInstanceScript())
                             if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_MIMIRON)))
                                 mimiron->AI()->DoAction(DATA_AVOIDED_BOOM_BOT_EXPLOSION);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_BOOM_BOT_PERIODIC)
                     me->DespawnOrUnsummon(1*IN_MILLISECONDS);
@@ -2376,7 +2404,7 @@ class npc_mimiron_flame_trigger : public CreatureScript
                 me->SetInCombatWithZone();
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 switch (spell->Id)
                 {
@@ -2464,7 +2492,7 @@ class npc_mimiron_flame_spread : public CreatureScript
                 DoCast(me, SPELL_FLAME, true);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 switch (spell->Id)
                 {

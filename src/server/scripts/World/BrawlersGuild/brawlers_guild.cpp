@@ -316,7 +316,7 @@ struct brawlers_guild_encounter_typeAI : public ScriptedAI
 
     // In situation when ability cast, that use PreapreChanneledCast was interrupted (stun, fear etc. exclude silence)
     // Without this encounter`ll broken
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
         switch (me->GetEntry())
         {

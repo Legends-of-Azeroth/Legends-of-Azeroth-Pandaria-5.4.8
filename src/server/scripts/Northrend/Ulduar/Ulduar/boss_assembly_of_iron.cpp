@@ -450,7 +450,7 @@ class boss_steelbreaker : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 switch (spell->Id)
                 {
@@ -469,10 +469,14 @@ class boss_steelbreaker : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
-                if (spell->Id == SPELL_MELTDOWN && target && target->ToCreature())
-                    target->CastSpell(me, SPELL_ELECTRICAL_CHARGE_TRIGGER, true);
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
+                if (spell->Id == SPELL_MELTDOWN && unitTarget && unitTarget->ToCreature())
+                    unitTarget->CastSpell(me, SPELL_ELECTRICAL_CHARGE_TRIGGER, true);
             }
 
             // try to prefer ranged targets, targets that already have the aura should be avoided; tanks are allowed
@@ -734,7 +738,7 @@ class boss_runemaster_molgeim : public CreatureScript
                     Talk(SAY_MOLGEIM_SLAY);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_SUPERCHARGE)
                 {
@@ -1005,9 +1009,13 @@ class boss_stormcaller_brundir : public CreatureScript
                 return 0;
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
-                if (target->GetTypeId() == TYPEID_PLAYER)
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
+                if (unitTarget->GetTypeId() == TYPEID_PLAYER)
                     if (couldNotDoThat)
                         switch (spell->Id)
                         {
@@ -1082,7 +1090,7 @@ class boss_stormcaller_brundir : public CreatureScript
                     Talk(SAY_BRUNDIR_SLAY);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_SUPERCHARGE)
                 {

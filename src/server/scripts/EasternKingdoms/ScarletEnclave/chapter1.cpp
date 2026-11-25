@@ -625,7 +625,7 @@ public:
             m_bIsDuelInProgress = false;
         }
 
-        void SpellHit(Unit* pCaster, const SpellInfo* pSpell) override
+        void SpellHit(WorldObject* pCaster, const SpellInfo* pSpell) override
         {
             if (!m_bIsDuelInProgress && pSpell->Id == SPELL_DUEL)
             {
@@ -863,22 +863,23 @@ public:
     {
         npc_salanar_the_horsemanAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(WorldObject* caster, const SpellInfo* spell) override
         {
             if (spell->Id == SPELL_DELIVER_STOLEN_HORSE)
             {
-                if (caster->GetTypeId() == TYPEID_UNIT && caster->IsVehicle())
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (unitCaster && unitCaster->IsVehicle())
                 {
-                    if (Unit* charmer = caster->GetCharmer())
+                    if (Unit* charmer = unitCaster->GetCharmer())
                     {
                         if (charmer->HasAura(SPELL_EFFECT_STOLEN_HORSE))
                         {
                             charmer->RemoveAurasDueToSpell(SPELL_EFFECT_STOLEN_HORSE);
-                            caster->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                            caster->SetFaction(35);
-                            DoCast(caster, SPELL_CALL_DARK_RIDER, true);
+                            unitCaster->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                            unitCaster->SetFaction(35);
+                            DoCast(unitCaster, SPELL_CALL_DARK_RIDER, true);
                             if (Creature* Dark_Rider = me->FindNearestCreature(28654, 15))
-                                CAST_AI(npc_dark_rider_of_acherus::npc_dark_rider_of_acherusAI, Dark_Rider->AI())->InitDespawnHorse(caster);
+                                CAST_AI(npc_dark_rider_of_acherus::npc_dark_rider_of_acherusAI, Dark_Rider->AI())->InitDespawnHorse(unitCaster);
                         }
                     }
                 }

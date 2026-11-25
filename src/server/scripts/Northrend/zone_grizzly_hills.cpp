@@ -295,13 +295,17 @@ public:
                 _gender = Data;
         }
 
-        void SpellHit(Unit* Caster, const SpellInfo* Spell) override
+        void SpellHit(WorldObject* Caster, const SpellInfo* Spell) override
         {
+                Unit* unitCaster = Caster ? Caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
              if (Spell->Id == SPELL_OUTHOUSE_GROANS)
              {
                 ++_counter;
                 if (_counter < 5)
-                    DoCast(Caster, SPELL_CAMERA_SHAKE, true);
+                    DoCast(unitCaster, SPELL_CAMERA_SHAKE, true);
                 else
                     _counter = 0;
                 DoCast(me, SPELL_DUST_FIELD, true);
@@ -473,12 +477,16 @@ public:
                 me->DespawnOrUnsummon(_despawnTimer);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(WorldObject* caster, const SpellInfo* spell) override
         {
-            if (spell->Id == SPELL_RENEW_SKIRMISHER && caster->GetTypeId() == TYPEID_PLAYER
-                && caster->ToPlayer()->GetQuestStatus(QUEST_OVERWHELMED) == QUEST_STATUS_INCOMPLETE)
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
+            if (spell->Id == SPELL_RENEW_SKIRMISHER && unitCaster->GetTypeId() == TYPEID_PLAYER
+                && unitCaster->ToPlayer()->GetQuestStatus(QUEST_OVERWHELMED) == QUEST_STATUS_INCOMPLETE)
             {
-                DoCast(caster, SPELL_KILL_CREDIT);
+                DoCast(unitCaster, SPELL_KILL_CREDIT);
                 Talk(SAY_RANDOM);
                 if (me->IsStandState())
                     me->GetMotionMaster()->MovePoint(1, me->GetPositionX()+7, me->GetPositionY()+7, me->GetPositionZ());
@@ -590,14 +598,18 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
-            if (spell->Id == SPELL_SMOKE_BOMB && caster->GetTypeId() == TYPEID_PLAYER)
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
+            if (spell->Id == SPELL_SMOKE_BOMB && unitCaster->GetTypeId() == TYPEID_PLAYER)
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetReactState(REACT_PASSIVE);
                 me->CombatStop(false);
-                _playerGUID = caster->GetGUID();
+                _playerGUID = unitCaster->GetGUID();
                 _events.ScheduleEvent(EVENT_STRAGGLER_1, 3500);
             }
         }

@@ -372,16 +372,20 @@ class boss_sindragosa : public CreatureScript
                     summon->AI()->JustDied(summon);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 if (uint32 spellId = SPELL_MYSTIC_BUFFET_AURA)
                 {
-                    if (target->GetTypeId() != TYPEID_PLAYER)
+                    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
                         return;
 
                     if (spellId == spell->Id)
                     {
-                        if (Aura const* mysticBuffet = target->GetAura(spell->Id))
+                        if (Aura const* mysticBuffet = unitTarget->GetAura(spell->Id))
                         {
                             _mysticBuffetStack = std::max<uint8>(_mysticBuffetStack, mysticBuffet->GetStackAmount());
 
@@ -394,7 +398,7 @@ class boss_sindragosa : public CreatureScript
                 }
 
                 // Frost Infusion
-                if (Player* player = target->ToPlayer())
+                if (Player* player = unitTarget->ToPlayer())
                 {
                     if (Is25ManRaid())
                     if (uint32 spellId = _isThirdPhase ? SPELL_FROST_BREATH_P2 : SPELL_FROST_BREATH_P1)

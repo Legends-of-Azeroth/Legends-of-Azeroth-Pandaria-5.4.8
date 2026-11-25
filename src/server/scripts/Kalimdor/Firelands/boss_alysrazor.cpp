@@ -836,7 +836,7 @@ class npc_alysrazor_incindiary_cloud : public CreatureScript
                 DoCast(me, SPELL_INCINDIARY_CLOUD, true);
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(WorldObject* target, const SpellInfo* spell) override
             {
                 if (target->GetTypeId() == TYPEID_PLAYER && spell->Id == 99427)
                     me->GetMap()->SetWorldState(WORLDSTATE_DO_A_BARREL_CLOUD, 0);
@@ -962,7 +962,7 @@ class npc_alysrazor_fiery_tornado : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(WorldObject* target, const SpellInfo* spell) override
             {
                 if (target->GetTypeId() == TYPEID_PLAYER && spell->Id == 99816)
                     me->GetMap()->SetWorldState(WORLDSTATE_DO_A_BARREL_FIERY_TORNADO, 0);
@@ -1140,7 +1140,7 @@ class npc_alysrazor_brushfire : public CreatureScript
                 timerDespawn = 20000;
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(WorldObject* target, const SpellInfo* spell) override
             {
                 if (target->GetTypeId() == TYPEID_PLAYER && spell->Id == 98885)
                     me->GetMap()->SetWorldState(WORLDSTATE_DO_A_BARREL_BRUSHFIRE, 0);
@@ -1558,7 +1558,7 @@ class npc_alysrazor_plump_lava_worm : public CreatureScript
                 events.CancelEvent(EVENT_ROTATE);
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(WorldObject* target, const SpellInfo* spell) override
             {
                 if (target->GetTypeId() == TYPEID_PLAYER && spell->Id == 99336)
                     me->GetMap()->SetWorldState(WORLDSTATE_DO_A_BARREL_LAVA_SPEW, 0);

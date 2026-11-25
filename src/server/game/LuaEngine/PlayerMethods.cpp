@@ -1,4 +1,6 @@
 /*
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
+*
 * Copyright (C) 2010 - 2013 Eluna Lua Engine <http://emudevs.com/>
 * This program is free software licensed under GPL version 3
 * Please see the included DOCS/LICENSE.TXT for more information
@@ -6,6 +8,7 @@
 
 #include "PlayerMethods.h"
 #include "Includes.h"
+#include "MailPackets.h"
 
 namespace LuaPlayer
 {
@@ -146,9 +149,11 @@ namespace LuaPlayer
         GameObject* object = sEluna->CHECK_GAMEOBJECT(L, 1);
         if (!object)
             return 0;
-        WorldPacket data(SMSG_SHOW_MAILBOX, 8);
-        data << uint64(object->GetGUID().GetCounter());
-        player->GetSession()->HandleGetMailList(data);
+        WorldPacket data(CMSG_MAIL_GET_LIST, 9);
+        data.appendPackGUID(object->GetGUID().GetRawValue());
+        WorldPackets::Mail::MailGetList packet(std::move(data));
+        packet.Read();
+        player->GetSession()->HandleGetMailList(packet);
         return 0;
     }
 

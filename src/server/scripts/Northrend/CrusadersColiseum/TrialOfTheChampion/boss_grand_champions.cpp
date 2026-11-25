@@ -253,10 +253,14 @@ class npc_faction_champion_toc5 : public CreatureScript
                 ScriptedAI::EnterEvadeMode();
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
                 if (spell->Id == SPELL_CHARGE_TRIGGERED)
-                    caster->CastSpell(me, SPELL_CHARGE_DMG, true);
+                    unitCaster->CastSpell(me, SPELL_CHARGE_DMG, true);
             }
 
             void UpdateAI(uint32 diff) override
@@ -549,29 +553,37 @@ class boss_grand_champion_toc5 : public CreatureScript
                 ScriptedAI::EnterEvadeMode();
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
                 switch (spell->Id)
                 {
                     case SPELL_TRAMPLE:
-                        if ((_phase == 2 || _phase == 4) && !me->HasAura(SPELL_STUNNED) && caster->IsCharmed())
+                        if ((_phase == 2 || _phase == 4) && !me->HasAura(SPELL_STUNNED) && unitCaster->IsCharmed())
                         {
                             // temporary stop motion
                             me->GetMotionMaster()->MovementExpired();
                             me->GetMotionMaster()->MoveIdle();
-                            caster->CastSpell(me, SPELL_STUNNED, true);
+                            unitCaster->CastSpell(me, SPELL_STUNNED, true);
                         }
                         break;
                     case SPELL_CHARGE_TRIGGERED:
-                        caster->CastSpell(me, SPELL_CHARGE_DMG, true);
+                        unitCaster->CastSpell(me, SPELL_CHARGE_DMG, true);
                         break;
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 if (spell->Id == SPELL_FAN_OF_KNIVES)
-                    DoCast(target, SPELL_DEADLY_POISON, true);
+                    DoCast(unitTarget, SPELL_DEADLY_POISON, true);
             }
 
             void UpdateAI(uint32 diff) override

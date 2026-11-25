@@ -1081,12 +1081,16 @@ class boss_sister_svalna : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
                 if (spell->Id == SPELL_HURL_SPEAR && me->HasAura(SPELL_AETHER_SHIELD))
                 {
                     me->RemoveAurasDueToSpell(SPELL_AETHER_SHIELD);
-                    Talk(EMOTE_SVALNA_BROKEN_SHIELD, caster);
+                    Talk(EMOTE_SVALNA_BROKEN_SHIELD, unitCaster);
                 }
             }
 
@@ -1102,18 +1106,22 @@ class boss_sister_svalna : public CreatureScript
                 DoZoneInCombat(me, 150.0f);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 switch (spell->Id)
                 {
                     case SPELL_IMPALING_SPEAR_KILL:
-                        me->Kill(target);
+                        me->Kill(unitTarget);
                         break;
                     case SPELL_IMPALING_SPEAR:
-                        if (TempSummon* summon = target->SummonCreature(NPC_IMPALING_SPEAR, *target))
+                        if (TempSummon* summon = unitTarget->SummonCreature(NPC_IMPALING_SPEAR, *unitTarget))
                         {
-                            Talk(EMOTE_SVALNA_IMPALE, target);
-                            summon->CastCustomSpell(VEHICLE_SPELL_RIDE_HARDCODED, SPELLVALUE_BASE_POINT0, 1, target, false);
+                            Talk(EMOTE_SVALNA_IMPALE, unitTarget);
+                            summon->CastCustomSpell(VEHICLE_SPELL_RIDE_HARDCODED, SPELLVALUE_BASE_POINT0, 1, unitTarget, false);
                             summon->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK1 | 0x4000);
                             // give item
                             //ItemPosCountVec dest;
@@ -1591,7 +1599,7 @@ struct npc_argent_captainAI : public ScriptedAI
             Reset();
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_REVIVE_CHAMPION && !IsUndead)
             {
@@ -3330,11 +3338,15 @@ class npc_icc_empowering_orb_controller : public CreatureScript
                 events.ScheduleEvent(EVENT_STORE_TRASH, 1000);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
                 if (spell->Id == SPELL_ORB_CONTROLLER_ACTIVATE)
                 {
-                    DoCast(caster, SPELL_EMPOWERED_BLOOD_NPC, true);
+                    DoCast(unitCaster, SPELL_EMPOWERED_BLOOD_NPC, true);
                     if (Creature* visual = ObjectAccessor::GetCreature(*me, visualGuid))
                     {
                         visual->CastStop();

@@ -1071,7 +1071,7 @@ class npc_dragon_soul_claw_of_gorath : public CreatureScript
                 events.ScheduleEvent(EVENT_TENTACLE_TOSS, 10000);
             }
 
-            /*void SpellHitTarget(Unit* victim, const SpellEntry* spell) override
+            /*void SpellHitTarget(WorldObject* victim, const SpellEntry* spell) override
             {
                 if (spellInfo->Id == SPELL_TENTACLE_TOSS_AOE_1)
                     events.RescheduleEvent(EVENT_TENTACLE_TOSS, 20000);
@@ -1945,12 +1945,12 @@ class npc_dragon_soul_twilight_assaulter : public CreatureScript
                 instance->SetData(DATA_DRAGONS_COUNT, 0);
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(WorldObject* caster, const SpellInfo* spell) override
             {
                 if (spell->HasEffect(SPELL_EFFECT_ATTACK_ME) || spell->HasAura(SPELL_AURA_MOD_TAUNT))
                 {
                     me->SetReactState(REACT_AGGRESSIVE);
-                    AttackStart(caster);
+                    AttackStart(caster->ToUnit());
                 }
             }
 

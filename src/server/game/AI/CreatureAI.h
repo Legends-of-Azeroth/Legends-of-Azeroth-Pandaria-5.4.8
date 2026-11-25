@@ -155,10 +155,10 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) { }
 
         // Called when hit by a spell
-        virtual void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) { }
+        virtual void SpellHit(WorldObject* /*caster*/, SpellInfo const* /*spell*/) { }
 
         // Called when spell hits a target
-        virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) { }
+        virtual void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* /*spell*/) { }
 
         // Called after spell is casted
         virtual void SpellCasted(Spell const* spell) { }

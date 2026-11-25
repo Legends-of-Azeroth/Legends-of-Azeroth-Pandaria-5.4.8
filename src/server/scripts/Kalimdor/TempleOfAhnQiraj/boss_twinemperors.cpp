@@ -185,7 +185,7 @@ struct boss_twinemperorsAI : public ScriptedAI
             instance->SetBossState(DATA_TWIN_EMPERORS, IN_PROGRESS);
     }
 
-    void SpellHit(Unit* caster, const SpellInfo* entry) override
+    void SpellHit(WorldObject* caster, const SpellInfo* entry) override
     {
         if (caster == me)
             return;

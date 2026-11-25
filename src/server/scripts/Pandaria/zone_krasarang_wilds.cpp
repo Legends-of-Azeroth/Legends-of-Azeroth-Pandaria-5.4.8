@@ -531,20 +531,24 @@ class npc_despondent_warden_of_zhu : public CreatureScript
                     else auraRecastTimer -= diff;
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(WorldObject* caster, const SpellInfo* spell) override
             {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
                 if (auraRecastTimer)
                     return;
 
-                if (spell->Id == SPELL_APPLY_MASK && caster->GetTypeId() == TYPEID_PLAYER)
+                if (spell->Id == SPELL_APPLY_MASK && unitCaster->GetTypeId() == TYPEID_PLAYER)
                 {
                     Position pos = me->GetPosition();
 
                     if (auto summon = me->SummonCreature(NPC_ENTRY_MANIFESTATION_OF_DESPAIR, pos, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(120 * IN_MILLISECONDS)))
-                        summon->AI()->AttackStart(caster);
+                        summon->AI()->AttackStart(unitCaster);
 
                     auraRecastTimer = 10000;
-                    playerGUID = caster->GetGUID();
+                    playerGUID = unitCaster->GetGUID();
                 }
             }
 
@@ -2129,15 +2133,19 @@ struct npc_stoneplow_envoy : public ScriptedAI
         script_timer = 0, player_guid = ObjectGuid::Empty;
     }
 
-    void SpellHit(Unit* caster, const SpellInfo* spell) override
+    void SpellHit(WorldObject* caster, const SpellInfo* spell) override
     {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
         if (spell->Id == SPELL_REVIVE_STONEPLOW_ENVOY && me->HasAura(SPELL_PERMANENT_FEIGN_DEATH_STUN))
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
             me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
             me->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH_STUN);
             script_timer = 500;
-            if (Player* player = caster->ToPlayer())
+            if (Player* player = unitCaster->ToPlayer())
             {
                 player->KilledMonsterCredit(58955, ObjectGuid::Empty);
                 player_guid = player->GetGUID();

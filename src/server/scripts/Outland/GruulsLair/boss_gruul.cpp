@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -112,22 +112,26 @@ class boss_gruul : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* pSpell) override
+            void SpellHitTarget(WorldObject* target, const SpellInfo* pSpell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 //This to emulate effect1 (77) of SPELL_GROUND_SLAM, knock back to any direction
                 //It's initially wrong, since this will cause fall damage, which is by comments, not intended.
                 if (pSpell->Id == SPELL_GROUND_SLAM)
                 {
-                    if (target->GetTypeId() == TYPEID_PLAYER)
+                    if (unitTarget->GetTypeId() == TYPEID_PLAYER)
                     {
                         switch (urand(0, 1))
                         {
                             case 0:
-                                target->CastSpell(target, SPELL_MAGNETIC_PULL, true, NULL, NULL, me->GetGUID());
+                                unitTarget->CastSpell(unitTarget, SPELL_MAGNETIC_PULL, true, NULL, NULL, me->GetGUID());
                                 break;
 
                             case 1:
-                                target->CastSpell(target, SPELL_KNOCK_BACK, true, NULL, NULL, me->GetGUID());
+                                unitTarget->CastSpell(unitTarget, SPELL_KNOCK_BACK, true, NULL, NULL, me->GetGUID());
                                 break;
                         }
                     }

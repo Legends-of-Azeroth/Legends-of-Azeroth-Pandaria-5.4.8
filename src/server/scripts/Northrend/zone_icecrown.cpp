@@ -444,28 +444,32 @@ class npc_tournament_training_dummy : public CreatureScript
                 events.RescheduleEvent(EVENT_DUMMY_RESET, 10000);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
                 switch (me->GetEntry())
                 {
                     case NPC_CHARGE_TARGET:
                         if (spell->Id == SPELL_PLAYER_CHARGE)
                             if (isVulnerable)
-                                DoCast(caster, SPELL_CHARGE_CREDIT, true);
+                                DoCast(unitCaster, SPELL_CHARGE_CREDIT, true);
                         break;
                     case NPC_MELEE_TARGET:
                         if (spell->Id == SPELL_PLAYER_THRUST)
                         {
-                            DoCast(caster, SPELL_MELEE_CREDIT, true);
+                            DoCast(unitCaster, SPELL_MELEE_CREDIT, true);
 
-                            if (Unit* target = caster->GetVehicleBase())
+                            if (Unit* target = unitCaster->GetVehicleBase())
                                 DoCast(target, SPELL_COUNTERATTACK, true);
                         }
                         break;
                     case NPC_RANGED_TARGET:
                         if (spell->Id == SPELL_PLAYER_BREAK_SHIELD)
                             if (isVulnerable)
-                                DoCast(caster, SPELL_RANGED_CREDIT, true);
+                                DoCast(unitCaster, SPELL_RANGED_CREDIT, true);
                         break;
                 }
 
@@ -967,7 +971,7 @@ class npc_frostbrood_skytalon : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 switch (spell->Id)
                 {

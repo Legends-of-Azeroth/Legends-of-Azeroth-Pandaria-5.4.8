@@ -550,7 +550,7 @@ class boss_illidan_stormrage : public CreatureScript
                     done_by->GetThreatManager().AddThreat(me, -(3*(float)damage)/4); // do not let maiev tank him
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_GLAIVE_RETURNS) // Re-equip our warblades!
                 {
@@ -2181,7 +2181,7 @@ class npc_blade_of_azzinoth : public CreatureScript
         {
             blade_of_azzinothAI(Creature* creature) : NullCreatureAI(creature) { }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_THROW_GLAIVE2 || spell->Id == SPELL_THROW_GLAIVE)
                     me->SetDisplayId(21431); // appear when hit by Illidan's glaive

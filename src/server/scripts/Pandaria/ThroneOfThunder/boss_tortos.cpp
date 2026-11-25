@@ -209,8 +209,12 @@ class boss_tortos : public CreatureScript
                 });
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
                 if (spell->Id == SPELL_SHELL_CONCUSSION_INT)
                 {
                     if (breathScheduled)
@@ -545,14 +549,18 @@ class npc_whirl_turtle : public CreatureScript
                     events.RescheduleEvent(EVENT_MOVE, 200);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
                 if (spell->Id == SPELL_KICK_SHELL_TRIGGER)
                 {
                     me->AddAura(SPELL_SHELL_CONCUSSION, me);
 
                     float x, y;
-                    GetPositionWithDistInOrientation(caster, 80.0f, caster->GetOrientation(), x, y);
+                    GetPositionWithDistInOrientation(unitCaster, 80.0f, unitCaster->GetOrientation(), x, y);
                     me->GetMotionMaster()->MoveCharge(x, y, -61.19f, 30.0f);
                     me->DespawnOrUnsummon(6000);
                 }

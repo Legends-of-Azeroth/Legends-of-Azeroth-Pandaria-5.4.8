@@ -1138,7 +1138,7 @@ class npc_wild_spark : public CreatureScript
                 init.Launch();
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_DRAW_FLAME)
                 {

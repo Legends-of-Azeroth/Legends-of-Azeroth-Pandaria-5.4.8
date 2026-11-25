@@ -792,7 +792,7 @@ class npc_shannox_spear_of_shannox : public CreatureScript
                 DoCast(me, SPELL_SPEAR_TARGET, true);
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_HURL_SPEAR_DMG)
                 {

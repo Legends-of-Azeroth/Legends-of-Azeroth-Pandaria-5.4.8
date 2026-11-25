@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -273,16 +273,20 @@ class boss_volazj : public CreatureScript
                     DoCastAOE(SPELL_INSANITY_SWITCH, true);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 switch (spell->Id)
                 {
                     case SPELL_INSANITY:
-                        // Not good target or too many players
-                        if (target->GetTypeId() != TYPEID_PLAYER || insanityHandled > 4)
+                        // Not good unitTarget or too many players
+                        if (unitTarget->GetTypeId() != TYPEID_PLAYER || insanityHandled > 4)
                             return;
 
-                        // First target - start channel visual and set self as unnattackable
+                        // First unitTarget - start channel visual and set self as unnattackable
                         if (!insanityHandled)
                         {
                             Talk(SAY_INSANITY);
@@ -295,12 +299,12 @@ class boss_volazj : public CreatureScript
                         }
 
                         // phase mask
-                        target->CastSpell(target, InsanitySpells[insanityHandled], true);
+                        unitTarget->CastSpell(unitTarget, InsanitySpells[insanityHandled], true);
 
-                        // summon twisted party members for this target
+                        // summon twisted party members for this unitTarget
                         for (auto&& ref : me->GetMap()->GetPlayers())
                             if (Player* player = ref.GetSource())
-                                if (player->IsAlive() && player != target)
+                                if (player->IsAlive() && player != unitTarget)
                                     player->CastSpell(player, SummonTwistedVisageSpells[insanityHandled], true);
 
                         ++insanityHandled;
@@ -308,29 +312,29 @@ class boss_volazj : public CreatureScript
                     case SPELL_INSANITY_SWITCH:
                         for (auto&& pair : TwistedVisageToInsanity)
                         {
-                            if (target->HasAura(pair.second) && !summons.HasEntry(pair.first))
+                            if (unitTarget->HasAura(pair.second) && !summons.HasEntry(pair.first))
                             {
-                                target->RemoveAurasDueToSpell(pair.second);
+                                unitTarget->RemoveAurasDueToSpell(pair.second);
                                 if (Creature* visage = ObjectAccessor::GetCreature(*me, summons.front()))
                                 {
                                     auto itr = TwistedVisageToInsanity.find((VolazjCreatures)visage->GetEntry());
                                     ASSERT(itr != TwistedVisageToInsanity.end());
-                                    target->CastSpell(target, itr->second, true);
+                                    unitTarget->CastSpell(unitTarget, itr->second, true);
                                 }
                             }
                         }
                         break;
                     case SPELL_CLEAR_ALL_INSANITY:
                         for (auto&& spell : InsanitySpells)
-                            target->RemoveAurasDueToSpell(spell);
+                            unitTarget->RemoveAurasDueToSpell(spell);
                         break;
-                    case SPELL_VOLAZJ_WHISPER_AGGRO:    Talk(SAY_AGGRO_W,    target); break;
-                    case SPELL_VOLAZJ_WHISPER_INSANITY: Talk(SAY_INSANITY_W, target); break;
-                    case SPELL_VOLAZJ_WHISPER_SLAY_01:  Talk(SAY_SLAY_W_1,   target); break;
-                    case SPELL_VOLAZJ_WHISPER_SLAY_02:  Talk(SAY_SLAY_W_2,   target); break;
-                    case SPELL_VOLAZJ_WHISPER_SLAY_03:  Talk(SAY_SLAY_W_3,   target); break;
-                    case SPELL_VOLAZJ_WHISPER_DEATH_01: Talk(SAY_DEATH_W_1,  target); break;
-                    case SPELL_VOLAZJ_WHISPER_DEATH_02: Talk(SAY_DEATH_W_2,  target); break;
+                    case SPELL_VOLAZJ_WHISPER_AGGRO:    Talk(SAY_AGGRO_W,    unitTarget); break;
+                    case SPELL_VOLAZJ_WHISPER_INSANITY: Talk(SAY_INSANITY_W, unitTarget); break;
+                    case SPELL_VOLAZJ_WHISPER_SLAY_01:  Talk(SAY_SLAY_W_1,   unitTarget); break;
+                    case SPELL_VOLAZJ_WHISPER_SLAY_02:  Talk(SAY_SLAY_W_2,   unitTarget); break;
+                    case SPELL_VOLAZJ_WHISPER_SLAY_03:  Talk(SAY_SLAY_W_3,   unitTarget); break;
+                    case SPELL_VOLAZJ_WHISPER_DEATH_01: Talk(SAY_DEATH_W_1,  unitTarget); break;
+                    case SPELL_VOLAZJ_WHISPER_DEATH_02: Talk(SAY_DEATH_W_2,  unitTarget); break;
                 }
             }
 
@@ -438,12 +442,16 @@ class npc_twisted_visage : public CreatureScript
 
             void JustEngagedWith(Unit* who) override { }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 switch (spell->Id)
                 {
                     case SPELL_SUMMON_TWISTED_VISAGE_SPAWN:
-                        target->CastSpell(me, SPELL_SUMMON_TWISTED_VISAGE_SPAWN_EFFECT, true);
+                        unitTarget->CastSpell(me, SPELL_SUMMON_TWISTED_VISAGE_SPAWN_EFFECT, true);
                         break;
                 }
             }

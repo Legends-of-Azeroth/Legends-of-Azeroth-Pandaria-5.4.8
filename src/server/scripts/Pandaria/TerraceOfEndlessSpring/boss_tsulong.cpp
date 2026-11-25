@@ -182,20 +182,24 @@ class boss_tsulong : public CreatureScript
                 Reset();
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
                 switch (spell->Id)
                 {
                     case SPELL_NIGHTMARES:
-                        DoCast(target, SPELL_NIGHTMARES_EFF, true);
+                        DoCast(unitTarget, SPELL_NIGHTMARES_EFF, true);
                         break;
                     case SPELL_SUMMON_SHA_PERIODIC_EFF:
-                        DoCast(target, SPELL_SUMMON_SHA_MISSILE, true);
+                        DoCast(unitTarget, SPELL_SUMMON_SHA_MISSILE, true);
                         break;
                 }
             }
 
-            void SpellHit(Unit* , SpellInfo const* spell) override
+            void SpellHit(WorldObject* , SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_TERRORIZE_TSULONG)
                     Talk(EMOTE_TERRORIZE);
@@ -891,7 +895,7 @@ class npc_embodied_terror : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_TINY_TERROR_EFF)
                     for (int i = 0; i < 5; ++i)
@@ -1026,9 +1030,13 @@ class npc_unstable_sha : public CreatureScript
                 events.ScheduleEvent(1, urand(2000, 6000));
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
-                if (!cast && target == me && spell->Id == SPELL_INSTABILITY_TRANSFORM)
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (!unitTarget)
+                    return;
+
+                if (!cast && unitTarget == me && spell->Id == SPELL_INSTABILITY_TRANSFORM)
                     if (Unit* summoner = Unit::GetUnit(*me, summonerGUID))
                     {
                         DoCast(summoner, (summoner->GetFaction() == FACTION_DAY) ? SPELL_INSTABILITY_DAMAGE : SPELL_INSTABILITY_HEAL);

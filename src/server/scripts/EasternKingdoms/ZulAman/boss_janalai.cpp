@@ -419,7 +419,7 @@ class npc_janalai_egg : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_HATCH_EGG || spell->Id == SPELL_HATCH_ALL)
                 {
@@ -447,7 +447,7 @@ class npc_janalai_firebomb : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_FIRE_BOMB_THROW)
                 {

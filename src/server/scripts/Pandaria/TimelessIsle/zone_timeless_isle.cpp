@@ -2619,12 +2619,16 @@ struct npc_nice_sprite : public ScriptedAI
         events.Reset();
     }
 
-    void SpellHit(Unit* caster, const SpellInfo* spell) override
+    void SpellHit(WorldObject* caster, const SpellInfo* spell) override
     {
+                Unit* unitCaster = caster ? caster->ToUnit() : nullptr;
+                if (!unitCaster)
+                    return;
+
         if (spell->Id == SPELL_ASCENDANCE)
         {
             me->UpdateEntry(NPC_ANGRY_SPRITE);
-            me->Attack(caster, true);
+            me->Attack(unitCaster, true);
         }
     }
 

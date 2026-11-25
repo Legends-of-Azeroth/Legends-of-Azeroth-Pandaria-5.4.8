@@ -256,7 +256,7 @@ class npc_akmahat_fury_of_the_sands : public CreatureScript
                 DoCast(me, SPELL_FURY_OF_THE_SANDS_DUMMY, true);
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_FURY_OF_THE_SANDS)
                     me->DespawnOrUnsummon(1000);

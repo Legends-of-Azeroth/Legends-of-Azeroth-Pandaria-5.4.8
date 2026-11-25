@@ -1359,7 +1359,7 @@ struct npc_galakras_dragonmaw_bonecrusher : public ScriptedAI
         events.ScheduleEvent(EVENT_FRACTURE, urand(17 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
         if (!hasControll && spell->GetEffectMechanic(MECHANIC_STUN))
             hasControll = true;

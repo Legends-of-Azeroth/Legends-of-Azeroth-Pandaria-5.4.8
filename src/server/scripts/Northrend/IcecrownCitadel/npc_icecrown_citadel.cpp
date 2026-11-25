@@ -2270,7 +2270,7 @@ class npc_ymirjar_deathbringer_10man_icc : public CreatureScript
                     casterMovement.Chase(victim);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_SUMMON_YMIRJAR)
                     for (uint8 i = 0; i < 5; ++i)
@@ -2403,7 +2403,7 @@ class npc_ymirjar_frostbinder_icc : public CreatureScript
                     casterMovement.Chase(victim);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_FROZEN_ORB_PRIMER)
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))

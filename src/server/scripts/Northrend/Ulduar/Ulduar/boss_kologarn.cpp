@@ -527,7 +527,7 @@ class npc_focused_eyebeam : public CreatureScript
                     me->GetMotionMaster()->MoveChase(victim, 0.01f);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_FOCUSED_EYEBEAM_DAMAGE_10 || spell->Id == SPELL_FOCUSED_EYEBEAM_DAMAGE_25)
                     if (Creature* kologarn = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_KOLOGARN)))

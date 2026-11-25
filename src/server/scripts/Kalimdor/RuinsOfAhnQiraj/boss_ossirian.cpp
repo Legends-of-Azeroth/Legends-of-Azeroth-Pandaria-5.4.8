@@ -106,7 +106,7 @@ class boss_ossirian : public CreatureScript
                 CrystalGUID = ObjectGuid::Empty;
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
                 for (uint8 i = 0; i < NUM_WEAKNESS; ++i)
                 {

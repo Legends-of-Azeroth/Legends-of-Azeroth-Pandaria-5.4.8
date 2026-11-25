@@ -569,7 +569,7 @@ class boss_madness_of_deathwing : public CreatureScript
                 return 0;
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_AGONIZING_PAIN)
                 {
@@ -1962,7 +1962,7 @@ class npc_madness_of_deathwing_elementium_bolt : public CreatureScript
                 events.Reset();
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (!platform)
                     return;
@@ -2511,7 +2511,7 @@ class npc_dragon_soul_alexstrasza_dragon : public CreatureScript
                 return;
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_TRIGGER_CONCENTRATION)
                 {
@@ -2593,7 +2593,7 @@ class npc_dragon_soul_nozdormu_dragon : public CreatureScript
                 return;
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_TRIGGER_CONCENTRATION)
                 {
@@ -2677,7 +2677,7 @@ class npc_dragon_soul_ysera_dragon : public CreatureScript
                 return;
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_TRIGGER_CONCENTRATION)
                 {
@@ -2725,7 +2725,7 @@ class npc_dragon_soul_kalecgos_dragon : public CreatureScript
                 return;
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(WorldObject* /*caster*/, const SpellInfo* spell) override
             {
                 if (spell->Id == SPELL_TRIGGER_CONCENTRATION)
                 {

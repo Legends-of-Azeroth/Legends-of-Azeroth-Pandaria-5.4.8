@@ -681,14 +681,14 @@ void SmartAI::AttackStart(Unit* who)
     }
 }
 
-void SmartAI::SpellHit(Unit* unit, const SpellInfo* spellInfo)
+void SmartAI::SpellHit(WorldObject* unit, const SpellInfo* spellInfo)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT, unit, 0, 0, false, spellInfo);
+    GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT, unit ? unit->ToUnit() : nullptr, 0, 0, false, spellInfo);
 }
 
-void SmartAI::SpellHitTarget(Unit* target, const SpellInfo* spellInfo)
+void SmartAI::SpellHitTarget(WorldObject* target, const SpellInfo* spellInfo)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT_TARGET, target, 0, 0, false, spellInfo);
+    GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT_TARGET, target ? target->ToUnit() : nullptr, 0, 0, false, spellInfo);
 }
 
 void SmartAI::DamageTaken(Unit* doneBy, uint32& damage)
@@ -1088,7 +1088,12 @@ void SmartGameObjectAI::OnLootStateChanged(uint32 state, Unit* unit)
 
 void SmartGameObjectAI::EventInform(uint32 eventId)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_GO_EVENT_INFORM, NULL, eventId);
+    GetScript()->ProcessEventsFor(SMART_EVENT_GO_EVENT_INFORM, nullptr, eventId);
+}
+
+void SmartGameObjectAI::SpellHit(WorldObject* caster, SpellInfo const* spellInfo)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT, caster ? caster->ToUnit() : nullptr, 0, 0, false, spellInfo);
 }
 
 class SmartTrigger : public AreaTriggerScript

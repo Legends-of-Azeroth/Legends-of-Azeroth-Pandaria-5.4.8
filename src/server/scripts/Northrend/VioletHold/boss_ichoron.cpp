@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -182,7 +182,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*who*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*who*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_MERGE)
             {
@@ -392,7 +392,7 @@ class npc_ichor_globule : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_WATER_GLOBULE_VISUAL)
                 {
