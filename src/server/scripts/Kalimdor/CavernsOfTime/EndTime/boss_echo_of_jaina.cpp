@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 #include "end_time.h"
 
 enum Yells
@@ -370,22 +371,35 @@ class go_echo_of_jaina_jaina_staff_fragment : public GameObjectScript
     public:
         go_echo_of_jaina_jaina_staff_fragment() : GameObjectScript("go_echo_of_jaina_jaina_staff_fragment") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        
+        struct go_echo_of_jaina_jaina_staff_fragmentAI : public GameObjectAI
         {
-            if (go->HasFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE))
-                return true;
+            go_echo_of_jaina_jaina_staff_fragmentAI(GameObject* go) : GameObjectAI(go) { }
 
-            InstanceScript* instance = go->GetInstanceScript();
-            if (!instance)
-                return true;
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
 
-            if (Creature* pJaina = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_ECHO_OF_JAINA)))
-                pJaina->AI()->DoAction(ACTION_FRAGMENTS);
+                if (me->HasFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE))
+                    return true;
+
+                InstanceScript* instance = me->GetInstanceScript();
+                if (!instance)
+                    return true;
+
+                if (Creature* pJaina = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ECHO_OF_JAINA)))
+                    pJaina->AI()->DoAction(ACTION_FRAGMENTS);
  
-            go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
-            go->SetPhaseMask(256, true);
-            go->SetGoState(GO_STATE_ACTIVE);
-            return true;
+                me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
+                me->SetPhaseMask(256, true);
+                me->SetGoState(GO_STATE_ACTIVE);
+                return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_echo_of_jaina_jaina_staff_fragmentAI(go);
         }
 };
 

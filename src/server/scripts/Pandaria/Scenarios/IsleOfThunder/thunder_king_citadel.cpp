@@ -16,6 +16,7 @@
 */
 
 #include "thunder_king_citadel.h"
+#include "GameObjectAI.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
@@ -395,34 +396,51 @@ class npc_thunder_king_treasure_taoshi : public CreatureScript
     public:
         npc_thunder_king_treasure_taoshi() : CreatureScript("npc_thunder_king_treasure_taoshi") { }
     
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
     
-            if (action == GOSSIP_ACTION_INFO_DEF + 1 && player->GetInstanceScript())
+    
+        
+        struct npc_thunder_king_treasure_taoshiAI : public ScriptedAI
+        {
+            npc_thunder_king_treasure_taoshiAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
             {
-                player->GetInstanceScript()->SetData(DATA_SPEAK_WITH_TAOSHI, DONE);
-                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-                // Timer
-                player->CastSpell(player, SPELL_THROVES_OF_THE_THUNDER_KING, true);
-                creature->CastSpell(player, SPELL_LIMITED_TIME, true);
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
             }
-    
-            player->CLOSE_GOSSIP_MENU();
-    
-            return true;
-        }
-    
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
 
-            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        player->PlayerTalkClass->ClearMenus();
     
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1 && player->GetInstanceScript())
+                        {
+                            player->GetInstanceScript()->SetData(DATA_SPEAK_WITH_TAOSHI, DONE);
+                            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+                            // Timer
+                            player->CastSpell(player, SPELL_THROVES_OF_THE_THUNDER_KING, true);
+                            me->CastSpell(player, SPELL_LIMITED_TIME, true);
+                        }
+    
+                        player->CLOSE_GOSSIP_MENU();
+    
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_thunder_king_treasure_taoshiAI(creature);
         }
 };
 
@@ -432,32 +450,49 @@ class npc_thunder_king_treasure_taoshi_queue : public CreatureScript
     public:
         npc_thunder_king_treasure_taoshi_queue() : CreatureScript("npc_thunder_king_treasure_taoshi_queue") { }
     
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    
+    
+        
+        struct npc_thunder_king_treasure_taoshi_queueAI : public ScriptedAI
         {
-            player->PlayerTalkClass->ClearMenus();
-    
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                lfg::LfgDungeonSet scenario = { 620 };
-                sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
-                player->DestroyItemCount(94222, 1, true);
-            }
-    
-            player->CLOSE_GOSSIP_MENU();
-    
-            return true;
-        }
-    
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
+            npc_thunder_king_treasure_taoshi_queueAI(Creature* creature) : ScriptedAI(creature) { }
 
-            if (player->HasItemCount(94222) && !player->GetGroup() && !player->IsUsingLfg())
-                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                if (player->HasItemCount(94222) && !player->GetGroup() && !player->IsUsingLfg())
+                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
     
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+    
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            lfg::LfgDungeonSet scenario = { 620 };
+                            sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
+                            player->DestroyItemCount(94222, 1, true);
+                        }
+    
+                        player->CLOSE_GOSSIP_MENU();
+    
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_thunder_king_treasure_taoshi_queueAI(creature);
         }
 };
 
@@ -507,23 +542,40 @@ class npc_thunder_king_treasure_tenwu_of_the_red_smoke : public CreatureScript
     public:
         npc_thunder_king_treasure_tenwu_of_the_red_smoke() : CreatureScript("npc_thunder_king_treasure_tenwu_of_the_red_smoke") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    
+
+        
+        struct npc_thunder_king_treasure_tenwu_of_the_red_smokeAI : public ScriptedAI
         {
-            player->PlayerTalkClass->ClearMenus();
+            npc_thunder_king_treasure_tenwu_of_the_red_smokeAI(Creature* creature) : ScriptedAI(creature) { }
 
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                player->CastSpell(player, SPELL_TENWU_EXIT_TRIGGERED_CREDIT, true);
+            bool OnGossipHello(Player* player) override
+            {
 
-            player->CLOSE_GOSSIP_MENU();
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I`m ready to leave. Let`s get our of here.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1); // hasn`t gossip info in sniffs
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
 
-            return true;
-        }
+                        player->PlayerTalkClass->ClearMenus();
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            player->CastSpell(player, SPELL_TENWU_EXIT_TRIGGERED_CREDIT, true);
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I`m ready to leave. Let`s get our of here.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1); // hasn`t gossip info in sniffs
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
+            return new npc_thunder_king_treasure_tenwu_of_the_red_smokeAI(creature);
         }
 };
 
@@ -533,55 +585,72 @@ class go_thunder_king_treasure_lever : public GameObjectScript
     public:
         go_thunder_king_treasure_lever() : GameObjectScript("go_thunder_king_treasure_lever") { }
     
-        void OnGameObjectStateChanged(GameObject* go, uint32 state) override
+                struct go_thunder_king_treasure_leverAI : public GameObjectAI
         {
-            if (state == GO_STATE_ACTIVE && go->GetInstanceScript())
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_LEVER_1:
-                        go->GetInstanceScript()->SetData(DATA_OPEN_FIRST_DOOR_PACK, DONE);
-                        break;
-                    case GO_LEVER_2:
-                        go->GetInstanceScript()->SetData(DATA_OPEN_SECOND_DOOR_PACK, DONE);
-                        break;
-                }
+            go_thunder_king_treasure_leverAI(GameObject* go) : GameObjectAI(go) { }
 
-                go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+    void OnStateChanged(uint32 state) override {
+                if (state == GO_STATE_ACTIVE && me->GetInstanceScript())
+                {
+                    switch (me->GetEntry())
+                    {
+                        case GO_LEVER_1:
+                            me->GetInstanceScript()->SetData(DATA_OPEN_FIRST_DOOR_PACK, DONE);
+                            break;
+                        case GO_LEVER_2:
+                            me->GetInstanceScript()->SetData(DATA_OPEN_SECOND_DOOR_PACK, DONE);
+                            break;
+                    }
+
+                    me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+                }
             }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_thunder_king_treasure_leverAI(go);
         }
+
 };
 
 // Mogu Treasure Chest 218757, 218772
 class go_thunder_king_treasure_mogu_chest : public GameObjectScript
 {
     public:
-        go_thunder_king_treasure_mogu_chest() : GameObjectScript("go_thunder_king_treasure_mogu_chest") 
+        go_thunder_king_treasure_mogu_chest() : GameObjectScript("go_thunder_king_treasure_mogu_chest") { }
+
+        struct go_thunder_king_treasure_mogu_chestAI : public GameObjectAI
         {
-            chestGUIDs.clear();
-        }
-    
-        void OnLootStateChanged(GameObject* go, uint32 state, Unit* unit) override
-        {
-            if (state == GO_ACTIVATED && unit)
+            go_thunder_king_treasure_mogu_chestAI(GameObject* go) : GameObjectAI(go) { }
+
+            void OnLootStateChanged(uint32 state, Unit* unit) override
             {
-                if (std::find(chestGUIDs.begin(), chestGUIDs.end(), go->GetGUID()) != chestGUIDs.end())
-                    return;
-
-                chestGUIDs.push_back(go->GetGUID());
-                
-                if (unit->GetInstanceScript())
+                if (state == GO_ACTIVATED && unit)
                 {
-                    unit->GetInstanceScript()->SetData(CHEST_DATA, go->GetEntry() == GO_MOGU_GOLDEN_TREASURE_CHEST ? 10 : 5);
+                    if (std::find(chestGUIDs.begin(), chestGUIDs.end(), me->GetGUID()) != chestGUIDs.end())
+                        return;
 
-                    if (go->GetEntry() == GO_MOGU_GOLDEN_TREASURE_CHEST)
-                        unit->GetInstanceScript()->SetData(GOLDEN_CHEST_DATA, 1);
+                    chestGUIDs.push_back(me->GetGUID());
+
+                    if (unit->GetInstanceScript())
+                    {
+                        unit->GetInstanceScript()->SetData(CHEST_DATA, me->GetEntry() == GO_MOGU_GOLDEN_TREASURE_CHEST ? 10 : 5);
+
+                        if (me->GetEntry() == GO_MOGU_GOLDEN_TREASURE_CHEST)
+                            unit->GetInstanceScript()->SetData(GOLDEN_CHEST_DATA, 1);
+                    }
                 }
             }
+
+            private:
+                std::list<uint64> chestGUIDs;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_thunder_king_treasure_mogu_chestAI(go);
         }
-    
-        private:
-            std::list<uint64> chestGUIDs;
 };
 
 // Rune Trap 139798

@@ -29,48 +29,68 @@ class npc_master_shang_xi_temple : public CreatureScript
     public:
         npc_master_shang_xi_temple() : CreatureScript("npc_master_shang_xi_temple") { }
 
-        bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
+        
+
+        
+
+    
+        struct npc_master_shang_xi_templeAI : public ScriptedAI
         {
-            if (quest->GetQuestId() == 29776) // Morning Breeze Village
+            npc_master_shang_xi_templeAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void OnQuestAccept(Player* player, Quest const* quest) override
             {
-                if (Creature* vehicle = player->SummonCreature(55685, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
+
+                if (quest->GetQuestId() == 29776) // Morning Breeze Village
                 {
-                    player->AddAura(99385, vehicle);
-                    player->EnterVehicle(vehicle);
+                    if (Creature* vehicle = player->SummonCreature(55685, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
+                    {
+                        player->AddAura(99385, vehicle);
+                        player->EnterVehicle(vehicle);
+                    }
                 }
+
+                return;
+        
             }
-
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-
-            if (player->GetQuestStatus(29776) != QUEST_STATUS_NONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WIND, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            player->PlayerTalkClass->SendGossipMenu(1, creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
-        {
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                    bool OnGossipHello(Player* player) override
             {
-                /* The vehicle bug for now on TaranZhu, too much lags
-                 *if (Creature* vehicle = player->SummonCreature(55685, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
-                {
-                    player->AddAura(99385, vehicle);
-                    player->EnterVehicle(vehicle);
-                }*/
 
-                player->NearTeleportTo(926.58f, 3605.33f, 251.63f, 3.114f);
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                if (player->GetQuestStatus(29776) != QUEST_STATUS_NONE)
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WIND, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                player->PlayerTalkClass->SendGossipMenu(1, me->GetGUID());
+                return true;
+        
             }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
 
-            player->PlayerTalkClass->SendCloseGossip();
-            return true;
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            /* The vehicle bug for now on TaranZhu, too much lags
+                             *if (Creature* vehicle = player->SummonCreature(55685, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
+                            {
+                                player->AddAura(99385, vehicle);
+                                player->EnterVehicle(vehicle);
+                            }*/
+
+                            player->NearTeleportTo(926.58f, 3605.33f, 251.63f, 3.114f);
+                        }
+
+                        player->PlayerTalkClass->SendCloseGossip();
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_master_shang_xi_templeAI(creature);
         }
 };
 
@@ -285,24 +305,37 @@ class npc_aysa_in_wind_temple : public CreatureScript
     public:
         npc_aysa_in_wind_temple() : CreatureScript("npc_aysa_in_wind_temple") { }
 
-        bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
+        
+        struct npc_aysa_in_wind_templeAI : public ScriptedAI
         {
-            if (quest->GetQuestId() == 29786) // Bataille Pyrotechnique
+            npc_aysa_in_wind_templeAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void OnQuestAccept(Player* player, Quest const* quest) override
             {
-                if (Creature* aysa = player->SummonCreature(64543, 543.94f, 4317.31f, 212.24f, 1.675520f, TEMPSUMMON_TIMED_DESPAWN, 10000ms))
+
+                if (quest->GetQuestId() == 29786) // Bataille Pyrotechnique
                 {
-                    aysa->SetExplicitSeerGuid(player->GetGUID());
-                    aysa->GetMotionMaster()->MovePoint(1, 643.45f, 4228.66f, 202.90f);
+                    if (Creature* aysa = player->SummonCreature(64543, 543.94f, 4317.31f, 212.24f, 1.675520f, TEMPSUMMON_TIMED_DESPAWN, 10000ms))
+                    {
+                        aysa->SetExplicitSeerGuid(player->GetGUID());
+                        aysa->GetMotionMaster()->MovePoint(1, 643.45f, 4228.66f, 202.90f);
+                    }
+
+                    if (Creature* dafeng = player->SummonCreature(64532, 543.56f, 4320.97f, 212.24f, 5.445430f, TEMPSUMMON_TIMED_DESPAWN, 10000ms))
+                    {
+                        dafeng->SetExplicitSeerGuid(player->GetGUID());
+                        dafeng->GetMotionMaster()->MovePoint(1, 643.45f, 4228.66f, 202.90f);
+                    }
                 }
 
-                if (Creature* dafeng = player->SummonCreature(64532, 543.56f, 4320.97f, 212.24f, 5.445430f, TEMPSUMMON_TIMED_DESPAWN, 10000ms))
-                {
-                    dafeng->SetExplicitSeerGuid(player->GetGUID());
-                    dafeng->GetMotionMaster()->MovePoint(1, 643.45f, 4228.66f, 202.90f);
-                }
+                return;
+        
             }
+        };
 
-            return true;
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_aysa_in_wind_templeAI(creature);
         }
 };
 
@@ -566,18 +599,31 @@ class npc_master_shang_xi_after_zhao : public CreatureScript
     public:
         npc_master_shang_xi_after_zhao() : CreatureScript("npc_master_shang_xi_after_zhao") { }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+        
+        struct npc_master_shang_xi_after_zhaoAI : public ScriptedAI
         {
-            if (quest->GetQuestId() == 29787) // Worthy of Passing
-            {
-                if (Creature* master = player->SummonCreature(56159, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0ms))
-                {
-                    master->SetExplicitSeerGuid(player->GetGUID());
-                    master->AI()->SetGUID(player->GetGUID());
-                }
-            }
+            npc_master_shang_xi_after_zhaoAI(Creature* creature) : ScriptedAI(creature) { }
 
-            return true;
+            void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == 29787) // Worthy of Passing
+                {
+                    if (Creature* master = player->SummonCreature(56159, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0ms))
+                    {
+                        master->SetExplicitSeerGuid(player->GetGUID());
+                        master->AI()->SetGUID(player->GetGUID());
+                    }
+                }
+
+                return;
+        
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_master_shang_xi_after_zhaoAI(creature);
         }
 };
 
@@ -700,18 +746,31 @@ class npc_master_shang_xi_thousand_staff : public CreatureScript
     public:
         npc_master_shang_xi_thousand_staff() : CreatureScript("npc_master_shang_xi_thousand_staff") { }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+        
+        struct npc_master_shang_xi_thousand_staffAI : public ScriptedAI
         {
-            if (quest->GetQuestId() == 29790) // Passing Wisdom
-            {
-                if (Creature* master = player->SummonCreature(56686, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0ms))
-                {
-                    master->SetExplicitSeerGuid(player->GetGUID());
-                    master->AI()->SetGUID(player->GetGUID());
-                }
-            }
+            npc_master_shang_xi_thousand_staffAI(Creature* creature) : ScriptedAI(creature) { }
 
-            return true;
+            void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == 29790) // Passing Wisdom
+                {
+                    if (Creature* master = player->SummonCreature(56686, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0ms))
+                    {
+                        master->SetExplicitSeerGuid(player->GetGUID());
+                        master->AI()->SetGUID(player->GetGUID());
+                    }
+                }
+
+                return;
+        
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_master_shang_xi_thousand_staffAI(creature);
         }
 };
 
@@ -1113,15 +1172,7 @@ class mob_aisa_pre_balon_event : public CreatureScript
 public:
     mob_aisa_pre_balon_event() : CreatureScript("mob_aisa_pre_balon_event") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == 29791)
-            sCreatureTextMgr->SendChat(creature, 1);
-
-        creature->CastSpell(player, 95247, true);
-        player->CastSpell(player, 95247, true);
-        return true;
-    }
+    
 
     struct mob_aisa_pre_balon_eventAI : public ScriptedAI
     {
@@ -1191,7 +1242,18 @@ public:
                 }
             }
         }
-    };
+                void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+            if (quest->GetQuestId() == 29791)
+                sCreatureTextMgr->SendChat(me, 1);
+
+            me->CastSpell(player, 95247, true);
+            player->CastSpell(player, 95247, true);
+            return;
+    
+            }
+        };
 
     CreatureAI* GetAI(Creature* creature) const override
     {

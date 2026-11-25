@@ -576,243 +576,9 @@ class npc_q29982 : public CreatureScript
     public:
         npc_q29982() : CreatureScript("npc_q29982") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (player->GetQuestStatus(29982) == QUEST_STATUS_INCOMPLETE)
-            {
-                if ((creature->GetEntry() == NPC_WEI_BLACKSOIL     && creature->AI()->GetData(DATA_AMBUSHED) == 0  && !player->GetQuestObjectiveCounter(252177)) ||
-                    ((creature->GetEntry() == NPC_FENG_SPADEPAW    || creature->GetEntry() == NPC_SHU_LI_SPADEPAW) && !player->GetQuestObjectiveCounter(252178)) ||
-                    ((creature->GetEntry() == NPC_HAIYUN_GREENTILL || creature->GetEntry() == NPC_YING_GRENNTILL)  && !player->GetQuestObjectiveCounter(252179)) ||
-                    ((creature->GetEntry() == NPC_ZHANG_MARLFUR    || creature->GetEntry() == NPC_MIA_MARLFUR)     && !player->GetQuestObjectiveCounter(252180)))
-                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        
 
-                if (creature->GetEntry() == NPC_WEI_BLACKSOIL && creature->AI()->GetData(DATA_AMBUSHED) == 1 && !player->GetQuestObjectiveCounter(252177))
-                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            }
-
-            if (creature->GetEntry() == NPC_WEI_BLACKSOIL && creature->AI()->GetData(DATA_AMBUSHED) == 0)
-                player->SEND_GOSSIP_MENU(18832, creature->GetGUID());
-            else if (creature->GetEntry() == NPC_WEI_BLACKSOIL && creature->AI()->GetData(DATA_AMBUSHED) == 1)
-                player->SEND_GOSSIP_MENU(18833, creature->GetGUID());
-            else
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->CLOSE_GOSSIP_MENU();
-
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                ObjectGuid playerGuid = player->GetGUID();
-                uint32 delay = 0;
-                switch (creature->GetEntry())
-                {
-                    case NPC_WEI_BLACKSOIL:
-                    {
-                        Creature* wei = creature->GetEntry() == NPC_WEI_BLACKSOIL ? creature : creature->FindNearestCreature(NPC_WEI_BLACKSOIL, 10.0f, true);
-                        if (!wei)
-                            break;
-
-                        wei->AI()->Talk(0);
-                        wei->m_Events.Schedule(delay += 3000, [wei, playerGuid]()
-                        {
-                            wei->AI()->Talk(1);
-                            if (Creature* creat = wei->SummonCreature(NPC_IKTHIK_AMBUSHER, -318.643f, 2377.642f, 140.410f, 2.3762f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms))
-                                if (Player* player = ObjectAccessor::GetPlayer(*wei, playerGuid))
-                                    creat->AI()->AttackStart(player);
-                        });
-                        break;
-                    }
-                    case NPC_FENG_SPADEPAW:
-                    case NPC_SHU_LI_SPADEPAW:
-                    {
-                        player->KilledMonsterCredit(NPC_FENG_SPADEPAW);
-                        Creature* feng = creature->GetEntry() == NPC_FENG_SPADEPAW ? creature : creature->FindNearestCreature(NPC_FENG_SPADEPAW, 10.0f, true);
-                        if (!feng)
-                            break;
-                        Creature* shuLi = creature->GetEntry() == NPC_SHU_LI_SPADEPAW ? creature : creature->FindNearestCreature(NPC_SHU_LI_SPADEPAW, 10.0f, true);
-                        if (!shuLi)
-                            break;
-
-                        shuLi->AI()->Talk(0);
-                        shuLi->m_Events.Schedule(delay += 5000, [shuLi]() { shuLi->AI()->Talk(1); });
-                        feng->m_Events.Schedule(delay += 5000, [feng, playerGuid]() { if (Player* player = ObjectAccessor::GetPlayer(*feng, playerGuid)) feng->AI()->Talk(0, player); });
-                        break;
-                    }
-                    case NPC_HAIYUN_GREENTILL:
-                    case NPC_YING_GRENNTILL:
-                    {
-                        player->KilledMonsterCredit(NPC_HAIYUN_GREENTILL);
-                        Creature* haiyun = creature->GetEntry() == NPC_HAIYUN_GREENTILL ? creature : creature->FindNearestCreature(NPC_HAIYUN_GREENTILL, 10.0f, true);
-                        if (!haiyun)
-                            break;
-                        Creature* ying = creature->GetEntry() == NPC_YING_GRENNTILL ? creature : creature->FindNearestCreature(NPC_YING_GRENNTILL, 10.0f, true);
-                        if (!ying)
-                            break;
-                        Creature* huizhong = creature->FindNearestCreature(NPC_HUIZHONG_GRENNTILL, 20.0f, true);
-                        if (!huizhong)
-                            break;
-
-                        ying->CastSpell(ying->GetPosition(), SPELL_SUMMON_YING);
-                        haiyun->CastSpell(haiyun->GetPosition(), SPELL_SUMMON_YOON);
-                        huizhong->CastSpell(huizhong->GetPosition(), SPELL_SUMMON_HUIZHONG);
-                        ying->SetVisible(false);
-                        haiyun->SetVisible(false);
-                        huizhong->SetVisible(false);
-
-                        //Creature* yingSum = ying->FindNearestCreature(NPC_YING_GRENNTILL_SUM, 10.0f, true);
-                        Creature* yingSum = ying->SummonCreature(NPC_YING_GRENNTILL_SUM, ying->GetPosition());
-                        if (!yingSum)
-                            break;
-                        Creature* haiyunSum = haiyun->SummonCreature(NPC_HAIYUN_GREENTILL_SUM, haiyun->GetPosition());
-                        //Creature* haiyunSum = haiyun->FindNearestCreature(NPC_HAIYUN_GREENTILL_SUM, 10.0f, true);
-                        if (!haiyunSum)
-                            break;
-                        Creature* huizhongSum = huizhong->SummonCreature(NPC_HUIZHONG_GRENNTILL_SUM, huizhong->GetPosition());
-                        //Creature* huizhongSum = huizhong->FindNearestCreature(NPC_HUIZHONG_GRENNTILL_SUM, 10.0f, true);
-                        if (!huizhongSum)
-                            break;
-
-                        haiyunSum->SetFacingToObject(player);
-                        haiyunSum->AI()->Talk(0);
-
-                        ObjectGuid haiyunGuid = haiyun->GetGUID();
-                        ObjectGuid yingGuid = ying->GetGUID();
-                        ObjectGuid huizhongGuid = huizhong->GetGUID();
-                        ObjectGuid yingSumGuid = yingSum->GetGUID();
-                        ObjectGuid haiyunSumGuid = haiyunSum->GetGUID();
-                        ObjectGuid huizhongSumGuid = huizhongSum->GetGUID();
-
-                        haiyunSum->m_Events.Schedule(delay += 3000, [haiyunSum, huizhongSumGuid, yingSumGuid]()
-                        {
-                            haiyunSum->AI()->Talk(1);
-                            if (Creature* yingSum = ObjectAccessor::GetCreature(*haiyunSum, yingSumGuid))
-                                haiyunSum->SetFacingToObject(yingSum);
-                            if (Creature* huizhongSum = ObjectAccessor::GetCreature(*haiyunSum, huizhongSumGuid))
-                                huizhongSum->GetMotionMaster()->MovePoint(0, -374.923f, 2051.632f, 126.114f);
-                        });
-                        yingSum->m_Events.Schedule(delay += 3000, [yingSum]()
-                        {
-                            yingSum->AI()->Talk(0);
-                        });
-                        huizhongSum->m_Events.Schedule(delay += 3000, [huizhongSum, playerGuid]()
-                        {
-                            if (Player* player = ObjectAccessor::GetPlayer(*huizhongSum, playerGuid))
-                                huizhongSum->AI()->Talk(0, player);
-                        });
-                        haiyunSum->m_Events.Schedule(delay += 3000, [haiyunSum]()
-                        {
-                            haiyunSum->AI()->Talk(2);
-                        });
-                        haiyunSum->m_Events.Schedule(delay += 3000, [haiyunSum, playerGuid]()
-                        {
-                            if (Player* player = ObjectAccessor::GetPlayer(*haiyunSum, playerGuid))
-                                haiyunSum->SetFacingToObject(player);
-                            haiyunSum->AI()->Talk(3);
-                        });
-                        haiyunSum->m_Events.Schedule(delay += 3000, [haiyunSum, yingSumGuid]()
-                        {
-                            haiyunSum->GetMotionMaster()->MovePoint(0, -369.885f, 2013.500f, 125.777f);
-                            if (Creature* yingSum = ObjectAccessor::GetCreature(*haiyunSum, yingSumGuid))
-                                yingSum->GetMotionMaster()->MovePoint(0, -369.963f, 2007.283f, 125.334f);
-                        });
-                        huizhongSum->m_Events.Schedule(delay += 1000, [huizhongSum]()
-                        {
-                            huizhongSum->GetMotionMaster()->MovePoint(0, -366.897f, 1996.729f, 125.218f);
-                        });
-                        huizhongSum->m_Events.Schedule(delay += 10000, [haiyunSumGuid, yingSumGuid, huizhongSum, yingGuid, haiyunGuid, huizhongGuid]()
-                        {
-                            if (Creature* ying = ObjectAccessor::GetCreature(*huizhongSum, yingGuid))
-                                ying->SetVisible(true);
-                            if (Creature* haiyun = ObjectAccessor::GetCreature(*huizhongSum, haiyunGuid))
-                                haiyun->SetVisible(true);
-                            if (Creature* huizhong = ObjectAccessor::GetCreature(*huizhongSum, huizhongGuid))
-                                huizhong->SetVisible(true);
-                            if (Creature* haiyunSum = ObjectAccessor::GetCreature(*huizhongSum, haiyunSumGuid))
-                                haiyunSum->DespawnOrUnsummon();
-                            if (Creature* yingSum = ObjectAccessor::GetCreature(*huizhongSum, yingSumGuid))
-                                yingSum->DespawnOrUnsummon();
-                            huizhongSum->DespawnOrUnsummon();
-                        });
-                        break;
-                    }
-                    case NPC_ZHANG_MARLFUR:
-                    case NPC_MIA_MARLFUR:
-                    {
-                        Creature* zhang = creature->GetEntry() == NPC_ZHANG_MARLFUR ? creature : creature->FindNearestCreature(NPC_ZHANG_MARLFUR, 10.0f, true);
-                        if (!zhang)
-                            break;
-
-                        player->CastSpell(zhang, SPELL_SUMMON_ZHANG);
-                        zhang->SetVisible(false);
-
-                        Creature* zhangSum = zhang->FindNearestCreature(NPC_ZHANG_MARLFUR_SUM, 10.0f, true);
-                        if (!zhangSum)
-                            break;
-
-                        zhangSum->AI()->Talk(0);
-                        zhangSum->m_Events.Schedule(delay += 5000, [zhangSum, playerGuid]()
-                        {
-                            if (Player* player = ObjectAccessor::GetPlayer(*zhangSum, playerGuid))
-                            {
-                                zhangSum->SetFacingToObject(player);
-                                zhangSum->AI()->Talk(1, player);
-                            }
-                        });
-                        zhangSum->m_Events.Schedule(delay += 3000, [zhangSum]()
-                        {
-                            zhangSum->GetMotionMaster()->MovePoint(0, -335.536f, 2069.130f, 119.780f);
-                            zhangSum->AI()->Talk(2);
-                        });
-                        zhangSum->m_Events.Schedule(delay += 3000, [zhangSum, playerGuid]()
-                        {
-                            zhangSum->AI()->Talk(3);
-                            if (Player* player = ObjectAccessor::GetPlayer(*zhangSum, playerGuid))
-                                zhangSum->SetFacingToObject(player);
-                        });
-                        zhangSum->m_Events.Schedule(delay += 3000, [zhangSum]()
-                        {
-                            zhangSum->AI()->Talk(4);
-                        });
-                        zhangSum->m_Events.Schedule(delay += 1000, [zhangSum, zhang]()
-                        {
-                            zhangSum->GetMotionMaster()->MovePoint(0, zhang->GetPosition());
-                        });
-                        zhangSum->m_Events.Schedule(delay += 2000, [zhangSum, zhang]()
-                        {
-                            zhang->SetVisible(true);
-                            zhangSum->DespawnOrUnsummon();
-                        });
-                        break;
-                    }
-                }
-            }
-            else if (action == GOSSIP_ACTION_INFO_DEF + 2)
-            {
-                player->KilledMonsterCredit(NPC_WEI_BLACKSOIL);
-
-                creature->CastSpell(creature, SPELL_SUMMON_WEI_BLACKSOIL);
-                creature->SetVisible(false);
-
-                //Creature* weiSum = creature->FindNearestCreature(NPC_WEI_BLACKSOIL_SUM, 10.0f, true);
-                Creature* weiSum = creature->SummonCreature(NPC_WEI_BLACKSOIL_SUM, creature->GetPosition());
-                if (!weiSum)
-                    return false;
-
-                weiSum->SetFacingToObject(player);
-                weiSum->AI()->Talk(0);
-
-                uint32 delay = 0;
-                weiSum->m_Events.Schedule(delay += 3000, [weiSum]() { weiSum->GetMotionMaster()->MovePoint(0, -326.190f, 2393.927f, 140.406f); });
-                weiSum->m_Events.Schedule(delay += 3000, [weiSum]() { weiSum->GetMotionMaster()->MovePoint(0, -309.222f, 2400.113f, 140.223f); });
-                weiSum->m_Events.Schedule(delay += 3000, [weiSum]() { weiSum->DespawnOrUnsummon(); });
-                creature->m_Events.Schedule(delay += 10000, [creature]() { creature->SetVisible(true); creature->AI()->SetData(DATA_AMBUSHED, 0); });
-            }
-
-            return false;
-        }
+    
 
         struct npc_q29982AI : public ScriptedAI
         {
@@ -887,7 +653,248 @@ class npc_q29982 : public CreatureScript
 
         private:
             bool _ambushed = false;
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (player->GetQuestStatus(29982) == QUEST_STATUS_INCOMPLETE)
+                {
+                    if ((me->GetEntry() == NPC_WEI_BLACKSOIL     && me->AI()->GetData(DATA_AMBUSHED) == 0  && !player->GetQuestObjectiveCounter(252177)) ||
+                        ((me->GetEntry() == NPC_FENG_SPADEPAW    || me->GetEntry() == NPC_SHU_LI_SPADEPAW) && !player->GetQuestObjectiveCounter(252178)) ||
+                        ((me->GetEntry() == NPC_HAIYUN_GREENTILL || me->GetEntry() == NPC_YING_GRENNTILL)  && !player->GetQuestObjectiveCounter(252179)) ||
+                        ((me->GetEntry() == NPC_ZHANG_MARLFUR    || me->GetEntry() == NPC_MIA_MARLFUR)     && !player->GetQuestObjectiveCounter(252180)))
+                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                    if (me->GetEntry() == NPC_WEI_BLACKSOIL && me->AI()->GetData(DATA_AMBUSHED) == 1 && !player->GetQuestObjectiveCounter(252177))
+                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                }
+
+                if (me->GetEntry() == NPC_WEI_BLACKSOIL && me->AI()->GetData(DATA_AMBUSHED) == 0)
+                    player->SEND_GOSSIP_MENU(18832, me->GetGUID());
+                else if (me->GetEntry() == NPC_WEI_BLACKSOIL && me->AI()->GetData(DATA_AMBUSHED) == 1)
+                    player->SEND_GOSSIP_MENU(18833, me->GetGUID());
+                else
+                    player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            ObjectGuid playerGuid = player->GetGUID();
+                            uint32 delay = 0;
+                            switch (me->GetEntry())
+                            {
+                                case NPC_WEI_BLACKSOIL:
+                                {
+                                    Creature* wei = me->GetEntry() == NPC_WEI_BLACKSOIL ? me : me->FindNearestCreature(NPC_WEI_BLACKSOIL, 10.0f, true);
+                                    if (!wei)
+                                        break;
+
+                                    wei->AI()->Talk(0);
+                                    wei->m_Events.Schedule(delay += 3000, [wei, playerGuid]()
+                                    {
+                                        wei->AI()->Talk(1);
+                                        if (Creature* creat = wei->SummonCreature(NPC_IKTHIK_AMBUSHER, -318.643f, 2377.642f, 140.410f, 2.3762f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000ms))
+                                            if (Player* player = ObjectAccessor::GetPlayer(*wei, playerGuid))
+                                                creat->AI()->AttackStart(player);
+                                    });
+                                    break;
+                                }
+                                case NPC_FENG_SPADEPAW:
+                                case NPC_SHU_LI_SPADEPAW:
+                                {
+                                    player->KilledMonsterCredit(NPC_FENG_SPADEPAW);
+                                    Creature* feng = me->GetEntry() == NPC_FENG_SPADEPAW ? me : me->FindNearestCreature(NPC_FENG_SPADEPAW, 10.0f, true);
+                                    if (!feng)
+                                        break;
+                                    Creature* shuLi = me->GetEntry() == NPC_SHU_LI_SPADEPAW ? me : me->FindNearestCreature(NPC_SHU_LI_SPADEPAW, 10.0f, true);
+                                    if (!shuLi)
+                                        break;
+
+                                    shuLi->AI()->Talk(0);
+                                    shuLi->m_Events.Schedule(delay += 5000, [shuLi]() { shuLi->AI()->Talk(1); });
+                                    feng->m_Events.Schedule(delay += 5000, [feng, playerGuid]() { if (Player* player = ObjectAccessor::GetPlayer(*feng, playerGuid)) feng->AI()->Talk(0, player); });
+                                    break;
+                                }
+                                case NPC_HAIYUN_GREENTILL:
+                                case NPC_YING_GRENNTILL:
+                                {
+                                    player->KilledMonsterCredit(NPC_HAIYUN_GREENTILL);
+                                    Creature* haiyun = me->GetEntry() == NPC_HAIYUN_GREENTILL ? me : me->FindNearestCreature(NPC_HAIYUN_GREENTILL, 10.0f, true);
+                                    if (!haiyun)
+                                        break;
+                                    Creature* ying = me->GetEntry() == NPC_YING_GRENNTILL ? me : me->FindNearestCreature(NPC_YING_GRENNTILL, 10.0f, true);
+                                    if (!ying)
+                                        break;
+                                    Creature* huizhong = me->FindNearestCreature(NPC_HUIZHONG_GRENNTILL, 20.0f, true);
+                                    if (!huizhong)
+                                        break;
+
+                                    ying->CastSpell(ying->GetPosition(), SPELL_SUMMON_YING);
+                                    haiyun->CastSpell(haiyun->GetPosition(), SPELL_SUMMON_YOON);
+                                    huizhong->CastSpell(huizhong->GetPosition(), SPELL_SUMMON_HUIZHONG);
+                                    ying->SetVisible(false);
+                                    haiyun->SetVisible(false);
+                                    huizhong->SetVisible(false);
+
+                                    //Creature* yingSum = ying->FindNearestCreature(NPC_YING_GRENNTILL_SUM, 10.0f, true);
+                                    Creature* yingSum = ying->SummonCreature(NPC_YING_GRENNTILL_SUM, ying->GetPosition());
+                                    if (!yingSum)
+                                        break;
+                                    Creature* haiyunSum = haiyun->SummonCreature(NPC_HAIYUN_GREENTILL_SUM, haiyun->GetPosition());
+                                    //Creature* haiyunSum = haiyun->FindNearestCreature(NPC_HAIYUN_GREENTILL_SUM, 10.0f, true);
+                                    if (!haiyunSum)
+                                        break;
+                                    Creature* huizhongSum = huizhong->SummonCreature(NPC_HUIZHONG_GRENNTILL_SUM, huizhong->GetPosition());
+                                    //Creature* huizhongSum = huizhong->FindNearestCreature(NPC_HUIZHONG_GRENNTILL_SUM, 10.0f, true);
+                                    if (!huizhongSum)
+                                        break;
+
+                                    haiyunSum->SetFacingToObject(player);
+                                    haiyunSum->AI()->Talk(0);
+
+                                    ObjectGuid haiyunGuid = haiyun->GetGUID();
+                                    ObjectGuid yingGuid = ying->GetGUID();
+                                    ObjectGuid huizhongGuid = huizhong->GetGUID();
+                                    ObjectGuid yingSumGuid = yingSum->GetGUID();
+                                    ObjectGuid haiyunSumGuid = haiyunSum->GetGUID();
+                                    ObjectGuid huizhongSumGuid = huizhongSum->GetGUID();
+
+                                    haiyunSum->m_Events.Schedule(delay += 3000, [haiyunSum, huizhongSumGuid, yingSumGuid]()
+                                    {
+                                        haiyunSum->AI()->Talk(1);
+                                        if (Creature* yingSum = ObjectAccessor::GetCreature(*haiyunSum, yingSumGuid))
+                                            haiyunSum->SetFacingToObject(yingSum);
+                                        if (Creature* huizhongSum = ObjectAccessor::GetCreature(*haiyunSum, huizhongSumGuid))
+                                            huizhongSum->GetMotionMaster()->MovePoint(0, -374.923f, 2051.632f, 126.114f);
+                                    });
+                                    yingSum->m_Events.Schedule(delay += 3000, [yingSum]()
+                                    {
+                                        yingSum->AI()->Talk(0);
+                                    });
+                                    huizhongSum->m_Events.Schedule(delay += 3000, [huizhongSum, playerGuid]()
+                                    {
+                                        if (Player* player = ObjectAccessor::GetPlayer(*huizhongSum, playerGuid))
+                                            huizhongSum->AI()->Talk(0, player);
+                                    });
+                                    haiyunSum->m_Events.Schedule(delay += 3000, [haiyunSum]()
+                                    {
+                                        haiyunSum->AI()->Talk(2);
+                                    });
+                                    haiyunSum->m_Events.Schedule(delay += 3000, [haiyunSum, playerGuid]()
+                                    {
+                                        if (Player* player = ObjectAccessor::GetPlayer(*haiyunSum, playerGuid))
+                                            haiyunSum->SetFacingToObject(player);
+                                        haiyunSum->AI()->Talk(3);
+                                    });
+                                    haiyunSum->m_Events.Schedule(delay += 3000, [haiyunSum, yingSumGuid]()
+                                    {
+                                        haiyunSum->GetMotionMaster()->MovePoint(0, -369.885f, 2013.500f, 125.777f);
+                                        if (Creature* yingSum = ObjectAccessor::GetCreature(*haiyunSum, yingSumGuid))
+                                            yingSum->GetMotionMaster()->MovePoint(0, -369.963f, 2007.283f, 125.334f);
+                                    });
+                                    huizhongSum->m_Events.Schedule(delay += 1000, [huizhongSum]()
+                                    {
+                                        huizhongSum->GetMotionMaster()->MovePoint(0, -366.897f, 1996.729f, 125.218f);
+                                    });
+                                    huizhongSum->m_Events.Schedule(delay += 10000, [haiyunSumGuid, yingSumGuid, huizhongSum, yingGuid, haiyunGuid, huizhongGuid]()
+                                    {
+                                        if (Creature* ying = ObjectAccessor::GetCreature(*huizhongSum, yingGuid))
+                                            ying->SetVisible(true);
+                                        if (Creature* haiyun = ObjectAccessor::GetCreature(*huizhongSum, haiyunGuid))
+                                            haiyun->SetVisible(true);
+                                        if (Creature* huizhong = ObjectAccessor::GetCreature(*huizhongSum, huizhongGuid))
+                                            huizhong->SetVisible(true);
+                                        if (Creature* haiyunSum = ObjectAccessor::GetCreature(*huizhongSum, haiyunSumGuid))
+                                            haiyunSum->DespawnOrUnsummon();
+                                        if (Creature* yingSum = ObjectAccessor::GetCreature(*huizhongSum, yingSumGuid))
+                                            yingSum->DespawnOrUnsummon();
+                                        huizhongSum->DespawnOrUnsummon();
+                                    });
+                                    break;
+                                }
+                                case NPC_ZHANG_MARLFUR:
+                                case NPC_MIA_MARLFUR:
+                                {
+                                    Creature* zhang = me->GetEntry() == NPC_ZHANG_MARLFUR ? me : me->FindNearestCreature(NPC_ZHANG_MARLFUR, 10.0f, true);
+                                    if (!zhang)
+                                        break;
+
+                                    player->CastSpell(zhang, SPELL_SUMMON_ZHANG);
+                                    zhang->SetVisible(false);
+
+                                    Creature* zhangSum = zhang->FindNearestCreature(NPC_ZHANG_MARLFUR_SUM, 10.0f, true);
+                                    if (!zhangSum)
+                                        break;
+
+                                    zhangSum->AI()->Talk(0);
+                                    zhangSum->m_Events.Schedule(delay += 5000, [zhangSum, playerGuid]()
+                                    {
+                                        if (Player* player = ObjectAccessor::GetPlayer(*zhangSum, playerGuid))
+                                        {
+                                            zhangSum->SetFacingToObject(player);
+                                            zhangSum->AI()->Talk(1, player);
+                                        }
+                                    });
+                                    zhangSum->m_Events.Schedule(delay += 3000, [zhangSum]()
+                                    {
+                                        zhangSum->GetMotionMaster()->MovePoint(0, -335.536f, 2069.130f, 119.780f);
+                                        zhangSum->AI()->Talk(2);
+                                    });
+                                    zhangSum->m_Events.Schedule(delay += 3000, [zhangSum, playerGuid]()
+                                    {
+                                        zhangSum->AI()->Talk(3);
+                                        if (Player* player = ObjectAccessor::GetPlayer(*zhangSum, playerGuid))
+                                            zhangSum->SetFacingToObject(player);
+                                    });
+                                    zhangSum->m_Events.Schedule(delay += 3000, [zhangSum]()
+                                    {
+                                        zhangSum->AI()->Talk(4);
+                                    });
+                                    zhangSum->m_Events.Schedule(delay += 1000, [zhangSum, zhang]()
+                                    {
+                                        zhangSum->GetMotionMaster()->MovePoint(0, zhang->GetPosition());
+                                    });
+                                    zhangSum->m_Events.Schedule(delay += 2000, [zhangSum, zhang]()
+                                    {
+                                        zhang->SetVisible(true);
+                                        zhangSum->DespawnOrUnsummon();
+                                    });
+                                    break;
+                                }
+                            }
+                        }
+                        else if (action == GOSSIP_ACTION_INFO_DEF + 2)
+                        {
+                            player->KilledMonsterCredit(NPC_WEI_BLACKSOIL);
+
+                            me->CastSpell(me, SPELL_SUMMON_WEI_BLACKSOIL);
+                            me->SetVisible(false);
+
+                            //Creature* weiSum = me->FindNearestCreature(NPC_WEI_BLACKSOIL_SUM, 10.0f, true);
+                            Creature* weiSum = me->SummonCreature(NPC_WEI_BLACKSOIL_SUM, me->GetPosition());
+                            if (!weiSum)
+                                return false;
+
+                            weiSum->SetFacingToObject(player);
+                            weiSum->AI()->Talk(0);
+
+                            uint32 delay = 0;
+                            weiSum->m_Events.Schedule(delay += 3000, [weiSum]() { weiSum->GetMotionMaster()->MovePoint(0, -326.190f, 2393.927f, 140.406f); });
+                            weiSum->m_Events.Schedule(delay += 3000, [weiSum]() { weiSum->GetMotionMaster()->MovePoint(0, -309.222f, 2400.113f, 140.223f); });
+                            weiSum->m_Events.Schedule(delay += 3000, [weiSum]() { weiSum->DespawnOrUnsummon(); });
+                            me->m_Events.Schedule(delay += 10000, [this]() { me->SetVisible(true); me->AI()->SetData(DATA_AMBUSHED, 0); });
+                        }
+
+                        return false;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {

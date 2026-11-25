@@ -254,22 +254,7 @@ class npc_brann_bronzebeard : public CreatureScript
     public:
         npc_brann_bronzebeard() : CreatureScript("npc_brann_bronzebeard") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (!instance)
-                return true;
-
-            instance->instance->LoadGrid(364, -16); // make sure leviathan is loaded
-            if (instance->GetBossState(BOSS_LEVIATHAN) != DONE && !instance->GetData(DATA_SHIELD_DISABLED))
-            {
-                player->PrepareGossipMenu(creature, player->GetDefaultGossipMenuForSource(creature));
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            }
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+        
 
         struct npc_brann_bronzebeardAI : public ScriptedAI
         {
@@ -472,6 +457,24 @@ class npc_brann_bronzebeard : public CreatureScript
             ObjectGuid playerGUID = ObjectGuid::Empty;
             bool loaded;
             InstanceScript* instance;
+                    bool OnGossipHello(Player* player) override
+            {
+
+                InstanceScript* instance = me->GetInstanceScript();
+                if (!instance)
+                    return true;
+
+                instance->instance->LoadGrid(364, -16); // make sure leviathan is loaded
+                if (instance->GetBossState(BOSS_LEVIATHAN) != DONE && !instance->GetData(DATA_SHIELD_DISABLED))
+                {
+                    player->PrepareGossipMenu(me, player->GetDefaultGossipMenuForSource(me));
+                    player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                }
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -579,22 +582,7 @@ class npc_ulduar_lorekeeper : public CreatureScript
     public:
         npc_ulduar_lorekeeper() : CreatureScript("npc_ulduar_lorekeeper") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (!instance)
-                return true;
-
-            instance->instance->LoadGrid(364, -16); // make sure leviathan is loaded
-            if (instance->GetBossState(BOSS_LEVIATHAN) != DONE && !instance->GetData(DATA_SHIELD_DISABLED) && !instance->GetData(DATA_LEVI_HARD_MODE) && !creature->AI()->GetData(0))
-            {
-                player->PrepareGossipMenu(creature, player->GetDefaultGossipMenuForSource(creature));
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            }
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+        
 
         struct npc_ulduar_lorekeeperAI : public ScriptedAI
         {
@@ -855,6 +843,24 @@ class npc_ulduar_lorekeeper : public CreatureScript
             ObjectGuid playerGUID;
             bool event;
             InstanceScript* instance;
+                    bool OnGossipHello(Player* player) override
+            {
+
+                InstanceScript* instance = me->GetInstanceScript();
+                if (!instance)
+                    return true;
+
+                instance->instance->LoadGrid(364, -16); // make sure leviathan is loaded
+                if (instance->GetBossState(BOSS_LEVIATHAN) != DONE && !instance->GetData(DATA_SHIELD_DISABLED) && !instance->GetData(DATA_LEVI_HARD_MODE) && !me->AI()->GetData(0))
+                {
+                    player->PrepareGossipMenu(me, player->GetDefaultGossipMenuForSource(me));
+                    player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                }
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override

@@ -861,75 +861,11 @@ class npc_brawlers_guild_brawlgar_arena_grunt : public CreatureScript
     public:
         npc_brawlers_guild_brawlgar_arena_grunt() : CreatureScript("npc_brawlers_guild_brawlgar_arena_grunt") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                    if (!player->HasAchieved(player->GetTeam() == HORDE ? ACHIEVEMENT_FIRST_RULE_OF_BRAWLERS_GUILD : ACHIEVEMENT_FIRST_RULE_OF_BRAWLERS_GUILD_A, false))
-                    {
-                        creature->AI()->Talk(TALK_DEATH); // need invite
-                        break;
-                    }
-
-                    // Queue player to arena
-                    player->CastSpell(player, SPELL_QUEUED_FOR_BRAWL, true);
-
-                    if (Creature* arenaHolder = player->FindNearestCreature(creature->GetMapId() == 1043 ? NPC_BOSS_BAZZELFLANGE : NPC_BIZMO, 100.0f, true))
-                        arenaHolder->AI()->SetData(TYPE_IN_QUEUE, player->GetGUID().GetCounter());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                    // Get our Position in queue
-                    if (Creature* arenaHolder = player->FindNearestCreature(creature->GetMapId() == 1043 ? NPC_BOSS_BAZZELFLANGE : NPC_BIZMO, 100.0f, true))
-                    {
-                        uint32 queuePos = (uint32)arenaHolder->AI()->GetGUID(player->GetGUID().GetCounter());
-                        uint32 queueText = queuePos > 9 ? 724016 : queueGossipType.find(queuePos)->second;
-                        player->SEND_GOSSIP_MENU(queueText, creature->GetGUID());
-                        return false;
-
-                    }
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 3:
-                    // Queue player to arena
-                    player->CastSpell(player, SPELL_QUEUED_FOR_BRAWL, true);
-
-                    if (Creature* arenaHolder = player->FindNearestCreature(creature->GetMapId() == 1043 ? NPC_BOSS_BAZZELFLANGE : NPC_BIZMO, 100.0f, true))
-                    {
-                        arenaHolder->AI()->SetGUID(player->GetGUID(), TYPE_CHALLENGE_CARD);
-                        arenaHolder->AI()->SetData(TYPE_IN_QUEUE, player->GetGUID().GetCounter());
-                    }
-                    break;
-            }
-
-            player->CLOSE_GOSSIP_MENU();
     
-            return true;
-        }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            // if player in queue - send gossip with queue sequence, if not - queue to arena
-            if (Creature* arenaHolder = player->FindNearestCreature(creature->GetMapId() == 1043 ? NPC_BOSS_BAZZELFLANGE : NPC_BIZMO, 100.0f, true))
-            {
-                if (!arenaHolder->AI()->GetData(player->GetGUID().GetCounter()))
-                {
-                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    
 
-                    // Challenge Cards
-                    if (HasAnyChallengeCard(player))
-                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                }
-                else
-                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            }
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool HasAnyChallengeCard(Player* cardHolder)
+        static bool HasAnyChallengeCard(Player* cardHolder)
         {
             for (auto&& itr : invChallengeCardsType)
                 if (cardHolder->HasItemCount(itr.first, 1))
@@ -978,7 +914,79 @@ class npc_brawlers_guild_brawlgar_arena_grunt : public CreatureScript
             {
                 scheduler.Update(diff);
             }
-        };
+        
+            bool OnGossipHello(Player* player) override
+            {
+
+                        // if player in queue - send gossip with queue sequence, if not - queue to arena
+                        if (Creature* arenaHolder = player->FindNearestCreature(me->GetMapId() == 1043 ? NPC_BOSS_BAZZELFLANGE : NPC_BIZMO, 100.0f, true))
+                        {
+                            if (!arenaHolder->AI()->GetData(player->GetGUID().GetCounter()))
+                            {
+                                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                                // Challenge Cards
+                                if (HasAnyChallengeCard(player))
+                                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                            }
+                            else
+                                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                        }
+
+                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                        return true;
+        
+            }
+
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        switch (action)
+                        {
+                            case GOSSIP_ACTION_INFO_DEF + 1:
+                                if (!player->HasAchieved(player->GetTeam() == HORDE ? ACHIEVEMENT_FIRST_RULE_OF_BRAWLERS_GUILD : ACHIEVEMENT_FIRST_RULE_OF_BRAWLERS_GUILD_A, false))
+                                {
+                                    me->AI()->Talk(TALK_DEATH); // need invite
+                                    break;
+                                }
+
+                                // Queue player to arena
+                                player->CastSpell(player, SPELL_QUEUED_FOR_BRAWL, true);
+
+                                if (Creature* arenaHolder = player->FindNearestCreature(me->GetMapId() == 1043 ? NPC_BOSS_BAZZELFLANGE : NPC_BIZMO, 100.0f, true))
+                                    arenaHolder->AI()->SetData(TYPE_IN_QUEUE, player->GetGUID().GetCounter());
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 2:
+                                // Get our Position in queue
+                                if (Creature* arenaHolder = player->FindNearestCreature(me->GetMapId() == 1043 ? NPC_BOSS_BAZZELFLANGE : NPC_BIZMO, 100.0f, true))
+                                {
+                                    uint32 queuePos = (uint32)arenaHolder->AI()->GetGUID(player->GetGUID().GetCounter());
+                                    uint32 queueText = queuePos > 9 ? 724016 : queueGossipType.find(queuePos)->second;
+                                    player->SEND_GOSSIP_MENU(queueText, me->GetGUID());
+                                    return false;
+
+                                }
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 3:
+                                // Queue player to arena
+                                player->CastSpell(player, SPELL_QUEUED_FOR_BRAWL, true);
+
+                                if (Creature* arenaHolder = player->FindNearestCreature(me->GetMapId() == 1043 ? NPC_BOSS_BAZZELFLANGE : NPC_BIZMO, 100.0f, true))
+                                {
+                                    arenaHolder->AI()->SetGUID(player->GetGUID(), TYPE_CHALLENGE_CARD);
+                                    arenaHolder->AI()->SetData(TYPE_IN_QUEUE, player->GetGUID().GetCounter());
+                                }
+                                break;
+                        }
+
+                        player->CLOSE_GOSSIP_MENU();
+    
+                        return false;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -4710,25 +4718,43 @@ class npc_brawlers_guild_card_traider : public CreatureScript
     public:
         npc_brawlers_guild_card_traider() : CreatureScript("npc_brawlers_guild_card_traider") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+    
+
+    
+
+        struct npc_brawlers_guild_card_traiderAI : public ScriptedAI
         {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
+            npc_brawlers_guild_card_traiderAI(Creature* creature) : ScriptedAI(creature) { }
 
-                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            bool OnGossipHello(Player* player) override
+            {
 
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+                        if (me->IsQuestGiver())
+                            player->PrepareQuestMenu(me->GetGUID());
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+                            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                        return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            player->GetSession()->SendListInventory(me->GetGUID());
+
+                        return false;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            player->PlayerTalkClass->ClearMenus();
-
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                player->GetSession()->SendListInventory(creature->GetGUID());
-
-            return false;
+            return new npc_brawlers_guild_card_traiderAI(creature);
         }
 };
 

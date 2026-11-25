@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -23,6 +23,7 @@ SDCategory: Burning Steppes
 EndScriptData */
 
 #include "Random.h"
+#include "GameObjectAI.h"
 
 enum ScrappedGolemsType
 {
@@ -128,28 +129,46 @@ class go_burning_steppes_war_reaver_part : public GameObjectScript
     public:
         go_burning_steppes_war_reaver_part() : GameObjectScript("go_burning_steppes_war_reaver_part") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+    
+
+    
+
+        struct go_burning_steppes_war_reaver_partAI : public GameObjectAI
         {
-            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(go), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(go), 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            go_burning_steppes_war_reaver_partAI(GameObject* go) : GameObjectAI(go) { }
 
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(go), go->GetGUID());
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
 
-            return true;
-        }
+                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
 
-        bool OnGossipSelect(Player* player, GameObject* go, uint32 /*sender*/, uint32 action) override
+                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+
+                        return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        // Send item to player
+                        auto itr = golemParts.find(me->GetEntry());
+                        player->AddItem(action == GOSSIP_ACTION_INFO_DEF + 1 ? itr->second[0] : itr->second[1], 1);
+
+                        player->CLOSE_GOSSIP_MENU();
+                        me->Delete();
+
+                        return true;
+        
+            }
+};
+
+        GameObjectAI* GetAI(GameObject* go) const override
         {
-            player->PlayerTalkClass->ClearMenus();
-
-            // Send item to player
-            auto itr = golemParts.find(go->GetEntry());
-            player->AddItem(action == GOSSIP_ACTION_INFO_DEF + 1 ? itr->second[0] : itr->second[1], 1);
-
-            player->CLOSE_GOSSIP_MENU();
-            go->Delete();
-
-            return true;
+            return new go_burning_steppes_war_reaver_partAI(go);
         }
 };
 
@@ -159,29 +178,9 @@ class npc_burning_steppes_chiseled_golem : public CreatureScript
     public:
         npc_burning_steppes_chiseled_golem() : CreatureScript("npc_burning_steppes_chiseled_golem") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
+    
 
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                creature->AI()->SetGUID(player->GetGUID());
-                creature->AI()->DoAction(ACTION_GOLEM_TRAINING);
-            }
-
-            player->CLOSE_GOSSIP_MENU();
-
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (player->GetQuestStatus(QUEST_GOLEM_TRAINING) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+    
 
         struct npc_burning_steppes_chiseled_golemAI : public customCreatureAI
         {
@@ -303,12 +302,42 @@ class npc_burning_steppes_chiseled_golem : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-        };
+        
+            bool OnGossipHello(Player* player) override
+            {
+
+                        if (player->GetQuestStatus(QUEST_GOLEM_TRAINING) == QUEST_STATUS_INCOMPLETE)
+                            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                        return true;
+        
+            }
+
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            me->AI()->SetGUID(player->GetGUID());
+                            me->AI()->DoAction(ACTION_GOLEM_TRAINING);
+                        }
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_burning_steppes_chiseled_golemAI(creature);
         }
+
+
 };
 
 void AddSC_burning_steppes()

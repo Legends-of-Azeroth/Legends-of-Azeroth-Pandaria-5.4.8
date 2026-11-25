@@ -17,6 +17,7 @@
 
 #include "unga_ingoo.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
@@ -94,24 +95,9 @@ class npc_brewmaster_bo_escort : public CreatureScript
     public:
         npc_brewmaster_bo_escort() : CreatureScript("npc_brewmaster_bo_escort") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
+    
 
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                creature->AI()->DoAction(ACTION_INTRO);
-
-            player->CLOSE_GOSSIP_MENU();
-
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+        
 
         struct npc_brewmaster_bo_escortAI : public ScriptedAI
         {
@@ -310,7 +296,29 @@ class npc_brewmaster_bo_escort : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            me->AI()->DoAction(ACTION_INTRO);
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -1071,41 +1079,54 @@ class go_brew_container : public GameObjectScript
     public:
         go_brew_container() : GameObjectScript("go_brew_container") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_brew_containerAI : public GameObjectAI
         {
-            uint32 diff = 0;
-            uint32 pBrew = 0;
+            go_brew_containerAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (!player->GetAura(SPELL_UNGA_BREW_COLLECTED_AURA))
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                diff = 1;
-                player->CastSpell(player, SPELL_UNGA_BREW_COLLECTED_AURA, false);
-            }
 
-            switch (go->GetEntry())
-            {
-                case GO_BIGGA_UNGA_KEG:
-                case GO_BIGGA_UNGA_KEG_2:
-                    pBrew = 10;
-                    break;
-                case GO_UNGA_KEG:
-                case GO_UNGA_KEG_2:
-                    pBrew = 5;
-                    break;
-                case GO_UNGA_MUG:
-                case GO_UNGA_MUG_2:
-                    pBrew = 2;
-                    break;
-            }
+                uint32 diff = 0;
+                uint32 pBrew = 0;
 
-            if (Aura* m_AuraBrew = player->GetAura(SPELL_UNGA_BREW_COLLECTED_AURA))
-            {
-                if (pBrew)
-                    m_AuraBrew->SetStackAmount(m_AuraBrew->GetStackAmount() + pBrew - diff);
-            }
+                if (!player->GetAura(SPELL_UNGA_BREW_COLLECTED_AURA))
+                {
+                    diff = 1;
+                    player->CastSpell(player, SPELL_UNGA_BREW_COLLECTED_AURA, false);
+                }
 
-            go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
-            return true;
+                switch (me->GetEntry())
+                {
+                    case GO_BIGGA_UNGA_KEG:
+                    case GO_BIGGA_UNGA_KEG_2:
+                        pBrew = 10;
+                        break;
+                    case GO_UNGA_KEG:
+                    case GO_UNGA_KEG_2:
+                        pBrew = 5;
+                        break;
+                    case GO_UNGA_MUG:
+                    case GO_UNGA_MUG_2:
+                        pBrew = 2;
+                        break;
+                }
+
+                if (Aura* m_AuraBrew = player->GetAura(SPELL_UNGA_BREW_COLLECTED_AURA))
+                {
+                    if (pBrew)
+                        m_AuraBrew->SetStackAmount(m_AuraBrew->GetStackAmount() + pBrew - diff);
+                }
+
+                me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+                return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_brew_containerAI(go);
         }
 };
 

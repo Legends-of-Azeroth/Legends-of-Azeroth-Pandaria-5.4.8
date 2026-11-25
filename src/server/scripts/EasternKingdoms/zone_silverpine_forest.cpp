@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -112,20 +112,23 @@ public:
         {
             Talk(SAY_AGGRO, who);
         }
-    };
+                void OnQuestAccept(Player* player, Quest const* quest) override
+            {
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_ESCORTING)
-        {
-            creature->AI()->Talk(SAY_QUESTACCEPT, player);
+            if (quest->GetQuestId() == QUEST_ESCORTING)
+            {
+                Talk(SAY_QUESTACCEPT, player);
 
-            if (EscortAI* pEscortAI = CAST_AI(npc_deathstalker_erland::npc_deathstalker_erlandAI, creature->AI()))
-                pEscortAI->Start(true, player->GetGUID());
-        }
+                if (EscortAI* pEscortAI = this)
+                    pEscortAI->Start(true, player->GetGUID());
+            }
 
-        return true;
-    }
+            return;
+    
+            }
+        };
+
+    
 
     CreatureAI* GetAI(Creature* creature) const override
     {

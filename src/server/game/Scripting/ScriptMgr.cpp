@@ -674,19 +674,6 @@ bool ScriptMgr::OnItemExpire(Player* player, ItemTemplate const* proto)
 //
 //}
 
-bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Creature* target)
-{
-    ASSERT(caster);
-    ASSERT(target);
-#ifdef ELUNA
-    if (sHookMgr->OnDummyEffect(caster, spellId, effIndex, target))
-        return true;
-#endif
-
-    GET_SCRIPT_RET(CreatureScript, target->GetScriptId(), tmpscript, false);
-    return tmpscript->OnDummyEffect(caster, spellId, effIndex, target);
-}
-
 bool ScriptMgr::OnItemPickup(Player* player, Item* item, ItemPickupSourceType sourceType, uint32 sourceId)
 {
     ASSERT(player);
@@ -737,64 +724,6 @@ void ScriptMgr::OnGossipSelectCode(Player* player, uint32 menu_id, uint32 sender
     FOREACH_SCRIPT(PlayerScript)->OnGossipSelectCode(player, menu_id, sender, action, code);
 }
 
-bool ScriptMgr::OnGossipHello(Player* player, Creature* creature)
-{
-    ASSERT(player);
-    ASSERT(creature);
-#ifdef ELUNA
-    if (sHookMgr->OnGossipHello(player, creature))
-        return true;
-#endif
-
-    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnGossipHello(player, creature);
-}
-
-bool ScriptMgr::OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
-{
-    ASSERT(player);
-    ASSERT(creature);
-#ifdef ELUNA
-    if (sHookMgr->OnGossipSelect(player, creature, sender, action))
-        return true;
-#endif
-
-    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
-    return tmpscript->OnGossipSelect(player, creature, sender, action);
-}
-
-bool ScriptMgr::OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, const char* code)
-{
-    ASSERT(player);
-    ASSERT(creature);
-    ASSERT(code);
-#ifdef ELUNA
-    if (sHookMgr->OnGossipSelectCode(player, creature, sender, action, code))
-        return true;
-#endif
-
-    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
-    return tmpscript->OnGossipSelectCode(player, creature, sender, action, code);
-}
-
-bool ScriptMgr::OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
-{
-    ASSERT(player);
-    ASSERT(creature);
-    ASSERT(quest);
-#ifdef ELUNA
-    if (sHookMgr->OnQuestAccept(player, creature, quest))
-    {
-        player->PlayerTalkClass->ClearMenus();
-        return true;
-    }
-#endif
-
-    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnQuestAccept(player, creature, quest);
-}
 
 CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
 {
@@ -827,115 +756,15 @@ GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* gameobject)
     return tmpscript->GetAI(gameobject);
 }
 
-bool ScriptMgr::OnGossipHello(Player* player, GameObject* go)
-{
-    ASSERT(player);
-    ASSERT(go);
-#ifdef ELUNA
-    if (sHookMgr->OnGossipHello(player, go))
-        return true;
-#endif
-
-    GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnGossipHello(player, go);
-}
-
 bool ScriptMgr::OnReportUse(Player* player, GameObject* go)
 {
     ASSERT(player);
     ASSERT(go);
-    //#ifdef ELUNA
-    //    if (sHookMgr->OnReportUse(player, go))
-    //        return true;
-    //#endif
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->OnReportUse(player, go);
 }
 
-bool ScriptMgr::OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action)
-{
-    ASSERT(player);
-    ASSERT(go);
-#ifdef ELUNA
-    if (sHookMgr->OnGossipSelect(player, go, sender, action))
-        return true;
-#endif
-
-    GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
-    return tmpscript->OnGossipSelect(player, go, sender, action);
-}
-
-bool ScriptMgr::OnGossipSelectCode(Player* player, GameObject* go, uint32 sender, uint32 action, const char* code)
-{
-    ASSERT(player);
-    ASSERT(go);
-    ASSERT(code);
-#ifdef ELUNA
-    if (sHookMgr->OnGossipSelectCode(player, go, sender, action, code))
-        return true;
-#endif
-
-    GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
-    return tmpscript->OnGossipSelectCode(player, go, sender, action, code);
-}
-
-bool ScriptMgr::OnQuestAccept(Player* player, GameObject* go, Quest const* quest)
-{
-    ASSERT(player);
-    ASSERT(go);
-    ASSERT(quest);
-#ifdef ELUNA
-    if (sHookMgr->OnQuestAccept(player, go, quest))
-        return true;
-#endif
-
-    GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnQuestAccept(player, go, quest);
-}
-
-void ScriptMgr::OnGameObjectDestroyed(GameObject* go, Player* player)
-{
-    ASSERT(go);
-#ifdef ELUNA
-    sHookMgr->OnDestroyed(go, player);
-#endif
-
-    GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
-    tmpscript->OnDestroyed(go, player);
-}
-
-void ScriptMgr::OnGameObjectDamaged(GameObject* go, Player* player)
-{
-    ASSERT(go);
-#ifdef ELUNA
-    sHookMgr->OnDamaged(go, player);
-#endif
-
-    GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
-    tmpscript->OnDamaged(go, player);
-}
-
-void ScriptMgr::OnGameObjectLootStateChanged(GameObject* go, uint32 state, Unit* unit)
-{
-    ASSERT(go);
-#ifdef ELUNA
-    sHookMgr->OnGameObjectStateChanged(go, state);
-#endif
-
-    GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
-    tmpscript->OnLootStateChanged(go, state, unit);
-}
-
-void ScriptMgr::OnGameObjectStateChanged(GameObject* go, uint32 state)
-{
-    ASSERT(go);
-
-    GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
-    tmpscript->OnGameObjectStateChanged(go, state);
-}
 
 void ScriptMgr::OnGameObjectUpdate(GameObject* go, uint32 diff)
 {
@@ -943,19 +772,6 @@ void ScriptMgr::OnGameObjectUpdate(GameObject* go, uint32 diff)
 
     GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
     tmpscript->OnUpdate(go, diff);
-}
-
-bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, GameObject* target)
-{
-    ASSERT(caster);
-    ASSERT(target);
-
-#ifdef ELUNA
-    if (sHookMgr->OnDummyEffect(caster, spellId, effIndex, target))
-        return true;
-#endif
-    GET_SCRIPT_RET(GameObjectScript, target->GetScriptId(), tmpscript, false);
-    return tmpscript->OnDummyEffect(caster, spellId, effIndex, target);
 }
 
 bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger, bool entered)

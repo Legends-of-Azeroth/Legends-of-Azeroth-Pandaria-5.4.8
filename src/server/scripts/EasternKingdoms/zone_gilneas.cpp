@@ -1131,18 +1131,7 @@ class npc_lorna_crowley_basement : public CreatureScript
 public:
     npc_lorna_crowley_basement(const char* ScriptName) : CreatureScript(ScriptName) { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_FROM_THE_SHADOWS)
-        {
-            if (player->GetClass() == CLASS_HUNTER)
-                player->UnsummonPetTemporaryIfAny();
-
-            player->CastSpell(player, SPELL_SUMMON_MASTIFF, false);
-            creature->AI()->Talk(0);
-        }
-        return true;
-    }
+    
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -1174,7 +1163,21 @@ public:
             if (!UpdateVictim())
                 return;
         }
-    };
+                void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+            if (quest->GetQuestId() == QUEST_FROM_THE_SHADOWS)
+            {
+                if (player->GetClass() == CLASS_HUNTER)
+                    player->UnsummonPetTemporaryIfAny();
+
+                player->CastSpell(player, SPELL_SUMMON_MASTIFF, false);
+                Talk(0);
+            }
+            return;
+    
+            }
+        };
 };
 
 struct npc_gilnean_mastiff : public ScriptedAI
@@ -1312,68 +1315,7 @@ class npc_king_genn_greymane : public CreatureScript
 public:
     npc_king_genn_greymane() : CreatureScript("npc_king_genn_greymane") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_SAVE_KRENNAN_ARANAS)
-        {
-            float x, y;
-            creature->GetNearPoint2D(nullptr, x, y, 2.0f, player->GetOrientation() + M_PI / 2);
-
-            if (Creature* horse = player->SummonCreature(NPC_KING_GREYMANES_HORSE, x, y, creature->GetPositionZ(), creature->GetOrientation()))
-            {
-                if (EscortAI* escort = CAST_AI(EscortAI, horse->AI()))
-                {
-                    escort->AddWaypoint(1, -1799.37f, 1400.21f, 19.8951f);
-                    escort->AddWaypoint(2, -1798.23f, 1396.9f, 19.8993f);
-                    escort->AddWaypoint(3, -1795.03f, 1388.01f, 19.8898f);
-                    escort->AddWaypoint(4, -1790.16f, 1378.7f, 19.8016f);
-                    escort->AddWaypoint(5, -1786.41f, 1372.97f, 19.8406f);
-                    escort->AddWaypoint(6, -1779.72f, 1364.88f, 19.8131f);
-                    escort->AddWaypoint(7, -1774.43f, 1359.87f, 19.7021f);
-                    escort->AddWaypoint(8, -1769.0f, 1356.76f, 19.7439f);
-                    escort->AddWaypoint(9, -1762.64f, 1356.02f, 19.7979f);
-                    escort->AddWaypoint(10, -1758.91f, 1356.08f, 19.8635f);
-                    escort->AddWaypoint(11, -1751.95f, 1356.8f, 19.8273f);
-                    escort->AddWaypoint(12, -1745.66f, 1357.21f, 19.7993f);
-                    escort->AddWaypoint(13, -1738.7f, 1356.64f, 19.7822f);
-                    escort->AddWaypoint(14, -1731.79f, 1355.51f, 19.7149f);
-                    escort->AddWaypoint(15, -1724.89f, 1354.29f, 19.8661f);
-                    escort->AddWaypoint(16, -1718.03f, 1352.93f, 19.7824f);
-                    escort->AddWaypoint(17, -1707.68f, 1351.16f, 19.7811f, 0.0f, Milliseconds(0), false, true); // Jump
-                    escort->AddWaypoint(18, -1673.04f, 1344.91f, 15.1353f, 0.0f, Milliseconds(2000), false);
-                    escort->AddWaypoint(19, -1673.04f, 1344.91f, 15.1353f);
-                    escort->AddWaypoint(20, -1669.32f, 1346.55f, 15.1353f);
-                    escort->AddWaypoint(21, -1666.45f, 1349.89f, 15.1353f);
-                    escort->AddWaypoint(22, -1665.61f, 1353.85f, 15.1353f);
-                    escort->AddWaypoint(23, -1666.04f, 1358.01f, 15.1353f);
-                    escort->AddWaypoint(24, -1669.79f, 1360.71f, 15.1353f);
-                    escort->AddWaypoint(25, -1673.1f, 1362.11f, 15.1353f);
-                    escort->AddWaypoint(26, -1677.12f, 1361.57f, 15.1353f);
-                    escort->AddWaypoint(27, -1679.9f, 1360.1f, 15.1353f);
-                    escort->AddWaypoint(28, -1682.79f, 1357.56f, 15.1353f);
-                    escort->AddWaypoint(29, -1682.79f, 1357.56f, 15.1353f);
-                    escort->AddWaypoint(30, -1689.07f, 1352.39f, 15.1353f);
-                    escort->AddWaypoint(31, -1691.91f, 1351.83f, 15.1353f);
-                    escort->AddWaypoint(32, -1703.81f, 1351.82f, 19.7604f);
-                    escort->AddWaypoint(33, -1707.26f, 1352.38f, 19.7826f);
-                    escort->AddWaypoint(34, -1712.25f, 1353.55f, 19.7826f);
-                    escort->AddWaypoint(35, -1718.2f, 1356.51f, 19.7164f);
-                    escort->AddWaypoint(36, -1741.5f, 1372.04f, 19.9569f);
-                    escort->AddWaypoint(37, -1746.23f, 1375.8f, 19.9817f);
-                    escort->AddWaypoint(38, -1751.06f, 1380.53f, 19.8424f);
-                    escort->AddWaypoint(39, -1754.97f, 1386.34f, 19.8474f);
-                    escort->AddWaypoint(40, -1760.77f, 1394.37f, 19.9282f);
-                    escort->AddWaypoint(41, -1765.11f, 1402.07f, 19.8816f);
-                    escort->AddWaypoint(42, -1768.24f, 1410.2f, 19.7833f);
-                    escort->AddWaypoint(43, -1772.26f, 1420.48f, 19.9029f);
-                    escort->AddWaypoint(44, -1776.98f, 1436.13f, 19.632f);
-                    player->EnterVehicle(horse, 0);
-                }
-            }
-        }
-
-        return true;
-    }
+    
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -1400,7 +1342,71 @@ public:
 
     private:
         TaskScheduler _scheduler;
-    };
+                void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+            if (quest->GetQuestId() == QUEST_SAVE_KRENNAN_ARANAS)
+            {
+                float x, y;
+                me->GetNearPoint2D(nullptr, x, y, 2.0f, player->GetOrientation() + M_PI / 2);
+
+                if (Creature* horse = player->SummonCreature(NPC_KING_GREYMANES_HORSE, x, y, me->GetPositionZ(), me->GetOrientation()))
+                {
+                    if (EscortAI* escort = CAST_AI(EscortAI, horse->AI()))
+                    {
+                        escort->AddWaypoint(1, -1799.37f, 1400.21f, 19.8951f);
+                        escort->AddWaypoint(2, -1798.23f, 1396.9f, 19.8993f);
+                        escort->AddWaypoint(3, -1795.03f, 1388.01f, 19.8898f);
+                        escort->AddWaypoint(4, -1790.16f, 1378.7f, 19.8016f);
+                        escort->AddWaypoint(5, -1786.41f, 1372.97f, 19.8406f);
+                        escort->AddWaypoint(6, -1779.72f, 1364.88f, 19.8131f);
+                        escort->AddWaypoint(7, -1774.43f, 1359.87f, 19.7021f);
+                        escort->AddWaypoint(8, -1769.0f, 1356.76f, 19.7439f);
+                        escort->AddWaypoint(9, -1762.64f, 1356.02f, 19.7979f);
+                        escort->AddWaypoint(10, -1758.91f, 1356.08f, 19.8635f);
+                        escort->AddWaypoint(11, -1751.95f, 1356.8f, 19.8273f);
+                        escort->AddWaypoint(12, -1745.66f, 1357.21f, 19.7993f);
+                        escort->AddWaypoint(13, -1738.7f, 1356.64f, 19.7822f);
+                        escort->AddWaypoint(14, -1731.79f, 1355.51f, 19.7149f);
+                        escort->AddWaypoint(15, -1724.89f, 1354.29f, 19.8661f);
+                        escort->AddWaypoint(16, -1718.03f, 1352.93f, 19.7824f);
+                        escort->AddWaypoint(17, -1707.68f, 1351.16f, 19.7811f, 0.0f, Milliseconds(0), false, true); // Jump
+                        escort->AddWaypoint(18, -1673.04f, 1344.91f, 15.1353f, 0.0f, Milliseconds(2000), false);
+                        escort->AddWaypoint(19, -1673.04f, 1344.91f, 15.1353f);
+                        escort->AddWaypoint(20, -1669.32f, 1346.55f, 15.1353f);
+                        escort->AddWaypoint(21, -1666.45f, 1349.89f, 15.1353f);
+                        escort->AddWaypoint(22, -1665.61f, 1353.85f, 15.1353f);
+                        escort->AddWaypoint(23, -1666.04f, 1358.01f, 15.1353f);
+                        escort->AddWaypoint(24, -1669.79f, 1360.71f, 15.1353f);
+                        escort->AddWaypoint(25, -1673.1f, 1362.11f, 15.1353f);
+                        escort->AddWaypoint(26, -1677.12f, 1361.57f, 15.1353f);
+                        escort->AddWaypoint(27, -1679.9f, 1360.1f, 15.1353f);
+                        escort->AddWaypoint(28, -1682.79f, 1357.56f, 15.1353f);
+                        escort->AddWaypoint(29, -1682.79f, 1357.56f, 15.1353f);
+                        escort->AddWaypoint(30, -1689.07f, 1352.39f, 15.1353f);
+                        escort->AddWaypoint(31, -1691.91f, 1351.83f, 15.1353f);
+                        escort->AddWaypoint(32, -1703.81f, 1351.82f, 19.7604f);
+                        escort->AddWaypoint(33, -1707.26f, 1352.38f, 19.7826f);
+                        escort->AddWaypoint(34, -1712.25f, 1353.55f, 19.7826f);
+                        escort->AddWaypoint(35, -1718.2f, 1356.51f, 19.7164f);
+                        escort->AddWaypoint(36, -1741.5f, 1372.04f, 19.9569f);
+                        escort->AddWaypoint(37, -1746.23f, 1375.8f, 19.9817f);
+                        escort->AddWaypoint(38, -1751.06f, 1380.53f, 19.8424f);
+                        escort->AddWaypoint(39, -1754.97f, 1386.34f, 19.8474f);
+                        escort->AddWaypoint(40, -1760.77f, 1394.37f, 19.9282f);
+                        escort->AddWaypoint(41, -1765.11f, 1402.07f, 19.8816f);
+                        escort->AddWaypoint(42, -1768.24f, 1410.2f, 19.7833f);
+                        escort->AddWaypoint(43, -1772.26f, 1420.48f, 19.9029f);
+                        escort->AddWaypoint(44, -1776.98f, 1436.13f, 19.632f);
+                        player->EnterVehicle(horse, 0);
+                    }
+                }
+            }
+
+            return;
+    
+            }
+        };
 };
 
 class npc_vehicle_genn_horse : public CreatureScript
@@ -1976,17 +1982,7 @@ class npc_mountain_horse : public CreatureScript
 public:
     npc_mountain_horse(const char* ScriptName) : CreatureScript(ScriptName) { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_THE_HUNGRY_ETTIN) == QUEST_STATUS_INCOMPLETE)
-        {
-            player->EnterVehicle(creature, 0);
-            creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            creature->GetMotionMaster()->Clear();
-            return true;
-        }
-        return true;
-    }
+    
 
     struct npc_mountain_horseAI : public ScriptedAI
     {
@@ -2028,7 +2024,20 @@ public:
         }
 
         void OnCharmed(bool apply) override { }
-    };
+                bool OnGossipHello(Player* player) override
+            {
+
+            if (player->GetQuestStatus(QUEST_THE_HUNGRY_ETTIN) == QUEST_STATUS_INCOMPLETE)
+            {
+                player->EnterVehicle(me, 0);
+                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->GetMotionMaster()->Clear();
+                return true;
+            }
+            return true;
+    
+            }
+        };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -2571,7 +2580,7 @@ public:
     {
         go_koroth_bannerAI(GameObject* go) : GameObjectAI(go) { }
 
-        void OnStateChanged(uint32 state, Unit* /*unit*/) override
+        void OnLootStateChanged(uint32 state, Unit* /*unit*/) override
         {
             if (state != GO_JUST_DEACTIVATED)
                 return;

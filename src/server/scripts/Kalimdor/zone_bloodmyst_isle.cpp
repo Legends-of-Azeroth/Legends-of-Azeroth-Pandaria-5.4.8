@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -29,6 +29,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptedGossip.h"
 #include "Player.h"
 
@@ -99,52 +100,69 @@ class npc_captured_sunhawk_agent : public CreatureScript
 public:
     npc_captured_sunhawk_agent() : CreatureScript("npc_captured_sunhawk_agent") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
+
+
+    
+
+        struct npc_captured_sunhawk_agentAI : public ScriptedAI
         {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_CSA1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                player->SEND_GOSSIP_MENU(9137, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_CSA2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                player->SEND_GOSSIP_MENU(9138, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+3:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_CSA3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                player->SEND_GOSSIP_MENU(9139, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+4:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_CSA4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-                player->SEND_GOSSIP_MENU(9140, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+5:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_CSA5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
-                player->SEND_GOSSIP_MENU(9141, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+6:
-                player->CLOSE_GOSSIP_MENU();
-                player->TalkedToCreature(C_SUNHAWK_TRIGGER, creature->GetGUID());
-                break;
-        }
-        return true;
-    }
+            npc_captured_sunhawk_agentAI(Creature* creature) : ScriptedAI(creature) { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->HasAura(31609) && player->GetQuestStatus(9756) == QUEST_STATUS_INCOMPLETE)
+            bool OnGossipHello(Player* player) override
+            {
+
+            if (player->HasAura(31609) && player->GetQuestStatus(9756) == QUEST_STATUS_INCOMPLETE)
+            {
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_CSA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                player->SEND_GOSSIP_MENU(9136, me->GetGUID());
+            }
+            else
+                player->SEND_GOSSIP_MENU(9134, me->GetGUID());
+
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    switch (action)
+                    {
+                        case GOSSIP_ACTION_INFO_DEF+1:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_CSA1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                            player->SEND_GOSSIP_MENU(9137, me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF+2:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_CSA2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+                            player->SEND_GOSSIP_MENU(9138, me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF+3:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_CSA3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+                            player->SEND_GOSSIP_MENU(9139, me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF+4:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_CSA4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+                            player->SEND_GOSSIP_MENU(9140, me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF+5:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_CSA5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
+                            player->SEND_GOSSIP_MENU(9141, me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF+6:
+                            player->CLOSE_GOSSIP_MENU();
+                            player->TalkedToCreature(C_SUNHAWK_TRIGGER, me->GetGUID());
+                            break;
+                    }
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_CSA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->SEND_GOSSIP_MENU(9136, creature->GetGUID());
+            return new npc_captured_sunhawk_agentAI(creature);
         }
-        else
-            player->SEND_GOSSIP_MENU(9134, creature->GetGUID());
-
-        return true;
-    }
-
 };
 
 /*######
@@ -165,16 +183,29 @@ class go_princess_stillpines_cage : public GameObjectScript
 public:
     go_princess_stillpines_cage() : GameObjectScript("go_princess_stillpines_cage") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        go->SetGoState(GO_STATE_READY);
-        if (Creature* stillpine = go->FindNearestCreature(NPC_PRINCESS_STILLPINE, 25, true))
+    
+        struct go_princess_stillpines_cageAI : public GameObjectAI
         {
-            stillpine->GetMotionMaster()->MovePoint(1, go->GetPositionX(), go->GetPositionY()-15, go->GetPositionZ());
-            player->KilledMonsterCredit(NPC_PRINCESS_STILLPINE, stillpine->GetGUID());
+            go_princess_stillpines_cageAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+            me->SetGoState(GO_STATE_READY);
+            if (Creature* stillpine = me->FindNearestCreature(NPC_PRINCESS_STILLPINE, 25, true))
+            {
+                stillpine->GetMotionMaster()->MovePoint(1, me->GetPositionX(), me->GetPositionY()-15, me->GetPositionZ());
+                player->KilledMonsterCredit(NPC_PRINCESS_STILLPINE, stillpine->GetGUID());
+            }
+            return true;
+    
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_princess_stillpines_cageAI(go);
         }
-        return true;
-    }
 };
 
 class npc_princess_stillpine : public CreatureScript

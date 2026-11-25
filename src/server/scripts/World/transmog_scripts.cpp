@@ -1,5 +1,5 @@
 ﻿/*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -73,214 +73,9 @@ class npc_transmogrifier : public CreatureScript
 public:
     npc_transmogrifier() : CreatureScript("npc_transmogrifier") { }
 
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        WorldSession* session = player->GetSession();
-        //if (player->GetQuestStatus(40328) == QUEST_STATUS_REWARDED || player->GetQuestStatus(40329) == QUEST_STATUS_REWARDED)
-        {
-            if (sT->GetEnableTransmogInfo())
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Misc_Book_11:30:30:-18:0|tHow does transmogrification work?", EQUIPMENT_SLOT_END + 9, 0);
 
-            for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
-            {
-                if (const char* slotName = sT->GetSlotName(slot, session))
-                {
-                    Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
-                    uint32 entry = newItem ? sT->GetFakeEntry(newItem->GetGUID()) : 0;
-                    std::string icon = entry ? sT->GetItemIcon(entry, 30, 30, -18, 0) : sT->GetSlotIcon(slot, 30, 30, -18, 0);
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, icon + std::string(slotName), EQUIPMENT_SLOT_END, slot);
-                }
-            }
 
-        #ifdef PRESETS
-            if (sT->GetEnableSets())
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/RAIDFRAME/UI-RAIDFRAME-MAINASSIST:30:30:-18:0|tManage sets", EQUIPMENT_SLOT_END + 4, 0);
-        #endif
-            player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Enchant_Disenchant:30:30:-18:0|tRemove all transmogrifications", EQUIPMENT_SLOT_END + 2, 0, "Remove transmogrifications from all equipped items?", 0, false);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/PaperDollInfoFrame/UI-GearManager-Undo:30:30:-18:0|tUpdate menu", EQUIPMENT_SLOT_END + 1, 0);
-        }
-        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
-        return true;
-    }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        WorldSession* session = player->GetSession();
-        switch (sender)
-        {
-            case EQUIPMENT_SLOT_END: // Show items you can use
-                ShowTransmogItems(player, creature, action);
-                break;
-            case EQUIPMENT_SLOT_END + 1: // Main menu
-                OnGossipHello(player, creature);
-                break;
-            case EQUIPMENT_SLOT_END + 2: // Remove Transmogrifications
-            {
-                bool removed = false;
-                CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-                for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
-                {
-                    if (Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
-                    {
-                        if (!sT->GetFakeEntry(newItem->GetGUID()))
-                            continue;
-                        sT->DeleteFakeEntry(player, slot, newItem, trans);
-                        removed = true;
-                    }
-                }
-                if (removed)
-                {
-                    //session->SendAreaTriggerMessage("%s", GTS(LANG_ERR_UNTRANSMOG_OK));
-                    CharacterDatabase.CommitTransaction(trans);
-                }
-                else
-                    session->SendNotification(LANG_ERR_UNTRANSMOG_NO_TRANSMOGS);
-                OnGossipHello(player, creature);
-            } break;
-            case EQUIPMENT_SLOT_END + 3: // Remove Transmogrification from single item
-            {
-                if (Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, action))
-                {
-                    if (sT->GetFakeEntry(newItem->GetGUID()))
-                    {
-                        sT->DeleteFakeEntry(player, action, newItem);
-                        //session->SendAreaTriggerMessage("%s", GTS(LANG_ERR_UNTRANSMOG_OK));
-                    }
-                    else
-                        session->SendNotification(LANG_ERR_UNTRANSMOG_NO_TRANSMOGS);
-                }
-                OnGossipSelect(player, creature, EQUIPMENT_SLOT_END, action);
-            } break;
-    #ifdef PRESETS
-            case EQUIPMENT_SLOT_END + 4: // Presets menu
-            {
-                if (!sT->GetEnableSets())
-                {
-                    OnGossipHello(player, creature);
-                    return true;
-                }
-                if (sT->GetEnableSetInfo())
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Misc_Book_11:30:30:-18:0|tHow do sets work?", EQUIPMENT_SLOT_END + 10, 0);
-                for (Transmogrification::presetIdMap::const_iterator it = sT->presetByName[player->GetGUID()].begin(); it != sT->presetByName[player->GetGUID()].end(); ++it)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Misc_Statue_02:30:30:-18:0|t" + it->second, EQUIPMENT_SLOT_END + 6, it->first);
-
-                if (sT->presetByName[player->GetGUID()].size() < sT->GetMaxSets())
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/GuildBankFrame/UI-GuildBankFrame-NewTab:30:30:-18:0|tSave set", EQUIPMENT_SLOT_END + 8, 0);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|tBack...", EQUIPMENT_SLOT_END + 1, 0);
-                player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
-            } break;
-            case EQUIPMENT_SLOT_END + 5: // Use preset
-            {
-                if (!sT->GetEnableSets())
-                {
-                    OnGossipHello(player, creature);
-                    return true;
-                }
-                // action = presetID
-                for (Transmogrification::slotMap::const_iterator it = sT->presetById[player->GetGUID()][action].begin(); it != sT->presetById[player->GetGUID()][action].end(); ++it)
-                {
-                    if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, it->first))
-                        sT->PresetTransmog(player, item, it->second, it->first);
-                }
-                OnGossipSelect(player, creature, EQUIPMENT_SLOT_END + 6, action);
-            } break;
-            case EQUIPMENT_SLOT_END + 6: // view preset
-            {
-                if (!sT->GetEnableSets())
-                {
-                    OnGossipHello(player, creature);
-                    return true;
-                }
-                // action = presetID
-                for (Transmogrification::slotMap::const_iterator it = sT->presetById[player->GetGUID()][action].begin(); it != sT->presetById[player->GetGUID()][action].end(); ++it)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, sT->GetItemIcon(it->second, 30, 30, -18, 0) + sT->GetItemLink(it->second, session), sender, action);
-
-                player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Misc_Statue_02:30:30:-18:0|tUse this set", EQUIPMENT_SLOT_END + 5, action, "Using this set for transmogrify will bind transmogrified items to you and make them non-refundable and non-tradeable.\nDo you wish to continue?\n\n" + sT->presetByName[player->GetGUID()][action], 0, false);
-                player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, "|TInterface/PaperDollInfoFrame/UI-GearManager-LeaveItem-Opaque:30:30:-18:0|tDelete set", EQUIPMENT_SLOT_END + 7, action, "Are you sure you want to delete " + sT->presetByName[player->GetGUID()][action] + "?", 0, false);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|tBack...", EQUIPMENT_SLOT_END + 4, 0);
-                player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
-            } break;
-            case EQUIPMENT_SLOT_END + 7: // Delete preset
-            {
-                if (!sT->GetEnableSets())
-                {
-                    OnGossipHello(player, creature);
-                    return true;
-                }
-                // action = presetID
-                CharacterDatabase.PExecute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = {} AND PresetID = {}", player->GetGUID().GetCounter(), action);
-                sT->presetById[player->GetGUID()][action].clear();
-                sT->presetById[player->GetGUID()].erase(action);
-                sT->presetByName[player->GetGUID()].erase(action);
-
-                OnGossipSelect(player, creature, EQUIPMENT_SLOT_END + 4, 0);
-            } break;
-            case EQUIPMENT_SLOT_END + 8: // Save preset
-            {
-                if (!sT->GetEnableSets() || sT->presetByName[player->GetGUID()].size() >= sT->GetMaxSets())
-                {
-                    OnGossipHello(player, creature);
-                    return true;
-                }
-                uint32 cost = 0;
-                bool canSave = false;
-                for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
-                {
-                    if (!sT->GetSlotName(slot, session))
-                        continue;
-                    if (Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
-                    {
-                        uint32 entry = sT->GetFakeEntry(newItem->GetGUID());
-                        if (!entry)
-                            continue;
-                        const ItemTemplate* temp = sObjectMgr->GetItemTemplate(entry);
-                        if (!temp)
-                            continue;
-                        if (!sT->SuitableForTransmogrification(player, temp)) // no need to check?
-                            continue;
-                        cost += sT->GetSpecialPrice(temp);
-                        canSave = true;
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, sT->GetItemIcon(entry, 30, 30, -18, 0) + sT->GetItemLink(entry, session), EQUIPMENT_SLOT_END + 8, 0);
-                    }
-                }
-                if (canSave)
-                    player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, "|TInterface/GuildBankFrame/UI-GuildBankFrame-NewTab:30:30:-18:0|tSave set", 0, 0, "Insert set name", cost*sT->GetSetCostModifier() + sT->GetSetCopperCost(), true);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/PaperDollInfoFrame/UI-GearManager-Undo:30:30:-18:0|tUpdate menu", sender, action);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|tBack...", EQUIPMENT_SLOT_END + 4, 0);
-                player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
-            } break;
-            case EQUIPMENT_SLOT_END + 10: // Set info
-            {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|tBack...", EQUIPMENT_SLOT_END + 4, 0);
-                player->SEND_GOSSIP_MENU(sT->GetSetNpcText(), creature->GetGUID());
-            } break;
-    #endif
-            case EQUIPMENT_SLOT_END + 9: // Transmog info
-            {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|tBack...", EQUIPMENT_SLOT_END + 1, 0);
-                player->SEND_GOSSIP_MENU(sT->GetTransmogNpcText(), creature->GetGUID());
-            } break;
-            default: // Transmogrify
-            {
-                if (!sender && !action)
-                {
-                    OnGossipHello(player, creature);
-                    return true;
-                }
-                // sender = slot, action = display
-                TransmogTrinityStrings res = sT->Transmogrify(player, ObjectGuid(HighGuid::Item, action), sender);
-                if (res != LANG_ERR_TRANSMOG_OK)
-                    /*session->SendAreaTriggerMessage("%s",GTS(LANG_ERR_TRANSMOG_OK));
-                else*/
-                    session->SendNotification(res);
-                // OnGossipSelect(player, creature, EQUIPMENT_SLOT_END, sender);
-                // ShowTransmogItems(player, creature, sender);
-                player->CLOSE_GOSSIP_MENU(); // Wait for SetMoney to get fixed, issue #10053
-            } break;
-        }
-        return true;
-    }
 
 #ifdef PRESETS
     bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, const char* code)
@@ -290,7 +85,7 @@ public:
             return true; // should never happen
         if (!sT->GetEnableSets())
         {
-            OnGossipHello(player, creature);
+            creature->AI()->OnGossipHello(player);
             return true;
         }
         std::string name(code);
@@ -352,7 +147,7 @@ public:
     }
 #endif
 
-    void ShowTransmogItems(Player* player, Creature* creature, uint8 slot) // Only checks bags while can use an item from anywhere in inventory
+    static void ShowTransmogItems(Player* player, Creature* creature, uint8 slot) // Only checks bags while can use an item from anywhere in inventory
     {
         WorldSession* session = player->GetSession();
         Item* oldItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
@@ -410,6 +205,229 @@ public:
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|tBack...", EQUIPMENT_SLOT_END + 1, 0);
         player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
     }
+
+        struct npc_transmogrifierAI : public ScriptedAI
+        {
+            npc_transmogrifierAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
+            {
+
+                    WorldSession* session = player->GetSession();
+                    //if (player->GetQuestStatus(40328) == QUEST_STATUS_REWARDED || player->GetQuestStatus(40329) == QUEST_STATUS_REWARDED)
+                    {
+                        if (sT->GetEnableTransmogInfo())
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Misc_Book_11:30:30:-18:0|tHow does transmogrification work?", EQUIPMENT_SLOT_END + 9, 0);
+
+                        for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
+                        {
+                            if (const char* slotName = sT->GetSlotName(slot, session))
+                            {
+                                Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
+                                uint32 entry = newItem ? sT->GetFakeEntry(newItem->GetGUID()) : 0;
+                                std::string icon = entry ? sT->GetItemIcon(entry, 30, 30, -18, 0) : sT->GetSlotIcon(slot, 30, 30, -18, 0);
+                                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, icon + std::string(slotName), EQUIPMENT_SLOT_END, slot);
+                            }
+                        }
+
+                    #ifdef PRESETS
+                        if (sT->GetEnableSets())
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/RAIDFRAME/UI-RAIDFRAME-MAINASSIST:30:30:-18:0|tManage sets", EQUIPMENT_SLOT_END + 4, 0);
+                    #endif
+                        player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Enchant_Disenchant:30:30:-18:0|tRemove all transmogrifications", EQUIPMENT_SLOT_END + 2, 0, "Remove transmogrifications from all equipped items?", 0, false);
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/PaperDollInfoFrame/UI-GearManager-Undo:30:30:-18:0|tUpdate menu", EQUIPMENT_SLOT_END + 1, 0);
+                    }
+                    player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, me->GetGUID());
+                    return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    WorldSession* session = player->GetSession();
+                    switch (sender)
+                    {
+                        case EQUIPMENT_SLOT_END: // Show items you can use
+                            ShowTransmogItems(player, me, action);
+                            break;
+                        case EQUIPMENT_SLOT_END + 1: // Main menu
+                            me->AI()->OnGossipHello(player);
+                            break;
+                        case EQUIPMENT_SLOT_END + 2: // Remove Transmogrifications
+                        {
+                            bool removed = false;
+                            CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+                            for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
+                            {
+                                if (Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+                                {
+                                    if (!sT->GetFakeEntry(newItem->GetGUID()))
+                                        continue;
+                                    sT->DeleteFakeEntry(player, slot, newItem, trans);
+                                    removed = true;
+                                }
+                            }
+                            if (removed)
+                            {
+                                //session->SendAreaTriggerMessage("%s", GTS(LANG_ERR_UNTRANSMOG_OK));
+                                CharacterDatabase.CommitTransaction(trans);
+                            }
+                            else
+                                session->SendNotification(LANG_ERR_UNTRANSMOG_NO_TRANSMOGS);
+                            me->AI()->OnGossipHello(player);
+                        } break;
+                        case EQUIPMENT_SLOT_END + 3: // Remove Transmogrification from single item
+                        {
+                            if (Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, action))
+                            {
+                                if (sT->GetFakeEntry(newItem->GetGUID()))
+                                {
+                                    sT->DeleteFakeEntry(player, action, newItem);
+                                    //session->SendAreaTriggerMessage("%s", GTS(LANG_ERR_UNTRANSMOG_OK));
+                                }
+                                else
+                                    session->SendNotification(LANG_ERR_UNTRANSMOG_NO_TRANSMOGS);
+                            }
+                            OnGossipSelect(player, EQUIPMENT_SLOT_END, action);
+                        } break;
+                #ifdef PRESETS
+                        case EQUIPMENT_SLOT_END + 4: // Presets menu
+                        {
+                            if (!sT->GetEnableSets())
+                            {
+                                me->AI()->OnGossipHello(player);
+                                return true;
+                            }
+                            if (sT->GetEnableSetInfo())
+                                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Misc_Book_11:30:30:-18:0|tHow do sets work?", EQUIPMENT_SLOT_END + 10, 0);
+                            for (Transmogrification::presetIdMap::const_iterator it = sT->presetByName[player->GetGUID()].begin(); it != sT->presetByName[player->GetGUID()].end(); ++it)
+                                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Misc_Statue_02:30:30:-18:0|t" + it->second, EQUIPMENT_SLOT_END + 6, it->first);
+
+                            if (sT->presetByName[player->GetGUID()].size() < sT->GetMaxSets())
+                                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/GuildBankFrame/UI-GuildBankFrame-NewTab:30:30:-18:0|tSave set", EQUIPMENT_SLOT_END + 8, 0);
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|tBack...", EQUIPMENT_SLOT_END + 1, 0);
+                            player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, me->GetGUID());
+                        } break;
+                        case EQUIPMENT_SLOT_END + 5: // Use preset
+                        {
+                            if (!sT->GetEnableSets())
+                            {
+                                me->AI()->OnGossipHello(player);
+                                return true;
+                            }
+                            // action = presetID
+                            for (Transmogrification::slotMap::const_iterator it = sT->presetById[player->GetGUID()][action].begin(); it != sT->presetById[player->GetGUID()][action].end(); ++it)
+                            {
+                                if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, it->first))
+                                    sT->PresetTransmog(player, item, it->second, it->first);
+                            }
+                            OnGossipSelect(player, EQUIPMENT_SLOT_END + 6, action);
+                        } break;
+                        case EQUIPMENT_SLOT_END + 6: // view preset
+                        {
+                            if (!sT->GetEnableSets())
+                            {
+                                me->AI()->OnGossipHello(player);
+                                return true;
+                            }
+                            // action = presetID
+                            for (Transmogrification::slotMap::const_iterator it = sT->presetById[player->GetGUID()][action].begin(); it != sT->presetById[player->GetGUID()][action].end(); ++it)
+                                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, sT->GetItemIcon(it->second, 30, 30, -18, 0) + sT->GetItemLink(it->second, session), sender, action);
+
+                            player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Misc_Statue_02:30:30:-18:0|tUse this set", EQUIPMENT_SLOT_END + 5, action, "Using this set for transmogrify will bind transmogrified items to you and make them non-refundable and non-tradeable.\nDo you wish to continue?\n\n" + sT->presetByName[player->GetGUID()][action], 0, false);
+                            player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, "|TInterface/PaperDollInfoFrame/UI-GearManager-LeaveItem-Opaque:30:30:-18:0|tDelete set", EQUIPMENT_SLOT_END + 7, action, "Are you sure you want to delete " + sT->presetByName[player->GetGUID()][action] + "?", 0, false);
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|tBack...", EQUIPMENT_SLOT_END + 4, 0);
+                            player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, me->GetGUID());
+                        } break;
+                        case EQUIPMENT_SLOT_END + 7: // Delete preset
+                        {
+                            if (!sT->GetEnableSets())
+                            {
+                                me->AI()->OnGossipHello(player);
+                                return true;
+                            }
+                            // action = presetID
+                            CharacterDatabase.PExecute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = {} AND PresetID = {}", player->GetGUID().GetCounter(), action);
+                            sT->presetById[player->GetGUID()][action].clear();
+                            sT->presetById[player->GetGUID()].erase(action);
+                            sT->presetByName[player->GetGUID()].erase(action);
+
+                            OnGossipSelect(player, EQUIPMENT_SLOT_END + 4, 0);
+                        } break;
+                        case EQUIPMENT_SLOT_END + 8: // Save preset
+                        {
+                            if (!sT->GetEnableSets() || sT->presetByName[player->GetGUID()].size() >= sT->GetMaxSets())
+                            {
+                                me->AI()->OnGossipHello(player);
+                                return true;
+                            }
+                            uint32 cost = 0;
+                            bool canSave = false;
+                            for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
+                            {
+                                if (!sT->GetSlotName(slot, session))
+                                    continue;
+                                if (Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+                                {
+                                    uint32 entry = sT->GetFakeEntry(newItem->GetGUID());
+                                    if (!entry)
+                                        continue;
+                                    const ItemTemplate* temp = sObjectMgr->GetItemTemplate(entry);
+                                    if (!temp)
+                                        continue;
+                                    if (!sT->SuitableForTransmogrification(player, temp)) // no need to check?
+                                        continue;
+                                    cost += sT->GetSpecialPrice(temp);
+                                    canSave = true;
+                                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, sT->GetItemIcon(entry, 30, 30, -18, 0) + sT->GetItemLink(entry, session), EQUIPMENT_SLOT_END + 8, 0);
+                                }
+                            }
+                            if (canSave)
+                                player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, "|TInterface/GuildBankFrame/UI-GuildBankFrame-NewTab:30:30:-18:0|tSave set", 0, 0, "Insert set name", cost*sT->GetSetCostModifier() + sT->GetSetCopperCost(), true);
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/PaperDollInfoFrame/UI-GearManager-Undo:30:30:-18:0|tUpdate menu", sender, action);
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|tBack...", EQUIPMENT_SLOT_END + 4, 0);
+                            player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, me->GetGUID());
+                        } break;
+                        case EQUIPMENT_SLOT_END + 10: // Set info
+                        {
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|tBack...", EQUIPMENT_SLOT_END + 4, 0);
+                            player->SEND_GOSSIP_MENU(sT->GetSetNpcText(), me->GetGUID());
+                        } break;
+                #endif
+                        case EQUIPMENT_SLOT_END + 9: // Transmog info
+                        {
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|tBack...", EQUIPMENT_SLOT_END + 1, 0);
+                            player->SEND_GOSSIP_MENU(sT->GetTransmogNpcText(), me->GetGUID());
+                        } break;
+                        default: // Transmogrify
+                        {
+                            if (!sender && !action)
+                            {
+                                me->AI()->OnGossipHello(player);
+                                return true;
+                            }
+                            // sender = slot, action = display
+                            TransmogTrinityStrings res = sT->Transmogrify(player, ObjectGuid(HighGuid::Item, action), sender);
+                            if (res != LANG_ERR_TRANSMOG_OK)
+                                /*session->SendAreaTriggerMessage("%s",GTS(LANG_ERR_TRANSMOG_OK));
+                            else*/
+                                session->SendNotification(res);
+                            // OnGossipSelect(player, EQUIPMENT_SLOT_END, sender);
+                            // ShowTransmogItems(player, me, sender);
+                            player->CLOSE_GOSSIP_MENU(); // Wait for SetMoney to get fixed, issue #10053
+                        } break;
+                    }
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_transmogrifierAI(creature);
+        }
 };
 
 class PS_Transmogrification : public PlayerScript

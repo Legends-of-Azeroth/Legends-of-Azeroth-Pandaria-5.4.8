@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -1384,35 +1384,48 @@ class npc_firelands_dull_focus : public CreatureScript
 
         npc_firelands_dull_focus() : CreatureScript("npc_firelands_dull_focus") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+        
+        struct npc_firelands_dull_focusAI : public ScriptedAI
         {
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (!instance)
-                return true;
+            npc_firelands_dull_focusAI(Creature* creature) : ScriptedAI(creature) { }
 
-            if (!player)
-                return true;
-
-            if (player->GetQuestStatus(29234) != QUEST_STATUS_INCOMPLETE)
-                return true;
-
-            uint32 spellId = 0;
-
-            switch (creature->GetEntry())
+            bool OnGossipHello(Player* player) override
             {
-                case NPC_DULL_RHYOLITH_FOCUS: spellId = SPELL_CHARGED_RHYOLITH_FOCUS; break;
-                case NPC_DULL_EMBERSTONE_FOCUS: spellId = SPELL_CHARGED_EMBERSTONE_FOCUS; break;
-                case NPC_DULL_CHITINOUS_FOCUS: spellId = SPELL_CHARGED_CHITINOUS_FOCUS; break;
-                case NPC_DULL_PYRESHELL_FOCUS: spellId = SPELL_CHARGED_PYRESHELL_FOCUS; break;
-                default: break;
-            }
 
-            if (spellId)
-            {
-                player->CastSpell(player, spellId, true);
-                creature->DespawnOrUnsummon();
+                InstanceScript* instance = me->GetInstanceScript();
+                if (!instance)
+                    return true;
+
+                if (!player)
+                    return true;
+
+                if (player->GetQuestStatus(29234) != QUEST_STATUS_INCOMPLETE)
+                    return true;
+
+                uint32 spellId = 0;
+
+                switch (me->GetEntry())
+                {
+                    case NPC_DULL_RHYOLITH_FOCUS: spellId = SPELL_CHARGED_RHYOLITH_FOCUS; break;
+                    case NPC_DULL_EMBERSTONE_FOCUS: spellId = SPELL_CHARGED_EMBERSTONE_FOCUS; break;
+                    case NPC_DULL_CHITINOUS_FOCUS: spellId = SPELL_CHARGED_CHITINOUS_FOCUS; break;
+                    case NPC_DULL_PYRESHELL_FOCUS: spellId = SPELL_CHARGED_PYRESHELL_FOCUS; break;
+                    default: break;
+                }
+
+                if (spellId)
+                {
+                    player->CastSpell(player, spellId, true);
+                    me->DespawnOrUnsummon();
+                }
+                return true;
+        
             }
-            return true;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_firelands_dull_focusAI(creature);
         }
 };
 
@@ -1422,26 +1435,39 @@ class npc_firelands_circle_of_thorns_portal : public CreatureScript
 
         npc_firelands_circle_of_thorns_portal() : CreatureScript("npc_firelands_circle_of_thorns_portal") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+        
+        struct npc_firelands_circle_of_thorns_portalAI : public ScriptedAI
         {
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (!instance)
+            npc_firelands_circle_of_thorns_portalAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
+            {
+
+                InstanceScript* instance = me->GetInstanceScript();
+                if (!instance)
+                    return true;
+
+                if (!player)
+                    return true;
+
+                if (instance->GetData(DATA_EVENT) != DONE)
+                    return true;
+
+                bool bIn = (me->GetPositionZ() <= 100.0f);
+
+                if (bIn)
+                    player->NearTeleportTo(504.063416f, 476.256317f, 246.745483f, 2.30f, false);
+                else
+                    player->NearTeleportTo(173.153091f, 283.155334f, 84.603622f, 3.69f, false); 
+
                 return true;
+        
+            }
+        };
 
-            if (!player)
-                return true;
-
-            if (instance->GetData(DATA_EVENT) != DONE)
-                return true;
-
-            bool bIn = (creature->GetPositionZ() <= 100.0f);
-
-            if (bIn)
-                player->NearTeleportTo(504.063416f, 476.256317f, 246.745483f, 2.30f, false);
-            else
-                player->NearTeleportTo(173.153091f, 283.155334f, 84.603622f, 3.69f, false); 
-
-            return true;
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_firelands_circle_of_thorns_portalAI(creature);
         }
 };
 

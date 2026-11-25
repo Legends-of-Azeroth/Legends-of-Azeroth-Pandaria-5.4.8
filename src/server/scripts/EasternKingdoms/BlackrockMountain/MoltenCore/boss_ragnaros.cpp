@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -358,59 +358,66 @@ class npc_majordomo_executus_ragnaros : public CreatureScript
     public:
         npc_majordomo_executus_ragnaros() : CreatureScript("npc_majordomo_executus_ragnaros") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+        
 
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                creature->AI()->Talk(SAY_INTRO, player);
-
-                uint32 delay = 0;
-
-                creature->m_Events.Schedule(delay += 1000, 1, [creature]()
-                {
-                    creature->AI()->Talk(SAY_SPECIAL_1);
-                    creature->CastSpell(creature, SPELL_SUMMON_RAGNAROS, false);
-
-                    Movement::MoveSplineInit init(creature);
-                    for (auto itr : ExecutusPath)
-                        init.Path().push_back(G3D::Vector3(itr.GetPositionX(), itr.GetPositionY(), itr.GetPositionZ()));
-
-                    init.SetWalk(true);
-                    init.Launch();
-                });
-
-                creature->m_Events.Schedule(delay += 14000, 2, [creature]()
-                {
-                    creature->SetFacingTo(Position::NormalizeOrientation(creature->GetOrientation() + M_PI / 2));
-                    creature->AI()->Talk(SAY_SPECIAL_2);
-                });
-
-                creature->m_Events.Schedule(delay += 25000, 3, [creature]()
-                {
-                    creature->AI()->Talk(SAY_SPECIAL_3);
-                });
-            }
-
-            player->CLOSE_GOSSIP_MENU();
-
-            return true;
-        }
+    
 
         struct npc_majordomo_executus_ragnarosAI : public ScriptedAI
         {
             npc_majordomo_executus_ragnarosAI(Creature* creature) : ScriptedAI(creature) { }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            me->AI()->Talk(SAY_INTRO, player);
+
+                            uint32 delay = 0;
+
+                            me->m_Events.Schedule(delay += 1000, 1, [this]()
+                            {
+                                me->AI()->Talk(SAY_SPECIAL_1);
+                                me->CastSpell(me, SPELL_SUMMON_RAGNAROS, false);
+
+                                Movement::MoveSplineInit init(me);
+                                for (auto itr : ExecutusPath)
+                                    init.Path().push_back(G3D::Vector3(itr.GetPositionX(), itr.GetPositionY(), itr.GetPositionZ()));
+
+                                init.SetWalk(true);
+                                init.Launch();
+                            });
+
+                            me->m_Events.Schedule(delay += 14000, 2, [this]()
+                            {
+                                me->SetFacingTo(Position::NormalizeOrientation(me->GetOrientation() + M_PI / 2));
+                                me->AI()->Talk(SAY_SPECIAL_2);
+                            });
+
+                            me->m_Events.Schedule(delay += 25000, 3, [this]()
+                            {
+                                me->AI()->Talk(SAY_SPECIAL_3);
+                            });
+                        }
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {

@@ -352,36 +352,9 @@ class npc_yang_ironclaw : public CreatureScript
     public:
         npc_yang_ironclaw() : CreatureScript("npc_yang_ironclaw") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_BATTLE, "We're ready to defend!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "We will wait", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+        
 
-            // "Thanks for saving us! Are you ready to get this party started?"
-            player->SEND_GOSSIP_MENU(2475, creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                {
-                    if (creature->IsAIEnabled && !creature->GetVictim())
-                        creature->GetAI()->DoAction(ACTION_START_EVENT);
-                }
-                    break;
-                default:
-                    break;
-            }
-
-            player->CLOSE_GOSSIP_MENU();
-
-            return true;
-        }
+    
 
         struct npc_yang_ironclawAI : public ScriptedAI
         {
@@ -757,7 +730,41 @@ class npc_yang_ironclaw : public CreatureScript
             ObjectGuid vojakGUID;
             ObjectGuid AmberWingGUID;
             bool encounterInProgress;
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_BATTLE, "We're ready to defend!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "We will wait", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+
+                // "Thanks for saving us! Are you ready to get this party started?"
+                player->SEND_GOSSIP_MENU(2475, me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        switch (action)
+                        {
+                            case GOSSIP_ACTION_INFO_DEF + 1:
+                            {
+                                if (me->IsAIEnabled && !me->GetVictim())
+                                    me->GetAI()->DoAction(ACTION_START_EVENT);
+                            }
+                                break;
+                            default:
+                                break;
+                        }
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {

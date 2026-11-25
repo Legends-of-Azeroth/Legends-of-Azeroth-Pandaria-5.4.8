@@ -591,48 +591,9 @@ class npc_death_knight_initiate : public CreatureScript
 public:
     npc_death_knight_initiate() : CreatureScript("npc_death_knight_initiate") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF)
-        {
-            player->CLOSE_GOSSIP_MENU();
 
-            if (player->IsInCombat() || creature->IsInCombat())
-                return true;
 
-            if (npc_death_knight_initiateAI* pInitiateAI = CAST_AI(npc_death_knight_initiate::npc_death_knight_initiateAI, creature->AI()))
-            {
-                if (pInitiateAI->m_bIsDuelInProgress)
-                    return true;
-            }
-
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CAN_SWIM);
-
-            sCreatureTextMgr->SendChat(creature, SAY_DUEL, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
-
-            player->CastSpell(creature, SPELL_DUEL, false);
-            player->CastSpell(player, SPELL_DUEL_FLAG, true);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && creature->IsFullHealth())
-        {
-            if (player->HealthBelowPct(10))
-                return true;
-
-            if (player->IsInCombat() || creature->IsInCombat())
-                return true;
-
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ACCEPT_DUEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        }
-        return true;
-    }
+    
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -736,7 +697,53 @@ public:
 
             CombatAI::UpdateAI(uiDiff);
         }
-    };
+                bool OnGossipHello(Player* player) override
+            {
+
+            if (player->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && me->IsFullHealth())
+            {
+                if (player->HealthBelowPct(10))
+                    return true;
+
+                if (player->IsInCombat() || me->IsInCombat())
+                    return true;
+
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ACCEPT_DUEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+            }
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    if (action == GOSSIP_ACTION_INFO_DEF)
+                    {
+                        player->CLOSE_GOSSIP_MENU();
+
+                        if (player->IsInCombat() || me->IsInCombat())
+                            return true;
+
+                        if (npc_death_knight_initiateAI* pInitiateAI = CAST_AI(npc_death_knight_initiate::npc_death_knight_initiateAI, me->AI()))
+                        {
+                            if (pInitiateAI->m_bIsDuelInProgress)
+                                return true;
+                        }
+
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CAN_SWIM);
+
+                        sCreatureTextMgr->SendChat(me, SAY_DUEL, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
+
+                        player->CastSpell(me, SPELL_DUEL, false);
+                        player->CastSpell(player, SPELL_DUEL_FLAG, true);
+                    }
+                    return true;
+    
+            }
+};
 
 };
 

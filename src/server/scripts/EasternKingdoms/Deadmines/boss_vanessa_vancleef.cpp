@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -266,24 +266,37 @@ class npc_vanessa_vancleef_a_note_from_vanessa : public CreatureScript
     public:
         npc_vanessa_vancleef_a_note_from_vanessa() : CreatureScript("npc_vanessa_vancleef_a_note_from_vanessa") { }
      
-        bool OnGossipHello(Player* /*player*/, Creature* creature) override
+        
+        struct npc_vanessa_vancleef_a_note_from_vanessaAI : public ScriptedAI
         {
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (!instance)
+            npc_vanessa_vancleef_a_note_from_vanessaAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
+            {
+
+                InstanceScript* instance = me->GetInstanceScript();
+                if (!instance)
+                    return true;
+
+                if (instance->GetBossState(DATA_CAPTAIN) != DONE)
+                    return true;
+
+                if (instance->GetData(DATA_VANESSA_EVENT) != NOT_STARTED)
+                    return true;
+
+                me->SummonCreature(NPC_VANESSA_SITTING, vanessaPos);
+                instance->SetData(DATA_VANESSA_EVENT, IN_PROGRESS);
+
+                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->DespawnOrUnsummon(1000);
                 return true;
+        
+            }
+        };
 
-            if (instance->GetBossState(DATA_CAPTAIN) != DONE)
-                return true;
-
-            if (instance->GetData(DATA_VANESSA_EVENT) != NOT_STARTED)
-                return true;
-
-            creature->SummonCreature(NPC_VANESSA_SITTING, vanessaPos);
-            instance->SetData(DATA_VANESSA_EVENT, IN_PROGRESS);
-
-            creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            creature->DespawnOrUnsummon(1000);
-            return true;
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_vanessa_vancleef_a_note_from_vanessaAI(creature);
         }
 };
 

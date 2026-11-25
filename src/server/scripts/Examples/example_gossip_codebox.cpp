@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -54,56 +54,53 @@ class example_gossip_codebox : public CreatureScript
         {
         }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+        
+
+    
+
+        struct example_gossip_codeboxAI : public ScriptedAI
         {
-            player->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1, "", 0, true);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            example_gossip_codeboxAI(Creature* creature) : ScriptedAI(creature) { }
 
-            player->PlayerTalkClass->SendGossipMenu(907, creature->GetGUID());
-
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            if (action == GOSSIP_ACTION_INFO_DEF+2)
+            bool OnGossipSelectCode(Player* player, uint32 /*menuId*/, uint32 gossipListId, char const* code) override
             {
-                //Read comment in enum
-                creature->AI()->Talk(SAY_NOT_INTERESTED);
-                player->CLOSE_GOSSIP_MENU();
-            }
-
-            return true;
-        }
-
-        bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, char const* code) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            if (sender == GOSSIP_SENDER_MAIN)
-            {
-                switch (action)
+                player->PlayerTalkClass->ClearMenus();
+                uint32 action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+                if (action == GOSSIP_ACTION_INFO_DEF+1)
                 {
-                case GOSSIP_ACTION_INFO_DEF+1:
                     if (player->GetName() != code)
                     {
                         //Read comment in enum
-                        creature->AI()->Talk(SAY_WRONG);
-                        creature->CastSpell(player, SPELL_POLYMORPH, true);
+                        Talk(SAY_WRONG);
+                        me->CastSpell(player, SPELL_POLYMORPH, true);
                     }
                     else
                     {
                         //Read comment in enum
-                        creature->AI()->Talk(SAY_CORRECT);
-                        creature->CastSpell(player, SPELL_MARK_OF_THE_WILD, true);
+                        Talk(SAY_CORRECT);
+                        me->CastSpell(player, SPELL_MARK_OF_THE_WILD, true);
                     }
                     player->CLOSE_GOSSIP_MENU();
-
                     return true;
                 }
+                return false;
             }
+                    bool OnGossipHello(Player* player) override
+            {
 
-            return false;
+                player->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1, "", 0, true);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+
+                player->PlayerTalkClass->SendGossipMenu(907, me->GetGUID());
+
+                return false;
+        
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new example_gossip_codeboxAI(creature);
         }
 };
 

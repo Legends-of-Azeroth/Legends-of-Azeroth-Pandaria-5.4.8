@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "old_hillsbrad.h"
 #include "ScriptedEscortAI.h"
 
@@ -36,19 +37,32 @@ class go_barrel_old_hillsbrad : public GameObjectScript
 public:
     go_barrel_old_hillsbrad() : GameObjectScript("go_barrel_old_hillsbrad") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
-    {
-        if (InstanceScript* instance = go->GetInstanceScript())
+    
+
+        struct go_barrel_old_hillsbradAI : public GameObjectAI
         {
-            if (instance->GetData(TYPE_BARREL_DIVERSION) == DONE)
-                return false;
+            go_barrel_old_hillsbradAI(GameObject* go) : GameObjectAI(go) { }
 
-            instance->SetData(TYPE_BARREL_DIVERSION, IN_PROGRESS);
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+            if (InstanceScript* instance = me->GetInstanceScript())
+            {
+                if (instance->GetData(TYPE_BARREL_DIVERSION) == DONE)
+                    return false;
+
+                instance->SetData(TYPE_BARREL_DIVERSION, IN_PROGRESS);
+            }
+
+            return false;
+    
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_barrel_old_hillsbradAI(go);
         }
-
-        return false;
-    }
-
 };
 
 /*######

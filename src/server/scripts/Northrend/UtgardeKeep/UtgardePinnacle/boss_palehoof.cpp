@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
 #include <algorithm>
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "utgarde_pinnacle.h"
 
 enum Spells
@@ -953,23 +954,36 @@ class go_palehoof_sphere : public GameObjectScript
     public:
         go_palehoof_sphere() : GameObjectScript("go_palehoof_sphere") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        
+        struct go_palehoof_sphereAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
+            go_palehoof_sphereAI(GameObject* go) : GameObjectAI(go) { }
 
-            Creature* pPalehoof = Unit::GetCreature(*go, instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : ObjectGuid::Empty);
-            if (pPalehoof && pPalehoof->IsAlive())
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                go->SetGoState(GO_STATE_ACTIVE);
 
-                if (InstanceScript* instance = go->GetInstanceScript())
-                    if (instance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
-                        return true;
+                InstanceScript* instance = me->GetInstanceScript();
 
-                CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->NextPhase();
+                Creature* pPalehoof = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : ObjectGuid::Empty);
+                if (pPalehoof && pPalehoof->IsAlive())
+                {
+                    me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    me->SetGoState(GO_STATE_ACTIVE);
+
+                    if (InstanceScript* instance = me->GetInstanceScript())
+                        if (instance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
+                            return true;
+
+                    CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->NextPhase();
+                }
+                return true;
+        
             }
-            return true;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_palehoof_sphereAI(go);
         }
 };
 

@@ -30,6 +30,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "Player.h"
@@ -44,27 +45,44 @@ class npc_rivern_frostwind : public CreatureScript
 public:
     npc_rivern_frostwind() : CreatureScript("npc_rivern_frostwind") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
 
-        return true;
-    }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
+    
+        struct npc_rivern_frostwindAI : public ScriptedAI
+        {
+            npc_rivern_frostwindAI(Creature* creature) : ScriptedAI(creature) { }
 
-        if (creature->IsVendor() && player->GetReputationRank(589) == REP_EXALTED)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+            bool OnGossipHello(Player* player) override
+            {
 
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
 
-        return true;
-    }
+            if (me->IsVendor() && player->GetReputationRank(589) == REP_EXALTED)
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    if (action == GOSSIP_ACTION_TRADE)
+                        player->GetSession()->SendListInventory(me->GetGUID());
+
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_rivern_frostwindAI(creature);
+        }
 };
 
 enum Says
@@ -291,21 +309,6 @@ class npc_ranshalla : public CreatureScript
 {
 public:
     npc_ranshalla() : CreatureScript("npc_ranshalla") { }
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_GUARDIANS_ALTAR)
-        {
-            creature->AI()->Talk(SAY_QUEST_START);
-            creature->SetFaction(FACTION_ESCORT_A_NEUTRAL_PASSIVE);
-
-            if (npc_ranshallaAI* escortAI = dynamic_cast<npc_ranshallaAI*>(creature->AI()))
-                escortAI->Start(false, player->GetGUID(), quest);
-
-            return true;
-        }
-
-        return false;
-    }
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_ranshallaAI(creature);
@@ -582,6 +585,24 @@ public:
 
             EscortAI::UpdateEscortAI(diff);
         }
+        void OnQuestAccept(Player* player, Quest const* quest) override
+        {
+
+            if (quest->GetQuestId() == QUEST_GUARDIANS_ALTAR)
+            {
+                Talk(SAY_QUEST_START);
+                me->SetFaction(FACTION_ESCORT_A_NEUTRAL_PASSIVE);
+
+                if (npc_ranshallaAI* escortAI = this)
+                    escortAI->Start(false, player->GetGUID(), quest);
+
+                return;
+            }
+
+            return;
+    
+        }
+
     private:
         EventMap events;
     };
@@ -595,23 +616,36 @@ class go_elune_fire : public GameObjectScript
 {
 public:
     go_elune_fire() : GameObjectScript("go_elune_fire") { }
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
-    {
-        // Check if we are using the torches or the altar
-        bool isAltar = false;
-
-        if (go->GetEntry() == GO_ELUNE_ALTAR)
-            isAltar = true;
-
-        if (Creature* ranshalla = GetClosestCreatureWithEntry(go, NPC_RANSHALLA, 10.0f))
+    
+        struct go_elune_fireAI : public GameObjectAI
         {
-            if (npc_ranshalla::npc_ranshallaAI* escortAI = dynamic_cast<npc_ranshalla::npc_ranshallaAI*>(ranshalla->AI()))
-                escortAI->DoContinueEscort(isAltar);
-        }
-        go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            go_elune_fireAI(GameObject* go) : GameObjectAI(go) { }
 
-        return false;
-    }
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+            // Check if we are using the torches or the altar
+            bool isAltar = false;
+
+            if (me->GetEntry() == GO_ELUNE_ALTAR)
+                isAltar = true;
+
+            if (Creature* ranshalla = GetClosestCreatureWithEntry(me, NPC_RANSHALLA, 10.0f))
+            {
+                if (npc_ranshalla::npc_ranshallaAI* escortAI = dynamic_cast<npc_ranshalla::npc_ranshallaAI*>(ranshalla->AI()))
+                    escortAI->DoContinueEscort(isAltar);
+            }
+            me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
+            return false;
+    
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_elune_fireAI(go);
+        }
 };
 
 enum q28615

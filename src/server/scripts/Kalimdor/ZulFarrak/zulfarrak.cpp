@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -29,6 +29,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptedGossip.h"
 #include "zulfarrak.h"
 #include "Player.h"
@@ -68,36 +69,9 @@ class npc_sergeant_bly : public CreatureScript
     public:
         npc_sergeant_bly() : CreatureScript("npc_sergeant_bly") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            if (action == GOSSIP_ACTION_INFO_DEF+1)
-            {
-                player->CLOSE_GOSSIP_MENU();
-                CAST_AI(npc_sergeant_bly::npc_sergeant_blyAI, creature->AI())->PlayerGUID = player->GetGUID();
-                creature->AI()->DoAction(0);
-            }
-            return true;
-        }
+    
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (InstanceScript* instance = creature->GetInstanceScript())
-            {
-                if (instance->GetData(EVENT_PYRAMID) == PYRAMID_KILLED_ALL_TROLLS)
-                {
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                    player->SEND_GOSSIP_MENU(1517, creature->GetGUID());
-                }
-                else
-                    if (instance->GetData(EVENT_PYRAMID) == PYRAMID_NOT_STARTED)
-                        player->SEND_GOSSIP_MENU(1515, creature->GetGUID());
-                    else
-                        player->SEND_GOSSIP_MENU(1516, creature->GetGUID());
-                return true;
-            }
-            return false;
-        }
+        
 
         struct npc_sergeant_blyAI : public ScriptedAI
         {
@@ -199,7 +173,41 @@ class npc_sergeant_bly : public CreatureScript
                     if (crew->IsAlive())
                         crew->SetFaction(FACTION_HOSTILE);
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    if (instance->GetData(EVENT_PYRAMID) == PYRAMID_KILLED_ALL_TROLLS)
+                    {
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                        player->SEND_GOSSIP_MENU(1517, me->GetGUID());
+                    }
+                    else
+                        if (instance->GetData(EVENT_PYRAMID) == PYRAMID_NOT_STARTED)
+                            player->SEND_GOSSIP_MENU(1515, me->GetGUID());
+                        else
+                            player->SEND_GOSSIP_MENU(1516, me->GetGUID());
+                    return true;
+                }
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+                        if (action == GOSSIP_ACTION_INFO_DEF+1)
+                        {
+                            player->CLOSE_GOSSIP_MENU();
+                            CAST_AI(npc_sergeant_bly::npc_sergeant_blyAI, me->AI())->PlayerGUID = player->GetGUID();
+                            me->AI()->DoAction(0);
+                        }
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -232,38 +240,9 @@ class npc_weegli_blastfuse : public CreatureScript
     public:
         npc_weegli_blastfuse() : CreatureScript("npc_weegli_blastfuse") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            if (action == GOSSIP_ACTION_INFO_DEF+1)
-            {
-                player->CLOSE_GOSSIP_MENU();
-                //here we make him run to door, set the charge and run away off to nowhere
-                creature->AI()->DoAction(0);
-            }
-            return true;
-        }
+    
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (InstanceScript* instance = creature->GetInstanceScript())
-            {
-                switch (instance->GetData(EVENT_PYRAMID))
-                {
-                    case PYRAMID_KILLED_ALL_TROLLS:
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WEEGLI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                        player->SEND_GOSSIP_MENU(1514, creature->GetGUID());  //if event can proceed to end
-                        break;
-                    case PYRAMID_NOT_STARTED:
-                        player->SEND_GOSSIP_MENU(1511, creature->GetGUID());  //if event not started
-                        break;
-                    default:
-                        player->SEND_GOSSIP_MENU(1513, creature->GetGUID());  //if event are in progress
-                }
-                return true;
-            }
-            return false;
-        }
+        
 
         struct npc_weegli_blastfuseAI : public ScriptedAI
         {
@@ -364,7 +343,43 @@ class npc_weegli_blastfuse : public CreatureScript
                     destroyingDoor = true;
                 }
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    switch (instance->GetData(EVENT_PYRAMID))
+                    {
+                        case PYRAMID_KILLED_ALL_TROLLS:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WEEGLI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                            player->SEND_GOSSIP_MENU(1514, me->GetGUID());  //if event can proceed to end
+                            break;
+                        case PYRAMID_NOT_STARTED:
+                            player->SEND_GOSSIP_MENU(1511, me->GetGUID());  //if event not started
+                            break;
+                        default:
+                            player->SEND_GOSSIP_MENU(1513, me->GetGUID());  //if event are in progress
+                    }
+                    return true;
+                }
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+                        if (action == GOSSIP_ACTION_INFO_DEF+1)
+                        {
+                            player->CLOSE_GOSSIP_MENU();
+                            //here we make him run to door, set the charge and run away off to nowhere
+                            me->AI()->DoAction(0);
+                        }
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -606,20 +621,33 @@ class go_shallow_grave : public GameObjectScript
     public:
         go_shallow_grave() : GameObjectScript("go_shallow_grave") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        
+        struct go_shallow_graveAI : public GameObjectAI
         {
-            // randomly summon a zombie or dead hero the first time a grave is used
-            if (go->GetUseCount() == 0)
+            go_shallow_graveAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                uint32 randomchance = urand(0, 100);
-                if (randomchance < CHANCE_ZOMBIE)
-                    go->SummonCreature(NPC_ZOMBIE, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000ms);
-                else
-                    if ((randomchance - CHANCE_ZOMBIE) < CHANCE_DEAD_HERO)
-                        go->SummonCreature(NPC_DEAD_HERO, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000ms);
+
+                // randomly summon a zombie or dead hero the first time a grave is used
+                if (me->GetUseCount() == 0)
+                {
+                    uint32 randomchance = urand(0, 100);
+                    if (randomchance < CHANCE_ZOMBIE)
+                        me->SummonCreature(NPC_ZOMBIE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000ms);
+                    else
+                        if ((randomchance - CHANCE_ZOMBIE) < CHANCE_DEAD_HERO)
+                            me->SummonCreature(NPC_DEAD_HERO, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000ms);
+                }
+                me->AddUse();
+                return false;
+        
             }
-            go->AddUse();
-            return false;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_shallow_graveAI(go);
         }
 };
 
@@ -631,14 +659,27 @@ class go_gong_of_zulfarrak : public GameObjectScript
     public:
         go_gong_of_zulfarrak() : GameObjectScript("go_gong_of_zulfarrak") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        
+        struct go_gong_of_zulfarrakAI : public GameObjectAI
         {
-            go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND | GO_FLAG_NOT_SELECTABLE);
+            go_gong_of_zulfarrakAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (TempSummon* Gahzrilla = go->SummonCreature(NPC_GAHZRILLA, GahzrillaPath[0], TEMPSUMMON_MANUAL_DESPAWN))
-                Gahzrilla->AI()->DoAction(ACTION_INTRO);
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
 
-            return false;
+                me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND | GO_FLAG_NOT_SELECTABLE);
+
+                if (TempSummon* Gahzrilla = me->SummonCreature(NPC_GAHZRILLA, GahzrillaPath[0], TEMPSUMMON_MANUAL_DESPAWN))
+                    Gahzrilla->AI()->DoAction(ACTION_INTRO);
+
+                return false;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_gong_of_zulfarrakAI(go);
         }
 };
 

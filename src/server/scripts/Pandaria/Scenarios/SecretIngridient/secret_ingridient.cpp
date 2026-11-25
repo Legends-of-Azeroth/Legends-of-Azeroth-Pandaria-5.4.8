@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -569,45 +569,62 @@ class npc_secret_ing_sungshin_ironpaw_queue : public CreatureScript
     public:
         npc_secret_ing_sungshin_ironpaw_queue() : CreatureScript("npc_secret_ing_sungshin_ironpaw_queue") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
+    
 
-            switch (action)
+        
+        struct npc_secret_ing_sungshin_ironpaw_queueAI : public ScriptedAI
+        {
+            npc_secret_ing_sungshin_ironpaw_queueAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
             {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                {
-                    player->KilledMonsterCredit(NPC_QUEUE_CREDIT);
-                    lfg::LfgDungeonSet scenario = { 745 };
-                    sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
-                    break;
-                }
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                    player->GetSession()->SendTrainerList(creature->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 3:
-                    player->GetSession()->SendListInventory(creature->GetGUID());
-                    break;
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+
+                if (player->GetQuestStatus(QUEST_SECRET_INGRIDIENT_IS) == QUEST_STATUS_INCOMPLETE && !player->GetGroup() && !player->IsUsingLfg())
+                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
             }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
 
-            player->CLOSE_GOSSIP_MENU();
+                        player->PlayerTalkClass->ClearMenus();
 
-            return true;
-        }
+                        switch (action)
+                        {
+                            case GOSSIP_ACTION_INFO_DEF + 1:
+                            {
+                                player->KilledMonsterCredit(NPC_QUEUE_CREDIT);
+                                lfg::LfgDungeonSet scenario = { 745 };
+                                sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
+                                break;
+                            }
+                            case GOSSIP_ACTION_INFO_DEF + 2:
+                                player->GetSession()->SendTrainerList(me->GetGUID());
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 3:
+                                player->GetSession()->SendListInventory(me->GetGUID());
+                                break;
+                        }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-
-            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-
-            if (player->GetQuestStatus(QUEST_SECRET_INGRIDIENT_IS) == QUEST_STATUS_INCOMPLETE && !player->GetGroup() && !player->IsUsingLfg())
-                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
+            return new npc_secret_ing_sungshin_ironpaw_queueAI(creature);
         }
 };
 

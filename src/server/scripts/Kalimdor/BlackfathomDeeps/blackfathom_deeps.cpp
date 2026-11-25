@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptedGossip.h"
 #include "blackfathom_deeps.h"
 #include "ScriptedEscortAI.h"
@@ -38,11 +39,24 @@ class go_blackfathom_altar : public GameObjectScript
     public:
         go_blackfathom_altar() : GameObjectScript("go_blackfathom_altar") { }
 
-        bool OnGossipHello(Player* player, GameObject* /*go*/) override
+        
+        struct go_blackfathom_altarAI : public GameObjectAI
         {
-            if (!player->HasAura(SPELL_BLESSING_OF_BLACKFATHOM))
-                player->AddAura(SPELL_BLESSING_OF_BLACKFATHOM, player);
-            return true;
+            go_blackfathom_altarAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                if (!player->HasAura(SPELL_BLESSING_OF_BLACKFATHOM))
+                    player->AddAura(SPELL_BLESSING_OF_BLACKFATHOM, player);
+                return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_blackfathom_altarAI(go);
         }
 };
 
@@ -51,18 +65,31 @@ class go_blackfathom_fire : public GameObjectScript
     public:
         go_blackfathom_fire() : GameObjectScript("go_blackfathom_fire") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        
+        struct go_blackfathom_fireAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
+            go_blackfathom_fireAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (instance)
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                go->SetGoState(GO_STATE_ACTIVE);
-                go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                instance->SetData(DATA_FIRE, instance->GetData(DATA_FIRE) + 1);
-                return true;
+
+                InstanceScript* instance = me->GetInstanceScript();
+
+                if (instance)
+                {
+                    me->SetGoState(GO_STATE_ACTIVE);
+                    me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    instance->SetData(DATA_FIRE, instance->GetData(DATA_FIRE) + 1);
+                    return true;
+                }
+                return false;
+        
             }
-            return false;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_blackfathom_fireAI(go);
         }
 };
 

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -125,38 +125,9 @@ class npc_neptulon : public CreatureScript
     public:
         npc_neptulon() : CreatureScript("npc_neptulon") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (InstanceScript* instance = creature->GetInstanceScript())
-            {
-                if (instance->GetBossState(DATA_COMMANDER_ULTHOK) != DONE
-                    || instance->GetBossState(DATA_OZUMAT) == IN_PROGRESS
-                    || instance->GetBossState(DATA_OZUMAT) == DONE)
-                    return false;
+        
 
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_READY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                player->SEND_GOSSIP_MENU(1, creature->GetGUID());
-            }
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
-        {
-            if (InstanceScript* instance = creature->GetInstanceScript())
-            {
-                if (instance->GetBossState(DATA_COMMANDER_ULTHOK) != DONE
-                    || instance->GetBossState(DATA_OZUMAT) == IN_PROGRESS
-                    || instance->GetBossState(DATA_OZUMAT) == DONE)
-                    return false;
-
-                player->PlayerTalkClass->ClearMenus();
-                player->CLOSE_GOSSIP_MENU();
-                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                instance->SetBossState(DATA_OZUMAT, IN_PROGRESS);
-                creature->AI()->DoAction(ACTION_NEPTULON_START);
-            }
-            return true;
-        }
+    
 
         struct npc_neptulonAI : public ScriptedAI
         {
@@ -441,7 +412,43 @@ class npc_neptulon : public CreatureScript
                             return true;
                 return false;
             };
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    if (instance->GetBossState(DATA_COMMANDER_ULTHOK) != DONE
+                        || instance->GetBossState(DATA_OZUMAT) == IN_PROGRESS
+                        || instance->GetBossState(DATA_OZUMAT) == DONE)
+                        return false;
+
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_READY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                    player->SEND_GOSSIP_MENU(1, me->GetGUID());
+                }
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        if (InstanceScript* instance = me->GetInstanceScript())
+                        {
+                            if (instance->GetBossState(DATA_COMMANDER_ULTHOK) != DONE
+                                || instance->GetBossState(DATA_OZUMAT) == IN_PROGRESS
+                                || instance->GetBossState(DATA_OZUMAT) == DONE)
+                                return false;
+
+                            player->PlayerTalkClass->ClearMenus();
+                            player->CLOSE_GOSSIP_MENU();
+                            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            instance->SetBossState(DATA_OZUMAT, IN_PROGRESS);
+                            me->AI()->DoAction(ACTION_NEPTULON_START);
+                        }
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -59,17 +59,7 @@ class npc_aged_dying_ancient_kodo : public CreatureScript
 public:
     npc_aged_dying_ancient_kodo() : CreatureScript("npc_aged_dying_ancient_kodo") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && creature->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
-        {
-            player->TalkedToCreature(creature->GetEntry(), ObjectGuid::Empty);
-            player->RemoveAurasDueToSpell(SPELL_KODO_KOMBO_PLAYER_BUFF);
-        }
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
+    
 
     struct npc_aged_dying_ancient_kodoAI : public ScriptedAI
     {
@@ -106,7 +96,20 @@ public:
                 me->DespawnOrUnsummon(60000);
             }
         }
-    };
+                bool OnGossipHello(Player* player) override
+            {
+
+            if (player->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && me->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
+            {
+                player->TalkedToCreature(me->GetEntry(), ObjectGuid::Empty);
+                player->RemoveAurasDueToSpell(SPELL_KODO_KOMBO_PLAYER_BUFF);
+            }
+
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+            return true;
+    
+            }
+        };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -159,29 +162,42 @@ class go_demon_portal : public GameObjectScript
     public:
         go_demon_portal() : GameObjectScript("go_demon_portal") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_demon_portalAI : public GameObjectAI
         {
-            if (player->GetQuestStatus(QUEST_PORTAL_OF_THE_LEGION_H) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_PORTAL_OF_THE_LEGION_A) == QUEST_STATUS_INCOMPLETE)
+            go_demon_portalAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                ObjectGuid goGuid = go->GetGUID();
-                if (Creature* guardian = go->SummonCreature(NPC_DEMON_GUARDIAN, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0ms))
+
+                if (player->GetQuestStatus(QUEST_PORTAL_OF_THE_LEGION_H) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_PORTAL_OF_THE_LEGION_A) == QUEST_STATUS_INCOMPLETE)
                 {
-                    guardian->AI()->AttackStart(player);
-                    guardian->SetOwnerGUID(goGuid);
-
-                    go->SetGoState(GO_STATE_ACTIVE);
-                    go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
-
-                    uint32 delay = 0;
-                    guardian->m_Events.Schedule(delay += 5000, [guardian, goGuid]()
+                    ObjectGuid goGuid = me->GetGUID();
+                    if (Creature* guardian = me->SummonCreature(NPC_DEMON_GUARDIAN, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0ms))
                     {
-                        if (GameObject* portal = ObjectAccessor::GetGameObject(*guardian, goGuid))
-                            portal->SetGoState(GO_STATE_READY);
-                    });
-                }
-            }
+                        guardian->AI()->AttackStart(player);
+                        guardian->SetOwnerGUID(goGuid);
 
-            return true;
+                        me->SetGoState(GO_STATE_ACTIVE);
+                        me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
+                        uint32 delay = 0;
+                        guardian->m_Events.Schedule(delay += 5000, [guardian, goGuid]()
+                        {
+                            if (GameObject* portal = ObjectAccessor::GetGameObject(*guardian, goGuid))
+                                portal->SetGoState(GO_STATE_READY);
+                        });
+                    }
+                }
+
+                return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_demon_portalAI(go);
         }
 };
 

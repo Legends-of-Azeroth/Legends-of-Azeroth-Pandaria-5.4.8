@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -223,128 +223,9 @@ class npc_arthas : public CreatureScript
     public:
         npc_arthas() : CreatureScript("npc_arthas") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            npc_arthasAI* pAI = CAST_AI(npc_arthas::npc_arthasAI, creature->AI());
+    
 
-            if (!pAI)
-                return false;
-
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF:
-                    pAI->SetRun(true); pAI->Start(true, player->GetGUID(), 0, false, false);
-                    pAI->SetDespawnAtEnd(false);
-                    pAI->bStepping = false;
-                    pAI->uiStep = 1;
-                    break;
-                case GOSSIP_ACTION_INFO_DEF+1:
-                    if (pAI->respawned)
-                    {
-                        pAI->SetRun(true); pAI->Start(true, ObjectGuid::Empty, 0, false, false);
-                        pAI->SetNextWaypoint(9, false);
-                        pAI->respawned = false;
-                    }
-                    pAI->bStepping = true;
-                    pAI->uiStep = 24;
-                    break;
-                case GOSSIP_ACTION_INFO_DEF+2:
-                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ARTHAS_3, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                    player->SEND_GOSSIP_MENU(player->GetGossipTextId(GOSSIP_MENU_ARTHAS_3, creature), creature->GetGUID());
-                    return true;
-                case GOSSIP_ACTION_INFO_DEF+3:
-                    if (pAI->respawned)
-                    {
-                        pAI->SetRun(true); pAI->Start(true, ObjectGuid::Empty, 0, false, false);
-                        pAI->SetNextWaypoint(21, false);
-                        pAI->respawned = false;
-                    }
-                    pAI->SetHoldState(false);
-                    pAI->bStepping = false;
-                    pAI->uiStep = 61;
-                    break;
-                case GOSSIP_ACTION_INFO_DEF+4:
-                    pAI->SetHoldState(false);
-                    break;
-                case GOSSIP_ACTION_INFO_DEF+5:
-                    if (pAI->respawned)
-                    {
-                        pAI->SetRun(true); pAI->Start(true, ObjectGuid::Empty, 0, false, false);
-                        pAI->respawned = false;
-                        pAI->SetNextWaypoint(46, false);
-                    }
-                    pAI->bStepping = true;
-                    pAI->uiStep = 84;
-                    break;
-                case GOSSIP_ACTION_INFO_DEF+6:
-                    pAI->bStepping = true;
-                    pAI->uiStep = 85;
-                    break;
-                case GOSSIP_ACTION_INFO_DEF+7:
-                    pAI->SetRun(true); pAI->Start(true, player->GetGUID(), 0, false, false);
-                    pAI->SetDespawnAtEnd(false);
-                    pAI->bStepping = false;
-                    pAI->uiStep = 22;
-                    pAI->SetNextWaypoint(3);
-                    break;
-            }
-            player->CLOSE_GOSSIP_MENU();
-            pAI->SetDespawnAtFar(false);
-            creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            npc_arthasAI* pAI = CAST_AI(npc_arthas::npc_arthasAI, creature->AI());
-
-            if (pAI && pAI->bStepping == false)
-            {
-                switch (pAI->uiGossipStep)
-                {
-                    case 0: // This one is a workaround since the very beggining of the script is wrong.
-                    {
-                        if (creature->GetInstanceScript()->GetData(DATA_CRATE_COUNT) < 5)
-                            return false;
-
-                        //QuestStatus status = pPlayer->GetQuestStatus(13149);
-                        //if (status != QUEST_STATUS_COMPLETE && status != QUEST_STATUS_REWARDED)
-
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                        // If player already completed the instance can jump the Jaina/Uther intro
-                        if (player->GetQuestStatus(QUEST_A_ROYAL_ESCORT) == QUEST_STATUS_COMPLETE || player->GetQuestStatus(QUEST_A_ROYAL_ESCORT) == QUEST_STATUS_REWARDED)
-                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+7);
-
-                        player->SEND_GOSSIP_MENU(907, creature->GetGUID());
-                        break;
-                    }
-                    case 1:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ARTHAS_1, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(GOSSIP_MENU_ARTHAS_1, creature), creature->GetGUID());
-                        break;
-                    case 2:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ARTHAS_2, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(GOSSIP_MENU_ARTHAS_2, creature), creature->GetGUID());
-                        break;
-                    case 3:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ARTHAS_4, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(GOSSIP_MENU_ARTHAS_4, creature), creature->GetGUID());
-                        break;
-                    case 4:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ARTHAS_5, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(GOSSIP_MENU_ARTHAS_5, creature), creature->GetGUID());
-                        break;
-                    case 5:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ARTHAS_6, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
-                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(GOSSIP_MENU_ARTHAS_6, creature), creature->GetGUID());
-                        break;
-                    default:
-                        return false;
-                }
-            }
-            return true;
-        }
+        
 
         struct npc_arthasAI : public EscortAI
         {
@@ -1282,7 +1163,133 @@ class npc_arthas : public CreatureScript
                         crier->AI()->Talk(textId);
                 }
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                npc_arthasAI* pAI = this;
+
+                if (pAI && pAI->bStepping == false)
+                {
+                    switch (pAI->uiGossipStep)
+                    {
+                        case 0: // This one is a workaround since the very beggining of the script is wrong.
+                        {
+                            if (me->GetInstanceScript()->GetData(DATA_CRATE_COUNT) < 5)
+                                return true;
+
+                            //QuestStatus status = pPlayer->GetQuestStatus(13149);
+                            //if (status != QUEST_STATUS_COMPLETE && status != QUEST_STATUS_REWARDED)
+
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                            // If player already completed the instance can jump the Jaina/Uther intro
+                            if (player->GetQuestStatus(QUEST_A_ROYAL_ESCORT) == QUEST_STATUS_COMPLETE || player->GetQuestStatus(QUEST_A_ROYAL_ESCORT) == QUEST_STATUS_REWARDED)
+                                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+7);
+
+                            player->SEND_GOSSIP_MENU(907, me->GetGUID());
+                            break;
+                        }
+                        case 1:
+                            player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ARTHAS_1, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                            player->SEND_GOSSIP_MENU(player->GetGossipTextId(GOSSIP_MENU_ARTHAS_1, me), me->GetGUID());
+                            break;
+                        case 2:
+                            player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ARTHAS_2, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                            player->SEND_GOSSIP_MENU(player->GetGossipTextId(GOSSIP_MENU_ARTHAS_2, me), me->GetGUID());
+                            break;
+                        case 3:
+                            player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ARTHAS_4, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+                            player->SEND_GOSSIP_MENU(player->GetGossipTextId(GOSSIP_MENU_ARTHAS_4, me), me->GetGUID());
+                            break;
+                        case 4:
+                            player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ARTHAS_5, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+                            player->SEND_GOSSIP_MENU(player->GetGossipTextId(GOSSIP_MENU_ARTHAS_5, me), me->GetGUID());
+                            break;
+                        case 5:
+                            player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ARTHAS_6, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
+                            player->SEND_GOSSIP_MENU(player->GetGossipTextId(GOSSIP_MENU_ARTHAS_6, me), me->GetGUID());
+                            break;
+                        default:
+                            return true;
+                    }
+                }
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+                        npc_arthasAI* pAI = CAST_AI(npc_arthas::npc_arthasAI, me->AI());
+
+                        if (!pAI)
+                            return false;
+
+                        switch (action)
+                        {
+                            case GOSSIP_ACTION_INFO_DEF:
+                                pAI->SetRun(true); pAI->Start(true, player->GetGUID(), 0, false, false);
+                                pAI->SetDespawnAtEnd(false);
+                                pAI->bStepping = false;
+                                pAI->uiStep = 1;
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF+1:
+                                if (pAI->respawned)
+                                {
+                                    pAI->SetRun(true); pAI->Start(true, ObjectGuid::Empty, 0, false, false);
+                                    pAI->SetNextWaypoint(9, false);
+                                    pAI->respawned = false;
+                                }
+                                pAI->bStepping = true;
+                                pAI->uiStep = 24;
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF+2:
+                                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ARTHAS_3, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+                                player->SEND_GOSSIP_MENU(player->GetGossipTextId(GOSSIP_MENU_ARTHAS_3, me), me->GetGUID());
+                                return true;
+                            case GOSSIP_ACTION_INFO_DEF+3:
+                                if (pAI->respawned)
+                                {
+                                    pAI->SetRun(true); pAI->Start(true, ObjectGuid::Empty, 0, false, false);
+                                    pAI->SetNextWaypoint(21, false);
+                                    pAI->respawned = false;
+                                }
+                                pAI->SetHoldState(false);
+                                pAI->bStepping = false;
+                                pAI->uiStep = 61;
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF+4:
+                                pAI->SetHoldState(false);
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF+5:
+                                if (pAI->respawned)
+                                {
+                                    pAI->SetRun(true); pAI->Start(true, ObjectGuid::Empty, 0, false, false);
+                                    pAI->respawned = false;
+                                    pAI->SetNextWaypoint(46, false);
+                                }
+                                pAI->bStepping = true;
+                                pAI->uiStep = 84;
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF+6:
+                                pAI->bStepping = true;
+                                pAI->uiStep = 85;
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF+7:
+                                pAI->SetRun(true); pAI->Start(true, player->GetGUID(), 0, false, false);
+                                pAI->SetDespawnAtEnd(false);
+                                pAI->bStepping = false;
+                                pAI->uiStep = 22;
+                                pAI->SetNextWaypoint(3);
+                                break;
+                        }
+                        player->CLOSE_GOSSIP_MENU();
+                        pAI->SetDespawnAtFar(false);
+                        me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -1335,45 +1342,62 @@ class npc_chromie : public CreatureScript
     public:
         npc_chromie() : CreatureScript("npc_chromie") { }
 
-        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
+    
+
+        
+        struct npc_chromieAI : public ScriptedAI
         {
-            player->PlayerTalkClass->ClearMenus();
+            npc_chromieAI(Creature* creature) : ScriptedAI(creature) { }
 
-            switch (action)
+            bool OnGossipHello(Player* player) override
             {
-                case GOSSIP_ACTION_INFO_DEF:
-                    player->AddItem(ITEM_ARCANE_DISRUPTOR, 1);
-                    break;
-                case GOSSIP_ACTION_INFO_DEF+1:
-                    player->TeleportTo(player->GetMapId(), ChromieEntranceSummonPos.GetPositionX() - 3.0f, ChromieEntranceSummonPos.GetPositionY() - 3.0f, ChromieEntranceSummonPos.GetPositionZ(), 0.0f);
-                    break;
-            }
-            player->CLOSE_GOSSIP_MENU();
-            return true;
-        }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+                InstanceScript* instance = player->GetInstanceScript();
+
+                if (instance)
+                {
+                    if (me->IsQuestGiver())
+                        player->PrepareQuestMenu(me->GetGUID());
+
+                    if (instance->GetData(DATA_CRATE_COUNT) < 5)
+                    {
+                        if(!player->HasItemCount(ITEM_ARCANE_DISRUPTOR, 1))
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_CHROMIE_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                    }
+                    else
+                    {
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_CHROMIE_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                    }
+                }
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        switch (action)
+                        {
+                            case GOSSIP_ACTION_INFO_DEF:
+                                player->AddItem(ITEM_ARCANE_DISRUPTOR, 1);
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF+1:
+                                player->TeleportTo(player->GetMapId(), ChromieEntranceSummonPos.GetPositionX() - 3.0f, ChromieEntranceSummonPos.GetPositionY() - 3.0f, ChromieEntranceSummonPos.GetPositionZ(), 0.0f);
+                                break;
+                        }
+                        player->CLOSE_GOSSIP_MENU();
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            InstanceScript* instance = player->GetInstanceScript();
-
-            if (instance)
-            {
-                if (creature->IsQuestGiver())
-                    player->PrepareQuestMenu(creature->GetGUID());
-
-                if (instance->GetData(DATA_CRATE_COUNT) < 5)
-                {
-                    if(!player->HasItemCount(ITEM_ARCANE_DISRUPTOR, 1))
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_CHROMIE_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                    player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                }
-                else
-                {
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_CHROMIE_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                    player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                }
-            }
-            return true;
+            return new npc_chromieAI(creature);
         }
 };
 

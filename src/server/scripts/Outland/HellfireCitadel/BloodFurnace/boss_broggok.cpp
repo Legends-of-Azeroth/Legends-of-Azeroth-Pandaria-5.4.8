@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "blood_furnace.h"
 
 enum Yells
@@ -162,17 +163,30 @@ class go_broggok_lever : public GameObjectScript
     public:
         go_broggok_lever() : GameObjectScript("go_broggok_lever") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        
+        struct go_broggok_leverAI : public GameObjectAI
         {
-            if (InstanceScript* instance = go->GetInstanceScript())
-                if (instance->GetData(TYPE_BROGGOK_EVENT) != DONE && instance->GetData(TYPE_BROGGOK_EVENT) != IN_PROGRESS)
-                {
-                    instance->SetData(TYPE_BROGGOK_EVENT, IN_PROGRESS);
-                    if (Creature* broggok = Creature::GetCreature(*go, instance->GetGuidData(DATA_BROGGOK)))
-                        broggok->AI()->DoAction(ACTION_PREPARE_BROGGOK);
-                }
-            go->UseDoorOrButton();
-            return false;
+            go_broggok_leverAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                if (InstanceScript* instance = me->GetInstanceScript())
+                    if (instance->GetData(TYPE_BROGGOK_EVENT) != DONE && instance->GetData(TYPE_BROGGOK_EVENT) != IN_PROGRESS)
+                    {
+                        instance->SetData(TYPE_BROGGOK_EVENT, IN_PROGRESS);
+                        if (Creature* broggok = Creature::GetCreature(*me, instance->GetGuidData(DATA_BROGGOK)))
+                            broggok->AI()->DoAction(ACTION_PREPARE_BROGGOK);
+                    }
+                me->UseDoorOrButton();
+                return false;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_broggok_leverAI(go);
         }
 };
 

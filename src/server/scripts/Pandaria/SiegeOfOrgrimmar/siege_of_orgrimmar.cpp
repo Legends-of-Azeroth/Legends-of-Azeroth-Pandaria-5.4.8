@@ -16,6 +16,7 @@
 */
 
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "siege_of_orgrimmar.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
@@ -4929,16 +4930,26 @@ class go_siege_of_orgrimmar_korkron_cage : public GameObjectScript
     public:
         go_siege_of_orgrimmar_korkron_cage() : GameObjectScript("go_siege_of_orgrimmar_korkron_cage") { }
 
-        void OnGameObjectStateChanged(GameObject* go, uint32 state) 
+                struct go_siege_of_orgrimmar_korkron_cageAI : public GameObjectAI
         {
-            if (state != GO_STATE_ACTIVE)
-                return;
+            go_siege_of_orgrimmar_korkron_cageAI(GameObject* go) : GameObjectAI(go) { }
 
-            go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+    void OnStateChanged(uint32 state) override {
+                if (state != GO_STATE_ACTIVE)
+                    return;
 
-            if (Creature* prisoner = ObjectAccessor::GetCreature(*go, go->GetInstanceScript() ? go->GetInstanceScript()->GetGuidData(invCageType.find(go->GetEntry())->second) : ObjectGuid::Empty))
-                prisoner->AI()->DoAction(ACTION_START_INTRO);
+                me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+
+                if (Creature* prisoner = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(invCageType.find(me->GetEntry())->second) : ObjectGuid::Empty))
+                    prisoner->AI()->DoAction(ACTION_START_INTRO);
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_siege_of_orgrimmar_korkron_cageAI(go);
         }
+
 };
 
 // Siegecrafter Iron Door 223057
@@ -4947,20 +4958,30 @@ class go_siege_of_orgrimmar_siegecrafter_iron_door : public GameObjectScript
     public:
         go_siege_of_orgrimmar_siegecrafter_iron_door() : GameObjectScript("go_siege_of_orgrimmar_siegecrafter_iron_door") { }
 
-        void OnGameObjectStateChanged(GameObject* go, uint32 state)
+                struct go_siege_of_orgrimmar_siegecrafter_iron_doorAI : public GameObjectAI
         {
-            if (state != GO_STATE_ACTIVE)
-                return;
+            go_siege_of_orgrimmar_siegecrafter_iron_doorAI(GameObject* go) : GameObjectAI(go) { }
 
-            go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+    void OnStateChanged(uint32 state) override {
+                if (state != GO_STATE_ACTIVE)
+                    return;
 
-            if (go->GetInstanceScript())
-            {
-                for (auto&& players : go->GetInstanceScript()->instance->GetPlayers())
-                    if (Player* itr = players.GetSource())
-                        itr->CastSpell(itr, go->GetInstanceScript()->GetData(DATA_GROUP_FACTION) ? SPELL_SIEGECRAFTER_SCENE_HORDE : SPELL_SIEGECRAFTER_SCENE_ALLIAN, true);
+                me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+
+                if (me->GetInstanceScript())
+                {
+                    for (auto&& players : me->GetInstanceScript()->instance->GetPlayers())
+                        if (Player* itr = players.GetSource())
+                            itr->CastSpell(itr, me->GetInstanceScript()->GetData(DATA_GROUP_FACTION) ? SPELL_SIEGECRAFTER_SCENE_HORDE : SPELL_SIEGECRAFTER_SCENE_ALLIAN, true);
+                }
             }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_siege_of_orgrimmar_siegecrafter_iron_doorAI(go);
         }
+
 };
 
 // Vortex 147304

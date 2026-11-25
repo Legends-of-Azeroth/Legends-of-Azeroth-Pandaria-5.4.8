@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 #include "throne_of_the_tides.h"
 
 enum ScriptTexts
@@ -208,17 +209,30 @@ class go_totd_defense_system : public GameObjectScript
     public:
         go_totd_defense_system() : GameObjectScript("go_totd_defense_system") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        
+        struct go_totd_defense_systemAI : public GameObjectAI
         {
-            if (InstanceScript* instance = go->GetInstanceScript())
-            {
-                Map::PlayerList const &PlayerList = go->GetMap()->GetPlayers();
+            go_totd_defense_systemAI(GameObject* go) : GameObjectAI(go) { }
 
-                if (!PlayerList.isEmpty())
-                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                        i->GetSource()->SendCinematicStart(169);
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+
+                    if (!PlayerList.isEmpty())
+                        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                            i->GetSource()->SendCinematicStart(169);
+                }
+                return false;
+        
             }
-            return false;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_totd_defense_systemAI(go);
         }
 };
 

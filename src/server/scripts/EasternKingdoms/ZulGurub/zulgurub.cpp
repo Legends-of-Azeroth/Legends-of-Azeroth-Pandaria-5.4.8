@@ -119,67 +119,9 @@ class npc_cache_of_madness_artifact : public CreatureScript
     public:
         npc_cache_of_madness_artifact() : CreatureScript("npc_cache_of_madness_artifact") { }
         
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXT_ARTIFACT_ACTIVATED, creature->GetGUID());
-                if (npc_cache_of_madness_artifactAI* ai = (npc_cache_of_madness_artifactAI*)creature->GetAI()) 
-                {
-                    ai->events.SetPhase(1);
-                    ai->events.ScheduleEvent(EVENT_ARTIFACT_SUMMON, 5 * IN_MILLISECONDS);
-                }
-                return true;
-            }
-            return true;
-        }
+    
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (!player)
-                return true;
-
-            if (npc_cache_of_madness_artifactAI* ai = (npc_cache_of_madness_artifactAI*)creature->GetAI())
-                if (ai->events.IsInPhase(1))
-                    return true;
-
-            if (!player->HasSkill(SKILL_ARCHAEOLOGY) || player->GetSkillValue(SKILL_ARCHAEOLOGY) < 225)
-                return true;
-
-            if (InstanceScript* instance = player->GetInstanceScript())
-            {
-                uint32 dataId;
-                switch (creature->GetEntry())
-                {
-                    case NPC_ARTIFACT_DWARVEN:
-                        dataId = DATA_ARTIFACT_DWARVEN;
-                        break;
-                    case NPC_ARTIFACT_ELVEN:
-                        dataId = DATA_ARTIFACT_ELVEN;
-                        break;
-                    case NPC_ARTIFACT_TROLL:
-                        dataId = DATA_ARTIFACT_TROLL;
-                        break;
-                    case NPC_ARTIFACT_FOSSIL:
-                        dataId = DATA_ARTIFACT_FOSSIL;
-                        break;
-                    default:
-                        return true;
-                }
-                ObjectGuid guid = instance->GetGuidData(dataId);
-                EncounterState state = instance->GetBossState(DATA_CACHE_OF_MADNESS_BOSS);
-                if (creature->GetGUID() == guid && (state == NOT_STARTED || state == TO_BE_DECIDED))
-                {
-                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ARTIFACT_ACTIVATE, GOSSIP_OPTION_ARTIFACT_ACTIVATE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_ARTIFACT_CAN_BE_ACTIVATED, creature->GetGUID());
-                    return true;
-                }
-            }
-
-            player->SEND_GOSSIP_MENU(GOSSIP_TEXT_ARTIFACT_CANNOT_BE_ACTIVATED, creature->GetGUID());
-            return true;
-        }
+        
 
         struct npc_cache_of_madness_artifactAI : public ScriptedAI
         {
@@ -230,7 +172,72 @@ class npc_cache_of_madness_artifact : public CreatureScript
                     }
                 }
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (!player)
+                    return true;
+
+                if (npc_cache_of_madness_artifactAI* ai = (npc_cache_of_madness_artifactAI*)me->GetAI())
+                    if (ai->events.IsInPhase(1))
+                        return true;
+
+                if (!player->HasSkill(SKILL_ARCHAEOLOGY) || player->GetSkillValue(SKILL_ARCHAEOLOGY) < 225)
+                    return true;
+
+                if (InstanceScript* instance = player->GetInstanceScript())
+                {
+                    uint32 dataId;
+                    switch (me->GetEntry())
+                    {
+                        case NPC_ARTIFACT_DWARVEN:
+                            dataId = DATA_ARTIFACT_DWARVEN;
+                            break;
+                        case NPC_ARTIFACT_ELVEN:
+                            dataId = DATA_ARTIFACT_ELVEN;
+                            break;
+                        case NPC_ARTIFACT_TROLL:
+                            dataId = DATA_ARTIFACT_TROLL;
+                            break;
+                        case NPC_ARTIFACT_FOSSIL:
+                            dataId = DATA_ARTIFACT_FOSSIL;
+                            break;
+                        default:
+                            return true;
+                    }
+                    ObjectGuid guid = instance->GetGuidData(dataId);
+                    EncounterState state = instance->GetBossState(DATA_CACHE_OF_MADNESS_BOSS);
+                    if (me->GetGUID() == guid && (state == NOT_STARTED || state == TO_BE_DECIDED))
+                    {
+                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ARTIFACT_ACTIVATE, GOSSIP_OPTION_ARTIFACT_ACTIVATE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_ARTIFACT_CAN_BE_ACTIVATED, me->GetGUID());
+                        return true;
+                    }
+                }
+
+                player->SEND_GOSSIP_MENU(GOSSIP_TEXT_ARTIFACT_CANNOT_BE_ACTIVATED, me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            player->SEND_GOSSIP_MENU(GOSSIP_TEXT_ARTIFACT_ACTIVATED, me->GetGUID());
+                            if (npc_cache_of_madness_artifactAI* ai = (npc_cache_of_madness_artifactAI*)me->GetAI()) 
+                            {
+                                ai->events.SetPhase(1);
+                                ai->events.ScheduleEvent(EVENT_ARTIFACT_SUMMON, 5 * IN_MILLISECONDS);
+                            }
+                            return true;
+                        }
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {

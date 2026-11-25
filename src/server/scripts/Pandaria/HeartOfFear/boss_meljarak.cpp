@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "heart_of_fear.h"
 
 enum Yells
@@ -1253,20 +1254,33 @@ class go_mantid_weapon_rack : public GameObjectScript
     public:
         go_mantid_weapon_rack() : GameObjectScript("go_mantid_weapon_rack") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_mantid_weapon_rackAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
+            go_mantid_weapon_rackAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (instance && player)
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                if (player->HasAura(SPELL_IMP_SPEAR_ABIL))
-                    return false;
 
-                player->AddAura(SPELL_IMP_SPEAR_ABIL, player);
-                return true;
+                InstanceScript* instance = me->GetInstanceScript();
+
+                if (instance && player)
+                {
+                    if (player->HasAura(SPELL_IMP_SPEAR_ABIL))
+                        return false;
+
+                    player->AddAura(SPELL_IMP_SPEAR_ABIL, player);
+                    return true;
+                }
+
+                return false;
+        
             }
+        };
 
-            return false;
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_mantid_weapon_rackAI(go);
         }
 };
 

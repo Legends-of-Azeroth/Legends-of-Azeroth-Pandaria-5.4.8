@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 #include "halls_of_origination.h"
 
 #define GOSSIP_SENDER_HALLS_OF_ORIGINATION 644
@@ -469,31 +470,9 @@ class npc_halls_of_origination_brann_bronzebeard : public CreatureScript
     public:
         npc_halls_of_origination_brann_bronzebeard() : CreatureScript("npc_halls_of_origination_brann_bronzebeard") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
+        
 
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Вперед." : "Let's go.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-
-            if (action == (GOSSIP_ACTION_INFO_DEF + 1))
-            {
-                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                creature->AI()->DoAction(ACTION_START_EVENT);
-            }
-
-            return true;
-        }
+    
 
         struct npc_halls_of_origination_brann_bronzebeardAI : public ScriptedAI
         {
@@ -573,7 +552,36 @@ class npc_halls_of_origination_brann_bronzebeard : public CreatureScript
                     }
                 }
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Вперед." : "Let's go.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == (GOSSIP_ACTION_INFO_DEF + 1))
+                        {
+                            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            me->AI()->DoAction(ACTION_START_EVENT);
+                        }
+
+                        return true;
+        
+            }
+};
  
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -586,36 +594,53 @@ class go_halls_of_origination_transit_device : public GameObjectScript
     public:
         go_halls_of_origination_transit_device() : GameObjectScript("go_halls_of_origination_transit_device"){ }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
-        {
-            bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
+        
 
-            if (InstanceScript* instance = go->GetInstanceScript())
+    
+        struct go_halls_of_origination_transit_deviceAI : public GameObjectAI
+        {
+            go_halls_of_origination_transit_deviceAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                if (instance->GetBossState(DATA_ANRAPHET) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться к Чертогу Огней." : "Teleport to The Vaults of Lights.", GOSSIP_SENDER_HALLS_OF_ORIGINATION, 2);
-                if (instance->GetBossState(DATA_EARTHRAGER_PTAH) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться в гробницу Ярости Земли." : "Teleport to Tobm of the Earthrager.", GOSSIP_SENDER_HALLS_OF_ORIGINATION, 1);
-                if (instance->GetBossState(DATA_TEMPLE_GUARDIAN_ANHUUR) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться к платформе Творца." : "Teleport to Chamber of Prophecy.", GOSSIP_SENDER_HALLS_OF_ORIGINATION, 0);
+
+                bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
+
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    if (instance->GetBossState(DATA_ANRAPHET) == DONE)
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться к Чертогу Огней." : "Teleport to The Vaults of Lights.", GOSSIP_SENDER_HALLS_OF_ORIGINATION, 2);
+                    if (instance->GetBossState(DATA_EARTHRAGER_PTAH) == DONE)
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться в гробницу Ярости Земли." : "Teleport to Tobm of the Earthrager.", GOSSIP_SENDER_HALLS_OF_ORIGINATION, 1);
+                    if (instance->GetBossState(DATA_TEMPLE_GUARDIAN_ANHUUR) == DONE)
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться к платформе Творца." : "Teleport to Chamber of Prophecy.", GOSSIP_SENDER_HALLS_OF_ORIGINATION, 0);
+                }
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
             }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
 
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(go), go->GetGUID());
-            return true;
-        }
+                        player->PlayerTalkClass->ClearMenus();
+                        player->CLOSE_GOSSIP_MENU();
 
-        bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 /*sender*/, uint32 action) override
+                        if (action >= 4)
+                            return false;
+
+                        Position loc = halls_of_origination_locs[action];
+                        if (!player->IsInCombat())
+                            player->NearTeleportTo(loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), false);
+                        return true;
+        
+            }
+};
+
+        GameObjectAI* GetAI(GameObject* go) const override
         {
-            player->PlayerTalkClass->ClearMenus();
-            player->CLOSE_GOSSIP_MENU();
-
-            if (action >= 4)
-                return false;
-
-            Position loc = halls_of_origination_locs[action];
-            if (!player->IsInCombat())
-                player->NearTeleportTo(loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), false);
-            return true;
+            return new go_halls_of_origination_transit_deviceAI(go);
         }
 };
 
@@ -624,12 +649,25 @@ class go_halls_of_origination_transit_device_2 : public GameObjectScript
     public:
         go_halls_of_origination_transit_device_2() : GameObjectScript("go_halls_of_origination_transit_device_2"){ }
 
-        bool OnGossipHello(Player* player, GameObject* /*go*/) override
-         {
-            if (player->IsInCombat())
-                return true;
+        
+        struct go_halls_of_origination_transit_device_2AI : public GameObjectAI
+        {
+            go_halls_of_origination_transit_device_2AI(GameObject* go) : GameObjectAI(go) { }
 
-            return false;
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                if (player->IsInCombat())
+                    return true;
+
+                return false;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_halls_of_origination_transit_device_2AI(go);
         }
 };
 

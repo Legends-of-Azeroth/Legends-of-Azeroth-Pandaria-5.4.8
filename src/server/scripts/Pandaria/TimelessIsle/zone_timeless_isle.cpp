@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -61,28 +61,41 @@ class go_time_lost_shrine_ti : public GameObjectScript
     public:
         go_time_lost_shrine_ti() : GameObjectScript("go_time_lost_shrine_ti") { }
 
-        void OnLootStateChanged(GameObject* go, uint32 state, Unit* unit) override
+    
+        struct go_time_lost_shrine_tiAI : public GameObjectAI
         {
-            if (!unit || state != GO_ACTIVATED || unit->GetTypeId() != TYPEID_PLAYER)
-                return;
+            go_time_lost_shrine_tiAI(GameObject* go) : GameObjectAI(go) { }
 
-            go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
-
-            for (auto&& aura : items)
+            void OnLootStateChanged(uint32 state, Unit* unit) override
             {
-                if (unit->HasAura(aura[0]))
-                    unit->RemoveAurasDueToSpell(aura[0]);
+
+                if (!unit || state != GO_ACTIVATED || unit->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+
+                for (auto&& aura : items)
+                {
+                    if (unit->HasAura(aura[0]))
+                        unit->RemoveAurasDueToSpell(aura[0]);
+                }
+
+                uint8 choice = urand(1, 5) - 1;
+                unit->CastSpell(unit, SPELL_TIME_LOST_WISDOM);
+                unit->CastSpell(unit, items[choice][0]);
+                unit->ToPlayer()->SendPersonalMessage(items[choice][1], CHAT_MSG_RAID_BOSS_WHISPER, LANG_UNIVERSAL);
+
+                me->m_Events.Schedule(300000, [this]()
+                {
+                    me->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+                });
+        
             }
+        };
 
-            uint8 choice = urand(1, 5) - 1;
-            unit->CastSpell(unit, SPELL_TIME_LOST_WISDOM);
-            unit->CastSpell(unit, items[choice][0]);
-            unit->ToPlayer()->SendPersonalMessage(items[choice][1], CHAT_MSG_RAID_BOSS_WHISPER, LANG_UNIVERSAL);
-
-            go->m_Events.Schedule(300000, [go]()
-            {
-                go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
-            });
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_time_lost_shrine_tiAI(go);
         }
 };
 
@@ -91,26 +104,44 @@ class go_gleaming_crane_statue_ti : public GameObjectScript
     public:
         go_gleaming_crane_statue_ti() : GameObjectScript("go_gleaming_crane_statue_ti") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
-        {
-            if (!player->IsWeeklyQuestDone(QUEST_MIST_COVERED_TREASURE_CHEST))
-                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(go), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(go), go->GetGUID());
-            return true;
-        }
+    
 
-        bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 /*sender*/, uint32 /*action*/) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            player->CLOSE_GOSSIP_MENU();
+    
 
-            player->CastSpell(player, 144387, true); // knockback in the air
-            player->m_Events.Schedule(6000, 1, [player]()
+        struct go_gleaming_crane_statue_tiAI : public GameObjectAI
+        {
+            go_gleaming_crane_statue_tiAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                player->CastSpell(player, 144385, true);
-            });
 
-            return true;
+                        if (!player->IsWeeklyQuestDone(QUEST_MIST_COVERED_TREASURE_CHEST))
+                            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                        return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+                        player->CLOSE_GOSSIP_MENU();
+
+                        player->CastSpell(player, 144387, true); // knockback in the air
+                        player->m_Events.Schedule(6000, 1, [player]()
+                        {
+                            player->CastSpell(player, 144385, true);
+                        });
+
+                        return true;
+        
+            }
+};
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_gleaming_crane_statue_tiAI(go);
         }
 };
 
@@ -3049,10 +3080,24 @@ class npc_hopswift : public CreatureScript
     public:
         npc_hopswift() : CreatureScript("npc_hopswift") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    
+
+        struct npc_hopswiftAI : public ScriptedAI
         {
-            player->GetSession()->SendShowMailBox(creature->GetGUID());
-            return true;
+            npc_hopswiftAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->GetSession()->SendShowMailBox(me->GetGUID());
+                        return true;
+        
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_hopswiftAI(creature);
         }
 };
 
@@ -3289,287 +3334,305 @@ class npc_senior_historian_evelyna : public CreatureScript
     public:
         npc_senior_historian_evelyna() : CreatureScript("npc_senior_historian_evelyna") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+    
+
+    
+
+        struct npc_senior_historian_evelynaAI : public ScriptedAI
         {
-            player->PlayerTalkClass->ClearMenus();
-            player->PrepareQuestMenu(creature->GetGUID());
+            npc_senior_historian_evelynaAI(Creature* creature) : ScriptedAI(creature) { }
 
-            if (player->GetQuestStatus(33211) == QUEST_STATUS_INCOMPLETE)
+            bool OnGossipHello(Player* player) override
             {
-                switch (urand(1, 36)) // select random question
-                {
-                    case 1:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_01, GORLOCS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_01, MURGHOULS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_01, WOLVAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_01, MURLICHES, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_01, creature->GetGUID());
-                        break;
-                    case 2:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_02, DEFECTIVE_ELEKK_TURD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_02, CRYSTAL_DEATH_TRAP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_02, WORTHLESS_ELEKK_DUNG, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_02, RADIOACTIVE_BIOHAZARD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_02, creature->GetGUID());
-                        break;
-                    case 3:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_03, GELBIN_MEKKATORQUE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_03, MILLHOUSE_MANASTORM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_03, SICCO_THERMAPLUGG, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_03, FIZZCRANK_FULLTHROTTLE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_03, creature->GetGUID());
-                        break;
-                    case 4:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_04, CRIMSON_RING, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_04, EMERALD_CIRCLE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_04, EARTHEN_RING, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_04, CENARION_CIRCLE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_04, creature->GetGUID());
-                        break;
-                    case 5:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_05, CHENETA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_05, KRISTINE_DENNY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_05, TATAI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_05, DELA_RUNETOTEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_05, creature->GetGUID());
-                        break;
-                    case 6:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_06, GOREHOOF, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_06, TOOTHGNASHER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_06, BLOODHORN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_06, STEELMAULER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_06, creature->GetGUID());
-                        break;
-                    case 7:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_07, RED_DRAGONFLIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_07, BLUE_DRAGONFLIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_07, GREEN_DRAGONFLIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_07, BRONZE_DRAGONFLIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_07, creature->GetGUID());
-                        break;
-                    case 8:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_08, ACHERUS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_08, NAXXANAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_08, KOLRAMAS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_08, NAXXRAMAS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_08, creature->GetGUID());
-                        break;
-                    case 9:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_09, MAAKA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_09, GRIMATH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_09, TALAK, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_09, RAWIRI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_09, creature->GetGUID());
-                        break;
-                    case 10:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_10, SHAMAN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_10, STORMCALLER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_10, ARCHDRUID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_10, FAR_SEER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_10, creature->GetGUID());
-                        break;
-                    case 11:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_11, SNAKECOIL_CAVERN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_11, SERPENTINE_BASIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_11, COILFANG_RESERVOIR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_11, SPIRALFANG_CISTERN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_11, creature->GetGUID());
-                        break;
-                    case 12:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_12, EMMA_HARRINGTON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_12, CALISSA_HARRINGTON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_12, VANESSA_WHITEHALL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_12, KATRINA_WHITEHALL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_12, creature->GetGUID());
-                        break;
-                    case 13:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_13, SHARP_CLAW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_13, RAZOR_TOOTH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_13, SHARP_TOOTH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_13, RAZOR_CLAW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_13, creature->GetGUID());
-                        break;
-                    case 14:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_14, QUEEN_LIA_GREYMANE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_14, QUEEN_MALIA_GREYMANE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_14, QUEEN_LIRIA_GREYMANE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_14, QUEEN_MIA_GREYMANE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_14, creature->GetGUID());
-                        break;
-                    case 15:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_15, TIFFIN_WINDEMERE_WRYNN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_15, THERESE_ANNE_WRYNN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_15, THERESE_ANGHARAD_WRYNN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_15, TIFFIN_ELLERIAN_WRYNN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_15, creature->GetGUID());
-                        break;
-                    case 16:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_16, TENEBRON_VESPERON_AND_SHADRON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_16, TENEBRON_VESPERON_AND_HALION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_16, THERALION_SHADRON_AND_ABYSSION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_16, THERALION_HALION_AND_ABYSSION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_16, creature->GetGUID());
-                        break;
-                    case 17:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_17, AMANTHUL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_17, NORGANNON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_17, EONAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_17, KHAZGOROTH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_17, creature->GetGUID());
-                        break;
-                    case 18:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_18, VELEN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_18, AKAMA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_18, MARAAD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_18, NOBUNDO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_18, creature->GetGUID());
-                        break;
-                    case 19:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_19, KARESH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_19, XARODI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_19, KHURAL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_19, XOROTH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_19, creature->GetGUID());
-                        break;
-                    case 20:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_20, EREDRUIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_20, SAYAAD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_20, SHIVARRA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_20, EREDAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_20, creature->GetGUID());
-                        break;
-                    case 21:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_21, TERON_GOREFIEND, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_21, ARTHAS_MENETHIL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_21, ALEXANDROS_MOGRAINE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_21, KOLTIRA_DEATHWEAVER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_21, creature->GetGUID());
-                        break;
-                    case 22:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_22, FELLARI_SWIFTARROW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_22, HOLIA_SUNSHIELD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_22, YANA_BLOODSPEAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_22, VALEA_TWINBLADES, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_22, creature->GetGUID());
-                        break;
-                    case 23:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_23, SWIFTWING, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_23, SHARPBEAK, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_23, SKYREE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_23, STORMBEAK, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_23, creature->GetGUID());
-                        break;
-                    case 24:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_24, SHIRVALLAH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_24, KIMBUL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_24, MUEHZALA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_24, SHADRA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_24, creature->GetGUID());
-                        break;
-                    case 25:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_25, PRINCE_ARTHAS_MENETHIL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_25, KING_LLANE_WRYNN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_25, UTHER_THE_LIGHTBRINGER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_25, KING_TERENAS_MENETHIL_II, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_25, creature->GetGUID());
-                        break;
-                    case 26:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_26, MAGHAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_26, FELBLOOD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_26, MOKNATHAL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_26, FEL_ORC, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_26, creature->GetGUID());
-                        break;
-                    case 27:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_27, BORELA_MIR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_27, BELAN_SHI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_27, AVRAL_SHI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_27, ALENA_MIR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_27, creature->GetGUID());
-                        break;
-                    case 28:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_28, DRAKAS_FURY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_28, HELLSCREAMS_FURY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_28, AGGRAS_FURY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_28, DUROTANS_FURY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_28, creature->GetGUID());
-                        break;
-                    case 29:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_29, BILLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_29, WILLIAM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_29, GILES, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_29, TOBIAS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_29, creature->GetGUID());
-                        break;
-                    case 30:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_30, TELDRASSIL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_30, WELL_OF_ETERNITY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_30, NORDRASSIL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_30, MOONWELLS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_30, creature->GetGUID());
-                        break;
-                    case 31:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_31, CORPRETHAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_31, ALDURTHAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_31, ANGRATHAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_31, MORDRETHAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_31, creature->GetGUID());
-                        break;
-                    case 32:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_32, ASHANOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_32, MISTSILVER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_32, FEONIR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_32, MIRADOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_32, creature->GetGUID());
-                        break;
-                    case 33:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_33, WHITECLAW_CLAN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_33, WARSONG_CLAN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_33, FROSTWOLF_CLAN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_33, ICEFANG_CLAN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_33, creature->GetGUID());
-                        break;
-                    case 34:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_34, SCARLET_FEVER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_34, BLOOD_POX, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_34, CRIMSON_FEVER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_34, RED_POX, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_34, creature->GetGUID());
-                        break;
-                    case 35:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_35, GALAKROND, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_35, VERANUS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_35, ZEPTEK, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_35, VYLETONGUE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_35, creature->GetGUID());
-                        break;
-                    case 36:
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_36, PEROTHARN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_36, GARAXXAS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_36, XAVIUS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_36, VYLETONGUE_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_36, creature->GetGUID());
-                        break;
-                }
-            }
-            else
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+                        player->PlayerTalkClass->ClearMenus();
+                        player->PrepareQuestMenu(me->GetGUID());
+
+                        if (player->GetQuestStatus(33211) == QUEST_STATUS_INCOMPLETE)
+                        {
+                            switch (urand(1, 36)) // select random question
+                            {
+                                case 1:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_01, GORLOCS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_01, MURGHOULS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_01, WOLVAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_01, MURLICHES, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_01, me->GetGUID());
+                                    break;
+                                case 2:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_02, DEFECTIVE_ELEKK_TURD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_02, CRYSTAL_DEATH_TRAP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_02, WORTHLESS_ELEKK_DUNG, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_02, RADIOACTIVE_BIOHAZARD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_02, me->GetGUID());
+                                    break;
+                                case 3:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_03, GELBIN_MEKKATORQUE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_03, MILLHOUSE_MANASTORM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_03, SICCO_THERMAPLUGG, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_03, FIZZCRANK_FULLTHROTTLE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_03, me->GetGUID());
+                                    break;
+                                case 4:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_04, CRIMSON_RING, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_04, EMERALD_CIRCLE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_04, EARTHEN_RING, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_04, CENARION_CIRCLE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_04, me->GetGUID());
+                                    break;
+                                case 5:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_05, CHENETA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_05, KRISTINE_DENNY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_05, TATAI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_05, DELA_RUNETOTEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_05, me->GetGUID());
+                                    break;
+                                case 6:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_06, GOREHOOF, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_06, TOOTHGNASHER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_06, BLOODHORN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_06, STEELMAULER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_06, me->GetGUID());
+                                    break;
+                                case 7:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_07, RED_DRAGONFLIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_07, BLUE_DRAGONFLIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_07, GREEN_DRAGONFLIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_07, BRONZE_DRAGONFLIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_07, me->GetGUID());
+                                    break;
+                                case 8:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_08, ACHERUS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_08, NAXXANAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_08, KOLRAMAS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_08, NAXXRAMAS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_08, me->GetGUID());
+                                    break;
+                                case 9:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_09, MAAKA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_09, GRIMATH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_09, TALAK, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_09, RAWIRI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_09, me->GetGUID());
+                                    break;
+                                case 10:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_10, SHAMAN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_10, STORMCALLER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_10, ARCHDRUID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_10, FAR_SEER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_10, me->GetGUID());
+                                    break;
+                                case 11:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_11, SNAKECOIL_CAVERN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_11, SERPENTINE_BASIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_11, COILFANG_RESERVOIR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_11, SPIRALFANG_CISTERN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_11, me->GetGUID());
+                                    break;
+                                case 12:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_12, EMMA_HARRINGTON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_12, CALISSA_HARRINGTON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_12, VANESSA_WHITEHALL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_12, KATRINA_WHITEHALL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_12, me->GetGUID());
+                                    break;
+                                case 13:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_13, SHARP_CLAW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_13, RAZOR_TOOTH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_13, SHARP_TOOTH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_13, RAZOR_CLAW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_13, me->GetGUID());
+                                    break;
+                                case 14:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_14, QUEEN_LIA_GREYMANE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_14, QUEEN_MALIA_GREYMANE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_14, QUEEN_LIRIA_GREYMANE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_14, QUEEN_MIA_GREYMANE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_14, me->GetGUID());
+                                    break;
+                                case 15:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_15, TIFFIN_WINDEMERE_WRYNN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_15, THERESE_ANNE_WRYNN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_15, THERESE_ANGHARAD_WRYNN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_15, TIFFIN_ELLERIAN_WRYNN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_15, me->GetGUID());
+                                    break;
+                                case 16:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_16, TENEBRON_VESPERON_AND_SHADRON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_16, TENEBRON_VESPERON_AND_HALION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_16, THERALION_SHADRON_AND_ABYSSION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_16, THERALION_HALION_AND_ABYSSION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_16, me->GetGUID());
+                                    break;
+                                case 17:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_17, AMANTHUL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_17, NORGANNON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_17, EONAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_17, KHAZGOROTH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_17, me->GetGUID());
+                                    break;
+                                case 18:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_18, VELEN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_18, AKAMA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_18, MARAAD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_18, NOBUNDO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_18, me->GetGUID());
+                                    break;
+                                case 19:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_19, KARESH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_19, XARODI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_19, KHURAL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_19, XOROTH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_19, me->GetGUID());
+                                    break;
+                                case 20:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_20, EREDRUIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_20, SAYAAD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_20, SHIVARRA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_20, EREDAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_20, me->GetGUID());
+                                    break;
+                                case 21:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_21, TERON_GOREFIEND, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_21, ARTHAS_MENETHIL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_21, ALEXANDROS_MOGRAINE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_21, KOLTIRA_DEATHWEAVER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_21, me->GetGUID());
+                                    break;
+                                case 22:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_22, FELLARI_SWIFTARROW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_22, HOLIA_SUNSHIELD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_22, YANA_BLOODSPEAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_22, VALEA_TWINBLADES, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_22, me->GetGUID());
+                                    break;
+                                case 23:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_23, SWIFTWING, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_23, SHARPBEAK, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_23, SKYREE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_23, STORMBEAK, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_23, me->GetGUID());
+                                    break;
+                                case 24:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_24, SHIRVALLAH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_24, KIMBUL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_24, MUEHZALA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_24, SHADRA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_24, me->GetGUID());
+                                    break;
+                                case 25:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_25, PRINCE_ARTHAS_MENETHIL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_25, KING_LLANE_WRYNN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_25, UTHER_THE_LIGHTBRINGER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_25, KING_TERENAS_MENETHIL_II, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_25, me->GetGUID());
+                                    break;
+                                case 26:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_26, MAGHAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_26, FELBLOOD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_26, MOKNATHAL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_26, FEL_ORC, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_26, me->GetGUID());
+                                    break;
+                                case 27:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_27, BORELA_MIR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_27, BELAN_SHI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_27, AVRAL_SHI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_27, ALENA_MIR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_27, me->GetGUID());
+                                    break;
+                                case 28:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_28, DRAKAS_FURY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_28, HELLSCREAMS_FURY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_28, AGGRAS_FURY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_28, DUROTANS_FURY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_28, me->GetGUID());
+                                    break;
+                                case 29:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_29, BILLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_29, WILLIAM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_29, GILES, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_29, TOBIAS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_29, me->GetGUID());
+                                    break;
+                                case 30:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_30, TELDRASSIL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_30, WELL_OF_ETERNITY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_30, NORDRASSIL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_30, MOONWELLS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_30, me->GetGUID());
+                                    break;
+                                case 31:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_31, CORPRETHAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_31, ALDURTHAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_31, ANGRATHAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_31, MORDRETHAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_31, me->GetGUID());
+                                    break;
+                                case 32:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_32, ASHANOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_32, MISTSILVER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_32, FEONIR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_32, MIRADOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_32, me->GetGUID());
+                                    break;
+                                case 33:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_33, WHITECLAW_CLAN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_33, WARSONG_CLAN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_33, FROSTWOLF_CLAN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_33, ICEFANG_CLAN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_33, me->GetGUID());
+                                    break;
+                                case 34:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_34, SCARLET_FEVER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_34, BLOOD_POX, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_34, CRIMSON_FEVER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_34, RED_POX, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_34, me->GetGUID());
+                                    break;
+                                case 35:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_35, GALAKROND, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_35, VERANUS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_35, ZEPTEK, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_35, VYLETONGUE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_35, me->GetGUID());
+                                    break;
+                                case 36:
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_36, PEROTHARN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_36, GARAXXAS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_36, XAVIUS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                                    player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_QUESTION_36, VYLETONGUE_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_QUESTION_36, me->GetGUID());
+                                    break;
+                            }
+                        }
+                        else
+                            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                        return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1) // false
+                            player->SEND_GOSSIP_MENU(GOSSIP_INCORRECT, me->GetGUID());
+                        else // true
+                        {
+                            player->KilledMonsterCredit(NPC_A_TIMELESS_QUESTION_CREDIT);
+                            player->SEND_GOSSIP_MENU(GOSSIP_CORRECT, me->GetGUID());
+                        }
+
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            player->PlayerTalkClass->ClearMenus();
-
-            if (action == GOSSIP_ACTION_INFO_DEF + 1) // false
-                player->SEND_GOSSIP_MENU(GOSSIP_INCORRECT, creature->GetGUID());
-            else // true
-            {
-                player->KilledMonsterCredit(NPC_A_TIMELESS_QUESTION_CREDIT);
-                player->SEND_GOSSIP_MENU(GOSSIP_CORRECT, creature->GetGUID());
-            }
-
-            return true;
+            return new npc_senior_historian_evelynaAI(creature);
         }
 };
 
@@ -3625,35 +3688,9 @@ class npc_fin_longpaw : public CreatureScript
     public:
         npc_fin_longpaw() : CreatureScript("npc_fin_longpaw") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            if (!creature->FindNearestCreature(RARE_KARKANOS, 50.0f, true))
-                player->ADD_GOSSIP_ITEM_DB(60013, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+    
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            player->CLOSE_GOSSIP_MENU();
-            creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                creature->AI()->Talk(0);
-                creature->m_Events.Schedule(5000, [creature]()
-                {
-                    creature->HandleEmoteStateCommand(0);
-                    creature->AI()->Talk(1);
-                    creature->SummonCreature(RARE_KARKANOS, karkanosPos);
-                    creature->DespawnOrUnsummon(5000);
-                });
-            }
-
-            return true;
-        }
+    
 
         struct npc_fin_longpawAI : public ScriptedAI
         {
@@ -3667,7 +3704,41 @@ class npc_fin_longpaw : public CreatureScript
             }
 
             void JustEngagedWith(Unit* /*who*/) override { }
-        };
+        
+            bool OnGossipHello(Player* player) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+                        if (!me->FindNearestCreature(RARE_KARKANOS, 50.0f, true))
+                            player->ADD_GOSSIP_ITEM_DB(60013, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                        return true;
+        
+            }
+
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+                        player->CLOSE_GOSSIP_MENU();
+                        me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            me->AI()->Talk(0);
+                            me->m_Events.Schedule(5000, [this]()
+                            {
+                                me->HandleEmoteStateCommand(0);
+                                me->AI()->Talk(1);
+                                me->SummonCreature(RARE_KARKANOS, karkanosPos);
+                                me->DespawnOrUnsummon(5000);
+                            });
+                        }
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -3681,32 +3752,9 @@ class npc_zarhym_1 : public CreatureScript
     public:
         npc_zarhym_1() : CreatureScript("npc_zarhym_1") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            player->PlayerTalkClass->ClearMenus();
+    
 
-            if (!player->IsDailyQuestDone(QUEST_ZARHYM_TRACKER))
-            player->ADD_GOSSIP_ITEM_DB(60014, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            player->CLOSE_GOSSIP_MENU();
-
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                player->CastSpell(player, 144145);
-                creature->DespawnOrUnsummon();
-                if (Quest const* quest = sObjectMgr->GetQuestTemplate(QUEST_ZARHYM_TRACKER))
-                    player->RewardQuest(quest, 0, player, false);
-            }
-
-            return true;
-        }
+    
 
         struct npc_zarhym_1AI : public ScriptedAI
         {
@@ -3734,7 +3782,38 @@ class npc_zarhym_1 : public CreatureScript
                 Talk(0);
                 intro = true;
             }
-        };
+        
+            bool OnGossipHello(Player* player) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (!player->IsDailyQuestDone(QUEST_ZARHYM_TRACKER))
+                        player->ADD_GOSSIP_ITEM_DB(60014, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                        return true;
+        
+            }
+
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+                        player->CLOSE_GOSSIP_MENU();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            player->CastSpell(player, 144145);
+                            me->DespawnOrUnsummon();
+                            if (Quest const* quest = sObjectMgr->GetQuestTemplate(QUEST_ZARHYM_TRACKER))
+                                player->RewardQuest(quest, 0, player, false);
+                        }
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -4070,14 +4149,27 @@ class go_challengers_stone : public GameObjectScript
     public:
         go_challengers_stone() : GameObjectScript("go_challengers_stone") { }
 
-        void OnLootStateChanged(GameObject* go, uint32 state, Unit* unit) override
+    
+        struct go_challengers_stoneAI : public GameObjectAI
         {
-            if (!unit || state != GO_ACTIVATED)
-                return;
+            go_challengers_stoneAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (!go->FindNearestCreature(RARE_ARCHIEREUS_OF_FLAME_CLOAK, 50.0f, true))
-                if (Creature* creat = go->SummonCreature(RARE_ARCHIEREUS_OF_FLAME_CLOAK, { -267.976f, -4909.930f, 15.944f, 3.20498f }, TEMPSUMMON_DEAD_DESPAWN))
-                    creat->Attack(unit, false);
+            void OnLootStateChanged(uint32 state, Unit* unit) override
+            {
+
+                if (!unit || state != GO_ACTIVATED)
+                    return;
+
+                if (!me->FindNearestCreature(RARE_ARCHIEREUS_OF_FLAME_CLOAK, 50.0f, true))
+                    if (Creature* creat = me->SummonCreature(RARE_ARCHIEREUS_OF_FLAME_CLOAK, { -267.976f, -4909.930f, 15.944f, 3.20498f }, TEMPSUMMON_DEAD_DESPAWN))
+                        creat->Attack(unit, false);
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_challengers_stoneAI(go);
         }
 };
 
@@ -4086,24 +4178,37 @@ class go_crane_nest : public GameObjectScript
     public:
         go_crane_nest() : GameObjectScript("go_crane_nest") { }
 
-        void OnLootStateChanged(GameObject* go, uint32 state, Unit* unit) override
+    
+        struct go_crane_nestAI : public GameObjectAI
         {
-            if (!unit || state != GO_ACTIVATED)
-                return;
+            go_crane_nestAI(GameObject* go) : GameObjectAI(go) { }
 
-            std::list<Creature*> creatures;
-            go->GetCreatureListWithEntryInGrid(creatures, 71143, 20.0f);
-            go->GetCreatureListWithEntryInGrid(creatures, 72762, 20.0f);
-            go->GetCreatureListWithEntryInGrid(creatures, 72761, 20.0f);
-            for (auto&& creature : creatures)
-                creature->Attack(unit, false);
-
-            go->m_Events.KillEventsByGroup(1);
-            go->m_Events.Schedule(MINUTE * IN_MILLISECONDS, 1, [go]
+            void OnLootStateChanged(uint32 state, Unit* unit) override
             {
-                if (go->getLootState() == GO_ACTIVATED)
-                    go->SetLootState(GO_JUST_DEACTIVATED);
-            });
+
+                if (!unit || state != GO_ACTIVATED)
+                    return;
+
+                std::list<Creature*> creatures;
+                me->GetCreatureListWithEntryInGrid(creatures, 71143, 20.0f);
+                me->GetCreatureListWithEntryInGrid(creatures, 72762, 20.0f);
+                me->GetCreatureListWithEntryInGrid(creatures, 72761, 20.0f);
+                for (auto&& creature : creatures)
+                    creature->Attack(unit, false);
+
+                me->m_Events.KillEventsByGroup(1);
+                me->m_Events.Schedule(MINUTE * IN_MILLISECONDS, 1, [this]
+                {
+                    if (me->getLootState() == GO_ACTIVATED)
+                        me->SetLootState(GO_JUST_DEACTIVATED);
+                });
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_crane_nestAI(go);
         }
 };
 
@@ -4112,24 +4217,37 @@ class go_zarhyms_body : public GameObjectScript
     public:
         go_zarhyms_body() : GameObjectScript("go_zarhyms_body") { }
 
-        void OnLootStateChanged(GameObject* go, uint32 state, Unit* unit) override
+        
+        struct go_zarhyms_bodyAI : public GameObjectAI
         {
-            if (!unit || state != GO_ACTIVATED || unit->GetTypeId() != TYPEID_PLAYER)
-                return;
+            go_zarhyms_bodyAI(GameObject* go) : GameObjectAI(go) { }
 
-            auto group = unit->ToPlayer()->GetGroup();
-
-            if (group)
+            void OnLootStateChanged(uint32 state, Unit* unit) override
             {
-                for (auto&& itr : group->GetMemberSlots())
+
+                if (!unit || state != GO_ACTIVATED || unit->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                auto group = unit->ToPlayer()->GetGroup();
+
+                if (group)
                 {
-                    Player* member = ObjectAccessor::GetPlayer(*unit, itr.guid);
-                    if (member && member->GetDistance(unit->GetPosition()) < 30.0f)
-                        member->CastSpell(unit, 147081);
+                    for (auto&& itr : group->GetMemberSlots())
+                    {
+                        Player* member = ObjectAccessor::GetPlayer(*unit, itr.guid);
+                        if (member && member->GetDistance(unit->GetPosition()) < 30.0f)
+                            member->CastSpell(unit, 147081);
+                    }
                 }
+                else
+                    unit->CastSpell(unit, 147081);
+        
             }
-            else
-                unit->CastSpell(unit, 147081);
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_zarhyms_bodyAI(go);
         }
 };
 
@@ -4138,43 +4256,57 @@ class go_cursed_grave : public GameObjectScript
     public:
         go_cursed_grave() : GameObjectScript("go_cursed_grave") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+    
+
+        struct go_cursed_graveAI : public GameObjectAI
         {
-            if (!player->HasItemCount(104115, 1, true))
+            go_cursed_graveAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                player->SendGameError(GameError::ERR_USE_LOCKED);
-                return false;
+
+                        if (!player->HasItemCount(104115, 1, true))
+                        {
+                            player->SendGameError(GameError::ERR_USE_LOCKED);
+                            return false;
+                        }
+
+                        if (me->FindNearestCreature(73281, 150.0f) || me->FindNearestCreature(NPC_CAPTAIN, 150.0f))
+                        {
+                            player->SendGameError(GameError::ERR_USE_LOCKED);
+                            return false;
+                        }
+
+                        player->DestroyItemCount(104115, 1, true);
+                        me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+
+                        if (Creature* captain = me->SummonCreature(NPC_CAPTAIN, -213.352f, -4715.245f, 13.070f, 4.343475f))
+                        {
+                            captain->SetFaction(35);
+                            captain->AI()->Talk(0);
+                            captain->m_Events.Schedule(5000,  [captain]() { captain->AI()->Talk(1); });
+                            captain->m_Events.Schedule(10000, [captain]() { captain->AI()->Talk(2); });
+                            captain->m_Events.Schedule(15000, [captain]() { captain->AI()->Talk(3); });
+                            captain->m_Events.Schedule(20000, [captain]()
+                            {
+                                captain->AI()->Talk(4);
+                                captain->DespawnOrUnsummon(1000);
+                                captain->SummonCreature(73281, -131.9149f, -4710.043f, -37.28537f, 3.77507f);
+                            });
+                        }
+
+                        me->m_Events.Schedule(3600000, [this]()
+                        {
+                            me->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+                        });
+                        return true;
+        
             }
+        };
 
-            if (go->FindNearestCreature(73281, 150.0f) || go->FindNearestCreature(NPC_CAPTAIN, 150.0f))
-            {
-                player->SendGameError(GameError::ERR_USE_LOCKED);
-                return false;
-            }
-
-            player->DestroyItemCount(104115, 1, true);
-            go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
-
-            if (Creature* captain = go->SummonCreature(NPC_CAPTAIN, -213.352f, -4715.245f, 13.070f, 4.343475f))
-            {
-                captain->SetFaction(35);
-                captain->AI()->Talk(0);
-                captain->m_Events.Schedule(5000,  [captain]() { captain->AI()->Talk(1); });
-                captain->m_Events.Schedule(10000, [captain]() { captain->AI()->Talk(2); });
-                captain->m_Events.Schedule(15000, [captain]() { captain->AI()->Talk(3); });
-                captain->m_Events.Schedule(20000, [captain]()
-                {
-                    captain->AI()->Talk(4);
-                    captain->DespawnOrUnsummon(1000);
-                    captain->SummonCreature(73281, -131.9149f, -4710.043f, -37.28537f, 3.77507f);
-                });
-            }
-
-            go->m_Events.Schedule(3600000, [go]()
-            {
-                go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
-            });
-            return true;
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_cursed_graveAI(go);
         }
 };
 
@@ -4183,54 +4315,67 @@ class go_timeless_chest : public GameObjectScript
     public:
         go_timeless_chest() : GameObjectScript("go_timeless_chest") { }
 
-        void OnLootStateChanged(GameObject* go, uint32 state, Unit* unit) override
+        
+        struct go_timeless_chestAI : public GameObjectAI
         {
-            if (!unit || state != GO_ACTIVATED || unit->GetTypeId() != TYPEID_PLAYER)
-                return;
+            go_timeless_chestAI(GameObject* go) : GameObjectAI(go) { }
 
-            Player* player = unit->ToPlayer();
-
-            // kill credit for quest 33333
-            if (go->GetEntry() != 222684 && go->GetEntry() != 222685 && go->GetEntry() != 222687 && go->GetEntry() != 222688 && go->GetEntry() != 223193 && go->GetEntry() != 222689 && go->GetEntry() != 221764 && go->GetEntry() != 222686)
-                player->KilledMonsterCredit(73982);
-
-            if (go->GetEntry() == GO_MIST_COVERED_TREASURE_CHEST)
+            void OnLootStateChanged(uint32 state, Unit* unit) override
             {
-                if (!player->HasAura(144385))
-                {
-                    player->SendGameError(GameError::ERR_LOOT_CANT_LOOT_THAT);
-                    go->ForcedDespawn();
-                }
-                return;
-            }
 
-            // check possibility to reward loot
-            auto itr = timelessRareChestsMap.find(go->GetEntry());
-            if (itr != timelessRareChestsMap.end())
-            {
-                if (player->GetQuestStatus(itr->second) != QUEST_STATUS_REWARDED && !player->IsWeeklyQuestDone(itr->second))
+                if (!unit || state != GO_ACTIVATED || unit->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                Player* player = unit->ToPlayer();
+
+                // kill credit for quest 33333
+                if (me->GetEntry() != 222684 && me->GetEntry() != 222685 && me->GetEntry() != 222687 && me->GetEntry() != 222688 && me->GetEntry() != 223193 && me->GetEntry() != 222689 && me->GetEntry() != 221764 && me->GetEntry() != 222686)
+                    player->KilledMonsterCredit(73982);
+
+                if (me->GetEntry() == GO_MIST_COVERED_TREASURE_CHEST)
                 {
-                    if (Quest const* quest = sObjectMgr->GetQuestTemplate(itr->second))
-                        player->RewardQuest(quest, 0, player, false);
-                    if (GameObjectTemplate const* objectInfo = sObjectMgr->GetGameObjectTemplate(itr->first))
-                        if (objectInfo->GetLockId() == 0)
-                            player->SendLoot(go->GetGUID(), LOOT_CORPSE);
-                }
-                else
-                {
-                    player->SendGameError(GameError::ERR_LOOT_CANT_LOOT_THAT);
-                    go->ForcedDespawn();
+                    if (!player->HasAura(144385))
+                    {
+                        player->SendGameError(GameError::ERR_LOOT_CANT_LOOT_THAT);
+                        me->ForcedDespawn();
+                    }
                     return;
                 }
-            }
 
-            // start despawn timer to prevent loot stucking
-            go->m_Events.KillEventsByGroup(1);
-            go->m_Events.Schedule(MINUTE * IN_MILLISECONDS, 1, [go]
-            {
-                if (go->getLootState() == GO_ACTIVATED)
-                    go->SetLootState(GO_JUST_DEACTIVATED);
-            });
+                // check possibility to reward loot
+                auto itr = timelessRareChestsMap.find(me->GetEntry());
+                if (itr != timelessRareChestsMap.end())
+                {
+                    if (player->GetQuestStatus(itr->second) != QUEST_STATUS_REWARDED && !player->IsWeeklyQuestDone(itr->second))
+                    {
+                        if (Quest const* quest = sObjectMgr->GetQuestTemplate(itr->second))
+                            player->RewardQuest(quest, 0, player, false);
+                        if (GameObjectTemplate const* objectInfo = sObjectMgr->GetGameObjectTemplate(itr->first))
+                            if (objectInfo->GetLockId() == 0)
+                                player->SendLoot(me->GetGUID(), LOOT_CORPSE);
+                    }
+                    else
+                    {
+                        player->SendGameError(GameError::ERR_LOOT_CANT_LOOT_THAT);
+                        me->ForcedDespawn();
+                        return;
+                    }
+                }
+
+                // start despawn timer to prevent loot stucking
+                me->m_Events.KillEventsByGroup(1);
+                me->m_Events.Schedule(MINUTE * IN_MILLISECONDS, 1, [this]
+                {
+                    if (me->getLootState() == GO_ACTIVATED)
+                        me->SetLootState(GO_JUST_DEACTIVATED);
+                });
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_timeless_chestAI(go);
         }
 };
 
@@ -4239,13 +4384,27 @@ class go_neverending_spritewood : public GameObjectScript
     public:
         go_neverending_spritewood() : GameObjectScript("go_neverending_spritewood") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+    
+
+        struct go_neverending_spritewoodAI : public GameObjectAI
         {
-            if (Quest const* quest = sObjectMgr->GetQuestTemplate(QUEST_NEVERENDING_SPRITEWOOD))
-                player->RewardQuest(quest, 0, player, false);
-            player->CastSpell(player, 144052);
-            go->ForcedDespawn();
-            return true;
+            go_neverending_spritewoodAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                        if (Quest const* quest = sObjectMgr->GetQuestTemplate(QUEST_NEVERENDING_SPRITEWOOD))
+                            player->RewardQuest(quest, 0, player, false);
+                        player->CastSpell(player, 144052);
+                        me->ForcedDespawn();
+                        return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_neverending_spritewoodAI(go);
         }
 };
 

@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "scholomance.h"
 
 enum ScholoEvents
@@ -153,16 +154,29 @@ class go_chillheart_iron_door : public GameObjectScript
     public:
         go_chillheart_iron_door() : GameObjectScript("go_chillheart_iron_door") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_chillheart_iron_doorAI : public GameObjectAI
         {
-            if (Creature* Chillheart = GetClosestCreatureWithEntry(go, NPC_INSTRUCTOR_CHILLHEART, 150.0f, true))
-                Chillheart->AI()->DoAction(ACTION_INTRO);
+            go_chillheart_iron_doorAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (Creature* TalkingSkull = GetClosestCreatureWithEntry(go, NPC_TALKING_SKULL, 150.0f, true))
-                TalkingSkull->AI()->DoAction(ACTION_INTRO);
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
 
-            go->UseDoorOrButton();
-            return true;
+                if (Creature* Chillheart = GetClosestCreatureWithEntry(me, NPC_INSTRUCTOR_CHILLHEART, 150.0f, true))
+                    Chillheart->AI()->DoAction(ACTION_INTRO);
+
+                if (Creature* TalkingSkull = GetClosestCreatureWithEntry(me, NPC_TALKING_SKULL, 150.0f, true))
+                    TalkingSkull->AI()->DoAction(ACTION_INTRO);
+
+                me->UseDoorOrButton();
+                return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_chillheart_iron_doorAI(go);
         }
 };
 
@@ -172,15 +186,28 @@ class go_polyformic_acid_potion : public GameObjectScript
     public:
         go_polyformic_acid_potion() : GameObjectScript("go_alchemy_bottle_white") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_polyformic_acid_potionAI : public GameObjectAI
         {
-            if (player)
-                player->CastSpell(player, SPELL_DRINK_VIAL, false);
+            go_polyformic_acid_potionAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (go)
-                go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
 
-            return true;
+                if (player)
+                    player->CastSpell(player, SPELL_DRINK_VIAL, false);
+
+                if (me)
+                    me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+
+                return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_polyformic_acid_potionAI(go);
         }
 };
 

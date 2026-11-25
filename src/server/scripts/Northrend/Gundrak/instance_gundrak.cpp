@@ -16,6 +16,7 @@
 */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 #include "gundrak.h"
 
 #define MAX_ENCOUNTER     5
@@ -551,30 +552,44 @@ class go_gundrak_altar : public GameObjectScript
     public:
         go_gundrak_altar() : GameObjectScript("go_gundrak_altar") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go)
+    
+
+        struct go_gundrak_altarAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
-            ObjectGuid uiStatue = ObjectGuid::Empty;
+            go_gundrak_altarAI(GameObject* go) : GameObjectAI(go) { }
 
-            go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
-            go->SetGoState(GO_STATE_ACTIVE);
-
-            if (instance)
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                switch (go->GetEntry())
-                {
-                    case GO_ALTAR_OF_SLADRAN:           uiStatue = instance->GetGuidData(DATA_SLAD_RAN_STATUE);          break;
-                    case GO_ALTAR_OF_MOORABI:           uiStatue = instance->GetGuidData(DATA_MOORABI_STATUE);           break;
-                    case GO_ALTAR_OF_DRAKKARI_COLOSSUS: uiStatue = instance->GetGuidData(DATA_DRAKKARI_COLOSSUS_STATUE); break;
-                }
-                if (dynamic_cast<instance_gundrak::instance_gundrak_InstanceMapScript*>(instance)->QueueActivation(uiStatue, 3500))
-                {
-                    go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                    go->SetGoState(GO_STATE_ACTIVE);
-                }
-                return true;
+
+                        InstanceScript* instance = me->GetInstanceScript();
+                        ObjectGuid uiStatue = ObjectGuid::Empty;
+
+                        me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        me->SetGoState(GO_STATE_ACTIVE);
+
+                        if (instance)
+                        {
+                            switch (me->GetEntry())
+                            {
+                                case GO_ALTAR_OF_SLADRAN:           uiStatue = instance->GetGuidData(DATA_SLAD_RAN_STATUE);          break;
+                                case GO_ALTAR_OF_MOORABI:           uiStatue = instance->GetGuidData(DATA_MOORABI_STATUE);           break;
+                                case GO_ALTAR_OF_DRAKKARI_COLOSSUS: uiStatue = instance->GetGuidData(DATA_DRAKKARI_COLOSSUS_STATUE); break;
+                            }
+                            if (dynamic_cast<instance_gundrak::instance_gundrak_InstanceMapScript*>(instance)->QueueActivation(uiStatue, 3500))
+                            {
+                                me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                me->SetGoState(GO_STATE_ACTIVE);
+                            }
+                            return true;
+                        }
+                        return false;
+        
             }
-            return false;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_gundrak_altarAI(go);
         }
 };
 

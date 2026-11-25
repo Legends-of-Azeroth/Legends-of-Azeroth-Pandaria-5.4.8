@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -38,63 +38,80 @@ class go_well_of_eternity_teleport : public GameObjectScript
     public:
         go_well_of_eternity_teleport() : GameObjectScript("go_well_of_eternity_teleport") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+
+        
+        struct go_well_of_eternity_teleportAI : public GameObjectAI
         {
-            bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
+            go_well_of_eternity_teleportAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (player->IsInCombat())
-                return true;
-
-            if (InstanceScript* instance = go->GetInstanceScript())
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Телепорт ко входу в сад.":"Teleport to Start.", GOSSIP_SENDER_MAIN, START_TELEPORT);
 
-                if (player->IsGameMaster())
+                bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
+
+                if (player->IsInCombat())
+                    return true;
+
+                if (InstanceScript* instance = me->GetInstanceScript())
                 {
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Перенестись во дворец Азшары.": "Teleport to Azshara's Palace.", GOSSIP_SENDER_MAIN, AZSHARA_TELEPORT);
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Перенестись в Источник Вечности.": "Teleport to Well of Eternity.", GOSSIP_SENDER_MAIN, WOE_TELEPORT);
-                }
-                else
-                {
-                    if (instance->GetBossState(DATA_PEROTHARN) == DONE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Телепорт ко входу в сад.":"Teleport to Start.", GOSSIP_SENDER_MAIN, START_TELEPORT);
+
+                    if (player->IsGameMaster())
+                    {
                         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Перенестись во дворец Азшары.": "Teleport to Azshara's Palace.", GOSSIP_SENDER_MAIN, AZSHARA_TELEPORT);
-                    if (instance->GetBossState(DATA_AZSHARA) == DONE)
                         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Перенестись в Источник Вечности.": "Teleport to Well of Eternity.", GOSSIP_SENDER_MAIN, WOE_TELEPORT);
+                    }
+                    else
+                    {
+                        if (instance->GetBossState(DATA_PEROTHARN) == DONE)
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Перенестись во дворец Азшары.": "Teleport to Azshara's Palace.", GOSSIP_SENDER_MAIN, AZSHARA_TELEPORT);
+                        if (instance->GetBossState(DATA_AZSHARA) == DONE)
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Перенестись в Источник Вечности.": "Teleport to Well of Eternity.", GOSSIP_SENDER_MAIN, WOE_TELEPORT);
+                    }
                 }
+        
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
             }
         
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(go), go->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action) override
-        {
-            //player->PlayerTalkClass->ClearMenus();
-            if (player->IsInCombat())
-                return true;
-
-            InstanceScript* instance = player->GetInstanceScript();
-            if (!instance)
-                return true;
-            
-            switch (action) 
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
             {
-                case START_TELEPORT:
-                    player->CastSpell(player, SPELL_TELEPORT_TO_START, true);
-                    player->CLOSE_GOSSIP_MENU();
-                    break;
-                case AZSHARA_TELEPORT:
-                    player->CastSpell(player, SPELL_TELEPORT_TO_AZSHARA_PALACE, true);
-                    player->CLOSE_GOSSIP_MENU();
-                    break;
-                case WOE_TELEPORT:
-                    player->CastSpell(player, SPELL_TELEPORT_TO_WELL_OF_ETERNITY, true);
-                    player->CLOSE_GOSSIP_MENU();
-                    break;
-            }
+
+                        //player->PlayerTalkClass->ClearMenus();
+                        if (player->IsInCombat())
+                            return true;
+
+                        InstanceScript* instance = player->GetInstanceScript();
+                        if (!instance)
+                            return true;
             
-            return true;
-        }    
+                        switch (action) 
+                        {
+                            case START_TELEPORT:
+                                player->CastSpell(player, SPELL_TELEPORT_TO_START, true);
+                                player->CLOSE_GOSSIP_MENU();
+                                break;
+                            case AZSHARA_TELEPORT:
+                                player->CastSpell(player, SPELL_TELEPORT_TO_AZSHARA_PALACE, true);
+                                player->CLOSE_GOSSIP_MENU();
+                                break;
+                            case WOE_TELEPORT:
+                                player->CastSpell(player, SPELL_TELEPORT_TO_WELL_OF_ETERNITY, true);
+                                player->CLOSE_GOSSIP_MENU();
+                                break;
+                        }
+            
+                        return true;
+        
+            }
+};
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_well_of_eternity_teleportAI(go);
+        }
 };
 
 void AddSC_well_of_eternity_teleport()

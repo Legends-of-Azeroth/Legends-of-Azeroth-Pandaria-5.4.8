@@ -16,6 +16,9 @@
 */
 
 #include "Common.h"
+#ifdef ELUNA
+#include "HookMgr.h"
+#endif
 #include "DBCStores.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -324,9 +327,10 @@ void WorldSession::HandleGameobjectReportUse(WorldPackets::GameObject::GameObjRe
     if (go->AI()->OnReportUse(_player))
         return;
 
-    // only for backward compatibility
-    if (sScriptMgr->OnGossipHello(_player, go))
+#ifdef ELUNA
+    if (sHookMgr->OnGossipHello(_player, go))
         return;
+#endif
 
     if (sScriptMgr->OnReportUse(_player, go))
         return;

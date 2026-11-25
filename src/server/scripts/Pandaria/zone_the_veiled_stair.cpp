@@ -456,94 +456,104 @@ class npc_wrathion : public CreatureScript
     public:
         npc_wrathion() : CreatureScript("npc_wrathion") { }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-        {
-            if (player->GetQuestStatus(QUEST_CALL_THE_PACKMASTER) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_SOUL_OF_THE_HORDE) == QUEST_STATUS_INCOMPLETE)
-                player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_SOUL_OF_THE_HORDE_SCENE_PLAY : SPELL_CALL_THE_PACKMASTER_SCENE_PLAY, true);
+        
 
-            // temp hack, i don`t know why OnGossipHello now doesn`t work
-            switch (quest->GetQuestId())
-            {
-                case QUEST_CALL_THE_PACKMASTER:
-                case QUEST_SOUL_OF_THE_HORDE:
-                    player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_SOUL_OF_THE_HORDE_SCENE_PLAY : SPELL_CALL_THE_PACKMASTER_SCENE_PLAY, true);
+    
 
-                    if (Creature* tong = player->SummonCreature(NPC_TONG_THE_FIXER, TongSpawnPos, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(2 * MINUTE * IN_MILLISECONDS)))
-                        tong->SetPhaseMask(2, true);
-                    break;
-                case QUEST_LEGEND_IN_THE_MAKING:
-                    player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_LEGEND_IN_THE_MAKING_SCENE_H : SPELL_LEGEND_IN_THE_MAKING_SCENE_A, true);
-
-                    if (Creature* tong = player->SummonCreature(NPC_TONG_THE_FIXER, TongSpawnPos, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(2 * MINUTE * IN_MILLISECONDS)))
-                        tong->SetPhaseMask(2, true);
-                    break;
-                case QUEST_MEASURE_OF_THE_LEADER_A:
-                case QUEST_MEASURE_OF_THE_LEADER_H:
-                    player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_MEASURE_OF_THE_LEADER_HORDE : SPELL_MEASURE_OF_THE_LEADER_ALLIANCE, true);
-                    break;
-                case QUEST_INCOMING:
-                    // Check if player complete landing questline
-                    if (player->GetQuestStatus(QUEST_LIONS_LANDING) == QUEST_STATUS_REWARDED || player->GetQuestStatus(QUEST_DOMINATION_POINT) == QUEST_STATUS_REWARDED)
-                        if (player->GetQuestStatus(QUEST_INCOMING) == QUEST_STATUS_INCOMPLETE)
-                            player->KilledMonsterCredit(NPC_WRATHION_NAVAL_FLEET_CREDIT);
-                    break;
-                case QUEST_TEST_OF_VALOR_H:
-                case QUEST_TEST_OF_VALOR_A:
-                    if (player->GetAchievementMgr().HasAchieved(quest->GetQuestId() == QUEST_TEST_OF_VALOR_A ? 8030 : 8031))
-                        player->KilledMonsterCredit(69145);
-                    break;
-            }
-
-            return false;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                    if (player->GetQuestStatus(QUEST_LEGEND_IN_THE_MAKING) == QUEST_STATUS_INCOMPLETE)
-                    {
-                        player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_LEGEND_IN_THE_MAKING_SCENE_H : SPELL_LEGEND_IN_THE_MAKING_SCENE_A, true);
-
-                        if (Creature* tong = player->SummonCreature(NPC_TONG_THE_FIXER, TongSpawnPos, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(2 * MINUTE * IN_MILLISECONDS)))
-                            tong->SetPhaseMask(2, true);
-                    }
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                    if (player->GetQuestStatus(QUEST_MEASURE_OF_THE_LEADER_A) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_MEASURE_OF_THE_LEADER_H) == QUEST_STATUS_INCOMPLETE)
-                        player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_MEASURE_OF_THE_LEADER_HORDE : SPELL_MEASURE_OF_THE_LEADER_ALLIANCE, true);
-                    break;
-            }
-
-            player->CLOSE_GOSSIP_MENU();
-
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-
-            if (player->GetQuestStatus(QUEST_LEGEND_IN_THE_MAKING) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, WRATHION_GOSSIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            if (player->GetQuestStatus(QUEST_MEASURE_OF_THE_LEADER_A) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_MEASURE_OF_THE_LEADER_H) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, WRATHION_GOSSIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+        
 
         struct npc_wrathionAI : public ScriptedAI
         {
             npc_wrathionAI(Creature* creature) : ScriptedAI(creature) { }
 
             void UpdateAI(uint32 /*diff*/) override { }
-        };
+                    void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (player->GetQuestStatus(QUEST_CALL_THE_PACKMASTER) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_SOUL_OF_THE_HORDE) == QUEST_STATUS_INCOMPLETE)
+                    player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_SOUL_OF_THE_HORDE_SCENE_PLAY : SPELL_CALL_THE_PACKMASTER_SCENE_PLAY, true);
+
+                // temp hack, i don`t know why OnGossipHello now doesn`t work
+                switch (quest->GetQuestId())
+                {
+                    case QUEST_CALL_THE_PACKMASTER:
+                    case QUEST_SOUL_OF_THE_HORDE:
+                        player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_SOUL_OF_THE_HORDE_SCENE_PLAY : SPELL_CALL_THE_PACKMASTER_SCENE_PLAY, true);
+
+                        if (Creature* tong = player->SummonCreature(NPC_TONG_THE_FIXER, TongSpawnPos, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(2 * MINUTE * IN_MILLISECONDS)))
+                            tong->SetPhaseMask(2, true);
+                        break;
+                    case QUEST_LEGEND_IN_THE_MAKING:
+                        player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_LEGEND_IN_THE_MAKING_SCENE_H : SPELL_LEGEND_IN_THE_MAKING_SCENE_A, true);
+
+                        if (Creature* tong = player->SummonCreature(NPC_TONG_THE_FIXER, TongSpawnPos, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(2 * MINUTE * IN_MILLISECONDS)))
+                            tong->SetPhaseMask(2, true);
+                        break;
+                    case QUEST_MEASURE_OF_THE_LEADER_A:
+                    case QUEST_MEASURE_OF_THE_LEADER_H:
+                        player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_MEASURE_OF_THE_LEADER_HORDE : SPELL_MEASURE_OF_THE_LEADER_ALLIANCE, true);
+                        break;
+                    case QUEST_INCOMING:
+                        // Check if player complete landing questline
+                        if (player->GetQuestStatus(QUEST_LIONS_LANDING) == QUEST_STATUS_REWARDED || player->GetQuestStatus(QUEST_DOMINATION_POINT) == QUEST_STATUS_REWARDED)
+                            if (player->GetQuestStatus(QUEST_INCOMING) == QUEST_STATUS_INCOMPLETE)
+                                player->KilledMonsterCredit(NPC_WRATHION_NAVAL_FLEET_CREDIT);
+                        break;
+                    case QUEST_TEST_OF_VALOR_H:
+                    case QUEST_TEST_OF_VALOR_A:
+                        if (player->GetAchievementMgr().HasAchieved(quest->GetQuestId() == QUEST_TEST_OF_VALOR_A ? 8030 : 8031))
+                            player->KilledMonsterCredit(69145);
+                        break;
+                }
+
+                return;
+        
+            }
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                if (player->GetQuestStatus(QUEST_LEGEND_IN_THE_MAKING) == QUEST_STATUS_INCOMPLETE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, WRATHION_GOSSIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                if (player->GetQuestStatus(QUEST_MEASURE_OF_THE_LEADER_A) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_MEASURE_OF_THE_LEADER_H) == QUEST_STATUS_INCOMPLETE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, WRATHION_GOSSIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        switch (action)
+                        {
+                            case GOSSIP_ACTION_INFO_DEF + 1:
+                                if (player->GetQuestStatus(QUEST_LEGEND_IN_THE_MAKING) == QUEST_STATUS_INCOMPLETE)
+                                {
+                                    player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_LEGEND_IN_THE_MAKING_SCENE_H : SPELL_LEGEND_IN_THE_MAKING_SCENE_A, true);
+
+                                    if (Creature* tong = player->SummonCreature(NPC_TONG_THE_FIXER, TongSpawnPos, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(2 * MINUTE * IN_MILLISECONDS)))
+                                        tong->SetPhaseMask(2, true);
+                                }
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 2:
+                                if (player->GetQuestStatus(QUEST_MEASURE_OF_THE_LEADER_A) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_MEASURE_OF_THE_LEADER_H) == QUEST_STATUS_INCOMPLETE)
+                                    player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_MEASURE_OF_THE_LEADER_HORDE : SPELL_MEASURE_OF_THE_LEADER_ALLIANCE, true);
+                                break;
+                        }
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -988,12 +998,25 @@ class npc_wrathion_thunder_king : public CreatureScript
     public:
         npc_wrathion_thunder_king() : CreatureScript("npc_wrathion_thunder_king") { }
     
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+        
+        struct npc_wrathion_thunder_kingAI : public ScriptedAI
         {
-            if (quest->GetQuestId() == QUEST_THUNDER_FORGE)
-                player->KilledMonsterCredit(NPC_UNLOCK_FORGE_CREDIT);
+            npc_wrathion_thunder_kingAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == QUEST_THUNDER_FORGE)
+                    player->KilledMonsterCredit(NPC_UNLOCK_FORGE_CREDIT);
     
-            return false;
+                return;
+        
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_wrathion_thunder_kingAI(creature);
         }
 };
 
@@ -1565,23 +1588,26 @@ class npc_wrathion_yulon_celestial : public CreatureScript
     public:
         npc_wrathion_yulon_celestial() : CreatureScript("npc_wrathion_yulon_celestial") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-
-            if (player->GetQuestStatus(QUEST_CELESTIAL_BLESSING) == QUEST_STATUS_INCOMPLETE)
-                player->CastSpell(player, invZoneChallengeType.find(creature->GetZoneId())->second, true);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+        
 
         struct npc_wrathion_yulon_celestialAI : public ScriptedAI
         {
             npc_wrathion_yulon_celestialAI(Creature* creature) : ScriptedAI(creature) { }
 
             void IsSummonedBy(Unit* summoner) override { }
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                if (player->GetQuestStatus(QUEST_CELESTIAL_BLESSING) == QUEST_STATUS_INCOMPLETE)
+                    player->CastSpell(player, invZoneChallengeType.find(me->GetZoneId())->second, true);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -2019,19 +2045,22 @@ class npc_wrathion_at_massons_folly : public CreatureScript
     public:
         npc_wrathion_at_massons_folly() : CreatureScript("npc_wrathion_at_massons_folly") { }
     
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_CLOAK_OF_VIRTUE)
-                player->CastSpell(player, SPELL_SUMMON_WRATHION_CELESTIAL_END, true);
-
-            return false;
-        }
+        
 
         struct npc_wrathion_at_massons_follyAI : public ScriptedAI
         {
             npc_wrathion_at_massons_follyAI(Creature* creature) : ScriptedAI(creature) { }
     
             void UpdateAI(uint32 /*diff*/) override { }
+                    void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == QUEST_CLOAK_OF_VIRTUE)
+                    player->CastSpell(player, SPELL_SUMMON_WRATHION_CELESTIAL_END, true);
+
+                return;
+        
+            }
         };
     
         CreatureAI* GetAI(Creature* creature) const override
@@ -2068,23 +2097,26 @@ class npc_wrathion_pandaren_legend : public CreatureScript
     public:
         npc_wrathion_pandaren_legend() : CreatureScript("npc_wrathion_pandaren_legend") { }
     
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-    
-            if (player->GetQuestStatus(QUEST_A_PANDAREN_LEGEND) == QUEST_STATUS_INCOMPLETE)
-                player->CastSpell(player, SPELL_LEGENDARY_FINALE, true);
-    
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+        
     
         struct npc_wrathion_pandaren_legendAI : public ScriptedAI
         {
             npc_wrathion_pandaren_legendAI(Creature* creature) : ScriptedAI(creature) { }
     
             void IsSummonedBy(Unit* summoner) override { }
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+    
+                if (player->GetQuestStatus(QUEST_A_PANDAREN_LEGEND) == QUEST_STATUS_INCOMPLETE)
+                    player->CastSpell(player, SPELL_LEGENDARY_FINALE, true);
+    
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
         };
     
         CreatureAI* GetAI(Creature* creature) const override
@@ -2187,11 +2219,10 @@ class go_wrathion_jewel_chest : public GameObjectScript
         {
             go_wrathion_jewel_chestAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool OnQuestReward(Player* player, Quest const* /*quest*/, uint32 /*opt*/) override
+            void OnQuestReward(Player* player, Quest const* /*quest*/, uint32 /*opt*/) override
             {
                 player->SetPhaseMask(1, true);
                 me->Delete();
-                return true;
             }
         };
 

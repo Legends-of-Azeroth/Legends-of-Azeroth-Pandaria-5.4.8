@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -38,16 +38,7 @@ class npc_master_shang_xi : public CreatureScript
     public:
         npc_master_shang_xi() : CreatureScript("npc_master_shang_xi") { }
 
-        bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_LESSONS_OF_BURNING_SCROLL) // The Lesson of the Burning Scroll
-            {
-                creature->AddAura(SPELL_MASTERS_FLAME, creature);
-                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
-            }
-
-            return true;
-        }
+        
 
         struct npc_master_shang_xi_AI : public ScriptedAI
         {
@@ -105,6 +96,7 @@ class npc_master_shang_xi : public CreatureScript
         {
             return new npc_master_shang_xi_AI(creature);
         }
+
 };
 
 struct npc_training_target : public ScriptedAI
@@ -515,14 +507,7 @@ class npc_aysa : public CreatureScript
     public:
         npc_aysa() : CreatureScript("npc_aysa") { }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_WAY_OF_THE_TUSHUI)
-                if (Creature* tempSummon = creature->SummonCreature(NPC_AYSA_LAKE_ESCORT, *creature, TEMPSUMMON_MANUAL_DESPAWN, 0ms, player->GetGUID()))
-                    tempSummon->SetPhaseMask(1, true);
-
-            return true;
-        }
+        
 
         struct npc_aysaAI : public ScriptedAI
         {
@@ -706,6 +691,16 @@ class npc_aysa : public CreatureScript
                     }
                 }
             }
+                    void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == QUEST_WAY_OF_THE_TUSHUI)
+                    if (Creature* tempSummon = me->SummonCreature(NPC_AYSA_LAKE_ESCORT, *me, TEMPSUMMON_MANUAL_DESPAWN, 0ms, player->GetGUID()))
+                        tempSummon->SetPhaseMask(1, true);
+
+                return;
+        
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -719,10 +714,23 @@ class boss_li_fei : public CreatureScript
     public:
         boss_li_fei() : CreatureScript("boss_li_fei") { }
 
-        bool OnQuestAccept(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) override
+        
+        struct boss_li_feiAI : public ScriptedAI
         {
-            // TODO: there is some kick spell casted on retail at quest accept
-            return true;
+            boss_li_feiAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                // TODO: there is some kick spell casted on retail at quest accept
+                return;
+        
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new boss_li_feiAI(creature);
         }
 };
 

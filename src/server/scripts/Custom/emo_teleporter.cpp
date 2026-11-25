@@ -1,3 +1,20 @@
+/*
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "ScriptPCH.h"
 
 struct struktura
@@ -354,33 +371,52 @@ class npc_world_teleporter : public CreatureScript
 	public:
 	npc_world_teleporter(): CreatureScript("npc_world_teleporter") { }
 
-	bool OnGossipHello(Player* pPlayer, Creature* pCreature)
-	{
-		Custom_GetMenu(pPlayer, pCreature, 1);
-		return true;
-	}
 
-	bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
-	{
-		pPlayer->PlayerTalkClass->ClearMenus(); // clear the menu
 
-		pPlayer->ModifyMoney(-1 * pandariq[uiAction].cost); // take cash
-		uint32 Key = pandariq[uiAction].next_menu_id;
-		if (Key == 0) // if no next_menu_id, then teleport to coords
-		{
-			if (!pPlayer->IsInCombat())
-			{
-				pPlayer->CLOSE_GOSSIP_MENU();
-				pPlayer->TeleportTo(pandariq[uiAction].map, pandariq[uiAction].x, pandariq[uiAction].y, pandariq[uiAction].z, pandariq[uiAction].o);
-				return true;
-			}
-			pPlayer->GetSession()->SendAreaTriggerMessage(ERROR_COMBAT);
-			Key = pandariq[uiAction].menu_id;
-		}
 
-		Custom_GetMenu(pPlayer, pCreature, Key);
-		return true;
-	}
+
+
+        struct npc_world_teleporterAI : public ScriptedAI
+        {
+            npc_world_teleporterAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
+            {
+
+            Custom_GetMenu(player, me, 1);
+            return true;
+	
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+            player->PlayerTalkClass->ClearMenus(); // clear the menu
+
+            player->ModifyMoney(-1 * pandariq[action].cost); // take cash
+            uint32 Key = pandariq[action].next_menu_id;
+            if (Key == 0) // if no next_menu_id, then teleport to coords
+            {
+            if (!player->IsInCombat())
+            {
+            player->CLOSE_GOSSIP_MENU();
+            player->TeleportTo(pandariq[action].map, pandariq[action].x, pandariq[action].y, pandariq[action].z, pandariq[action].o);
+            return true;
+            }
+            player->GetSession()->SendAreaTriggerMessage(ERROR_COMBAT);
+            Key = pandariq[action].menu_id;
+            }
+
+            Custom_GetMenu(player, me, Key);
+            return true;
+	
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_world_teleporterAI(creature);
+        }
 };
 
 void AddSC_npc_world_teleporter()

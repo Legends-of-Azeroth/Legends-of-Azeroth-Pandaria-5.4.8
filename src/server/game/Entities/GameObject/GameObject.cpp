@@ -16,6 +16,7 @@
 */
 
 #include "GameObjectAI.h"
+#include "GossipDef.h"
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "CreatureAISelector.h"
@@ -30,6 +31,9 @@
 #include "OutdoorPvPMgr.h"
 #include "PoolMgr.h"
 #include "ScriptMgr.h"
+#ifdef ELUNA
+#include "HookMgr.h"
+#endif
 #include "SpellMgr.h"
 #include "UpdateFieldFlags.h"
 #include "World.h"
@@ -1300,9 +1304,11 @@ void GameObject::Use(Unit* user)
 
     if (Player* playerUser = user->ToPlayer())
     {
-        if (sScriptMgr->OnGossipHello(playerUser, this))
+        playerUser->PlayerTalkClass->ClearMenus();
+#ifdef ELUNA
+        if (sHookMgr->OnGossipHello(playerUser, this))
             return;
-
+#endif
         if (AI()->OnGossipHello(playerUser, true))
             return;
     }
@@ -2389,7 +2395,10 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
         case GO_DESTRUCTIBLE_DAMAGED:
         {
             EventInform(m_goInfo->building.damagedEvent);
-            sScriptMgr->OnGameObjectDamaged(this, eventInvoker);
+            AI()->Damaged(eventInvoker, m_goInfo->building.damagedEvent);
+#ifdef ELUNA
+            sHookMgr->OnDamaged(this, eventInvoker);
+#endif
             if (eventInvoker)
                 if (Battleground* bg = eventInvoker->GetBattleground())
                     bg->EventPlayerDamagedGO(eventInvoker, this, m_goInfo->building.damagedEvent);
@@ -2416,8 +2425,11 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
         }
         case GO_DESTRUCTIBLE_DESTROYED:
         {
-            sScriptMgr->OnGameObjectDestroyed(this, eventInvoker);
             EventInform(m_goInfo->building.destroyedEvent);
+            AI()->Destroyed(eventInvoker, m_goInfo->building.destroyedEvent);
+#ifdef ELUNA
+            sHookMgr->OnDestroyed(this, eventInvoker);
+#endif
             if (eventInvoker)
             {
                 if (Battleground* bg = eventInvoker->GetBattleground())
@@ -2470,14 +2482,20 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
 void GameObject::SetLootState(LootState state, Unit* unit)
 {
     m_lootState = state;
-    AI()->OnStateChanged(state, unit);
-    sScriptMgr->OnGameObjectLootStateChanged(this, state, unit);
+    AI()->OnLootStateChanged(state, unit);
+#ifdef ELUNA
+    sHookMgr->OnLootStateChanged(this, state, unit);
+#endif
 }
 
 void GameObject::SetGoState(GOState state)
 {
     SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
-    sScriptMgr->OnGameObjectStateChanged(this, state);
+    if (AI())
+        AI()->OnStateChanged(state);
+#ifdef ELUNA
+    sHookMgr->OnGameObjectStateChanged(this, state);
+#endif
     if (m_model)
     {
         if (!IsInWorld())

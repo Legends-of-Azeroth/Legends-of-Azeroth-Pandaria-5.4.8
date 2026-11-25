@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -43,29 +43,46 @@ class npc_rathis_tomber : public CreatureScript
 public:
     npc_rathis_tomber() : CreatureScript("npc_rathis_tomber") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
-        return true;
-    }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (creature->IsVendor() && player->GetQuestRewardStatus(9152))
+    
+        struct npc_rathis_tomberAI : public ScriptedAI
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-            player->SEND_GOSSIP_MENU(8432, creature->GetGUID());
-        }
-        else
-            player->SEND_GOSSIP_MENU(8431, creature->GetGUID());
+            npc_rathis_tomberAI(Creature* creature) : ScriptedAI(creature) { }
 
-        return true;
-    }
+            bool OnGossipHello(Player* player) override
+            {
+
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            if (me->IsVendor() && player->GetQuestRewardStatus(9152))
+            {
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                player->SEND_GOSSIP_MENU(8432, me->GetGUID());
+            }
+            else
+                player->SEND_GOSSIP_MENU(8431, me->GetGUID());
+
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    if (action == GOSSIP_ACTION_TRADE)
+                        player->GetSession()->SendListInventory(me->GetGUID());
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_rathis_tomberAI(creature);
+        }
 };
 
 /*######
@@ -167,19 +184,22 @@ public:
             if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
                 Cage->SetGoState(GO_STATE_READY);
         }
-    };
+                void OnQuestAccept(Player* player, Quest const* quest) override
+            {
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_ESCAPE_FROM_THE_CATACOMBS)
-        {
-            creature->SetFaction(113);
+            if (quest->GetQuestId() == QUEST_ESCAPE_FROM_THE_CATACOMBS)
+            {
+                me->SetFaction(113);
 
-            if (EscortAI* pEscortAI = CAST_AI(npc_ranger_lilatha::npc_ranger_lilathaAI, creature->AI()))
-                pEscortAI->Start(true, player->GetGUID());
-        }
-        return true;
-    }
+                if (EscortAI* pEscortAI = this)
+                    pEscortAI->Start(true, player->GetGUID());
+            }
+            return;
+    
+            }
+        };
+
+    
 
     CreatureAI* GetAI(Creature* creature) const override
     {

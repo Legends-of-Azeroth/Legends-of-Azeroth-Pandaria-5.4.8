@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -50,15 +50,7 @@ class npc_apprentice_mirveda : public CreatureScript
 public:
     npc_apprentice_mirveda() : CreatureScript("npc_apprentice_mirveda") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_UNEXPECTED_RESULT)
-        {
-            CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->Summon = true;
-            CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->PlayerGUID = player->GetGUID();
-        }
-        return true;
-    }
+    
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -121,7 +113,18 @@ public:
                 Summon = false;
             }
         }
-    };
+                void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+            if (quest->GetQuestId() == QUEST_UNEXPECTED_RESULT)
+            {
+                this->Summon = true;
+                this->PlayerGUID = player->GetGUID();
+            }
+            return;
+    
+            }
+        };
 };
 
 /*######
@@ -285,25 +288,25 @@ public:
                 if (!trap->isSpawned())
                     trap->Respawn();
         }
+
+        void OnLootStateChanged(uint32 state, Unit* /*unit*/) override
+        {
+            if (state == GO_JUST_DEACTIVATED)
+            {
+                if (GameObject* trap = me->FindNearestGameObject(GO_TAINTED_SOIL_TRAP, 1.0f))
+                {
+                    trap->SetRespawnTime(me->GetRespawnDelay());
+                    trap->SaveRespawnTime();
+                    trap->SendObjectDeSpawnAnim(trap->GetGUID());
+                    trap->UpdateObjectVisibility();
+                }
+            }
+        }
     };
 
     GameObjectAI* GetAI(GameObject* go) const override
     {
         return new go_tainted_soilAI(go);
-    }
-
-    void OnLootStateChanged(GameObject* go, uint32 state, Unit* /*unit*/) override
-    {
-        if (state == GO_JUST_DEACTIVATED)
-        {
-            if (GameObject* trap = go->FindNearestGameObject(GO_TAINTED_SOIL_TRAP, 1.0f))
-            {
-                trap->SetRespawnTime(go->GetRespawnDelay());
-                trap->SaveRespawnTime();
-                trap->SendObjectDeSpawnAnim(trap->GetGUID());
-                trap->UpdateObjectVisibility();
-            }
-        }
     }
 };
 

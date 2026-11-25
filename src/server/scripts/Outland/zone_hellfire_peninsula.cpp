@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -314,21 +314,24 @@ public:
                     break;
             }
         }
-    };
+                void OnQuestAccept(Player* player, Quest const* quest) override
+            {
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_ROAD_TO_FALCON_WATCH)
-        {
-            if (EscortAI* pEscortAI = CAST_AI(npc_wounded_blood_elf::npc_wounded_blood_elfAI, creature->AI()))
-                pEscortAI->Start(true, player->GetGUID());
+            if (quest->GetQuestId() == QUEST_ROAD_TO_FALCON_WATCH)
+            {
+                if (EscortAI* pEscortAI = this)
+                    pEscortAI->Start(true, player->GetGUID());
 
-            // Change faction so mobs attack
-            creature->SetFaction(FACTION_FALCON_WATCH_QUEST);
-        }
+                // Change faction so mobs attack
+                me->SetFaction(FACTION_FALCON_WATCH_QUEST);
+            }
 
-        return true;
-    }
+            return;
+    
+            }
+        };
+
+    
 
     CreatureAI* GetAI(Creature* creature) const override
     {

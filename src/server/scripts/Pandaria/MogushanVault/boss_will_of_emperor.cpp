@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
 #include "mogu_shan_vault.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
 
@@ -2181,35 +2182,48 @@ class go_ancien_control_console : public GameObjectScript
     public:
         go_ancien_control_console() : GameObjectScript("go_ancien_control_console") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_ancien_control_consoleAI : public GameObjectAI
         {
-            if (InstanceScript* instance = player->GetInstanceScript())
+            go_ancien_control_consoleAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                if (!instance->CheckRequiredBosses(DATA_WILL_OF_EMPEROR, player))
-                    return false;
 
-                if (Creature* jan_xi = instance->instance->GetCreature(instance->GetGuidData(NPC_JAN_XI)))
-                    jan_xi->AI()->DoAction(ACTION_ACTIVATE);
-
-                if (Creature* qin_xi = instance->instance->GetCreature(instance->GetGuidData(NPC_QIN_XI)))
-                    qin_xi->AI()->DoAction(ACTION_ACTIVATE);
-
-                if (Creature* console = GetClosestCreatureWithEntry(go, NPC_ANCIENT_MOGU_MACHINE, 200.0f))
+                if (InstanceScript* instance = player->GetInstanceScript())
                 {
-                    console->AI()->Talk(TALK_TO_LOWER_LEVEL);
-                    console->SetReactState(REACT_PASSIVE);
-                    console->setActive(true);
+                    if (!instance->CheckRequiredBosses(DATA_WILL_OF_EMPEROR, player))
+                        return false;
 
-                    uint32 delay = 0;
-                    console->m_Events.Schedule(delay += 6000, 1, [this, instance, console]()
+                    if (Creature* jan_xi = instance->instance->GetCreature(instance->GetGuidData(NPC_JAN_XI)))
+                        jan_xi->AI()->DoAction(ACTION_ACTIVATE);
+
+                    if (Creature* qin_xi = instance->instance->GetCreature(instance->GetGuidData(NPC_QIN_XI)))
+                        qin_xi->AI()->DoAction(ACTION_ACTIVATE);
+
+                    if (Creature* console = GetClosestCreatureWithEntry(me, NPC_ANCIENT_MOGU_MACHINE, 200.0f))
                     {
-                        console->AI()->DoAction(ACTION_MOGU_ACTIVATE);
-                        instance->SetBossState(DATA_WILL_OF_EMPEROR, IN_PROGRESS);
-                    });
-                }
-            }
+                        console->AI()->Talk(TALK_TO_LOWER_LEVEL);
+                        console->SetReactState(REACT_PASSIVE);
+                        console->setActive(true);
 
-            return false;
+                        uint32 delay = 0;
+                        console->m_Events.Schedule(delay += 6000, 1, [this, instance, console]()
+                        {
+                            console->AI()->DoAction(ACTION_MOGU_ACTIVATE);
+                            instance->SetBossState(DATA_WILL_OF_EMPEROR, IN_PROGRESS);
+                        });
+                    }
+                }
+
+                return false;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_ancien_control_consoleAI(go);
         }
 };
 

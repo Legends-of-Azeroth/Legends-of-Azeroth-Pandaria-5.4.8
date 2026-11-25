@@ -214,50 +214,9 @@ class npc_anstart : public CreatureScript
 
 class npc_announcer_toc5 : public CreatureScript
 {
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        InstanceScript* instance = creature->GetInstanceScript();
+    
 
-        if (instance &&
-            instance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
-            instance->GetData(BOSS_BLACK_KNIGHT) == DONE &&
-            (instance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE ||
-            instance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE))
-            return false;
 
-        if (player->GetGroup() && !player->GetGroup()->IsLeader(player->GetGUID()))
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Sorry, I'm not the group leader", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
-            return true;
-        }
-
-        if (instance &&
-            instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED &&
-            instance->GetData(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED &&
-            instance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED &&
-            instance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        else if (instance)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->StartEncounter();
-        }
-
-        return true;
-    }
 
     public:
         npc_announcer_toc5() : CreatureScript("npc_announcer_toc5") { }
@@ -665,7 +624,55 @@ class npc_announcer_toc5 : public CreatureScript
                         break;
                 }
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+            InstanceScript* instance = me->GetInstanceScript();
+
+            if (instance &&
+                instance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
+                instance->GetData(BOSS_BLACK_KNIGHT) == DONE &&
+                (instance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE ||
+                instance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE))
+                return false;
+
+            if (player->GetGroup() && !player->GetGroup()->IsLeader(player->GetGUID()))
+            {
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Sorry, I'm not the group leader", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, me->GetGUID());
+                return true;
+            }
+
+            if (instance &&
+                instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED &&
+                instance->GetData(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED &&
+                instance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED &&
+                instance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            else if (instance)
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+
+                    if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                    {
+                        player->CLOSE_GOSSIP_MENU();
+                        CAST_AI(npc_announcer_toc5::npc_announcer_toc5AI, me->AI())->StartEncounter();
+                    }
+
+                    return true;
+    
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {

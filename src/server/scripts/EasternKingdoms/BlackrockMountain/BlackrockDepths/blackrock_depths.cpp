@@ -35,6 +35,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "blackrock_depths.h"
@@ -47,22 +48,35 @@ class go_shadowforge_brazier : public GameObjectScript
 public:
     go_shadowforge_brazier() : GameObjectScript("go_shadowforge_brazier") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
-    {
-        if (InstanceScript* instance = go->GetInstanceScript())
+    
+        struct go_shadowforge_brazierAI : public GameObjectAI
         {
-            if (instance->GetData(TYPE_LYCEUM) == IN_PROGRESS)
-                instance->SetData(TYPE_LYCEUM, DONE);
-            else
-                instance->SetData(TYPE_LYCEUM, IN_PROGRESS);
-            // If used brazier open linked doors (North or South)
-            if (go->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_N))
-                instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_N), true);
-            else if (go->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_S))
-                instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_S), true);
+            go_shadowforge_brazierAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+            if (InstanceScript* instance = me->GetInstanceScript())
+            {
+                if (instance->GetData(TYPE_LYCEUM) == IN_PROGRESS)
+                    instance->SetData(TYPE_LYCEUM, DONE);
+                else
+                    instance->SetData(TYPE_LYCEUM, IN_PROGRESS);
+                // If used brazier open linked doors (North or South)
+                if (me->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_N))
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_N), true);
+                else if (me->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_S))
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_S), true);
+            }
+            return false;
+    
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_shadowforge_brazierAI(go);
         }
-        return false;
-    }
 };
 
 // npc_grimstone
@@ -448,73 +462,90 @@ class npc_kharan_mighthammer : public CreatureScript
 public:
     npc_kharan_mighthammer() : CreatureScript("npc_kharan_mighthammer") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
+
+
+    
+        struct npc_kharan_mighthammerAI : public ScriptedAI
         {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                player->SEND_GOSSIP_MENU(2475, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                player->SEND_GOSSIP_MENU(2476, creature->GetGUID());
-                break;
+            npc_kharan_mighthammerAI(Creature* creature) : ScriptedAI(creature) { }
 
-            case GOSSIP_ACTION_INFO_DEF+3:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                player->SEND_GOSSIP_MENU(2477, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+4:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-                player->SEND_GOSSIP_MENU(2478, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+5:
-                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
-                player->SEND_GOSSIP_MENU(2479, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+6:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_8, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+7);
-                player->SEND_GOSSIP_MENU(2480, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+7:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_9, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+8);
-                player->SEND_GOSSIP_MENU(2481, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+8:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_10, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+9);
-                player->SEND_GOSSIP_MENU(2482, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+9:
-                player->CLOSE_GOSSIP_MENU();
-                if (player->GetTeam() == HORDE)
-                    player->AreaExploredOrEventHappens(QUEST_4001);
-                else
-                    player->AreaExploredOrEventHappens(QUEST_4342);
-                break;
+            bool OnGossipHello(Player* player) override
+            {
+
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            if (player->GetQuestStatus(QUEST_4001) == QUEST_STATUS_INCOMPLETE)
+                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+            if (player->GetQuestStatus(4342) == QUEST_STATUS_INCOMPLETE)
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+
+            if (player->GetTeam() == HORDE)
+                player->SEND_GOSSIP_MENU(2473, me->GetGUID());
+            else
+                player->SEND_GOSSIP_MENU(2474, me->GetGUID());
+
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    switch (action)
+                    {
+                        case GOSSIP_ACTION_INFO_DEF+1:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                            player->SEND_GOSSIP_MENU(2475, me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF+2:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+                            player->SEND_GOSSIP_MENU(2476, me->GetGUID());
+                            break;
+
+                        case GOSSIP_ACTION_INFO_DEF+3:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+                            player->SEND_GOSSIP_MENU(2477, me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF+4:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+                            player->SEND_GOSSIP_MENU(2478, me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF+5:
+                             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
+                            player->SEND_GOSSIP_MENU(2479, me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF+6:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_8, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+7);
+                            player->SEND_GOSSIP_MENU(2480, me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF+7:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_9, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+8);
+                            player->SEND_GOSSIP_MENU(2481, me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF+8:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_10, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+9);
+                            player->SEND_GOSSIP_MENU(2482, me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF+9:
+                            player->CLOSE_GOSSIP_MENU();
+                            if (player->GetTeam() == HORDE)
+                                player->AreaExploredOrEventHappens(QUEST_4001);
+                            else
+                                player->AreaExploredOrEventHappens(QUEST_4342);
+                            break;
+                    }
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_kharan_mighthammerAI(creature);
         }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_4001) == QUEST_STATUS_INCOMPLETE)
-             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        if (player->GetQuestStatus(4342) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-
-        if (player->GetTeam() == HORDE)
-            player->SEND_GOSSIP_MENU(2473, creature->GetGUID());
-        else
-            player->SEND_GOSSIP_MENU(2474, creature->GetGUID());
-
-        return true;
-    }
 };
 
 // npc_lokhtos_darkbargainer
@@ -542,42 +573,59 @@ class npc_lokhtos_darkbargainer : public CreatureScript
 public:
     npc_lokhtos_darkbargainer() : CreatureScript("npc_lokhtos_darkbargainer") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+
+
+    
+        struct npc_lokhtos_darkbargainerAI : public ScriptedAI
         {
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, SPELL_CREATE_THORIUM_BROTHERHOOD_CONTRACT_DND, false);
-        }
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
+            npc_lokhtos_darkbargainerAI(Creature* creature) : ScriptedAI(creature) { }
 
-        return true;
-    }
+            bool OnGossipHello(Player* player) override
+            {
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
 
-        if (creature->IsVendor() && player->GetReputationRank(59) >= REP_FRIENDLY)
-              player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_ITEM_SHOW_ACCESS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+            if (me->IsVendor() && player->GetReputationRank(59) >= REP_FRIENDLY)
+                  player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_ITEM_SHOW_ACCESS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
-        if (player->GetQuestRewardStatus(QUEST_A_BINDING_CONTRACT) != 1 &&
-            !player->HasItemCount(ITEM_THRORIUM_BROTHERHOOD_CONTRACT, 1, true) &&
-            player->HasItemCount(ITEM_SULFURON_INGOT))
+            if (player->GetQuestRewardStatus(QUEST_A_BINDING_CONTRACT) != 1 &&
+                !player->HasItemCount(ITEM_THRORIUM_BROTHERHOOD_CONTRACT, 1, true) &&
+                player->HasItemCount(ITEM_SULFURON_INGOT))
+            {
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_GET_CONTRACT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            }
+
+            if (player->GetReputationRank(59) < REP_FRIENDLY)
+                player->SEND_GOSSIP_MENU(3673, me->GetGUID());
+            else
+                player->SEND_GOSSIP_MENU(3677, me->GetGUID());
+
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                    {
+                        player->CLOSE_GOSSIP_MENU();
+                        player->CastSpell(player, SPELL_CREATE_THORIUM_BROTHERHOOD_CONTRACT_DND, false);
+                    }
+                    if (action == GOSSIP_ACTION_TRADE)
+                        player->GetSession()->SendListInventory(me->GetGUID());
+
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_GET_CONTRACT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            return new npc_lokhtos_darkbargainerAI(creature);
         }
-
-        if (player->GetReputationRank(59) < REP_FRIENDLY)
-            player->SEND_GOSSIP_MENU(3673, creature->GetGUID());
-        else
-            player->SEND_GOSSIP_MENU(3677, creature->GetGUID());
-
-        return true;
-    }
 };
 
 // npc_dughal_stormwing
@@ -606,28 +654,9 @@ public:
         return dughal_stormwingAI;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_escort::EscortAI, (creature->AI()))->SetRun(true); CAST_AI(npc_escort::EscortAI, (creature->AI()))->Start(false, player->GetGUID());
-            creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            instance->SetData(DATA_QUEST_JAIL_BREAK, ENCOUNTER_STATE_IN_PROGRESS);
-        }
-        return true;
-    }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_JAIL_BREAK) == QUEST_STATUS_INCOMPLETE && instance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS)
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DUGHAL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(2846, creature->GetGUID());
-        }
-        return true;
-    }
+
+    
 
     struct npc_dughal_stormwingAI : public EscortAI
     {
@@ -683,7 +712,33 @@ public:
             }
             EscortAI::UpdateAI(diff);
         }
-    };
+                bool OnGossipHello(Player* player) override
+            {
+
+            if (player->GetQuestStatus(QUEST_JAIL_BREAK) == QUEST_STATUS_INCOMPLETE && instance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS)
+            {
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DUGHAL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(2846, me->GetGUID());
+            }
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                    {
+                        player->CLOSE_GOSSIP_MENU();
+                        CAST_AI(npc_escort::EscortAI, (me->AI()))->SetRun(true); CAST_AI(npc_escort::EscortAI, (me->AI()))->Start(false, player->GetGUID());
+                        me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        instance->SetData(DATA_QUEST_JAIL_BREAK, ENCOUNTER_STATE_IN_PROGRESS);
+                    }
+                    return true;
+    
+            }
+};
 };
 
  */
@@ -739,20 +794,7 @@ public:
         return marshal_windsorAI;
     }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == 4322)
-        {
-            PlayerStart = player;
-            if (instance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED)
-            {
-                CAST_AI(npc_escort::EscortAI, (creature->AI()))->Start(true, player->GetGUID());
-                instance->SetData(DATA_QUEST_JAIL_BREAK, ENCOUNTER_STATE_IN_PROGRESS);
-                creature->setFaction(11);
-            }
-        }
-        return false;
-    }
+    
 
     struct npc_marshal_windsorAI : public EscortAI
     {
@@ -861,7 +903,23 @@ public:
             }
             EscortAI::UpdateAI(diff);
         }
-    };
+                void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+            if (quest->GetQuestId() == 4322)
+            {
+                PlayerStart = player;
+                if (instance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED)
+                {
+                    this->Start(true, player->GetGUID());
+                    instance->SetData(DATA_QUEST_JAIL_BREAK, ENCOUNTER_STATE_IN_PROGRESS);
+                    me->setFaction(11);
+                }
+            }
+            return;
+    
+            }
+        };
 };
 
   */
@@ -1118,28 +1176,9 @@ public:
         return tobias_seecherAI;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_escort::EscortAI, (creature->AI()))->SetRun(true); CAST_AI(npc_escort::EscortAI, (creature->AI()))->Start(false, player->GetGUID());
-            creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            instance->SetData(DATA_TOBIAS, ENCOUNTER_STATE_IN_PROGRESS);
-        }
-        return true;
-    }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_JAIL_BREAK) == QUEST_STATUS_INCOMPLETE && instance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS)
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Get out of here, Tobias, you're free!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(2847, creature->GetGUID());
-        }
-        return true;
-    }
+
+    
 
     struct npc_tobias_seecherAI : public EscortAI
     {
@@ -1197,7 +1236,33 @@ public:
             }
             EscortAI::UpdateAI(diff);
         }
-    };
+                bool OnGossipHello(Player* player) override
+            {
+
+            if (player->GetQuestStatus(QUEST_JAIL_BREAK) == QUEST_STATUS_INCOMPLETE && instance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS)
+            {
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Get out of here, Tobias, you're free!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(2847, me->GetGUID());
+            }
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                    {
+                        player->CLOSE_GOSSIP_MENU();
+                        CAST_AI(npc_escort::EscortAI, (me->AI()))->SetRun(true); CAST_AI(npc_escort::EscortAI, (me->AI()))->Start(false, player->GetGUID());
+                        me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        instance->SetData(DATA_TOBIAS, ENCOUNTER_STATE_IN_PROGRESS);
+                    }
+                    return true;
+    
+            }
+};
 };
 
 */

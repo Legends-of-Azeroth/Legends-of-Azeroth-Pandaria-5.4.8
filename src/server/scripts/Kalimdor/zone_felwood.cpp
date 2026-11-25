@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -27,6 +27,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptedGossip.h"
 
 enum q28288
@@ -215,15 +216,28 @@ class go_totem_of_ruumbo : public GameObjectScript
     public:
         go_totem_of_ruumbo() : GameObjectScript("go_totem_of_ruumbo") { }
 
-        bool OnQuestAccept(Player* player, GameObject* go, Quest const* quest) override
+        
+        struct go_totem_of_ruumboAI : public GameObjectAI
         {
-            if (quest->GetQuestId() == QUEST_DANCE_FOR_RUUMBO)
-            {
-                player->SummonCreature(NPC_FERLI, fulborogsLeavePos[2], TEMPSUMMON_MANUAL_DESPAWN, Milliseconds(60 * IN_MILLISECONDS));
-                player->SummonCreature(NPC_DRIZLE, fulborogsLeavePos[3], TEMPSUMMON_MANUAL_DESPAWN, Milliseconds(60 * IN_MILLISECONDS));
-            }
+            go_totem_of_ruumboAI(GameObject* go) : GameObjectAI(go) { }
 
-            return true;
+            void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == QUEST_DANCE_FOR_RUUMBO)
+                {
+                    player->SummonCreature(NPC_FERLI, fulborogsLeavePos[2], TEMPSUMMON_MANUAL_DESPAWN, Milliseconds(60 * IN_MILLISECONDS));
+                    player->SummonCreature(NPC_DRIZLE, fulborogsLeavePos[3], TEMPSUMMON_MANUAL_DESPAWN, Milliseconds(60 * IN_MILLISECONDS));
+                }
+
+                return;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_totem_of_ruumboAI(go);
         }
 };
 

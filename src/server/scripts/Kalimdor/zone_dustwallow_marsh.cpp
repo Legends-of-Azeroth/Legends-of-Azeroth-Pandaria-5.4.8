@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -152,33 +152,9 @@ class npc_theramore_guard : public CreatureScript
 public:
     npc_theramore_guard() : CreatureScript("npc_theramore_guard") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_DISCREDITING_THE_DESERTERS) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_THERAMORE_GUARD, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
+    
 
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-
-        if (action == GOSSIP_SENDER_INFO)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            player->KilledMonsterCredit(NPC_THERAMORE_GUARD, ObjectGuid::Empty);
-            creature->AI()->Talk(SAY_QUEST1);
-            creature->CastSpell(creature, SPELL_DOCTORED_LEAFLET, false);
-            creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            CAST_AI(npc_theramore_guard::npc_theramore_guardAI, creature->AI())->YellTimer = 4000;
-            CAST_AI(npc_theramore_guard::npc_theramore_guardAI, creature->AI())->bYellTimer = true;
-        }
-
-        return true;
-    }
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -224,7 +200,38 @@ public:
             else
                 YellTimer -= Diff;
         }
-    };
+                bool OnGossipHello(Player* player) override
+            {
+
+            if (player->GetQuestStatus(QUEST_DISCREDITING_THE_DESERTERS) == QUEST_STATUS_INCOMPLETE)
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_THERAMORE_GUARD, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
+
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+
+                    if (action == GOSSIP_SENDER_INFO)
+                    {
+                        player->CLOSE_GOSSIP_MENU();
+                        player->KilledMonsterCredit(NPC_THERAMORE_GUARD, ObjectGuid::Empty);
+                        me->AI()->Talk(SAY_QUEST1);
+                        me->CastSpell(me, SPELL_DOCTORED_LEAFLET, false);
+                        me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        CAST_AI(npc_theramore_guard::npc_theramore_guardAI, me->AI())->YellTimer = 4000;
+                        CAST_AI(npc_theramore_guard::npc_theramore_guardAI, me->AI())->bYellTimer = true;
+                    }
+
+                    return true;
+    
+            }
+};
 };
 
 /*######
@@ -244,30 +251,47 @@ class npc_lady_jaina_proudmoore : public CreatureScript
 public:
     npc_lady_jaina_proudmoore() : CreatureScript("npc_lady_jaina_proudmoore") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_SENDER_INFO)
+
+
+    
+
+        struct npc_lady_jaina_proudmooreAI : public ScriptedAI
         {
-            player->SEND_GOSSIP_MENU(7012, creature->GetGUID());
-            player->CastSpell(player, SPELL_JAINAS_AUTOGRAPH, false);
+            npc_lady_jaina_proudmooreAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
+            {
+
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            if (player->GetQuestStatus(QUEST_JAINAS_AUTOGRAPH) == QUEST_STATUS_INCOMPLETE)
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_JAINA, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
+
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    if (action == GOSSIP_SENDER_INFO)
+                    {
+                        player->SEND_GOSSIP_MENU(7012, me->GetGUID());
+                        player->CastSpell(player, SPELL_JAINAS_AUTOGRAPH, false);
+                    }
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_lady_jaina_proudmooreAI(creature);
         }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_JAINAS_AUTOGRAPH) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_JAINA, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
 };
 
 /*######
@@ -284,31 +308,48 @@ class npc_nat_pagle : public CreatureScript
 public:
     npc_nat_pagle() : CreatureScript("npc_nat_pagle") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
 
-        return true;
-    }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
+    
 
-        if (creature->IsVendor() && player->GetQuestRewardStatus(QUEST_NATS_MEASURING_TAPE))
+        struct npc_nat_pagleAI : public ScriptedAI
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-            player->SEND_GOSSIP_MENU(7640, creature->GetGUID());
+            npc_nat_pagleAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
+            {
+
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            if (me->IsVendor() && player->GetQuestRewardStatus(QUEST_NATS_MEASURING_TAPE))
+            {
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                player->SEND_GOSSIP_MENU(7640, me->GetGUID());
+            }
+            else
+                player->SEND_GOSSIP_MENU(7638, me->GetGUID());
+
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    if (action == GOSSIP_ACTION_TRADE)
+                        player->GetSession()->SendListInventory(me->GetGUID());
+
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_nat_pagleAI(creature);
         }
-        else
-            player->SEND_GOSSIP_MENU(7638, creature->GetGUID());
-
-        return true;
-    }
-
 };
 
 /*######
@@ -337,13 +378,7 @@ class npc_private_hendel : public CreatureScript
 public:
     npc_private_hendel() : CreatureScript("npc_private_hendel") { }
 
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT16)
-            creature->SetFaction(FACTION_HOSTILE);
-
-        return true;
-    }
+    
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -383,7 +418,16 @@ public:
                 EnterEvadeMode();
             }
         }
-    };
+                void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+            if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT16)
+                me->SetFaction(FACTION_HOSTILE);
+
+            return;
+    
+            }
+        };
 
 };
 
@@ -494,20 +538,7 @@ public:
         return new npc_stinkyAI(creature);
     }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-         if (quest->GetQuestId() == QUEST_STINKYS_ESCAPE_H || quest->GetQuestId() == QUEST_STINKYS_ESCAPE_A)
-         {
-             if (npc_stinkyAI* pEscortAI = CAST_AI(npc_stinky::npc_stinkyAI, creature->AI()))
-             {
-                 creature->SetFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
-                 creature->SetStandState(UNIT_STAND_STATE_STAND);
-                 creature->AI()->Talk(SAY_QUEST_ACCEPTED);
-                 pEscortAI->Start(false, player->GetGUID());
-             }
-         }
-         return true;
-    }
+    
 
     struct npc_stinkyAI : public EscortAI
     {
@@ -587,7 +618,23 @@ public:
 
             DoMeleeAttackIfReady();
         }
-    };
+                void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+             if (quest->GetQuestId() == QUEST_STINKYS_ESCAPE_H || quest->GetQuestId() == QUEST_STINKYS_ESCAPE_A)
+             {
+                 if (npc_stinkyAI* pEscortAI = this)
+                 {
+                     me->SetFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
+                     me->SetStandState(UNIT_STAND_STATE_STAND);
+                     Talk(SAY_QUEST_ACCEPTED);
+                     pEscortAI->Start(false, player->GetGUID());
+                 }
+             }
+             return;
+    
+            }
+        };
 };
 
 enum SpellScripts

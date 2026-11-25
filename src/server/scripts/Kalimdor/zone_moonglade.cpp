@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -178,26 +178,43 @@ class npc_bunthen_plainswind : public CreatureScript
     public:
         npc_bunthen_plainswind() : CreatureScript("npc_bunthen_plainswind") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
+    
 
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+        
+        struct npc_bunthen_plainswindAI : public ScriptedAI
+        {
+            npc_bunthen_plainswindAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
             {
-                player->CLOSE_GOSSIP_MENU();
-                player->ActivateTaxiPathTo(player->GetTeam() == HORDE ? 316 : 315);
+
+                if (player->GetClass() == CLASS_DRUID && (me->GetEntry() == 11798 && player->GetTeam() == HORDE || me->GetEntry() == 11800 && player->GetTeam() != HORDE))
+                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
             }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
 
-            return true;
-        }
+                        player->PlayerTalkClass->ClearMenus();
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            player->CLOSE_GOSSIP_MENU();
+                            player->ActivateTaxiPathTo(player->GetTeam() == HORDE ? 316 : 315);
+                        }
+
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            if (player->GetClass() == CLASS_DRUID && (creature->GetEntry() == 11798 && player->GetTeam() == HORDE || creature->GetEntry() == 11800 && player->GetTeam() != HORDE))
-                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
+            return new npc_bunthen_plainswindAI(creature);
         }
 };
 

@@ -290,39 +290,56 @@ class npc_parqual_fintallas : public CreatureScript
 public:
     npc_parqual_fintallas() : CreatureScript("npc_parqual_fintallas") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            creature->CastSpell(player, SPELL_MARK_OF_SHAME, false);
-        }
-        if (action == GOSSIP_ACTION_INFO_DEF+2)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            player->AreaExploredOrEventHappens(6628);
-        }
-        return true;
-    }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (player->GetQuestStatus(6628) == QUEST_STATUS_INCOMPLETE && !player->HasAura(SPELL_MARK_OF_SHAME))
+    
+        struct npc_parqual_fintallasAI : public ScriptedAI
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HPF1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HPF2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HPF3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            player->SEND_GOSSIP_MENU(5822, creature->GetGUID());
-        }
-        else
-            player->SEND_GOSSIP_MENU(5821, creature->GetGUID());
+            npc_parqual_fintallasAI(Creature* creature) : ScriptedAI(creature) { }
 
-        return true;
-    }
+            bool OnGossipHello(Player* player) override
+            {
+
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            if (player->GetQuestStatus(6628) == QUEST_STATUS_INCOMPLETE && !player->HasAura(SPELL_MARK_OF_SHAME))
+            {
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HPF1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HPF2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HPF3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                player->SEND_GOSSIP_MENU(5822, me->GetGUID());
+            }
+            else
+                player->SEND_GOSSIP_MENU(5821, me->GetGUID());
+
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    if (action == GOSSIP_ACTION_INFO_DEF+1)
+                    {
+                        player->CLOSE_GOSSIP_MENU();
+                        me->CastSpell(player, SPELL_MARK_OF_SHAME, false);
+                    }
+                    if (action == GOSSIP_ACTION_INFO_DEF+2)
+                    {
+                        player->CLOSE_GOSSIP_MENU();
+                        player->AreaExploredOrEventHappens(6628);
+                    }
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_parqual_fintallasAI(creature);
+        }
 };
 
 /*######

@@ -16,6 +16,7 @@
 */
 
 #include "ScriptPCH.h"
+#include "GameObjectAI.h"
 #include "MoveSplineInit.h"
 #include "dragon_soul.h"
 
@@ -1812,23 +1813,36 @@ class go_hagara_the_stormbinder_the_focusing_iris : public GameObjectScript
     public:
         go_hagara_the_stormbinder_the_focusing_iris() : GameObjectScript("go_hagara_the_stormbinder_the_focusing_iris") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        
+        struct go_hagara_the_stormbinder_the_focusing_irisAI : public GameObjectAI
         {
-            if (InstanceScript* instance = go->GetInstanceScript())
-            {
-                if (instance->GetBossState(DATA_ZONOZZ) != DONE || instance->GetBossState(DATA_YORSAHJ) != DONE)
-                {
-                    instance->DoNearTeleportPlayers(portalsPos[0]);
-                    return true;
-                }
+            go_hagara_the_stormbinder_the_focusing_irisAI(GameObject* go) : GameObjectAI(go) { }
 
-                if (Creature* pHagara = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_HAGARA)))
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                if (InstanceScript* instance = me->GetInstanceScript())
                 {
-                    pHagara->AI()->DoAction(ACTION_START_EVENT);
-                    go->Delete();
+                    if (instance->GetBossState(DATA_ZONOZZ) != DONE || instance->GetBossState(DATA_YORSAHJ) != DONE)
+                    {
+                        instance->DoNearTeleportPlayers(portalsPos[0]);
+                        return true;
+                    }
+
+                    if (Creature* pHagara = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_HAGARA)))
+                    {
+                        pHagara->AI()->DoAction(ACTION_START_EVENT);
+                        me->Delete();
+                    }
                 }
+                return true;
+        
             }
-            return true;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_hagara_the_stormbinder_the_focusing_irisAI(go);
         }
 };
 

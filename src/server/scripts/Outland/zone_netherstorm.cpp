@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -33,6 +33,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "Player.h"
@@ -310,48 +311,61 @@ class go_manaforge_control_console : public GameObjectScript
 public:
     go_manaforge_control_console() : GameObjectScript("go_manaforge_control_console") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        if (go->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
+    
+        struct go_manaforge_control_consoleAI : public GameObjectAI
         {
-            player->PrepareQuestMenu(go->GetGUID());
-            player->SendPreparedQuest(go);
-        }
+            go_manaforge_control_consoleAI(GameObject* go) : GameObjectAI(go) { }
 
-        Creature* manaforge = NULL;
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
 
-        switch (go->GetAreaId())
+            if (me->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
+            {
+                player->PrepareQuestMenu(me->GetGUID());
+                player->SendPreparedQuest(me);
+            }
+
+            Creature* manaforge = NULL;
+
+            switch (me->GetAreaId())
+            {
+                case 3726:                                          //b'naar
+                    if ((player->GetQuestStatus(10299) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10329) == QUEST_STATUS_INCOMPLETE) &&
+                        player->HasItemCount(29366))
+                        manaforge = player->SummonCreature(ENTRY_BNAAR_C_CONSOLE, 2918.95f, 4189.98f, 161.88f, 0.34f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 125000ms);
+                    break;
+                case 3730:                                          //coruu
+                    if ((player->GetQuestStatus(10321) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10330) == QUEST_STATUS_INCOMPLETE) &&
+                        player->HasItemCount(29396))
+                        manaforge = player->SummonCreature(ENTRY_CORUU_C_CONSOLE, 2426.77f, 2750.38f, 133.24f, 2.14f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 125000ms);
+                    break;
+                case 3734:                                          //duro
+                    if ((player->GetQuestStatus(10322) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10338) == QUEST_STATUS_INCOMPLETE) &&
+                        player->HasItemCount(29397))
+                        manaforge = player->SummonCreature(ENTRY_DURO_C_CONSOLE, 2976.48f, 2183.29f, 163.20f, 1.85f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 125000ms);
+                    break;
+                case 3722:                                          //ara
+                    if ((player->GetQuestStatus(10323) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10365) == QUEST_STATUS_INCOMPLETE) &&
+                        player->HasItemCount(29411))
+                        manaforge = player->SummonCreature(ENTRY_ARA_C_CONSOLE, 4013.71f, 4028.76f, 192.10f, 1.25f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 125000ms);
+                    break;
+            }
+
+            if (manaforge)
+            {
+                CAST_AI(npc_manaforge_control_console::npc_manaforge_control_consoleAI, manaforge->AI())->someplayer = player->GetGUID();
+                CAST_AI(npc_manaforge_control_console::npc_manaforge_control_consoleAI, manaforge->AI())->goConsole = me->GetGUID();
+                me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
+            }
+            return true;
+    
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
         {
-            case 3726:                                          //b'naar
-                if ((player->GetQuestStatus(10299) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10329) == QUEST_STATUS_INCOMPLETE) &&
-                    player->HasItemCount(29366))
-                    manaforge = player->SummonCreature(ENTRY_BNAAR_C_CONSOLE, 2918.95f, 4189.98f, 161.88f, 0.34f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 125000ms);
-                break;
-            case 3730:                                          //coruu
-                if ((player->GetQuestStatus(10321) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10330) == QUEST_STATUS_INCOMPLETE) &&
-                    player->HasItemCount(29396))
-                    manaforge = player->SummonCreature(ENTRY_CORUU_C_CONSOLE, 2426.77f, 2750.38f, 133.24f, 2.14f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 125000ms);
-                break;
-            case 3734:                                          //duro
-                if ((player->GetQuestStatus(10322) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10338) == QUEST_STATUS_INCOMPLETE) &&
-                    player->HasItemCount(29397))
-                    manaforge = player->SummonCreature(ENTRY_DURO_C_CONSOLE, 2976.48f, 2183.29f, 163.20f, 1.85f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 125000ms);
-                break;
-            case 3722:                                          //ara
-                if ((player->GetQuestStatus(10323) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10365) == QUEST_STATUS_INCOMPLETE) &&
-                    player->HasItemCount(29411))
-                    manaforge = player->SummonCreature(ENTRY_ARA_C_CONSOLE, 4013.71f, 4028.76f, 192.10f, 1.25f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 125000ms);
-                break;
+            return new go_manaforge_control_consoleAI(go);
         }
-
-        if (manaforge)
-        {
-            CAST_AI(npc_manaforge_control_console::npc_manaforge_control_consoleAI, manaforge->AI())->someplayer = player->GetGUID();
-            CAST_AI(npc_manaforge_control_console::npc_manaforge_control_consoleAI, manaforge->AI())->goConsole = go->GetGUID();
-            go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
-        }
-        return true;
-    }
 };
 
 /*######
@@ -686,30 +700,47 @@ public:
     //if (quest->GetQuestId() == QUEST_DIMENSIUS)
         //creature->AI()->Talk(WHISPER_DABIRI, player);
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
+
+
+    
+        struct npc_professor_dabiriAI : public ScriptedAI
         {
-            creature->CastSpell(player, SPELL_PHASE_DISTRUPTOR, false);
-            player->CLOSE_GOSSIP_MENU();
+            npc_professor_dabiriAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
+            {
+
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            if (player->GetQuestStatus(QUEST_ON_NETHERY_WINGS) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(29778))
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    if (action == GOSSIP_ACTION_INFO_DEF+1)
+                    {
+                        me->CastSpell(player, SPELL_PHASE_DISTRUPTOR, false);
+                        player->CLOSE_GOSSIP_MENU();
+                    }
+
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_professor_dabiriAI(creature);
         }
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_ON_NETHERY_WINGS) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(29778))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
 };
 
 /*######
@@ -863,16 +894,7 @@ class npc_bessy : public CreatureScript
 public:
     npc_bessy() : CreatureScript("npc_bessy") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == Q_ALMABTRIEB)
-        {
-            creature->SetFaction(113);
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            CAST_AI(EscortAI, (creature->AI()))->Start(true, player->GetGUID());
-        }
-        return true;
-    }
+    
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -927,7 +949,19 @@ public:
         {
             me->RestoreFaction();
         }
-    };
+                void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+            if (quest->GetQuestId() == Q_ALMABTRIEB)
+            {
+                me->SetFaction(113);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                this->Start(true, player->GetGUID());
+            }
+            return;
+    
+            }
+        };
 };
 
 /*######
@@ -1017,20 +1051,23 @@ public:
             }
             DoMeleeAttackIfReady();
         }
-    };
-
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_MARK_V_IS_ALIVE)
-        {
-            if (npc_maxx_a_million_escortAI* pEscortAI = CAST_AI(npc_maxx_a_million_escort::npc_maxx_a_million_escortAI, creature->AI()))
+                void OnQuestAccept(Player* player, Quest const* quest) override
             {
-                creature->SetFaction(113);
-                pEscortAI->Start(false, player->GetGUID());
+
+            if (quest->GetQuestId() == QUEST_MARK_V_IS_ALIVE)
+            {
+                if (npc_maxx_a_million_escortAI* pEscortAI = this)
+                {
+                    me->SetFaction(113);
+                    pEscortAI->Start(false, player->GetGUID());
+                }
             }
-        }
-        return true;
-    }
+            return;
+    
+            }
+        };
+
+    
 };
 
 /*######
@@ -1048,16 +1085,29 @@ class go_captain_tyralius_prison : public GameObjectScript
     public:
         go_captain_tyralius_prison() : GameObjectScript("go_captain_tyralius_prison") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_captain_tyralius_prisonAI : public GameObjectAI
         {
-            go->UseDoorOrButton();
-            if (Creature* tyralius = go->FindNearestCreature(NPC_CAPTAIN_TYRALIUS, 1.0f))
+            go_captain_tyralius_prisonAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                player->KilledMonsterCredit(NPC_CAPTAIN_TYRALIUS, ObjectGuid::Empty);
-                tyralius->AI()->Talk(SAY_FREE);
-                tyralius->DespawnOrUnsummon(8000);
+
+                me->UseDoorOrButton();
+                if (Creature* tyralius = me->FindNearestCreature(NPC_CAPTAIN_TYRALIUS, 1.0f))
+                {
+                    player->KilledMonsterCredit(NPC_CAPTAIN_TYRALIUS, ObjectGuid::Empty);
+                    tyralius->AI()->Talk(SAY_FREE);
+                    tyralius->DespawnOrUnsummon(8000);
+                }
+                return true;
+        
             }
-            return true;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_captain_tyralius_prisonAI(go);
         }
 };
 

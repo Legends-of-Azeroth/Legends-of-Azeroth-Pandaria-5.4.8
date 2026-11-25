@@ -264,17 +264,30 @@ class npc_korga : public CreatureScript
     public:
         npc_korga() : CreatureScript("npc_korga") { }
 
-        bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
+        
+        struct npc_korgaAI : public ScriptedAI
         {
-            if (quest->GetQuestId() == 30589) // Wrecking the Wreck
-                if (Creature* jiEscort = player->SummonCreature(60900, 424.71f, 3635.59f, 92.70f, 2.498430f, TEMPSUMMON_MANUAL_DESPAWN, 0ms))
-                {
-                    jiEscort->SetExplicitSeerGuid(player->GetGUID());
-                    jiEscort->SetReactState(REACT_PASSIVE);
-                    jiEscort->AI()->SetGUID(player->GetGUID());
-                }
+            npc_korgaAI(Creature* creature) : ScriptedAI(creature) { }
 
-            return true;
+            void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == 30589) // Wrecking the Wreck
+                    if (Creature* jiEscort = player->SummonCreature(60900, 424.71f, 3635.59f, 92.70f, 2.498430f, TEMPSUMMON_MANUAL_DESPAWN, 0ms))
+                    {
+                        jiEscort->SetExplicitSeerGuid(player->GetGUID());
+                        jiEscort->SetReactState(REACT_PASSIVE);
+                        jiEscort->AI()->SetGUID(player->GetGUID());
+                    }
+
+                return;
+        
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_korgaAI(creature);
         }
 };
 
@@ -386,20 +399,33 @@ class npc_jojo_ironbrow : public CreatureScript
 public:
     npc_jojo_ironbrow() : CreatureScript("npc_jojo_ironbrow") { }
 
-    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_AN_ANCIENT_EVIL)
+    
+        struct npc_jojo_ironbrowAI : public ScriptedAI
         {
-            if (Creature* const vordraka = player->SummonCreature(NPC_VORDRAKA, 281.74f, 4003.40f, 72.96f, 0.05f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000ms))
-            {
-                vordraka->SetExplicitSeerGuid(player->GetGUID());
-                vordraka->AI()->SetGUID(player->GetGUID());
-                vordraka->SetPhaseMask(12, true);
-            }
-        }
+            npc_jojo_ironbrowAI(Creature* creature) : ScriptedAI(creature) { }
 
-        return true;
-    }
+            void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+            if (quest->GetQuestId() == QUEST_AN_ANCIENT_EVIL)
+            {
+                if (Creature* const vordraka = player->SummonCreature(NPC_VORDRAKA, 281.74f, 4003.40f, 72.96f, 0.05f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000ms))
+                {
+                    vordraka->SetExplicitSeerGuid(player->GetGUID());
+                    vordraka->AI()->SetGUID(player->GetGUID());
+                    vordraka->SetPhaseMask(12, true);
+                }
+            }
+
+            return;
+    
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_jojo_ironbrowAI(creature);
+        }
 };
 
 class boss_vordraka : public CreatureScript
@@ -538,19 +564,7 @@ class npc_aysa_gunship_crash : public CreatureScript
     public:
         npc_aysa_gunship_crash() : CreatureScript("npc_aysa_gunship_crash") { }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_RISKING_IT_ALL)
-            {
-                if (Creature* aysa = player->SummonCreature(60729, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0ms))
-                {
-                    aysa->SetExplicitSeerGuid(player->GetGUID());
-                    aysa->AI()->SetGUID(player->GetGUID());
-                }
-            }
-
-            return true;
-        }
+        
 
         struct npc_aysa_gunship_crashAI : public ScriptedAI
         {
@@ -561,6 +575,21 @@ class npc_aysa_gunship_crash : public CreatureScript
             {
                 if (HealthBelowPct(70))
                     damage = 0;
+            }
+                    void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == QUEST_RISKING_IT_ALL)
+                {
+                    if (Creature* aysa = player->SummonCreature(60729, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0ms))
+                    {
+                        aysa->SetExplicitSeerGuid(player->GetGUID());
+                        aysa->AI()->SetGUID(player->GetGUID());
+                    }
+                }
+
+                return;
+        
             }
         };
 
@@ -1021,36 +1050,53 @@ class npc_shang_xi_choose_faction : public CreatureScript
     public:
         npc_shang_xi_choose_faction() : CreatureScript("npc_shang_xi_choose_faction") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
+        
 
-            if (player->GetRace() == RACE_PANDAREN_NEUTRAL)
+    
+        struct npc_shang_xi_choose_factionAI : public ScriptedAI
+        {
+            npc_shang_xi_choose_factionAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
             {
-                if (player->GetQuestStatus(31450) == QUEST_STATUS_INCOMPLETE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOOSE_FACTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                if (player->GetRace() == RACE_PANDAREN_NEUTRAL)
+                {
+                    if (player->GetQuestStatus(31450) == QUEST_STATUS_INCOMPLETE)
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOOSE_FACTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                }
+                else if (player->GetRace() == RACE_PANDAREN_ALLIANCE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_STORMIND, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                else if (player->GetRace() == RACE_PANDAREN_HORDE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_ORGRI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+
+                player->PlayerTalkClass->SendGossipMenu(1, me->GetGUID());
+                return true;
+        
             }
-            else if (player->GetRace() == RACE_PANDAREN_ALLIANCE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_STORMIND, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            else if (player->GetRace() == RACE_PANDAREN_HORDE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_ORGRI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
 
-            player->PlayerTalkClass->SendGossipMenu(1, creature->GetGUID());
-            return true;
-        }
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            player->ShowNeutralPlayerFactionSelectUI();
+                        else if (action == GOSSIP_ACTION_INFO_DEF + 2)
+                            player->TeleportTo(0, -8866.55f, 671.93f, 97.90f, 5.31f);
+                        else if (action == GOSSIP_ACTION_INFO_DEF + 3)
+                            player->TeleportTo(1, 1577.30f, -4453.64f, 15.68f, 1.84f);
 
-        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
+                        player->PlayerTalkClass->SendCloseGossip();
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                player->ShowNeutralPlayerFactionSelectUI();
-            else if (action == GOSSIP_ACTION_INFO_DEF + 2)
-                player->TeleportTo(0, -8866.55f, 671.93f, 97.90f, 5.31f);
-            else if (action == GOSSIP_ACTION_INFO_DEF + 3)
-                player->TeleportTo(1, 1577.30f, -4453.64f, 15.68f, 1.84f);
-
-            player->PlayerTalkClass->SendCloseGossip();
-            return true;
+            return new npc_shang_xi_choose_factionAI(creature);
         }
 };
 

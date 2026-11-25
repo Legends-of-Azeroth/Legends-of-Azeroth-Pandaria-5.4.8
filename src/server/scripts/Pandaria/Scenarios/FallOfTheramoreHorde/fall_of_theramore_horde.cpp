@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -51,35 +51,42 @@ class npc_blastmaster_sparkfuse : public CreatureScript
     public:
         npc_blastmaster_sparkfuse() : CreatureScript("npc_blastmaster_sparkfuse") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
+    
 
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                if (InstanceScript* instance = creature->GetInstanceScript())
-                    instance->SetData(DATA_THE_BLASTMASTER, DONE);
-
-                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            }
-
-            player->CLOSE_GOSSIP_MENU();
-
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            // don`t know real text
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Placeholder:", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(19183, creature->GetGUID());
-            return true;
-        }
+        
 
         struct npc_blastmaster_sparkfuseAI : public ScriptedAI
         {
             npc_blastmaster_sparkfuseAI(Creature* creature) : ScriptedAI(creature) { }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                // don`t know real text
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Placeholder:", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(19183, me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            if (InstanceScript* instance = me->GetInstanceScript())
+                                instance->SetData(DATA_THE_BLASTMASTER, DONE);
+
+                            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        }
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -886,32 +893,9 @@ class npc_theramore_thalen_songweaver : public CreatureScript
             ITEM_PRISON_KEY = 79261,
         };
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
+    
 
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                if (!player->HasItemCount(ITEM_PRISON_KEY))
-                    return false;
-
-                player->DestroyItemCount(ITEM_PRISON_KEY, 1, true);
-
-                creature->AI()->DoAction(ACTION_SONGWEAVER_CHAIN_BREAK);
-            }
-
-            player->CLOSE_GOSSIP_MENU();
-
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            // don`t know real text
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Placeholder:", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(19183, creature->GetGUID());
-            return true;
-        }
+        
 
         struct npc_theramore_thalen_songweaverAI : public theramore_guard_typeAI
         {
@@ -921,7 +905,37 @@ class npc_theramore_thalen_songweaver : public CreatureScript
             {
                 intro = false;
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                // don`t know real text
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Placeholder:", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(19183, me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            if (!player->HasItemCount(ITEM_PRISON_KEY))
+                                return false;
+
+                            player->DestroyItemCount(ITEM_PRISON_KEY, 1, true);
+
+                            me->AI()->DoAction(ACTION_SONGWEAVER_CHAIN_BREAK);
+                        }
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -935,14 +949,27 @@ class go_theramore_horde_portal : public GameObjectScript
     public:
         go_theramore_horde_portal() : GameObjectScript("go_theramore_horde_portal") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
-        {
-            player->CastSpell(player, SPELL_THERAMORE_EXPLOSION_SCENE, false);
-            return true;
-        }
+        
 
     private:
         uint32 delay;
+        struct go_theramore_horde_portalAI : public GameObjectAI
+        {
+            go_theramore_horde_portalAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                player->CastSpell(player, SPELL_THERAMORE_EXPLOSION_SCENE, false);
+                return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_theramore_horde_portalAI(go);
+        }
 };
 
 // Rig to explode 111260

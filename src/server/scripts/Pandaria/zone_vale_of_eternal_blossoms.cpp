@@ -29,6 +29,7 @@ go_guo_lai_treasure_cache
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObjectAI.h"
 #include "ObjectMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -1519,11 +1520,22 @@ class go_guo_lai_treasure_cache : public GameObjectScript
     public:
         go_guo_lai_treasure_cache() : GameObjectScript("go_guo_lai_treasure_cache") { }
 
-        void OnLootStateChanged(GameObject* go, uint32 state, Unit* unit) override
+                struct go_guo_lai_treasure_cacheAI : public GameObjectAI
         {
-            if (state == GO_ACTIVATED)
-                unit->CastSpell(unit, SPELL_GUO_LAI_CACHE_REP, true);
+            go_guo_lai_treasure_cacheAI(GameObject* go) : GameObjectAI(go) { }
+
+    void OnLootStateChanged(uint32 state, Unit* unit) override
+            {
+                if (state == GO_ACTIVATED)
+                    unit->CastSpell(unit, SPELL_GUO_LAI_CACHE_REP, true);
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_guo_lai_treasure_cacheAI(go);
         }
+
 };
 
 // SceneId 244

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -44,28 +44,46 @@ class npc_skorn_whitecloud : public CreatureScript
 public:
     npc_skorn_whitecloud() : CreatureScript("npc_skorn_whitecloud") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF)
-            player->SEND_GOSSIP_MENU(523, creature->GetGUID());
 
-        return true;
-    }
 
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (!player->GetQuestRewardStatus(770))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-        player->SEND_GOSSIP_MENU(522, creature->GetGUID());
 
-        return true;
-    }
+        struct npc_skorn_whitecloudAI : public ScriptedAI
+        {
+            npc_skorn_whitecloudAI(Creature* creature) : ScriptedAI(creature) { }
 
+            bool OnGossipHello(Player* player) override
+            {
+
+                    if (me->IsQuestGiver())
+                        player->PrepareQuestMenu(me->GetGUID());
+
+                    if (!player->GetQuestRewardStatus(770))
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+                    player->SEND_GOSSIP_MENU(522, me->GetGUID());
+
+                    return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    if (action == GOSSIP_ACTION_INFO_DEF)
+                        player->SEND_GOSSIP_MENU(523, me->GetGUID());
+
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_skorn_whitecloudAI(creature);
+        }
 };
 
 /*#####

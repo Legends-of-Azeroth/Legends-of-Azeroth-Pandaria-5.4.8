@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -259,34 +259,41 @@ class example_creature : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(907, me->GetGUID());
+
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+                        if (action == GOSSIP_ACTION_INFO_DEF+1)
+                        {
+                            player->CLOSE_GOSSIP_MENU();
+                            //Set our faction to hostile towards all
+                            me->setFaction(FACTION_WORGEN);
+                            me->AI()->AttackStart(player);
+                        }
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
             return new example_creatureAI(creature);
         }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(907, creature->GetGUID());
+        
 
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            if (action == GOSSIP_ACTION_INFO_DEF+1)
-            {
-                player->CLOSE_GOSSIP_MENU();
-                //Set our faction to hostile towards all
-                creature->setFaction(FACTION_WORGEN);
-                creature->AI()->AttackStart(player);
-            }
-
-            return true;
-        }
+    
 };
 
 //This is the actual function called only once durring InitScripts()

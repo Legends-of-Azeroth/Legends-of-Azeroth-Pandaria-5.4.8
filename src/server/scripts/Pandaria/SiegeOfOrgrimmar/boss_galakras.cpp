@@ -2414,26 +2414,9 @@ class npc_galakras_jaina_proudmoore : public CreatureScript
     public:
         npc_galakras_jaina_proudmoore() : CreatureScript("npc_galakras_jaina_proudmoore") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (player->GetInstanceScript() && player->GetInstanceScript()->GetBossState(DATA_GALAKRAS) == DONE)
-                return false;
+        
 
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I`m ready!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                creature->AI()->DoAction(ACTION_START_INTRO);
-
-            player->CLOSE_GOSSIP_MENU();
-            return true;
-        }
+    
 
         struct npc_galakras_jaina_proudmooreAI : public ScriptedAI
         {
@@ -2624,7 +2607,31 @@ class npc_galakras_jaina_proudmoore : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (player->GetInstanceScript() && player->GetInstanceScript()->GetBossState(DATA_GALAKRAS) == DONE)
+                    return false;
+
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I`m ready!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            me->AI()->DoAction(ACTION_START_INTRO);
+
+                        player->CLOSE_GOSSIP_MENU();
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -2638,26 +2645,9 @@ class npc_galakras_lorthemar_theron : public CreatureScript
     public:
         npc_galakras_lorthemar_theron() : CreatureScript("npc_galakras_lorthemar_theron") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (player->GetInstanceScript() && player->GetInstanceScript()->GetBossState(DATA_GALAKRAS) == DONE)
-                return false;
+        
 
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I`m ready!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
     
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                creature->AI()->DoAction(ACTION_START_INTRO);
-    
-            player->CLOSE_GOSSIP_MENU();
-            return true;
-        }
 
         struct npc_galakras_lorthemar_theronAI : public ScriptedAI
         {
@@ -2839,7 +2829,31 @@ class npc_galakras_lorthemar_theron : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (player->GetInstanceScript() && player->GetInstanceScript()->GetBossState(DATA_GALAKRAS) == DONE)
+                    return false;
+
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I`m ready!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+    
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            me->AI()->DoAction(ACTION_START_INTRO);
+    
+                        player->CLOSE_GOSSIP_MENU();
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {

@@ -16,6 +16,7 @@
 */
 
 #include "ScriptMgr.h"
+#include "GameObjectAI.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
@@ -479,12 +480,7 @@ class npc_despondent_warden_of_zhu : public CreatureScript
     public:
         npc_despondent_warden_of_zhu() : CreatureScript("npc_despondent_warden_of_zhu") { }
 
-        bool OnGossipHello(Player * player, Creature* creature) override
-        {
-            creature->AI()->Talk(0);
-            player->KilledMonsterCredit(creature->GetEntry());
-            return false;
-        }
+    
 
         struct npc_despondent_warden_of_zhuAI : public ScriptedAI
         {
@@ -562,7 +558,16 @@ class npc_despondent_warden_of_zhu : public CreatureScript
 
                 Talk(DESPONDENT_WARDEN_OF_ZHU_TEXT_02);
             }
-        };
+        
+            bool OnGossipHello(Player* player) override
+            {
+
+                        me->AI()->Talk(0);
+                        player->KilledMonsterCredit(me->GetEntry());
+                        return false;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -2246,36 +2251,9 @@ class npc_krasarang_wilds_lyalia : public CreatureScript
     public:
         npc_krasarang_wilds_lyalia() : CreatureScript("npc_krasarang_wilds_lyalia") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
+    
 
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-
-                // Friendly
-                player->SummonCreature(NPC_SUNWALKER_DEZCO_QUEST, reclaimerFriends[0], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(180 * IN_MILLISECONDS), 0, ObjectGuid(uint64(1)));
-                player->SummonCreature(NPC_LOREKEEPER_VAELDRIN, reclaimerFriends[1], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(180 * IN_MILLISECONDS), 0, ObjectGuid(uint64(1)));
-                player->SummonCreature(NPC_GROUNDBREAKER_BROJAI, reclaimerFriends[2], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(180 * IN_MILLISECONDS));
-            }
-
-            player->CLOSE_GOSSIP_MENU();
-
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-
-            if ((player->GetQuestStatus(QUEST_THE_LORD_RECLAIMER) == QUEST_STATUS_INCOMPLETE && creature->GetEntry() == NPC_LYALIA) || (player->GetQuestStatus(QUEST_FOR_FAMILY) == QUEST_STATUS_INCOMPLETE && creature->GetEntry() == NPC_KOR_BLOODTUSK))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "It`s trap!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+    
 
         struct npc_krasarang_wilds_lyaliaAI : public ScriptedAI
         {
@@ -2287,7 +2265,42 @@ class npc_krasarang_wilds_lyalia : public CreatureScript
             }
 
             void UpdateAI(uint32 /*diff*/) override { }
-        };
+        
+            bool OnGossipHello(Player* player) override
+            {
+
+                        if (me->IsQuestGiver())
+                            player->PrepareQuestMenu(me->GetGUID());
+
+                        if ((player->GetQuestStatus(QUEST_THE_LORD_RECLAIMER) == QUEST_STATUS_INCOMPLETE && me->GetEntry() == NPC_LYALIA) || (player->GetQuestStatus(QUEST_FOR_FAMILY) == QUEST_STATUS_INCOMPLETE && me->GetEntry() == NPC_KOR_BLOODTUSK))
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "It`s trap!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                        return true;
+        
+            }
+
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+                            // Friendly
+                            player->SummonCreature(NPC_SUNWALKER_DEZCO_QUEST, reclaimerFriends[0], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(180 * IN_MILLISECONDS), 0, ObjectGuid(uint64(1)));
+                            player->SummonCreature(NPC_LOREKEEPER_VAELDRIN, reclaimerFriends[1], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(180 * IN_MILLISECONDS), 0, ObjectGuid(uint64(1)));
+                            player->SummonCreature(NPC_GROUNDBREAKER_BROJAI, reclaimerFriends[2], TEMPSUMMON_TIMED_DESPAWN, Milliseconds(180 * IN_MILLISECONDS));
+                        }
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -2468,34 +2481,48 @@ class go_mysterious_whirlpool : public GameObjectScript
     public:
         go_mysterious_whirlpool() : GameObjectScript("go_mysterious_whirlpool") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+    
+
+        struct go_mysterious_whirlpoolAI : public GameObjectAI
         {
-            if (go->FindNearestCreature(NPC_ENTRY_NARJON, 100.0f, true))
-                return false;
+            go_mysterious_whirlpoolAI(GameObject* go) : GameObjectAI(go) { }
 
-            ObjectGuid guid = player->GetGUID();
-
-            if (Creature* narjon = player->SummonCreature(NPC_ENTRY_NARJON, { -1126.79f, 1368.609f, 18.94868f, 5.59949f }))
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                narjon->SetDisableGravity(true);
-                narjon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                narjon->AI()->Talk(NARJON_TEX_01);
-                narjon->m_Events.Schedule(5000, [narjon, go]
-                {
-                    narjon->GetMotionMaster()->MovePoint(1, { -1100.35f, 1347.089f, 18.97906f });
-                    narjon->SetSpeed(MOVE_WALK, 2.5f);
-                    narjon->OverrideInhabitType(INHABIT_AIR);
-                });
-                narjon->m_Events.Schedule(12000, [narjon, guid]
-                {
-                    narjon->SetHomePosition(narjon->GetPosition());
-                    narjon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                    narjon->SetControlled(true, UNIT_STATE_ROOT);
-                    if (Player* player = ObjectAccessor::GetPlayer(*narjon, guid))
-                        narjon->AI()->AttackStart(player);
-                });
+
+                        if (me->FindNearestCreature(NPC_ENTRY_NARJON, 100.0f, true))
+                            return false;
+
+                        ObjectGuid guid = player->GetGUID();
+
+                        if (Creature* narjon = player->SummonCreature(NPC_ENTRY_NARJON, { -1126.79f, 1368.609f, 18.94868f, 5.59949f }))
+                        {
+                            narjon->SetDisableGravity(true);
+                            narjon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                            narjon->AI()->Talk(NARJON_TEX_01);
+                            narjon->m_Events.Schedule(5000, [narjon, this]
+                            {
+                                narjon->GetMotionMaster()->MovePoint(1, { -1100.35f, 1347.089f, 18.97906f });
+                                narjon->SetSpeed(MOVE_WALK, 2.5f);
+                                narjon->OverrideInhabitType(INHABIT_AIR);
+                            });
+                            narjon->m_Events.Schedule(12000, [narjon, guid]
+                            {
+                                narjon->SetHomePosition(narjon->GetPosition());
+                                narjon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                                narjon->SetControlled(true, UNIT_STATE_ROOT);
+                                if (Player* player = ObjectAccessor::GetPlayer(*narjon, guid))
+                                    narjon->AI()->AttackStart(player);
+                            });
+                        }
+                        return true;
+        
             }
-            return true;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_mysterious_whirlpoolAI(go);
         }
 };
 

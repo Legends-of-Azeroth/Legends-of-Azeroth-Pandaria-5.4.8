@@ -194,19 +194,20 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
     {
         if (unit)
         {
-            if (!sScriptMgr->OnGossipSelectCode(_player, unit, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId), code.c_str()) && !unit->AI()->OnGossipSelectCode(_player, menuId, gossipListId, code.c_str()))
-            {
+#ifdef ELUNA
+            if (sHookMgr->OnGossipSelectCode(_player, unit, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId), code.c_str()))
+                return;
+#endif
+            if (!unit->AI()->OnGossipSelectCode(_player, menuId, gossipListId, code.c_str()))
                 _player->OnGossipSelect(unit, gossipListId, menuId);
-            }
-            // if (!unit->AI()->OnGossipSelectCode(_player, menuId, gossipListId, code.c_str())) // hack, add to support ScriptAI
-            // {
-            //     _player->OnGossipSelect(unit, gossipListId, menuId);  
-            // }
         }
         else if (go)
         {
-            go->AI()->OnGossipSelectCode(_player, menuId, gossipListId, code.c_str());
-            sScriptMgr->OnGossipSelectCode(_player, go, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId), code.c_str());
+#ifdef ELUNA
+            sHookMgr->OnGossipSelectCode(_player, go, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId), code.c_str());
+#endif
+            if (!go->AI()->OnGossipSelectCode(_player, menuId, gossipListId, code.c_str()))
+                _player->OnGossipSelect(go, gossipListId, menuId);
         }
         else if (item)
         {
@@ -221,15 +222,20 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
     {
         if (unit)
         {
-            if (!sScriptMgr->OnGossipSelect(_player, unit, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId)) && !unit->AI()->OnGossipSelect(_player, menuId, gossipListId))
-            {
-                 _player->OnGossipSelect(unit, gossipListId, menuId);   
-            }
+            bool handled = false;
+#ifdef ELUNA
+            handled = sHookMgr->OnGossipSelect(_player, unit, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId));
+#endif
+            if (!handled && !unit->AI()->OnGossipSelect(_player, menuId, gossipListId))
+                _player->OnGossipSelect(unit, gossipListId, menuId);
         }
         else if (go)
         {
-            go->AI()->OnGossipSelect(_player, menuId, gossipListId);
-            if (!sScriptMgr->OnGossipSelect(_player, go, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId)))
+#ifdef ELUNA
+            if (sHookMgr->OnGossipSelect(_player, go, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId)))
+                return;
+#endif
+            if (!go->AI()->OnGossipSelect(_player, menuId, gossipListId))
                 _player->OnGossipSelect(go, gossipListId, menuId);
         }
         else if (item)

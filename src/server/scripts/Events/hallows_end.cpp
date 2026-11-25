@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "Player.h"
 #include "GameEventMgr.h"
 #include "Vehicle.h"
@@ -891,27 +892,44 @@ class go_wickerman_ember : public GameObjectScript
     public:
         go_wickerman_ember() : GameObjectScript("go_wickerman_ember") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
-        {
-            player->ADD_GOSSIP_ITEM_DB(GOSSIP_WICKERMAN_SPELL, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(go), go->GetGUID());
-            return true;
-        }
+        
 
-        bool OnGossipSelect(Player* player, GameObject* go, uint32 /*uiSender*/, uint32 action) override
+    
+        struct go_wickerman_emberAI : public GameObjectAI
         {
-            player->PlayerTalkClass->ClearMenus();
-            if (player->HasAura(SPELL_GRIM_VISAGE))
+            go_wickerman_emberAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(go), go->GetGUID());
-                player->CLOSE_GOSSIP_MENU();
+
+                player->ADD_GOSSIP_ITEM_DB(GOSSIP_WICKERMAN_SPELL, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
             }
-            else if (action == GOSSIP_ACTION_INFO_DEF +1)
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
             {
-                go->CastSpell(player, SPELL_GRIM_VISAGE);
-                player->CLOSE_GOSSIP_MENU();
+
+                        player->PlayerTalkClass->ClearMenus();
+                        if (player->HasAura(SPELL_GRIM_VISAGE))
+                        {
+                            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                            player->CLOSE_GOSSIP_MENU();
+                        }
+                        else if (action == GOSSIP_ACTION_INFO_DEF +1)
+                        {
+                            me->CastSpell(player, SPELL_GRIM_VISAGE);
+                            player->CLOSE_GOSSIP_MENU();
+                        }
+                        return true;
+        
             }
-            return true;
+};
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_wickerman_emberAI(go);
         }
 };
 

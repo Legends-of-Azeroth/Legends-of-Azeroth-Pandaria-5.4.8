@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -162,31 +162,49 @@ class npc_warden_of_the_sunwell : public CreatureScript
     public:
         npc_warden_of_the_sunwell() : CreatureScript("npc_warden_of_the_sunwell") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (HasAnyQueldelarQuest(player))
-                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    
 
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+    
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                player->CastSpell(player, SPELL_TELEPORT_INTO_SUNWELL, true);
-
-            player->CLOSE_GOSSIP_MENU();
-            return false;
-        }
-
-        bool HasAnyQueldelarQuest(Player* questHolder)
+        static bool HasAnyQueldelarQuest(Player* questHolder)
         {
             for (auto&& itr : queldelarQuests)
                 if (questHolder->GetQuestStatus(itr) == QUEST_STATUS_INCOMPLETE)
                     return true;
 
             return false;
+        }
+
+        struct npc_warden_of_the_sunwellAI : public ScriptedAI
+        {
+            npc_warden_of_the_sunwellAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
+            {
+
+                        if (HasAnyQueldelarQuest(player))
+                            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                        return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            player->CastSpell(player, SPELL_TELEPORT_INTO_SUNWELL, true);
+
+                        player->CLOSE_GOSSIP_MENU();
+                        return false;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_warden_of_the_sunwellAI(creature);
         }
 };
 

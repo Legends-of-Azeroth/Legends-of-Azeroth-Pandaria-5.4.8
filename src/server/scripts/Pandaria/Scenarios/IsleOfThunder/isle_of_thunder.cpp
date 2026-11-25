@@ -16,6 +16,7 @@
 */
 
 #include "isle_of_thunder.h"
+#include "GameObjectAI.h"
 #include "CreatureTextMgr.h"
 #include "Vehicle.h"
 #include "LFGMgr.h"
@@ -262,67 +263,9 @@ class npc_shaolmara_lady_jaina : public CreatureScript
     public:
         npc_shaolmara_lady_jaina() : CreatureScript("npc_shaolmara_lady_jaina") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver() && creature->GetMapId() == 1064)
-                player->PrepareQuestMenu(creature->GetGUID());
+        
 
-            if (player->GetQuestStatus(QUEST_THE_ASSAULT_ON_SHAOLMARA) == QUEST_STATUS_INCOMPLETE && creature->GetMapId() == 1064)
-                player->ADD_GOSSIP_ITEM_DB(LADY_JAINA_GOSSIP_MENU, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            if (player->GetQuestStatus(QUEST_TEAR_DOWN_THIS_WALL_A) == QUEST_STATUS_INCOMPLETE && creature->GetMapId() == 1064)
-                player->ADD_GOSSIP_ITEM_DB(LADY_JAINA_GOSSIP_MENU, 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-
-            if (player->GetQuestStatus(QUEST_TO_THE_SKIES_A) == QUEST_STATUS_INCOMPLETE && creature->GetMapId() == 1064)
-                player->ADD_GOSSIP_ITEM_DB(LADY_JAINA_GOSSIP_MENU, 2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-
-            if (player->GetQuestStatus(QUEST_FALL_OF_SHANBU_A) == QUEST_STATUS_INCOMPLETE && creature->GetMapId() == 1064)
-                player->ADD_GOSSIP_ITEM_DB(LADY_JAINA_GOSSIP_MENU, 3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                {
-                    lfg::LfgDungeonSet scenario = { LFG_DUNGEON_ASSAULT_ON_SHAOLMARA };
-                    sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
-                    player->KilledMonsterCredit(69599);
-                    break;
-                }
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                {
-                    lfg::LfgDungeonSet scenario = { LFG_DUNGEON_BREAK_THIS_WALL_A };
-                    sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
-                    player->KilledMonsterCredit(70282);
-                    break;
-                }
-                case GOSSIP_ACTION_INFO_DEF + 3:
-                {
-                    lfg::LfgDungeonSet scenario = { LFG_DUNGEON_TO_SKIES_A };
-                    sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
-                    player->KilledMonsterCredit(70112);
-                    break;
-                }
-
-                case GOSSIP_ACTION_INFO_DEF + 4:
-                {
-                    lfg::LfgDungeonSet scenario = { LFG_DUNGEON_FALL_OF_SHANBU_A };
-                    sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
-                    player->KilledMonsterCredit(67992);
-                    break;
-                }
-            }
-
-            player->CLOSE_GOSSIP_MENU();
-            return true;
-        }
+    
 
         struct npc_shaolmara_lady_jainaAI : public ScriptedAI
         {
@@ -396,7 +339,72 @@ class npc_shaolmara_lady_jaina : public CreatureScript
             {
                 scheduler.Update(diff);
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver() && me->GetMapId() == 1064)
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                if (player->GetQuestStatus(QUEST_THE_ASSAULT_ON_SHAOLMARA) == QUEST_STATUS_INCOMPLETE && me->GetMapId() == 1064)
+                    player->ADD_GOSSIP_ITEM_DB(LADY_JAINA_GOSSIP_MENU, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                if (player->GetQuestStatus(QUEST_TEAR_DOWN_THIS_WALL_A) == QUEST_STATUS_INCOMPLETE && me->GetMapId() == 1064)
+                    player->ADD_GOSSIP_ITEM_DB(LADY_JAINA_GOSSIP_MENU, 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+
+                if (player->GetQuestStatus(QUEST_TO_THE_SKIES_A) == QUEST_STATUS_INCOMPLETE && me->GetMapId() == 1064)
+                    player->ADD_GOSSIP_ITEM_DB(LADY_JAINA_GOSSIP_MENU, 2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+
+                if (player->GetQuestStatus(QUEST_FALL_OF_SHANBU_A) == QUEST_STATUS_INCOMPLETE && me->GetMapId() == 1064)
+                    player->ADD_GOSSIP_ITEM_DB(LADY_JAINA_GOSSIP_MENU, 3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        switch (action)
+                        {
+                            case GOSSIP_ACTION_INFO_DEF + 1:
+                            {
+                                lfg::LfgDungeonSet scenario = { LFG_DUNGEON_ASSAULT_ON_SHAOLMARA };
+                                sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
+                                player->KilledMonsterCredit(69599);
+                                break;
+                            }
+                            case GOSSIP_ACTION_INFO_DEF + 2:
+                            {
+                                lfg::LfgDungeonSet scenario = { LFG_DUNGEON_BREAK_THIS_WALL_A };
+                                sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
+                                player->KilledMonsterCredit(70282);
+                                break;
+                            }
+                            case GOSSIP_ACTION_INFO_DEF + 3:
+                            {
+                                lfg::LfgDungeonSet scenario = { LFG_DUNGEON_TO_SKIES_A };
+                                sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
+                                player->KilledMonsterCredit(70112);
+                                break;
+                            }
+
+                            case GOSSIP_ACTION_INFO_DEF + 4:
+                            {
+                                lfg::LfgDungeonSet scenario = { LFG_DUNGEON_FALL_OF_SHANBU_A };
+                                sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
+                                player->KilledMonsterCredit(67992);
+                                break;
+                            }
+                        }
+
+                        player->CLOSE_GOSSIP_MENU();
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -1218,67 +1226,9 @@ class npc_zebtula_lorthemar_theron : public CreatureScript
     public:
         npc_zebtula_lorthemar_theron() : CreatureScript("npc_zebtula_lorthemar_theron") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver() && creature->GetMapId() == 1064)
-                player->PrepareQuestMenu(creature->GetGUID());
+        
 
-            if (player->GetQuestStatus(QUEST_THE_ASSAULT_ON_ZEB_TULA) == QUEST_STATUS_INCOMPLETE && creature->GetMapId() == 1064)
-                player->ADD_GOSSIP_ITEM_DB(LOR_TEMAR_GOSSIP_MENU, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            if (player->GetQuestStatus(QUEST_TEAR_DOWN_THIS_WALL_H) == QUEST_STATUS_INCOMPLETE && creature->GetMapId() == 1064)
-                player->ADD_GOSSIP_ITEM_DB(LADY_JAINA_GOSSIP_MENU, 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-
-            if (player->GetQuestStatus(QUEST_TO_THE_SKIES_H) == QUEST_STATUS_INCOMPLETE && creature->GetMapId() == 1064)
-                player->ADD_GOSSIP_ITEM_DB(LADY_JAINA_GOSSIP_MENU, 2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-
-            if (player->GetQuestStatus(QUEST_FALL_OF_SHANBU_H) == QUEST_STATUS_INCOMPLETE && creature->GetMapId() == 1064)
-                player->ADD_GOSSIP_ITEM_DB(LADY_JAINA_GOSSIP_MENU, 3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                {
-                    lfg::LfgDungeonSet scenario = { LFG_DUNGEON_ASSAULT_ON_ZEB_TULA };
-                    sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
-                    player->KilledMonsterCredit(69478);
-                    break;
-                }
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                {
-                    lfg::LfgDungeonSet scenario = { LFG_DUNGEON_BREAK_THIS_WALL_H };
-                    sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
-                    player->KilledMonsterCredit(70281);
-                    break;
-                }
-                case GOSSIP_ACTION_INFO_DEF + 3:
-                {
-                    lfg::LfgDungeonSet scenario = { LFG_DUNGEON_TO_SKIES_H };
-                    sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
-                    player->KilledMonsterCredit(70112);
-                    break;
-                }
-
-                case GOSSIP_ACTION_INFO_DEF + 4:
-                {
-                    lfg::LfgDungeonSet scenario = { LFG_DUNGEON_FALL_OF_SHANBU_H };
-                    sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
-                    player->KilledMonsterCredit(67990);
-                    break;
-                }
-            }
-
-            player->CLOSE_GOSSIP_MENU();
-            return true;
-        }
+    
 
         struct npc_zebtula_lorthemar_theronAI : public ScriptedAI
         {
@@ -1358,7 +1308,72 @@ class npc_zebtula_lorthemar_theron : public CreatureScript
             {
                 scheduler.Update(diff);
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver() && me->GetMapId() == 1064)
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                if (player->GetQuestStatus(QUEST_THE_ASSAULT_ON_ZEB_TULA) == QUEST_STATUS_INCOMPLETE && me->GetMapId() == 1064)
+                    player->ADD_GOSSIP_ITEM_DB(LOR_TEMAR_GOSSIP_MENU, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                if (player->GetQuestStatus(QUEST_TEAR_DOWN_THIS_WALL_H) == QUEST_STATUS_INCOMPLETE && me->GetMapId() == 1064)
+                    player->ADD_GOSSIP_ITEM_DB(LADY_JAINA_GOSSIP_MENU, 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+
+                if (player->GetQuestStatus(QUEST_TO_THE_SKIES_H) == QUEST_STATUS_INCOMPLETE && me->GetMapId() == 1064)
+                    player->ADD_GOSSIP_ITEM_DB(LADY_JAINA_GOSSIP_MENU, 2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+
+                if (player->GetQuestStatus(QUEST_FALL_OF_SHANBU_H) == QUEST_STATUS_INCOMPLETE && me->GetMapId() == 1064)
+                    player->ADD_GOSSIP_ITEM_DB(LADY_JAINA_GOSSIP_MENU, 3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        switch (action)
+                        {
+                            case GOSSIP_ACTION_INFO_DEF + 1:
+                            {
+                                lfg::LfgDungeonSet scenario = { LFG_DUNGEON_ASSAULT_ON_ZEB_TULA };
+                                sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
+                                player->KilledMonsterCredit(69478);
+                                break;
+                            }
+                            case GOSSIP_ACTION_INFO_DEF + 2:
+                            {
+                                lfg::LfgDungeonSet scenario = { LFG_DUNGEON_BREAK_THIS_WALL_H };
+                                sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
+                                player->KilledMonsterCredit(70281);
+                                break;
+                            }
+                            case GOSSIP_ACTION_INFO_DEF + 3:
+                            {
+                                lfg::LfgDungeonSet scenario = { LFG_DUNGEON_TO_SKIES_H };
+                                sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
+                                player->KilledMonsterCredit(70112);
+                                break;
+                            }
+
+                            case GOSSIP_ACTION_INFO_DEF + 4:
+                            {
+                                lfg::LfgDungeonSet scenario = { LFG_DUNGEON_FALL_OF_SHANBU_H };
+                                sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
+                                player->KilledMonsterCredit(67990);
+                                break;
+                            }
+                        }
+
+                        player->CLOSE_GOSSIP_MENU();
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -1859,28 +1874,9 @@ class npc_teardown_scout_captain_elsia : public CreatureScript
     public:
         npc_teardown_scout_captain_elsia() : CreatureScript("npc_teardown_scout_captain_elsia") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
+        
 
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I`m ready", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                creature->AI()->DoAction(ACTION_BREAK_THE_WALL);
-
-            player->CLOSE_GOSSIP_MENU();
-
-            return true;
-        }
+    
 
         struct npc_teardown_scout_captain_elsiaAI : public ScriptedAI
         {
@@ -1973,7 +1969,33 @@ class npc_teardown_scout_captain_elsia : public CreatureScript
             {
                 scheduler.Update(diff);
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I`m ready", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            me->AI()->DoAction(ACTION_BREAK_THE_WALL);
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
     
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -3042,28 +3064,9 @@ class npc_taoshi_to_skies : public CreatureScript
     public:
         npc_taoshi_to_skies() : CreatureScript("npc_taoshi_to_skies") { }
     
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
+        
     
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I`m ready", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
     
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-    
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-    
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                creature->AI()->DoAction(ACTION_BREAK_THE_WALL);
-    
-            player->CLOSE_GOSSIP_MENU();
-    
-            return true;
-        }
     
         struct npc_taoshi_to_skiesAI : public customCreatureAI
         {
@@ -3140,7 +3143,33 @@ class npc_taoshi_to_skies : public CreatureScript
             {
                 scheduler.Update(diff);
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+    
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I`m ready", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+    
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            me->AI()->DoAction(ACTION_BREAK_THE_WALL);
+    
+                        player->CLOSE_GOSSIP_MENU();
+    
+                        return true;
+        
+            }
+};
     
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -3976,31 +4005,48 @@ class npc_stormsea_landing_taoshi_queue : public CreatureScript
     public:
         npc_stormsea_landing_taoshi_queue() : CreatureScript("npc_stormsea_landing_taoshi_queue") { }
     
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
     
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+    
+        
+        struct npc_stormsea_landing_taoshi_queueAI : public ScriptedAI
+        {
+            npc_stormsea_landing_taoshi_queueAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
             {
-                lfg::LfgDungeonSet scenario = { LFG_DUNGEON_STORMSEA_LANDING };
-                sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+    
+                if (player->GetQuestStatus(QUEST_A_BOLT_IDEA_A) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_DECISIVE_ACTION_H) == QUEST_STATUS_INCOMPLETE)
+                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
             }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
     
-            player->CLOSE_GOSSIP_MENU();
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            lfg::LfgDungeonSet scenario = { LFG_DUNGEON_STORMSEA_LANDING };
+                            sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
+                        }
     
-            return true;
-        }
+                        player->CLOSE_GOSSIP_MENU();
     
-        bool OnGossipHello(Player* player, Creature* creature) override
+                        return false;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-    
-            if (player->GetQuestStatus(QUEST_A_BOLT_IDEA_A) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_DECISIVE_ACTION_H) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-    
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
+            return new npc_stormsea_landing_taoshi_queueAI(creature);
         }
 };
 
@@ -4702,29 +4748,9 @@ class npc_shanbu_fall_elsia : public CreatureScript
     public:
         npc_shanbu_fall_elsia() : CreatureScript("npc_shanbu_fall_elsia") { }
     
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
     
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                creature->AI()->DoAction(ACTION_START_ASSAULT);
     
-            player->CLOSE_GOSSIP_MENU();
-    
-            return true;
-        }
-    
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-    
-            if (!creature->GetDBTableGUIDLow())
-                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-    
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+        
     
         struct npc_shanbu_fall_elsiaAI : public shanbuAssaultBaseAI
         {
@@ -4749,7 +4775,34 @@ class npc_shanbu_fall_elsia : public CreatureScript
             {
                 scheduler.Update(diff);
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+    
+                if (!me->GetDBTableGUIDLow())
+                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+    
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            me->AI()->DoAction(ACTION_START_ASSAULT);
+    
+                        player->CLOSE_GOSSIP_MENU();
+    
+                        return true;
+        
+            }
+};
     
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -5059,58 +5112,11 @@ class npc_wrathion_thunder_forge : public CreatureScript
     public:
         npc_wrathion_thunder_forge() : CreatureScript("npc_wrathion_thunder_forge") { }
     
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                    creature->AI()->DoAction(ACTION_START_INTRO);
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                    creature->AI()->DoAction(ACTION_LAUNCH_FORGE);
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 3:
-                {
-                    lfg::LfgDungeonSet scenario = { LFG_THUNDER_FORGE };
-                    sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
-                    player->KilledMonsterCredit(NPC_UNLOCK_FORGE_CREDIT);
-                    break;
-                }
-            }
     
-            player->CLOSE_GOSSIP_MENU();
     
-            return true;
-        }
-    
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
+        
 
-            if (creature->GetInstanceScript())
-            {
-                if (creature->GetInstanceScript()->GetData(STEP_IN_FORGE) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I`m ready!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                else
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I`m ready!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            }
-            else if (player->GetQuestStatus(QUEST_THE_THUNDER_FORGE) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I`m ready!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-    
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_SPIRIT_OF_THE_STORM_LORD)
-                player->KilledMonsterCredit(NPC_UNLOCK_COURTYARD_CREDIT);
-
-            return false;
-        }
+        
     
         struct npc_wrathion_thunder_forgeAI : public ScriptedAI
         {
@@ -5334,7 +5340,64 @@ class npc_wrathion_thunder_forge : public CreatureScript
             {
                 scheduler.Update(diff);
             }
-        };
+                    void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+                if (quest->GetQuestId() == QUEST_SPIRIT_OF_THE_STORM_LORD)
+                    player->KilledMonsterCredit(NPC_UNLOCK_COURTYARD_CREDIT);
+
+                return;
+        
+            }
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                if (me->GetInstanceScript())
+                {
+                    if (me->GetInstanceScript()->GetData(STEP_IN_FORGE) == DONE)
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I`m ready!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    else
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I`m ready!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                }
+                else if (player->GetQuestStatus(QUEST_THE_THUNDER_FORGE) == QUEST_STATUS_INCOMPLETE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I`m ready!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+    
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        switch (action)
+                        {
+                            case GOSSIP_ACTION_INFO_DEF + 1:
+                                me->AI()->DoAction(ACTION_START_INTRO);
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 2:
+                                me->AI()->DoAction(ACTION_LAUNCH_FORGE);
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 3:
+                            {
+                                lfg::LfgDungeonSet scenario = { LFG_THUNDER_FORGE };
+                                sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
+                                player->KilledMonsterCredit(NPC_UNLOCK_FORGE_CREDIT);
+                                break;
+                            }
+                        }
+    
+                        player->CLOSE_GOSSIP_MENU();
+    
+                        return true;
+        
+            }
+};
     
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -6059,14 +6122,27 @@ class go_teardown_heavy_explosives : public GameObjectScript
     public:
         go_teardown_heavy_explosives() : GameObjectScript("go_teardown_heavy_explosives") { }
     
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_teardown_heavy_explosivesAI : public GameObjectAI
         {
-            go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+            go_teardown_heavy_explosivesAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (player->GetInstanceScript())
-                player->GetInstanceScript()->SetData(STEP_FIND_MISSED_EXPLOSIVE, DONE);
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
 
-            return true;
+                me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+
+                if (player->GetInstanceScript())
+                    player->GetInstanceScript()->SetData(STEP_FIND_MISSED_EXPLOSIVE, DONE);
+
+                return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_teardown_heavy_explosivesAI(go);
         }
 };
 
@@ -6076,14 +6152,27 @@ class go_thunder_forge_mogu_crucible : public GameObjectScript
     public:
         go_thunder_forge_mogu_crucible() : GameObjectScript("go_thunder_forge_mogu_crucible") { }
     
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_thunder_forge_mogu_crucibleAI : public GameObjectAI
         {
-            go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+            go_thunder_forge_mogu_crucibleAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
     
-            if (player->GetInstanceScript())
-                player->GetInstanceScript()->SetData(STEP_FORGED_FROM_TRILLIUM, DONE);
+                if (player->GetInstanceScript())
+                    player->GetInstanceScript()->SetData(STEP_FORGED_FROM_TRILLIUM, DONE);
     
-            return true;
+                return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_thunder_forge_mogu_crucibleAI(go);
         }
 };
 
@@ -6093,17 +6182,30 @@ class go_thunder_forge_anvil : public GameObjectScript
     public:
         go_thunder_forge_anvil() : GameObjectScript("go_thunder_forge_anvil") { }
     
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_thunder_forge_anvilAI : public GameObjectAI
         {
-            if (go->GetInstanceScript())
-            {
-                go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            go_thunder_forge_anvilAI(GameObject* go) : GameObjectAI(go) { }
 
-                if (Creature* anvil = ObjectAccessor::GetCreature(*go, go->GetInstanceScript() ? go->GetInstanceScript()->GetGuidData(NPC_THUNDER_FORGE_2) : ObjectGuid::Empty))
-                    anvil->CastSpell(anvil, SPELL_THUNDER_SURGE, true);
-            }
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                if (me->GetInstanceScript())
+                {
+                    me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
+                    if (Creature* anvil = ObjectAccessor::GetCreature(*me, me->GetInstanceScript() ? me->GetInstanceScript()->GetGuidData(NPC_THUNDER_FORGE_2) : ObjectGuid::Empty))
+                        anvil->CastSpell(anvil, SPELL_THUNDER_SURGE, true);
+                }
     
-            return true;
+                return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_thunder_forge_anvilAI(go);
         }
 };
 

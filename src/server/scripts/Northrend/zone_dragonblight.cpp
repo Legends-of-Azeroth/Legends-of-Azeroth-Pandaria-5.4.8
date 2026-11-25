@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -53,29 +53,46 @@ class npc_alexstrasza_wr_gate : public CreatureScript
 public:
     npc_alexstrasza_wr_gate() : CreatureScript("npc_alexstrasza_wr_gate") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
+    
 
-        if (player->GetQuestRewardStatus(QUEST_RETURN_TO_AG_A) || player->GetQuestRewardStatus(QUEST_RETURN_TO_AG_H))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_WHAT_HAPPENED, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
+        struct npc_alexstrasza_wr_gateAI : public ScriptedAI
         {
-            player->CLOSE_GOSSIP_MENU();
-            player->SendMovieStart(MOVIE_ID_GATES);
-        }
+            npc_alexstrasza_wr_gateAI(Creature* creature) : ScriptedAI(creature) { }
 
-        return true;
-    }
+            bool OnGossipHello(Player* player) override
+            {
+
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            if (player->GetQuestRewardStatus(QUEST_RETURN_TO_AG_A) || player->GetQuestRewardStatus(QUEST_RETURN_TO_AG_H))
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_WHAT_HAPPENED, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    if (action == GOSSIP_ACTION_INFO_DEF+1)
+                    {
+                        player->CLOSE_GOSSIP_MENU();
+                        player->SendMovieStart(MOVIE_ID_GATES);
+                    }
+
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_alexstrasza_wr_gateAI(creature);
+        }
 };
 
 /*######
@@ -206,32 +223,9 @@ class npc_wyrmrest_defender : public CreatureScript
     public:
         npc_wyrmrest_defender() : CreatureScript("npc_wyrmrest_defender") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (player->GetQuestStatus(QUEST_DEFENDING_WYRMREST_TEMPLE) == QUEST_STATUS_INCOMPLETE)
-            {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_DEF1, creature->GetGUID());
-            }
-            else
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+        
 
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            if (action == GOSSIP_ACTION_INFO_DEF+1)
-            {
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_DEF2, creature->GetGUID());
-                // Makes player cast trigger spell for 49207 on self
-                player->CastSpell(player, SPELL_CHARACTER_SCRIPT, true);
-                // The gossip should not auto close
-            }
-
-            return true;
-        }
+    
 
         struct npc_wyrmrest_defenderAI : public VehicleAI
         {
@@ -294,7 +288,37 @@ class npc_wyrmrest_defender : public CreatureScript
                         break;
                 }
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (player->GetQuestStatus(QUEST_DEFENDING_WYRMREST_TEMPLE) == QUEST_STATUS_INCOMPLETE)
+                {
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                    player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_DEF1, me->GetGUID());
+                }
+                else
+                    player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+                        if (action == GOSSIP_ACTION_INFO_DEF+1)
+                        {
+                            player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_DEF2, me->GetGUID());
+                            // Makes player cast trigger spell for 49207 on self
+                            player->CastSpell(player, SPELL_CHARACTER_SCRIPT, true);
+                            // The gossip should not auto close
+                        }
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {

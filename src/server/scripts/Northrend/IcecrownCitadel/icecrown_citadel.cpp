@@ -23,6 +23,7 @@ SDCategory: Icecrown Citadel
 EndScriptData */
 
 #include "ObjectMgr.h"
+#include "GameObjectAI.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
@@ -2160,14 +2161,25 @@ class go_icc_trap : public GameObjectScript
     public:
         go_icc_trap() : GameObjectScript("go_icc_trap") { }
 
-        void OnLootStateChanged(GameObject* go, uint32 state, Unit* unit) override
+                struct go_icc_trapAI : public GameObjectAI
         {
-            if (state == GO_JUST_DEACTIVATED)
+            go_icc_trapAI(GameObject* go) : GameObjectAI(go) { }
+
+    void OnLootStateChanged(uint32 state, Unit* /*unit*/) override
             {
-                go->SetRespawnTime(WEEK);
-                go->SaveRespawnTime();
+                if (state == GO_JUST_DEACTIVATED)
+                {
+                    me->SetRespawnTime(WEEK);
+                    me->SaveRespawnTime();
+                }
             }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_icc_trapAI(go);
         }
+
 };
 
 class spell_icc_harvest_blight_specimen : public SpellScriptLoader
@@ -3075,7 +3087,7 @@ class go_inconspicuous_lever : public GameObjectScript
         {
             go_inconspicuous_leverAI(GameObject* go) : GameObjectAI(go) { }
 
-            void OnStateChanged(uint32 state, Unit* unit) override
+            void OnLootStateChanged(uint32 state, Unit* unit) override
             {
                 if (state != GO_JUST_DEACTIVATED)
                     return;

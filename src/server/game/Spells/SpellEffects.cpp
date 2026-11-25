@@ -15,6 +15,9 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "AccountMgr.h"
+#ifdef ELUNA
+#include "HookMgr.h"
+#endif
 #include "AreaTrigger.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
@@ -817,9 +820,21 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
     // Script based implementation. Must be used only for not good for implementation in core spell effects
     // So called only for not proccessed cases
     if (gameObjTarget)
-        sScriptMgr->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex, gameObjTarget);
+    {
+#ifdef ELUNA
+        if (sHookMgr->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex, gameObjTarget))
+            return;
+#endif
+        gameObjTarget->AI()->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex);
+    }
     else if (unitTarget && unitTarget->GetTypeId() == TYPEID_UNIT)
-        sScriptMgr->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex, unitTarget->ToCreature());
+    {
+#ifdef ELUNA
+        if (sHookMgr->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex, unitTarget->ToCreature()))
+            return;
+#endif
+        unitTarget->ToCreature()->AI()->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex);
+    }
     else if (itemTarget)
         sScriptMgr->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex, itemTarget);
 }
@@ -2195,8 +2210,10 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
             return;
         }
 
-        if (sScriptMgr->OnGossipHello(player, gameObjTarget))
+#ifdef ELUNA
+        if (sHookMgr->OnGossipHello(player, gameObjTarget))
             return;
+#endif
 
         if (gameObjTarget->AI()->OnGossipHello(player, true))
             return;

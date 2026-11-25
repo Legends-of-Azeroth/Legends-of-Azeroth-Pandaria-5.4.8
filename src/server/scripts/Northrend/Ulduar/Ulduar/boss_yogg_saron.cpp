@@ -1884,24 +1884,7 @@ class npc_observation_ring_keeper : public CreatureScript
     public:
         npc_observation_ring_keeper() : CreatureScript("npc_observation_ring_keeper") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (!player || !creature)
-                return false;
-
-            if (Group* group = player->GetGroup())
-            {
-                if (player->GetGUID() == group->GetLeaderGUID())
-                    return false;
-            }
-            else
-                return false;
-
-            player->PlayerTalkClass->GetGossipMenu().SetMenuId(0);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU ? "Я не лидер рейда..." : "I'm not the raid leader...", 0, 0);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+        
 
         struct npc_observation_ring_keeperAI : public ScriptedAI
         {
@@ -1943,6 +1926,25 @@ class npc_observation_ring_keeper : public CreatureScript
             }
 
             void UpdateAI(uint32 /*diff*/) override { }
+                    bool OnGossipHello(Player* player) override
+            {
+                if (!player || !me)
+                    return false;
+
+                if (Group* group = player->GetGroup())
+                {
+                    if (player->GetGUID() == group->GetLeaderGUID())
+                        return false;
+                }
+                else
+                    return false;
+
+                player->PlayerTalkClass->GetGossipMenu().SetMenuId(0);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU ? "Я не лидер рейда..." : "I'm not the raid leader...", 0, 0);
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override

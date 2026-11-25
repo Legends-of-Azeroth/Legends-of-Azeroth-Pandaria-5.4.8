@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -30,6 +30,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "uldaman.h"
 #include "Player.h"
 
@@ -110,13 +111,26 @@ class go_keystone_chamber : public GameObjectScript
 public:
     go_keystone_chamber() : GameObjectScript("go_keystone_chamber") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
-    {
-        if (InstanceScript* instance = go->GetInstanceScript())
-            instance->SetData(DATA_IRONAYA_SEAL, IN_PROGRESS); //door animation and save state.
+    
+        struct go_keystone_chamberAI : public GameObjectAI
+        {
+            go_keystone_chamberAI(GameObject* go) : GameObjectAI(go) { }
 
-        return false;
-    }
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+            if (InstanceScript* instance = me->GetInstanceScript())
+                instance->SetData(DATA_IRONAYA_SEAL, IN_PROGRESS); //door animation and save state.
+
+            return false;
+    
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_keystone_chamberAI(go);
+        }
 };
 
 /*######

@@ -431,19 +431,8 @@ protected:
 public:
 
     // Called when a dummy spell effect is triggered on the creature.
-    virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/, Creature* /*target*/) { return false; }
-
-    // Called when a player opens a gossip dialog with the creature.
-    virtual bool OnGossipHello(Player* /*player*/, Creature* /*creature*/) { return false; }
-
     // Called when a player selects a gossip item in the creature's gossip menu.
-    virtual bool OnGossipSelect(Player* /*player*/, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/) { return false; }
-
     // Called when a player selects a gossip with a code in the creature's gossip menu.
-    virtual bool OnGossipSelectCode(Player* /*player*/, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { return false; }
-
-    // Called when a player accepts a quest from the creature.
-    virtual bool OnQuestAccept(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) { return false; }
 
     // Called when a player selects a quest in the creature's quest menu.
 
@@ -464,36 +453,21 @@ protected:
 public:
 
     // Called when a dummy spell effect is triggered on the gameobject.
-    virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/, GameObject* /*target*/) { return false; }
-
-    // Called when a player opens a gossip dialog with the gameobject.
-    virtual bool OnGossipHello(Player* /*player*/, GameObject* /*go*/) { return false; }
-
     // Called when a player clicks a gameobject, before OnGossipHello.
     virtual bool OnReportUse(Player* /*player*/, GameObject* /*go*/) { return false; }
 
     // Called when a player selects a gossip item in the gameobject's gossip menu.
-    virtual bool OnGossipSelect(Player* /*player*/, GameObject* /*go*/, uint32 /*sender*/, uint32 /*action*/) { return false; }
-
     // Called when a player selects a gossip with a code in the gameobject's gossip menu.
-    virtual bool OnGossipSelectCode(Player* /*player*/, GameObject* /*go*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { return false; }
-
-    // Called when a player accepts a quest from the gameobject.
-    virtual bool OnQuestAccept(Player* /*player*/, GameObject* /*go*/, Quest const* /*quest*/) { return false; }
 
     // Called when the dialog status between a player and the gameobject is requested.
 
     // Called when the game object is destroyed (destructible buildings only).
-    virtual void OnDestroyed(GameObject* /*go*/, Player* /*player*/) { }
 
     // Called when the game object is damaged (destructible buildings only).
-    virtual void OnDamaged(GameObject* /*go*/, Player* /*player*/) { }
 
     // Called when the game object loot state is changed.
-    virtual void OnLootStateChanged(GameObject* /*go*/, uint32 /*state*/, Unit* /*unit*/) { }
 
     // Called when the game object state is changed.
-    virtual void OnGameObjectStateChanged(GameObject* /*go*/, uint32 /*state*/) { }
 
     // Called when a GameObjectAI object is needed for the gameobject.
     virtual GameObjectAI* GetAI(GameObject* /*go*/) const { return NULL; }
@@ -1071,25 +1045,14 @@ public: /* ItemScript */
 
 public: /* CreatureScript */
 
-    bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Creature* target);
-    bool OnGossipHello(Player* player, Creature* creature);
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action);
-    bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, const char* code);
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest);
     CreatureAI* GetCreatureAI(Creature* creature);
 
 public: /* GameObjectScript */
 
-    bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, GameObject* target);
-    bool OnGossipHello(Player* player, GameObject* go);
     bool OnReportUse(Player* player, GameObject* go);
-    bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action);
-    bool OnGossipSelectCode(Player* player, GameObject* go, uint32 sender, uint32 action, const char* code);
-    bool OnQuestAccept(Player* player, GameObject* go, Quest const* quest);
     void OnGameObjectDestroyed(GameObject* go, Player* player);
     void OnGameObjectDamaged(GameObject* go, Player* player);
     void OnGameObjectLootStateChanged(GameObject* go, uint32 state, Unit* unit);
-    void OnGameObjectStateChanged(GameObject* go, uint32 state);
     void OnGameObjectUpdate(GameObject* go, uint32 diff);
     GameObjectAI* GetGameObjectAI(GameObject* go);
 

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -159,24 +159,9 @@ class npc_apothecary_hummel : public CreatureScript
     public:
         npc_apothecary_hummel() : CreatureScript("npc_apothecary_hummel") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
+        
 
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_START, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                creature->AI()->DoAction(START_INTRO);
-
-            player->CLOSE_GOSSIP_MENU();
-            return true;
-        }
+    
 
         struct npc_apothecary_hummelAI : public ScriptedAI
         {
@@ -386,7 +371,29 @@ class npc_apothecary_hummel : public CreatureScript
             uint32 _sprayTimer;
             uint32 _chainReactionTimer;
             bool _firstCrazed;
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_START, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            me->AI()->DoAction(START_INTRO);
+
+                        player->CLOSE_GOSSIP_MENU();
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -1510,38 +1517,55 @@ class npc_haunted_stable_hand_portal : public CreatureScript
     public:
         npc_haunted_stable_hand_portal() : CreatureScript("npc_haunted_stable_hand_portal") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
+        
 
-            if (InstanceScript* instance = creature->GetInstanceScript())
+    
+        struct npc_haunted_stable_hand_portalAI : public ScriptedAI
+        {
+            npc_haunted_stable_hand_portalAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
             {
-                if (instance->GetBossState(DATA_VALDEN) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться в нижнюю обсерваторию." : "Teleport to Lower Observatory.", GOSSIP_SENDER_SHADOWFANG_PORT, 3);
-                else if (instance->GetBossState(DATA_SPRINGVALE) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться во внутренний двор." : "Teleport to The Courtyard.", GOSSIP_SENDER_SHADOWFANG_PORT, 2);
-                else if (instance->GetBossState(DATA_SILVERLAINE) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться в обеденный зал." : "Teleport to Dining Hall.", GOSSIP_SENDER_SHADOWFANG_PORT, 1);
-                else if (instance->GetBossState(DATA_ASHBURY) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться во внутренний двор." : "Teleport to The Courtyard.", GOSSIP_SENDER_SHADOWFANG_PORT, 0);
+
+                bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
+
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    if (instance->GetBossState(DATA_VALDEN) == DONE)
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться в нижнюю обсерваторию." : "Teleport to Lower Observatory.", GOSSIP_SENDER_SHADOWFANG_PORT, 3);
+                    else if (instance->GetBossState(DATA_SPRINGVALE) == DONE)
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться во внутренний двор." : "Teleport to The Courtyard.", GOSSIP_SENDER_SHADOWFANG_PORT, 2);
+                    else if (instance->GetBossState(DATA_SILVERLAINE) == DONE)
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться в обеденный зал." : "Teleport to Dining Hall.", GOSSIP_SENDER_SHADOWFANG_PORT, 1);
+                    else if (instance->GetBossState(DATA_ASHBURY) == DONE)
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Отправиться во внутренний двор." : "Teleport to The Courtyard.", GOSSIP_SENDER_SHADOWFANG_PORT, 0);
+                }
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
             }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
 
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+                        player->PlayerTalkClass->ClearMenus();
+                        player->CLOSE_GOSSIP_MENU();
 
-        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 sender, uint32 action) override
+                        if (action >= 4)
+                            return false;
+
+                        Position loc = shadowfang_keep_locs[action];
+                        if (!player->IsInCombat())
+                            player->NearTeleportTo(loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), false);
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            player->PlayerTalkClass->ClearMenus();
-            player->CLOSE_GOSSIP_MENU();
-
-            if (action >= 4)
-                return false;
-
-            Position loc = shadowfang_keep_locs[action];
-            if (!player->IsInCombat())
-                player->NearTeleportTo(loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), false);
-            return true;
+            return new npc_haunted_stable_hand_portalAI(creature);
         }
 };
 

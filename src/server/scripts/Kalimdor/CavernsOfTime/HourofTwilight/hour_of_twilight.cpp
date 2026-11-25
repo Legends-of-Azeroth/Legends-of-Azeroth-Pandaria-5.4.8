@@ -559,24 +559,9 @@ class npc_thrall_intro : public CreatureScript
     public:
         npc_thrall_intro() : CreatureScript("npc_thrall_intro") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
+    
 
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                creature->AI()->DoAction(ACTION_ACTIVATE);
-
-            player->CLOSE_GOSSIP_MENU();
-
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, THRALL_INTRO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(18287, creature->GetGUID());
-            return true;
-        }
+        
 
         struct npc_thrall_introAI : public ScriptedAI
         {
@@ -723,7 +708,29 @@ class npc_thrall_intro : public CreatureScript
                 DoMeleeAttackIfReady();
 
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, THRALL_INTRO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(18287, me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            me->AI()->DoAction(ACTION_ACTIVATE);
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -739,24 +746,9 @@ class npc_thrall_arcurion : public CreatureScript
 
         bool activated = false;
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
+    
 
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                creature->AI()->DoAction(ACTION_ACTIVATE);
-
-            player->CLOSE_GOSSIP_MENU();
-
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, THRALL_ARCURION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(18555, creature->GetGUID());
-            return true;
-        }
+        
 
         struct npc_thrall_arcurionAI : public ScriptedAI
         {
@@ -944,7 +936,29 @@ class npc_thrall_arcurion : public CreatureScript
                     }
                 }
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, THRALL_ARCURION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(18555, me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            me->AI()->DoAction(ACTION_ACTIVATE);
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -958,24 +972,9 @@ class npc_thrall_asira : public CreatureScript
     public:
         npc_thrall_asira() : CreatureScript("npc_thrall_asira") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
+    
 
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                creature->AI()->DoAction(ACTION_ACTIVATE);
-
-            player->CLOSE_GOSSIP_MENU();
-
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, THRALL_ASIRA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(18287, creature->GetGUID());
-            return true;
-        }
+        
 
         struct npc_thrall_asiraAI : public ScriptedAI
         {
@@ -1188,7 +1187,29 @@ class npc_thrall_asira : public CreatureScript
 
         private:
             InstanceScript* instance;
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, THRALL_ASIRA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(18287, me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            me->AI()->DoAction(ACTION_ACTIVATE);
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -1202,24 +1223,9 @@ class npc_thrall_trash_benedictus : public CreatureScript
     public:
         npc_thrall_trash_benedictus() : CreatureScript("npc_thrall_trash_benedictus") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
+    
 
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                creature->AI()->DoAction(ACTION_ACTIVATE);
-
-            player->CLOSE_GOSSIP_MENU();
-
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, THRALL_BEFORE_BENEDICTUS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(18293, creature->GetGUID());
-            return true;
-        }
+        
 
         struct npc_thrall_trash_benedictusAI : public ScriptedAI
         {
@@ -1383,7 +1389,29 @@ class npc_thrall_trash_benedictus : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-        };
+                    bool OnGossipHello(Player* player) override
+            {
+
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, THRALL_BEFORE_BENEDICTUS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(18293, me->GetGUID());
+                return true;
+        
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                            me->AI()->DoAction(ACTION_ACTIVATE);
+
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {

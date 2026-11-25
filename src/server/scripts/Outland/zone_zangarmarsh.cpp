@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -68,90 +68,107 @@ class npcs_ashyen_and_keleth : public CreatureScript
 public:
     npcs_ashyen_and_keleth() : CreatureScript("npcs_ashyen_and_keleth") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetReputationRank(942) > REP_NEUTRAL)
+    
+
+
+        struct npcs_ashyen_and_kelethAI : public ScriptedAI
         {
-            if (creature->GetEntry() == NPC_ASHYEN)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_BLESS_ASH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            npcs_ashyen_and_kelethAI(Creature* creature) : ScriptedAI(creature) { }
 
-            if (creature->GetEntry() == NPC_KELETH)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_BLESS_KEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        }
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+            bool OnGossipHello(Player* player) override
+            {
 
-        return true;
-    }
+            if (player->GetReputationRank(942) > REP_NEUTRAL)
+            {
+                if (me->GetEntry() == NPC_ASHYEN)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_BLESS_ASH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
+                if (me->GetEntry() == NPC_KELETH)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_BLESS_KEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            }
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    if (action == GOSSIP_ACTION_INFO_DEF+1)
+                    {
+                        me->SetPowerType(POWER_MANA);
+                        me->SetMaxPower(POWER_MANA, 200);             //set a "fake" mana value, we can't depend on database doing it in this case
+                        me->SetPower(POWER_MANA, 200);
+
+                        if (me->GetEntry() == NPC_ASHYEN)                //check which Creature we are dealing with
+                        {
+                            uint32 spell = 0;
+                            switch (player->GetReputationRank(942))
+                            {                                               //mark of lore
+                                case REP_FRIENDLY:
+                                    spell = SPELL_BLESS_ASH_FRI;
+                                    break;
+                                case REP_HONORED:
+                                    spell = SPELL_BLESS_ASH_HON;
+                                    break;
+                                case REP_REVERED:
+                                    spell = SPELL_BLESS_ASH_REV;
+                                    break;
+                                case REP_EXALTED:
+                                    spell = SPELL_BLESS_ASH_EXA;
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            if (spell)
+                            {
+                                me->CastSpell(player, spell, true);
+                                me->AI()->Talk(GOSSIP_REWARD_BLESS);
+                            }
+                        }
+
+                        if (me->GetEntry() == NPC_KELETH)
+                        {
+                            uint32 spell = 0;
+                            switch (player->GetReputationRank(942))         //mark of war
+                            {
+                                case REP_FRIENDLY:
+                                    spell = SPELL_BLESS_KEL_FRI;
+                                    break;
+                                case REP_HONORED:
+                                    spell = SPELL_BLESS_KEL_HON;
+                                    break;
+                                case REP_REVERED:
+                                    spell = SPELL_BLESS_KEL_REV;
+                                    break;
+                                case REP_EXALTED:
+                                    spell = SPELL_BLESS_KEL_EXA;
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            if (spell)
+                            {
+                                me->CastSpell(player, spell, true);
+                                me->AI()->Talk(GOSSIP_REWARD_BLESS);
+                            }
+                        }
+                        player->CLOSE_GOSSIP_MENU();
+                        player->TalkedToCreature(me->GetEntry(), me->GetGUID());
+                    }
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            creature->SetPowerType(POWER_MANA);
-            creature->SetMaxPower(POWER_MANA, 200);             //set a "fake" mana value, we can't depend on database doing it in this case
-            creature->SetPower(POWER_MANA, 200);
-
-            if (creature->GetEntry() == NPC_ASHYEN)                //check which Creature we are dealing with
-            {
-                uint32 spell = 0;
-                switch (player->GetReputationRank(942))
-                {                                               //mark of lore
-                    case REP_FRIENDLY:
-                        spell = SPELL_BLESS_ASH_FRI;
-                        break;
-                    case REP_HONORED:
-                        spell = SPELL_BLESS_ASH_HON;
-                        break;
-                    case REP_REVERED:
-                        spell = SPELL_BLESS_ASH_REV;
-                        break;
-                    case REP_EXALTED:
-                        spell = SPELL_BLESS_ASH_EXA;
-                        break;
-                    default:
-                        break;
-                }
-
-                if (spell)
-                {
-                    creature->CastSpell(player, spell, true);
-                    creature->AI()->Talk(GOSSIP_REWARD_BLESS);
-                }
-            }
-
-            if (creature->GetEntry() == NPC_KELETH)
-            {
-                uint32 spell = 0;
-                switch (player->GetReputationRank(942))         //mark of war
-                {
-                    case REP_FRIENDLY:
-                        spell = SPELL_BLESS_KEL_FRI;
-                        break;
-                    case REP_HONORED:
-                        spell = SPELL_BLESS_KEL_HON;
-                        break;
-                    case REP_REVERED:
-                        spell = SPELL_BLESS_KEL_REV;
-                        break;
-                    case REP_EXALTED:
-                        spell = SPELL_BLESS_KEL_EXA;
-                        break;
-                    default:
-                        break;
-                }
-
-                if (spell)
-                {
-                    creature->CastSpell(player, spell, true);
-                    creature->AI()->Talk(GOSSIP_REWARD_BLESS);
-                }
-            }
-            player->CLOSE_GOSSIP_MENU();
-            player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
+            return new npcs_ashyen_and_kelethAI(creature);
         }
-        return true;
-    }
 };
 
 /*######
@@ -204,33 +221,40 @@ public:
 
             DoMeleeAttackIfReady();
         }
-    };
+                bool OnGossipHello(Player* player) override
+            {
+
+            if (player->GetQuestStatus(QUEST_CRACK_SKULLS) == QUEST_STATUS_INCOMPLETE)
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_COOSH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+            player->SEND_GOSSIP_MENU(9441, me->GetGUID());
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    if (action == GOSSIP_ACTION_INFO_DEF)
+                    {
+                        player->CLOSE_GOSSIP_MENU();
+                        me->SetFaction(FACTION_HOSTILE_CO);
+                        me->AI()->AttackStart(player);
+                    }
+                    return true;
+    
+            }
+};
 
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_cooshcooshAI(creature);
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_CRACK_SKULLS) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_COOSH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+    
 
-        player->SEND_GOSSIP_MENU(9441, creature->GetGUID());
-        return true;
-    }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            creature->SetFaction(FACTION_HOSTILE_CO);
-            creature->AI()->AttackStart(player);
-        }
-        return true;
-    }
 };
 
 /*######
@@ -246,49 +270,66 @@ class npc_elder_kuruti : public CreatureScript
 public:
     npc_elder_kuruti() : CreatureScript("npc_elder_kuruti") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(9803) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KUR1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+    
 
-        player->SEND_GOSSIP_MENU(9226, creature->GetGUID());
 
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
+        struct npc_elder_kurutiAI : public ScriptedAI
         {
-            case GOSSIP_ACTION_INFO_DEF:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KUR2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                player->SEND_GOSSIP_MENU(9227, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KUR3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                player->SEND_GOSSIP_MENU(9229, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 2:
+            npc_elder_kurutiAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
             {
-                if (!player->HasItemCount(24573))
-                {
-                    ItemPosCountVec dest;
-                    uint32 itemId = 24573;
-                    InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, 1, NULL);
-                    if (msg == EQUIP_ERR_OK)
-                    {
-                        player->StoreNewItem(dest, itemId, true);
-                    }
-                    else
-                        player->SendEquipError(msg, NULL, NULL, itemId);
-                }
-                player->SEND_GOSSIP_MENU(9231, creature->GetGUID());
-                break;
+
+            if (player->GetQuestStatus(9803) == QUEST_STATUS_INCOMPLETE)
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KUR1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+            player->SEND_GOSSIP_MENU(9226, me->GetGUID());
+
+            return true;
+    
             }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    switch (action)
+                    {
+                        case GOSSIP_ACTION_INFO_DEF:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KUR2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                            player->SEND_GOSSIP_MENU(9227, me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF + 1:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KUR3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                            player->SEND_GOSSIP_MENU(9229, me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF + 2:
+                        {
+                            if (!player->HasItemCount(24573))
+                            {
+                                ItemPosCountVec dest;
+                                uint32 itemId = 24573;
+                                InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, 1, NULL);
+                                if (msg == EQUIP_ERR_OK)
+                                {
+                                    player->StoreNewItem(dest, itemId, true);
+                                }
+                                else
+                                    player->SendEquipError(msg, NULL, NULL, itemId);
+                            }
+                            player->SEND_GOSSIP_MENU(9231, me->GetGUID());
+                            break;
+                        }
+                    }
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_elder_kurutiAI(creature);
         }
-        return true;
-    }
 };
 
 /*######
@@ -299,23 +340,40 @@ class npc_mortog_steamhead : public CreatureScript
 public:
     npc_mortog_steamhead() : CreatureScript("npc_mortog_steamhead") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsVendor() && player->GetReputationRank(942) == REP_EXALTED)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+    
 
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
-        return true;
-    }
+        struct npc_mortog_steamheadAI : public ScriptedAI
+        {
+            npc_mortog_steamheadAI(Creature* creature) : ScriptedAI(creature) { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
-        return true;
-    }
+            bool OnGossipHello(Player* player) override
+            {
+
+            if (me->IsVendor() && player->GetReputationRank(942) == REP_EXALTED)
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    if (action == GOSSIP_ACTION_TRADE)
+                        player->GetSession()->SendListInventory(me->GetGUID());
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_mortog_steamheadAI(creature);
+        }
 };
 
 /*######
@@ -376,19 +434,22 @@ public:
                     break;
             }
         }
-    };
+                void OnQuestAccept(Player* player, Quest const* quest) override
+            {
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_ESCAPE_FROM)
-        {
-            creature->AI()->Talk(SAY_START, player);
+            if (quest->GetQuestId() == QUEST_ESCAPE_FROM)
+            {
+                Talk(SAY_START, player);
 
-            if (EscortAI* pEscortAI = CAST_AI(npc_kayra_longmane::npc_kayra_longmaneAI, creature->AI()))
-                pEscortAI->Start(false, player->GetGUID());
-        }
-        return true;
-    }
+                if (EscortAI* pEscortAI = this)
+                    pEscortAI->Start(false, player->GetGUID());
+            }
+            return;
+    
+            }
+        };
+
+    
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -413,34 +474,51 @@ class npc_timothy_daniels : public CreatureScript
 public:
     npc_timothy_daniels() : CreatureScript("npc_timothy_daniels") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
+    
 
-        if (creature->IsVendor())
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_POISONS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TIMOTHY_DANIELS_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
+        struct npc_timothy_danielsAI : public ScriptedAI
         {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_TIMOTHY_DANIELS1, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_TRADE:
-                player->GetSession()->SendListInventory(creature->GetGUID());
-                break;
-        }
+            npc_timothy_danielsAI(Creature* creature) : ScriptedAI(creature) { }
 
-        return true;
-    }
+            bool OnGossipHello(Player* player) override
+            {
+
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            if (me->IsVendor())
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_POISONS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TIMOTHY_DANIELS_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    switch (action)
+                    {
+                        case GOSSIP_ACTION_INFO_DEF+1:
+                            player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_TIMOTHY_DANIELS1, me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_TRADE:
+                            player->GetSession()->SendListInventory(me->GetGUID());
+                            break;
+                    }
+
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_timothy_danielsAI(creature);
+        }
 };
 
 /*######

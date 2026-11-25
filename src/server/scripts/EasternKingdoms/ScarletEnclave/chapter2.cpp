@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -191,17 +191,7 @@ class npc_koltira_deathweaver : public CreatureScript
 public:
     npc_koltira_deathweaver() : CreatureScript("npc_koltira_deathweaver") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_BREAKOUT)
-        {
-            creature->SetStandState(UNIT_STAND_STATE_STAND);
-
-            if (EscortAI* escortAI = CAST_AI(npc_koltira_deathweaver::npc_koltira_deathweaverAI, creature->AI()))
-                escortAI->Start(false, player->GetGUID());
-        }
-        return true;
-    }
+    
 
     struct npc_koltira_deathweaverAI : public EscortAI
     {
@@ -345,7 +335,20 @@ public:
         uint32 waveTimer;
         ObjectGuid valrothGUID;
 
-    };
+                void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+            if (quest->GetQuestId() == QUEST_BREAKOUT)
+            {
+                me->SetStandState(UNIT_STAND_STATE_STAND);
+
+                if (EscortAI* escortAI = this)
+                    escortAI->Start(false, player->GetGUID());
+            }
+            return;
+    
+            }
+        };
 
     CreatureAI* GetAI(Creature* creature) const override
     {

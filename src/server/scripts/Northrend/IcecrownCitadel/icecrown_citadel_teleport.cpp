@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 */
 
 #include "ScriptedGossip.h"
+#include "GameObjectAI.h"
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "icecrown_citadel.h"
@@ -35,55 +36,72 @@ class icecrown_citadel_teleport : public GameObjectScript
     public:
         icecrown_citadel_teleport() : GameObjectScript("icecrown_citadel_teleport") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+
+    
+        struct icecrown_citadel_teleportAI : public GameObjectAI
         {
-            if (go->GetEntry() != GO_SCOURGE_TRANSPORTER_LIGHTS_HAMMER)
-                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(go), LIGHT_S_HAMMER_TELE, GOSSIP_SENDER_ICC_PORT, LIGHT_S_HAMMER_TELEPORT);
-            if (InstanceScript* instance = go->GetInstanceScript())
+            icecrown_citadel_teleportAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                if (go->GetEntry() != GO_SCOURGE_TRANSPORTER_ORATORY && instance->GetBossState(DATA_LORD_MARROWGAR) == DONE || player->IsGameMaster())
-                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(go), ORATORY_OF_THE_DAMNED_TELE, GOSSIP_SENDER_ICC_PORT, ORATORY_OF_THE_DAMNED_TELEPORT);
-                if (go->GetEntry() != GO_SCOURGE_TRANSPORTER_RAMPART && instance->GetBossState(DATA_LADY_DEATHWHISPER) == DONE || player->IsGameMaster())
-                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(go), RAMPART_OF_SKULLS_TELE, GOSSIP_SENDER_ICC_PORT, RAMPART_OF_SKULLS_TELEPORT);
-                // if (go->GetEntry() != GO_SCOURGE_TRANSPORTER_DEATHBRINGERS && instance->GetBossState(DATA_GUNSHIP_EVENT) == DONE || player->IsGameMaster()) // todo: finish gunship battle
-                if (go->GetEntry() != GO_SCOURGE_TRANSPORTER_DEATHBRINGERS && instance->GetBossState(DATA_LADY_DEATHWHISPER) == DONE || player->IsGameMaster())
-                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(go), DEATHBRINGER_S_RISE_TELE, GOSSIP_SENDER_ICC_PORT, DEATHBRINGER_S_RISE_TELEPORT);
-                if (go->GetEntry() != GO_SCOURGE_TRANSPORTER_UPPER_SPIRE && instance->GetData(DATA_COLDFLAME_JETS) == DONE || player->IsGameMaster())
-                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(go), UPPER_SPIRE_TELE, GOSSIP_SENDER_ICC_PORT, UPPER_SPIRE_TELEPORT);
-                if (go->GetEntry() != GO_SCOURGE_TRANSPORTER_SINDRAGOSAS_LAIR && instance->GetBossState(DATA_SINDRAGOSA_GAUNTLET) == DONE || player->IsGameMaster())
-                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(go), SINDRAGOSA_S_LAIR_TELE, GOSSIP_SENDER_ICC_PORT, SINDRAGOSA_S_LAIR_TELEPORT);
-                if (player->IsGameMaster()) // teleport to Frozen Throne only from area teleport (except GM)
-                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(go), FROZEN_THRONE_TELE, GOSSIP_SENDER_ICC_PORT, /*LIGHT_S_HAMMER_TELEPORT*/FROZEN_THRONE_TELEPORT);
-            }
 
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(go), go->GetGUID());
-            return true;
-        }
+                if (me->GetEntry() != GO_SCOURGE_TRANSPORTER_LIGHTS_HAMMER)
+                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), LIGHT_S_HAMMER_TELE, GOSSIP_SENDER_ICC_PORT, LIGHT_S_HAMMER_TELEPORT);
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    if (me->GetEntry() != GO_SCOURGE_TRANSPORTER_ORATORY && instance->GetBossState(DATA_LORD_MARROWGAR) == DONE || player->IsGameMaster())
+                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), ORATORY_OF_THE_DAMNED_TELE, GOSSIP_SENDER_ICC_PORT, ORATORY_OF_THE_DAMNED_TELEPORT);
+                    if (me->GetEntry() != GO_SCOURGE_TRANSPORTER_RAMPART && instance->GetBossState(DATA_LADY_DEATHWHISPER) == DONE || player->IsGameMaster())
+                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), RAMPART_OF_SKULLS_TELE, GOSSIP_SENDER_ICC_PORT, RAMPART_OF_SKULLS_TELEPORT);
+                    // if (me->GetEntry() != GO_SCOURGE_TRANSPORTER_DEATHBRINGERS && instance->GetBossState(DATA_GUNSHIP_EVENT) == DONE || player->IsGameMaster()) // todo: finish gunship battle
+                    if (me->GetEntry() != GO_SCOURGE_TRANSPORTER_DEATHBRINGERS && instance->GetBossState(DATA_LADY_DEATHWHISPER) == DONE || player->IsGameMaster())
+                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), DEATHBRINGER_S_RISE_TELE, GOSSIP_SENDER_ICC_PORT, DEATHBRINGER_S_RISE_TELEPORT);
+                    if (me->GetEntry() != GO_SCOURGE_TRANSPORTER_UPPER_SPIRE && instance->GetData(DATA_COLDFLAME_JETS) == DONE || player->IsGameMaster())
+                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), UPPER_SPIRE_TELE, GOSSIP_SENDER_ICC_PORT, UPPER_SPIRE_TELEPORT);
+                    if (me->GetEntry() != GO_SCOURGE_TRANSPORTER_SINDRAGOSAS_LAIR && instance->GetBossState(DATA_SINDRAGOSA_GAUNTLET) == DONE || player->IsGameMaster())
+                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), SINDRAGOSA_S_LAIR_TELE, GOSSIP_SENDER_ICC_PORT, SINDRAGOSA_S_LAIR_TELEPORT);
+                    if (player->IsGameMaster()) // teleport to Frozen Throne only from area teleport (except GM)
+                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), FROZEN_THRONE_TELE, GOSSIP_SENDER_ICC_PORT, /*LIGHT_S_HAMMER_TELEPORT*/FROZEN_THRONE_TELEPORT);
+                }
 
-        bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action) override
-        {
-            if (player->HasItemCount(49278, 1, true))
-                player->DestroyItemCount(49278, 1, true);
-
-            player->PlayerTalkClass->ClearMenus();
-            player->CLOSE_GOSSIP_MENU();
-
-            SpellInfo const* spell = sSpellMgr->GetSpellInfo(action);
-            if (!spell)
-                return false;
-
-            if (player->IsInCombat())
-            {
-                Spell::SendCastResult(player, spell, 0, SPELL_FAILED_AFFECTING_COMBAT);
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
                 return true;
+        
             }
-
-            if (sender == GOSSIP_SENDER_ICC_PORT)
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
             {
-                player->CastSpell(player, spell, true);
-            }
 
-            return true;
+                        if (player->HasItemCount(49278, 1, true))
+                            player->DestroyItemCount(49278, 1, true);
+
+                        player->PlayerTalkClass->ClearMenus();
+                        player->CLOSE_GOSSIP_MENU();
+
+                        SpellInfo const* spell = sSpellMgr->GetSpellInfo(action);
+                        if (!spell)
+                            return false;
+
+                        if (player->IsInCombat())
+                        {
+                            Spell::SendCastResult(player, spell, 0, SPELL_FAILED_AFFECTING_COMBAT);
+                            return true;
+                        }
+
+                        if (sender == GOSSIP_SENDER_ICC_PORT)
+                        {
+                            player->CastSpell(player, spell, true);
+                        }
+
+                        return true;
+        
+            }
+};
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new icecrown_citadel_teleportAI(go);
         }
 };
 

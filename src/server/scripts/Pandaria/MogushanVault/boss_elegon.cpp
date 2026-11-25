@@ -18,6 +18,7 @@
 #include "mogu_shan_vault.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "SpellScript.h"
 
 enum eElegonPhase
@@ -1661,23 +1662,36 @@ class go_celestial_control_console : public GameObjectScript
     public:
         go_celestial_control_console() : GameObjectScript("go_celestial_control_console") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_celestial_control_consoleAI : public GameObjectAI
         {
-            if (InstanceScript* instance = player->GetInstanceScript())
+            go_celestial_control_consoleAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                if (!instance->CheckRequiredBosses(DATA_ELEGON, player) && !player->IsGameMaster())
-                    return false;
 
-                if (Creature* infiniteEnergy = instance->instance->GetCreature(instance->GetGuidData(NPC_INFINITE_ENERGY)))
-                    infiniteEnergy->AI()->DoAction(ACTION_INFINITE_GO_DOWN);
+                if (InstanceScript* instance = player->GetInstanceScript())
+                {
+                    if (!instance->CheckRequiredBosses(DATA_ELEGON, player) && !player->IsGameMaster())
+                        return false;
 
-                if (GameObject* titanDisk = instance->instance->GetGameObject(instance->GetGuidData(GO_ENERGY_TITAN_DISK)))
-                    titanDisk->SetGoState(GO_STATE_READY);
+                    if (Creature* infiniteEnergy = instance->instance->GetCreature(instance->GetGuidData(NPC_INFINITE_ENERGY)))
+                        infiniteEnergy->AI()->DoAction(ACTION_INFINITE_GO_DOWN);
 
-                go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    if (GameObject* titanDisk = instance->instance->GetGameObject(instance->GetGuidData(GO_ENERGY_TITAN_DISK)))
+                        titanDisk->SetGoState(GO_STATE_READY);
+
+                    me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                }
+
+                return false;
+        
             }
+        };
 
-            return false;
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_celestial_control_consoleAI(go);
         }
 };
 

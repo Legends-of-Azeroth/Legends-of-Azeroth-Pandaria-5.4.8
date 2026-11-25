@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -1484,82 +1484,99 @@ class npc_proving_grounds_trial_master_rotun : public CreatureScript
     public:
         npc_proving_grounds_trial_master_rotun() : CreatureScript("npc_proving_grounds_trial_master_rotun") { }
     
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+    
 
-            switch (action)
+        
+        struct npc_proving_grounds_trial_master_rotunAI : public ScriptedAI
+        {
+            npc_proving_grounds_trial_master_rotunAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
             {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
-                        controller->AI()->DoAction(ACTION_DD_BRONZE_TRIAL);
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
-                        controller->AI()->DoAction(ACTION_TANK_BRONZE_TRIAL);
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 3:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
-                        controller->AI()->DoAction(ACTION_HEALER_BRONZE_TRIAL);
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 4:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
-                        controller->AI()->DoAction(ACTION_DD_SILVER_TRIAL);
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 5:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
-                        controller->AI()->DoAction(ACTION_DD_GOLD_TRIAL);
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 10:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
-                        controller->AI()->DoAction(ACTION_TANK_SILVER_TRIAL);
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 9:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
-                        controller->AI()->DoAction(ACTION_TANK_GOLD_TRIAL);
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 14:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
-                        controller->AI()->DoAction(ACTION_HEALER_SILVER_TRIAL);
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 13:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
-                        controller->AI()->DoAction(ACTION_HEALER_GOLD_TRIAL);
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 6:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
-                        controller->AI()->DoAction(ACTION_DD_ENDLESS_TRIAL);
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 8:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
-                        controller->AI()->DoAction(ACTION_TANK_ENDLESS_TRIAL);
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 12:
-                    if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
-                        controller->AI()->DoAction(ACTION_HEALER_ENDLESS_TRIAL);
-                    break;
+
+                // by default for each only Bronze, next check achievements complete
+                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 8, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+
+                // Need check achievement there
+                for (auto&& itr : invAllowTrialType)
+                    if (player->HasAchieved(itr.first, false))
+                        player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), itr.second, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3 + itr.second);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
             }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
 
-            player->CLOSE_GOSSIP_MENU();
+                        player->PlayerTalkClass->ClearMenus();
+                        me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-            return true;
-        }
+                        switch (action)
+                        {
+                            case GOSSIP_ACTION_INFO_DEF + 1:
+                                if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
+                                    controller->AI()->DoAction(ACTION_DD_BRONZE_TRIAL);
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 2:
+                                if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
+                                    controller->AI()->DoAction(ACTION_TANK_BRONZE_TRIAL);
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 3:
+                                if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
+                                    controller->AI()->DoAction(ACTION_HEALER_BRONZE_TRIAL);
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 4:
+                                if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
+                                    controller->AI()->DoAction(ACTION_DD_SILVER_TRIAL);
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 5:
+                                if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
+                                    controller->AI()->DoAction(ACTION_DD_GOLD_TRIAL);
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 10:
+                                if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
+                                    controller->AI()->DoAction(ACTION_TANK_SILVER_TRIAL);
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 9:
+                                if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
+                                    controller->AI()->DoAction(ACTION_TANK_GOLD_TRIAL);
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 14:
+                                if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
+                                    controller->AI()->DoAction(ACTION_HEALER_SILVER_TRIAL);
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 13:
+                                if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
+                                    controller->AI()->DoAction(ACTION_HEALER_GOLD_TRIAL);
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 6:
+                                if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
+                                    controller->AI()->DoAction(ACTION_DD_ENDLESS_TRIAL);
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 8:
+                                if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
+                                    controller->AI()->DoAction(ACTION_TANK_ENDLESS_TRIAL);
+                                break;
+                            case GOSSIP_ACTION_INFO_DEF + 12:
+                                if (Creature* controller = ObjectAccessor::GetCreature(*player, player->GetInstanceScript() ? player->GetInstanceScript()->GetGuidData(NPC_PROVING_GROUNDS_2) : ObjectGuid::Empty))
+                                    controller->AI()->DoAction(ACTION_HEALER_ENDLESS_TRIAL);
+                                break;
+                        }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            // by default for each only Bronze, next check achievements complete
-            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 8, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-
-            // Need check achievement there
-            for (auto&& itr : invAllowTrialType)
-                if (player->HasAchieved(itr.first, false))
-                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), itr.second, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3 + itr.second);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
+            return new npc_proving_grounds_trial_master_rotunAI(creature);
         }
 };
 
@@ -3216,31 +3233,48 @@ class npc_proving_grounds_trial_master_rotun_queue : public CreatureScript
     public:
         npc_proving_grounds_trial_master_rotun_queue() : CreatureScript("npc_proving_grounds_trial_master_rotun_queue") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
+    
 
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+        
+        struct npc_proving_grounds_trial_master_rotun_queueAI : public ScriptedAI
+        {
+            npc_proving_grounds_trial_master_rotun_queueAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
             {
-                lfg::LfgDungeonSet scenario = { 658 };
-                sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
+
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+
+                if (!player->GetGroup() && !player->IsUsingLfg())
+                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                return true;
+        
             }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
 
-            player->CLOSE_GOSSIP_MENU();
+                        player->PlayerTalkClass->ClearMenus();
 
-            return true;
-        }
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            lfg::LfgDungeonSet scenario = { 658 };
+                            sLFGMgr->JoinLfg(player, lfg::PLAYER_ROLE_DAMAGE, scenario, "");
+                        }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+                        player->CLOSE_GOSSIP_MENU();
+
+                        return true;
+        
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-
-            if (!player->GetGroup() && !player->IsUsingLfg())
-                player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
+            return new npc_proving_grounds_trial_master_rotun_queueAI(creature);
         }
 };
 

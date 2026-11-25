@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "Player.h"
@@ -298,21 +299,34 @@ class go_scourge_enclosure : public GameObjectScript
 public:
     go_scourge_enclosure() : GameObjectScript("go_scourge_enclosure") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        go->UseDoorOrButton();
-        if (player->GetQuestStatus(QUEST_OUR_ONLY_HOPE) == QUEST_STATUS_INCOMPLETE)
+    
+        struct go_scourge_enclosureAI : public GameObjectAI
         {
-            Creature* gymerDummy = go->FindNearestCreature(NPC_GYMER_DUMMY, 20.0f);
-            if (gymerDummy)
+            go_scourge_enclosureAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                player->KilledMonsterCredit(gymerDummy->GetEntry(), gymerDummy->GetGUID());
-                gymerDummy->CastSpell(gymerDummy, SPELL_GYMER_LOCK_EXPLOSION, true);
-                gymerDummy->DespawnOrUnsummon();
+
+            me->UseDoorOrButton();
+            if (player->GetQuestStatus(QUEST_OUR_ONLY_HOPE) == QUEST_STATUS_INCOMPLETE)
+            {
+                Creature* gymerDummy = me->FindNearestCreature(NPC_GYMER_DUMMY, 20.0f);
+                if (gymerDummy)
+                {
+                    player->KilledMonsterCredit(gymerDummy->GetEntry(), gymerDummy->GetGUID());
+                    gymerDummy->CastSpell(gymerDummy, SPELL_GYMER_LOCK_EXPLOSION, true);
+                    gymerDummy->DespawnOrUnsummon();
+                }
             }
+            return true;
+    
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_scourge_enclosureAI(go);
         }
-        return true;
-    }
 };
 
 /*######
@@ -569,11 +583,24 @@ class go_finklesteins_cauldron : public GameObjectScript
 public:
     go_finklesteins_cauldron() : GameObjectScript("go_finklesteins_cauldron") { }
 
-    bool OnGossipHello(Player* player, GameObject* /*go*/) override
-    {
-        player->CastSpell(player, SPELL_POT_CHECK);
-        return true;
-    }
+    
+        struct go_finklesteins_cauldronAI : public GameObjectAI
+        {
+            go_finklesteins_cauldronAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+            player->CastSpell(player, SPELL_POT_CHECK);
+            return true;
+    
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_finklesteins_cauldronAI(go);
+        }
 };
 
 uint32 const FetchIngredients[21][4] =

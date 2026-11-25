@@ -33,6 +33,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "Cell.h"
@@ -185,26 +186,9 @@ class npc_engineer_spark_overgrind : public CreatureScript
 public:
     npc_engineer_spark_overgrind() : CreatureScript("npc_engineer_spark_overgrind") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            creature->SetFaction(FACTION_HOSTILE);
-            CAST_AI(npc_engineer_spark_overgrind::npc_engineer_spark_overgrindAI, creature->AI())->AttackStart(player);
-        }
-        return true;
-    }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_GNOMERCY) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
+    
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -271,7 +255,31 @@ public:
 
             DoMeleeAttackIfReady();
         }
-    };
+                bool OnGossipHello(Player* player) override
+            {
+
+            if (player->GetQuestStatus(QUEST_GNOMERCY) == QUEST_STATUS_INCOMPLETE)
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    if (action == GOSSIP_ACTION_INFO_DEF)
+                    {
+                        player->CLOSE_GOSSIP_MENU();
+                        me->SetFaction(FACTION_HOSTILE);
+                        CAST_AI(npc_engineer_spark_overgrind::npc_engineer_spark_overgrindAI, me->AI())->AttackStart(player);
+                    }
+                    return true;
+    
+            }
+};
 
 };
 
@@ -340,16 +348,7 @@ class npc_magwin : public CreatureScript
 public:
     npc_magwin() : CreatureScript("npc_magwin") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_A_CRY_FOR_SAY_HELP)
-        {
-            creature->SetFaction(113);
-            if (EscortAI* pEscortAI = CAST_AI(EscortAI, creature->AI()))
-                pEscortAI->Start(true, player->GetGUID());
-        }
-        return true;
-    }
+    
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -390,7 +389,19 @@ public:
         }
 
         void Reset() override { }
-    };
+                void OnQuestAccept(Player* player, Quest const* quest) override
+            {
+
+            if (quest->GetQuestId() == QUEST_A_CRY_FOR_SAY_HELP)
+            {
+                me->SetFaction(113);
+                if (EscortAI* pEscortAI = this)
+                    pEscortAI->Start(true, player->GetGUID());
+            }
+            return;
+    
+            }
+        };
 
 };
 
@@ -577,20 +588,33 @@ class go_ravager_cage : public GameObjectScript
 public:
     go_ravager_cage() : GameObjectScript("go_ravager_cage") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        go->UseDoorOrButton();
-        if (player->GetQuestStatus(QUEST_STRENGTH_ONE) == QUEST_STATUS_INCOMPLETE)
+    
+        struct go_ravager_cageAI : public GameObjectAI
         {
-            if (Creature* ravager = go->FindNearestCreature(NPC_DEATH_RAVAGER, 5.0f, true))
+            go_ravager_cageAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                ravager->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                ravager->SetReactState(REACT_AGGRESSIVE);
-                ravager->AI()->AttackStart(player);
+
+            me->UseDoorOrButton();
+            if (player->GetQuestStatus(QUEST_STRENGTH_ONE) == QUEST_STATUS_INCOMPLETE)
+            {
+                if (Creature* ravager = me->FindNearestCreature(NPC_DEATH_RAVAGER, 5.0f, true))
+                {
+                    ravager->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    ravager->SetReactState(REACT_AGGRESSIVE);
+                    ravager->AI()->AttackStart(player);
+                }
             }
+            return true;
+    
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_ravager_cageAI(go);
         }
-        return true;
-    }
 };
 
 class npc_death_ravager : public CreatureScript
@@ -732,19 +756,32 @@ class go_bristlelimb_cage : public GameObjectScript
     public:
         go_bristlelimb_cage() : GameObjectScript("go_bristlelimb_cage") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_bristlelimb_cageAI : public GameObjectAI
         {
-            go->SetGoState(GO_STATE_READY);
-            if (player->GetQuestStatus(QUEST_THE_PROPHECY_OF_AKIDA) == QUEST_STATUS_INCOMPLETE)
+            go_bristlelimb_cageAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                if (Creature* capitive = go->FindNearestCreature(NPC_STILLPINE_CAPITIVE, 5.0f, true))
+
+                me->SetGoState(GO_STATE_READY);
+                if (player->GetQuestStatus(QUEST_THE_PROPHECY_OF_AKIDA) == QUEST_STATUS_INCOMPLETE)
                 {
-                    go->ResetDoorOrButton();
-                    CAST_AI(npc_stillpine_capitive::npc_stillpine_capitiveAI, capitive->AI())->StartMoving(player);
-                    return false;
+                    if (Creature* capitive = me->FindNearestCreature(NPC_STILLPINE_CAPITIVE, 5.0f, true))
+                    {
+                        me->ResetDoorOrButton();
+                        CAST_AI(npc_stillpine_capitive::npc_stillpine_capitiveAI, capitive->AI())->StartMoving(player);
+                        return false;
+                    }
                 }
+                return true;
+        
             }
-            return true;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_bristlelimb_cageAI(go);
         }
 };
 

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -241,44 +241,9 @@ class npc_ring_valiants : public CreatureScript
 public:
     npc_ring_valiants() : CreatureScript("npc_ring_valiants") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* creature) override
-    {
-        if (((pPlayer->GetQuestStatus(13665) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13745) == QUEST_STATUS_INCOMPLETE ||
-            pPlayer->GetQuestStatus(13761) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13767) == QUEST_STATUS_INCOMPLETE ||
-            pPlayer->GetQuestStatus(13772) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13777) == QUEST_STATUS_INCOMPLETE ||
-            pPlayer->GetQuestStatus(13782) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13787) == QUEST_STATUS_INCOMPLETE ||
-            pPlayer->GetQuestStatus(13750) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13756) == QUEST_STATUS_INCOMPLETE)
-            || (((pPlayer->GetQuestStatus(13814) == QUEST_STATUS_INCOMPLETE) || (pPlayer->GetQuestStatus(13811) == QUEST_STATUS_INCOMPLETE) || (pPlayer->GetQuestStatus(13793) == QUEST_STATUS_INCOMPLETE) || (pPlayer->GetQuestStatus(13790) == QUEST_STATUS_INCOMPLETE)) && !(pPlayer->HasAchieved(2836)))) &&
-            !(pPlayer->HasAura(62665) || pPlayer->HasAura(GetBestedIdFor(false, creature))) && CanEngageInMountedCombat(pPlayer))
-        {
-            pPlayer->ADD_GOSSIP_ITEM_DB(pPlayer->GetDefaultGossipMenuForSource(creature), GOSSIP_VALIANT_ITEM_MENU_ID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        }
 
-        if (pPlayer->HasAura(GetBestedIdFor(false, creature)))
-        {
-            pPlayer->SEND_GOSSIP_MENU(GOSSIP_VALIANT_GOSSIP_TEXT_2, creature->GetGUID());
-            return true;
-        }
 
-        pPlayer->SEND_GOSSIP_MENU(GOSSIP_VALIANT_GOSSIP_TEXT_1, creature->GetGUID());
-        return true;
-    }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        pPlayer->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
-            creature->SetWalk(false);
-            if (creature->GetHomePosition().GetPositionX() > 8500.0f)
-                creature->GetMotionMaster()->MovePoint(POINT_INTRO, 8658.1f, 719.514282f, 547.787842f);
-            else
-                creature->GetMotionMaster()->MovePoint(POINT_INTRO, 8338.1f, 719.514282f, 553.787842f);
-        }
-        return true;
-    }
 
     struct npc_ring_valiantsAI : public npc_ring_rider_base
     {
@@ -336,12 +301,31 @@ public:
             me->CastSpell(me, SPELL_DEFEND, true);
             me->CastSpell(me, SPELL_DEFEND, true);
         }
-    };
+    
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                    {
+                        player->CLOSE_GOSSIP_MENU();
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                        me->SetWalk(false);
+                        if (me->GetHomePosition().GetPositionX() > 8500.0f)
+                            me->GetMotionMaster()->MovePoint(POINT_INTRO, 8658.1f, 719.514282f, 547.787842f);
+                        else
+                            me->GetMotionMaster()->MovePoint(POINT_INTRO, 8338.1f, 719.514282f, 553.787842f);
+                    }
+                    return true;
+    
+            }
+};
 
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_ring_valiantsAI(creature);
     }
+
 };
 
 class npc_ring_champions : public CreatureScript
@@ -349,39 +333,9 @@ class npc_ring_champions : public CreatureScript
 public:
     npc_ring_champions() : CreatureScript("npc_ring_champions") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if ((player->GetQuestStatus(13790) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(13793) == QUEST_STATUS_INCOMPLETE ||
-            player->GetQuestStatus(13811) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(13814) == QUEST_STATUS_INCOMPLETE) &&
-            !(player->HasAura(62665) || player->HasAura(GetBestedIdFor(true, creature))) && CanEngageInMountedCombat(player))
-        {
-            player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(creature), GOSSIP_CHAMP_ITEM_MENU_ID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        }
-        if (player->HasAura(GetBestedIdFor(true, creature)))
-        {
-            player->SEND_GOSSIP_MENU(GOSSIP_CHAMP_GOSSIP_TEXT_2, creature->GetGUID());
-            return true;
-        }
 
-        player->SEND_GOSSIP_MENU(GOSSIP_CHAMP_GOSSIP_TEXT_1, creature->GetGUID());
-        return true;
-    }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
-            creature->SetWalk(false);
-            if (creature->GetHomePosition().GetPositionY() < 950.35f)
-                creature->GetMotionMaster()->MovePoint(POINT_INTRO, 8432.1f, 921.514282f, 544.787842f);
-            else
-                creature->GetMotionMaster()->MovePoint(POINT_INTRO, 8432.1f, 975.514282f, 544.787842f);
-        }
-        return true;
-    }
+
 
     struct npc_ring_championsAI : public npc_ring_rider_base
     {
@@ -440,12 +394,49 @@ public:
             spellTimer = urand(TIMER_SPELL_MIN_2, TIMER_SPELL_MAX_2);
             movementTimer = urand(TIMER_MOVEMENT_MIN_2, TIMER_MOVEMENT_MAX_2);
         }
-    };
+
+            bool OnGossipHello(Player* player) override
+            {
+                if ((player->GetQuestStatus(13790) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(13793) == QUEST_STATUS_INCOMPLETE ||
+                    player->GetQuestStatus(13811) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(13814) == QUEST_STATUS_INCOMPLETE) &&
+                    !(player->HasAura(62665) || player->HasAura(GetBestedIdFor(true, me))) && CanEngageInMountedCombat(player))
+                {
+                    player->ADD_GOSSIP_ITEM_DB(player->GetDefaultGossipMenuForSource(me), GOSSIP_CHAMP_ITEM_MENU_ID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                }
+                if (player->HasAura(GetBestedIdFor(true, me)))
+                {
+                    player->SEND_GOSSIP_MENU(GOSSIP_CHAMP_GOSSIP_TEXT_2, me->GetGUID());
+                    return true;
+                }
+
+                player->SEND_GOSSIP_MENU(GOSSIP_CHAMP_GOSSIP_TEXT_1, me->GetGUID());
+                return true;
+            }
+    
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                    {
+                        player->CLOSE_GOSSIP_MENU();
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                        me->SetWalk(false);
+                        if (me->GetHomePosition().GetPositionY() < 950.35f)
+                            me->GetMotionMaster()->MovePoint(POINT_INTRO, 8432.1f, 921.514282f, 544.787842f);
+                        else
+                            me->GetMotionMaster()->MovePoint(POINT_INTRO, 8432.1f, 975.514282f, 544.787842f);
+                    }
+                    return true;
+    
+            }
+};
 
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_ring_championsAI(creature);
     }
+
 };
 
 // 62552, 62719, 66482 - Defend

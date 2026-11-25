@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -94,17 +94,31 @@ class npc_mostrasz_56314 : public CreatureScript
     public:
         npc_mostrasz_56314() : CreatureScript("npc_mostrasz_56314") { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
-        {
-            player->PlayerTalkClass->ClearMenus();
+    
 
-            if (player->GetQuestStatus(QUEST_TO_RAVENHOLDT) == QUEST_STATUS_INCOMPLETE)
+        struct npc_mostrasz_56314AI : public ScriptedAI
+        {
+            npc_mostrasz_56314AI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
             {
-                player->KilledMonsterCredit(56314, ObjectGuid::Empty);
-                player->TeleportTo(0, 14.685211f, -1463.118896f, 173.92f, 6.23f);
-            }
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (player->GetQuestStatus(QUEST_TO_RAVENHOLDT) == QUEST_STATUS_INCOMPLETE)
+                        {
+                            player->KilledMonsterCredit(56314, ObjectGuid::Empty);
+                            player->TeleportTo(0, 14.685211f, -1463.118896f, 173.92f, 6.23f);
+                        }
             
-            return true;
+                        return true;
+        
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_mostrasz_56314AI(creature);
         }
 };
 

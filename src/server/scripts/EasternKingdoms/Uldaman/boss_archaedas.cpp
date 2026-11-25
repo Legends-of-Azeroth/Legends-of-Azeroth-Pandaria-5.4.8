@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -27,6 +27,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "uldaman.h"
 #include "Player.h"
 
@@ -379,17 +380,30 @@ class go_altar_of_archaedas : public GameObjectScript
     public:
         go_altar_of_archaedas() : GameObjectScript("go_altar_of_archaedas") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_altar_of_archaedasAI : public GameObjectAI
         {
-            InstanceScript* instance = player->GetInstanceScript();
-            if (!instance)
+            go_altar_of_archaedasAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                InstanceScript* instance = player->GetInstanceScript();
+                if (!instance)
+                    return false;
+
+                player->CastSpell (player, SPELL_BOSS_OBJECT_VISUAL, false);
+
+                instance->SetData64(0, player->GetGUID());     // activate archaedas
+                me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
                 return false;
+        
+            }
+        };
 
-            player->CastSpell (player, SPELL_BOSS_OBJECT_VISUAL, false);
-
-            instance->SetData64(0, player->GetGUID());     // activate archaedas
-            go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
-            return false;
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_altar_of_archaedasAI(go);
         }
 };
 
@@ -399,22 +413,35 @@ class go_altar_of_stonekeepers : public GameObjectScript
     public:
         go_altar_of_stonekeepers() : GameObjectScript("go_altar_of_stonekeepers") { }
 
-        bool OnGossipHello(Player* player, GameObject* /*go*/) override
+        
+        struct go_altar_of_stonekeepersAI : public GameObjectAI
         {
-            std::list<Creature*> stonekeepersList;
-            GetCreatureListWithEntryInGrid(stonekeepersList, player, NPC_STONEKEEPER, 50.0f);
-            stonekeepersList.remove_if([=](Creature* target) { return target && !target->IsAlive(); });
+            go_altar_of_stonekeepersAI(GameObject* go) : GameObjectAI(go) { }
 
-            if (stonekeepersList.empty())
-                return true;
-
-            if (Creature* stoneKeeper = Trinity::Containers::SelectRandomContainerElement(stonekeepersList))
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                stoneKeeper->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC);
-                stoneKeeper->SetFaction(14);
+
+                std::list<Creature*> stonekeepersList;
+                GetCreatureListWithEntryInGrid(stonekeepersList, player, NPC_STONEKEEPER, 50.0f);
+                stonekeepersList.remove_if([=](Creature* target) { return target && !target->IsAlive(); });
+
+                if (stonekeepersList.empty())
+                    return true;
+
+                if (Creature* stoneKeeper = Trinity::Containers::SelectRandomContainerElement(stonekeepersList))
+                {
+                    stoneKeeper->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC);
+                    stoneKeeper->SetFaction(14);
+                }
+                return false;
+    
             }
-            return false;
-    }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_altar_of_stonekeepersAI(go);
+        }
 };
 
 //This is the actual function called only once durring InitScripts()

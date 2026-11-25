@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptedGossip.h"
 #include "SpellScript.h"
 #include "ulduar.h"
@@ -818,38 +819,45 @@ class npc_expedition_commander : public CreatureScript
                 else
                     AttackStartTimer -= diff;
             }
-        };
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            switch (action)
+                    bool OnGossipHello(Player* player) override
             {
-                case GOSSIP_ACTION_INFO_DEF:
-                    player->CLOSE_GOSSIP_MENU();
-                    CAST_AI(npc_expedition_commanderAI, creature->AI())->Phase = 1;
-                    break;
+
+                bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
+
+                InstanceScript* instance = me->GetInstanceScript();
+                if (instance && instance->GetBossState(BOSS_RAZORSCALE) != DONE && instance->GetBossState(BOSS_RAZORSCALE) != IN_PROGRESS)
+                {
+                    player->PrepareGossipMenu(me);
+
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Мы готовы помочь!" : "Activate Harpoons!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                    player->SEND_GOSSIP_MENU(13853, me->GetGUID());
+                }
+                else
+                    player->SEND_GOSSIP_MENU(13910, me->GetGUID());
+
+                return true;
+        
             }
-            return true;
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
-
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (instance && instance->GetBossState(BOSS_RAZORSCALE) != DONE && instance->GetBossState(BOSS_RAZORSCALE) != IN_PROGRESS)
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
             {
-                player->PrepareGossipMenu(creature);
 
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "Мы готовы помочь!" : "Activate Harpoons!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                player->SEND_GOSSIP_MENU(13853, creature->GetGUID());
+                        player->PlayerTalkClass->ClearMenus();
+                        switch (action)
+                        {
+                            case GOSSIP_ACTION_INFO_DEF:
+                                player->CLOSE_GOSSIP_MENU();
+                                CAST_AI(npc_expedition_commanderAI, me->AI())->Phase = 1;
+                                break;
+                        }
+                        return true;
+        
             }
-            else
-                player->SEND_GOSSIP_MENU(13910, creature->GetGUID());
+};
 
-            return true;
-        }
+    
+
+        
 
         CreatureAI* GetAI(Creature* creature) const override
         {
@@ -1201,15 +1209,28 @@ class go_razorscale_harpoon : public GameObjectScript
     public:
         go_razorscale_harpoon() : GameObjectScript("go_razorscale_harpoon") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        
+        struct go_razorscale_harpoonAI : public GameObjectAI
         {
-            if (go->HasFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE))
-                return true;
+            go_razorscale_harpoonAI(GameObject* go) : GameObjectAI(go) { }
 
-            InstanceScript* instance = go->GetInstanceScript();
-            if (ObjectAccessor::GetCreature(*go, instance->GetGuidData(BOSS_RAZORSCALE)))
-                go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
-            return false;
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                if (me->HasFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE))
+                    return true;
+
+                InstanceScript* instance = me->GetInstanceScript();
+                if (ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_RAZORSCALE)))
+                    me->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                return false;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_razorscale_harpoonAI(go);
         }
 };
 

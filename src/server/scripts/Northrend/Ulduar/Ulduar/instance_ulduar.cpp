@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Vehicle.h"
 #include "Transport.h"
@@ -1828,21 +1829,34 @@ class go_call_tram : public GameObjectScript
     public:
         go_call_tram() : GameObjectScript("go_call_tram") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        
+        struct go_call_tramAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
-            if (!instance)
-                return false;
+            go_call_tramAI(GameObject* go) : GameObjectAI(go) { }
 
-            switch (go->GetEntry())
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                case GO_ACTIVATE_TRAM:   instance->SetData(DATA_CALL_TRAM, GO_STATE_ACTIVE_ALTERNATIVE); break;
-                case GO_CALL_TRAM_FIRST: instance->SetData(DATA_CALL_TRAM, GO_STATE_READY);              break;
-                case GO_CALL_TRAM_LAST:  instance->SetData(DATA_CALL_TRAM, GO_STATE_ACTIVE);             break;
-                default:
-                    break;
+
+                InstanceScript* instance = me->GetInstanceScript();
+                if (!instance)
+                    return false;
+
+                switch (me->GetEntry())
+                {
+                    case GO_ACTIVATE_TRAM:   instance->SetData(DATA_CALL_TRAM, GO_STATE_ACTIVE_ALTERNATIVE); break;
+                    case GO_CALL_TRAM_FIRST: instance->SetData(DATA_CALL_TRAM, GO_STATE_READY);              break;
+                    case GO_CALL_TRAM_LAST:  instance->SetData(DATA_CALL_TRAM, GO_STATE_ACTIVE);             break;
+                    default:
+                        break;
+                }
+                return false;
+        
             }
-            return false;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_call_tramAI(go);
         }
 };
 

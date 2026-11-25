@@ -16,6 +16,7 @@
 */
 
 #include "ScriptMgr.h"
+#include "GameObjectAI.h"
 #include "SpellScript.h"
 #include "ulduar.h"
 #include "Unit.h"
@@ -2318,22 +2319,35 @@ class go_not_push_button : public GameObjectScript
     public:
         go_not_push_button() : GameObjectScript("go_mimiron_hard_mode_activator") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_not_push_buttonAI : public GameObjectAI
         {
-            if (InstanceScript* instance = go->GetInstanceScript())
-            {
-                if (go->HasFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE))
-                    return false;
+            go_not_push_buttonAI(GameObject* go) : GameObjectAI(go) { }
 
-                if ((instance->GetBossState(BOSS_MIMIRON) != IN_PROGRESS && instance->GetBossState(BOSS_MIMIRON) != DONE) && player)
-                    if (Creature* mimiron = ObjectAccessor::GetCreature((*player), instance->GetGuidData(BOSS_MIMIRON)))
-                    {
-                        mimiron->AI()->DoAction(DO_ACTIVATE_HARD_MODE);
-                        go->UseDoorOrButton();
-                        return true;
-                    }
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                if (InstanceScript* instance = me->GetInstanceScript())
+                {
+                    if (me->HasFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE))
+                        return false;
+
+                    if ((instance->GetBossState(BOSS_MIMIRON) != IN_PROGRESS && instance->GetBossState(BOSS_MIMIRON) != DONE) && player)
+                        if (Creature* mimiron = ObjectAccessor::GetCreature((*player), instance->GetGuidData(BOSS_MIMIRON)))
+                        {
+                            mimiron->AI()->DoAction(DO_ACTIVATE_HARD_MODE);
+                            me->UseDoorOrButton();
+                            return true;
+                        }
+                }
+                return false;
+        
             }
-            return false;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_not_push_buttonAI(go);
         }
 };
 

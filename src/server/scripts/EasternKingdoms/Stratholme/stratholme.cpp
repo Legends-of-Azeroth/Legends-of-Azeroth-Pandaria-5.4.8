@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -31,6 +31,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "stratholme.h"
 #include "Group.h"
 #include "Player.h"
@@ -45,38 +46,51 @@ class go_gauntlet_gate : public GameObjectScript
 public:
     go_gauntlet_gate() : GameObjectScript("go_gauntlet_gate") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        InstanceScript* instance = go->GetInstanceScript();
+    
 
-        if (!instance)
-            return false;
-
-        if (instance->GetData(TYPE_BARON_RUN) != NOT_STARTED)
-            return false;
-
-        if (Group* group = player->GetGroup())
+        struct go_gauntlet_gateAI : public GameObjectAI
         {
-            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+            go_gauntlet_gateAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                Player* pGroupie = itr->GetSource();
-                if (!pGroupie)
-                    continue;
 
-                if (pGroupie->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
-                    !pGroupie->HasAura(SPELL_BARON_ULTIMATUM) &&
-                    pGroupie->GetMap() == go->GetMap())
-                    pGroupie->CastSpell(pGroupie, SPELL_BARON_ULTIMATUM, true);
+            InstanceScript* instance = me->GetInstanceScript();
+
+            if (!instance)
+                return false;
+
+            if (instance->GetData(TYPE_BARON_RUN) != NOT_STARTED)
+                return false;
+
+            if (Group* group = player->GetGroup())
+            {
+                for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                {
+                    Player* pGroupie = itr->GetSource();
+                    if (!pGroupie)
+                        continue;
+
+                    if (pGroupie->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
+                        !pGroupie->HasAura(SPELL_BARON_ULTIMATUM) &&
+                        pGroupie->GetMap() == me->GetMap())
+                        pGroupie->CastSpell(pGroupie, SPELL_BARON_ULTIMATUM, true);
+                }
+            } else if (player->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
+                        !player->HasAura(SPELL_BARON_ULTIMATUM) &&
+                        player->GetMap() == me->GetMap())
+                        player->CastSpell(player, SPELL_BARON_ULTIMATUM, true);
+
+            instance->SetData(TYPE_BARON_RUN, IN_PROGRESS);
+            return false;
+    
             }
-        } else if (player->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
-                    !player->HasAura(SPELL_BARON_ULTIMATUM) &&
-                    player->GetMap() == go->GetMap())
-                    player->CastSpell(player, SPELL_BARON_ULTIMATUM, true);
+        };
 
-        instance->SetData(TYPE_BARON_RUN, IN_PROGRESS);
-        return false;
-    }
-
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_gauntlet_gateAI(go);
+        }
 };
 
 /*######

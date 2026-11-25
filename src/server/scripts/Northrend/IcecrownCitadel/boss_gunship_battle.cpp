@@ -340,20 +340,7 @@ class npc_gunship_boss : public CreatureScript
     public:
         npc_gunship_boss() : CreatureScript("npc_gunship_boss") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (!instance || instance->GetBossState(DATA_GUNSHIP_EVENT) == DONE || instance->GetData(DATA_TEAM_IN_INSTANCE) != (creature->GetEntry() == NPC_GB_MURADIN_BRONZEBEARD ? ALLIANCE : HORDE))
-                return true;
-
-            if ((player->GetGroup() && !player->GetGroup()->IsLeader(player->GetGUID())) && !player->IsGameMaster())
-            {
-                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                return true;
-            }
-
-            return false;
-        }
+        
 
         struct npc_gunship_bossAI : public ScriptedAI
         {
@@ -1183,6 +1170,22 @@ class npc_gunship_boss : public CreatureScript
                 else
                     instance->instance->AddToMap(go);
             }
+                    bool OnGossipHello(Player* player) override
+            {
+
+                InstanceScript* instance = me->GetInstanceScript();
+                if (!instance || instance->GetBossState(DATA_GUNSHIP_EVENT) == DONE || instance->GetData(DATA_TEAM_IN_INSTANCE) != (me->GetEntry() == NPC_GB_MURADIN_BRONZEBEARD ? ALLIANCE : HORDE))
+                    return true;
+
+                if ((player->GetGroup() && !player->GetGroup()->IsLeader(player->GetGUID())) && !player->IsGameMaster())
+                {
+                    player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                    return true;
+                }
+
+                return false;
+        
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -1870,14 +1873,7 @@ class npc_zafod_boombox : public CreatureScript
     public:
         npc_zafod_boombox() : CreatureScript("npc_zafod_boombox") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (!instance || instance->GetBossState(DATA_GUNSHIP_EVENT) == DONE)
-                return true;
-
-            return false;
-        }
+        
 
         struct npc_zafod_boomboxAI : public ScriptedAI
         {
@@ -1892,6 +1888,16 @@ class npc_zafod_boombox : public CreatureScript
                 if (sender == 10885 && action == 0 && !player->HasItemCount(ITEM_GOBLIN_ROCKET_PACK, 1, true))
                     player->AddItem(ITEM_GOBLIN_ROCKET_PACK, 1);
                 return true;
+            }
+                    bool OnGossipHello(Player* player) override
+            {
+
+                InstanceScript* instance = me->GetInstanceScript();
+                if (!instance || instance->GetBossState(DATA_GUNSHIP_EVENT) == DONE)
+                    return true;
+
+                return false;
+        
             }
         };
 

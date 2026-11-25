@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -34,6 +34,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptedGossip.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -318,26 +319,43 @@ class npc_overseer_nuaar : public CreatureScript
 public:
     npc_overseer_nuaar() : CreatureScript("npc_overseer_nuaar") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
+
+
+    
+        struct npc_overseer_nuaarAI : public ScriptedAI
         {
-            player->SEND_GOSSIP_MENU(10533, creature->GetGUID());
-            player->AreaExploredOrEventHappens(10682);
+            npc_overseer_nuaarAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
+            {
+
+            if (player->GetQuestStatus(10682) == QUEST_STATUS_INCOMPLETE)
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_ON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+            player->SEND_GOSSIP_MENU(10532, me->GetGUID());
+
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    if (action == GOSSIP_ACTION_INFO_DEF+1)
+                    {
+                        player->SEND_GOSSIP_MENU(10533, me->GetGUID());
+                        player->AreaExploredOrEventHappens(10682);
+                    }
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_overseer_nuaarAI(creature);
         }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(10682) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_ON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(10532, creature->GetGUID());
-
-        return true;
-    }
 };
 
 /*######
@@ -352,32 +370,49 @@ class npc_saikkal_the_elder : public CreatureScript
 public:
     npc_saikkal_the_elder() : CreatureScript("npc_saikkal_the_elder") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
+
+
+    
+        struct npc_saikkal_the_elderAI : public ScriptedAI
         {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_STE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                player->SEND_GOSSIP_MENU(10795, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
-                player->SEND_GOSSIP_MENU(10796, creature->GetGUID());
-                break;
+            npc_saikkal_the_elderAI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool OnGossipHello(Player* player) override
+            {
+
+            if (player->GetQuestStatus(10980) == QUEST_STATUS_INCOMPLETE)
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_STE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+            player->SEND_GOSSIP_MENU(10794, me->GetGUID());
+
+            return true;
+    
+            }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                    player->PlayerTalkClass->ClearMenus();
+                    switch (action)
+                    {
+                        case GOSSIP_ACTION_INFO_DEF+1:
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_STE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                            player->SEND_GOSSIP_MENU(10795, me->GetGUID());
+                            break;
+                        case GOSSIP_ACTION_INFO_DEF+2:
+                            player->TalkedToCreature(me->GetEntry(), me->GetGUID());
+                            player->SEND_GOSSIP_MENU(10796, me->GetGUID());
+                            break;
+                    }
+                    return true;
+    
+            }
+};
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_saikkal_the_elderAI(creature);
         }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(10980) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_STE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(10794, creature->GetGUID());
-
-        return true;
-    }
 };
 
 /*######
@@ -389,43 +424,56 @@ class go_legion_obelisk : public GameObjectScript
 public:
     go_legion_obelisk() : GameObjectScript("go_legion_obelisk") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        if (player->GetQuestStatus(10821) == QUEST_STATUS_INCOMPLETE)
+    
+        struct go_legion_obeliskAI : public GameObjectAI
         {
-            switch (go->GetEntry())
+            go_legion_obeliskAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                case LEGION_OBELISK_ONE:
-                      obelisk_one = true;
-                     break;
-                case LEGION_OBELISK_TWO:
-                      obelisk_two = true;
-                     break;
-                case LEGION_OBELISK_THREE:
-                      obelisk_three = true;
-                     break;
-                case LEGION_OBELISK_FOUR:
-                      obelisk_four = true;
-                     break;
-                case LEGION_OBELISK_FIVE:
-                      obelisk_five = true;
-                     break;
+
+            if (player->GetQuestStatus(10821) == QUEST_STATUS_INCOMPLETE)
+            {
+                switch (me->GetEntry())
+                {
+                    case LEGION_OBELISK_ONE:
+                          obelisk_one = true;
+                         break;
+                    case LEGION_OBELISK_TWO:
+                          obelisk_two = true;
+                         break;
+                    case LEGION_OBELISK_THREE:
+                          obelisk_three = true;
+                         break;
+                    case LEGION_OBELISK_FOUR:
+                          obelisk_four = true;
+                         break;
+                    case LEGION_OBELISK_FIVE:
+                          obelisk_five = true;
+                         break;
+                }
+
+                if (obelisk_one == true && obelisk_two == true && obelisk_three == true && obelisk_four == true && obelisk_five == true)
+                {
+                    me->SummonCreature(19963, 2943.40f, 4778.20f, 284.49f, 0.94f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000ms);
+                    //reset global var
+                    obelisk_one = false;
+                    obelisk_two = false;
+                    obelisk_three = false;
+                    obelisk_four = false;
+                    obelisk_five = false;
+                }
             }
 
-            if (obelisk_one == true && obelisk_two == true && obelisk_three == true && obelisk_four == true && obelisk_five == true)
-            {
-                go->SummonCreature(19963, 2943.40f, 4778.20f, 284.49f, 0.94f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000ms);
-                //reset global var
-                obelisk_one = false;
-                obelisk_two = false;
-                obelisk_three = false;
-                obelisk_four = false;
-                obelisk_five = false;
+            return true;
+    
             }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_legion_obeliskAI(go);
         }
-
-        return true;
-    }
 };
 
 /*######
@@ -554,13 +602,26 @@ class go_thunderspike : public GameObjectScript
     public:
         go_thunderspike() : GameObjectScript("go_thunderspike") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_thunderspikeAI : public GameObjectAI
         {
-            if (player->GetQuestStatus(QUEST_THUNDERSPIKE) == QUEST_STATUS_INCOMPLETE && !go->FindNearestCreature(NPC_GOR_GRIMGUT, 25.0f, true))
-                if (Creature* gorGrimgut = go->SummonCreature(NPC_GOR_GRIMGUT, -2413.4f, 6914.48f, 25.01f, 3.67f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000ms))
-                    gorGrimgut->AI()->AttackStart(player);
+            go_thunderspikeAI(GameObject* go) : GameObjectAI(go) { }
 
-            return true;
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                if (player->GetQuestStatus(QUEST_THUNDERSPIKE) == QUEST_STATUS_INCOMPLETE && !me->FindNearestCreature(NPC_GOR_GRIMGUT, 25.0f, true))
+                    if (Creature* gorGrimgut = me->SummonCreature(NPC_GOR_GRIMGUT, -2413.4f, 6914.48f, 25.01f, 3.67f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000ms))
+                        gorGrimgut->AI()->AttackStart(player);
+
+                return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_thunderspikeAI(go);
         }
 };
 
@@ -1092,14 +1153,27 @@ class go_simon_cluster : public GameObjectScript
     public:
         go_simon_cluster() : GameObjectScript("go_simon_cluster") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        
+        struct go_simon_clusterAI : public GameObjectAI
         {
-            if (Creature* bunny = go->FindNearestCreature(NPC_SIMON_BUNNY, 12.0f, true))
-                bunny->AI()->SetData(go->GetEntry(), 0);
+            go_simon_clusterAI(GameObject* go) : GameObjectAI(go) { }
 
-            player->CastSpell(player, go->GetGOInfo()->goober.spellId, true);
-            go->AddUse();
-            return true;
+            bool OnGossipHello(Player* player, bool isUse) override
+            {
+
+                if (Creature* bunny = me->FindNearestCreature(NPC_SIMON_BUNNY, 12.0f, true))
+                    bunny->AI()->SetData(me->GetEntry(), 0);
+
+                player->CastSpell(player, me->GetGOInfo()->goober.spellId, true);
+                me->AddUse();
+                return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_simon_clusterAI(go);
         }
 };
 
@@ -1118,27 +1192,44 @@ class go_apexis_relic : public GameObjectScript
     public:
         go_apexis_relic() : GameObjectScript("go_apexis_relic") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
-        {
-            player->PrepareGossipMenu(go, go->GetGOInfo()->questgiver.gossipID);
-            player->SendPreparedGossip(go);
-            return true;
-        }
+        
 
-        bool OnGossipSelect(Player* player, GameObject* go, uint32 /*sender*/, uint32 /*action*/) override
+    
+        struct go_apexis_relicAI : public GameObjectAI
         {
-            player->CLOSE_GOSSIP_MENU();
+            go_apexis_relicAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool large = (go->GetEntry() == GO_APEXIS_MONUMENT);
-            if (player->HasItemCount(ITEM_APEXIS_SHARD, large ? 35 : 1))
+            bool OnGossipHello(Player* player, bool isUse) override
             {
-                player->CastSpell(player, large ? SPELL_TAKE_REAGENTS_GROUP : SPELL_TAKE_REAGENTS_SOLO, false);
 
-                if (Creature* bunny = player->SummonCreature(NPC_SIMON_BUNNY, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ()))
-                    bunny->AI()->SetGUID(player->GetGUID(), large);
+                player->PrepareGossipMenu(me, me->GetGOInfo()->questgiver.gossipID);
+                player->SendPreparedGossip(me);
+                return true;
+        
             }
+        
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
 
-            return true;
+                        player->CLOSE_GOSSIP_MENU();
+
+                        bool large = (me->GetEntry() == GO_APEXIS_MONUMENT);
+                        if (player->HasItemCount(ITEM_APEXIS_SHARD, large ? 35 : 1))
+                        {
+                            player->CastSpell(player, large ? SPELL_TAKE_REAGENTS_GROUP : SPELL_TAKE_REAGENTS_SOLO, false);
+
+                            if (Creature* bunny = player->SummonCreature(NPC_SIMON_BUNNY, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()))
+                                bunny->AI()->SetGUID(player->GetGUID(), large);
+                        }
+
+                        return true;
+        
+            }
+};
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_apexis_relicAI(go);
         }
 };
 

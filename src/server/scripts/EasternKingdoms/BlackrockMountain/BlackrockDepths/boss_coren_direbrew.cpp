@@ -71,33 +71,9 @@ class npc_coren_direbrew : public CreatureScript
     public:
         npc_coren_direbrew() : CreatureScript("npc_coren_direbrew") { }
 
-        bool OnGossipHello(Player* player, Creature* creature)
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
+    
 
-            player->ADD_GOSSIP_ITEM_DB(GOSSIP_ID_COREN, GOSSIP_ITEM_START, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-        {
-            player->PlayerTalkClass->ClearMenus();
-
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                creature->SetFaction(FACTION_HOSTILE_COREN);
-                creature->AI()->AttackStart(player);
-                creature->AI()->DoZoneInCombat();
-
-                creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
-
-                player->CLOSE_GOSSIP_MENU();
-            }
-
-            return true;
-        }
+    
 
         struct npc_coren_direbrewAI : public ScriptedAI
         {
@@ -232,7 +208,39 @@ class npc_coren_direbrew : public CreatureScript
                 uint32 _disarmTimer;
                 bool _spawnedIlsa;
                 bool _spawnedUrsula;
-        };
+        
+            bool OnGossipHello(Player* player) override
+            {
+
+                        if (me->IsQuestGiver())
+                            player->PrepareQuestMenu(me->GetGUID());
+
+                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_ID_COREN, GOSSIP_ITEM_START, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());
+                        return true;
+        
+            }
+
+            bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+            {
+
+                        player->PlayerTalkClass->ClearMenus();
+
+                        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                        {
+                            me->SetFaction(FACTION_HOSTILE_COREN);
+                            me->AI()->AttackStart(player);
+                            me->AI()->DoZoneInCombat();
+
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+
+                            player->CLOSE_GOSSIP_MENU();
+                        }
+
+                        return true;
+        
+            }
+};
 
     CreatureAI* GetAI(Creature* creature) const
     {

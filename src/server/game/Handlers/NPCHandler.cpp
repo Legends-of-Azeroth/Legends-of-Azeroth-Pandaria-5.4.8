@@ -410,7 +410,11 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::GossipHello& packe
     }
 
     _player->PlayerTalkClass->ClearMenus();
-    if (!sScriptMgr->OnGossipHello(_player, unit) && !unit->AI()->OnGossipHello(_player))
+    bool handled = false;
+#ifdef ELUNA
+    handled = sHookMgr->OnGossipHello(_player, unit);
+#endif
+    if (!handled && !unit->AI()->OnGossipHello(_player))
     {
         //_player->TalkedToCreature(unit->GetEntry(), unit->GetGUID());
         _player->PrepareGossipMenu(unit, unit->GetGossipMenuId(), true);

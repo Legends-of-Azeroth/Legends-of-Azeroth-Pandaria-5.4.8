@@ -66,29 +66,7 @@ class boss_ionar : public CreatureScript
     public:
         boss_ionar() : CreatureScript("boss_ionar") { }
 
-        bool OnDummyEffect(Unit* /*pcaster*/, uint32 SpellId, SpellEffIndex EffIndex, Creature* Target) override
-        {
-            // always check spellid and effectindex
-            if (SpellId == SPELL_DISPERSE && EffIndex == 0)
-            {
-                if (Target->GetEntry() != NPC_IONAR)
-                    return true;
 
-                for (uint8 i = 0; i < DATA_MAX_SPARKS; ++i)
-                    Target->CastSpell(Target, SPELL_SUMMON_SPARK, true);
-
-                Target->AttackStop();
-                Target->SetVisible(false);
-                Target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
-
-                Target->GetMotionMaster()->Clear();
-                Target->GetMotionMaster()->MoveIdle();
-
-                // always return true when we are handling this spell and effect
-                return true;
-            }
-            return false;
-        }
 
         struct boss_ionarAI : public ScriptedAI
         {
@@ -287,7 +265,33 @@ class boss_ionar : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-        };
+        
+            bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex) override
+            {
+
+                        // always check spellid and effectindex
+                        if (spellId == SPELL_DISPERSE && effIndex == 0)
+                        {
+                            if (me->GetEntry() != NPC_IONAR)
+                                return true;
+
+                            for (uint8 i = 0; i < DATA_MAX_SPARKS; ++i)
+                                me->CastSpell(me, SPELL_SUMMON_SPARK, true);
+
+                            me->AttackStop();
+                            me->SetVisible(false);
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
+
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MoveIdle();
+
+                            // always return true when we are handling this spell and effect
+                            return true;
+                        }
+                        return false;
+        
+            }
+};
 
         CreatureAI* GetAI(Creature* creature) const override
         {
