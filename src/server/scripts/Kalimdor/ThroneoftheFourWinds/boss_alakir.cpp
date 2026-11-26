@@ -303,7 +303,7 @@ class boss_alakir : public CreatureScript
 
             void SetPhase(uint8 phase)
             {
-                uint32 timeToSquallLine = events.GetTimeUntilEvent(EVENT_SQUALL_LINE);
+                uint32 timeToSquallLine = events.GetTimeUntilEvent(EVENT_SQUALL_LINE).count();
 
                 events.Reset();
                 events.SetPhase(phase);

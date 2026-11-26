@@ -15,6 +15,7 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "GameObjectAI.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "Player.h"
@@ -1379,19 +1380,30 @@ class gob_thundermar_ale_keg : public GameObjectScript
 {
     public:
         gob_thundermar_ale_keg() : GameObjectScript("gob_thundermar_ale_keg") { }
-
-        bool OnReportUse(Player* player, GameObject* go) override
+        struct gob_thundermar_ale_kegAI : public GameObjectAI
         {
+            gob_thundermar_ale_kegAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnReportUse(Player* player) override
+            {
             if (player->GetQuestStatus(QUEST_TOTAL_WAR) == QUEST_STATUS_INCOMPLETE)
             {
                 player->KilledMonsterCredit(46551);
-                go->ForcedDespawn();
+                me->ForcedDespawn();
                 return true;
             }
 
-            go->CastSpell(player, 86855);
+            me->CastSpell(player, 86855);
             return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new gob_thundermar_ale_kegAI(go);
         }
+
 };
  
 void AddSC_twilight_highlands()

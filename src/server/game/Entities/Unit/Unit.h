@@ -2221,7 +2221,7 @@ public:
     // DynamicObject management
     void _RegisterDynObject(DynamicObject* dynObj);
     void _UnregisterDynObject(DynamicObject* dynObj);
-    DynamicObject* GetDynObject(uint32 spellId);
+    DynamicObject* GetDynObject(uint32 spellId) const;
     int32 CountDynObject(uint32 spellId);
     void GetDynObjectList(std::list<DynamicObject*> &list, uint32 spellId);
     void RemoveDynObject(uint32 spellId);
@@ -2247,7 +2247,7 @@ public:
     void RemoveAllGameObjects();
 
     uint32 CalculateDamage(WeaponAttackType attType, bool normalized, bool addTotalPct);
-    float GetAPMultiplier(WeaponAttackType attType, bool normalized);
+    float GetAPMultiplier(WeaponAttackType attType, bool normalized) const;
     void ModifyAuraState(AuraStateType flag, bool apply);
     uint32 BuildAuraStateUpdateForTarget(Unit* target) const;
     bool HasAuraState(AuraStateType flag, SpellInfo const* spellProto = NULL, Unit const* Caster = NULL) const;

@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -24,6 +24,9 @@
 #include "TemporarySummon.h"
 #include "CreatureAI.h"
 #include "SpellMgr.h"
+#include <initializer_list>
+#include <map>
+#include <vector>
 
 template<class T>
 inline
@@ -327,9 +330,16 @@ class EventMap
     * - Pattern: 0xPPGGEEEE
     */
     typedef std::multimap<uint32, uint32> EventStore;
+    typedef std::map<uint32, std::vector<Milliseconds>> EventSeriesStore;
 
     public:
-        EventMap() : _time(0), _phase(0) { }
+        using EventId = uint32;
+        using GroupIndex = uint8;
+        using GroupMask = uint8;
+        using PhaseIndex = uint8;
+        using PhaseMask = uint8;
+
+        EventMap() : _time(0), _phase(0), _lastEvent(0) { }
 
         /**
         * @name Reset
@@ -338,6 +348,7 @@ class EventMap
         void Reset()
         {
             _eventMap.clear();
+            _timerSeries.clear();
             _time = 0;
             _phase = 0;
         }
@@ -350,6 +361,16 @@ class EventMap
         void Update(uint32 time)
         {
             _time += time;
+        }
+
+        /**
+        * @name Update
+        * @brief Updates the timer of the event map.
+        * @param time Value as std::chrono::duration to be added to time.
+        */
+        void Update(Milliseconds const& time)
+        {
+            Update(time.count());
         }
 
         /**
@@ -527,13 +548,24 @@ class EventMap
         }
 
         /**
+        * @name Repeat
+        * @brief Repeats the most recently executed event.
+        * @param time Time until in milliseconds as std::chrono::duration the event occurs.
+        */
+        void Repeat(Milliseconds const& time)
+        {
+            _eventMap.insert(EventStore::value_type(_time + time.count(), _lastEvent));
+        }
+
+        /**
         * @name RepeatEvent
         * @brief Repeats the most recently executed event.
         * @param minTime The minimum time until the event occurs as std::chrono type.
         * @param maxTime The maximum time until the event occurs as std::chrono type.
         */
-        void Repeat(Milliseconds minTime, Milliseconds maxTime){
-            RepeatEvent(randtime(minTime, maxTime));            
+        void Repeat(Milliseconds minTime, Milliseconds maxTime)
+        {
+            Repeat(randtime(minTime, maxTime));
         }
 
         /**
@@ -564,7 +596,10 @@ class EventMap
                 else
                 {
                     uint32 eventId = (itr->second & 0x0000FFFF);
+                    uint32 eventData = itr->second;
+                    _lastEvent = eventData;
                     _eventMap.erase(itr);
+                    ScheduleNextFromSeries(eventData);
                     return eventId;
                 }
             }
@@ -653,6 +688,35 @@ class EventMap
         }
 
         /**
+        * @name SetMinimalDelay
+        * @brief Increase event delay if smaller than given delay.
+        * @param eventId The id of the event.
+        * @param delay Minimum delay for given event.
+        */
+        void SetMinimalDelay(EventId eventId, Milliseconds const& delay)
+        {
+            if (Empty())
+                return;
+
+            uint32 time = _time + delay.count();
+
+            for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+            {
+                if (eventId == (itr->second & 0x0000FFFF))
+                {
+                    if (itr->first < time)
+                    {
+                        _eventMap.insert(EventStore::value_type(time, itr->second));
+                        itr = _eventMap.erase(itr);
+                        continue;
+                    }
+                }
+
+                ++itr;
+            }
+        }
+
+        /**
         * @name CancelEvent
         * @brief Cancels all events of the specified id.
         * @param eventId Event id to cancel.
@@ -666,6 +730,14 @@ class EventMap
             {
                 if (eventId == (itr->second & 0x0000FFFF))
                     _eventMap.erase(itr++);
+                else
+                    ++itr;
+            }
+
+            for (EventSeriesStore::iterator itr = _timerSeries.begin(); itr != _timerSeries.end();)
+            {
+                if (eventId == (itr->first & 0x0000FFFF))
+                    _timerSeries.erase(itr++);
                 else
                     ++itr;
             }
@@ -685,6 +757,14 @@ class EventMap
             {
                 if (itr->second & (1 << (group + 15)))
                     _eventMap.erase(itr++);
+                else
+                    ++itr;
+            }
+
+            for (EventSeriesStore::iterator itr = _timerSeries.begin(); itr != _timerSeries.end();)
+            {
+                if (itr->first & (1 << (group + 15)))
+                    _timerSeries.erase(itr++);
                 else
                     ++itr;
             }
@@ -734,13 +814,13 @@ class EventMap
         * @param Id of the event.
         * @return Time of next event.
         */
-        uint32 GetTimeUntilEvent(uint32 eventId) const
+        Milliseconds GetTimeUntilEvent(uint32 eventId) const
         {
             for (EventStore::const_iterator itr = _eventMap.begin(); itr != _eventMap.end(); ++itr)
                 if (eventId == (itr->second & 0x0000FFFF))
-                    return itr->first - _time;
+                    return Milliseconds(int64(itr->first) - int64(_time));
 
-            return std::numeric_limits<uint32>::max();
+            return Milliseconds::max();
         }
 
         uint32 IsScheduled(uint32 eventId) const
@@ -752,7 +832,78 @@ class EventMap
             return false;
         }
 
+        /**
+        * @name HasEventScheduled
+        * @brief Returns whether an event is scheduled.
+        * @param eventId The id of the event.
+        * @return True if event is scheduled.
+        */
+        bool HasEventScheduled(EventId eventId) const
+        {
+            return IsScheduled(eventId) != 0;
+        }
+
+        /**
+        * @name ScheduleNextFromSeries
+        * @brief Schedules packed event data with next timer from series.
+        * @param eventData Full event data, including group and phase.
+        */
+        void ScheduleNextFromSeries(uint32 eventData)
+        {
+            EventSeriesStore::iterator itr = _timerSeries.find(eventData);
+            if (itr == _timerSeries.end() || itr->second.empty())
+                return;
+
+            ScheduleEvent(eventData, itr->second.front());
+
+            if (itr->second.size() > 1)
+                itr->second.erase(itr->second.begin());
+            else
+                _timerSeries.erase(itr);
+        }
+
+        /**
+        * @name ScheduleEventSeries
+        * @brief Schedules event with first value of series and requeues with the next.
+        * @param eventId Id of the event.
+        * @param group Group of the event.
+        * @param phase Phase of the event.
+        * @param timeSeries Times the event should be scheduled after each trigger.
+        */
+        void ScheduleEventSeries(EventId eventId, GroupIndex group, PhaseIndex phase, std::initializer_list<Milliseconds> timeSeries)
+        {
+            if (group > 8 || phase > 8 || !timeSeries.size())
+                return;
+
+            uint32 eventData = PackEventId(eventId, group, phase);
+            std::vector<Milliseconds>& series = _timerSeries[eventData];
+            series.insert(series.end(), timeSeries.begin(), timeSeries.end());
+            ScheduleNextFromSeries(eventData);
+        }
+
+        /**
+        * @name ScheduleEventSeries
+        * @brief Schedules event with first value of series and requeues with the next.
+        * @param eventId Id of the event.
+        * @param timeSeries Times the event should be scheduled after each trigger.
+        */
+        void ScheduleEventSeries(EventId eventId, std::initializer_list<Milliseconds> timeSeries)
+        {
+            ScheduleEventSeries(eventId, 0, 0, timeSeries);
+        }
+
     private:
+        static uint32 PackEventId(EventId eventId, GroupIndex group, PhaseIndex phase)
+        {
+            if (group && group <= 8)
+                eventId |= (1 << (group + 15));
+
+            if (phase && phase <= 8)
+                eventId |= (1 << (phase + 23));
+
+            return eventId;
+        }
+
         /**
         * @name _time
         * @brief Internal timer.
@@ -783,6 +934,18 @@ class EventMap
         * details.
         */
         EventStore _eventMap;
+
+        /**
+        * @name _lastEvent
+        * @brief Stores information on the most recently executed event.
+        */
+        uint32 _lastEvent;
+
+        /**
+        * @name _timerSeries
+        * @brief Time series which requeue themselves until the series is empty.
+        */
+        EventSeriesStore _timerSeries;
 };
 
 enum AITarget

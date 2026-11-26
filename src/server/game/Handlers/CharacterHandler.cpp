@@ -767,7 +767,10 @@ void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::CharDelete& p
 
     // can't delete loaded character
     if (ObjectAccessor::FindPlayer(guid))
+    {
+        sScriptMgr->OnPlayerFailedDelete(guid, GetAccountId());
         return;
+    }
 
     uint32 accountId = 0;
     uint8 level = 0;
@@ -776,6 +779,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::CharDelete& p
     // is guild leader
     if (sGuildMgr->GetGuildByLeader(guid))
     {
+        sScriptMgr->OnPlayerFailedDelete(guid, GetAccountId());
         WorldPacket data(SMSG_DELETE_CHAR, 1);
         data << uint8(CHAR_DELETE_FAILED_GUILD_LEADER);
         SendPacket(&data);
@@ -795,7 +799,10 @@ void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::CharDelete& p
 
     // prevent deleting other players' characters using cheating tools
     if (accountId != GetAccountId())
+    {
+        sScriptMgr->OnPlayerFailedDelete(guid, GetAccountId());
         return;
+    }
 
     std::string hwid;
     if (QueryResult result = LoginDatabase.PQuery("SELECT project_hwid FROM account WHERE id = '{}'", GetAccountId()))

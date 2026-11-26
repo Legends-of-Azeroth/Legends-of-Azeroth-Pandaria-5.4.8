@@ -4136,16 +4136,27 @@ class go_conspicuously_empty_shell : public GameObjectScript
 {
     public:
         go_conspicuously_empty_shell() : GameObjectScript("go_conspicuously_empty_shell") { }
-
-        bool OnReportUse(Player* player, GameObject* go) override
+        struct go_conspicuously_empty_shellAI : public GameObjectAI
         {
-            if (!go->FindNearestCreature(RARE_CHELON, 50.0f, true))
-                if (Creature* creat = go->SummonCreature(RARE_CHELON, go->GetPosition()))
+            go_conspicuously_empty_shellAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnReportUse(Player* player) override
+            {
+            if (!me->FindNearestCreature(RARE_CHELON, 50.0f, true))
+                if (Creature* creat = me->SummonCreature(RARE_CHELON, me->GetPosition()))
                     creat->Attack(player, false);
 
-            go->ForcedDespawn();
+            me->ForcedDespawn();
             return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_conspicuously_empty_shellAI(go);
         }
+
 };
 
 class go_challengers_stone : public GameObjectScript

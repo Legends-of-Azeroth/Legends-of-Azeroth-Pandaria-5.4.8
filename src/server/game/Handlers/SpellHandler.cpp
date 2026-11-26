@@ -332,8 +332,6 @@ void WorldSession::HandleGameobjectReportUse(WorldPackets::GameObject::GameObjRe
         return;
 #endif
 
-    if (sScriptMgr->OnReportUse(_player, go))
-        return;
 
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT, go->GetEntry());
 }

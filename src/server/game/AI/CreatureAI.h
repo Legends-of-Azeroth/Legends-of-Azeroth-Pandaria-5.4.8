@@ -21,6 +21,8 @@
 #include "Creature.h"
 #include "Optional.h"
 #include "UnitAI.h"
+
+class AuraApplication;
 #include "Common.h"
 #include "Duration.h"
 #include <vector>
@@ -162,6 +164,13 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         // Called after spell is casted
         virtual void SpellCasted(Spell const* spell) { }
+
+        virtual void OnSpellCast(SpellInfo const* /*spell*/) { }
+        virtual void OnSpellFailed(SpellInfo const* /*spell*/) { }
+        virtual void OnSpellStart(SpellInfo const* /*spell*/) { }
+        virtual void OnChannelFinished(SpellInfo const* /*spell*/) { }
+        virtual void OnAuraApplied(AuraApplication const* /*aurApp*/) { }
+        virtual void OnAuraRemoved(AuraApplication const* /*aurApp*/) { }
 
         // Called when spellcast was interrupted for any reason
         virtual void CastInterrupted(SpellInfo const* /*spell*/) {}

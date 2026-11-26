@@ -3608,6 +3608,11 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
 
         CallScriptOnSpellStartHandlers();
 
+        // Call CreatureAI hook OnSpellStart
+        if (Creature* caster = m_caster->ToCreature())
+            if (caster->IsAIEnabled)
+                caster->AI()->OnSpellStart(GetSpellInfo());
+
         SendSpellStart();
 
         // set target for proper facing
@@ -3921,6 +3926,12 @@ void Spell::cast(bool skipCheck)
                     bg->UpdatePlayerScore(m_caster->ToPlayer(), SCORE_SPELLS_PRECAST, 1);
 
     }
+
+    // Call CreatureAI hook OnSpellCast
+    if (m_originalCaster)
+        if (Creature* caster = m_originalCaster->ToCreature())
+            if (caster->IsAIEnabled)
+                caster->AI()->OnSpellCast(GetSpellInfo());
 
     SetExecutedCurrently(false);
 }
@@ -4266,6 +4277,11 @@ void Spell::update(uint32 difftime)
             {
                 SendChannelUpdate(0);
                 finish();
+
+                // Only completed channeling - everything else is handled by interrupts
+                if (Creature* creatureCaster = m_caster->ToCreature())
+                    if (creatureCaster->IsAIEnabled)
+                        creatureCaster->AI()->OnChannelFinished(m_spellInfo);
             }
             break;
         }

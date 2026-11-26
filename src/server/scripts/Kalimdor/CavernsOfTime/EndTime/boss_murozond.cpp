@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -15,6 +15,7 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "GameObjectAI.h"
 #include "ScriptPCH.h"
 #include "end_time.h"
 #include "Group.h"
@@ -549,14 +550,17 @@ class go_murozond_hourglass_of_time : public GameObjectScript
 {
     public:
         go_murozond_hourglass_of_time() : GameObjectScript("go_murozond_hourglass_of_time") { }
-
-        bool OnReportUse(Player* /*player*/, GameObject* go) override
+        struct go_murozond_hourglass_of_timeAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
+            go_murozond_hourglass_of_timeAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnReportUse(Player* /*player*/) override
+            {
+            InstanceScript* instance = me->GetInstanceScript();
             if (!instance || instance->GetBossState(DATA_MUROZOND) != IN_PROGRESS)
                 return false;
 
-            if (Creature* pMurozond = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_MUROZOND)))
+            if (Creature* pMurozond = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MUROZOND)))
             {
                 if (pMurozond->AI()->GetData(TYPE_HOURGLASS) == 0)
                     return true;
@@ -565,7 +569,15 @@ class go_murozond_hourglass_of_time : public GameObjectScript
             }
 
             return false;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_murozond_hourglass_of_timeAI(go);
         }
+
 };
 
 void AddSC_boss_murozond()

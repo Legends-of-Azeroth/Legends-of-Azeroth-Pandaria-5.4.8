@@ -448,7 +448,7 @@ class boss_bd_nefarian : public CreatureScript
             void EnterPhaseAir()
             {
                 phase = PHASE_FLIGHT;
-                uint32 timeToForcedLanding = events.GetTimeUntilEvent(EVENT_FORCED_TIMED_LANDING);
+                uint32 timeToForcedLanding = events.GetTimeUntilEvent(EVENT_FORCED_TIMED_LANDING).count();
                 events.Reset();
                 events.SetPhase(PHASE_FLIGHT);
                 events.ScheduleEvent(EVENT_SHADOWFLAME_BARRAGE, 4000,   PHASE_FLIGHT);

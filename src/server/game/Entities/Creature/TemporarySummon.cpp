@@ -17,6 +17,7 @@
 
 #include "Log.h"
 #include "ObjectAccessor.h"
+#include "GameObjectAI.h"
 #include "CreatureAI.h"
 #include "ObjectMgr.h"
 #include "TemporarySummon.h"
@@ -302,6 +303,8 @@ void TempSummon::InitSummon()
     {
         if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
             owner->ToCreature()->AI()->JustSummoned(this);
+        if (GameObject* ownerGO = ObjectAccessor::GetGameObject(*this, GetSummonerGUID()))
+            ownerGO->AI()->JustSummoned(this);
         if (IsAIEnabled)
             AI()->IsSummonedBy(owner);
     }
@@ -333,6 +336,8 @@ void TempSummon::UnSummon(uint32 msTime)
     Unit* owner = GetSummoner();
     if (owner && owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
         owner->ToCreature()->AI()->SummonedCreatureDespawn(this);
+    if (GameObject* ownerGO = ObjectAccessor::GetGameObject(*this, GetSummonerGUID()))
+        ownerGO->AI()->SummonedCreatureDespawn(this);
 
     if (IsAIEnabled)
         AI()->Unsummoned();

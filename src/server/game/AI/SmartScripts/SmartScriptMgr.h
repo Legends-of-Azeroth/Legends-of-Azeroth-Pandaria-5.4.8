@@ -179,8 +179,10 @@ enum SMART_EVENT
     SMART_EVENT_DISTANCE_GAMEOBJECT      = 76,      // guid, entry, distance, repeat
     SMART_EVENT_COUNTER_SET              = 77,      // id, value, cooldownMin, cooldownMax
     SMART_EVENT_ON_GO_REPORT_USE         = 78,      // id
+    SMART_EVENT_ON_AURA_APPLIED          = 79,      // SpellID, CooldownMin, CooldownMax
+    SMART_EVENT_ON_AURA_REMOVED          = 80,      // SpellID, CooldownMin, CooldownMax
 
-    SMART_EVENT_END                      = 79
+    SMART_EVENT_END                      = 81
 };
 
 struct SmartEvent
@@ -423,6 +425,13 @@ struct SmartEvent
             uint32 cooldownMin;
             uint32 cooldownMax;
         } counter;
+
+        struct
+        {
+            uint32 spell;
+            uint32 cooldownMin;
+            uint32 cooldownMax;
+        } spellCast;
 
         struct
         {
@@ -1410,7 +1419,9 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     { SMART_EVENT_DISTANCE_CREATURE,        SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_DISTANCE_GAMEOBJECT,       SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     { SMART_EVENT_COUNTER_SET,              SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
-    { SMART_EVENT_ON_GO_REPORT_USE,         SMART_SCRIPT_TYPE_MASK_GAMEOBJECT }
+    { SMART_EVENT_ON_GO_REPORT_USE,         SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
+    { SMART_EVENT_ON_AURA_APPLIED,          SMART_SCRIPT_TYPE_MASK_CREATURE },
+    { SMART_EVENT_ON_AURA_REMOVED,          SMART_SCRIPT_TYPE_MASK_CREATURE }
 };
 
 enum SmartEventFlags

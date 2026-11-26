@@ -1688,7 +1688,7 @@ class go_ulduar_tower : public GameObjectScript
         {
             go_ulduar_towerAI(GameObject* go) : GameObjectAI(go) { }
 
-            void Destroyed(Player* /*player*/, uint32 /*eventId*/) override
+            void Destroyed(WorldObject* /*attacker*/, uint32 /*eventId*/) override
             {
                 InstanceScript* instance = me->GetInstanceScript();
                 if (!instance)

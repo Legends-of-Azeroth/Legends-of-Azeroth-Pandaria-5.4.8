@@ -1274,7 +1274,7 @@ class boss_the_lich_king : public CreatureScript
                             Talk(SAY_LK_SUMMON_VALKYR);
                             DoCastAOE(SPELL_SUMMON_VALKYR);
                             events.ScheduleEvent(EVENT_SUMMON_VALKYR, urand(45000, 50000), 0, PHASE_TWO);
-                            if (events.GetTimeUntilEvent(EVENT_DEFILE) < (IsHeroic() ? 6000u : 3000u)) // Valkyrs in heroic are delayed by 1/2/3 seconds, so we compensate for that
+                            if (events.GetTimeUntilEvent(EVENT_DEFILE) < Milliseconds(IsHeroic() ? 6000 : 3000)) // Valkyrs in heroic are delayed by 1/2/3 seconds, so we compensate for that
                                 events.RescheduleEvent(EVENT_DEFILE, (IsHeroic() ? 6000 : 3000), 0, PHASE_TWO_THREE);
                             break;
                         case EVENT_START_ATTACK:
