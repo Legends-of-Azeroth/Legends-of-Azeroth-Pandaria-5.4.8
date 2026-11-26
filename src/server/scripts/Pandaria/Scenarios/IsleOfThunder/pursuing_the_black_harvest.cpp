@@ -1349,9 +1349,12 @@ class go_black_harvest_jubekas_mark : public GameObjectScript
 {
     public:
         go_black_harvest_jubekas_mark() : GameObjectScript("go_black_harvest_jubekas_mark") { }
-
-        bool OnReportUse(Player* player, GameObject* go) override
+        struct go_black_harvest_jubekas_markAI : public GameObjectAI
         {
+            go_black_harvest_jubekas_markAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnReportUse(Player* player) override
+            {
             if (player->GetQuestStatus(QUEST_SEEK_THE_SIGNAL) == QUEST_STATUS_INCOMPLETE)
             {
                 player->KilledMonsterCredit(NPC_BLACK_TEMPLE_ENTRANCE);
@@ -1365,7 +1368,15 @@ class go_black_harvest_jubekas_mark : public GameObjectScript
             }
 
             return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_black_harvest_jubekas_markAI(go);
         }
+
 };
 
 // Place Empowered Soulcore 138680

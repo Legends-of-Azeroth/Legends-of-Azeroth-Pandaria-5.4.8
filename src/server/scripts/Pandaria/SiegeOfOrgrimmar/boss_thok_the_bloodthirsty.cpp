@@ -771,7 +771,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                                 berserkerEvents.RescheduleEvent(EVENT_SHOCK_BLAST, 2.5 * IN_MILLISECONDS);
 
                             // also delay for fearsome roar to victim
-                            if (events.GetTimeUntilEvent(EVENT_FEARSOME_ROAR) < 1.5 * IN_MILLISECONDS && canUseShockBlast()) // delay only if it possible
+                            if (events.GetTimeUntilEvent(EVENT_FEARSOME_ROAR) < Milliseconds(1500) && canUseShockBlast()) // delay only if it possible
                                 events.RescheduleEvent(EVENT_FEARSOME_ROAR, 1.5 * IN_MILLISECONDS);
                             break;
                         case EVENT_FEARSOME_ROAR:

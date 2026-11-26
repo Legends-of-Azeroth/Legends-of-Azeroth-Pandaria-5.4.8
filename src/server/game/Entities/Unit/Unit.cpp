@@ -38,6 +38,7 @@
 #include "MiscPackets.h"
 #include "MoveSpline.h"
 #include "ObjectAccessor.h"
+#include "GameObjectAI.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvP.h"
@@ -3592,7 +3593,10 @@ void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool wi
                 ToPlayer()->SendAutoRepeatCancel(this);
 
         if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
+        {
             ToCreature()->AI()->CastInterrupted(spell->GetSpellInfo());
+            ToCreature()->AI()->OnSpellFailed(spell->GetSpellInfo());
+        }
 
         if (spell->getState() != SPELL_STATE_FINISHED)
             spell->cancel();
@@ -5703,7 +5707,7 @@ void Unit::UnregisterAreaTrigger(AreaTrigger* areaTrigger)
     m_areaTrigger.remove(areaTrigger);
 }
 
-DynamicObject* Unit::GetDynObject(uint32 spellId)
+DynamicObject* Unit::GetDynObject(uint32 spellId) const
 {
     if (m_dynObj.empty())
         return NULL;
@@ -15264,7 +15268,7 @@ void Unit::SetCantProc(bool apply)
     }
 }
 
-float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized)
+float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized) const
 {
     if (!normalized || GetTypeId() != TYPEID_PLAYER)
         return float(GetAttackTime(attType)) / 1000.0f;
@@ -16118,9 +16122,14 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellInfo)
             victimAI->JustDied(this);
 
         if (TempSummon* summon = creature->ToTempSummon())
+        {
             if (Unit* summoner = summon->GetSummoner())
                 if (summoner->ToCreature() && summoner->IsAIEnabled)
                     summoner->ToCreature()->AI()->SummonedCreatureDies(creature, this);
+
+            if (GameObject* summonerGO = ObjectAccessor::GetGameObject(*creature, summon->GetSummonerGUID()))
+                summonerGO->AI()->SummonedCreatureDies(creature, this);
+        }
 
         // Dungeon specific stuff, only applies to players killing creatures
         if (creature->GetInstanceId())

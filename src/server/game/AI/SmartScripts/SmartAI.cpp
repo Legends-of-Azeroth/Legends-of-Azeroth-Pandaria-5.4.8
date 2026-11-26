@@ -691,6 +691,16 @@ void SmartAI::SpellHitTarget(WorldObject* target, const SpellInfo* spellInfo)
     GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT_TARGET, target ? target->ToUnit() : nullptr, 0, 0, false, spellInfo);
 }
 
+void SmartAI::OnAuraApplied(AuraApplication const* aurApp)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_ON_AURA_APPLIED, nullptr, 0, 0, false, aurApp->GetBase()->GetSpellInfo());
+}
+
+void SmartAI::OnAuraRemoved(AuraApplication const* aurApp)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_ON_AURA_REMOVED, nullptr, 0, 0, false, aurApp->GetBase()->GetSpellInfo());
+}
+
 void SmartAI::DamageTaken(Unit* doneBy, uint32& damage)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_DAMAGED, doneBy, damage);
@@ -774,9 +784,9 @@ uint32 SmartAI::GetData(uint32 /*id*/) const
     return 0;
 }
 
-void SmartAI::SetData(uint32 id, uint32 value)
+void SmartAI::SetData(uint32 id, uint32 value, Unit* invoker)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_DATA_SET, NULL, id, value);
+    GetScript()->ProcessEventsFor(SMART_EVENT_DATA_SET, invoker, id, value);
 }
 
 void SmartAI::SetGUID(ObjectGuid /*guid*/, int32 /*id*/) { }
@@ -1059,14 +1069,14 @@ void SmartGameObjectAI::OnQuestReward(Player* player, Quest const* quest, uint32
 Optional<QuestGiverStatus> SmartGameObjectAI::GetDialogStatus(Player* /*player*/) { return {}; }
 
 // Called when the gameobject is destroyed (destructible buildings only).
-void SmartGameObjectAI::Destroyed(Player* player, uint32 eventId)
+void SmartGameObjectAI::Destroyed(WorldObject* attacker, uint32 eventId)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_DEATH, player, eventId, 0, false, NULL, me);
+    GetScript()->ProcessEventsFor(SMART_EVENT_DEATH, attacker ? attacker->ToUnit() : nullptr, eventId, 0, false, NULL, me);
 }
 
-void SmartGameObjectAI::SetData(uint32 id, uint32 value)
+void SmartGameObjectAI::SetData(uint32 id, uint32 value, Unit* invoker)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_DATA_SET, NULL, id, value);
+    GetScript()->ProcessEventsFor(SMART_EVENT_DATA_SET, invoker, id, value);
 }
 
 void SmartGameObjectAI::SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker)
@@ -1094,6 +1104,16 @@ void SmartGameObjectAI::EventInform(uint32 eventId)
 void SmartGameObjectAI::SpellHit(WorldObject* caster, SpellInfo const* spellInfo)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT, caster ? caster->ToUnit() : nullptr, 0, 0, false, spellInfo);
+}
+
+void SmartGameObjectAI::JustSummoned(Creature* creature)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_SUMMONED_UNIT, creature);
+}
+
+void SmartGameObjectAI::SummonedCreatureDespawn(Creature* creature)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_SUMMON_DESPAWNED, creature, creature->GetEntry());
 }
 
 class SmartTrigger : public AreaTriggerScript

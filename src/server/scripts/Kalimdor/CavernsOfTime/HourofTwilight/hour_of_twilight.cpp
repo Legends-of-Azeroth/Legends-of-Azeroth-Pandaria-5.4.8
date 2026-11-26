@@ -15,6 +15,7 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "GameObjectAI.h"
 #include "ScriptPCH.h"
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
@@ -2042,13 +2043,16 @@ class go_hot_time_transit_device : public GameObjectScript
 {
 public:
     go_hot_time_transit_device() : GameObjectScript("go_hot_time_transit_device") {}
+        struct go_hot_time_transit_deviceAI : public GameObjectAI
+        {
+            go_hot_time_transit_deviceAI(GameObject* go) : GameObjectAI(go) { }
 
-    bool OnReportUse(Player* player, GameObject* go)
-    {
+            bool OnReportUse(Player* player) override
+            {
         if (player->IsInCombat())
             return false;
 
-        if (InstanceScript* instance = go->GetInstanceScript())
+        if (InstanceScript* instance = me->GetInstanceScript())
         {
             if (instance->GetBossState(DATA_BENEDICTUS) == DONE)
             {
@@ -2068,7 +2072,15 @@ public:
         }
 
         return false;
-    }
+    
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_hot_time_transit_deviceAI(go);
+        }
+
 };
 
 void AddSC_hour_of_twilight()

@@ -511,6 +511,7 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
 
             if (quest)
                 sScriptMgr->OnQuestStatusChange(_player, quest, oldStatus, QUEST_STATUS_NONE);
+            sScriptMgr->OnQuestStatusChange(_player, questId);
         }
 
         _player->SetQuestSlot(packet.Slot, 0);

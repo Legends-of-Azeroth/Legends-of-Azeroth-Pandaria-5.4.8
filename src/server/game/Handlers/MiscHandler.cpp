@@ -1313,7 +1313,7 @@ void WorldSession::HandleCompleteMovie(WorldPackets::Misc::CompleteMovie& /*pack
         return;
 
     _player->SetMovie(0);
-    //sScriptMgr->OnMovieComplete(_player, movie);
+    sScriptMgr->OnMovieComplete(_player, movie);
     if (_player)
         if (InstanceScript* instance = _player->GetInstanceScript())
             instance->OnMovieEnded(_player);

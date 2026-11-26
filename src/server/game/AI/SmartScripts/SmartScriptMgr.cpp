@@ -464,6 +464,13 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 if (!IsMinMaxValid(e, e.event.spellHit.cooldownMin, e.event.spellHit.cooldownMax))
                     return false;
                 break;
+            case SMART_EVENT_ON_AURA_APPLIED:
+            case SMART_EVENT_ON_AURA_REMOVED:
+                if (!IsSpellValid(e, e.event.spellCast.spell))
+                    return false;
+                if (!IsMinMaxValid(e, e.event.spellCast.cooldownMin, e.event.spellCast.cooldownMax))
+                    return false;
+                break;
             case SMART_EVENT_OOC_LOS:
             case SMART_EVENT_IC_LOS:
                 if (!IsMinMaxValid(e, e.event.los.cooldownMin, e.event.los.cooldownMax))

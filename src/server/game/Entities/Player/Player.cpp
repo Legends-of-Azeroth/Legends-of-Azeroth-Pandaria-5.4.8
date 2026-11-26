@@ -5112,6 +5112,8 @@ void Player::BuildPlayerRepop()
 
     // set and clear other
     SetAnimTier(AnimTier::Ground);
+
+    sScriptMgr->OnPlayerRepop(this);
 }
 
 void Player::ResurrectPlayer(float restore_percent, bool applySickness)
@@ -8973,7 +8975,7 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
             else if (chance > 100.0f)
                 chance = GetWeaponProcChance();
 
-            if (roll_chance_f(chance))
+            if (roll_chance_f(chance) && sScriptMgr->OnCastItemCombatSpell(this, target, spellInfo, item))
                 CastSpell(target, spellInfo->Id, true, item);
         }
     }
@@ -13260,6 +13262,7 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
 
         RemoveEnchantmentDurations(pItem);
         RemoveItemDurations(pItem);
+        sScriptMgr->OnItemRemove(this, pItem);
 
         if (bag == INVENTORY_SLOT_BAG_0)
         {
@@ -16433,6 +16436,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     SendQuestUpdate(questId);
 
     sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, questStatusData.Status);
+    sScriptMgr->OnQuestStatusChange(this, questId);
     sScriptMgr->OnPlayerQuestAdded(this, quest);
 }
 
@@ -18336,7 +18340,10 @@ void Player::SendQuestUpdateAddCredit(Quest const* quest, QuestObjective const* 
 
     uint16 logSlot = FindQuestSlot(quest->GetQuestId());
     if (logSlot < MAX_QUEST_LOG_SIZE)
+    {
         SetQuestSlotCounter(logSlot, objective->StorageIndex, GetQuestSlotCounter(logSlot, objective->StorageIndex) + addCount);
+        sScriptMgr->OnQuestObjectiveProgress(this, quest, objective->StorageIndex, GetQuestSlotCounter(logSlot, objective->StorageIndex));
+    }
 }
 
 void Player::SendQuestUpdateAddCreditSimple(Quest const* quest, QuestObjective const* objective)
@@ -18366,7 +18373,10 @@ void Player::SendQuestUpdateAddPlayer(Quest const* quest, QuestObjective const* 
 
     uint16 logSlot = FindQuestSlot(quest->GetQuestId());
     if (logSlot < MAX_QUEST_LOG_SIZE)
+    {
         SetQuestSlotCounter(logSlot, objective->StorageIndex, GetQuestSlotCounter(logSlot, objective->StorageIndex) + addCount);
+        sScriptMgr->OnQuestObjectiveProgress(this, quest, objective->StorageIndex, GetQuestSlotCounter(logSlot, objective->StorageIndex));
+    }
 
     UpdateAreaAndZonePhase();
 }
@@ -25047,6 +25057,7 @@ bool Player::ModifyMoney(int64 amount, bool sendError /*= true*/)
             SetMoney(GetMoney() + amount);
         else
         {
+            sScriptMgr->OnPlayerMoneyLimit(this, static_cast<int32>(amount));
             if (sendError)
                 SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD, nullptr, nullptr);
             return false;

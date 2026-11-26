@@ -743,16 +743,6 @@ GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* gameobject)
     return tmpscript->GetAI(gameobject);
 }
 
-bool ScriptMgr::OnReportUse(Player* player, GameObject* go)
-{
-    ASSERT(player);
-    ASSERT(go);
-    GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnReportUse(player, go);
-}
-
-
 void ScriptMgr::OnGameObjectUpdate(GameObject* go, uint32 diff)
 {
     ASSERT(go);
@@ -1126,12 +1116,60 @@ void ScriptMgr::OnPlayerTalentsReset(Player* player, bool noCost)
     FOREACH_SCRIPT(PlayerScript)->OnTalentsReset(player, noCost);
 }
 
+bool ScriptMgr::OnItemRemove(Player* player, Item* item)
+{
+    ASSERT(player);
+    ASSERT(item);
+    GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
+    return tmpscript->OnRemove(player, item);
+}
+
+bool ScriptMgr::OnCastItemCombatSpell(Player* player, Unit* victim, SpellInfo const* spellInfo, Item* item)
+{
+    ASSERT(player);
+    ASSERT(victim);
+    ASSERT(spellInfo);
+    ASSERT(item);
+    GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
+    return tmpscript->OnCastItemCombatSpell(player, victim, spellInfo, item);
+}
+
 void ScriptMgr::OnPlayerMoneyChanged(Player* player, int64& amount)
 {
 #ifdef ELUNA
     sHookMgr->OnMoneyChanged(player, amount);
 #endif
     FOREACH_SCRIPT(PlayerScript)->OnMoneyChanged(player, amount);
+}
+
+void ScriptMgr::OnPlayerMoneyLimit(Player* player, int32 amount)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnMoneyLimit(player, amount);
+}
+
+void ScriptMgr::OnPlayerFailedDelete(ObjectGuid guid, uint32 accountId)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnFailedDelete(guid, accountId);
+}
+
+void ScriptMgr::OnQuestObjectiveProgress(Player* player, Quest const* quest, uint32 objectiveIndex, uint16 progress)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnQuestObjectiveProgress(player, quest, objectiveIndex, progress);
+}
+
+void ScriptMgr::OnQuestStatusChange(Player* player, uint32 questId)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnQuestStatusChange(player, questId);
+}
+
+void ScriptMgr::OnPlayerRepop(Player* player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnPlayerRepop(player);
+}
+
+void ScriptMgr::OnMovieComplete(Player* player, uint32 movieId)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnMovieComplete(player, movieId);
 }
 
 void ScriptMgr::OnGivePlayerXP(Player* player, uint32& amount, Unit* victim)

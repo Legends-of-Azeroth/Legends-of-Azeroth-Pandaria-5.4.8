@@ -3346,14 +3346,25 @@ class go_silent_beacon : public GameObjectScript
 {
     public:
         go_silent_beacon() : GameObjectScript("go_silent_beacon") { }
-
-        bool OnReportUse(Player* player, GameObject* go) override
+        struct go_silent_beaconAI : public GameObjectAI
         {
-            if (Creature* korik = go->FindNearestCreature(65475, 50.0f))
+            go_silent_beaconAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnReportUse(Player* player) override
+            {
+            if (Creature* korik = me->FindNearestCreature(65475, 50.0f))
                 korik->AI()->Talk(0);
 
             return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_silent_beaconAI(go);
         }
+
 };
 
 enum BoundWithShadesType

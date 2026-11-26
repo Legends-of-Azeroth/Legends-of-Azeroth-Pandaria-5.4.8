@@ -470,7 +470,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool IsOutdoors() const { return m_outdoors; }
         ZLiquidStatus GetLiquidStatus() const { return m_liquidStatus; }
 
-        InstanceScript* GetInstanceScript();
+        InstanceScript* GetInstanceScript() const;
 
         std::string const& GetName() const { return m_name; }
         void SetName(std::string const& newname) { m_name=newname; }

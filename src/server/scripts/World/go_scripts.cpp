@@ -1514,14 +1514,17 @@ class go_massive_seaforium_charge : public GameObjectScript
 {
     public:
         go_massive_seaforium_charge() : GameObjectScript("go_massive_seaforium_charge") { }
-
-        void OnLootStateChanged(GameObject* go, uint32 state, Unit* /*unit*/)
+        struct go_massive_seaforium_chargeAI : public GameObjectAI
         {
+            go_massive_seaforium_chargeAI(GameObject* go) : GameObjectAI(go) { }
+
+            void OnLootStateChanged(uint32 state, Unit* unit) override
+            {
             if (state == GO_ACTIVATED)
             {
-                if (Unit* owner = go->GetOwner())
+                if (Unit* owner = me->GetOwner())
                     if (Player* achiever = owner->ToPlayer())
-                        if (GameObject* wall = go->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING, 15.0f))
+                        if (GameObject* wall = me->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING, 15.0f))
                         {
                             if (wall->GetDestructibleState() == GO_DESTRUCTIBLE_DESTROYED)
                                 return;
@@ -1537,12 +1540,20 @@ class go_massive_seaforium_charge : public GameObjectScript
                                     break;
                             }
                             if (achiever->GetTeamId() == allowed)
-                                achiever->CastSpell(achiever, go->GetEntry() == 195331 ? 68367 : 68366, true);
+                                achiever->CastSpell(achiever, me->GetEntry() == 195331 ? 68367 : 68366, true);
                         }
 
-                go->ForcedDespawn();
+                me->ForcedDespawn();
             }
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_massive_seaforium_chargeAI(go);
         }
+
 };
 
 /*######
@@ -1952,13 +1963,16 @@ class go_pandaria_rare_chests : public GameObjectScript
 {
     public:
         go_pandaria_rare_chests() : GameObjectScript("go_pandaria_rare_chests") { }
-
-        bool OnReportUse(Player* player, GameObject* go) override
+        struct go_pandaria_rare_chestsAI : public GameObjectAI
         {
-            if (go->GetEntry() == GO_OFFERING_OF_REMEMBRANCE)
-                go->CastSpell(player, SPELL_CHASTIFIED);
+            go_pandaria_rare_chestsAI(GameObject* go) : GameObjectAI(go) { }
 
-            auto itr = rareChestsMap.find(go->GetEntry());
+            bool OnReportUse(Player* player) override
+            {
+            if (me->GetEntry() == GO_OFFERING_OF_REMEMBRANCE)
+                me->CastSpell(player, SPELL_CHASTIFIED);
+
+            auto itr = rareChestsMap.find(me->GetEntry());
             if (itr != rareChestsMap.end())
             {
                 if (player->GetQuestStatus(itr->second) != QUEST_STATUS_REWARDED)
@@ -1967,17 +1981,25 @@ class go_pandaria_rare_chests : public GameObjectScript
                         player->RewardQuest(quest, 0, player, false);
                     if (GameObjectTemplate const* objectInfo = sObjectMgr->GetGameObjectTemplate(itr->first))
                         if (objectInfo->GetLockId() == 0)
-                            player->SendLoot(go->GetGUID(), LOOT_CORPSE);
+                            player->SendLoot(me->GetGUID(), LOOT_CORPSE);
                 }
                 else
                 {
                     player->SendGameError(GameError::ERR_LOOT_CANT_LOOT_THAT);
-                    go->ForcedDespawn();
+                    me->ForcedDespawn();
                 }
             }
 
             return false;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_pandaria_rare_chestsAI(go);
         }
+
 };
 
 // Challenge Orb - 211674
@@ -2040,13 +2062,24 @@ class go_memory_wine : public GameObjectScript
 {
     public:
         go_memory_wine() : GameObjectScript("go_memory_wine") { }
-
-        bool OnReportUse(Player* player, GameObject* go) override
+        struct go_memory_wineAI : public GameObjectAI
         {
-            // go sends report use, but not send use
-            go->Use(player);
+            go_memory_wineAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool OnReportUse(Player* player) override
+            {
+            // me sends report use, but not send use
+            me->Use(player);
             return true;
+        
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_memory_wineAI(go);
         }
+
 };
 
 // 209354, 221545 - Golden Lotus

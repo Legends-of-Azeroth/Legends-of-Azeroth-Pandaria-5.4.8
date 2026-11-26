@@ -1079,9 +1079,21 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
             {
                 if (IsCreature(*itr))
-                    (*itr)->ToCreature()->AI()->SetData(e.action.setData.field, e.action.setData.data);
+                {
+                    Creature* cTarget = (*itr)->ToCreature();
+                    if (SmartAI* ai = CAST_AI(SmartAI, cTarget->AI()))
+                        ai->SetData(e.action.setData.field, e.action.setData.data, unit);
+                    else
+                        cTarget->AI()->SetData(e.action.setData.field, e.action.setData.data);
+                }
                 else if (IsGameObject(*itr))
-                    (*itr)->ToGameObject()->AI()->SetData(e.action.setData.field, e.action.setData.data);
+                {
+                    GameObject* oTarget = (*itr)->ToGameObject();
+                    if (SmartGameObjectAI* ai = CAST_AI(SmartGameObjectAI, oTarget->AI()))
+                        ai->SetData(e.action.setData.field, e.action.setData.data, unit);
+                    else
+                        oTarget->AI()->SetData(e.action.setData.field, e.action.setData.data);
+                }
             }
 
             delete targets;
@@ -3421,6 +3433,15 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             if (e.event.goStateChanged.state != var0)
                 return;
             ProcessAction(e, unit, var0, var1);
+            break;
+        }
+        case SMART_EVENT_ON_AURA_APPLIED:
+        case SMART_EVENT_ON_AURA_REMOVED:
+        {
+            if (!spell || spell->Id != e.event.spellCast.spell)
+                return;
+            RecalcTimer(e, e.event.spellCast.cooldownMin, e.event.spellCast.cooldownMax);
+            ProcessAction(e, nullptr, 0, 0, bvar, spell);
             break;
         }
         case SMART_EVENT_GO_EVENT_INFORM:

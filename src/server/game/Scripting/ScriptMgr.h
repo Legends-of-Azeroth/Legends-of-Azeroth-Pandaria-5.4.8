@@ -386,6 +386,9 @@ public:
     // Called when the item expires (is destroyed).
     virtual bool OnExpire(Player* /*player*/, ItemTemplate const* /*proto*/) { return false; }
 
+    virtual bool OnRemove(Player* /*player*/, Item* /*item*/) { return false; }
+    virtual bool OnCastItemCombatSpell(Player* /*player*/, Unit* /*victim*/, SpellInfo const* /*spellInfo*/, Item* /*item*/) { return false; }
+
     // Called when the item is obtained by the player.
     virtual bool OnPickup(Player* /*player*/, Item* /*item*/, ItemPickupSourceType /*sourceType*/, uint32 /*sourceId*/) { return false; }
 
@@ -438,7 +441,7 @@ public:
     // Called when the dialog status between a player and the creature is requested.
 
     // Called when a CreatureAI object is needed for the creature.
-    virtual CreatureAI* GetAI(Creature* /*creature*/) const { return NULL; }
+    virtual CreatureAI* GetAI(Creature* /*creature*/) const = 0;
 };
 
 class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
@@ -451,7 +454,6 @@ public:
 
     // Called when a dummy spell effect is triggered on the gameobject.
     // Called when a player clicks a gameobject, before OnGossipHello.
-    virtual bool OnReportUse(Player* /*player*/, GameObject* /*go*/) { return false; }
 
     // Called when a player selects a gossip item in the gameobject's gossip menu.
     // Called when a player selects a gossip with a code in the gameobject's gossip menu.
@@ -467,7 +469,7 @@ public:
     // Called when the game object state is changed.
 
     // Called when a GameObjectAI object is needed for the gameobject.
-    virtual GameObjectAI* GetAI(GameObject* /*go*/) const { return NULL; }
+    virtual GameObjectAI* GetAI(GameObject* /*go*/) const = 0;
 };
 
 class AreaTriggerScript : public ScriptObject
@@ -684,6 +686,13 @@ public:
 
     // Called when a player's money is modified (before the modification is done)
     virtual void OnMoneyChanged(Player* /*player*/, int64& /*amount*/) { }
+
+    virtual void OnMoneyLimit(Player* /*player*/, int32 /*amount*/) { }
+    virtual void OnFailedDelete(ObjectGuid /*guid*/, uint32 /*accountId*/) { }
+    virtual void OnQuestObjectiveProgress(Player* /*player*/, Quest const* /*quest*/, uint32 /*objectiveIndex*/, uint16 /*progress*/) { }
+    virtual void OnQuestStatusChange(Player* /*player*/, uint32 /*questId*/) { }
+    virtual void OnPlayerRepop(Player* /*player*/) { }
+    virtual void OnMovieComplete(Player* /*player*/, uint32 /*movieId*/) { }
 
     // Called when a player gains XP (before anything is given)
     virtual void OnGiveXP(Player* /*player*/, uint32& /*amount*/, Unit* /*victim*/) { }
@@ -1035,6 +1044,8 @@ public: /* ItemScript */
     bool OnQuestAccept(Player* player, Item* item, Quest const* quest);
     bool OnItemUse(Player* player, Item* item, SpellCastTargets const& targets);
     bool OnItemExpire(Player* player, ItemTemplate const* proto);
+    bool OnItemRemove(Player* player, Item* item);
+    bool OnCastItemCombatSpell(Player* player, Unit* victim, SpellInfo const* spellInfo, Item* item);
     bool OnItemPickup(Player* player, Item* item, ItemPickupSourceType sourceType, uint32 sourceId);
     void OnGossipSelect(Player* player, Item* item, uint32 sender, uint32 action);
     void OnGossipSelectCode(Player* player, Item* item, uint32 sender, uint32 action, const char* code);
@@ -1045,7 +1056,6 @@ public: /* CreatureScript */
 
 public: /* GameObjectScript */
 
-    bool OnReportUse(Player* player, GameObject* go);
     void OnGameObjectUpdate(GameObject* go, uint32 diff);
     GameObjectAI* GetGameObjectAI(GameObject* go);
 
@@ -1123,6 +1133,12 @@ public: /* PlayerScript */
     void OnPlayerFreeTalentPointsChanged(Player* player, uint32 newPoints);
     void OnPlayerTalentsReset(Player* player, bool noCost);
     void OnPlayerMoneyChanged(Player* player, int64& amount);
+    void OnPlayerMoneyLimit(Player* player, int32 amount);
+    void OnPlayerFailedDelete(ObjectGuid guid, uint32 accountId);
+    void OnQuestObjectiveProgress(Player* player, Quest const* quest, uint32 objectiveIndex, uint16 progress);
+    void OnQuestStatusChange(Player* player, uint32 questId);
+    void OnPlayerRepop(Player* player);
+    void OnMovieComplete(Player* player, uint32 movieId);
     void OnGivePlayerXP(Player* player, uint32& amount, Unit* victim);
     void OnPlayerReputationChange(Player* player, uint32 factionID, float& standing, bool incremental);
     void OnPlayerQuestAdded(Player* player, const Quest* quest);

@@ -298,7 +298,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void ResetInhabitTypeOverride() { } // todo remove in future
 
         void SetReactState(ReactStates st) { m_reactState = st; }
-        ReactStates GetReactState() { return m_reactState; }
+        ReactStates GetReactState() const { return m_reactState; }
         bool HasReactState(ReactStates state) const { return (m_reactState == state); }
         void InitializeReactState();
 
@@ -358,7 +358,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void UpdateDamagePhysical(WeaponAttackType attType) override;
 
         int8 GetOriginalEquipmentId() const { return m_originalEquipmentId; }
-        uint8 GetCurrentEquipmentId() { return m_equipmentId; }
+        uint8 GetCurrentEquipmentId() const { return m_equipmentId; }
         void SetCurrentEquipmentId(uint8 id) { m_equipmentId = id; }
 
         float GetSpellDamageMod(int32 Rank) const;
@@ -416,8 +416,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void AddLootRecipient(ObjectGuid guid) { m_lootRecipients.insert(guid); } // Additional loot recipients, for rare mobs on Timeless Isle in generally
         void AllLootRemovedFromCorpse();
 
-        uint16 GetLootMode() { return m_LootMode; }
-        bool HasLootMode(uint16 lootMode) { return m_LootMode & lootMode; }
+        uint16 GetLootMode() const { return m_LootMode; }
+        bool HasLootMode(uint16 lootMode) const { return m_LootMode & lootMode; }
         void SetLootMode(uint16 lootMode) { m_LootMode = lootMode; }
         void AddLootMode(uint16 lootMode) { m_LootMode |= lootMode; }
         void RemoveLootMode(uint16 lootMode) { m_LootMode &= ~lootMode; }
@@ -448,7 +448,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void CallAssistance();
         void SetNoCallAssistance(bool val) { m_AlreadyCallAssistance = val; }
         void SetNoSearchAssistance(bool val) { m_AlreadySearchedAssistance = val; }
-        bool HasSearchedAssistance() { return m_AlreadySearchedAssistance; }
+        bool HasSearchedAssistance() const { return m_AlreadySearchedAssistance; }
         bool CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction = true) const;
         bool _IsTargetAcceptable(const Unit* target) const;
 
@@ -519,7 +519,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void GetTransportHomePosition(float& x, float& y, float& z, float& ori) const { m_transportHomePosition.GetPosition(x, y, z, ori); }
         Position const& GetTransportHomePosition() const { return m_transportHomePosition; }
 
-        uint32 GetWaypointPath(){return m_path_id;}
+        uint32 GetWaypointPath() const {return m_path_id;}
         void LoadPath(uint32 pathid) { m_path_id = pathid; }
 
         uint32 GetCurrentWaypointID() const { return m_waypointID; }
@@ -532,7 +532,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         Unit* SelectVictim();
 
         void SetDisableReputationGain(bool disable) { DisableReputationGain = disable; }
-        bool IsReputationGainDisabled() { return DisableReputationGain; }
+        bool IsReputationGainDisabled() const { return DisableReputationGain; }
         bool IsDamageEnoughForLootingAndReward() const { return m_PlayerDamageReq == 0; }
         void LowerPlayerDamageReq(uint32 unDamage);
         void ResetPlayerDamageReq() { m_PlayerDamageReq = GetHealth() / 2; }

@@ -23,6 +23,7 @@
 #include "SpellMgr.h"
 #include "Player.h"
 #include "Unit.h"
+#include "CreatureAI.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "DynamicObject.h"
@@ -1948,6 +1949,17 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     break;
             }
             break;
+    }
+
+    if (Creature* creature = target->ToCreature())
+    {
+        if (CreatureAI* ai = creature->AI())
+        {
+            if (apply)
+                ai->OnAuraApplied(aurApp);
+            else
+                ai->OnAuraRemoved(aurApp);
+        }
     }
 }
 
