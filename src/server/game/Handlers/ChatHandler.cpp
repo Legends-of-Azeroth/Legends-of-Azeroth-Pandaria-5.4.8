@@ -43,62 +43,13 @@
 #ifdef ELUNA
 #include "HookMgr.h"
 #endif
-void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
+void WorldSession::HandleMessagechatOpcode(WorldPackets::Chat::ChatMessage& packet)
 {
-    ChatMsg type;
-    uint32 lang;
-
-    switch (recvData.GetOpcode())
-    {
-        case CMSG_MESSAGECHAT_SAY:
-            type = CHAT_MSG_SAY;
-            break;
-        case CMSG_MESSAGECHAT_YELL:
-            type = CHAT_MSG_YELL;
-            break;
-        case CMSG_MESSAGECHAT_PARTY:
-            type = CHAT_MSG_PARTY;
-            break;
-        case CMSG_MESSAGECHAT_RAID:
-            type = CHAT_MSG_RAID;
-            break;
-        case CMSG_MESSAGECHAT_RAID_WARNING:
-            type = CHAT_MSG_RAID_WARNING;
-            break;
-        case CMSG_MESSAGECHAT_GUILD:
-            type = CHAT_MSG_GUILD;
-            break;
-        case CMSG_MESSAGECHAT_OFFICER:
-            type = CHAT_MSG_OFFICER;
-            break;
-        case CMSG_MESSAGECHAT_WHISPER:
-            type = CHAT_MSG_WHISPER;
-            break;
-        case CMSG_MESSAGECHAT_EMOTE:
-            type = CHAT_MSG_EMOTE;
-            break;
-        case CMSG_MESSAGECHAT_CHANNEL:
-            type = CHAT_MSG_CHANNEL;
-            break;
-        case CMSG_MESSAGECHAT_AFK:
-            type = CHAT_MSG_AFK;
-            break;
-        case CMSG_MESSAGECHAT_DND:
-            type = CHAT_MSG_DND;
-            break;
-        case CMSG_MESSAGECHAT_INSTANCE:
-            type = CHAT_MSG_INSTANCE_CHAT;
-            break;
-        /*
-            case CMSG_MESSAGECHAT_BATTLEGROUND:
-            type = CHAT_MSG_BATTLEGROUND;
-            break;
-        */
-        default:
-            TC_LOG_ERROR("network", "HandleMessagechatOpcode : Unknown chat opcode ({})", recvData.GetOpcode());
-            recvData.hexlike();
-            return;
-    }
+    ChatMsg type = packet.SlashCmd;
+    uint32 lang = static_cast<uint32>(packet.Language);
+    std::string msg = packet.Text;
+    std::string to = packet.Target;
+    std::string channel = (type == CHAT_MSG_CHANNEL) ? packet.Target : "";
 
     Player* sender = GetPlayer();
 
@@ -107,14 +58,11 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
     // no language sent with emote packet.
     if (type != CHAT_MSG_EMOTE && type != CHAT_MSG_AFK && type != CHAT_MSG_DND)
     {
-        recvData >> lang;
-
         // prevent talking at unknown language (cheating)
         LanguageDesc const* langDesc = GetLanguageDescByID(lang);
         if (!langDesc)
         {
             SendNotification(LANG_UNKNOWN_LANGUAGE);
-            recvData.rfinish();
             return;
         }
         if (langDesc->skill_id != 0 && !sender->HasSkill(langDesc->skill_id))
@@ -133,7 +81,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             if (!foundAura)
             {
                 SendNotification(LANG_NOT_LEARNED_LANGUAGE);
-                recvData.rfinish();
                 return;
             }
         }
@@ -149,9 +96,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 case CHAT_MSG_WHISPER:
                     if (sWorld->getBoolConfig(CONFIG_CHATLOG_ADDON))
                     {
-                        std::string msg = "";
-                        recvData >> msg;
-
                         if (msg.empty())
                             return;
 
@@ -166,7 +110,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                     TC_LOG_ERROR("network", "Player {} (GUID: {}) sent a chatmessage with an invalid language/message type combination",
                         GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter());
 
-                    recvData.rfinish();
                     return;
             }
         }
@@ -212,7 +155,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             {
                 std::string timeStr = secsToTimeString(m_muteTime - time(NULL));
                 SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
-                recvData.rfinish(); // Prevent warnings
                 return;
             }
         }
@@ -223,47 +165,10 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
     if (sender->HasAura(1852) && type != CHAT_MSG_WHISPER)
     {
         SendNotification(GetTrinityString(LANG_GM_SILENCE), sender->GetName().c_str());
-        recvData.rfinish();
         return;
     }
 
-    uint32 textLength = 0;
-    uint32 receiverLength = 0;
-    std::string to, channel, msg;
-    bool ignoreChecks = false;
-    switch (type)
-    {
-        case CHAT_MSG_SAY:
-        case CHAT_MSG_EMOTE:
-        case CHAT_MSG_YELL:
-        case CHAT_MSG_PARTY:
-        case CHAT_MSG_GUILD:
-        case CHAT_MSG_OFFICER:
-        case CHAT_MSG_RAID:
-        case CHAT_MSG_RAID_WARNING:
-        case CHAT_MSG_INSTANCE_CHAT:
-            textLength = recvData.ReadBits(8);
-            msg = recvData.ReadString(textLength);
-            break;
-        case CHAT_MSG_WHISPER:
-            textLength = recvData.ReadBits(8);
-            receiverLength = recvData.ReadBits(9);
-            msg = recvData.ReadString(textLength);
-            to = recvData.ReadString(receiverLength);
-            break;
-        case CHAT_MSG_CHANNEL:
-            textLength = recvData.ReadBits(9);
-            receiverLength = recvData.ReadBits(8);
-            msg = recvData.ReadString(receiverLength);
-            channel = recvData.ReadString(textLength);
-            break;
-        case CHAT_MSG_AFK:
-        case CHAT_MSG_DND:
-            textLength = recvData.ReadBits(8);
-            msg = recvData.ReadString(textLength);
-            ignoreChecks = true;
-            break;
-    }
+    bool ignoreChecks = (type == CHAT_MSG_AFK || type == CHAT_MSG_DND);
 
     if (!ignoreChecks)
     {
@@ -297,7 +202,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                         ChatHandler(sender).PSendSysMessage(GetMute().PublicChannelsOnly ? LANG_CHAT_WAS_MUTED_PUBLIC : LANG_CHAT_WAS_MUTED, GetMute().Author.c_str(), GetMute().Reason.c_str());
                         ChatHandler(sender).PSendSysMessage(GetMute().PublicChannelsOnly ? LANG_WAIT_BEFORE_SPEAKING_PUBLIC : LANG_WAIT_BEFORE_SPEAKING, timeStr.c_str());
                         SendNotification(GetMute().PublicChannelsOnly ? LANG_WAIT_BEFORE_SPEAKING_PUBLIC : LANG_WAIT_BEFORE_SPEAKING, timeStr.c_str());
-                        recvData.rfinish();
                         return;
                     }
                 }

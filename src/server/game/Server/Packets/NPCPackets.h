@@ -45,6 +45,19 @@ namespace WorldPackets
             ObjectGuid Unit;
         };
 
+        class GossipSelectOption final : public ClientPacket
+        {
+        public:
+            GossipSelectOption(WorldPacket&& packet) : ClientPacket(CMSG_GOSSIP_SELECT_OPTION, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 GossipIndex = 0;
+            uint32 GossipID = 0;
+            ObjectGuid GossipUnit;
+            std::string PromotionCode;
+        };
+
         class ListInventory final : public ClientPacket
         {
         public:

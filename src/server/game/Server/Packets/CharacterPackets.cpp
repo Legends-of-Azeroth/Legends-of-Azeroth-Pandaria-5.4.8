@@ -277,4 +277,3 @@ WorldPacket const* WorldPackets::Character::LogoutResponse::Write()
     _worldPacket << uint8(Instant);
     return &_worldPacket;
 }
-

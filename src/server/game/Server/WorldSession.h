@@ -593,12 +593,12 @@ class TC_GAME_API WorldSession
         void HandleGMResponseResolve(WorldPacket& recvPacket);
 
         // Gm Bug Ticket
-        void HandleSubmitBugOpcode(WorldPacket& recvPacket);
+        void HandleSubmitBugOpcode(WorldPackets::Ticket::SubmitBug& packet);
 
         void HandleTogglePvP(WorldPackets::Misc::TogglePvP& togglePvP);
         void HandleSetPvP(WorldPackets::Misc::SetPvP& setPvP);
 
-        void HandleZoneUpdateOpcode(WorldPacket& recvPacket);
+        void HandleZoneUpdateOpcode(WorldPacket& recvData);
         void HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet);
         void HandleStandStateChangeOpcode(WorldPackets::Misc::StandStateChange& packet);
         void HandleEmoteOpcode(WorldPackets::Chat::EmoteClient& packet);
@@ -632,7 +632,7 @@ class TC_GAME_API WorldSession
         void HandleNameQueryOpcode(WorldPackets::Query::QueryPlayerName& packet);
         void HandleRealmNameQueryOpcode(WorldPackets::Query::QueryRealmName& packet);
 
-        void HandleQueryTimeOpcode(WorldPacket& recvPacket);
+        void HandleQueryTimeOpcode(WorldPackets::Query::QueryTime& packet);
         void HandleQueryCountdownTimer(WorldPackets::Misc::QueryCountdownTimer& packet);
 
         void HandleCreatureQueryOpcode(WorldPackets::Query::QueryCreature& packet);
@@ -649,7 +649,10 @@ class TC_GAME_API WorldSession
         void HandleDismissControlledVehicle(WorldPackets::Vehicle::MoveDismissVehicle& recvData);
         void HandleRequestVehicleExit(WorldPackets::Vehicle::RequestVehicleExit& recvData);
         void HandleMoveSetVehicleRecAck(WorldPackets::Vehicle::MoveSetVehicleRecIdAck& recvData);
-        void HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData);
+        void HandleChangeSeatsOnControlledVehicle(WorldPackets::Vehicle::ChangeSeatsOnControlledVehicle& packet);
+        void HandleRequestVehicleNextSeat(WorldPackets::Vehicle::RequestVehicleNextSeat& packet);
+        void HandleRequestVehiclePrevSeat(WorldPackets::Vehicle::RequestVehiclePrevSeat& packet);
+        void HandleRequestVehicleSwitchSeat(WorldPackets::Vehicle::RequestVehicleSwitchSeat& packet);
         void HandleMoveTimeSkippedOpcode(WorldPackets::Movement::MoveTimeSkipped& packet);
 
         void HandleRequestRaidInfoOpcode(WorldPackets::Party::RequestRaidInfo& packet);
@@ -719,7 +722,7 @@ class TC_GAME_API WorldSession
         void HandleGuildDelRankOpcode(WorldPackets::Guild::GuildDeleteRank& packet);
         void HandleGuildSwitchRank(WorldPackets::Guild::GuildShiftRank& packet);
         void HandleGuildChangeInfoTextOpcode(WorldPackets::Guild::GuildUpdateInfoText& packet);
-        void HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket);
+        void HandleSaveGuildEmblemOpcode(WorldPackets::Guild::SaveGuildEmblem& packet);
         void HandleGuildRequestPartyState(WorldPackets::Guild::RequestGuildPartyState& packet);
         void HandleGuildRequestMaxDailyXP(WorldPacket& recvPacket);
         void HandleGuildRequestChallengeUpdate(WorldPackets::Guild::GuildChallengeUpdateRequest& packet);
@@ -752,7 +755,7 @@ class TC_GAME_API WorldSession
         void HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpell& packet);
         void HandlePetitionShowListOpcode(WorldPackets::Petitions::PetitionShowList& packet);
         void HandleGossipHelloOpcode(WorldPackets::NPC::GossipHello& packet);
-        void HandleGossipSelectOptionOpcode(WorldPacket& recvPacket);
+        void HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelectOption& packet);
         void HandleSpiritHealerActivateOpcode(WorldPackets::NPC::SpiritHealerActivate& packet);
         void HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& packet);
         void HandleBinderActivateOpcode(WorldPackets::NPC::BinderActivate& packet);
@@ -865,7 +868,7 @@ class TC_GAME_API WorldSession
         void HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty& packet);
         void HandleQuestPushResult(WorldPackets::Quest::QuestPushResult& packet);
 
-        void HandleMessagechatOpcode(WorldPacket& recvPacket);
+        void HandleMessagechatOpcode(WorldPackets::Chat::ChatMessage& packet);
         void HandleAddonMessagechatOpcode(WorldPacket& recvPacket);
         void SendPlayerNotFoundNotice(std::string const& name);
         void SendPlayerAmbiguousNotice(std::string const& name);
@@ -873,8 +876,8 @@ class TC_GAME_API WorldSession
         void HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet);
         void HandleChatIgnoredOpcode(WorldPackets::Chat::ChatReportIgnored& packet);
 
-        void HandleUnregisterAddonPrefixesOpcode(WorldPacket& recvPacket);
-        void HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket);
+        void HandleUnregisterAddonPrefixesOpcode(WorldPackets::Misc::UnregisterAllAddonPrefixes& packet);
+        void HandleAddonRegisteredPrefixesOpcode(WorldPackets::Misc::AddonRegisteredPrefixes& packet);
 
         void HandleReclaimCorpseOpcode(WorldPackets::Combat::ReclaimCorpse& packet);
         void HandleCorpseQueryOpcode(WorldPackets::Query::QueryCorpseLocationFromClient& packet);
@@ -926,8 +929,8 @@ class TC_GAME_API WorldSession
         void HandlePetCancelAuraOpcode(WorldPackets::Spells::PetCancelAura& packet);
         void HandlePetSpellAutocastOpcode(WorldPackets::Pet::PetSpellAutocast& packet);
         void HandlePetCastSpellOpcode(WorldPackets::Pet::PetCastSpell& packet);
-        void HandlePetLearnTalent(WorldPacket& recvPacket);
-        void HandleLearnPreviewTalentsPet(WorldPacket& recvPacket);
+        void HandlePetLearnTalent(WorldPacket& recvData);
+        void HandleLearnPreviewTalentsPet(WorldPacket& recvData);
 
         void HandleSetActionBarToggles(WorldPackets::Misc::SetActionBarToggles& packet);
 
@@ -1138,7 +1141,7 @@ class TC_GAME_API WorldSession
 
         // Battle Pet
         void HandlePetBattleStartPvpMatchmaking(WorldPackets::BattlePet::PetBattleStartPvpMatchmaking& packet);
-        void HandlePetBattleStopPvpMatchmaking(WorldPacket& recvData);
+        void HandlePetBattleStopPvpMatchmaking(WorldPackets::BattlePet::PetBattleStopPvpMatchmaking& packet);
         void HandleBattlePetModifyName(WorldPackets::BattlePet::BattlePetModifyName& packet);
         void HandleBattlePetDelete(WorldPackets::BattlePet::BattlePetDeletePet& packet);
         void HandleBattlePetSetBattleSlot(WorldPackets::BattlePet::BattlePetSetBattleSlot& packet);

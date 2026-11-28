@@ -75,7 +75,7 @@ void WorldSession::HandlePetBattleStartPvpMatchmaking(WorldPackets::BattlePet::P
 
 }
 
-void WorldSession::HandlePetBattleStopPvpMatchmaking(WorldPacket& recvData)
+void WorldSession::HandlePetBattleStopPvpMatchmaking(WorldPackets::BattlePet::PetBattleStopPvpMatchmaking& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_PET_BATTLE_STOP_PVP_MATCHMAKING");
     //CliRideTicket

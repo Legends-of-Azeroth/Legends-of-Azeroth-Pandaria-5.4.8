@@ -1244,9 +1244,6 @@ public: /* PlayerbotScript */
     void OnPlayerbotLogout(Player* player);
     void OnPlayerbotLogoutBots();
 
-public:
-    static bool CanHavePetAI(Creature* creature);
-
 private:
 
     uint32 _scriptCount;
@@ -1325,14 +1322,6 @@ struct creature_script : public CreatureScript
 {
     creature_script(char const* name) : CreatureScript(name) { }
     CreatureAI* GetAI(Creature* creature) const override { return new T(creature); }
-};
-
-// For derives from PetAI to prevent crashes on spawn without player owner
-template <class T>
-struct pet_script : public CreatureScript
-{
-    pet_script(char const* name) : CreatureScript(name) { }
-    CreatureAI* GetAI(Creature* creature) const override { return ScriptMgr::CanHavePetAI(creature) ? new T(creature) : nullptr; }
 };
 
 template <class AI>

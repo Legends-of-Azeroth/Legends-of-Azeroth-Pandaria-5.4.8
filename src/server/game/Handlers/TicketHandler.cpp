@@ -1,5 +1,5 @@
 /*
-* This file is part of the Pandaria 5.4.8 Project. See THANKS file for Copyright information
+* This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -238,7 +238,7 @@ void WorldSession::HandleGMResponseResolve(WorldPacket& /*recvPacket*/)
     }
 }
 
-void WorldSession::HandleSubmitBugOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleSubmitBugOpcode(WorldPackets::Ticket::SubmitBug& packet)
 {
     if (!sTicketMgr->GetFeedBackSystemStatus())
         return;
@@ -249,6 +249,6 @@ void WorldSession::HandleSubmitBugOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (BugTicket* ticket = new BugTicket(GetPlayer(), recvPacket))
-        sTicketMgr->AddTicket(ticket);
+    BugTicket ticket(GetPlayer(), packet.X, packet.Y, packet.Z, packet.MapId, packet.Note, packet.Orientation);
+    sTicketMgr->AddTicket(&ticket);
 }

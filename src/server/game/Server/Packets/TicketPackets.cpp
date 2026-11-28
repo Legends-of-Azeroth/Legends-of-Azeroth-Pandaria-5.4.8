@@ -68,3 +68,10 @@ void WorldPackets::Ticket::GMTicketCreate::Read()
     uint16 messageLen = _worldPacket.ReadBits(11);
     Message = _worldPacket.ReadString(messageLen);
 }
+
+void WorldPackets::Ticket::SubmitBug::Read()
+{
+    _worldPacket >> X >> Y >> Z >> Orientation >> MapId;
+    uint8 lenNote = _worldPacket.ReadBits(10);
+    Note = _worldPacket.ReadString(lenNote);
+}

@@ -1657,11 +1657,6 @@ void ScriptMgr::OnQuestObjectiveChange(Player* player, Quest const* quest, Quest
     tmpscript->OnQuestObjectiveChange(player, quest, objective, oldAmount, newAmount);
 }
 
-bool ScriptMgr::CanHavePetAI(Creature* creature)
-{
-    return creature->GetCharmInfo() != nullptr;
-}
-
 SpellScriptLoader::SpellScriptLoader(const char* name)
     : ScriptObject(name)
 {

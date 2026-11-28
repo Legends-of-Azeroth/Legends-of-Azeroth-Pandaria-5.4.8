@@ -172,7 +172,7 @@ void WorldSession::HandleRealmNameQueryOpcode(WorldPackets::Query::QueryRealmNam
     SendRealmNameQueryOpcode(realmId);
 }
 
-void WorldSession::HandleQueryTimeOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleQueryTimeOpcode(WorldPackets::Query::QueryTime& /*packet*/)
 {
     SendQueryTimeResponse();
 }

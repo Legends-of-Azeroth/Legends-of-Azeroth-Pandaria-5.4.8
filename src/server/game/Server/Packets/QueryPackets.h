@@ -157,6 +157,14 @@ namespace WorldPackets
             std::vector<uint32> MissingQuestPOIs;
         };
 
+        class QueryTime final : public ClientPacket
+        {
+        public:
+            QueryTime(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_TIME, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
     }
 }
 
