@@ -199,3 +199,28 @@ void WorldPackets::NPC::SetPetSlot::Read()
     _worldPacket.ReadByteSeq(Unit[4]);
     _worldPacket.ReadByteSeq(Unit[1]);
 }
+
+void WorldPackets::NPC::GossipSelectOption::Read()
+{
+    _worldPacket >> GossipIndex;
+    _worldPacket >> GossipID;
+    GossipUnit[3] = _worldPacket.ReadBit();
+    GossipUnit[0] = _worldPacket.ReadBit();
+    GossipUnit[1] = _worldPacket.ReadBit();
+    GossipUnit[4] = _worldPacket.ReadBit();
+    GossipUnit[7] = _worldPacket.ReadBit();
+    GossipUnit[5] = _worldPacket.ReadBit();
+    GossipUnit[6] = _worldPacket.ReadBit();
+    uint8 boxTextLength = _worldPacket.ReadBits(8);
+    GossipUnit[2] = _worldPacket.ReadBit();
+    _worldPacket.ReadByteSeq(GossipUnit[7]);
+    _worldPacket.ReadByteSeq(GossipUnit[3]);
+    _worldPacket.ReadByteSeq(GossipUnit[4]);
+    _worldPacket.ReadByteSeq(GossipUnit[6]);
+    _worldPacket.ReadByteSeq(GossipUnit[0]);
+    _worldPacket.ReadByteSeq(GossipUnit[5]);
+    if (boxTextLength > 0)
+        PromotionCode = _worldPacket.ReadString(boxTextLength);
+    _worldPacket.ReadByteSeq(GossipUnit[2]);
+    _worldPacket.ReadByteSeq(GossipUnit[1]);
+}

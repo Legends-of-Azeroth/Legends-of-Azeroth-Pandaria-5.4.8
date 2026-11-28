@@ -34,6 +34,45 @@ namespace WorldPackets
             void Read() override { }
         };
 
+        class RequestVehicleNextSeat final : public ClientPacket
+        {
+        public:
+            RequestVehicleNextSeat(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_VEHICLE_NEXT_SEAT, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class RequestVehiclePrevSeat final : public ClientPacket
+        {
+        public:
+            RequestVehiclePrevSeat(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_VEHICLE_PREV_SEAT, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class RequestVehicleSwitchSeat final : public ClientPacket
+        {
+        public:
+            RequestVehicleSwitchSeat(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_VEHICLE_SWITCH_SEAT, std::move(packet)) { }
+
+            void Read() override;
+
+            int8 SeatId = 0;
+            ObjectGuid VehicleGuid;
+        };
+
+        class ChangeSeatsOnControlledVehicle final : public ClientPacket
+        {
+        public:
+            ChangeSeatsOnControlledVehicle(WorldPacket&& packet) : ClientPacket(CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE, std::move(packet)) { }
+
+            void Read() override;
+
+            MovementInfo MovementInfo;
+            ObjectGuid AccessoryGuid;
+            int8 SeatId = 0;
+        };
+
         class MoveSetVehicleRecIdAck final : public ClientPacket
         {
         public:

@@ -516,6 +516,24 @@ namespace WorldPackets
             ObjectGuid Guid;
         };
 
+        class UnregisterAllAddonPrefixes final : public ClientPacket
+        {
+        public:
+            UnregisterAllAddonPrefixes(WorldPacket&& packet) : ClientPacket(CMSG_UNREGISTER_ALL_ADDON_PREFIXES, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class AddonRegisteredPrefixes final : public ClientPacket
+        {
+        public:
+            AddonRegisteredPrefixes(WorldPacket&& packet) : ClientPacket(CMSG_ADDON_REGISTERED_PREFIXES, std::move(packet)) { }
+
+            void Read() override;
+
+            std::vector<std::string> Prefixes;
+        };
+
     }
 }
 

@@ -182,6 +182,7 @@ class BugTicket : public TicketInfo
 public:
     BugTicket();
     BugTicket(Player* player, WorldPacket& bugPacket);
+    BugTicket(Player* player, float x, float y, float z, uint32 mapId, std::string const& note, float orientation);
     ~BugTicket();
 
     void Initilize(uint32 mapId, G3D::Vector3 Position, std::string bugnote, float Orientation);

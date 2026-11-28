@@ -4320,6 +4320,11 @@ struct npc_monk_xuen : public PetAI
     }
 };
 
+npc_monk_xuen* CreateNpcMonkXuenAI(Creature* creature)
+{
+    return creature->GetCharmInfo() ? new npc_monk_xuen(creature) : nullptr;
+}
+
 // 116023 - Sparring
 class spell_monk_sparring : public AuraScript
 {
@@ -5275,7 +5280,7 @@ void AddSC_monk_spell_scripts()
     new spell_script<spell_monk_xuen_tiger_leap>("spell_monk_xuen_tiger_leap");
     new spell_script<spell_monk_xuen_provoke>("spell_monk_xuen_provoke");
     new aura_script<spell_monk_crackling_tiger_lightning>("spell_monk_crackling_tiger_lightning");
-    new pet_script<npc_monk_xuen>("npc_monk_xuen");
+    RegisterCreatureAIWithFactory(npc_monk_xuen, CreateNpcMonkXuenAI);
     new aura_script<spell_monk_sparring>("spell_monk_sparring");
     new atrigger_script<sat_monk_chi_burst>("sat_monk_chi_burst");
     new atrigger_script<sat_monk_chi_burst_real>("sat_monk_chi_burst_real");

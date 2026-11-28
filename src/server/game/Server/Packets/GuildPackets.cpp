@@ -684,3 +684,28 @@ void WorldPackets::Guild::QueryGuildMemberRecipes::Read()
     _worldPacket.ReadByteSeq(GuildGuid[4]);
     _worldPacket.ReadByteSeq(GuildGuid[3]);
 }
+
+void WorldPackets::Guild::SaveGuildEmblem::Read()
+{
+    _worldPacket >> BStyle;
+    _worldPacket >> Bg;
+    _worldPacket >> BColor;
+    _worldPacket >> EColor;
+    _worldPacket >> EStyle;
+    Vendor[0] = _worldPacket.ReadBit();
+    Vendor[1] = _worldPacket.ReadBit();
+    Vendor[2] = _worldPacket.ReadBit();
+    Vendor[3] = _worldPacket.ReadBit();
+    Vendor[4] = _worldPacket.ReadBit();
+    Vendor[5] = _worldPacket.ReadBit();
+    Vendor[6] = _worldPacket.ReadBit();
+    Vendor[7] = _worldPacket.ReadBit();
+    _worldPacket.ReadByteSeq(Vendor[6]);
+    _worldPacket.ReadByteSeq(Vendor[2]);
+    _worldPacket.ReadByteSeq(Vendor[7]);
+    _worldPacket.ReadByteSeq(Vendor[5]);
+    _worldPacket.ReadByteSeq(Vendor[0]);
+    _worldPacket.ReadByteSeq(Vendor[4]);
+    _worldPacket.ReadByteSeq(Vendor[1]);
+    _worldPacket.ReadByteSeq(Vendor[3]);
+}

@@ -68,3 +68,84 @@ void WorldPackets::Chat::ChatReportIgnored::Read()
     _worldPacket.ReadByteSeq(IgnoredGUID[1]);
     _worldPacket.ReadByteSeq(IgnoredGUID[5]);
 }
+
+ChatMsg WorldPackets::Chat::ChatMessage::OpcToChatMsg(OpcodeClient opcode)
+{
+    switch (opcode)
+    {
+        case CMSG_MESSAGECHAT_SAY:            return CHAT_MSG_SAY;
+        case CMSG_MESSAGECHAT_YELL:           return CHAT_MSG_YELL;
+        case CMSG_MESSAGECHAT_PARTY:          return CHAT_MSG_PARTY;
+        case CMSG_MESSAGECHAT_RAID:           return CHAT_MSG_RAID;
+        case CMSG_MESSAGECHAT_RAID_WARNING:   return CHAT_MSG_RAID_WARNING;
+        case CMSG_MESSAGECHAT_GUILD:          return CHAT_MSG_GUILD;
+        case CMSG_MESSAGECHAT_OFFICER:        return CHAT_MSG_OFFICER;
+        case CMSG_MESSAGECHAT_WHISPER:        return CHAT_MSG_WHISPER;
+        case CMSG_MESSAGECHAT_EMOTE:          return CHAT_MSG_EMOTE;
+        case CMSG_MESSAGECHAT_CHANNEL:        return CHAT_MSG_CHANNEL;
+        case CMSG_MESSAGECHAT_AFK:            return CHAT_MSG_AFK;
+        case CMSG_MESSAGECHAT_DND:            return CHAT_MSG_DND;
+        case CMSG_MESSAGECHAT_INSTANCE:       return CHAT_MSG_INSTANCE_CHAT;
+        case CMSG_MESSAGECHAT_ADDON_GUILD:    return CHAT_MSG_ADDON;
+        case CMSG_MESSAGECHAT_ADDON_INSTANCE_CHAT: return CHAT_MSG_ADDON;
+        case CMSG_MESSAGECHAT_ADDON_OFFICER:  return CHAT_MSG_ADDON;
+        case CMSG_MESSAGECHAT_ADDON_PARTY:    return CHAT_MSG_ADDON;
+        case CMSG_MESSAGECHAT_ADDON_RAID:     return CHAT_MSG_ADDON;
+        case CMSG_MESSAGECHAT_ADDON_WHISPER:  return CHAT_MSG_ADDON;
+        default:                              return CHAT_MSG_SAY;
+    }
+}
+
+void WorldPackets::Chat::ChatMessage::Read()
+{
+    bool noLang = (SlashCmd == CHAT_MSG_EMOTE || SlashCmd == CHAT_MSG_AFK || SlashCmd == CHAT_MSG_DND);
+    if (!noLang)
+    {
+        uint32 lang = 0;
+        _worldPacket >> lang;
+        Language = static_cast<::Language>(lang);
+    }
+
+    if (!noLang && Language == LANG_ADDON)
+    {
+        _worldPacket >> Text;
+        return;
+    }
+
+    uint32 textLength = 0;
+    uint32 receiverLength = 0;
+    switch (SlashCmd)
+    {
+        case CHAT_MSG_SAY:
+        case CHAT_MSG_EMOTE:
+        case CHAT_MSG_YELL:
+        case CHAT_MSG_PARTY:
+        case CHAT_MSG_GUILD:
+        case CHAT_MSG_OFFICER:
+        case CHAT_MSG_RAID:
+        case CHAT_MSG_RAID_WARNING:
+        case CHAT_MSG_INSTANCE_CHAT:
+            textLength = _worldPacket.ReadBits(8);
+            Text = _worldPacket.ReadString(textLength);
+            break;
+        case CHAT_MSG_WHISPER:
+            textLength = _worldPacket.ReadBits(8);
+            receiverLength = _worldPacket.ReadBits(9);
+            Text = _worldPacket.ReadString(textLength);
+            Target = _worldPacket.ReadString(receiverLength);
+            break;
+        case CHAT_MSG_CHANNEL:
+            textLength = _worldPacket.ReadBits(9);
+            receiverLength = _worldPacket.ReadBits(8);
+            Text = _worldPacket.ReadString(receiverLength);
+            Target = _worldPacket.ReadString(textLength);
+            break;
+        case CHAT_MSG_AFK:
+        case CHAT_MSG_DND:
+            textLength = _worldPacket.ReadBits(8);
+            Text = _worldPacket.ReadString(textLength);
+            break;
+        default:
+            break;
+    }
+}

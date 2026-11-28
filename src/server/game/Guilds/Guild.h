@@ -291,6 +291,8 @@ class EmblemInfo
 {
 public:
     EmblemInfo() : m_style(0), m_color(0), m_borderStyle(0), m_borderColor(0), m_backgroundColor(0) { }
+    EmblemInfo(uint32 style, uint32 color, uint32 borderStyle, uint32 borderColor, uint32 backgroundColor)
+        : m_style(style), m_color(color), m_borderStyle(borderStyle), m_borderColor(borderColor), m_backgroundColor(backgroundColor) { }
 
     void LoadFromDB(Field* fields);
     void SaveToDB(uint32 guildId) const;

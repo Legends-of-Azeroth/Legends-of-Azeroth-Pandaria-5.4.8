@@ -214,28 +214,11 @@ void WorldSession::HandleGuildChangeInfoTextOpcode(WorldPackets::Guild::GuildUpd
         guild->HandleSetInfo(this, packet.Info);
 }
 
-void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleSaveGuildEmblemOpcode(WorldPackets::Guild::SaveGuildEmblem& packet)
 {
-    EmblemInfo emblemInfo;
-    emblemInfo.ReadPacket(recvPacket);
+    EmblemInfo emblemInfo(packet.EStyle, packet.EColor, packet.BStyle, packet.BColor, packet.Bg);
 
-    ObjectGuid vendorGuid;
-    recvPacket.ReadBit(); // vendor guid bit 0
-    recvPacket.ReadBit(); // vendor guid bit 1
-    recvPacket.ReadBit(); // vendor guid bit 2
-    recvPacket.ReadBit(); // vendor guid bit 3
-    recvPacket.ReadBit(); // vendor guid bit 4
-    recvPacket.ReadBit(); // vendor guid bit 5
-    recvPacket.ReadBit(); // vendor guid bit 6
-    recvPacket.ReadBit(); // vendor guid bit 7
-    recvPacket.ReadByteSeq(vendorGuid[6]);
-    recvPacket.ReadByteSeq(vendorGuid[2]);
-    recvPacket.ReadByteSeq(vendorGuid[7]);
-    recvPacket.ReadByteSeq(vendorGuid[5]);
-    recvPacket.ReadByteSeq(vendorGuid[0]);
-    recvPacket.ReadByteSeq(vendorGuid[4]);
-    recvPacket.ReadByteSeq(vendorGuid[1]);
-    recvPacket.ReadByteSeq(vendorGuid[3]);
+    ObjectGuid vendorGuid = packet.Vendor;
 
     TC_LOG_DEBUG("guild", "CMSG_SAVE_GUILD_EMBLEM [{}]: Guid: [" "{}" "] Style: {}, Color: {}, BorderStyle: {}, BorderColor: {}, BackgroundColor: {}",
         GetPlayerInfo().c_str(), uint64(vendorGuid), emblemInfo.GetStyle(), emblemInfo.GetColor(), emblemInfo.GetBorderStyle(),
@@ -475,7 +458,12 @@ void WorldSession::HandleGuildRequestMaxDailyXP(WorldPacket& recvPacket)
     guid[2] = recvPacket.ReadBit();
 
     recvPacket.ReadByteSeq(guid[7]);
+    recvPacket.ReadByteSeq(guid[2]);
+    recvPacket.ReadByteSeq(guid[6]);
     recvPacket.ReadByteSeq(guid[4]);
+    recvPacket.ReadByteSeq(guid[1]);
+    recvPacket.ReadByteSeq(guid[5]);
+    recvPacket.ReadByteSeq(guid[0]);
     recvPacket.ReadByteSeq(guid[3]);
     recvPacket.ReadByteSeq(guid[5]);
     recvPacket.ReadByteSeq(guid[1]);

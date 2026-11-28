@@ -167,6 +167,14 @@ namespace WorldPackets
             std::string Nickname;
             std::vector<std::string> DeclinedNames;
         };
+
+        class PetBattleStopPvpMatchmaking final : public ClientPacket
+        {
+        public:
+            PetBattleStopPvpMatchmaking(WorldPacket&& packet) : ClientPacket(CMSG_PET_BATTLE_STOP_PVP_MATCHMAKING, std::move(packet)) { }
+
+            void Read() override { }
+        };
     }
 }
 

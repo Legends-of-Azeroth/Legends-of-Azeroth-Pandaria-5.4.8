@@ -257,6 +257,17 @@ BugTicket::BugTicket(Player* player, WorldPacket& bugPacket) : TicketInfo(player
     _bugnote = bugPacket.ReadString(lenNote);
 }
 
+BugTicket::BugTicket(Player* player, float x, float y, float z, uint32 mapId, std::string const& note, float orientation)
+    : TicketInfo(player), _Orientation(orientation)
+{
+    _ticketId = sTicketMgr->GenerateBugId();
+    _pos.x = x;
+    _pos.y = y;
+    _pos.z = z;
+    _mapId = mapId;
+    _bugnote = note;
+}
+
 BugTicket::~BugTicket() { }
 
 void BugTicket::LoadFromDB(Field* fields)

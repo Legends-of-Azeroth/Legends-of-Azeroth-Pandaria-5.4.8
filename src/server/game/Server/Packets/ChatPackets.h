@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "ObjectGuid.h"
+#include "SharedDefines.h"
 
 namespace WorldPackets
 {
@@ -56,6 +57,22 @@ namespace WorldPackets
 
             uint8 Reason = 0;
             ObjectGuid IgnoredGUID;
+        };
+
+        class ChatMessage final : public ClientPacket
+        {
+        public:
+            explicit ChatMessage(WorldPacket&& packet) : ClientPacket(std::move(packet)), SlashCmd(OpcToChatMsg(OpcodeClient(_worldPacket.GetOpcode()))) { }
+
+            void Read() override;
+
+            ChatMsg SlashCmd;
+            ::Language Language = LANG_UNIVERSAL;
+            std::string Text;
+            std::string Target;
+
+        private:
+            static ChatMsg OpcToChatMsg(OpcodeClient opcode);
         };
     }
 }

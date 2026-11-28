@@ -72,3 +72,54 @@ void WorldPackets::Vehicle::PlayerVehicleEnter::Read()
     _worldPacket.ReadByteSeq(Guid[6]);
     _worldPacket.ReadByteSeq(Guid[4]);
 }
+
+void WorldPackets::Vehicle::RequestVehicleSwitchSeat::Read()
+{
+    _worldPacket >> SeatId;
+    VehicleGuid[7] = _worldPacket.ReadBit();
+    VehicleGuid[3] = _worldPacket.ReadBit();
+    VehicleGuid[0] = _worldPacket.ReadBit();
+    VehicleGuid[1] = _worldPacket.ReadBit();
+    VehicleGuid[6] = _worldPacket.ReadBit();
+    VehicleGuid[4] = _worldPacket.ReadBit();
+    VehicleGuid[5] = _worldPacket.ReadBit();
+    VehicleGuid[2] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(VehicleGuid[5]);
+    _worldPacket.ReadByteSeq(VehicleGuid[0]);
+    _worldPacket.ReadByteSeq(VehicleGuid[2]);
+    _worldPacket.ReadByteSeq(VehicleGuid[3]);
+    _worldPacket.ReadByteSeq(VehicleGuid[7]);
+    _worldPacket.ReadByteSeq(VehicleGuid[4]);
+    _worldPacket.ReadByteSeq(VehicleGuid[6]);
+    _worldPacket.ReadByteSeq(VehicleGuid[1]);
+}
+
+void WorldPackets::Vehicle::ChangeSeatsOnControlledVehicle::Read()
+{
+    static MovementStatusElements const accessoryGuid[] =
+    {
+        MSEExtraInt8,
+        MSEHasGuidByte2,
+        MSEHasGuidByte1,
+        MSEHasGuidByte7,
+        MSEHasGuidByte5,
+        MSEHasGuidByte3,
+        MSEHasGuidByte6,
+        MSEHasGuidByte4,
+        MSEHasGuidByte0,
+        MSEGuidByte5,
+        MSEGuidByte4,
+        MSEGuidByte7,
+        MSEGuidByte1,
+        MSEGuidByte3,
+        MSEGuidByte2,
+        MSEGuidByte6,
+        MSEGuidByte0,
+    };
+
+    ::Movement::ExtraMovementStatusElement extra(accessoryGuid);
+    WorldPackets::Movement::ReadMovementInfo(_worldPacket, MovementInfo, &extra);
+    AccessoryGuid = extra.Data.guid;
+    SeatId = extra.Data.byteData;
+}

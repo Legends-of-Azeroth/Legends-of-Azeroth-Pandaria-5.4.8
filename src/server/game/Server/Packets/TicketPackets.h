@@ -87,6 +87,21 @@ namespace WorldPackets
             bool HaveTicket = false;
             std::string Message;
         };
+
+        class SubmitBug final : public ClientPacket
+        {
+        public:
+            SubmitBug(WorldPacket&& packet) : ClientPacket(CMSG_SUBMIT_BUG, std::move(packet)) { }
+
+            void Read() override;
+
+            float X = 0.0f;
+            float Y = 0.0f;
+            float Z = 0.0f;
+            float Orientation = 0.0f;
+            uint32 MapId = 0;
+            std::string Note;
+        };
     }
 }
 

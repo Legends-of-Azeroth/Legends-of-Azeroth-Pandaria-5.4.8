@@ -501,6 +501,21 @@ namespace WorldPackets
             ObjectGuid GuildGuid;
             ObjectGuid MemberGuid;
         };
+
+        class SaveGuildEmblem final : public ClientPacket
+        {
+        public:
+            SaveGuildEmblem(WorldPacket&& packet) : ClientPacket(CMSG_SAVE_GUILD_EMBLEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Vendor;
+            uint32 BStyle = 0;
+            uint32 EStyle = 0;
+            uint32 BColor = 0;
+            uint32 EColor = 0;
+            uint32 Bg = 0;
+        };
     }
 }
 

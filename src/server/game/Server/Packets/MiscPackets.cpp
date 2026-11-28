@@ -450,3 +450,15 @@ void WorldPackets::Misc::ShowTradeSkill::Read()
     _worldPacket.ReadByteSeq(Guid[1]);
     _worldPacket.ReadByteSeq(Guid[6]);
 }
+
+void WorldPackets::Misc::AddonRegisteredPrefixes::Read()
+{
+    uint32 count = _worldPacket.ReadBits(24);
+    Prefixes.resize(count);
+
+    std::vector<uint8> lengths(count);
+    for (uint32 i = 0; i < count; ++i)
+        lengths[i] = _worldPacket.ReadBits(5);
+    for (uint32 i = 0; i < count; ++i)
+        Prefixes[i] = _worldPacket.ReadString(lengths[i]);
+}
